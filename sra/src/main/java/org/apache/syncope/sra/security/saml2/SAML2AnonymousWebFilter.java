@@ -36,7 +36,8 @@ public class SAML2AnonymousWebFilter implements WebFilter {
     public SAML2AnonymousWebFilter(final PublicRouteMatcher publicRouteMatcher) {
         this.matcher = ServerWebExchangeMatchers.matchers(
                 publicRouteMatcher,
-                SessionUtils.authInSession());
+                SessionUtils.authInSession(),
+                SAML2LogoutResponseWebFilter.MATCHER);
     }
 
     @Override

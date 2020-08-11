@@ -18,49 +18,47 @@
  */
 package org.apache.syncope.sra.security.saml2;
 
+import org.apache.syncope.sra.security.pac4j.RedirectionActionUtils;
 import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import org.pac4j.saml.client.SAML2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
-import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
-public class SAML2WebSsoAuthenticationRequestWebFilter extends SAML2RequestGenerator implements WebFilter {
+public class SAML2WebSsoAuthenticationRequestWebFilter implements WebFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SAML2WebSsoAuthenticationRequestWebFilter.class);
 
     public static final String AUTHENTICATE_URL = "/saml2/authenticate";
 
-    private ServerWebExchangeMatcher redirectMatcher = ServerWebExchangeMatchers.pathMatchers(AUTHENTICATE_URL);
+    private static final ServerWebExchangeMatcher MATCHER =
+            ServerWebExchangeMatchers.pathMatchers(AUTHENTICATE_URL);
+
+    private final SAML2Client saml2Client;
 
     public SAML2WebSsoAuthenticationRequestWebFilter(final SAML2Client saml2Client) {
-        super(saml2Client);
-    }
-
-    public void setRedirectMatcher(final ServerWebExchangeMatcher redirectMatcher) {
-        Assert.notNull(redirectMatcher, "redirectMatcher cannot be null");
-        this.redirectMatcher = redirectMatcher;
+        this.saml2Client = saml2Client;
     }
 
     @Override
     public Mono<Void> filter(final ServerWebExchange exchange, final WebFilterChain chain) {
-        return redirectMatcher.matches(exchange).
-                filter(matchResult -> matchResult.isMatch()).
+        return MATCHER.matches(exchange).
+                filter(MatchResult::isMatch).
                 switchIfEmpty(chain.filter(exchange).then(Mono.empty())).
-                flatMap(matchResult -> exchange.getSession()).
-                flatMap(session -> {
+                flatMap(matchResult -> {
                     LOG.debug("Creating SAML2 SP Authentication Request for IDP[{}]",
                             saml2Client.getIdentityProviderResolvedEntityId());
 
-                    ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange, session);
+                    ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange);
 
                     return saml2Client.getRedirectionAction(swec).
-                            map(action -> handle(action, swec)).
+                            map(action -> RedirectionActionUtils.handle(action, swec)).
                             orElseThrow(() -> new IllegalStateException("No action generated"));
                 }).onErrorResume(Mono::error);
     }

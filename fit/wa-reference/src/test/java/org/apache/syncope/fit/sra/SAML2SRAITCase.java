@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -265,17 +264,7 @@ public class SAML2SRAITCase extends AbstractITCase {
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         response = httpclient.execute(get, context);
 
-        // 3b. post SAML response
-        // this is missing as currently WA does not responde with form for SP's SingleLogoutService
+        // 3b. check logout
         checkLogout(response);
-    }
-
-    @Override
-    protected void checkLogout(final CloseableHttpResponse response) throws IOException {
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-
-        String responseBody = EntityUtils.toString(response.getEntity());
-        assertTrue(responseBody.contains("Logout successful"));
-        assertTrue(responseBody.contains("have successfully logged out of the Central Authentication Service"));
     }
 }

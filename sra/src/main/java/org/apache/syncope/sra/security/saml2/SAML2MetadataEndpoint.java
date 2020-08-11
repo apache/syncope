@@ -19,8 +19,12 @@
 package org.apache.syncope.sra.security.saml2;
 
 import com.google.common.net.HttpHeaders;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.sra.SecurityConfig;
+import org.opensaml.saml.common.xml.SAMLConstants;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.pac4j.saml.client.SAML2Client;
+import org.pac4j.saml.exceptions.SAMLException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,10 +42,23 @@ public class SAML2MetadataEndpoint {
 
     public static final String METADATA_URL = "/saml2/metadata";
 
-    private final SAML2Client saml2Client;
+    private final String metadata;
 
     public SAML2MetadataEndpoint(final SAML2Client saml2Client) {
-        this.saml2Client = saml2Client;
+        EntityDescriptor entityDescriptor = (EntityDescriptor) saml2Client.getServiceProviderMetadataResolver().
+                getEntityDescriptorElement();
+        entityDescriptor.getSPSSODescriptor(SAMLConstants.SAML20P_NS).getSingleLogoutServices().
+                removeIf(slo -> !saml2Client.getConfiguration().
+                getSpLogoutResponseBindingType().equals(slo.getBinding()));
+        entityDescriptor.getSPSSODescriptor(SAMLConstants.SAML20P_NS).getSingleLogoutServices().
+                forEach(slo -> slo.setLocation(
+                StringUtils.substringBefore(slo.getLocation(), "?").replace("login", "logout")));
+
+        try {
+            this.metadata = saml2Client.getConfiguration().toMetadataGenerator().getMetadata(entityDescriptor);
+        } catch (Exception e) {
+            throw new SAMLException("Unable to fetch metadata", e);
+        }
     }
 
     @GetMapping(produces = { MediaType.APPLICATION_XML_VALUE })
@@ -49,6 +66,6 @@ public class SAML2MetadataEndpoint {
     public Mono<ResponseEntity<String>> metadata(final ServerHttpRequest request) {
         return Mono.just(ResponseEntity.ok().
                 header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE).
-                body(saml2Client.getServiceProviderMetadataResolver().getMetadata()));
+                body(metadata));
     }
 }

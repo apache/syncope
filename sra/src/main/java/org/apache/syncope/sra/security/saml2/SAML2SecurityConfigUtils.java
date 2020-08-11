@@ -74,14 +74,18 @@ public final class SAML2SecurityConfigUtils {
 
         LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
         logoutWebFilter.setRequiresLogoutMatcher(logoutRouteMatcher);
-
-        logoutWebFilter.setLogoutHandler(new SAML2ServerLogoutHandler(saml2Client, cacheManager));
+        logoutWebFilter.setLogoutHandler(new SAML2RequestServerLogoutHandler(saml2Client, cacheManager));
+        logoutWebFilter.setLogoutSuccessHandler((exchange, authentication) -> Mono.empty());
 
         try {
-            SAML2ServerLogoutSuccessHandler handler = ApplicationContextUtils.getOrCreateBean(ctx,
+            SAML2ServerLogoutSuccessHandler logoutSuccessHandler = ApplicationContextUtils.getOrCreateBean(
+                    ctx,
                     SAML2ServerLogoutSuccessHandler.class.getName(),
                     SAML2ServerLogoutSuccessHandler.class);
-            logoutWebFilter.setLogoutSuccessHandler(handler);
+
+            SAML2LogoutResponseWebFilter logoutResponseWebFilter =
+                    new SAML2LogoutResponseWebFilter(saml2Client, logoutSuccessHandler, cacheManager);
+            builder.and().addFilterAt(logoutResponseWebFilter, SecurityWebFiltersOrder.LOGOUT);
         } catch (ClassNotFoundException e) {
             LOG.error("While creating instance of {}", SAML2ServerLogoutSuccessHandler.class.getName(), e);
         }

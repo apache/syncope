@@ -28,6 +28,7 @@ import org.apache.syncope.sra.security.LogoutRouteMatcher;
 import org.apache.syncope.sra.security.oauth2.OAuth2SecurityConfigUtils;
 import org.apache.syncope.sra.security.PublicRouteMatcher;
 import org.apache.syncope.sra.security.cas.CASSecurityConfigUtils;
+import org.apache.syncope.sra.security.pac4j.NoOpLogoutHandler;
 import org.apache.syncope.sra.security.saml2.SAML2BindingType;
 import org.apache.syncope.sra.security.saml2.SAML2MetadataEndpoint;
 import org.apache.syncope.sra.security.saml2.SAML2SecurityConfigUtils;
@@ -229,11 +230,12 @@ public class SecurityConfig {
         cfg.setAuthnRequestSigned(true);
         cfg.setSpLogoutRequestSigned(true);
         cfg.setAcceptedSkew(env.getProperty("am.saml2.sp.skew", int.class));
+        cfg.setLogoutHandler(new NoOpLogoutHandler());
 
         SAML2Client saml2Client = new SAML2Client(cfg);
         saml2Client.setName(AMType.SAML2.name());
         saml2Client.setCallbackUrl(env.getProperty("am.saml2.sp.entityId")
-                + SAML2WebSsoAuthenticationWebFilter.DEFAULT_FILTER_PROCESSES_URI);
+                + SAML2WebSsoAuthenticationWebFilter.FILTER_PROCESSES_URI);
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         saml2Client.init();
 

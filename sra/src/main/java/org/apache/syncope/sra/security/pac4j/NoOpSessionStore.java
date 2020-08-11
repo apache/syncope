@@ -20,43 +20,44 @@ package org.apache.syncope.sra.security.pac4j;
 
 import java.util.Optional;
 import org.pac4j.core.context.session.SessionStore;
-import org.springframework.web.server.WebSession;
 
-public class WebSessionStore implements SessionStore<ServerWebExchangeContext> {
+public final class NoOpSessionStore implements SessionStore<ServerWebExchangeContext> {
 
-    private final WebSession webSession;
+    public static final NoOpSessionStore INSTANCE = new NoOpSessionStore();
 
-    public WebSessionStore(final WebSession webSession) {
-        this.webSession = webSession;
+    private NoOpSessionStore() {
+        // private constructor for singleton
     }
 
     @Override
     public String getOrCreateSessionId(final ServerWebExchangeContext context) {
-        return this.webSession.getId();
+        return "<NO_KEY>";
     }
 
     @Override
     public Optional<Object> get(final ServerWebExchangeContext context, final String key) {
-        return Optional.ofNullable(this.webSession.getAttribute(key));
+        return Optional.empty();
     }
 
     @Override
     public void set(final ServerWebExchangeContext context, final String key, final Object value) {
+        // nothing to do
     }
 
     @Override
     public boolean destroySession(final ServerWebExchangeContext context) {
-        return false;
+        return true;
     }
 
     @Override
-    public Optional<WebSession> getTrackableSession(final ServerWebExchangeContext context) {
-        return Optional.ofNullable(this.webSession);
+    public Optional<?> getTrackableSession(final ServerWebExchangeContext context) {
+        return Optional.empty();
     }
 
     @Override
     public Optional<SessionStore<ServerWebExchangeContext>> buildFromTrackableSession(
-            final ServerWebExchangeContext context, final Object trackableSession) {
+            final ServerWebExchangeContext context,
+            final Object trackableSession) {
 
         return Optional.empty();
     }

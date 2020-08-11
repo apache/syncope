@@ -22,7 +22,6 @@ import java.net.URI;
 import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import org.apache.syncope.sra.security.web.server.DoNothingIfCommittedServerRedirectStrategy;
 import org.apache.syncope.sra.session.SessionUtils;
-import org.pac4j.core.util.Pac4jConstants;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.credentials.SAML2Credentials;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -32,7 +31,6 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
-import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.server.ServerWebExchange;
@@ -41,16 +39,12 @@ import reactor.core.publisher.Mono;
 
 public class SAML2WebSsoAuthenticationWebFilter extends AuthenticationWebFilter {
 
-    public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/saml2/sso";
+    public static final String FILTER_PROCESSES_URI = "/login/saml2/sso";
+
+    private static final ServerWebExchangeMatcher MATCHER =
+            ServerWebExchangeMatchers.pathMatchers(FILTER_PROCESSES_URI);
 
     private final SAML2Client saml2Client;
-
-    private ServerWebExchangeMatcher matcher = new AndServerWebExchangeMatcher(
-            ServerWebExchangeMatchers.pathMatchers(DEFAULT_FILTER_PROCESSES_URI),
-            exchange -> exchange.getRequest().getQueryParams().
-                    containsKey(Pac4jConstants.LOGOUT_ENDPOINT_PARAMETER)
-            ? ServerWebExchangeMatcher.MatchResult.notMatch()
-            : ServerWebExchangeMatcher.MatchResult.match());
 
     public SAML2WebSsoAuthenticationWebFilter(
             final ReactiveAuthenticationManager authenticationManager,
@@ -67,10 +61,6 @@ public class SAML2WebSsoAuthenticationWebFilter extends AuthenticationWebFilter 
         setAuthenticationSuccessHandler(redirectToInitialRequestURI());
     }
 
-    public void setMatcher(final ServerWebExchangeMatcher matcher) {
-        this.matcher = matcher;
-    }
-
     @Override
     public Mono<Void> filter(final ServerWebExchange exchange, final WebFilterChain chain) {
         return super.filter(exchange, chain).then(Mono.defer(exchange.getResponse()::setComplete));
@@ -85,10 +75,9 @@ public class SAML2WebSsoAuthenticationWebFilter extends AuthenticationWebFilter 
 
     private ServerAuthenticationConverter convertSamlResponse() {
         return exchange -> exchange.getFormData().
-                flatMap(form -> this.matcher.matches(exchange).
-                flatMap(matchResult -> exchange.getSession()).
-                flatMap(session -> {
-                    ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange, session).setForm(form);
+                flatMap(form -> this.MATCHER.matches(exchange).
+                flatMap(matchResult -> {
+                    ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange).setForm(form);
 
                     SAML2Credentials credentials = saml2Client.getCredentialsExtractor().extract(swec).
                             orElseThrow(() -> new IllegalStateException("No AuthnResponse found"));

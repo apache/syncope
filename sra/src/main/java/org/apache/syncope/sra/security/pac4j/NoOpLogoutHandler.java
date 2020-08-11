@@ -16,17 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.sra.security.saml2;
+package org.apache.syncope.sra.security.pac4j;
 
-import org.apache.syncope.sra.security.AbstractServerLogoutSuccessHandler;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.server.WebFilterExchange;
-import reactor.core.publisher.Mono;
+import org.pac4j.core.logout.handler.LogoutHandler;
 
-public class SAML2ServerLogoutSuccessHandler extends AbstractServerLogoutSuccessHandler {
+public class NoOpLogoutHandler implements LogoutHandler<ServerWebExchangeContext> {
 
-    @Override
-    public Mono<Void> onLogoutSuccess(final WebFilterExchange exchange, final Authentication authentication) {
-        return redirectStrategy.sendRedirect(exchange.getExchange(), getPostLogout(exchange));
-    }
 }

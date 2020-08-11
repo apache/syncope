@@ -16,27 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.sra.security.saml2;
+package org.apache.syncope.sra.security.pac4j;
 
-import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import java.net.URI;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.exception.http.WithContentAction;
 import org.pac4j.core.exception.http.WithLocationAction;
-import org.pac4j.saml.client.SAML2Client;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 
-abstract class SAML2RequestGenerator {
+public final class RedirectionActionUtils {
 
-    protected final SAML2Client saml2Client;
-
-    protected SAML2RequestGenerator(final SAML2Client saml2Client) {
-        this.saml2Client = saml2Client;
-    }
-
-    protected Mono<Void> handle(
+    public static Mono<Void> handle(
             final RedirectionAction action,
             final ServerWebExchangeContext swec) {
 
@@ -61,5 +53,9 @@ abstract class SAML2RequestGenerator {
         } else {
             throw new IllegalArgumentException("Unsupported Action: " + action.getClass().getName());
         }
+    }
+
+    private RedirectionActionUtils() {
+        // private constructor for static utility class
     }
 }

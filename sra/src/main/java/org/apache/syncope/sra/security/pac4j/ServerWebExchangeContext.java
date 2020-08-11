@@ -33,52 +33,29 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebSession;
 import org.springframework.web.util.UriComponentsBuilder;
 
 public class ServerWebExchangeContext implements WebContext {
 
     private final ServerWebExchange exchange;
 
-    private WebSessionStore sessionStore;
-
     private MultiValueMap<String, String> form;
 
     private String body;
 
     /**
-     * Build a WebFlux context from the current exchange and web session.
+     * Build a WebFlux context from the current exchange.
      *
      * @param exchange the current exchange
-     * @param webSession the current web session
      */
-    public ServerWebExchangeContext(final ServerWebExchange exchange, final WebSession webSession) {
-        this(exchange, new WebSessionStore(webSession));
-    }
-
-    /**
-     * Build a WebFlux context from the current exhange and from a session store.
-     *
-     * @param exchange the current exchange
-     * @param sessionStore the session store to use
-     */
-    public ServerWebExchangeContext(
-            final ServerWebExchange exchange,
-            final WebSessionStore sessionStore) {
-
+    public ServerWebExchangeContext(final ServerWebExchange exchange) {
         CommonHelper.assertNotNull("exchange", exchange);
-        CommonHelper.assertNotNull("sessionStore", sessionStore);
         this.exchange = exchange;
-        this.sessionStore = sessionStore;
-    }
-
-    public WebSessionStore getNativeSessionStore() {
-        return this.sessionStore;
     }
 
     @Override
     public SessionStore<ServerWebExchangeContext> getSessionStore() {
-        return this.sessionStore;
+        return NoOpSessionStore.INSTANCE;
     }
 
     @Override
