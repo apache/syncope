@@ -411,7 +411,7 @@ under the License.
 
     <spring.version>5.2.8.RELEASE</spring.version>
     <spring-security.version>5.3.4.RELEASE</spring-security.version>
-    <spring-boot.version>2.3.2.RELEASE</spring-boot.version>
+    <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
     <spring-cloud-gateway.version>2.2.4.RELEASE</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.2</openjpa.version>
@@ -2268,7 +2268,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.16</version>
+          <version>1.8.0</version>
           <configuration>
             <configuration>
               <type>standalone</type>
