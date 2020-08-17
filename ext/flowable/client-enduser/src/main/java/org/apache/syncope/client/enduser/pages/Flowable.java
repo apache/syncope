@@ -23,12 +23,12 @@ import java.util.Iterator;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.enduser.annotations.ExtPage;
 import org.apache.syncope.client.enduser.markup.html.form.BpmnProcessesAjaxPanel;
 import org.apache.syncope.client.enduser.rest.BpmnProcessRestClient;
 import org.apache.syncope.client.enduser.rest.UserRequestRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BpmnProcess;
@@ -55,7 +55,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-@ExtPage(label = "User Requests")
+@ExtPage(label = "User Requests", icon = "", listEntitlement = "")
 public class Flowable extends BaseExtPage {
 
     private static final long serialVersionUID = -8781434495150074529L;

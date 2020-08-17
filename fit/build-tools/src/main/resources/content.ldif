@@ -42,7 +42,7 @@ description: Active
 mail: pullFromLDAP@syncope.apache.org
 sn: Surname
 uid: pullFromLDAP
-userpassword:: cGFzc3dvcmQxMjM=
+userpassword:: e1NIQX1zdW1LMXZicmhRamRhaFRQcHdTNjEvQmZiN0U9
 givenname: pullFromLDAP
 title: odd
 registeredAddress:  5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8

@@ -23,19 +23,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.client.enduser.annotations.ExtPage;
-import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.pages.BaseEnduserWebPage;
 import org.apache.syncope.client.enduser.pages.BaseExtPage;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
+import org.apache.syncope.client.ui.commons.annotations.ExtPage;
+import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
@@ -80,10 +78,10 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractBinaryPreviewer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseEnduserWebPage.class));
 
-        for (BeanDefinition bd : scanner.findCandidateComponents(getBasePackage())) {
+        scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(Objects.requireNonNull(bd.getBeanClassName()),
-                    ClassUtils.getDefaultClassLoader());
+                        ClassUtils.getDefaultClassLoader());
                 boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
                 if (!isAbstractClazz) {
                     if (BaseExtPage.class.isAssignableFrom(clazz)) {
@@ -111,7 +109,7 @@ public class ClassPathScanImplementationLookup {
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
             }
-        }
+        });
         resources = Collections.unmodifiableList(resources);
 
         ssoLoginFormPanels = Collections.unmodifiableList(ssoLoginFormPanels);
@@ -149,9 +147,8 @@ public class ClassPathScanImplementationLookup {
     public List<Class<? extends BaseExtPage>> getExtPageClasses() {
         return extPages;
     }
-    
+
     public List<Class<? extends BaseEnduserWebPage>> getPageClasses() {
         return pages;
     }
-
 }

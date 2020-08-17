@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.console.commons.ConnIdSpecialName;
+import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.ITabComponent;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;

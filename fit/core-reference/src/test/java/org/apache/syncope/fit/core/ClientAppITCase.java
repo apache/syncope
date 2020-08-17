@@ -157,7 +157,7 @@ public class ClientAppITCase extends AbstractITCase {
     }
 
     @Test
-    public void delete() {
+    public void deleteOIDCRP() {
         OIDCRPTO oidcrpTO = buildOIDCRP();
         oidcrpTO = createClientApp(ClientAppType.OIDCRP, oidcrpTO);
 

@@ -19,9 +19,9 @@
 package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
-import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.panels.BpmnProcessDirectoryPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;

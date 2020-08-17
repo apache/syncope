@@ -31,19 +31,19 @@ public class OIDCClientSelfReg extends WebPage {
 
     private static final long serialVersionUID = -2533879075075645461L;
 
-    private static final String OIDC_ACCESS_ERROR = "OpenID Connect error - while getting user attributes";
-
     public OIDCClientSelfReg(final PageParameters parameters) {
         super(parameters);
 
         PageParameters params = new PageParameters();
         try {
-            params.add("oidcClientUserAttrs", ((ServletWebRequest) getRequest()).getContainerRequest().
-                    getSession().getAttribute(Constants.OIDCCLIENT_USER_ATTRS));
+            params.add(
+                    Self.NEW_USER_PARAM,
+                    ((ServletWebRequest) getRequest()).getContainerRequest().
+                            getSession().getAttribute(Constants.OIDCC4UI_NEW_USER));
         } catch (Exception e) {
-            LOG.error("While extracting user attributes", e);
+            LOG.error("While getting user data from social registration", e);
 
-            params.add("errorMessage", OIDC_ACCESS_ERROR);
+            params.add("errorMessage", "OpenID Connect error - while getting user data from social registration");
         }
         setResponsePage(Self.class, params);
     }

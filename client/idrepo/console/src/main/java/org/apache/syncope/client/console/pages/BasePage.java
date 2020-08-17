@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.AMPage;
-import org.apache.syncope.client.console.annotations.ExtPage;
+import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.console.annotations.IdMPage;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
@@ -332,7 +332,7 @@ public class BasePage extends BaseWebPage {
         body.add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
 
         @SuppressWarnings("unchecked")
-        final Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) SyncopeConsoleSession.get().
+        Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) SyncopeConsoleSession.get().
                 getAttribute(Constants.BEFORE_LOGOUT_PAGE);
         if (beforeLogout == null) {
             body.add(new BookmarkablePageLink<>("logout", Logout.class));

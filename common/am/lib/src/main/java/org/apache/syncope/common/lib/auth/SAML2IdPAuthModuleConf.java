@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.auth;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.common.lib.types.SAML2BindingType;
 
 public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
 
@@ -36,7 +37,7 @@ public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
      * The destination binding to use
      * when creating authentication requests.
      */
-    private String destinationBinding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect";
+    private SAML2BindingType destinationBinding = SAML2BindingType.REDIRECT;
 
     /**
      * The password to use when generating the SP keystore.
@@ -191,11 +192,11 @@ public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
         this.userIdAttribute = userIdAttribute;
     }
 
-    public String getDestinationBinding() {
+    public SAML2BindingType getDestinationBinding() {
         return destinationBinding;
     }
 
-    public void setDestinationBinding(final String destinationBinding) {
+    public void setDestinationBinding(final SAML2BindingType destinationBinding) {
         this.destinationBinding = destinationBinding;
     }
 

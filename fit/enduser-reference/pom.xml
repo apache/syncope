@@ -59,8 +59,8 @@ under the License.
     </dependency>
     
     <dependency>
-      <groupId>org.apache.syncope.ext.saml2sp</groupId>
-      <artifactId>syncope-ext-saml2sp-client-enduser</artifactId>
+      <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>
+      <artifactId>syncope-ext-saml2sp4ui-client-enduser</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -94,16 +94,6 @@ under the License.
       <artifactId>syncope-fit-console-reference</artifactId>
       <version>${project.version}</version>
       <type>war</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -311,115 +301,6 @@ under the License.
             </includes>
           </resource>
         </resources>
-      </build>
-    </profile>
-
-    <profile>
-      <id>sso-it</id>
-
-      <build>
-        <plugins>          
-          <plugin>
-            <groupId>io.fabric8</groupId>
-            <artifactId>docker-maven-plugin</artifactId>
-            <configuration>
-              <images>
-                <image>
-                  <name>jboss/keycloak:6.0.1</name>
-                  <run>
-                    <hostname>keycloak</hostname>
-                    <env>
-                      <DB_VENDOR>h2</DB_VENDOR>
-                      <KEYCLOAK_USER>admin</KEYCLOAK_USER>
-                      <KEYCLOAK_PASSWORD>password</KEYCLOAK_PASSWORD>
-                    </env>
-                    <ports>
-                      <port>9090:8080</port>
-                    </ports>
-                    <volumes>
-                      <bind>
-                        <volume>${basedir}/src/test/resources/sso/init.sh:/opt/jboss/startup-scripts/init.sh</volume>
-                        <volume>${project.build.testOutputDirectory}/sso/delayed-init:/tmp/delayed-init</volume>
-                        <volume>${project.build.testOutputDirectory}/sso/saml2syncope-console.json:/tmp/saml2syncope-console.json</volume>
-                        <volume>${project.build.testOutputDirectory}/sso/saml2syncope-enduser.json:/tmp/saml2syncope-enduser.json</volume>
-                        <volume>${project.build.testOutputDirectory}/sso/oidc-syncope.json:/tmp/oidc-syncope.json</volume>
-                      </bind>
-                    </volumes>
-                  </run>
-                </image>
-              </images>
-            </configuration>
-            <executions>
-              <execution>
-                <id>start-keycloak</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-keycloak</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                  <goal>remove</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <configuration>
-                <properties>
-                  <cargo.jvmargs>
-                    -Dspring.profiles.active=embedded
-                    -Dwicket.core.settings.general.configuration-type=development
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
-                </properties>
-              </configuration>
-            </configuration>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-                <configuration>
-                  <skip>${skipTests}</skip>
-                </configuration>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-                <configuration>
-                  <skip>${skipTests}</skip>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>verify</id>
-                <goals>
-                  <goal>verify</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
       </build>
     </profile>
 

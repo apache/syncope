@@ -46,6 +46,12 @@ under the License.
 
   <dependencies>
     <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-starter</artifactId>
       <version>${project.version}</version>
@@ -161,14 +167,14 @@ under the License.
       <scope>test</scope>
     </dependency>  
     <dependency>
-      <groupId>org.apache.syncope.ext.saml2sp</groupId>
-      <artifactId>syncope-ext-saml2sp-rest-cxf</artifactId>
+      <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>
+      <artifactId>syncope-ext-saml2sp4ui-rest-cxf</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>          
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope.ext.saml2sp</groupId>
-      <artifactId>syncope-ext-saml2sp-client-console</artifactId>
+      <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>
+      <artifactId>syncope-ext-saml2sp4ui-client-console</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -220,16 +226,6 @@ under the License.
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcpkix-jdk15on</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk15on</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -448,14 +444,14 @@ under the License.
         <directory>src/test/resources</directory>
         <filtering>true</filtering>
         <excludes>
-          <exclude>keystore</exclude>
+          <exclude>saml.keystore.jks</exclude>
         </excludes>
       </testResource>
       <testResource>
         <directory>src/test/resources</directory>
         <filtering>false</filtering>
         <includes>
-          <include>keystore</include>
+          <include>saml.keystore.jks</include>
         </includes>
       </testResource>
       <testResource>
@@ -1834,13 +1830,13 @@ under the License.
         </dependency>
         
         <dependency>
-          <groupId>org.apache.syncope.ext.saml2sp</groupId>
-          <artifactId>syncope-ext-saml2sp-rest-cxf</artifactId>
+          <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>
+          <artifactId>syncope-ext-saml2sp4ui-rest-cxf</artifactId>
           <version>${project.version}</version>
         </dependency>
         <dependency>
-          <groupId>org.apache.syncope.ext.saml2sp</groupId>
-          <artifactId>syncope-ext-saml2sp-persistence-jpa</artifactId>
+          <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>
+          <artifactId>syncope-ext-saml2sp4ui-persistence-jpa</artifactId>
           <version>${project.version}</version>
         </dependency>
         

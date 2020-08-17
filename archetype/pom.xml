@@ -244,13 +244,6 @@ under the License.
         </includes>
       </resource>
       <resource>
-        <directory>../ext/saml2sp/agent/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources/all</targetPath>
-        <includes>
-          <include>saml2sp-agent.properties</include>
-        </includes>
-      </resource>
-      <resource>
         <directory>../ext/oidcclient/agent/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources/all</targetPath>
         <includes>
@@ -278,7 +271,6 @@ under the License.
         <includes>
           <include>console.properties</include>
           <include>keymaster.properties</include>
-          <include>saml2sp-agent.properties</include>
           <include>oidcclient-agent.properties</include>
         </includes>
       </resource>
@@ -305,13 +297,6 @@ under the License.
         </includes>
       </resource>
       <resource>
-        <directory>../ext/saml2sp/agent/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources/all</targetPath>
-        <includes>
-          <include>saml2sp-agent.properties</include>
-        </includes>
-      </resource>
-      <resource>
         <directory>../ext/oidcclient/agent/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources/all</targetPath>
         <includes>
@@ -334,7 +319,6 @@ under the License.
           <include>customFormAttributes.json</include>
           <include>customTemplate.json</include>
           <include>keymaster.properties</include>
-          <include>saml2sp-agent.properties</include>
           <include>oidcclient-agent.properties</include>
         </includes>
       </resource>

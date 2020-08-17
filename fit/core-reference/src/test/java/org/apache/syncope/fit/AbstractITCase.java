@@ -114,7 +114,6 @@ import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
-import org.apache.syncope.common.rest.api.service.SAML2SPService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -129,7 +128,6 @@ import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.syncope.common.rest.api.service.RemediationService;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 import org.apache.syncope.common.rest.api.service.RoleService;
-import org.apache.syncope.common.rest.api.service.SAML2IdPService;
 import org.apache.syncope.common.rest.api.service.SCIMConfService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
@@ -141,6 +139,8 @@ import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataService;
+import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
+import org.apache.syncope.common.rest.api.service.SAML2SP4UIService;
 import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreService;
 import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
@@ -313,9 +313,9 @@ public abstract class AbstractITCase {
 
     protected static CamelRouteService camelRouteService;
 
-    protected static SAML2SPService saml2SpService;
+    protected static SAML2SP4UIService saml2SP4UIService;
 
-    protected static SAML2IdPService saml2IdPService;
+    protected static SAML2SP4UIIdPService saml2SP4UIIdPService;
 
     protected static OIDCClientService oidcClientService;
 
@@ -407,8 +407,8 @@ public abstract class AbstractITCase {
         remediationService = adminClient.getService(RemediationService.class);
         sraRouteService = adminClient.getService(SRARouteService.class);
         camelRouteService = adminClient.getService(CamelRouteService.class);
-        saml2SpService = adminClient.getService(SAML2SPService.class);
-        saml2IdPService = adminClient.getService(SAML2IdPService.class);
+        saml2SP4UIService = adminClient.getService(SAML2SP4UIService.class);
+        saml2SP4UIIdPService = adminClient.getService(SAML2SP4UIIdPService.class);
         oidcClientService = adminClient.getService(OIDCClientService.class);
         oidcProviderService = adminClient.getService(OIDCProviderService.class);
         scimConfService = adminClient.getService(SCIMConfService.class);

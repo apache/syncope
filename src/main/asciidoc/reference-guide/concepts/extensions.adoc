@@ -76,10 +76,10 @@ containing the attribute statements - is going to be used by Syncope to match th
 ====
 The source code of this extension is available from the Apache Syncope
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/saml2sp[source tree^]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/saml2sp4ui[source tree^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/ext/saml2sp[source tree^]
+https://github.com/apache/syncope/tree/master/ext/saml2sp4ui[source tree^]
 endif::[]
 .
 ====

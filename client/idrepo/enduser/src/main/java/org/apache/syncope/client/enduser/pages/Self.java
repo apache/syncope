@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.layout.AnyLayoutUtils;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -41,6 +42,10 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public class Self extends BaseEnduserWebPage implements IEventSource {
 
     private static final long serialVersionUID = 164651008547631054L;
+
+    public static final String NEW_USER_PARAM = "newUser";
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @SpringBean
     private ConfParamOps confParamOps;
@@ -113,18 +118,20 @@ public class Self extends BaseEnduserWebPage implements IEventSource {
     }
 
     private static UserTO buildNewUserTO(final PageParameters parameters) {
-        final UserTO userTO = new UserTO();
-
+        UserTO userTO = null;
         if (parameters != null) {
-            if (!parameters.get("saml2SPUserAttrs").isNull()) {
-                SyncopeWebApplication.extractAttrsFromExt(parameters.get("saml2SPUserAttrs").toString(), userTO);
-            } else if (!parameters.get("oidcClientUserAttrs").isNull()) {
-                SyncopeWebApplication.extractAttrsFromExt(parameters.get("oidcClientUserAttrs").toString(), userTO);
+            if (!parameters.get(NEW_USER_PARAM).isNull()) {
+                try {
+                    userTO = MAPPER.readValue(parameters.get(NEW_USER_PARAM).toString(), UserTO.class);
+                } catch (JsonProcessingException e) {
+                    LOG.error("While reading user data from social registration", e);
+                }
             }
         }
-
+        if (userTO == null) {
+            userTO = new UserTO();
+        }
         userTO.setRealm(SyncopeConstants.ROOT_REALM);
         return userTO;
     }
-
 }

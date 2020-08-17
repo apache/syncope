@@ -62,7 +62,7 @@ under the License.
 
   <!-- Authentication modules -->
   <AuthModule id="DefaultLDAPAuthModule"
-              description="LDAP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.LDAPAuthModuleConf","userIdAttribute":"cn","bindDn": "cn=Directory Manager,dc=example,dc=org", "bindCredential":"Password","ldapUrl":"ldap://localhost:1389","searchFilter":"cn={user}","baseDn":"ou=people,dc=example,dc=org","subtreeSearch":true}'/>
+              description="LDAP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.LDAPAuthModuleConf","userIdAttribute":"cn","bindDn": "uid=admin,ou=system", "bindCredential":"secret","ldapUrl":"ldap://localhost:1389","searchFilter":"cn={user}","baseDn":"ou=People,o=isp","subtreeSearch":true,"principalAttributeList":["sn","givenName","mail","cn"]}'/>
   <AuthModule id="DefaultJDBCAuthModule"
               description="JDBC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JDBCAuthModuleConf","sql":"SELECT * FROM users_table WHERE name=?", "fieldPassword": "password"}'/>
   <AuthModule id="DefaultGoogleMfaAuthModule"
@@ -92,6 +92,15 @@ under the License.
                   password="0" purpose="NONE" mandatoryCondition="false" connObjectKey="0" authModule_id="DefaultSyncopeAuthModule"/>
   <AuthModuleItem id="8360509b-7d8e-4796-aa79-3c5ccc8671e6" extAttrName="groups" intAttrName="syncopeUserMemberships"
                   password="0" purpose="NONE" mandatoryCondition="false" connObjectKey="0" authModule_id="DefaultSyncopeAuthModule"/>
+
+  <AuthModuleItem id="8437a40d-d74e-400c-9628-72eba9e30a13" extAttrName="mail" intAttrName="mail"
+                  password="0" purpose="NONE" mandatoryCondition="false" connObjectKey="0" authModule_id="DefaultLDAPAuthModule"/>
+  <AuthModuleItem id="1b7a8347-810b-44f2-85ae-58f9e4bedc37" extAttrName="givenName" intAttrName="givenName"
+                  password="0" purpose="NONE" mandatoryCondition="false" connObjectKey="0" authModule_id="DefaultLDAPAuthModule"/>
+  <AuthModuleItem id="b06cd5fe-c86b-48d4-8acc-4a46c12bea41" extAttrName="sn" intAttrName="sn" 
+                  password="0" purpose="NONE" mandatoryCondition="false" connObjectKey="0" authModule_id="DefaultLDAPAuthModule"/>
+  <AuthModuleItem id="a1933059-e64f-409f-a86c-5b54da21787e" extAttrName="cn" intAttrName="cn"
+                  password="0" purpose="NONE" mandatoryCondition="false" connObjectKey="0" authModule_id="DefaultLDAPAuthModule"/>
 
   <RelationshipType id="inclusion" description="Models the act that an object is included in another"/>
   <RelationshipType id="neighborhood" description="Models the act that an object is near another"/>

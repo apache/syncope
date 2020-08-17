@@ -20,8 +20,6 @@ package org.apache.syncope.fit.sra;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -35,7 +33,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -56,7 +53,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class SAML2SRAITCase extends AbstractITCase {
+public class SAML2SRAITCase extends AbstractSRAITCase {
 
     @BeforeAll
     public static void startSRA() throws IOException, InterruptedException, TimeoutException {
@@ -76,8 +73,8 @@ public class SAML2SRAITCase extends AbstractITCase {
                     SAML2SPTO app = new SAML2SPTO();
                     app.setName(appName);
                     app.setClientAppId(3L);
-                    app.setEntityId("http://localhost:8080");
-                    app.setMetadataLocation("http://localhost:8080/saml2/metadata");
+                    app.setEntityId(SRA_ADDRESS);
+                    app.setMetadataLocation(SRA_ADDRESS + "/saml2/metadata");
 
                     Response response = clientAppService.create(ClientAppType.SAML2SP, app);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
@@ -95,56 +92,6 @@ public class SAML2SRAITCase extends AbstractITCase {
 
         clientAppService.update(ClientAppType.SAML2SP, clientApp);
         clientAppService.pushToWA();
-    }
-
-    private Triple<String, String, String> parseSAMLRequestForm(final String responseBody) {
-        int begin = responseBody.indexOf("name=\"RelayState\" value=\"");
-        assertNotEquals(-1, begin);
-        int end = responseBody.indexOf("\"/>", begin);
-        assertNotEquals(-1, end);
-        String relayState = responseBody.substring(begin + 25, end);
-        assertNotNull(relayState);
-
-        begin = responseBody.indexOf("name=\"SAMLRequest\" value=\"");
-        assertNotEquals(-1, begin);
-        end = responseBody.indexOf("\"/>", begin);
-        assertNotEquals(-1, end);
-        String samlRequest = responseBody.substring(begin + 26, end);
-        assertNotNull(samlRequest);
-
-        begin = responseBody.indexOf("<form action=\"");
-        assertNotEquals(-1, begin);
-        end = responseBody.indexOf("\" method=\"post\">");
-        assertNotEquals(-1, end);
-        String action = StringEscapeUtils.unescapeXml(responseBody.substring(begin + 14, end));
-        assertNotNull(action);
-
-        return Triple.of(action, relayState, samlRequest);
-    }
-
-    private Triple<String, String, String> parseSAMLResponseForm(final String responseBody) {
-        int begin = responseBody.indexOf("name=\"RelayState\" value=\"");
-        assertNotEquals(-1, begin);
-        int end = responseBody.indexOf("\"/>");
-        assertNotEquals(-1, end);
-        String relayState = responseBody.substring(begin + 26, end);
-        assertNotNull(relayState);
-
-        begin = responseBody.indexOf("name=\"SAMLResponse\" value=\"");
-        assertNotEquals(-1, begin);
-        end = responseBody.indexOf("\"/>", begin);
-        assertNotEquals(-1, end);
-        String samlResponse = responseBody.substring(begin + 27, end);
-        assertNotNull(samlResponse);
-
-        begin = responseBody.indexOf("<form action=\"");
-        assertNotEquals(-1, begin);
-        end = responseBody.indexOf("\" method=\"post\">");
-        assertNotEquals(-1, end);
-        String action = StringEscapeUtils.unescapeXml(responseBody.substring(begin + 14, end));
-        assertNotNull(action);
-
-        return Triple.of(action, relayState, samlResponse);
     }
 
     @Test
@@ -191,7 +138,7 @@ public class SAML2SRAITCase extends AbstractITCase {
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
         responseBody = EntityUtils.toString(response.getEntity());
-        response = authenticateToCas(responseBody, httpclient, context);
+        response = authenticateToCas("bellini", "password", responseBody, httpclient, context);
 
         // 2c. WA attribute consent screen
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {

@@ -98,8 +98,8 @@ under the License.
 
       <dependencies>
         <dependency>
-          <groupId>org.apache.syncope.ext.saml2sp</groupId>
-          <artifactId>syncope-ext-saml2sp-client-enduser</artifactId>
+          <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>
+          <artifactId>syncope-ext-saml2sp4ui-client-enduser</artifactId>
           <version>${syncope.version}</version>
         </dependency>
 

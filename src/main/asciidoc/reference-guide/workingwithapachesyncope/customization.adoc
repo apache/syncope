@@ -361,21 +361,21 @@ Add the following dependencies to `core/pom.xml`:
 [source,xml,subs="verbatim,attributes"]
 ----
 <dependency>
-  <groupId>org.apache.syncope.ext.saml2sp</groupId>
-  <artifactId>syncope-ext-saml2sp-rest-cxf</artifactId>
+  <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>
+  <artifactId>syncope-ext-saml2sp4ui-rest-cxf</artifactId>
   <version>${syncope.version}</version>
 </dependency>
 <dependency>
-  <groupId>org.apache.syncope.ext.saml2sp</groupId>
-  <artifactId>syncope-ext-saml2sp-persistence-jpa</artifactId>
+  <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>
+  <artifactId>syncope-ext-saml2sp4ui-persistence-jpa</artifactId>
   <version>${syncope.version}</version>
 </dependency>
 ----
 
-Copy `core/src/main/resources/all/saml2sp-logic.properties` to `core/src/main/resources/saml2sp-logic.properties`.
+Copy `core/src/main/resources/all/saml2sp4ui-logic.properties` to `core/src/main/resources/saml2sp4ui-logic.properties`.
 
 Setup a <<keystore,keystore>> and place it under the <<properties-files-location,configuration directory>>, then review
-the content of `core/src/main/resources/saml2sp-logic.properties` accordingly.
+the content of `core/src/main/resources/saml2sp4ui-logic.properties` accordingly.
 
 [discrete]
 ===== Enable the <<openid-connect-client>> extension
@@ -569,13 +569,11 @@ Add the following dependencies to `console/pom.xml`:
 [source,xml,subs="verbatim,attributes"]
 ----
 <dependency>
-  <groupId>org.apache.syncope.ext.saml2sp</groupId>
-  <artifactId>syncope-ext-saml2sp-client-console</artifactId>
+  <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>
+  <artifactId>syncope-ext-saml2sp4ui-client-console</artifactId>
   <version>${syncope.version}</version>
 </dependency>
 ----
-
-Copy `console/src/main/resources/all/saml2sp-agent.properties` to `console/src/main/resources/saml2sp-agent.properties`.
 
 [discrete]
 ===== Enable the <<openid-connect-client>> extension
@@ -639,13 +637,11 @@ Add the following dependencies to `enduser/pom.xml`:
 [source,xml,subs="verbatim,attributes"]
 ----
 <dependency>
-  <groupId>org.apache.syncope.ext.saml2sp</groupId>
-  <artifactId>syncope-ext-saml2sp-client-enduser</artifactId>
+  <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>
+  <artifactId>syncope-ext-saml2sp4ui-client-enduser</artifactId>
   <version>${syncope.version}</version>
 </dependency>
 ----
-
-Copy `enduser/src/main/resources/all/saml2sp-agent.properties` to `enduser/src/main/resources/saml2sp-agent.properties`.
 
 [discrete]
 ===== Enable the <<openid-connect-client>> extension

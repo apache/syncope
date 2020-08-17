@@ -34,7 +34,7 @@ import java.util.Properties;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.annotations.Resource;
+import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;

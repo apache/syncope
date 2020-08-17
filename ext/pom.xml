@@ -79,7 +79,7 @@ under the License.
   <modules>
     <module>flowable</module>
     <module>camel</module>
-    <module>saml2sp</module>
+    <module>saml2sp4ui</module>
     <module>elasticsearch</module>
     <module>scimv2</module>
     <module>oidcclient</module>
