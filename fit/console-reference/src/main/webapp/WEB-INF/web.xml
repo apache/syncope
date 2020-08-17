@@ -26,29 +26,6 @@ under the License.
 
   <display-name>Apache Syncope ${syncope.version} Console</display-name>
 
-  <context-param>
-    <param-name>saml2sp4ui.login.success.url</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.SAML2SPLogin</param-value>
-  </context-param>
-  <context-param>
-    <param-name>saml2sp4ui.login.error.url</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.Login</param-value>
-  </context-param>
-  
-  <context-param>
-    <param-name>saml2sp4ui.logout.success.url</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.SAML2SPLogout</param-value>
-  </context-param>
-  <context-param>
-    <param-name>saml2sp4ui.logout.error.url</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.Login</param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>saml2sp4ui.redirect.selfreg</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.SAML2SPSelfReg</param-value>
-  </context-param>
-  
   <!-- OIDC Client Parameters -->
   <context-param>
     <param-name>oidcclient.login.success.url</param-name>
