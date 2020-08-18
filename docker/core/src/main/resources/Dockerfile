@@ -31,7 +31,7 @@ RUN mkdir /opt/syncope/log
 
 COPY *.properties* /opt/syncope/conf/
 COPY *.xml* /opt/syncope/conf/
-COPY keystore /opt/syncope/conf/
+COPY saml.keystore.jks /opt/syncope/conf/
 COPY domains/* /opt/syncope/conf/domains/
 
 COPY bundles/*.jar /opt/syncope/bundles/

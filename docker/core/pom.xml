@@ -326,7 +326,7 @@ under the License.
       <resource>
         <directory>${basedir}/../../fit/core-reference/src/test/resources</directory>
         <includes>
-          <include>keystore</include>
+          <include>saml.keystore.jks</include>
         </includes>
         <filtering>false</filtering>
       </resource>
