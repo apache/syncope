@@ -42,7 +42,6 @@ public class JPAOIDCRP extends AbstractClientApp implements OIDCRP {
 
     public static final String TABLE = "OIDCRP";
 
-    @Column(unique = true, nullable = false)
     private String clientId;
 
     private String clientSecret;

@@ -75,7 +75,7 @@ public class SAML2WebSsoAuthenticationWebFilter extends AuthenticationWebFilter 
 
     private ServerAuthenticationConverter convertSamlResponse() {
         return exchange -> exchange.getFormData().
-                flatMap(form -> this.MATCHER.matches(exchange).
+                flatMap(form -> MATCHER.matches(exchange).
                 flatMap(matchResult -> {
                     ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange).setForm(form);
 

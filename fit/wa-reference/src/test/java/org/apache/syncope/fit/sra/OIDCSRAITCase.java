@@ -64,7 +64,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class OIDCSRAITCase extends AbstractITCase {
+public class OIDCSRAITCase extends AbstractSRAITCase {
 
     protected static String CLIENT_ID;
 
@@ -162,7 +162,7 @@ public class OIDCSRAITCase extends AbstractITCase {
 
         // 2a. redirected to WA login screen
         String responseBody = EntityUtils.toString(response.getEntity());
-        response = authenticateToCas(responseBody, httpclient, context);
+        response = authenticateToCas("bellini", "password", responseBody, httpclient, context);
 
         // 2b. WA attribute consent screen
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {

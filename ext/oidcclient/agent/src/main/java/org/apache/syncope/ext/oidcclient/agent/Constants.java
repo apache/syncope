@@ -20,6 +20,8 @@ package org.apache.syncope.ext.oidcclient.agent;
 
 public final class Constants {
 
+    public static final String URL_CONTEXT = "oidcc4ui";
+
     public static final String PARAM_OP = "op";
 
     public static final String CONTEXT_PARAM_LOGIN_SUCCESS_URL = "oidcclient.login.success.url";
@@ -36,7 +38,7 @@ public final class Constants {
 
     public static final String OIDCCLIENTJWT_EXPIRE = "oidcclient.jwt.expire";
 
-    public static final String OIDCCLIENT_USER_ATTRS = "oidcclient.userattrs";
+    public static final String OIDCC4UI_NEW_USER = "oidcc4ui.newUser";
 
     private Constants() {
         // private constructor for static utility class

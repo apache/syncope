@@ -45,6 +45,8 @@ import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 
 public class WAClientAppITCase extends AbstractITCase {
 
+    private static final String AUTH_MODULE = "DefaultJDBCAuthModule";
+
     private static WAClientAppService waClientAppService;
 
     @BeforeAll
@@ -97,7 +99,7 @@ public class WAClientAppITCase extends AbstractITCase {
     public void readWithPolicies() {
         OIDCRPTO oidcrpto = buildOIDCRP();
 
-        AuthPolicyTO authPolicyTO = createPolicy(PolicyType.AUTH, buildAuthPolicyTO("DefaultLDAPAuthModule"));
+        AuthPolicyTO authPolicyTO = createPolicy(PolicyType.AUTH, buildAuthPolicyTO(AUTH_MODULE));
 
         AccessPolicyTO accessPolicyTO = createPolicy(PolicyType.ACCESS, buildAccessPolicyTO());
 
@@ -115,16 +117,19 @@ public class WAClientAppITCase extends AbstractITCase {
 
         // add items to the authentication module
         addItems();
-        waClientApp = waClientAppService.read(oidcrpto.getClientAppId(), null);
-        assertNotNull(waClientApp);
-        assertFalse(waClientApp.getReleaseAttrs().isEmpty());
-        assertEquals("username", waClientApp.getReleaseAttrs().get("uid"));
-        assertEquals("fullname", waClientApp.getReleaseAttrs().get("cn"));
-        removeItems();
+        try {
+            waClientApp = waClientAppService.read(oidcrpto.getClientAppId(), null);
+            assertNotNull(waClientApp);
+            assertFalse(waClientApp.getReleaseAttrs().isEmpty());
+            assertEquals("username", waClientApp.getReleaseAttrs().get("uid"));
+            assertEquals("fullname", waClientApp.getReleaseAttrs().get("cn"));
+        } finally {
+            removeItems();
+        }
     }
 
     private void addItems() {
-        AuthModuleTO authModuleTO = authModuleService.read("DefaultLDAPAuthModule");
+        AuthModuleTO authModuleTO = authModuleService.read(AUTH_MODULE);
 
         ItemTO keyMapping = new ItemTO();
         keyMapping.setIntAttrName("uid");
@@ -138,17 +143,17 @@ public class WAClientAppITCase extends AbstractITCase {
 
         authModuleService.update(authModuleTO);
 
-        authModuleTO = authModuleService.read("DefaultLDAPAuthModule");
+        authModuleTO = authModuleService.read(AUTH_MODULE);
         assertFalse(authModuleTO.getItems().isEmpty());
     }
 
     private void removeItems() {
-        AuthModuleTO authModuleTO = authModuleService.read("DefaultLDAPAuthModule");
+        AuthModuleTO authModuleTO = authModuleService.read(AUTH_MODULE);
         authModuleTO.getItems().clear();
 
         authModuleService.update(authModuleTO);
 
-        authModuleTO = authModuleService.read("DefaultLDAPAuthModule");
+        authModuleTO = authModuleService.read(AUTH_MODULE);
         assertTrue(authModuleTO.getItems().isEmpty());
     }
 }

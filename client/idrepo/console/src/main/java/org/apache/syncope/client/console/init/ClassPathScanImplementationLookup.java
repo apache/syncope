@@ -32,12 +32,12 @@ import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.console.annotations.AMPage;
-import org.apache.syncope.client.console.annotations.ExtPage;
+import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.console.pages.BaseExtPage;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.syncope.client.ui.commons.annotations.ExtWidget;
 import org.apache.syncope.client.console.annotations.IdMPage;
-import org.apache.syncope.client.console.annotations.Resource;
+import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
@@ -184,8 +184,7 @@ public class ClassPathScanImplementationLookup {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         Objects.requireNonNull(bd.getBeanClassName()), ClassUtils.getDefaultClassLoader());
-                boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
-                if (!isAbstractClazz) {
+                if (!Modifier.isAbstract(clazz.getModifiers())) {
                     if (BaseExtPage.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(ExtPage.class)) {
                             extPages.add((Class<? extends BaseExtPage>) clazz);

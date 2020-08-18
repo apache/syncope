@@ -51,7 +51,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class CASSRAITCase extends AbstractITCase {
+public class CASSRAITCase extends AbstractSRAITCase {
 
     @BeforeAll
     public static void startSRA() throws IOException, InterruptedException, TimeoutException {
@@ -113,7 +113,7 @@ public class CASSRAITCase extends AbstractITCase {
 
         // 2a. authenticate
         String responseBody = EntityUtils.toString(response.getEntity());
-        response = authenticateToCas(responseBody, httpclient, context);
+        response = authenticateToCas("bellini", "password", responseBody, httpclient, context);
 
         // 2b. WA attribute consent screen
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {

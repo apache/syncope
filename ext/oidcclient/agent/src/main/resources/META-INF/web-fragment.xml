@@ -19,8 +19,8 @@ under the License.
 -->
 <web-fragment xmlns="http://xmlns.jcp.org/xml/ns/javaee"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
-                                  http://xmlns.jcp.org/xml/ns/javaee/web-fragment_3_1.xsd"
-              id="${pom.artifactId}" version="3.1">
+              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                                  http://xmlns.jcp.org/xml/ns/javaee/web-fragment_4_0.xsd"
+              id="${pom.artifactId}" version="4.0">
 
 </web-fragment>

@@ -18,18 +18,22 @@
  */
 package org.apache.syncope.sra;
 
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.sra.security.CsrfRouteMatcher;
 import org.apache.syncope.sra.security.LogoutRouteMatcher;
 import org.apache.syncope.sra.security.oauth2.OAuth2SecurityConfigUtils;
 import org.apache.syncope.sra.security.PublicRouteMatcher;
 import org.apache.syncope.sra.security.cas.CASSecurityConfigUtils;
 import org.apache.syncope.sra.security.pac4j.NoOpLogoutHandler;
-import org.apache.syncope.sra.security.saml2.SAML2BindingType;
 import org.apache.syncope.sra.security.saml2.SAML2MetadataEndpoint;
 import org.apache.syncope.sra.security.saml2.SAML2SecurityConfigUtils;
 import org.apache.syncope.sra.security.saml2.SAML2WebSsoAuthenticationWebFilter;
@@ -37,6 +41,7 @@ import org.jasig.cas.client.Protocol;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
+import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -48,6 +53,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.FileUrlResource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -217,7 +223,27 @@ public class SecurityConfig {
                 env.getProperty("am.saml2.keystore.storepass"),
                 env.getProperty("am.saml2.keystore.keypass"),
                 resourceResolver.getResource(env.getProperty("am.saml2.idp")));
-        cfg.setIdentityProviderMetadataResource(resourceResolver.getResource(env.getProperty("am.saml2.idp")));
+
+        cfg.setKeystoreType(env.getProperty("am.saml2.keystore.type"));
+        if (cfg.getKeystoreResource() instanceof FileUrlResource) {
+            cfg.setKeystoreGenerator(new BaseSAML2KeystoreGenerator(cfg) {
+
+                @Override
+                protected void store(
+                        final KeyStore ks,
+                        final X509Certificate certificate,
+                        final PrivateKey privateKey) throws Exception {
+
+                    // nothing to do
+                }
+
+                @Override
+                public InputStream retrieve() throws Exception {
+                    return cfg.getKeystoreResource().getInputStream();
+                }
+            });
+        }
+
         cfg.setAuthnRequestBindingType(
                 SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.authnrequest.binding")).getUri());
         cfg.setResponseBindingType(SAML2BindingType.POST.getUri());
@@ -225,11 +251,15 @@ public class SecurityConfig {
                 SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.logout.request.binding")).getUri());
         cfg.setSpLogoutResponseBindingType(
                 SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.logout.response.binding")).getUri());
+
         cfg.setServiceProviderEntityId(env.getProperty("am.saml2.sp.entityId"));
+
         cfg.setWantsAssertionsSigned(true);
         cfg.setAuthnRequestSigned(true);
         cfg.setSpLogoutRequestSigned(true);
+
         cfg.setAcceptedSkew(env.getProperty("am.saml2.sp.skew", int.class));
+
         cfg.setLogoutHandler(new NoOpLogoutHandler());
 
         SAML2Client saml2Client = new SAML2Client(cfg);

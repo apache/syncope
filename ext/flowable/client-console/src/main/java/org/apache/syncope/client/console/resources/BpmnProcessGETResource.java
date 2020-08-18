@@ -21,10 +21,9 @@ package org.apache.syncope.client.console.resources;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.MediaType;
-import org.apache.syncope.client.console.annotations.Resource;
 import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
+import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.common.lib.to.BpmnProcess;
-import org.apache.wicket.util.io.IOUtils;
 
 /**
  * Mirror REST resource for obtaining BPMN process in JSON (used by Flowable Modeler).
@@ -46,8 +45,9 @@ public class BpmnProcessGETResource extends AbstractBpmnProcessResource {
 
             @Override
             public void writeData(final Attributes attributes) throws IOException {
-                IOUtils.copy(BpmnProcessRestClient.getDefinition(MediaType.APPLICATION_JSON_TYPE, toGet.getKey()),
-                        attributes.getResponse().getOutputStream());
+                writeStream(
+                        attributes,
+                        BpmnProcessRestClient.getDefinition(MediaType.APPLICATION_JSON_TYPE, toGet.getKey()));
             }
         });
 

@@ -28,9 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.OIDCConstants;
 import org.apache.syncope.common.lib.to.OIDCLoginResponseTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.OIDCClientService;
 import org.springframework.context.ApplicationContext;
 
@@ -78,10 +78,11 @@ public class CodeConsumer extends AbstractOIDCClientServlet {
                         authorizationCode,
                         request.getSession().getAttribute(OIDCConstants.OP).toString());
                 if (responseTO.isSelfReg()) {
-                    responseTO.getAttrs().add(new Attr.Builder("username").values(responseTO.getUsername()).build());
+                    UserTO newUser = new UserTO();
+                    newUser.setUsername(responseTO.getUsername());
+                    newUser.getPlainAttrs().addAll(responseTO.getAttrs());
                     request.getSession(true).
-                            setAttribute(Constants.OIDCCLIENT_USER_ATTRS, MAPPER.writeValueAsString(responseTO.
-                                    getAttrs()));
+                            setAttribute(Constants.OIDCC4UI_NEW_USER, MAPPER.writeValueAsString(newUser));
 
                     String selfRegRedirectURL =
                             getServletContext().getInitParameter(Constants.CONTEXT_PARAM_REDIRECT_SELFREG_URL);

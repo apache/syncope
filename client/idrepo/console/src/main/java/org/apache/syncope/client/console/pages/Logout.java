@@ -33,5 +33,4 @@ public class Logout extends WebPage {
 
         setResponsePage(getApplication().getHomePage());
     }
-
 }
