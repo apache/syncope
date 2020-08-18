@@ -67,7 +67,6 @@ import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActi
 import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
 import org.apache.syncope.client.console.annotations.UserFormFinalize;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.springframework.util.ReflectionUtils;
 
 public class ClassPathScanImplementationLookup {
 
