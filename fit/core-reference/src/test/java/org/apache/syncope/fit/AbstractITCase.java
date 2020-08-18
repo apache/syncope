@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.nimbusds.jose.JWSAlgorithm;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -50,7 +51,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -243,7 +243,7 @@ public abstract class AbstractITCase {
 
     protected static String JWT_ISSUER;
 
-    protected static SignatureAlgorithm JWS_ALGORITHM;
+    protected static JWSAlgorithm JWS_ALGORITHM;
 
     protected static SyncopeClientFactoryBean clientFactory;
 
@@ -352,7 +352,7 @@ public abstract class AbstractITCase {
             ANONYMOUS_UNAME = props.getProperty("anonymousUser");
             ANONYMOUS_KEY = props.getProperty("anonymousKey");
             JWT_ISSUER = props.getProperty("jwtIssuer");
-            JWS_ALGORITHM = SignatureAlgorithm.valueOf(props.getProperty("jwsAlgorithm"));
+            JWS_ALGORITHM = JWSAlgorithm.parse(props.getProperty("jwsAlgorithm"));
             JWS_KEY = props.getProperty("jwsKey");
         } catch (Exception e) {
             LOG.error("Could not read security.properties", e);

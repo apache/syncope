@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import com.nimbusds.jwt.JWTClaimsSet;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
@@ -26,7 +27,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -38,7 +38,7 @@ public class JWTAuthentication implements Authentication {
 
     private static final long serialVersionUID = -2013733709281305394L;
 
-    private final JwtClaims claims;
+    private final JWTClaimsSet claims;
 
     private final SyncopeAuthenticationDetails details;
 
@@ -48,12 +48,12 @@ public class JWTAuthentication implements Authentication {
 
     private boolean authenticated = false;
 
-    public JWTAuthentication(final JwtClaims claims, final SyncopeAuthenticationDetails details) {
+    public JWTAuthentication(final JWTClaimsSet claims, final SyncopeAuthenticationDetails details) {
         this.claims = claims;
         this.details = details;
     }
 
-    public JwtClaims getClaims() {
+    public JWTClaimsSet getClaims() {
         return claims;
     }
 

@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import com.nimbusds.jwt.SignedJWT;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -98,14 +99,18 @@ public class AccessTokenDirectoryPanel
                     final String componentId,
                     final IModel<AccessTokenTO> model) {
 
-                JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(model.getObject().getBody());
-                cellItem.add(new Label(componentId,
-                        SyncopeConsoleSession.get().getDateFormat().format(
-                                new Date(consumer.getJwtClaims().getIssuedAt() * 1000))));
+                try {
+                    SignedJWT jwt = SignedJWT.parse(model.getObject().getBody());
+                    cellItem.add(new Label(componentId,
+                            SyncopeConsoleSession.get().getDateFormat().format(jwt.getJWTClaimsSet().getIssueTime())));
+                } catch (ParseException e) {
+                    LOG.error("Could not parse JWT {}", model.getObject().getBody(), e);
+                    cellItem.add(new Label(componentId, StringUtils.EMPTY));
+                }
             }
         });
 
-        columns.add(new DatePropertyColumn<>(new ResourceModel("expiryTime"), "expiryTime", "expiryTime"));
+        columns.add(new DatePropertyColumn<>(new ResourceModel("expirationTime"), "expirationTime", "expirationTime"));
 
         return columns;
     }

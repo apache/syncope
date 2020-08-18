@@ -31,6 +31,7 @@ public enum ClientExceptionType {
     EntityExists(Response.Status.CONFLICT),
     GenericPersistence(Response.Status.BAD_REQUEST),
     HasChildren(Response.Status.BAD_REQUEST),
+    InvalidAccessToken(Response.Status.INTERNAL_SERVER_ERROR),
     InvalidPrivilege(Response.Status.BAD_REQUEST),
     InvalidImplementation(Response.Status.BAD_REQUEST),
     InvalidImplementationType(Response.Status.NOT_FOUND),

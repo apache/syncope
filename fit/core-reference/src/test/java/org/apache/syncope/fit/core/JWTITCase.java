@@ -26,7 +26,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.KeyLengthException;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
+import com.nimbusds.jwt.SignedJWT;
 import java.security.AccessControlException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -35,19 +46,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
-import javax.xml.ws.WebServiceException;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.cxf.rs.security.jose.common.JoseType;
-import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
-import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureProvider;
-import org.apache.cxf.rs.security.jose.jws.JwsHeaders;
-import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
-import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactProducer;
-import org.apache.cxf.rs.security.jose.jws.JwsSignatureProvider;
-import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
-import org.apache.cxf.rs.security.jose.jws.NoneJwsSignatureProvider;
-import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
-import org.apache.cxf.rs.security.jose.jwt.JwtToken;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -55,11 +55,11 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
-import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureProvider;
-import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureVerifier;
+import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
+import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.CustomJWTSSOProvider;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -67,27 +67,18 @@ import org.junit.jupiter.api.Test;
  */
 public class JWTITCase extends AbstractITCase {
 
-    private JwsSignatureProvider jwsSignatureProvider;
+    private static AccessTokenJWSSigner JWS_SIGNER;
 
-    private JwsSignatureVerifier jwsSignatureVerifier;
+    private static AccessTokenJWSVerifier JWS_VERIFIER;
 
-    @BeforeEach
-    public void setupVerifier() throws Exception {
-        AccessTokenJwsSignatureProvider atjsp = new AccessTokenJwsSignatureProvider();
-        atjsp.setJwsAlgorithm(JWS_ALGORITHM);
-        atjsp.setJwsKey(JWS_KEY);
-        atjsp.afterPropertiesSet();
-        this.jwsSignatureProvider = atjsp;
-
-        AccessTokenJwsSignatureVerifier atjsv = new AccessTokenJwsSignatureVerifier();
-        atjsv.setJwsAlgorithm(JWS_ALGORITHM);
-        atjsv.setJwsKey(JWS_KEY);
-        atjsv.afterPropertiesSet();
-        this.jwsSignatureVerifier = atjsv;
+    @BeforeAll
+    public static void setupVerifier() throws Exception {
+        JWS_SIGNER = new AccessTokenJWSSigner(JWS_ALGORITHM, JWS_KEY);
+        JWS_VERIFIER = new AccessTokenJWSVerifier(JWS_ALGORITHM, JWS_KEY);
     }
 
     @Test
-    public void getJWTToken() throws ParseException {
+    public void getJWTToken() throws ParseException, JOSEException {
         // Get the token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -95,39 +86,39 @@ public class JWTITCase extends AbstractITCase {
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
         assertNotNull(token);
-        String expiry = response.getHeaderString(RESTHeaders.TOKEN_EXPIRE);
-        assertNotNull(expiry);
+        String expiration = response.getHeaderString(RESTHeaders.TOKEN_EXPIRE);
+        assertNotNull(expiration);
 
         // Validate the signature
-        JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(token);
-        assertTrue(consumer.verifySignatureWith(jwsSignatureVerifier));
+        SignedJWT jwt = SignedJWT.parse(token);
+        jwt.verify(JWS_VERIFIER);
+        assertTrue(jwt.verify(JWS_VERIFIER));
 
         Date now = new Date();
 
         // Verify the expiry header matches that of the token
-        Long expiryTime = consumer.getJwtClaims().getExpiryTime();
-        assertNotNull(expiryTime);
+        Date tokenDate = jwt.getJWTClaimsSet().getExpirationTime();
+        assertNotNull(tokenDate);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-        Date tokenDate = dateFormat.parse(dateFormat.format(new Date(expiryTime * 1000L)));
-        Date parsedDate = dateFormat.parse(expiry);
+        Date parsedDate = dateFormat.parse(expiration);
 
         assertEquals(tokenDate, parsedDate);
         assertTrue(parsedDate.after(now));
 
         // Verify issuedAt
-        Long issuedAt = consumer.getJwtClaims().getIssuedAt();
-        assertNotNull(issuedAt);
-        assertTrue(new Date(issuedAt).before(now));
+        Date issueTime = jwt.getJWTClaimsSet().getIssueTime();
+        assertNotNull(issueTime);
+        assertTrue(issueTime.before(now));
 
         // Validate subject + issuer
-        assertEquals(ADMIN_UNAME, consumer.getJwtClaims().getSubject());
-        assertEquals(JWT_ISSUER, consumer.getJwtClaims().getIssuer());
+        assertEquals(ADMIN_UNAME, jwt.getJWTClaimsSet().getSubject());
+        assertEquals(JWT_ISSUER, jwt.getJWTClaimsSet().getIssuer());
 
         // Verify NotBefore
-        Long notBefore = consumer.getJwtClaims().getNotBefore();
-        assertNotNull(notBefore);
-        assertTrue(new Date(notBefore).before(now));
+        Date notBeforeTime = jwt.getJWTClaimsSet().getNotBeforeTime();
+        assertNotNull(notBeforeTime);
+        assertTrue(notBeforeTime.before(now));
     }
 
     @Test
@@ -151,13 +142,13 @@ public class JWTITCase extends AbstractITCase {
         try {
             jwtUserSelfService.read();
             fail("Failure expected on a modified token");
-        } catch (WebServiceException ex) {
-            // expected
+        } catch (AccessControlException e) {
+            assertEquals("Invalid signature found in JWT", e.getMessage());
         }
     }
 
     @Test
-    public void tokenValidation() throws ParseException {
+    public void tokenValidation() throws ParseException, JOSEException {
         // Get an initial token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -165,30 +156,26 @@ public class JWTITCase extends AbstractITCase {
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
         assertNotNull(token);
-        JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(token);
-        String tokenId = consumer.getJwtClaims().getTokenId();
+        SignedJWT jwt = SignedJWT.parse(token);
+        String tokenId = jwt.getJWTClaimsSet().getJWTID();
 
         // Create a new token using the Id of the first token
-        Date now = new Date();
-        long currentTime = now.getTime() / 1000L;
+        Date currentTime = new Date();
 
-        Calendar expiry = Calendar.getInstance();
-        expiry.setTime(now);
-        expiry.add(Calendar.MINUTE, 5);
+        Calendar expiration = Calendar.getInstance();
+        expiration.setTime(currentTime);
+        expiration.add(Calendar.MINUTE, 5);
 
-        JwtClaims jwtClaims = new JwtClaims();
-        jwtClaims.setTokenId(tokenId);
-        jwtClaims.setSubject(ADMIN_UNAME);
-        jwtClaims.setIssuedAt(currentTime);
-        jwtClaims.setIssuer(JWT_ISSUER);
-        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
-        jwtClaims.setNotBefore(currentTime);
-
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
-        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
-        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
-
-        String signed = producer.signWith(jwsSignatureProvider);
+        JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder().
+                jwtID(tokenId).
+                subject(ADMIN_UNAME).
+                issueTime(currentTime).
+                issuer(JWT_ISSUER).
+                expirationTime(expiration.getTime()).
+                notBeforeTime(currentTime);
+        jwt = new SignedJWT(new JWSHeader(JWS_SIGNER.getJwsAlgorithm()), claimsSet.build());
+        jwt.sign(JWS_SIGNER);
+        String signed = jwt.serialize();
 
         SyncopeClient jwtClient = clientFactory.create(signed);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
@@ -196,51 +183,46 @@ public class JWTITCase extends AbstractITCase {
     }
 
     @Test
-    public void invalidIssuer() throws ParseException {
+    public void invalidIssuer() throws ParseException, JOSEException {
         // Get an initial token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
-        assertNotNull(token);
-        JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(token);
-        String tokenId = consumer.getJwtClaims().getTokenId();
+        SignedJWT jwt = SignedJWT.parse(token);
+        String tokenId = jwt.getJWTClaimsSet().getJWTID();
 
         // Create a new token using the Id of the first token
-        Date now = new Date();
-        long currentTime = now.getTime() / 1000L;
+        Date currentTime = new Date();
 
-        Calendar expiry = Calendar.getInstance();
-        expiry.setTime(now);
-        expiry.add(Calendar.MINUTE, 5);
+        Calendar expiration = Calendar.getInstance();
+        expiration.setTime(currentTime);
+        expiration.add(Calendar.MINUTE, 5);
 
-        JwtClaims jwtClaims = new JwtClaims();
-        jwtClaims.setTokenId(tokenId);
-        jwtClaims.setSubject(ADMIN_UNAME);
-        jwtClaims.setIssuedAt(currentTime);
-        jwtClaims.setIssuer("UnknownIssuer");
-        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
-        jwtClaims.setNotBefore(currentTime);
-
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
-        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
-        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
-
-        String signed = producer.signWith(jwsSignatureProvider);
+        JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder().
+                jwtID(tokenId).
+                subject(ADMIN_UNAME).
+                issueTime(currentTime).
+                issuer("UnknownIssuer").
+                expirationTime(expiration.getTime()).
+                notBeforeTime(currentTime);
+        jwt = new SignedJWT(new JWSHeader(JWS_SIGNER.getJwsAlgorithm()), claimsSet.build());
+        jwt.sign(JWS_SIGNER);
+        String signed = jwt.serialize();
 
         SyncopeClient jwtClient = clientFactory.create(signed);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
         try {
             jwtUserSelfService.read();
             fail("Failure expected on an invalid issuer");
-        } catch (AccessControlException ex) {
+        } catch (AccessControlException e) {
             // expected
         }
     }
 
     @Test
-    public void expiredToken() throws ParseException {
+    public void expiredToken() throws ParseException, JOSEException {
         // Get an initial token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -248,43 +230,35 @@ public class JWTITCase extends AbstractITCase {
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
         assertNotNull(token);
-        JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(token);
-        String tokenId = consumer.getJwtClaims().getTokenId();
+        SignedJWT jwt = SignedJWT.parse(token);
+        String tokenId = jwt.getJWTClaimsSet().getJWTID();
 
         // Create a new token using the Id of the first token
-        Date now = new Date();
-        long currentTime = now.getTime() / 1000L;
+        Date currentTime = new Date();
 
-        Calendar expiry = Calendar.getInstance();
-        expiry.setTime(now);
-        expiry.add(Calendar.MINUTE, 5);
-
-        JwtClaims jwtClaims = new JwtClaims();
-        jwtClaims.setTokenId(tokenId);
-        jwtClaims.setSubject(ADMIN_UNAME);
-        jwtClaims.setIssuedAt(currentTime);
-        jwtClaims.setIssuer(JWT_ISSUER);
-        jwtClaims.setExpiryTime((now.getTime() - 5000L) / 1000L);
-        jwtClaims.setNotBefore(currentTime);
-
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
-        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
-        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
-
-        String signed = producer.signWith(jwsSignatureProvider);
+        JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder().
+                jwtID(tokenId).
+                subject(ADMIN_UNAME).
+                issueTime(currentTime).
+                issuer(JWT_ISSUER).
+                expirationTime(new Date(currentTime.getTime() - 5000L)).
+                notBeforeTime(currentTime);
+        jwt = new SignedJWT(new JWSHeader(JWS_SIGNER.getJwsAlgorithm()), claimsSet.build());
+        jwt.sign(JWS_SIGNER);
+        String signed = jwt.serialize();
 
         SyncopeClient jwtClient = clientFactory.create(signed);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
         try {
             jwtUserSelfService.read();
             fail("Failure expected on an expired token");
-        } catch (AccessControlException ex) {
+        } catch (AccessControlException e) {
             // expected
         }
     }
 
     @Test
-    public void notBefore() throws ParseException {
+    public void notBefore() throws ParseException, JOSEException {
         // Get an initial token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -292,43 +266,39 @@ public class JWTITCase extends AbstractITCase {
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
         assertNotNull(token);
-        JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(token);
-        String tokenId = consumer.getJwtClaims().getTokenId();
+        SignedJWT jwt = SignedJWT.parse(token);
+        String tokenId = jwt.getJWTClaimsSet().getJWTID();
 
         // Create a new token using the Id of the first token
-        Date now = new Date();
-        long currentTime = now.getTime() / 1000L;
+        Date currentTime = new Date();
 
-        Calendar expiry = Calendar.getInstance();
-        expiry.setTime(now);
-        expiry.add(Calendar.MINUTE, 5);
+        Calendar expiration = Calendar.getInstance();
+        expiration.setTime(currentTime);
+        expiration.add(Calendar.MINUTE, 5);
 
-        JwtClaims jwtClaims = new JwtClaims();
-        jwtClaims.setTokenId(tokenId);
-        jwtClaims.setSubject(ADMIN_UNAME);
-        jwtClaims.setIssuedAt(currentTime);
-        jwtClaims.setIssuer(JWT_ISSUER);
-        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
-        jwtClaims.setNotBefore(currentTime + 60L);
-
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
-        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
-        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
-
-        String signed = producer.signWith(jwsSignatureProvider);
+        JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder().
+                jwtID(tokenId).
+                subject(ADMIN_UNAME).
+                issueTime(currentTime).
+                issuer(JWT_ISSUER).
+                expirationTime(expiration.getTime()).
+                notBeforeTime(new Date(currentTime.getTime() + 60000L));
+        jwt = new SignedJWT(new JWSHeader(JWS_SIGNER.getJwsAlgorithm()), claimsSet.build());
+        jwt.sign(JWS_SIGNER);
+        String signed = jwt.serialize();
 
         SyncopeClient jwtClient = clientFactory.create(signed);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
         try {
             jwtUserSelfService.read();
             fail("Failure expected on a token that is not valid yet");
-        } catch (AccessControlException ex) {
+        } catch (AccessControlException e) {
             // expected
         }
     }
 
     @Test
-    public void noneSignature() throws ParseException {
+    public void noSignature() throws ParseException {
         // Get an initial token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -336,37 +306,25 @@ public class JWTITCase extends AbstractITCase {
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
         assertNotNull(token);
-        JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(token);
-        String tokenId = consumer.getJwtClaims().getTokenId();
+        JWT jwt = SignedJWT.parse(token);
 
         // Create a new token using the Id of the first token
-        JwtClaims jwtClaims = new JwtClaims();
-        jwtClaims.setTokenId(tokenId);
-        jwtClaims.setSubject(consumer.getJwtClaims().getSubject());
-        jwtClaims.setIssuedAt(consumer.getJwtClaims().getIssuedAt());
-        jwtClaims.setIssuer(consumer.getJwtClaims().getIssuer());
-        jwtClaims.setExpiryTime(consumer.getJwtClaims().getExpiryTime());
-        jwtClaims.setNotBefore(consumer.getJwtClaims().getNotBefore());
+        JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder(jwt.getJWTClaimsSet());
+        jwt = new PlainJWT(claimsSet.build());
+        String bearer = jwt.serialize();
 
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.NONE);
-        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
-        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
-
-        JwsSignatureProvider noneJwsSignatureProvider = new NoneJwsSignatureProvider();
-        String signed = producer.signWith(noneJwsSignatureProvider);
-
-        SyncopeClient jwtClient = clientFactory.create(signed);
+        SyncopeClient jwtClient = clientFactory.create(bearer);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
         try {
             jwtUserSelfService.read();
             fail("Failure expected on no signature");
-        } catch (AccessControlException ex) {
+        } catch (AccessControlException e) {
             // expected
         }
     }
 
     @Test
-    public void unknownId() throws ParseException {
+    public void unknownId() throws ParseException, JOSEException {
         // Get an initial token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -374,66 +332,46 @@ public class JWTITCase extends AbstractITCase {
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
         assertNotNull(token);
+        SignedJWT jwt = SignedJWT.parse(token);
 
         // Create a new token using an unknown Id
-        Date now = new Date();
-        long currentTime = now.getTime() / 1000L;
-
-        Calendar expiry = Calendar.getInstance();
-        expiry.setTime(now);
-        expiry.add(Calendar.MINUTE, 5);
-
-        JwtClaims jwtClaims = new JwtClaims();
-        jwtClaims.setTokenId(UUID.randomUUID().toString());
-        jwtClaims.setSubject(ADMIN_UNAME);
-        jwtClaims.setIssuedAt(currentTime);
-        jwtClaims.setIssuer(JWT_ISSUER);
-        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
-        jwtClaims.setNotBefore(currentTime);
-
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
-        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
-        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
-
-        String signed = producer.signWith(jwsSignatureProvider);
+        JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder(jwt.getJWTClaimsSet()).
+                jwtID(UUID.randomUUID().toString());
+        jwt = new SignedJWT(new JWSHeader(JWS_SIGNER.getJwsAlgorithm()), claimsSet.build());
+        jwt.sign(JWS_SIGNER);
+        String signed = jwt.serialize();
 
         SyncopeClient jwtClient = clientFactory.create(signed);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
         try {
             jwtUserSelfService.read();
             fail("Failure expected on an unknown id");
-        } catch (AccessControlException ex) {
+        } catch (AccessControlException e) {
             // expected
         }
     }
 
     @Test
-    public void thirdPartyToken() throws ParseException {
-        assumeFalse(SignatureAlgorithm.isPublicKeyAlgorithm(JWS_ALGORITHM));
+    public void thirdPartyToken() throws ParseException, JOSEException {
+        assumeFalse(JWSAlgorithm.Family.RSA.contains(JWS_ALGORITHM));
 
         // Create a new token
-        Date now = new Date();
-        long currentTime = now.getTime() / 1000L;
+        Date currentTime = new Date();
 
-        Calendar expiry = Calendar.getInstance();
-        expiry.setTime(now);
-        expiry.add(Calendar.MINUTE, 5);
+        Calendar expiration = Calendar.getInstance();
+        expiration.setTime(currentTime);
+        expiration.add(Calendar.MINUTE, 5);
 
-        JwtClaims jwtClaims = new JwtClaims();
-        jwtClaims.setTokenId(UUID.randomUUID().toString());
-        jwtClaims.setSubject("puccini@apache.org");
-        jwtClaims.setIssuedAt(currentTime);
-        jwtClaims.setIssuer(CustomJWTSSOProvider.ISSUER);
-        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
-        jwtClaims.setNotBefore(currentTime);
-
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
-        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
-        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
-
-        JwsSignatureProvider customSignatureProvider =
-                new HmacJwsSignatureProvider(CustomJWTSSOProvider.CUSTOM_KEY.getBytes(), JWS_ALGORITHM);
-        String signed = producer.signWith(customSignatureProvider);
+        JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder().
+                jwtID(UUID.randomUUID().toString()).
+                subject("puccini@apache.org").
+                issueTime(currentTime).
+                issuer(CustomJWTSSOProvider.ISSUER).
+                expirationTime(expiration.getTime()).
+                notBeforeTime(currentTime);
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWS_ALGORITHM), claimsSet.build());
+        jwt.sign(new MACSigner(CustomJWTSSOProvider.CUSTOM_KEY));
+        String signed = jwt.serialize();
 
         SyncopeClient jwtClient = clientFactory.create(signed);
 
@@ -443,120 +381,110 @@ public class JWTITCase extends AbstractITCase {
     }
 
     @Test
-    public void thirdPartyTokenUnknownUser() throws ParseException {
-        assumeFalse(SignatureAlgorithm.isPublicKeyAlgorithm(JWS_ALGORITHM));
+    public void thirdPartyTokenUnknownUser() throws ParseException, JOSEException {
+        assumeFalse(JWSAlgorithm.Family.RSA.contains(JWS_ALGORITHM));
 
         // Create a new token
-        Date now = new Date();
-        long currentTime = now.getTime() / 1000L;
+        Date currentTime = new Date();
 
-        Calendar expiry = Calendar.getInstance();
-        expiry.setTime(now);
-        expiry.add(Calendar.MINUTE, 5);
+        Calendar expiration = Calendar.getInstance();
+        expiration.setTime(currentTime);
+        expiration.add(Calendar.MINUTE, 5);
 
-        JwtClaims jwtClaims = new JwtClaims();
-        jwtClaims.setTokenId(UUID.randomUUID().toString());
-        jwtClaims.setSubject("strauss@apache.org");
-        jwtClaims.setIssuedAt(currentTime);
-        jwtClaims.setIssuer(CustomJWTSSOProvider.ISSUER);
-        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
-        jwtClaims.setNotBefore(currentTime);
-
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
-        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
-        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
-
-        JwsSignatureProvider customSignatureProvider =
-                new HmacJwsSignatureProvider(CustomJWTSSOProvider.CUSTOM_KEY.getBytes(), JWS_ALGORITHM);
-        String signed = producer.signWith(customSignatureProvider);
+        JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder().
+                jwtID(UUID.randomUUID().toString()).
+                subject("strauss@apache.org").
+                issueTime(currentTime).
+                issuer(CustomJWTSSOProvider.ISSUER).
+                expirationTime(expiration.getTime()).
+                notBeforeTime(currentTime);
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWS_SIGNER.getJwsAlgorithm()), claimsSet.build());
+        jwt.sign(JWS_SIGNER);
+        String signed = jwt.serialize();
 
         SyncopeClient jwtClient = clientFactory.create(signed);
 
         try {
             jwtClient.self();
             fail("Failure expected on an unknown subject");
-        } catch (AccessControlException ex) {
+        } catch (AccessControlException e) {
             // expected
         }
     }
 
     @Test
-    public void thirdPartyTokenUnknownIssuer() throws ParseException {
-        assumeFalse(SignatureAlgorithm.isPublicKeyAlgorithm(JWS_ALGORITHM));
+    public void thirdPartyTokenUnknownIssuer() throws ParseException, JOSEException {
+        assumeFalse(JWSAlgorithm.Family.RSA.contains(JWS_ALGORITHM));
 
         // Create a new token
-        Date now = new Date();
-        long currentTime = now.getTime() / 1000L;
+        Date currentTime = new Date();
 
-        Calendar expiry = Calendar.getInstance();
-        expiry.setTime(now);
-        expiry.add(Calendar.MINUTE, 5);
+        Calendar expiration = Calendar.getInstance();
+        expiration.setTime(currentTime);
+        expiration.add(Calendar.MINUTE, 5);
 
-        JwtClaims jwtClaims = new JwtClaims();
-        jwtClaims.setTokenId(UUID.randomUUID().toString());
-        jwtClaims.setSubject("puccini@apache.org");
-        jwtClaims.setIssuedAt(currentTime);
-        jwtClaims.setIssuer(CustomJWTSSOProvider.ISSUER + '_');
-        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
-        jwtClaims.setNotBefore(currentTime);
-
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
-        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
-        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
-
-        JwsSignatureProvider customSignatureProvider =
-                new HmacJwsSignatureProvider(CustomJWTSSOProvider.CUSTOM_KEY.getBytes(), JWS_ALGORITHM);
-        String signed = producer.signWith(customSignatureProvider);
+        JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder().
+                jwtID(UUID.randomUUID().toString()).
+                subject("puccini@apache.org").
+                issueTime(currentTime).
+                issuer(CustomJWTSSOProvider.ISSUER + "_").
+                expirationTime(expiration.getTime()).
+                notBeforeTime(currentTime);
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWS_SIGNER.getJwsAlgorithm()), claimsSet.build());
+        jwt.sign(JWS_SIGNER);
+        String signed = jwt.serialize();
 
         SyncopeClient jwtClient = clientFactory.create(signed);
 
         try {
             jwtClient.self();
             fail("Failure expected on an unknown issuer");
-        } catch (AccessControlException ex) {
+        } catch (AccessControlException e) {
             // expected
         }
     }
 
     @Test
-    public void thirdPartyTokenBadSignature() throws ParseException {
-        assumeFalse(SignatureAlgorithm.isPublicKeyAlgorithm(JWS_ALGORITHM));
+    public void thirdPartyTokenBadSignature()
+            throws ParseException, KeyLengthException, NoSuchAlgorithmException,
+            InvalidKeySpecException, JOSEException {
+
+        assumeFalse(JWSAlgorithm.Family.RSA.contains(JWS_ALGORITHM));
 
         // Create a new token
-        Date now = new Date();
+        Date currentTime = new Date();
 
-        Calendar expiry = Calendar.getInstance();
-        expiry.setTime(now);
-        expiry.add(Calendar.MINUTE, 5);
+        Calendar expiration = Calendar.getInstance();
+        expiration.setTime(currentTime);
+        expiration.add(Calendar.MINUTE, 5);
 
-        JwtClaims jwtClaims = new JwtClaims();
-        jwtClaims.setTokenId(UUID.randomUUID().toString());
-        jwtClaims.setSubject("puccini@apache.org");
-        jwtClaims.setIssuedAt(now.getTime());
-        jwtClaims.setIssuer(CustomJWTSSOProvider.ISSUER);
-        jwtClaims.setExpiryTime(expiry.getTime().getTime());
-        jwtClaims.setNotBefore(now.getTime());
+        JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder().
+                jwtID(UUID.randomUUID().toString()).
+                subject("puccini@apache.org").
+                issueTime(currentTime).
+                issuer(CustomJWTSSOProvider.ISSUER).
+                expirationTime(expiration.getTime()).
+                notBeforeTime(currentTime);
 
-        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, JWS_ALGORITHM);
-        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
-        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
+        AccessTokenJWSSigner customJWSSigner =
+                new AccessTokenJWSSigner(JWS_ALGORITHM, RandomStringUtils.randomAlphanumeric(512));
 
-        JwsSignatureProvider customSignatureProvider =
-                new HmacJwsSignatureProvider((CustomJWTSSOProvider.CUSTOM_KEY + '_').getBytes(), JWS_ALGORITHM);
-        String signed = producer.signWith(customSignatureProvider);
+        SignedJWT jwt = new SignedJWT(new JWSHeader(customJWSSigner.getJwsAlgorithm()), claimsSet.build());
+        jwt.sign(customJWSSigner);
+        String signed = jwt.serialize();
 
         SyncopeClient jwtClient = clientFactory.create(signed);
 
         try {
             jwtClient.self();
             fail("Failure expected on a bad signature");
-        } catch (AccessControlException ex) {
+        } catch (AccessControlException e) {
             // expected
         }
     }
 
     @Test
-    public void issueSYNCOPE1420() {
+    public void issueSYNCOPE1420() throws ParseException {
         Long orig = confParamOps.get(SyncopeConstants.MASTER_DOMAIN, "jwt.lifetime.minutes", null, Long.class);
         try {
             // set for immediate JWT expiration
@@ -569,10 +497,8 @@ public class JWTITCase extends AbstractITCase {
             // login, get JWT with  expiryTime
             String jwt = clientFactory.create(user.getUsername(), "password123").getJWT();
 
-            JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(jwt);
-            assertTrue(consumer.verifySignatureWith(jwsSignatureVerifier));
-            Long expiryTime = consumer.getJwtClaims().getExpiryTime();
-            assertNotNull(expiryTime);
+            Date expirationTime = SignedJWT.parse(jwt).getJWTClaimsSet().getExpirationTime();
+            assertNotNull(expirationTime);
 
             // wait for 1 sec, check that JWT is effectively expired
             try {
@@ -580,7 +506,7 @@ public class JWTITCase extends AbstractITCase {
             } catch (InterruptedException e) {
                 // ignore
             }
-            assertTrue(expiryTime < System.currentTimeMillis());
+            assertTrue(expirationTime.before(new Date()));
 
             // login again, get new JWT
             // (even if ExpiredAccessTokenCleanup did not run yet, as it is scheduled every 5 minutes)

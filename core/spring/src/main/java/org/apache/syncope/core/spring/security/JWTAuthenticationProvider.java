@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
+import com.nimbusds.jwt.JWTClaimsSet;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.CredentialsExpiredException;
@@ -38,17 +39,17 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
         JWTAuthentication jwtAuthentication = (JWTAuthentication) authentication;
 
-        JwtClaims claims = jwtAuthentication.getClaims();
+        JWTClaimsSet claims = jwtAuthentication.getClaims();
         Long referenceTime = System.currentTimeMillis();
 
-        Long expiryTime = claims.getExpiryTime();
-        if (expiryTime == null || (expiryTime * 1000L) < referenceTime) {
-            dataAccessor.removeExpired(claims.getTokenId());
+        Date expiryTime = claims.getExpirationTime();
+        if (expiryTime == null || expiryTime.getTime() < referenceTime) {
+            dataAccessor.removeExpired(claims.getJWTID());
             throw new CredentialsExpiredException("JWT is expired");
         }
 
-        Long notBefore = claims.getNotBefore();
-        if (notBefore == null || (notBefore * 1000L) > referenceTime) {
+        Date notBefore = claims.getNotBeforeTime();
+        if (notBefore == null || notBefore.getTime() > referenceTime) {
             throw new CredentialsExpiredException("JWT not valid yet");
         }
 

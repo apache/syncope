@@ -42,7 +42,7 @@ public class AccessTokenTest extends AbstractTest {
         AccessToken accessToken = entityFactory.newEntity(AccessToken.class);
         accessToken.setKey(UUID.randomUUID().toString());
         accessToken.setBody("pointless body");
-        accessToken.setExpiryTime(new Date());
+        accessToken.setExpirationTime(new Date());
         accessToken.setOwner("bellini");
 
         accessToken = accessTokenDAO.save(accessToken);

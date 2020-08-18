@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.core.logic;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
+import java.text.ParseException;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,11 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
-import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -118,9 +118,6 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
     @Autowired
     private AuthDataAccessor authDataAccessor;
-
-    @Resource(name = "accessTokenJwsSignatureVerifier")
-    private JwsSignatureVerifier jwsSignatureVerifier;
 
     private final Map<String, String> metadataCache = new ConcurrentHashMap<>();
 
@@ -425,14 +422,19 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
             final String spEntityID,
             final String urlContext) {
 
-        // 1. fetch the current JWT used for Syncope authentication and destroy it
-        JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(accessToken);
-        if (!consumer.verifySignatureWith(jwsSignatureVerifier)) {
-            throw new IllegalArgumentException("Invalid signature found in Access Token");
+        // 1. fetch the current JWT used for Syncope authentication
+        JWTClaimsSet claimsSet;
+        try {
+            SignedJWT jwt = SignedJWT.parse(accessToken);
+            claimsSet = jwt.getJWTClaimsSet();
+        } catch (ParseException e) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAccessToken);
+            sce.getElements().add(e.getMessage());
+            throw sce;
         }
 
         // 2. look for SAML2Client
-        String idpEntityID = (String) consumer.getJwtClaims().getClaim(JWT_CLAIM_IDP_ENTITYID);
+        String idpEntityID = (String) claimsSet.getClaim(JWT_CLAIM_IDP_ENTITYID);
         if (idpEntityID == null) {
             throw new NotFoundException("No SAML 2.0 IdP information found in the access token");
         }
@@ -444,13 +446,13 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
         // 3. create LogoutRequest
         SAML2Profile saml2Profile = new SAML2Profile();
-        saml2Profile.setId((String) consumer.getJwtClaims().getClaim(JWT_CLAIM_NAMEID_VALUE));
+        saml2Profile.setId((String) claimsSet.getClaim(JWT_CLAIM_NAMEID_VALUE));
         saml2Profile.addAuthenticationAttribute(
                 SAML2Authenticator.SAML_NAME_ID_FORMAT,
-                consumer.getJwtClaims().getClaim(JWT_CLAIM_NAMEID_FORMAT));
+                claimsSet.getClaim(JWT_CLAIM_NAMEID_FORMAT));
         saml2Profile.addAuthenticationAttribute(
                 SAML2Authenticator.SESSION_INDEX,
-                consumer.getJwtClaims().getClaim(JWT_CLAIM_SESSIONINDEX));
+                claimsSet.getClaim(JWT_CLAIM_SESSIONINDEX));
 
         SAML2SP4UIContext ctx = new SAML2SP4UIContext(
                 saml2Client.getConfiguration().getSpLogoutRequestBindingType(), null);

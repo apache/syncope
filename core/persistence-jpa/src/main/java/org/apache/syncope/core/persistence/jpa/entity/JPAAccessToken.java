@@ -44,7 +44,7 @@ public class JPAAccessToken extends AbstractProvidedKeyEntity implements AccessT
     private String body;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date expiryTime;
+    private Date expirationTime;
 
     @Column(unique = true)
     private String owner;
@@ -63,13 +63,13 @@ public class JPAAccessToken extends AbstractProvidedKeyEntity implements AccessT
     }
 
     @Override
-    public Date getExpiryTime() {
-        return Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
+    public Date getExpirationTime() {
+        return Optional.ofNullable(expirationTime).map(time -> new Date(time.getTime())).orElse(null);
     }
 
     @Override
-    public void setExpiryTime(final Date expiryTime) {
-        this.expiryTime = Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
+    public void setExpirationTime(final Date expirationTime) {
+        this.expirationTime = Optional.ofNullable(expirationTime).map(time -> new Date(time.getTime())).orElse(null);
     }
 
     @Override

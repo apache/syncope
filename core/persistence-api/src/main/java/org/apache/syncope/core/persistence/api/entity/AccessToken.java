@@ -26,9 +26,9 @@ public interface AccessToken extends ProvidedKeyEntity {
 
     void setBody(String body);
 
-    Date getExpiryTime();
+    Date getExpirationTime();
 
-    void setExpiryTime(Date expiryTime);
+    void setExpirationTime(Date expirationTime);
 
     String getOwner();
 

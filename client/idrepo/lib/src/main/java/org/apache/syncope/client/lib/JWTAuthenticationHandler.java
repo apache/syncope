@@ -32,5 +32,4 @@ public class JWTAuthenticationHandler implements AuthenticationHandler {
     public String getJwt() {
         return jwt;
     }
-
 }

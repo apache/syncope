@@ -135,7 +135,7 @@ public class JPAAccessTokenDAO extends AbstractDAO<AccessToken> implements Acces
     public int deleteExpired() {
         Query query = entityManager().createQuery(
                 "DELETE FROM " + JPAAccessToken.class.getSimpleName() + " e "
-                + "WHERE e.expiryTime < :now");
+                + "WHERE e.expirationTime < :now");
         query.setParameter("now", new Date());
         return query.executeUpdate();
     }

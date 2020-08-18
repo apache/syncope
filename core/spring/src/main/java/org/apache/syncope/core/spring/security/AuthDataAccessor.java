@@ -368,10 +368,10 @@ public class AuthDataAccessor {
         Set<SyncopeGrantedAuthority> authorities;
 
         if (adminUser.equals(authentication.getClaims().getSubject())) {
-            AccessToken accessToken = accessTokenDAO.find(authentication.getClaims().getTokenId());
+            AccessToken accessToken = accessTokenDAO.find(authentication.getClaims().getJWTID());
             if (accessToken == null) {
                 throw new AuthenticationCredentialsNotFoundException(
-                        "Could not find an Access Token for JWT " + authentication.getClaims().getTokenId());
+                        "Could not find an Access Token for JWT " + authentication.getClaims().getJWTID());
             }
 
             username = adminUser;
@@ -382,14 +382,14 @@ public class AuthDataAccessor {
             if (resolved == null || resolved.getLeft() == null) {
                 throw new AuthenticationCredentialsNotFoundException(
                         "Could not find User " + authentication.getClaims().getSubject()
-                        + " for JWT " + authentication.getClaims().getTokenId());
+                        + " for JWT " + authentication.getClaims().getJWTID());
             }
 
             User user = resolved.getLeft();
             username = user.getUsername();
             authorities = resolved.getRight() == null ? Set.of() : resolved.getRight();
             LOG.debug("JWT {} issued by {} resolved to User {} with authorities {}",
-                    authentication.getClaims().getTokenId(),
+                    authentication.getClaims().getJWTID(),
                     authentication.getClaims().getIssuer(),
                     username, authorities);
 

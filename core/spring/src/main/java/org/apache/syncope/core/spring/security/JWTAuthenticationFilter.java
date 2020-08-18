@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.SignedJWT;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Optional;
 import java.util.Set;
 import javax.servlet.FilterChain;
@@ -27,8 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.cxf.rs.security.jose.jws.JwsException;
-import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -88,14 +89,14 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
         try {
             credentialChecker.checkIsDefaultJWSKeyInUse();
 
-            JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(stringToken);
-            JWTSSOProvider jwtSSOProvider = dataAccessor.getJWTSSOProvider(consumer.getJwtClaims().getIssuer());
-            if (!consumer.verifySignatureWith(jwtSSOProvider)) {
+            SignedJWT jwt = SignedJWT.parse(stringToken);
+            JWTSSOProvider jwtSSOProvider = dataAccessor.getJWTSSOProvider(jwt.getJWTClaimsSet().getIssuer());
+            if (!jwt.verify(jwtSSOProvider)) {
                 throw new BadCredentialsException("Invalid signature found in JWT");
             }
 
             JWTAuthentication jwtAuthentication =
-                    new JWTAuthentication(consumer.getJwtClaims(), authenticationDetailsSource.buildDetails(request));
+                    new JWTAuthentication(jwt.getJWTClaimsSet(), authenticationDetailsSource.buildDetails(request));
             AuthContextUtils.callAsAdmin(jwtAuthentication.getDetails().getDomain(), () -> {
                 Pair<String, Set<SyncopeGrantedAuthority>> authenticated = dataAccessor.authenticate(jwtAuthentication);
                 jwtAuthentication.setUsername(authenticated.getLeft());
@@ -105,7 +106,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             SecurityContextHolder.getContext().setAuthentication(jwtAuthentication);
 
             chain.doFilter(request, response);
-        } catch (JwsException e) {
+        } catch (ParseException | JOSEException e) {
             SecurityContextHolder.clearContext();
             this.authenticationEntryPoint.commence(
                     request, response, new BadCredentialsException("Invalid JWT: " + stringToken, e));

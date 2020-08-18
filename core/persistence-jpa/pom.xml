@@ -138,11 +138,6 @@ under the License.
       <artifactId>bcprov-jdk15on</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.nimbusds</groupId>
-      <artifactId>nimbus-jose-jwt</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>

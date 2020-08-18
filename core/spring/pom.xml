@@ -53,13 +53,13 @@ under the License.
       <groupId>org.jasypt</groupId>
       <artifactId>jasypt</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-rs-security-jose</artifactId>
-    </dependency>
 
-    <dependency>
+      <dependency>
+        <groupId>com.nimbusds</groupId>
+        <artifactId>nimbus-jose-jwt</artifactId>
+      </dependency>
+
+      <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-autoconfigure</artifactId>
     </dependency>

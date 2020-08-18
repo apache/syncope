@@ -18,10 +18,14 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.KeyLengthException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureProvider;
-import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureVerifier;
+import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
+import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
@@ -85,20 +89,22 @@ public class SecurityContext implements EnvironmentAware {
 
     @ConditionalOnMissingBean
     @Bean
-    public AccessTokenJwsSignatureVerifier accessTokenJwsSignatureVerifier() {
-        AccessTokenJwsSignatureVerifier verifier = new AccessTokenJwsSignatureVerifier();
-        verifier.setJwsAlgorithm(env.getProperty("jwsAlgorithm", SignatureAlgorithm.class));
-        verifier.setJwsKey(jwsKey());
-        return verifier;
+    public AccessTokenJWSVerifier accessTokenJWSVerifier()
+            throws JOSEException, NoSuchAlgorithmException, InvalidKeySpecException {
+
+        return new AccessTokenJWSVerifier(
+                JWSAlgorithm.parse(env.getProperty("jwsAlgorithm")),
+                jwsKey());
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AccessTokenJwsSignatureProvider accessTokenJwsSignatureProvider() {
-        AccessTokenJwsSignatureProvider provider = new AccessTokenJwsSignatureProvider();
-        provider.setJwsAlgorithm(env.getProperty("jwsAlgorithm", SignatureAlgorithm.class));
-        provider.setJwsKey(jwsKey());
-        return provider;
+    public AccessTokenJWSSigner accessTokenJWSSigner()
+            throws KeyLengthException, NoSuchAlgorithmException, InvalidKeySpecException {
+
+        return new AccessTokenJWSSigner(
+                JWSAlgorithm.parse(env.getProperty("jwsAlgorithm")),
+                jwsKey());
     }
 
     @ConditionalOnMissingBean

@@ -31,7 +31,7 @@ public class AccessTokenTO implements EntityTO {
 
     private String body;
 
-    private Date expiryTime;
+    private Date expirationTime;
 
     private String owner;
 
@@ -53,12 +53,12 @@ public class AccessTokenTO implements EntityTO {
         this.body = body;
     }
 
-    public Date getExpiryTime() {
-        return Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
+    public Date getExpirationTime() {
+        return Optional.ofNullable(expirationTime).map(time -> new Date(time.getTime())).orElse(null);
     }
 
-    public void setExpiryTime(final Date expiryTime) {
-        this.expiryTime = Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
+    public void setExpirationTime(final Date expiryTime) {
+        this.expirationTime = Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
     }
 
     public String getOwner() {
@@ -84,7 +84,7 @@ public class AccessTokenTO implements EntityTO {
         return new EqualsBuilder().
                 append(key, other.key).
                 append(body, other.body).
-                append(expiryTime, other.expiryTime).
+                append(expirationTime, other.expirationTime).
                 append(owner, other.owner).
                 build();
     }
@@ -94,7 +94,7 @@ public class AccessTokenTO implements EntityTO {
         return new HashCodeBuilder().
                 append(key).
                 append(body).
-                append(expiryTime).
+                append(expirationTime).
                 append(owner).
                 build();
     }

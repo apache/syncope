@@ -19,21 +19,22 @@
 package org.apache.syncope.core.spring.security;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.jca.JCAContext;
+import com.nimbusds.jose.util.Base64URL;
+import com.nimbusds.jwt.JWTClaimsSet;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
-import org.apache.cxf.rs.security.jose.jws.JwsHeaders;
-import org.apache.cxf.rs.security.jose.jws.JwsVerificationSignature;
-import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.spring.security.jws.AccessTokenJwsSignatureVerifier;
+import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,7 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
     private String jwtIssuer;
 
     @Autowired
-    private AccessTokenJwsSignatureVerifier delegate;
+    private AccessTokenJWSVerifier delegate;
 
     @Autowired
     private UserDAO userDAO;
@@ -66,27 +67,31 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
     }
 
     @Override
-    public SignatureAlgorithm getAlgorithm() {
-        return delegate.getAlgorithm();
+    public Set<JWSAlgorithm> supportedJWSAlgorithms() {
+        return delegate.supportedJWSAlgorithms();
     }
 
     @Override
-    public boolean verify(final JwsHeaders headers, final String unsignedText, final byte[] signature) {
-        return delegate.verify(headers, unsignedText, signature);
+    public JCAContext getJCAContext() {
+        return delegate.getJCAContext();
     }
 
     @Override
-    public JwsVerificationSignature createJwsVerificationSignature(final JwsHeaders headers) {
-        return delegate.createJwsVerificationSignature(headers);
+    public boolean verify(
+            final JWSHeader header,
+            final byte[] signingInput,
+            final Base64URL signature) throws JOSEException {
+
+        return delegate.verify(header, signingInput, signature);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JwtClaims jwtClaims) {
+    public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JWTClaimsSet jwtClaims) {
         User user = userDAO.findByUsername(jwtClaims.getSubject());
         Set<SyncopeGrantedAuthority> authorities = Set.of();
         if (user != null) {
-            AccessToken accessToken = accessTokenDAO.find(jwtClaims.getTokenId());
+            AccessToken accessToken = accessTokenDAO.find(jwtClaims.getJWTID());
             if (accessToken != null && accessToken.getAuthorities() != null) {
                 try {
                     authorities = POJOHelper.deserialize(

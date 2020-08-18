@@ -18,15 +18,17 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jose.jca.JCAContext;
+import com.nimbusds.jose.util.Base64URL;
+import com.nimbusds.jwt.JWTClaimsSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
-import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureVerifier;
-import org.apache.cxf.rs.security.jose.jws.JwsHeaders;
-import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
-import org.apache.cxf.rs.security.jose.jws.JwsVerificationSignature;
-import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
@@ -45,9 +47,14 @@ public class CustomJWTSSOProvider implements JWTSSOProvider {
 
     public static final String ISSUER = "custom-issuer";
 
-    public static final String CUSTOM_KEY = "12345678910987654321";
+    public static final String CUSTOM_KEY =
+            "XW3eTdntLa9Zsz2t4Vm6TNUya8xJEezFS7NVD3ZIZKOMdmSPMfi40rIvyBzXdbqD7TTsp6grcVW3AvRhZnFzZNaLdp6kJ2HXU9X9t2arVK"
+            + "42bIAp7XOw6aZg8v4OOXReZ9YkuAKtGwKC1JvPMKCz0c28AhJWd3YX5MpG6prXExQpFFVuweA6xTPxf06nYEFSOmKJ9ddJAcIx4Z8qyY"
+            + "mDJyNscMU8eVVM7aCR9zrCAHnjRZI2i6OnStAEVuqfGL25tK9AUKPVvyWljHNZ6ugXkstF873QaYJTBst1U2Zl9XsZnyeKrFEwwVHipp"
+            + "vfHwo2xu6VKySyJpZtaqVrjXFqpgFGRwEm890tCm8JhEG6GgJPqcnFHrYC180LqBZSjnNQGvA7eCSFVrABWcWnXDJCIHWbn0Wv153Vf4"
+            + "ZH75XEEYY53KsOS2T2GAmoqV3Izz7RL8O5dntgNLevl5gZb6MbYFURnQt0vALeObxMmv459FsXinzpAVihriOZWAudpN6Q";
 
-    private final JwsSignatureVerifier delegate;
+    private final JWSVerifier delegate;
 
     @Autowired
     private AnySearchDAO searchDAO;
@@ -55,8 +62,8 @@ public class CustomJWTSSOProvider implements JWTSSOProvider {
     @Autowired
     private AuthDataAccessor authDataAccessor;
 
-    public CustomJWTSSOProvider() {
-        delegate = new HmacJwsSignatureVerifier(CUSTOM_KEY.getBytes(), SignatureAlgorithm.HS512);
+    public CustomJWTSSOProvider() throws JOSEException {
+        delegate = new MACVerifier(CUSTOM_KEY);
     }
 
     @Override
@@ -65,23 +72,27 @@ public class CustomJWTSSOProvider implements JWTSSOProvider {
     }
 
     @Override
-    public SignatureAlgorithm getAlgorithm() {
-        return delegate.getAlgorithm();
+    public Set<JWSAlgorithm> supportedJWSAlgorithms() {
+        return delegate.supportedJWSAlgorithms();
     }
 
     @Override
-    public boolean verify(final JwsHeaders headers, final String unsignedText, final byte[] signature) {
-        return delegate.verify(headers, unsignedText, signature);
+    public JCAContext getJCAContext() {
+        return delegate.getJCAContext();
     }
 
     @Override
-    public JwsVerificationSignature createJwsVerificationSignature(final JwsHeaders headers) {
-        return delegate.createJwsVerificationSignature(headers);
+    public boolean verify(
+            final JWSHeader header,
+            final byte[] signingInput,
+            final Base64URL signature) throws JOSEException {
+
+        return delegate.verify(header, signingInput, signature);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JwtClaims jwtClaims) {
+    public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JWTClaimsSet jwtClaims) {
         AttrCond userIdCond = new AttrCond();
         userIdCond.setSchema("userId");
         userIdCond.setType(AttrCond.Type.EQ);
