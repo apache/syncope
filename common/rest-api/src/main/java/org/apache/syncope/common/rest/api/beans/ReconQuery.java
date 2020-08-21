@@ -18,11 +18,20 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
-public class ReconQuery {
+public class ReconQuery implements Serializable {
+
+    private static final long serialVersionUID = 8330786326713860657L;
 
     public static class Builder {
 
@@ -44,6 +53,24 @@ public class ReconQuery {
             return this;
         }
 
+        public Builder moreAttrsToGet(final String... moreAttrsToGet) {
+            if (moreAttrsToGet != null) {
+                Set<String> matg = Optional.ofNullable(instance.getMoreAttrsToGet()).orElseGet(() -> new HashSet<>());
+                matg.addAll(Stream.of(moreAttrsToGet).collect(Collectors.toSet()));
+                instance.setMoreAttrsToGet(matg);
+            }
+            return this;
+        }
+
+        public Builder moreAttrsToGet(final Collection<String> moreAttrsToGet) {
+            if (moreAttrsToGet != null) {
+                Set<String> matg = Optional.ofNullable(instance.getMoreAttrsToGet()).orElseGet(() -> new HashSet<>());
+                matg.addAll(moreAttrsToGet);
+                instance.setMoreAttrsToGet(matg);
+            }
+            return this;
+        }
+
         public ReconQuery build() {
             return instance;
         }
@@ -56,6 +83,8 @@ public class ReconQuery {
     private String resourceKey;
 
     private String connObjectKeyValue;
+
+    private Set<String> moreAttrsToGet;
 
     public String getAnyTypeKey() {
         return anyTypeKey;
@@ -93,5 +122,14 @@ public class ReconQuery {
     @QueryParam("connObjectKeyValue")
     public void setConnObjectKeyValue(final String connObjectKeyValue) {
         this.connObjectKeyValue = connObjectKeyValue;
+    }
+
+    public Set<String> getMoreAttrsToGet() {
+        return moreAttrsToGet;
+    }
+
+    @QueryParam("moreAttrsToGet")
+    public void setMoreAttrsToGet(final Set<String> moreAttrsToGet) {
+        this.moreAttrsToGet = moreAttrsToGet;
     }
 }

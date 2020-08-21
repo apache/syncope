@@ -82,6 +82,7 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPushExecutor;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
@@ -235,12 +236,16 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                         }
                     });
 
+            Optional<String[]> moreAttrsToGet = CollectionUtils.isEmpty(query.getMoreAttrsToGet())
+                    ? Optional.empty()
+                    : Optional.of(query.getMoreAttrsToGet().toArray(new String[0]));
+
             outboundMatcher.matchByConnObjectKeyValue(
                     connFactory.getConnector(provision.getResource()),
                     connObjectKeyItem,
                     query.getConnObjectKeyValue(),
                     provision,
-                    Optional.empty(),
+                    moreAttrsToGet,
                     Optional.empty()).
                     ifPresent(connObj -> {
                         status.setOnResource(ConnObjectUtils.getConnObjectTO(connObj.getAttributes()));
