@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -109,7 +110,10 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
             final String key, final String anyTypeKey, final ConnObjectTOQuery query) {
 
         Filter filter = null;
-        Set<String> moreAttrsToGet = Set.of();
+        Set<String> moreAttrsToGet = new HashSet<>();
+        if (query.getMoreAttrsToGet() != null) {
+            moreAttrsToGet.addAll(query.getMoreAttrsToGet());
+        }
         if (StringUtils.isNotBlank(query.getFiql())) {
             try {
                 FilterVisitor visitor = new FilterVisitor();
@@ -117,7 +121,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
                 sc.accept(visitor);
 
                 filter = visitor.getQuery();
-                moreAttrsToGet = visitor.getAttrs();
+                moreAttrsToGet.addAll(visitor.getAttrs());
             } catch (Exception e) {
                 LOG.error("Invalid FIQL expression: {}", query.getFiql(), e);
 

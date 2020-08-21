@@ -87,6 +87,7 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 @Component
 public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
@@ -236,12 +237,16 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                         }
                     });
 
+            Optional<String[]> moreAttrsToGet = CollectionUtils.isEmpty(query.getMoreAttrsToGet())
+                    ? Optional.empty()
+                    : Optional.of(query.getMoreAttrsToGet().toArray(new String[0]));
+
             outboundMatcher.matchByConnObjectKeyValue(
                     connFactory.getConnector(provision.getResource()),
                     connObjectKeyItem,
                     query.getConnObjectKeyValue(),
                     provision,
-                    Optional.empty(),
+                    moreAttrsToGet,
                     Optional.empty()).
                     ifPresent(connObj -> {
                         status.setOnResource(ConnObjectUtils.getConnObjectTO(connObj.getAttributes()));
@@ -360,7 +365,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         }
         if (provision.getMapping().getConnObjectKeyItem().isEmpty()) {
             throw new NotFoundException(
-                "ConnObjectKey cannot be determined for mapping " + provision.getMapping().getKey());
+                    "ConnObjectKey cannot be determined for mapping " + provision.getMapping().getKey());
         }
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
