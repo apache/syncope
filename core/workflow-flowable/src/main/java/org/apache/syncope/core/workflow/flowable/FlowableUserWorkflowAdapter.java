@@ -395,7 +395,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         updateStatus(user);
         User updated = userDAO.save(user);
 
-        return new WorkflowResult<>(updated.getKey(), null, performedTasks);
+        PropagationByResource propByRes = engine.getRuntimeService().getVariable(
+                user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
+
+        return new WorkflowResult<>(updated.getKey(), propByRes, performedTasks);
     }
 
     @Override
@@ -405,7 +408,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         User updated = userDAO.save(user);
 
-        return new WorkflowResult<>(updated.getKey(), null, performedTasks);
+        PropagationByResource propByRes = engine.getRuntimeService().getVariable(
+                user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
+
+        return new WorkflowResult<>(updated.getKey(), propByRes, performedTasks);
     }
 
     @Override
