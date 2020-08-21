@@ -317,11 +317,23 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         User updated = userDAO.save(user);
 
+        @SuppressWarnings("unchecked")
+        PropagationByResource<String> propByRes = engine.getRuntimeService().getVariable(
+                procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
+        engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE);
+
+        @SuppressWarnings("unchecked")
+        PropagationByResource<Pair<String, String>> propByLinkedAccount = engine.getRuntimeService().getVariable(
+                procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, PropagationByResource.class);
+        engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT);
+
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.TASK);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.WF_EXECUTOR);
+        engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE);
+        engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT);
 
-        return new UserWorkflowResult<>(updated.getKey(), null, null, performedTasks);
+        return new UserWorkflowResult<>(updated.getKey(), propByRes, propByLinkedAccount, performedTasks);
     }
 
     @Override
@@ -335,11 +347,23 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         User updated = userDAO.save(user);
 
+        @SuppressWarnings("unchecked")
+        PropagationByResource<String> propByRes = engine.getRuntimeService().getVariable(
+                procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
+        engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE);
+
+        @SuppressWarnings("unchecked")
+        PropagationByResource<Pair<String, String>> propByLinkedAccount = engine.getRuntimeService().getVariable(
+                procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, PropagationByResource.class);
+        engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT);
+
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.TASK);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.WF_EXECUTOR);
+        engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE);
+        engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT);
 
-        return new UserWorkflowResult<>(updated.getKey(), null, null, performedTasks);
+        return new UserWorkflowResult<>(updated.getKey(), propByRes, propByLinkedAccount, performedTasks);
     }
 
     @Override
