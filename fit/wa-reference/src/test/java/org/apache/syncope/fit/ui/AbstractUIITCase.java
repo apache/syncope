@@ -23,12 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
-import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
-import org.apache.syncope.common.lib.to.SAML24UIIdPTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -55,7 +53,7 @@ public abstract class AbstractUIITCase extends AbstractITCase {
                     policyConf.getAuthModules().add(ldapAuthModule);
 
                     AuthPolicyTO policy = new AuthPolicyTO();
-                    policy.setDescription("Test authentication");
+                    policy.setDescription(description);
                     policy.setConf(policyConf);
 
                     Response response = policyService.create(PolicyType.AUTH, policy);
@@ -92,6 +90,8 @@ public abstract class AbstractUIITCase extends AbstractITCase {
         assertNotNull(userService.read("pullFromLDAP"));
     }
 
+    protected abstract void doSelfReg(Runnable runnable);
+
     @Test
     public void selfRegUnmatching() throws IOException {
         try {
@@ -100,21 +100,13 @@ public abstract class AbstractUIITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
-        List<SAML24UIIdPTO> idps = saml2sp4UIIdPService.list();
-        assertEquals(1, idps.size());
-
-        SAML24UIIdPTO cas = idps.get(0);
-        cas.setCreateUnmatching(false);
-        cas.setSelfRegUnmatching(true);
-        saml2sp4UIIdPService.update(cas);
-
-        try {
-            sso(ENDUSER_ADDRESS, "pullFromLDAP", "Password123");
-        } finally {
-            cas.setCreateUnmatching(true);
-            cas.setSelfRegUnmatching(false);
-            saml2sp4UIIdPService.update(cas);
-        }
+        doSelfReg(() -> {
+            try {
+                sso(ENDUSER_ADDRESS, "pullFromLDAP", "Password123");
+            } catch (IOException e) {
+                fail(e);
+            }
+        });
 
         try {
             userService.read("pullFromLDAP");

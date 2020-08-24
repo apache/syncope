@@ -48,7 +48,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.SAML24UIIdPTO;
+import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.to.client.SAML2SPTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
@@ -113,10 +113,10 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
                     type(clientFactory.getContentType().getMediaType());
         }
 
-        List<SAML24UIIdPTO> idps = saml2sp4UIIdPService.list();
+        List<SAML2SP4UIIdPTO> idps = saml2sp4UIIdPService.list();
         assertEquals(1, idps.size());
 
-        SAML24UIIdPTO cas = idps.get(0);
+        SAML2SP4UIIdPTO cas = idps.get(0);
         cas.setName("CAS");
         cas.setCreateUnmatching(true);
         cas.setSelfRegUnmatching(false);
@@ -239,5 +239,24 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         response = httpclient.execute(get, context);
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
         assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
+    }
+
+    @Override
+    protected void doSelfReg(final Runnable runnable) {
+        List<SAML2SP4UIIdPTO> idps = saml2sp4UIIdPService.list();
+        assertEquals(1, idps.size());
+
+        SAML2SP4UIIdPTO cas = idps.get(0);
+        cas.setCreateUnmatching(false);
+        cas.setSelfRegUnmatching(true);
+        saml2sp4UIIdPService.update(cas);
+
+        try {
+            runnable.run();
+        } finally {
+            cas.setCreateUnmatching(true);
+            cas.setSelfRegUnmatching(false);
+            saml2sp4UIIdPService.update(cas);
+        }
     }
 }

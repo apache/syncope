@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.SAML24UIIdPTO;
+import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.NameID;
@@ -53,7 +53,7 @@ public class SAML2ClientCache {
                 && spEntityID.equals(c.getConfiguration().getServiceProviderEntityId())).findFirst();
     }
 
-    private SAML2Client newSAML2Client(final Resource metadata, final SAML2Configuration cfg) {
+    private static SAML2Client newSAML2Client(final Resource metadata, final SAML2Configuration cfg) {
         cfg.setIdentityProviderMetadataResource(metadata);
 
         SAML2Client saml2Client = new SAML2Client(cfg);
@@ -62,11 +62,13 @@ public class SAML2ClientCache {
         return saml2Client;
     }
 
-    public SAML24UIIdPTO importMetadata(final InputStream metadata, final SAML2Configuration cfg) throws IOException {
+    public static SAML2SP4UIIdPTO importMetadata(
+            final InputStream metadata, final SAML2Configuration cfg) throws IOException {
+
         SAML2Client saml2Client = newSAML2Client(new ByteArrayResource(IOUtils.readBytesFromStream(metadata)), cfg);
         String entityId = saml2Client.getConfiguration().getIdentityProviderMetadataResolver().getEntityId();
 
-        SAML24UIIdPTO idpTO = new SAML24UIIdPTO();
+        SAML2SP4UIIdPTO idpTO = new SAML2SP4UIIdPTO();
         idpTO.setEntityID(entityId);
         idpTO.setName(entityId);
 
@@ -118,10 +120,6 @@ public class SAML2ClientCache {
 
         cache.add(saml2Client);
         return saml2Client;
-    }
-
-    public boolean remove(final SAML2Client saml2Client) {
-        return cache.remove(saml2Client);
     }
 
     public boolean removeAll(final String idpEntityID) {

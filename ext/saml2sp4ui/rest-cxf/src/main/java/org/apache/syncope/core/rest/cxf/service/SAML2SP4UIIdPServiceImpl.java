@@ -21,7 +21,7 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.io.InputStream;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.SAML24UIIdPTO;
+import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.logic.SAML2SP4UIIdPLogic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,12 +35,12 @@ public class SAML2SP4UIIdPServiceImpl extends AbstractServiceImpl implements SAM
     private SAML2SP4UIIdPLogic logic;
 
     @Override
-    public List<SAML24UIIdPTO> list() {
+    public List<SAML2SP4UIIdPTO> list() {
         return logic.list();
     }
 
     @Override
-    public SAML24UIIdPTO read(final String key) {
+    public SAML2SP4UIIdPTO read(final String key) {
         return logic.read(key);
     }
 
@@ -50,7 +50,7 @@ public class SAML2SP4UIIdPServiceImpl extends AbstractServiceImpl implements SAM
     }
 
     @Override
-    public void update(final SAML24UIIdPTO saml2IdpTO) {
+    public void update(final SAML2SP4UIIdPTO saml2IdpTO) {
         logic.update(saml2IdpTO);
     }
 

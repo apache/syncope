@@ -23,8 +23,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.common.lib.to.SAML24UIIdPTO;
+import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -46,29 +47,29 @@ public abstract class AbstractSAMLSSOLoginFormPanel extends BaseSSOLoginFormPane
     public AbstractSAMLSSOLoginFormPanel(final String id, final BaseSession session) {
         super(id);
 
-        List<SAML24UIIdPTO> available = session.getAnonymousService(SAML2SP4UIIdPService.class).list();
+        List<SAML2SP4UIIdPTO> available = session.getAnonymousService(SAML2SP4UIIdPService.class).list();
 
-        final Model<SAML24UIIdPTO> model = new Model<>();
-        AjaxDropDownChoicePanel<SAML24UIIdPTO> idps =
+        final Model<SAML2SP4UIIdPTO> model = new Model<>();
+        AjaxDropDownChoicePanel<SAML2SP4UIIdPTO> idps =
                 new AjaxDropDownChoicePanel<>("idps", "SAML 2.0", model, false);
         idps.setChoices(available);
-        idps.setChoiceRenderer(new IChoiceRenderer<SAML24UIIdPTO>() {
+        idps.setChoiceRenderer(new IChoiceRenderer<SAML2SP4UIIdPTO>() {
 
             private static final long serialVersionUID = 1814750973898916102L;
 
             @Override
-            public Object getDisplayValue(final SAML24UIIdPTO object) {
+            public Object getDisplayValue(final SAML2SP4UIIdPTO object) {
                 return object.getName();
             }
 
             @Override
-            public String getIdValue(final SAML24UIIdPTO object, final int index) {
+            public String getIdValue(final SAML2SP4UIIdPTO object, final int index) {
                 return object.getEntityID();
             }
 
             @Override
-            public SAML24UIIdPTO getObject(
-                    final String id, final IModel<? extends List<? extends SAML24UIIdPTO>> choices) {
+            public SAML2SP4UIIdPTO getObject(
+                    final String id, final IModel<? extends List<? extends SAML2SP4UIIdPTO>> choices) {
 
                 return choices.getObject().stream().
                         filter(idp -> idp.getEntityID().equals(id)).findFirst().orElse(null);
@@ -83,7 +84,7 @@ public abstract class AbstractSAMLSSOLoginFormPanel extends BaseSSOLoginFormPane
                 if (model.getObject() != null) {
                     try {
                         RequestCycle.get().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(
-                                UrlUtils.rewriteToContextRelative("saml2sp4ui/login?idp="
+                                UrlUtils.rewriteToContextRelative(SAML2SP4UIConstants.URL_CONTEXT + "/login?idp="
                                         + URLEncoder.encode(
                                                 model.getObject().getEntityID(), StandardCharsets.UTF_8),
                                         RequestCycle.get())));

@@ -120,8 +120,6 @@ import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
-import org.apache.syncope.common.rest.api.service.OIDCClientService;
-import org.apache.syncope.common.rest.api.service.OIDCProviderService;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
@@ -155,6 +153,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 
 @SpringJUnitConfig({ CoreITContext.class, SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
 public abstract class AbstractITCase {
@@ -317,9 +317,9 @@ public abstract class AbstractITCase {
 
     protected static SAML2SP4UIIdPService saml2SP4UIIdPService;
 
-    protected static OIDCClientService oidcClientService;
+    protected static OIDCC4UIService oidcClientService;
 
-    protected static OIDCProviderService oidcProviderService;
+    protected static OIDCC4UIProviderService oidcProviderService;
 
     protected static SCIMConfService scimConfService;
 
@@ -409,8 +409,8 @@ public abstract class AbstractITCase {
         camelRouteService = adminClient.getService(CamelRouteService.class);
         saml2SP4UIService = adminClient.getService(SAML2SP4UIService.class);
         saml2SP4UIIdPService = adminClient.getService(SAML2SP4UIIdPService.class);
-        oidcClientService = adminClient.getService(OIDCClientService.class);
-        oidcProviderService = adminClient.getService(OIDCProviderService.class);
+        oidcClientService = adminClient.getService(OIDCC4UIService.class);
+        oidcProviderService = adminClient.getService(OIDCC4UIProviderService.class);
         scimConfService = adminClient.getService(SCIMConfService.class);
         clientAppService = adminClient.getService(ClientAppService.class);
         authModuleService = adminClient.getService(AuthModuleService.class);

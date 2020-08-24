@@ -60,8 +60,8 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope.ext.oidcclient</groupId>
-      <artifactId>syncope-ext-oidcclient-client-enduser</artifactId>
+      <groupId>org.apache.syncope.ext.oidcc4ui</groupId>
+      <artifactId>syncope-ext-oidcc4ui-client-enduser</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

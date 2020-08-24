@@ -23,11 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.http.Consts;
@@ -44,21 +44,16 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
 import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.OIDCProviderTO;
+import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.to.client.OIDCRPTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.ext.oidcclient.agent.Constants;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 public class OIDC4UIITCase extends AbstractUIITCase {
-
-    private static final String CLIENT_ID = OIDC4UIITCase.class.getSimpleName();
-
-    private static final String CLIENT_SECRET = OIDC4UIITCase.class.getSimpleName();
 
     private static void clientAppSetup(final String appName, final String baseAddress, final long appId) {
         OIDCRPTO clientApp = clientAppService.list(ClientAppType.OIDCRP).stream().
@@ -69,8 +64,8 @@ public class OIDC4UIITCase extends AbstractUIITCase {
                     OIDCRPTO app = new OIDCRPTO();
                     app.setName(appName);
                     app.setClientAppId(appId);
-                    app.setClientId(CLIENT_ID);
-                    app.setClientSecret(CLIENT_SECRET);
+                    app.setClientId(appName);
+                    app.setClientSecret(appName);
 
                     Response response = clientAppService.create(ClientAppType.OIDCRP, app);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
@@ -81,37 +76,48 @@ public class OIDC4UIITCase extends AbstractUIITCase {
                             ClientAppType.OIDCRP, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 });
 
-        clientApp.setClientId(CLIENT_ID);
-        clientApp.setClientSecret(CLIENT_SECRET);
+        clientApp.setClientId(appName);
+        clientApp.setClientSecret(appName);
         clientApp.setSubjectType(OIDCSubjectType.PUBLIC);
-        clientApp.getRedirectUris().add(baseAddress + Constants.URL_CONTEXT + "/code-consumer");
+        clientApp.getRedirectUris().clear();
+        clientApp.getRedirectUris().add(baseAddress + OIDCC4UIConstants.URL_CONTEXT + "/code-consumer");
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setSignIdToken(true);
-        clientApp.setLogoutUri(baseAddress + Constants.URL_CONTEXT + "/logout");
+        clientApp.setLogoutUri(baseAddress + OIDCC4UIConstants.URL_CONTEXT + "/logout");
 
         clientAppService.update(ClientAppType.OIDCRP, clientApp);
         clientAppService.pushToWA();
     }
 
+    private static String getAppName(final String address) {
+        return CONSOLE_ADDRESS.equals(address)
+                ? OIDC4UIITCase.class.getName() + "_Console"
+                : OIDC4UIITCase.class.getName() + "_Enduser";
+    }
+
     @BeforeAll
     public static void consoleClientAppSetup() {
-        clientAppSetup(OIDC4UIITCase.class.getName() + "_Console", CONSOLE_ADDRESS, 7L);
+        clientAppSetup(getAppName(CONSOLE_ADDRESS), CONSOLE_ADDRESS, 7L);
     }
 
     @BeforeAll
     public static void enduserClientAppSetup() {
-        clientAppSetup(OIDC4UIITCase.class.getName() + "_Enduser", ENDUSER_ADDRESS, 8L);
+        clientAppSetup(getAppName(ENDUSER_ADDRESS), ENDUSER_ADDRESS, 8L);
     }
 
-    @BeforeAll
-    public static void oidcSetup() {
-        List<OIDCProviderTO> ops = oidcProviderService.list();
-        if (ops.isEmpty()) {
-            OIDCProviderTO cas = new OIDCProviderTO();
-            cas.setName("CAS");
+    private static void oidcSetup(
+            final String appName,
+            final boolean createUnmatching,
+            final boolean selfRegUnmatching) {
 
-            cas.setClientID(CLIENT_ID);
-            cas.setClientSecret(CLIENT_SECRET);
+        Optional<OIDCC4UIProviderTO> ops = oidcProviderService.list().stream().
+                filter(op -> op.getName().equals(appName)).findFirst();
+        if (ops.isEmpty()) {
+            OIDCC4UIProviderTO cas = new OIDCC4UIProviderTO();
+            cas.setName(appName);
+
+            cas.setClientID(appName);
+            cas.setClientSecret(appName);
 
             cas.setIssuer(WA_ADDRESS + "/oidc/");
             cas.setAuthorizationEndpoint(WA_ADDRESS + "/oidc/authorize");
@@ -120,12 +126,12 @@ public class OIDC4UIITCase extends AbstractUIITCase {
             cas.setUserinfoEndpoint(WA_ADDRESS + "/oidc/profile");
             cas.setEndSessionEndpoint(WA_ADDRESS + "/oidc/logout");
 
-            cas.setCreateUnmatching(true);
-            cas.setSelfRegUnmatching(false);
+            cas.setCreateUnmatching(createUnmatching);
+            cas.setSelfRegUnmatching(selfRegUnmatching);
 
             ItemTO item = new ItemTO();
             item.setIntAttrName("username");
-            item.setExtAttrName("NameID");
+            item.setExtAttrName("preferred_username");
             item.setConnObjectKey(true);
             cas.setConnObjectKeyItem(item);
 
@@ -158,6 +164,16 @@ public class OIDC4UIITCase extends AbstractUIITCase {
         }
     }
 
+    @BeforeAll
+    public static void consoleOIDCSetup() {
+        oidcSetup(getAppName(CONSOLE_ADDRESS), true, false);
+    }
+
+    @BeforeAll
+    public static void enduserOIDCSetup() {
+        oidcSetup(getAppName(ENDUSER_ADDRESS), false, true);
+    }
+
     @Override
     protected void sso(final String baseURL, final String username, final String password) throws IOException {
         CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -170,7 +186,7 @@ public class OIDC4UIITCase extends AbstractUIITCase {
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
         // 2. click on the OpenID Connect Provider
-        get = new HttpGet(baseURL + Constants.URL_CONTEXT + "/login?op=CAS");
+        get = new HttpGet(baseURL + OIDCC4UIConstants.URL_CONTEXT + "/login?op=" + getAppName(baseURL));
         get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         response = httpclient.execute(get, context);
@@ -226,35 +242,12 @@ public class OIDC4UIITCase extends AbstractUIITCase {
         response = httpclient.execute(get, context);
 
         // 3. verify that user is now authenticated
-        get = new HttpGet(response.getFirstHeader(HttpHeaders.LOCATION).getValue());
-        response = httpclient.execute(get, context);
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
         assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
     }
 
-    @Test
     @Override
-    public void sso2Console() throws IOException {
-        assumeTrue(false);
-        super.sso2Console();
-    }
-
-    @Test
-    @Override
-    public void sso2Enduser() throws IOException {
-        assumeTrue(false);
-        super.sso2Enduser();
-    }
-
-    @Override
-    public void createUnmatching() throws IOException {
-        assumeTrue(false);
-        super.createUnmatching();
-    }
-
-    @Override
-    public void selfRegUnmatching() throws IOException {
-        assumeTrue(false);
-        super.selfRegUnmatching();
+    protected void doSelfReg(final Runnable runnable) {
+        runnable.run();
     }
 }

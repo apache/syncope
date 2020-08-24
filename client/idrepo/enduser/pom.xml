@@ -240,7 +240,7 @@ under the License.
             <configuration>
               <jvmArguments>
                 -Dwicket.core.settings.general.configuration-type=development
-                -Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n
+                -Xdebug -Xrunjdwp:transport=dt_socket,address=8004,server=y,suspend=n
               </jvmArguments>
               <profiles>
                 <profile>debug</profile>
@@ -285,8 +285,8 @@ under the License.
         </dependency>
 
         <dependency>
-          <groupId>org.apache.syncope.ext.oidcclient</groupId>
-          <artifactId>syncope-ext-oidcclient-client-enduser</artifactId>
+          <groupId>org.apache.syncope.ext.oidcc4ui</groupId>
+          <artifactId>syncope-ext-oidcc4ui-client-enduser</artifactId>
           <version>${project.version}</version>
         </dependency>
       </dependencies>

@@ -26,7 +26,7 @@ import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.SAML24UIIdPTO;
+import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.wicket.model.IModel;
@@ -39,7 +39,7 @@ public class SAML2IdPMappingPanel extends AbstractMappingPanel {
 
     public SAML2IdPMappingPanel(
             final String id,
-            final SAML24UIIdPTO idpTO,
+            final SAML2SP4UIIdPTO idpTO,
             final ItemTransformersTogglePanel mapItemTransformers,
             final JEXLTransformersTogglePanel jexlTransformers) {
 

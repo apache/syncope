@@ -74,8 +74,6 @@ jobs:
     - stage: test
       name: "Persistence Unit Tests via JDK 11: PostgreSQL (JSONB)"
       script: mvn -f core/persistence-jpa-json/pom.xml -P postgres -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true
-      after_failure:
-       - cat core/persistence-jpa-json/target/failsafe-reports/org.apache.syncope.core.persistence.jpa.inner.AnySearchTest*
     - stage: test
       name: "Persistence Unit Tests via JDK 11: MySQL (JSON)"
       script: mvn -f core/persistence-jpa-json/pom.xml -P mysql -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true
@@ -119,7 +117,4 @@ jobs:
     - stage: fit
       name: "Integration Tests: SRA and WA"
       script: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-      after_failure:
-       - cat fit/wa-reference/target/log/*
-       - cat fit/core-reference/target/log/*
     #####################################################

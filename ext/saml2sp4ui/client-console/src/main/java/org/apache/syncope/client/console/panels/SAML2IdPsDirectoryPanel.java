@@ -50,7 +50,7 @@ import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.SAML24UIIdPTO;
+import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SAML2SP4UIEntitlement;
@@ -70,7 +70,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
-        SAML24UIIdPTO, SAML24UIIdPTO, SAML2IdPsProvider, SAML2IdPsRestClient> {
+        SAML2SP4UIIdPTO, SAML2SP4UIIdPTO, SAML2IdPsProvider, SAML2IdPsRestClient> {
 
     private static final long serialVersionUID = 4792356089584116041L;
 
@@ -81,16 +81,17 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
     private final BaseModal<Serializable> templateModal;
 
     public SAML2IdPsDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, new Builder<SAML24UIIdPTO, SAML24UIIdPTO, SAML2IdPsRestClient>(new SAML2IdPsRestClient(), pageRef) {
+        super(id, new Builder<SAML2SP4UIIdPTO, SAML2SP4UIIdPTO, SAML2IdPsRestClient>(
+                new SAML2IdPsRestClient(), pageRef) {
 
             private static final long serialVersionUID = 8517982765290075155L;
 
             @Override
-            protected WizardMgtPanel<SAML24UIIdPTO> newInstance(final String id, final boolean wizardInModal) {
+            protected WizardMgtPanel<SAML2SP4UIIdPTO> newInstance(final String id, final boolean wizardInModal) {
                 throw new UnsupportedOperationException();
             }
         }.disableCheckBoxes());
-        this.addNewItemPanelBuilder(new SAML2IdPWizardBuilder(this, new SAML24UIIdPTO(), pageRef), false);
+        this.addNewItemPanelBuilder(new SAML2IdPWizardBuilder(this, new SAML2SP4UIIdPTO(), pageRef), false);
 
         modal.addSubmitButton();
         modal.size(Modal.Size.Large);
@@ -153,16 +154,16 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
     }
 
     @Override
-    protected ActionLinksTogglePanel<SAML24UIIdPTO> actionTogglePanel() {
-        return new ActionLinksTogglePanel<SAML24UIIdPTO>(Constants.OUTER, pageRef) {
+    protected ActionLinksTogglePanel<SAML2SP4UIIdPTO> actionTogglePanel() {
+        return new ActionLinksTogglePanel<SAML2SP4UIIdPTO>(Constants.OUTER, pageRef) {
 
             private static final long serialVersionUID = -7688359318035249200L;
 
             @Override
             public void updateHeader(final AjaxRequestTarget target, final Serializable modelObject) {
-                if (modelObject instanceof SAML24UIIdPTO) {
-                    setHeader(target,
-                            StringUtils.abbreviate(((SAML24UIIdPTO) modelObject).getName(), HEADER_FIRST_ABBREVIATION));
+                if (modelObject instanceof SAML2SP4UIIdPTO) {
+                    setHeader(target, StringUtils.abbreviate(
+                            ((SAML2SP4UIIdPTO) modelObject).getName(), HEADER_FIRST_ABBREVIATION));
                 } else {
                     super.updateHeader(target, modelObject);
                 }
@@ -181,8 +182,8 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
     }
 
     @Override
-    protected List<IColumn<SAML24UIIdPTO, String>> getColumns() {
-        List<IColumn<SAML24UIIdPTO, String>> columns = new ArrayList<>();
+    protected List<IColumn<SAML2SP4UIIdPTO, String>> getColumns() {
+        List<IColumn<SAML2SP4UIIdPTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(new ResourceModel("key"), "key", "key"));
         columns.add(new PropertyColumn<>(new ResourceModel("name"), "name", "name"));
@@ -196,16 +197,16 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
     }
 
     @Override
-    public ActionsPanel<SAML24UIIdPTO> getActions(final IModel<SAML24UIIdPTO> model) {
-        final ActionsPanel<SAML24UIIdPTO> panel = super.getActions(model);
+    public ActionsPanel<SAML2SP4UIIdPTO> getActions(final IModel<SAML2SP4UIIdPTO> model) {
+        final ActionsPanel<SAML2SP4UIIdPTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<SAML24UIIdPTO>() {
+        panel.add(new ActionLink<SAML2SP4UIIdPTO>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final SAML24UIIdPTO ignore) {
-                SAML24UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
+            public void onClick(final AjaxRequestTarget target, final SAML2SP4UIIdPTO ignore) {
+                SAML2SP4UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
                 metadataModal.header(Model.of(object.getName() + " - Metadata"));
                 metadataModal.setContent(new XMLEditorPanel(
                         metadataModal,
@@ -216,24 +217,24 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                 target.add(metadataModal);
             }
         }, ActionLink.ActionType.HTML, SAML2SP4UIEntitlement.IDP_READ);
-        panel.add(new ActionLink<SAML24UIIdPTO>() {
+        panel.add(new ActionLink<SAML2SP4UIIdPTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final SAML24UIIdPTO ignore) {
-                SAML24UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
+            public void onClick(final AjaxRequestTarget target, final SAML2SP4UIIdPTO ignore) {
+                SAML2SP4UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
                 send(SAML2IdPsDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(object, target));
             }
         }, ActionLink.ActionType.EDIT, SAML2SP4UIEntitlement.IDP_UPDATE);
-        panel.add(new ActionLink<SAML24UIIdPTO>() {
+        panel.add(new ActionLink<SAML2SP4UIIdPTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final SAML24UIIdPTO ignore) {
-                final SAML24UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
+            public void onClick(final AjaxRequestTarget target, final SAML2SP4UIIdPTO ignore) {
+                final SAML2SP4UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
 
                 UserTemplateWizardBuilder builder = new UserTemplateWizardBuilder(
                         object.getUserTemplate(),
@@ -259,12 +260,12 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
             }
         }, ActionLink.ActionType.TEMPLATE, SAML2SP4UIEntitlement.IDP_UPDATE);
-        panel.add(new ActionLink<SAML24UIIdPTO>() {
+        panel.add(new ActionLink<SAML2SP4UIIdPTO>() {
 
             private static final long serialVersionUID = -5467832321897812767L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final SAML24UIIdPTO ignore) {
+            public void onClick(final AjaxRequestTarget target, final SAML2SP4UIIdPTO ignore) {
                 try {
                     SAML2IdPsRestClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
@@ -302,11 +303,11 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         }
     }
 
-    protected static final class SAML2IdPsProvider extends DirectoryDataProvider<SAML24UIIdPTO> {
+    protected static final class SAML2IdPsProvider extends DirectoryDataProvider<SAML2SP4UIIdPTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
-        private final SortableDataProviderComparator<SAML24UIIdPTO> comparator;
+        private final SortableDataProviderComparator<SAML2SP4UIIdPTO> comparator;
 
         private SAML2IdPsProvider(final int paginatorRows) {
             super(paginatorRows);
@@ -316,8 +317,8 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         }
 
         @Override
-        public Iterator<SAML24UIIdPTO> iterator(final long first, final long count) {
-            List<SAML24UIIdPTO> list = SAML2IdPsRestClient.list();
+        public Iterator<SAML2SP4UIIdPTO> iterator(final long first, final long count) {
+            List<SAML2SP4UIIdPTO> list = SAML2IdPsRestClient.list();
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
@@ -328,7 +329,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         }
 
         @Override
-        public IModel<SAML24UIIdPTO> model(final SAML24UIIdPTO object) {
+        public IModel<SAML2SP4UIIdPTO> model(final SAML2SP4UIIdPTO object) {
             return new CompoundPropertyModel<>(object);
         }
     }
