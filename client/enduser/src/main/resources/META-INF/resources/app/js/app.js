@@ -46,8 +46,10 @@ var app = angular.module('SyncopeEnduserApp', [
   'ngAria'
 ]);
 
-app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider',
-  function ($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider) {
+app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider',
+  '$translatePartialLoaderProvider', '$compileProvider',
+  function ($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider,
+          $translatePartialLoaderProvider, $compileProvider) {
     /*
      |--------------------------------------------------------------------------
      | Syncope Enduser AngularJS providers configuration
@@ -304,6 +306,8 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
         }
       };
     });
+    // SYNCOPE-1549
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(javascript):/);
   }]);
 app.run(['$rootScope', '$state', 'AuthService', '$transitions',
   function ($rootScope, $state, AuthService, $transitions) {
