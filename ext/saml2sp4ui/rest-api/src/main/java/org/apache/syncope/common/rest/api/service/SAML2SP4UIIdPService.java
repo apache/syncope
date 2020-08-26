@@ -39,7 +39,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.SAML24UIIdPTO;
+import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
@@ -59,7 +59,7 @@ public interface SAML2SP4UIIdPService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<SAML24UIIdPTO> list();
+    List<SAML2SP4UIIdPTO> list();
 
     /**
      * Returns the SAML 2.0 Identity Provider with matching entityID, if available.
@@ -70,7 +70,7 @@ public interface SAML2SP4UIIdPService extends JAXRSService {
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    SAML24UIIdPTO read(@PathParam("key") String key);
+    SAML2SP4UIIdPTO read(@PathParam("key") String key);
 
     /**
      * Imports the SAML 2.0 Identity Provider definitions available in the provided XML metadata.
@@ -96,7 +96,7 @@ public interface SAML2SP4UIIdPService extends JAXRSService {
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void update(@NotNull SAML24UIIdPTO saml2IdpTO);
+    void update(@NotNull SAML2SP4UIIdPTO saml2IdpTO);
 
     /**
      * Deletes the SAML 2.0 Identity Provider with matching entityID.

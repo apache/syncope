@@ -41,7 +41,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
-import org.apache.syncope.common.rest.api.service.OIDCProviderService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.wa.WASAML2IdPMetadataService;
@@ -51,6 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 import org.apache.syncope.common.rest.api.service.UserService;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 
 public class AbstractITCase {
 
@@ -84,7 +84,7 @@ public class AbstractITCase {
 
     protected static SAML2SP4UIIdPService saml2sp4UIIdPService;
 
-    protected static OIDCProviderService oidcProviderService;
+    protected static OIDCC4UIProviderService oidcProviderService;
 
     @BeforeAll
     public static void restSetup() {
@@ -96,7 +96,7 @@ public class AbstractITCase {
         clientAppService = adminClient.getService(ClientAppService.class);
         sraRouteService = adminClient.getService(SRARouteService.class);
         saml2sp4UIIdPService = adminClient.getService(SAML2SP4UIIdPService.class);
-        oidcProviderService = adminClient.getService(OIDCProviderService.class);
+        oidcProviderService = adminClient.getService(OIDCC4UIProviderService.class);
     }
 
     @BeforeAll

@@ -28,5 +28,4 @@ public class SAMLSSOLoginFormPanel extends AbstractSAMLSSOLoginFormPanel {
     public SAMLSSOLoginFormPanel(final String id, final BaseSession session) {
         super(id, session);
     }
-
 }

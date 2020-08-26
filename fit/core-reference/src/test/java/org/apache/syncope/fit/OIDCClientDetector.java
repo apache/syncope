@@ -20,9 +20,9 @@ package org.apache.syncope.fit;
 
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.common.rest.api.service.OIDCProviderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 
 public class OIDCClientDetector {
 
@@ -39,7 +39,7 @@ public class OIDCClientDetector {
                             setContentType(SyncopeClientFactoryBean.ContentType.JSON).
                             create(new AnonymousAuthenticationHandler(
                                     AbstractITCase.ANONYMOUS_UNAME, AbstractITCase.ANONYMOUS_KEY)).
-                            getService(OIDCProviderService.class).list();
+                            getService(OIDCC4UIProviderService.class).list();
                     ENABLED = true;
                 } catch (Exception e) {
                     // ignore

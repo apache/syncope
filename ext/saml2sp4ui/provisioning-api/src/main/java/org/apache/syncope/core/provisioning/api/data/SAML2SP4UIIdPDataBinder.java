@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.to.SAML24UIIdPTO;
+import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 
 public interface SAML2SP4UIIdPDataBinder {
 
-    SAML24UIIdPTO getIdPTO(SAML2SP4UIIdP idp);
+    SAML2SP4UIIdPTO getIdPTO(SAML2SP4UIIdP idp);
 
-    SAML2SP4UIIdP create(SAML24UIIdPTO idpTO);
+    SAML2SP4UIIdP create(SAML2SP4UIIdPTO idpTO);
 
-    SAML2SP4UIIdP update(SAML2SP4UIIdP idp, SAML24UIIdPTO idpTO);
+    SAML2SP4UIIdP update(SAML2SP4UIIdP idp, SAML2SP4UIIdPTO idpTO);
 
 }

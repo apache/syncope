@@ -385,13 +385,13 @@ Add the following dependencies to `core/pom.xml`:
 [source,xml,subs="verbatim,attributes"]
 ----
 <dependency>
-  <groupId>org.apache.syncope.ext.oidcclient</groupId>
-  <artifactId>syncope-ext-oidcclient-rest-cxf</artifactId>
+  <groupId>org.apache.syncope.ext.oidcc4ui</groupId>
+  <artifactId>syncope-ext-oidcc4ui-rest-cxf</artifactId>
   <version>${syncope.version}</version>
 </dependency>
 <dependency>
-  <groupId>org.apache.syncope.ext.oidcclient</groupId>
-  <artifactId>syncope-ext-oidcclient-persistence-jpa</artifactId>
+  <groupId>org.apache.syncope.ext.oidcc4ui</groupId>
+  <artifactId>syncope-ext-oidcc4ui-persistence-jpa</artifactId>
   <version>${syncope.version}</version>
 </dependency>
 ----
@@ -583,13 +583,13 @@ Add the following dependencies to `console/pom.xml`:
 [source,xml,subs="verbatim,attributes"]
 ----
 <dependency>
-  <groupId>org.apache.syncope.ext.oidcclient</groupId>
-  <artifactId>syncope-ext-oidcclient-client-console</artifactId>
+  <groupId>org.apache.syncope.ext.oidcc4ui</groupId>
+  <artifactId>syncope-ext-oidcc4ui-client-console</artifactId>
   <version>${syncope.version}</version>
 </dependency>
 ----
 
-Copy `console/src/main/resources/all/oidcclient-agent.properties` to `console/src/main/resources/oidcclient-agent.properties`.
+Copy `console/src/main/resources/all/oidcc4ui-agent.properties` to `console/src/main/resources/oidcc4ui-agent.properties`.
 
 
 [discrete]
@@ -651,13 +651,11 @@ Add the following dependencies to `enduser/pom.xml`:
 [source,xml,subs="verbatim,attributes"]
 ----
 <dependency>
-  <groupId>org.apache.syncope.ext.oidcclient</groupId>
-  <artifactId>syncope-ext-oidcclient-client-enduser</artifactId>
+  <groupId>org.apache.syncope.ext.oidcc4ui</groupId>
+  <artifactId>syncope-ext-oidcc4ui-client-enduser</artifactId>
   <version>${syncope.version}</version>
 </dependency>
 ----
-
-Copy `enduser/src/main/resources/all/oidcclient-agent.properties` to `enduser/src/main/resources/oidcclient-agent.properties`.
 
 [[customization-enduser-i18n]]
 ===== i18n 

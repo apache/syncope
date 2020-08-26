@@ -24,14 +24,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.SAML24UIIdPTO;
+import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.lib.types.SAML2SP4UIEntitlement;
 import org.apache.syncope.core.logic.init.SAML2SP4UILoader;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.pac4j.saml.config.SAML2Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -41,7 +39,7 @@ import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.provisioning.api.data.SAML2SP4UIIdPDataBinder;
 
 @Component
-public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML24UIIdPTO> {
+public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML2SP4UIIdPTO> {
 
     @Autowired
     private SAML2SP4UILoader loader;
@@ -57,13 +55,13 @@ public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML24UIIdPTO
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public List<SAML24UIIdPTO> list() {
+    public List<SAML2SP4UIIdPTO> list() {
         return idpDAO.findAll().stream().map(binder::getIdPTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + SAML2SP4UIEntitlement.IDP_READ + "')")
     @Transactional(readOnly = true)
-    public SAML24UIIdPTO read(final String key) {
+    public SAML2SP4UIIdPTO read(final String key) {
         SAML2SP4UIIdP idp = idpDAO.find(key);
         if (idp == null) {
             throw new NotFoundException("SAML 2.0 IdP '" + key + '\'');
@@ -75,7 +73,7 @@ public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML24UIIdPTO
     @PreAuthorize("hasRole('" + SAML2SP4UIEntitlement.IDP_IMPORT + "')")
     public String importFromMetadata(final InputStream input) {
         try {
-            SAML24UIIdPTO idpTO = saml2ClientCache.importMetadata(input, loader.newSAML2Configuration());
+            SAML2SP4UIIdPTO idpTO = SAML2ClientCache.importMetadata(input, loader.newSAML2Configuration());
             SAML2SP4UIIdP idp = idpDAO.save(binder.create(idpTO));
 
             return idp.getKey();
@@ -89,15 +87,8 @@ public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML24UIIdPTO
         }
     }
 
-    private static void setBindingType(final SAML2Configuration cfg, final SAML2BindingType type) {
-        cfg.setAuthnRequestBindingType(type.getUri());
-        cfg.setResponseBindingType(SAML2BindingType.POST.getUri());
-        cfg.setSpLogoutRequestBindingType(type.getUri());
-        cfg.setSpLogoutResponseBindingType(type.getUri());
-    }
-
     @PreAuthorize("hasRole('" + SAML2SP4UIEntitlement.IDP_UPDATE + "')")
-    public void update(final SAML24UIIdPTO saml2IdpTO) {
+    public void update(final SAML2SP4UIIdPTO saml2IdpTO) {
         SAML2SP4UIIdP idp = idpDAO.find(saml2IdpTO.getKey());
         if (idp == null) {
             throw new NotFoundException("SAML 2.0 IdP '" + saml2IdpTO.getKey() + '\'');
@@ -119,7 +110,7 @@ public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML24UIIdPTO
     }
 
     @Override
-    protected SAML24UIIdPTO resolveReference(final Method method, final Object... args)
+    protected SAML2SP4UIIdPTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         String key = null;
@@ -128,8 +119,8 @@ public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML24UIIdPTO
             for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof String) {
                     key = (String) args[i];
-                } else if (args[i] instanceof SAML24UIIdPTO) {
-                    key = ((SAML24UIIdPTO) args[i]).getKey();
+                } else if (args[i] instanceof SAML2SP4UIIdPTO) {
+                    key = ((SAML2SP4UIIdPTO) args[i]).getKey();
                 }
             }
         }

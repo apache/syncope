@@ -197,14 +197,14 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope.ext.oidcclient</groupId>
-      <artifactId>syncope-ext-oidcclient-rest-cxf</artifactId>
+      <groupId>org.apache.syncope.ext.oidcc4ui</groupId>
+      <artifactId>syncope-ext-oidcc4ui-rest-cxf</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>          
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope.ext.oidcclient</groupId>
-      <artifactId>syncope-ext-oidcclient-client-console</artifactId>
+      <groupId>org.apache.syncope.ext.oidcc4ui</groupId>
+      <artifactId>syncope-ext-oidcc4ui-client-console</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -1841,13 +1841,13 @@ under the License.
         </dependency>
         
         <dependency>
-          <groupId>org.apache.syncope.ext.oidcclient</groupId>
-          <artifactId>syncope-ext-oidcclient-rest-cxf</artifactId>
+          <groupId>org.apache.syncope.ext.oidcc4ui</groupId>
+          <artifactId>syncope-ext-oidcc4ui-rest-cxf</artifactId>
           <version>${project.version}</version>
         </dependency>
         <dependency>
-          <groupId>org.apache.syncope.ext.oidcclient</groupId>
-          <artifactId>syncope-ext-oidcclient-persistence-jpa</artifactId>
+          <groupId>org.apache.syncope.ext.oidcc4ui</groupId>
+          <artifactId>syncope-ext-oidcc4ui-persistence-jpa</artifactId>
           <version>${project.version}</version>
         </dependency>
         

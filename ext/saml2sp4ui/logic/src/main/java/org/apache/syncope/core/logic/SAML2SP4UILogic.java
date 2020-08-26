@@ -364,11 +364,10 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
                 loginResp.getAttrs().clear();
                 loginResp.getAttrs().addAll(userTO.getPlainAttrs());
-                loginResp.getAttrs().addAll(userTO.getVirAttrs());
                 if (StringUtils.isNotBlank(userTO.getUsername())) {
                     loginResp.setUsername(userTO.getUsername());
                 } else {
-                    loginResp.setUsername(loginResp.getNameID());
+                    loginResp.setUsername(keyValue);
                 }
 
                 loginResp.setSelfReg(true);

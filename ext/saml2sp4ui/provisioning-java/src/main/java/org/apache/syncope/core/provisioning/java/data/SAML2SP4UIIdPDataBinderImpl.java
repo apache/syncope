@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.SAML24UIIdPTO;
+import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -69,11 +69,11 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
     private IntAttrNameParser intAttrNameParser;
 
     @Override
-    public SAML2SP4UIIdP create(final SAML24UIIdPTO idpTO) {
+    public SAML2SP4UIIdP create(final SAML2SP4UIIdPTO idpTO) {
         return update(entityFactory.newEntity(SAML2SP4UIIdP.class), idpTO);
     }
 
-    private void populateItems(final SAML24UIIdPTO idpTO, final SAML2SP4UIIdP idp) {
+    private void populateItems(final SAML2SP4UIIdPTO idpTO, final SAML2SP4UIIdP idp) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
         SyncopeClientException invalidMapping =
                 SyncopeClientException.build(ClientExceptionType.InvalidMapping);
@@ -146,7 +146,7 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
     }
 
     @Override
-    public SAML2SP4UIIdP update(final SAML2SP4UIIdP idp, final SAML24UIIdPTO idpTO) {
+    public SAML2SP4UIIdP update(final SAML2SP4UIIdP idp, final SAML2SP4UIIdPTO idpTO) {
         idp.setEntityID(idpTO.getEntityID());
         idp.setName(idpTO.getName());
         idp.setMetadata(Base64.getMimeDecoder().decode(idpTO.getMetadata()));
@@ -198,7 +198,7 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
         return idapDAO.save(idp);
     }
 
-    private static void populateItems(final SAML2SP4UIIdP idp, final SAML24UIIdPTO idpTO) {
+    private static void populateItems(final SAML2SP4UIIdP idp, final SAML2SP4UIIdPTO idpTO) {
         idp.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());
@@ -220,8 +220,8 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
     }
 
     @Override
-    public SAML24UIIdPTO getIdPTO(final SAML2SP4UIIdP idp) {
-        SAML24UIIdPTO idpTO = new SAML24UIIdPTO();
+    public SAML2SP4UIIdPTO getIdPTO(final SAML2SP4UIIdP idp) {
+        SAML2SP4UIIdPTO idpTO = new SAML2SP4UIIdPTO();
 
         idpTO.setKey(idp.getKey());
         idpTO.setEntityID(idp.getEntityID());

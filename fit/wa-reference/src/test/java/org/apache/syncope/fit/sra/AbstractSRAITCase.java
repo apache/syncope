@@ -216,7 +216,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
                     policyConf.getAuthModules().add(authModule);
 
                     AuthPolicyTO policy = new AuthPolicyTO();
-                    policy.setDescription("SRA auth policy");
+                    policy.setDescription(description);
                     policy.setConf(policyConf);
 
                     Response response = policyService.create(PolicyType.AUTH, policy);

@@ -26,30 +26,6 @@ under the License.
 
   <display-name>Apache Syncope ${syncope.version} Console</display-name>
 
-  <!-- OIDC Client Parameters -->
-  <context-param>
-    <param-name>oidcclient.login.success.url</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.OIDCClientLogin</param-value>
-  </context-param>
-  <context-param>
-    <param-name>oidcclient.login.error.url</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.Login</param-value>
-  </context-param>
-  
-  <context-param>
-    <param-name>oidcclient.logout.success.url</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.OIDCClientLogout</param-value>
-  </context-param>
-  <context-param>
-    <param-name>oidcclient.logout.error.url</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.Login</param-value>
-  </context-param>
-  
-  <context-param>
-    <param-name>oidcclient.redirect.selfreg</param-name>
-    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.OIDCClientSelfReg</param-value>
-  </context-param>
-
   <!-- SESSION TIMEOUT (MINUTES)-->
   <session-config>
     <session-timeout>30</session-timeout>

@@ -24,14 +24,14 @@ import javax.ws.rs.core.MediaType;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.common.lib.to.SAML24UIIdPTO;
+import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 
 public class SAML2IdPsRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -5084300184764037527L;
 
-    public static List<SAML24UIIdPTO> list() {
+    public static List<SAML2SP4UIIdPTO> list() {
         return getService(SAML2SP4UIIdPService.class).list();
     }
 
@@ -45,11 +45,11 @@ public class SAML2IdPsRestClient extends BaseRestClient {
         SyncopeConsoleSession.get().resetClient(SAML2SP4UIIdPService.class);
     }
 
-    public static SAML24UIIdPTO read(final String key) {
+    public static SAML2SP4UIIdPTO read(final String key) {
         return getService(SAML2SP4UIIdPService.class).read(key);
     }
 
-    public static void update(final SAML24UIIdPTO idp) {
+    public static void update(final SAML2SP4UIIdPTO idp) {
         getService(SAML2SP4UIIdPService.class).update(idp);
     }
 

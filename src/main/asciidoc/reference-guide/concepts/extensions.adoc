@@ -109,10 +109,10 @@ is going to be implemented in order to reach the user information to be used by 
 ====
 The source code of this extension is available from the Apache Syncope
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/oidcclient[source tree^]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/oidcc4ui[source tree^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/ext/oidcclient[source tree^]
+https://github.com/apache/syncope/tree/master/ext/oidcc4ui[source tree^]
 endif::[]
 .
 ====

@@ -109,6 +109,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         clientApp.setClientId(clientId);
         clientApp.setClientSecret(clientSecret);
         clientApp.setSubjectType(OIDCSubjectType.PUBLIC);
+        clientApp.getRedirectUris().clear();
         clientApp.getRedirectUris().add(SRA_ADDRESS + "/login/oauth2/code/" + sraRegistrationId);
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setSignIdToken(true);

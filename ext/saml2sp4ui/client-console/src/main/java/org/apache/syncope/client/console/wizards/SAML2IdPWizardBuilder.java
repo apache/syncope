@@ -42,7 +42,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.SAML24UIIdPTO;
+import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.lib.types.SAML2SP4UIImplementationType;
 import org.apache.wicket.Component;
@@ -58,7 +58,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML24UIIdPTO> {
+public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2SP4UIIdPTO> {
 
     private static final long serialVersionUID = 5952696913893950460L;
 
@@ -87,14 +87,14 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML24UIIdPTO> {
     };
 
     public SAML2IdPWizardBuilder(
-            final SAML2IdPsDirectoryPanel directoryPanel, final SAML24UIIdPTO idpTO, final PageReference pageRef) {
+            final SAML2IdPsDirectoryPanel directoryPanel, final SAML2SP4UIIdPTO idpTO, final PageReference pageRef) {
 
         super(idpTO, pageRef);
         this.directoryPanel = directoryPanel;
     }
 
     @Override
-    protected WizardModel buildModelSteps(final SAML24UIIdPTO modelObject, final WizardModel wizardModel) {
+    protected WizardModel buildModelSteps(final SAML2SP4UIIdPTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new IdP(modelObject));
 
         Mapping mapping = new Mapping(modelObject);
@@ -137,7 +137,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML24UIIdPTO> {
 
         private static final long serialVersionUID = 854012593185195024L;
 
-        IdP(final SAML24UIIdPTO idpTO) {
+        IdP(final SAML2SP4UIIdPTO idpTO) {
             super(StringUtils.EMPTY, StringUtils.EMPTY);
 
             List<Component> fields = new ArrayList<>();
@@ -200,14 +200,14 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML24UIIdPTO> {
 
         private static final long serialVersionUID = 3454904947720856253L;
 
-        Mapping(final SAML24UIIdPTO item) {
+        Mapping(final SAML2SP4UIIdPTO item) {
             setTitleModel(Model.of("Mapping"));
             setSummaryModel(Model.of(StringUtils.EMPTY));
         }
     }
 
     @Override
-    protected Serializable onApplyInternal(final SAML24UIIdPTO modelObject) {
+    protected Serializable onApplyInternal(final SAML2SP4UIIdPTO modelObject) {
         long connObjectKeyCount = modelObject.getItems().stream().filter(ItemTO::isConnObjectKey).count();
         if (connObjectKeyCount != 1) {
             throw new IllegalArgumentException(

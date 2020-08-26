@@ -65,7 +65,7 @@ public class SAML2SP4UIServiceImpl extends AbstractServiceImpl implements SAML2S
     @Override
     public SAML2Request createLogoutRequest(final String spEntityID, final String urlContext) {
         return logic.createLogoutRequest(
-                getJWTToken(),
+                getAccessToken(),
                 StringUtils.appendIfMissing(spEntityID, "/"),
                 urlContext);
     }
@@ -75,7 +75,7 @@ public class SAML2SP4UIServiceImpl extends AbstractServiceImpl implements SAML2S
         logic.validateLogoutResponse(response);
     }
 
-    private String getJWTToken() {
+    private String getAccessToken() {
         String auth = messageContext.getHttpHeaders().getHeaderString(HttpHeaders.AUTHORIZATION);
         String[] parts = Optional.ofNullable(auth).map(s -> s.split(" ")).orElse(null);
         if (parts == null || parts.length != 2 || !"Bearer".equals(parts[0])) {

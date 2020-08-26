@@ -29,7 +29,7 @@ public final class SAML2SP4UIImplementationType {
 
     private static final Map<String, String> VALUES = Map.ofEntries(
             Pair.of(IDP_ACTIONS,
-                    "org.apache.syncope.core.provisioning.api.SAML2IdPActions"),
+                    "org.apache.syncope.core.provisioning.api.SAML2SP4UIIdPActions"),
             Pair.of(REQUESTED_AUTHN_CONTEXT_PROVIDER,
                     "org.apache.syncope.core.provisioning.api.RequestedAuthnContextProvider"));
 
