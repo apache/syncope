@@ -21,6 +21,7 @@ package org.apache.syncope.ide.netbeans.view;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -38,11 +39,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
@@ -378,9 +378,9 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                         mailTemplate.setKey(name1);
                         added = mailTemplateManagerService.create(mailTemplate);
                         mailTemplateManagerService.setFormat(name1, MailTemplateFormat.HTML,
-                                IOUtils.toInputStream("//Enter Content here", encodingPattern));
+                                new ByteArrayInputStream("//Enter content here".getBytes(encodingPattern)));
                         mailTemplateManagerService.setFormat(name1, MailTemplateFormat.TEXT,
-                                IOUtils.toInputStream("//Enter Content here", encodingPattern));
+                                new ByteArrayInputStream("//Enter content here".getBytes(encodingPattern)));
                         openMailEditor(name1);
                     } else if (PluginConstants.GROOVY_SCRIPTS.equals(parent1.getUserObject())) {
                         ImplementationTO newNode = new ImplementationTO();
@@ -454,7 +454,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                         }
                         newNode.setBody(IOUtils.toString(getClass().getResourceAsStream(
                                 "/org/apache/syncope/ide/netbeans/implementations/" + templateClassName + ".groovy"),
-                                StandardCharsets.UTF_8));
+                                StandardCharsets.UTF_8.name()));
                         added = implementationManagerService.create(newNode);
                         openScriptEditor(name1, (String) node.getUserObject());
                     } else {
@@ -462,11 +462,11 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                         reportTemplate.setKey(name1);
                         added = reportTemplateManagerService.create(reportTemplate);
                         reportTemplateManagerService.setFormat(name1, ReportTemplateFormat.FO,
-                                IOUtils.toInputStream("//Enter content here", encodingPattern));
+                                new ByteArrayInputStream("//Enter content here".getBytes(encodingPattern)));
                         reportTemplateManagerService.setFormat(name1, ReportTemplateFormat.CSV,
-                                IOUtils.toInputStream("//Enter content here", encodingPattern));
+                                new ByteArrayInputStream("//Enter content here".getBytes(encodingPattern)));
                         reportTemplateManagerService.setFormat(name1, ReportTemplateFormat.HTML,
-                                IOUtils.toInputStream("//Enter content here", encodingPattern));
+                                new ByteArrayInputStream("//Enter content here".getBytes(encodingPattern)));
                         openReportEditor(name1);
                     }
                     if (added) {
@@ -553,7 +553,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     LOG.log(Level.SEVERE, String.format("Format [%s] not supported", format));
                     break;
             }
-            String content = is == null ? StringUtils.EMPTY : IOUtils.toString(is, encodingPattern);
+            String content = is == null ? StringUtils.EMPTY : IOUtils.toString(is, encodingPattern.name());
 
             String mailTemplatesDirName = System.getProperty("java.io.tmpdir") + "/Templates/Mail/";
             File mailTemplatesDir = new File(mailTemplatesDirName);
@@ -623,7 +623,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     LOG.log(Level.SEVERE, String.format("Format [%s] not supported", format));
                     break;
             }
-            String content = is == null ? StringUtils.EMPTY : IOUtils.toString(is, encodingPattern);
+            String content = is == null ? StringUtils.EMPTY : IOUtils.toString(is, encodingPattern.name());
 
             String reportTemplatesDirName = System.getProperty("java.io.tmpdir") + "/Templates/Report/";
             File reportTemplatesDir = new File(reportTemplatesDirName);
@@ -650,9 +650,9 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     private void saveContent() {
         try {
-            JTextComponent ed = EditorRegistry.lastFocusedComponent();
-            Document document = ed.getDocument();
-            String content = document.getText(0, document.getLength());
+            Document document = EditorRegistry.lastFocusedComponent().getDocument();
+            String textContent = document.getText(0, document.getLength());
+            InputStream isContent = new ByteArrayInputStream(textContent.getBytes(encodingPattern));
             String path = (String) document.getProperty(Document.TitleProperty);
             String[] temp = path.split(File.separator.replace("\\", "\\\\"));
             String name = temp[temp.length - 1];
@@ -664,29 +664,19 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
             if ("Mail".equals(templateType)) {
                 if ("txt".equals(format)) {
-                    mailTemplateManagerService.setFormat(key,
-                            MailTemplateFormat.TEXT,
-                            IOUtils.toInputStream(content, encodingPattern));
+                    mailTemplateManagerService.setFormat(key, MailTemplateFormat.TEXT, isContent);
                 } else {
-                    mailTemplateManagerService.setFormat(key,
-                            MailTemplateFormat.HTML,
-                            IOUtils.toInputStream(content, encodingPattern));
+                    mailTemplateManagerService.setFormat(key, MailTemplateFormat.HTML, isContent);
                 }
             } else if ("html".equals(format)) {
-                reportTemplateManagerService.setFormat(key,
-                        ReportTemplateFormat.HTML,
-                        IOUtils.toInputStream(content, encodingPattern));
+                reportTemplateManagerService.setFormat(key, ReportTemplateFormat.HTML, isContent);
             } else if ("fo".equals(format)) {
-                reportTemplateManagerService.setFormat(key,
-                        ReportTemplateFormat.FO,
-                        IOUtils.toInputStream(content, encodingPattern));
+                reportTemplateManagerService.setFormat(key, ReportTemplateFormat.FO, isContent);
             } else if ("csv".equals(format)) {
-                reportTemplateManagerService.setFormat(key,
-                        ReportTemplateFormat.CSV,
-                        IOUtils.toInputStream(content, encodingPattern));
+                reportTemplateManagerService.setFormat(key, ReportTemplateFormat.CSV, isContent);
             } else if ("Groovy".equals(fileName)) {
                 ImplementationTO node = implementationManagerService.read(templateType, key);
-                node.setBody(content);
+                node.setBody(textContent);
                 implementationManagerService.update(node);
             }
         } catch (BadLocationException e) {
