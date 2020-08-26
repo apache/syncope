@@ -48,9 +48,6 @@ under the License.
     <asyncLogger name="org.springframework" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
-    <asyncLogger name="org.springframework.webflow" additivity="false" level="TRACE">
-      <appender-ref ref="main"/>
-    </asyncLogger>
 
     <asyncLogger name="org.apache.syncope.client.lib" additivity="false" level="OFF">
       <appender-ref ref="main"/>
