@@ -1942,7 +1942,7 @@ under the License.
       <dependency>
         <groupId>com.nimbusds</groupId>
         <artifactId>nimbus-jose-jwt</artifactId>
-        <version>8.20</version>
+        <version>9.0</version>
       </dependency>
 
       <dependency>
