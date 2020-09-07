@@ -601,6 +601,30 @@ anonymousKey::
 Maven will create a project for you (in a newly created directory named after the value of the `artifactId` property 
 specified above) containing four modules: `common`, `core`, `console` and `enduser`.
 
+[NOTE]
+====
+As stated above, Apache Syncope 2.1 requires JDK 8. In case you need to deploy your project with JDK 11, add the
+following right after `<build>` in the root `pom.xml` of the generated project:
+
+[source,xml]
+----
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <release>11</release>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+----
+
+Please note that, even with such addition, not all components in <<paths-and-components,embedded mode>> will work
+as expected; production features are anyway fully functional.
+====
+
 You are now able to perform the first build via
 
 [source,bash]

@@ -25,7 +25,9 @@ public final class ConsolePom {
     public static final String FLOWABLE_CONTENT_TO_ADD = "    <dependency>\n"
             + "      <groupId>org.apache.syncope.ext.flowable</groupId>\n"
             + "      <artifactId>syncope-ext-flowable-client-console</artifactId>\n"
-            + "      <version>${project.version}</version>\n" + "    </dependency>\n";
+            + "      <version>${syncope.version}</version>\n"
+            + "    </dependency>\n"
+            + "  </dependencies>\n";
 
     private ConsolePom() {
         // private constructor for static utility class

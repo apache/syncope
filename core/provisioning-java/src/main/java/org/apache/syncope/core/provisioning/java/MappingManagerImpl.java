@@ -623,8 +623,14 @@ public class MappingManagerImpl implements MappingManager {
 
             if (intAttrName.getEnclosingGroup() != null) {
                 Group group = groupDAO.findByName(intAttrName.getEnclosingGroup());
-                if (group == null || !groupableRelatable.getMembership(group.getKey()).isPresent()) {
-                    LOG.warn("No membership for {} in {}, ignoring",
+                if (group == null
+                        || any instanceof User
+                                ? !userDAO.findAllGroupKeys((User) any).contains(group.getKey())
+                                : any instanceof AnyObject
+                                        ? !anyObjectDAO.findAllGroupKeys((AnyObject) any).contains(group.getKey())
+                                        : false) {
+
+                    LOG.warn("No (dyn) membership for {} in {}, ignoring",
                             intAttrName.getEnclosingGroup(), groupableRelatable);
                 } else {
                     references.add(group);
@@ -649,7 +655,7 @@ public class MappingManagerImpl implements MappingManager {
                 }
             } else if (intAttrName.getRelationshipAnyType() != null && intAttrName.getRelationshipType() != null) {
                 RelationshipType relationshipType = relationshipTypeDAO.find(intAttrName.getRelationshipType());
-                final AnyType anyType = anyTypeDAO.find(intAttrName.getRelationshipAnyType());
+                AnyType anyType = anyTypeDAO.find(intAttrName.getRelationshipAnyType());
                 if (relationshipType == null || groupableRelatable.getRelationships(relationshipType).isEmpty()) {
                     LOG.warn("No relationship for type {} in {}, ignoring",
                             intAttrName.getRelationshipType(), groupableRelatable);

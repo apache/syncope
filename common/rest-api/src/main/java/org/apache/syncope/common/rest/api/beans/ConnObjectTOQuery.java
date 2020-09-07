@@ -19,6 +19,12 @@
 package org.apache.syncope.common.rest.api.beans;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.ws.rs.DefaultValue;
@@ -55,6 +61,24 @@ public class ConnObjectTOQuery implements Serializable {
             return this;
         }
 
+        public Builder moreAttrsToGet(final String... moreAttrsToGet) {
+            if (moreAttrsToGet != null) {
+                Set<String> matg = Optional.ofNullable(instance.getMoreAttrsToGet()).orElseGet(() -> new HashSet<>());
+                matg.addAll(Stream.of(moreAttrsToGet).collect(Collectors.toSet()));
+                instance.setMoreAttrsToGet(matg);
+            }
+            return this;
+        }
+
+        public Builder moreAttrsToGet(final Collection<String> moreAttrsToGet) {
+            if (moreAttrsToGet != null) {
+                Set<String> matg = Optional.ofNullable(instance.getMoreAttrsToGet()).orElseGet(() -> new HashSet<>());
+                matg.addAll(moreAttrsToGet);
+                instance.setMoreAttrsToGet(matg);
+            }
+            return this;
+        }
+
         public ConnObjectTOQuery build() {
             return instance;
         }
@@ -67,6 +91,8 @@ public class ConnObjectTOQuery implements Serializable {
     private String orderBy;
 
     private String fiql;
+
+    private Set<String> moreAttrsToGet;
 
     public Integer getSize() {
         return size == null
@@ -109,5 +135,14 @@ public class ConnObjectTOQuery implements Serializable {
     @QueryParam(JAXRSService.PARAM_FIQL)
     public void setFiql(final String fiql) {
         this.fiql = fiql;
+    }
+
+    public Set<String> getMoreAttrsToGet() {
+        return moreAttrsToGet;
+    }
+
+    @QueryParam("moreAttrsToGet")
+    public void setMoreAttrsToGet(final Set<String> moreAttrsToGet) {
+        this.moreAttrsToGet = moreAttrsToGet;
     }
 }
