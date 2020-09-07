@@ -73,7 +73,8 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<UserRequest>> list(final String userKey,
+    public Pair<Integer, List<UserRequest>> list(
+            final String userKey,
             final int page,
             final int size,
             final List<OrderByClause> orderByClauses) {
@@ -100,8 +101,9 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
             final String bpmnProcess,
             final User user,
             final WorkflowTaskExecInput inputVariables) {
+
         // check if BPMN process exists
-        bpmnProcessManager.exportProcess(bpmnProcess, BpmnProcessFormat.XML, new NullOutputStream());
+        bpmnProcessManager.exportProcess(bpmnProcess, BpmnProcessFormat.XML, NullOutputStream.NULL_OUTPUT_STREAM);
 
         return userRequestHandler.start(bpmnProcess, user, inputVariables);
     }
@@ -157,6 +159,23 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
                 FlowableEntitlement.USER_REQUEST_FORM_UNCLAIM,
                 "Unclaiming form " + taskId + " not allowed");
         return form;
+    }
+
+    private void evaluateKey(final String userKey) {
+        if (userKey == null) {
+            securityChecks(null,
+                    FlowableEntitlement.USER_REQUEST_FORM_LIST,
+                    "Listing forms not allowed");
+        } else {
+            User user = userDAO.find(userKey);
+            if (user == null) {
+                throw new NotFoundException("User " + userKey);
+            }
+
+            securityChecks(user.getUsername(),
+                    FlowableEntitlement.USER_REQUEST_FORM_LIST,
+                    "Listing forms for user" + user.getUsername() + " not allowed");
+        }
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -219,22 +238,5 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
             throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();
-    }
-
-    private void evaluateKey(final String userKey) {
-        if (userKey == null) {
-            securityChecks(null,
-                    FlowableEntitlement.USER_REQUEST_FORM_LIST,
-                    "Listing forms not allowed");
-        } else {
-            User user = userDAO.find(userKey);
-            if (user == null) {
-                throw new NotFoundException("User " + userKey);
-            }
-
-            securityChecks(user.getUsername(),
-                    FlowableEntitlement.USER_REQUEST_FORM_LIST,
-                    "Listing forms for user" + user.getUsername() + " not allowed");
-        }
     }
 }

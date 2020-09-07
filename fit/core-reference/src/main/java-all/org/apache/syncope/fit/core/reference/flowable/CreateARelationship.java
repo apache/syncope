@@ -43,8 +43,7 @@ public class CreateARelationship extends FlowableServiceTask {
 
     @Override
     protected void doExecute(final DelegateExecution execution) {
-        User user = execution.
-                getVariable(FlowableRuntimeUtils.USER, User.class);
+        User user = execution.getVariable(FlowableRuntimeUtils.USER, User.class);
 
         Boolean approve = execution.getVariable("approve", Boolean.class);
         if (Boolean.TRUE.equals(approve)) {
