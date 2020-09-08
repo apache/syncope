@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM adoptopenjdk/openjdk11-openj9:alpine-slim
+FROM adoptopenjdk/openjdk11-openj9:debian-slim
 MAINTAINER dev@syncope.apache.org
 
 RUN set -x
@@ -43,5 +43,7 @@ COPY lib/syncope-docker-core-*war /opt/syncope/lib/syncope.war
 COPY startup.sh /opt/syncope/bin
 RUN chmod 755 /opt/syncope/bin/startup.sh
 CMD ["/opt/syncope/bin/startup.sh"]
+
+RUN apt-get update && apt-get -y install wait-for-it
 
 EXPOSE 8080

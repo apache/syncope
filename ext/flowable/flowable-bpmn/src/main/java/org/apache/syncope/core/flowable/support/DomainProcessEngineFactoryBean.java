@@ -72,7 +72,7 @@ public class DomainProcessEngineFactoryBean
                 domain + "TransactionManager", PlatformTransactionManager.class);
         Object entityManagerFactory = ctx.getBean(domain + "EntityManagerFactory");
 
-        DomainProcessEngineConfiguration conf = ctx.getBean(DomainProcessEngineConfiguration.class);
+        SpringProcessEngineConfiguration conf = ctx.getBean(SpringProcessEngineConfiguration.class);
         conf.setDataSource(datasource);
         conf.setTransactionManager(transactionManager);
         conf.setTransactionsExternallyManaged(true);

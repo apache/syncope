@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.syncope.core.flowable.impl.FlowableBpmnProcessManager;
 import org.apache.syncope.core.flowable.impl.FlowableUserRequestHandler;
 import org.apache.syncope.core.flowable.impl.FlowableWorkflowUtils;
-import org.apache.syncope.core.flowable.support.DomainProcessEngineConfiguration;
 import org.apache.syncope.core.flowable.support.ShellServiceTaskDisablingBpmnParseHandler;
 import org.apache.syncope.core.flowable.support.SyncopeEntitiesVariableType;
 import org.apache.syncope.core.flowable.support.SyncopeFormHandlerHelper;
@@ -36,6 +35,7 @@ import org.flowable.common.engine.impl.history.HistoryLevel;
 import org.flowable.common.engine.impl.persistence.StrongUuidGenerator;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.idm.spring.configurator.SpringIdmEngineConfigurator;
+import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -116,8 +116,8 @@ public class WorkflowFlowableContext {
     @ConditionalOnMissingBean
     @Bean
     @Scope("prototype")
-    public DomainProcessEngineConfiguration processEngineConfiguration() {
-        DomainProcessEngineConfiguration conf = new DomainProcessEngineConfiguration();
+    public SpringProcessEngineConfiguration processEngineConfiguration() {
+        SpringProcessEngineConfiguration conf = new SpringProcessEngineConfiguration();
         conf.setDatabaseSchemaUpdate(AbstractEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
         conf.setJpaHandleTransaction(true);
         conf.setJpaCloseEntityManager(false);
