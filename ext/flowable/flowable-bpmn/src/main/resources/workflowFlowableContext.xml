@@ -42,7 +42,7 @@ under the License.
 
   <bean id="idGenerator" class="org.flowable.common.engine.impl.persistence.StrongUuidGenerator"/>
 
-  <bean class="org.apache.syncope.core.flowable.support.DomainProcessEngineConfiguration" scope="prototype">
+  <bean class="org.flowable.spring.SpringProcessEngineConfiguration" scope="prototype">
     <property name="databaseSchemaUpdate" value="true"/>
 
     <property name="jpaHandleTransaction" value="true"/>
