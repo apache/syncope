@@ -45,6 +45,7 @@ echo 'deb http://repos.azulsystems.com/debian stable main' > /etc/apt/sources.li
 apt-get -q update \
   && apt-get -q install -y \
     xtail \
+    wait-for-it \
     zulu-8 \
     tomcat8 \
     libservlet3.1-java \
