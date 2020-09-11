@@ -2,6 +2,21 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.16
+================================================================================
+
+** Bug
+    * [SYNCOPE-1549] - Groups select opens a popup when removing a group
+    * [SYNCOPE-1560] - File upload component: missing translations
+    * [SYNCOPE-1564] - Integration tests run with YAML payloads are failing
+    * [SYNCOPE-1565] - Integration tests run with XML payloads are failing
+    * [SYNCOPE-1567] - Mapping does not allow relationships
+    * [SYNCOPE-1573] - Logout forced from Console when editing user with many memberships
+    * [SYNCOPE-1583] - For members part of a Dynamic Group, but cannot access group attributes in member mapping
+
+** Improvement
+    * [SYNCOPE-1575] - Provide the ability to specify on which resources the user's status should be propagated
+
 Release Notes - Syncope - Version 2.0.15
 ================================================================================
 
