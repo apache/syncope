@@ -2,6 +2,27 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.1.7
+================================================================================
+
+** Bug
+    * [SYNCOPE-1549] - Groups select opens a popup when removing a group
+    * [SYNCOPE-1560] - File upload component: missing translations
+    * [SYNCOPE-1561] - Batch: missing support for custom TLSClientParameters
+    * [SYNCOPE-1563] - User approval update should send the password only when requested
+    * [SYNCOPE-1564] - Integration tests run with YAML payloads are failing
+    * [SYNCOPE-1565] - Integration tests run with XML payloads are failing
+    * [SYNCOPE-1567] - Mapping does not allow relationships
+    * [SYNCOPE-1569] - Console: cannot save Reportlet search conditions
+    * [SYNCOPE-1573] - Logout forced from Console when editing user with many memberships
+    * [SYNCOPE-1581] - When enabling Swagger UI or Flowable extensions Installer generates invalid POM files
+    * [SYNCOPE-1583] - For members part of a Dynamic Group, but cannot access group attributes in member mapping
+    * [SYNCOPE-1586] - Startup failures with sample docker-compose and MySQL
+
+** Improvement
+    * [SYNCOPE-1568] - Render custom wizard on user request
+    * [SYNCOPE-1575] - Provide the ability to specify on which resources the user's status should be propagated
+
 Release Notes - Syncope - Version 2.1.6
 ================================================================================
 
