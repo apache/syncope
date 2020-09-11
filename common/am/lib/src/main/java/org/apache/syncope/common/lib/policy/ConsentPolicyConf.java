@@ -18,31 +18,16 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import java.util.Set;
+import org.apache.syncope.common.lib.BaseBean;
 
-public class AllowedAttrReleasePolicyConf implements AttrReleasePolicyConf {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
+public interface ConsentPolicyConf extends BaseBean {
 
-    private static final long serialVersionUID = -1969836661359025380L;
+    Boolean getStatus();
 
-    /**
-     * Specify the list of allowed attribute to release.
-     * Use the special {@code *} to release everything.
-     */
-    private final List<String> allowedAttrs = new ArrayList<>();
+    Set<String> getExcludedAttrs();
 
-    private ConsentPolicyTO consentPolicy;
-
-    public List<String> getAllowedAttrs() {
-        return allowedAttrs;
-    }
-
-    public ConsentPolicyTO getConsentPolicy() {
-        return consentPolicy;
-    }
-
-    public void setConsentPolicy(final ConsentPolicyTO consentPolicy) {
-        this.consentPolicy = consentPolicy;
-    }
-
+    Set<String> getIncludeOnlyAttrs();
 }

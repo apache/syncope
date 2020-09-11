@@ -18,31 +18,8 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import java.util.ArrayList;
-import java.util.List;
+public class DefaultConsentPolicyConf extends AbstractConsentPolicyConf implements ConsentPolicyConf {
 
-public class AllowedAttrReleasePolicyConf implements AttrReleasePolicyConf {
-
-    private static final long serialVersionUID = -1969836661359025380L;
-
-    /**
-     * Specify the list of allowed attribute to release.
-     * Use the special {@code *} to release everything.
-     */
-    private final List<String> allowedAttrs = new ArrayList<>();
-
-    private ConsentPolicyTO consentPolicy;
-
-    public List<String> getAllowedAttrs() {
-        return allowedAttrs;
-    }
-
-    public ConsentPolicyTO getConsentPolicy() {
-        return consentPolicy;
-    }
-
-    public void setConsentPolicy(final ConsentPolicyTO consentPolicy) {
-        this.consentPolicy = consentPolicy;
-    }
+    private static final long serialVersionUID = 4824974658838028102L;
 
 }

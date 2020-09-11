@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
+import java.util.Map;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 
 public interface AttrReleaseMapper {
 
-    RegisteredServiceAttributeReleasePolicy build(AttrReleasePolicyConf conf);
+    RegisteredServiceAttributeReleasePolicy build(AttrReleasePolicyConf conf,
+            Map<String, ConsentMapper> consentPolicyConfMappers);
 }

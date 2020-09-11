@@ -16,33 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.policy;
+package org.apache.syncope.wa.starter.mapping;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apereo.cas.services.RegisteredServiceConsentPolicy;
+import org.apache.syncope.common.lib.policy.ConsentPolicyConf;
 
-public class AllowedAttrReleasePolicyConf implements AttrReleasePolicyConf {
+public interface ConsentMapper {
 
-    private static final long serialVersionUID = -1969836661359025380L;
-
-    /**
-     * Specify the list of allowed attribute to release.
-     * Use the special {@code *} to release everything.
-     */
-    private final List<String> allowedAttrs = new ArrayList<>();
-
-    private ConsentPolicyTO consentPolicy;
-
-    public List<String> getAllowedAttrs() {
-        return allowedAttrs;
-    }
-
-    public ConsentPolicyTO getConsentPolicy() {
-        return consentPolicy;
-    }
-
-    public void setConsentPolicy(final ConsentPolicyTO consentPolicy) {
-        this.consentPolicy = consentPolicy;
-    }
-
+    RegisteredServiceConsentPolicy build(ConsentPolicyConf conf);
 }

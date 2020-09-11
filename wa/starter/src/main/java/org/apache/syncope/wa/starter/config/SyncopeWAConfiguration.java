@@ -82,6 +82,8 @@ import java.util.Map;
 import org.apache.syncope.wa.starter.events.SyncopeWAEventRepository;
 import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
+import org.apache.syncope.wa.starter.mapping.ConsentMapFor;
+import org.apache.syncope.wa.starter.mapping.ConsentMapper;
 
 public class SyncopeWAConfiguration {
 
@@ -148,6 +150,16 @@ public class SyncopeWAConfiguration {
                 attrReleasePolicyConfMappers.put(attrReleaseMapFor.attrReleasePolicyConfClass().getName(), bean);
             }
         });
+        
+        
+        Map<String, ConsentMapper> consentPolicyConfMappers = new HashMap<>();
+        ctx.getBeansOfType(ConsentMapper.class).forEach((name, bean) -> {
+            ConsentMapFor consentMapFor =
+                    ctx.findAnnotationOnBean(name, ConsentMapFor.class);
+            if (consentMapFor != null) {
+                consentPolicyConfMappers.put(consentMapFor.consentPolicyConfClass().getName(), bean);
+            }
+        });
 
         Map<String, ClientAppMapper> clientAppTOMappers = new HashMap<>();
         ctx.getBeansOfType(ClientAppMapper.class).forEach((name, bean) -> {
@@ -161,6 +173,7 @@ public class SyncopeWAConfiguration {
                 authPolicyConfMappers,
                 accessPolicyConfMappers,
                 attrReleasePolicyConfMappers,
+                consentPolicyConfMappers,
                 clientAppTOMappers);
     }
 

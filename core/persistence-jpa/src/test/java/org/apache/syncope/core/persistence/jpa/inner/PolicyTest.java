@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.UUID;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.policy.ConsentPolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultConsentPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyCriteriaConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
@@ -57,6 +59,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.common.lib.policy.ConsentPolicyConf;
 
 @Transactional("Master")
 public class PolicyTest extends AbstractTest {
@@ -227,12 +230,18 @@ public class PolicyTest extends AbstractTest {
 
         AllowedAttrReleasePolicyConf attrReleasePolicyConf = new AllowedAttrReleasePolicyConf();
         attrReleasePolicyConf.getAllowedAttrs().addAll(List.of("*"));
+        ConsentPolicyTO consentPolicy = new ConsentPolicyTO();
+        ConsentPolicyConf consentPolicyConf = new DefaultConsentPolicyConf();
+        consentPolicyConf.getExcludedAttrs().addAll(Set.of("*"));
+        consentPolicy.setConf(consentPolicyConf);
+        attrReleasePolicyConf.setConsentPolicy(consentPolicy);
         attrReleasePolicy.setConf(attrReleasePolicyConf);
 
         attrReleasePolicy = policyDAO.save(attrReleasePolicy);
 
         assertNotNull(attrReleasePolicy);
         assertNotNull(attrReleasePolicy.getKey());
+        assertNotNull(((AllowedAttrReleasePolicyConf) attrReleasePolicy.getConf()).getConsentPolicy());
 
         afterCount = policyDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);

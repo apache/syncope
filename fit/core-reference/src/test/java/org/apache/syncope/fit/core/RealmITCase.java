@@ -40,8 +40,10 @@ import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.ConsentPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultConsentPolicyConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -298,6 +300,14 @@ public class RealmITCase extends AbstractITCase {
         // 1. create attribute release policy
         AllowedAttrReleasePolicyConf ruleConf = new AllowedAttrReleasePolicyConf();
         ruleConf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
+        
+        
+        ConsentPolicyTO consentPolicy= new ConsentPolicyTO();
+        DefaultConsentPolicyConf consentPolicyConf = new DefaultConsentPolicyConf();
+        consentPolicyConf.setStatus(Boolean.TRUE);
+        consentPolicyConf.getIncludeOnlyAttrs().addAll(Set.of("cn"));
+        consentPolicy.setConf(consentPolicyConf);
+        ruleConf.setConsentPolicy(consentPolicy);
 
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
         policy.setDescription("Test Attribute Release policy");

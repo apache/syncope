@@ -35,17 +35,21 @@ public class RegisteredServiceMapper {
 
     protected final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers;
 
+    protected final Map<String, ConsentMapper> consentPolicyConfMappers;
+
     protected final Map<String, ClientAppMapper> clientAppTOMappers;
 
     public RegisteredServiceMapper(
             final Map<String, AuthMapper> authPolicyConfMappers,
             final Map<String, AccessMapper> accessPolicyConfMappers,
             final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers,
+            final Map<String, ConsentMapper> consentPolicyConfMappers,
             final Map<String, ClientAppMapper> clientAppTOMappers) {
 
         this.authPolicyConfMappers = authPolicyConfMappers;
         this.accessPolicyConfMappers = accessPolicyConfMappers;
         this.attrReleasePolicyConfMappers = attrReleasePolicyConfMappers;
+        this.consentPolicyConfMappers = consentPolicyConfMappers;
         this.clientAppTOMappers = clientAppTOMappers;
     }
 
@@ -74,7 +78,8 @@ public class RegisteredServiceMapper {
                 AttrReleaseMapper attrReleasePolicyConfMapper =
                         attrReleasePolicyConfMappers.get(clientApp.getAttrReleasePolicyConf().getClass().getName());
                 attributeReleasePolicy = Optional.ofNullable(attrReleasePolicyConfMapper).
-                        map(mapper -> mapper.build(clientApp.getAttrReleasePolicyConf())).orElse(null);
+                        map(mapper -> mapper.build(clientApp.getAttrReleasePolicyConf(), consentPolicyConfMappers)).
+                        orElse(null);
             }
         }
 

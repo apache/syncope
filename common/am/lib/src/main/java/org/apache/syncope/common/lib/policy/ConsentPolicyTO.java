@@ -18,31 +18,29 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-public class AllowedAttrReleasePolicyConf implements AttrReleasePolicyConf {
+public class ConsentPolicyTO extends PolicyTO {
 
-    private static final long serialVersionUID = -1969836661359025380L;
+    private static final long serialVersionUID = -6044263393058604866L;
 
-    /**
-     * Specify the list of allowed attribute to release.
-     * Use the special {@code *} to release everything.
-     */
-    private final List<String> allowedAttrs = new ArrayList<>();
+    private ConsentPolicyConf conf;
 
-    private ConsentPolicyTO consentPolicy;
-
-    public List<String> getAllowedAttrs() {
-        return allowedAttrs;
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.policy.ConsentPolicyTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
     }
 
-    public ConsentPolicyTO getConsentPolicy() {
-        return consentPolicy;
+    public ConsentPolicyConf getConf() {
+        return conf;
     }
 
-    public void setConsentPolicy(final ConsentPolicyTO consentPolicy) {
-        this.consentPolicy = consentPolicy;
+    public void setConf(final ConsentPolicyConf conf) {
+        this.conf = conf;
     }
-
 }

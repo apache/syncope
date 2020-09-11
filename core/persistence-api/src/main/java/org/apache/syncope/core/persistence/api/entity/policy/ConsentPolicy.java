@@ -16,33 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.policy;
+package org.apache.syncope.core.persistence.api.entity.policy;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.syncope.common.lib.policy.ConsentPolicyConf;
 
-public class AllowedAttrReleasePolicyConf implements AttrReleasePolicyConf {
+public interface ConsentPolicy extends Policy {
 
-    private static final long serialVersionUID = -1969836661359025380L;
+    ConsentPolicyConf getConf();
 
-    /**
-     * Specify the list of allowed attribute to release.
-     * Use the special {@code *} to release everything.
-     */
-    private final List<String> allowedAttrs = new ArrayList<>();
-
-    private ConsentPolicyTO consentPolicy;
-
-    public List<String> getAllowedAttrs() {
-        return allowedAttrs;
-    }
-
-    public ConsentPolicyTO getConsentPolicy() {
-        return consentPolicy;
-    }
-
-    public void setConsentPolicy(final ConsentPolicyTO consentPolicy) {
-        this.consentPolicy = consentPolicy;
-    }
+    void setConf(ConsentPolicyConf conf);
 
 }
