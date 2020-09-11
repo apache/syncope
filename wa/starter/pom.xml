@@ -220,6 +220,14 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-webauthn</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-webauthn-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-u2f</artifactId>
     </dependency>
     <dependency>
