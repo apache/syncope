@@ -34,6 +34,45 @@ under the License.
 
       <p>If you want to report a vulnerability, please follow <a href="http://www.apache.org/security/">the procedure</a>.</p>
 
+      <subsection name="CVE-2020-11977: Remote Code Execution via Flowable workflow definition">
+        <p>When the Flowable extension is enabled, an administrator with workflow entitlements can use Shell Service Tasks to perform malicious operations, including but not limited
+           to file read, file write, and code execution.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Low</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>2.1.X releases prior to 2.1.7</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>2.1.X users should upgrade to 2.1.7</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 2.1.7</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11977">full CVE advisory</a>.</p>
+      </subsection>
+
       <subsection name="CVE-2020-1961: Server-Side Template Injection on mail templates">
         <p>Vulnerability to Server-Side Template Injection on Mail templates enabling attackers to inject arbitrary JEXL
            expressions, leading to Remote Code Execution (RCE) was discovered.</p>
