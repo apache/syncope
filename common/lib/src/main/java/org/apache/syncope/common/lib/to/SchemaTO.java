@@ -59,8 +59,8 @@ public abstract class SchemaTO implements EntityTO {
         if (splitted.length > 1) {
             country = splitted[1];
         }
-        if (splitted.length >= 2) {
-            country = splitted[2];
+        if (splitted.length > 2) {
+            variant = splitted[2];
         }
 
         return new Locale(language, country, variant);
