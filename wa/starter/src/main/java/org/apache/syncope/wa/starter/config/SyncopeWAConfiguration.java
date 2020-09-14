@@ -148,7 +148,7 @@ public class SyncopeWAConfiguration {
                 attrReleasePolicyConfMappers.put(attrReleaseMapFor.attrReleasePolicyConfClass().getName(), bean);
             }
         });
-        
+
         Map<String, ClientAppMapper> clientAppTOMappers = new HashMap<>();
         ctx.getBeansOfType(ClientAppMapper.class).forEach((name, bean) -> {
             ClientAppMapFor clientAppMapFor = ctx.findAnnotationOnBean(name, ClientAppMapFor.class);

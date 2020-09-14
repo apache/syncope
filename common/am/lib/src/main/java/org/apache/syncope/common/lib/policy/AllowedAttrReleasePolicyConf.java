@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.policy;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -53,7 +54,9 @@ public class AllowedAttrReleasePolicyConf implements AttrReleasePolicyConf {
         this.consentPolicy = consentPolicy;
     }
 
-    public class ConsentPolicy {
+    public class ConsentPolicy implements Serializable {
+
+        private static final long serialVersionUID = 6744647343202583865L;
 
         private Boolean status = null;
 
