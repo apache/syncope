@@ -283,7 +283,7 @@ public class PolicyITCase extends AbstractITCase {
         assertTrue(policyConf.getAllowedAttrs().contains("cn"));
         assertTrue(policyConf.getAllowedAttrs().contains("postalCode"));
         assertTrue(policyConf.getAllowedAttrs().contains("givenName"));
-        assertTrue(policyConf.getConsentPolicy().getConf().getIncludeOnlyAttrs().contains("cn"));
+        assertTrue(policyConf.getConsentPolicy().getIncludeOnlyAttrs().contains("cn"));
     }
 
     @Test

@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
-import org.apache.syncope.common.lib.policy.ConsentPolicyTO;
-import org.apache.syncope.common.lib.policy.DefaultConsentPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
@@ -43,14 +41,12 @@ public class AbstractClientAppTest extends AbstractTest {
 
         AllowedAttrReleasePolicyConf conf = new AllowedAttrReleasePolicyConf();
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
-        
-        ConsentPolicyTO consentPolicy= new ConsentPolicyTO();
-        DefaultConsentPolicyConf consentPolicyConf = new DefaultConsentPolicyConf();
-        consentPolicyConf.setStatus(Boolean.TRUE);
-        consentPolicyConf.getIncludeOnlyAttrs().addAll(Set.of("cn"));
-        consentPolicy.setConf(consentPolicyConf);
+
+        AllowedAttrReleasePolicyConf.ConsentPolicy consentPolicy = conf.new ConsentPolicy();
+        consentPolicy.setStatus(Boolean.TRUE);
+        consentPolicy.getIncludeOnlyAttrs().addAll(Set.of("cn"));
         conf.setConsentPolicy(consentPolicy);
-        
+
         attrRelPolicy.setConf(conf);
 
         return policyDAO.save(attrRelPolicy);

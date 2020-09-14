@@ -72,7 +72,6 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
-import org.apache.syncope.common.lib.policy.ConsentPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
@@ -87,7 +86,6 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
-import org.apache.syncope.common.lib.policy.DefaultConsentPolicyConf;
 import org.apache.syncope.common.lib.to.client.ClientAppTO;
 import org.apache.syncope.common.lib.to.client.OIDCRPTO;
 import org.apache.syncope.common.lib.to.client.SAML2SPTO;
@@ -851,11 +849,9 @@ public abstract class AbstractITCase {
         AllowedAttrReleasePolicyConf conf = new AllowedAttrReleasePolicyConf();
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
         
-        ConsentPolicyTO consentPolicy= new ConsentPolicyTO();
-        DefaultConsentPolicyConf consentPolicyConf = new DefaultConsentPolicyConf();
-        consentPolicyConf.setStatus(Boolean.TRUE);
-        consentPolicyConf.getIncludeOnlyAttrs().addAll(Set.of("cn"));
-        consentPolicy.setConf(consentPolicyConf);
+        AllowedAttrReleasePolicyConf.ConsentPolicy consentPolicy = conf.new ConsentPolicy();
+        consentPolicy.setStatus(Boolean.TRUE);
+        consentPolicy.getIncludeOnlyAttrs().addAll(Set.of("cn"));
         conf.setConsentPolicy(consentPolicy);
         
         policy.setConf(conf);

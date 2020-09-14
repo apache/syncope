@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
-import java.util.Map;
-import java.util.Optional;
 import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceConsentPolicy;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
+import org.apereo.cas.services.consent.DefaultRegisteredServiceConsentPolicy;
+import org.apereo.cas.util.model.TriStateBoolean;
 import org.springframework.stereotype.Component;
 
 @AttrReleaseMapFor(attrReleasePolicyConfClass = AllowedAttrReleasePolicyConf.class)
@@ -33,9 +33,7 @@ import org.springframework.stereotype.Component;
 public class AllowedAttrReleaseMapper implements AttrReleaseMapper {
 
     @Override
-    public RegisteredServiceAttributeReleasePolicy build(final AttrReleasePolicyConf conf,
-            final Map<String, ConsentMapper> consentPolicyConfMappers) {
-
+    public RegisteredServiceAttributeReleasePolicy build(final AttrReleasePolicyConf conf) {
         AllowedAttrReleasePolicyConf aarpc = (AllowedAttrReleasePolicyConf) conf;
 
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy;
@@ -45,16 +43,15 @@ public class AllowedAttrReleaseMapper implements AttrReleaseMapper {
             attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
             ((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).
                     setAllowedAttributes((aarpc.getAllowedAttrs()));
-            if (aarpc.getConsentPolicy() != null && aarpc.getConsentPolicy().getConf() != null) {
-                ConsentMapper consentPolicyConfMapper =
-                        consentPolicyConfMappers.get(aarpc.getConsentPolicy().getConf().getClass().getName());
 
+            if (aarpc.getConsentPolicy() != null) {
                 RegisteredServiceConsentPolicy consentPolicy =
-                        Optional.ofNullable(consentPolicyConfMapper).
-                                map(mapper -> mapper.build(aarpc.getConsentPolicy().getConf())).orElse(null);
-                if (consentPolicy != null) {
-                    ((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).setConsentPolicy(consentPolicy);
-                }
+                        new DefaultRegisteredServiceConsentPolicy(aarpc.getConsentPolicy().getExcludedAttrs(),
+                                aarpc.getConsentPolicy().getIncludeOnlyAttrs());
+                ((DefaultRegisteredServiceConsentPolicy) consentPolicy).setStatus(
+                        aarpc.getConsentPolicy().getStatus() == null ? TriStateBoolean.UNDEFINED
+                        : TriStateBoolean.fromBoolean(aarpc.getConsentPolicy().getStatus()));
+                ((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).setConsentPolicy(consentPolicy);
             }
         }
 
