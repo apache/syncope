@@ -49,7 +49,9 @@ public class ContentLoaderHandler extends DefaultHandler {
 
     private final boolean continueOnError;
 
-    private final StringSubstitutor envParamSubstitutor;
+    private final Map<String, String> fetches = new HashMap<>();
+
+    private final StringSubstitutor paramSubstitutor;
 
     public ContentLoaderHandler(
             final DataSource dataSource,
@@ -60,8 +62,8 @@ public class ContentLoaderHandler extends DefaultHandler {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.rootElement = rootElement;
         this.continueOnError = continueOnError;
-        this.envParamSubstitutor = new StringSubstitutor(key -> {
-            String value = env.getProperty(key);
+        this.paramSubstitutor = new StringSubstitutor(key -> {
+            String value = env.getProperty(key, fetches.get(key));
             return StringUtils.isBlank(value) ? null : value;
         });
     }
@@ -84,7 +86,7 @@ public class ContentLoaderHandler extends DefaultHandler {
                 colType = Types.VARCHAR;
             }
 
-            String value = envParamSubstitutor.replace(attrs.getValue(i));
+            String value = paramSubstitutor.replace(attrs.getValue(i));
             if (value == null) {
                 LOG.warn("Variable ${} could not be resolved", attrs.getValue(i));
                 value = attrs.getValue(i);
@@ -95,53 +97,53 @@ public class ContentLoaderHandler extends DefaultHandler {
                 case Types.TINYINT:
                 case Types.SMALLINT:
                     try {
-                        parameters[i] = Integer.valueOf(value);
-                    } catch (NumberFormatException e) {
-                        LOG.error("Unparsable Integer '{}'", value);
-                        parameters[i] = value;
-                    }
-                    break;
+                    parameters[i] = Integer.valueOf(value);
+                } catch (NumberFormatException e) {
+                    LOG.error("Unparsable Integer '{}'", value);
+                    parameters[i] = value;
+                }
+                break;
 
                 case Types.NUMERIC:
                 case Types.DECIMAL:
                 case Types.BIGINT:
                     try {
-                        parameters[i] = Long.valueOf(value);
-                    } catch (NumberFormatException e) {
-                        LOG.error("Unparsable Long '{}'", value);
-                        parameters[i] = value;
-                    }
-                    break;
+                    parameters[i] = Long.valueOf(value);
+                } catch (NumberFormatException e) {
+                    LOG.error("Unparsable Long '{}'", value);
+                    parameters[i] = value;
+                }
+                break;
 
                 case Types.DOUBLE:
                     try {
-                        parameters[i] = Double.valueOf(value);
-                    } catch (NumberFormatException e) {
-                        LOG.error("Unparsable Double '{}'", value);
-                        parameters[i] = value;
-                    }
-                    break;
+                    parameters[i] = Double.valueOf(value);
+                } catch (NumberFormatException e) {
+                    LOG.error("Unparsable Double '{}'", value);
+                    parameters[i] = value;
+                }
+                break;
 
                 case Types.REAL:
                 case Types.FLOAT:
                     try {
-                        parameters[i] = Float.valueOf(value);
-                    } catch (NumberFormatException e) {
-                        LOG.error("Unparsable Float '{}'", value);
-                        parameters[i] = value;
-                    }
-                    break;
+                    parameters[i] = Float.valueOf(value);
+                } catch (NumberFormatException e) {
+                    LOG.error("Unparsable Float '{}'", value);
+                    parameters[i] = value;
+                }
+                break;
 
                 case Types.DATE:
                 case Types.TIME:
                 case Types.TIMESTAMP:
                     try {
-                        parameters[i] = FormatUtils.parseDate(value);
-                    } catch (ParseException e) {
-                        LOG.error("Unparsable Date '{}'", value);
-                        parameters[i] = value;
-                    }
-                    break;
+                    parameters[i] = FormatUtils.parseDate(value);
+                } catch (ParseException e) {
+                    LOG.error("Unparsable Date '{}'", value);
+                    parameters[i] = value;
+                }
+                break;
 
                 case Types.BIT:
                 case Types.BOOLEAN:
@@ -152,22 +154,22 @@ public class ContentLoaderHandler extends DefaultHandler {
                 case Types.VARBINARY:
                 case Types.LONGVARBINARY:
                     try {
-                        parameters[i] = DatatypeConverter.parseHexBinary(value);
-                    } catch (IllegalArgumentException e) {
-                        parameters[i] = value;
-                    }
-                    break;
+                    parameters[i] = DatatypeConverter.parseHexBinary(value);
+                } catch (IllegalArgumentException e) {
+                    parameters[i] = value;
+                }
+                break;
 
                 case Types.BLOB:
                     try {
-                        parameters[i] = DatatypeConverter.parseHexBinary(value);
-                    } catch (IllegalArgumentException e) {
-                        LOG.warn("Error decoding hex string to specify a blob parameter", e);
-                        parameters[i] = value;
-                    } catch (Exception e) {
-                        LOG.warn("Error creating a new blob parameter", e);
-                    }
-                    break;
+                    parameters[i] = DatatypeConverter.parseHexBinary(value);
+                } catch (IllegalArgumentException e) {
+                    LOG.warn("Error decoding hex string to specify a blob parameter", e);
+                    parameters[i] = value;
+                } catch (Exception e) {
+                    LOG.warn("Error creating a new blob parameter", e);
+                }
+                break;
 
                 default:
                     parameters[i] = value;
@@ -185,27 +187,32 @@ public class ContentLoaderHandler extends DefaultHandler {
         if (rootElement.equals(qName)) {
             return;
         }
+        if ("fetch".equalsIgnoreCase(qName)) {
+            String value = jdbcTemplate.queryForObject(atts.getValue("query"), String.class);
+            String key = atts.getValue("key");
+            fetches.put(key, value);
+        } else {
+            StringBuilder query = new StringBuilder("INSERT INTO ").append(qName).append('(');
 
-        StringBuilder query = new StringBuilder("INSERT INTO ").append(qName).append('(');
+            StringBuilder values = new StringBuilder();
 
-        StringBuilder values = new StringBuilder();
-
-        for (int i = 0; i < atts.getLength(); i++) {
-            query.append(atts.getQName(i));
-            values.append('?');
-            if (i < atts.getLength() - 1) {
-                query.append(',');
-                values.append(',');
+            for (int i = 0; i < atts.getLength(); i++) {
+                query.append(atts.getQName(i));
+                values.append('?');
+                if (i < atts.getLength() - 1) {
+                    query.append(',');
+                    values.append(',');
+                }
             }
-        }
-        query.append(") VALUES (").append(values).append(')');
+            query.append(") VALUES (").append(values).append(')');
 
-        try {
-            jdbcTemplate.update(query.toString(), getParameters(qName, atts));
-        } catch (DataAccessException e) {
-            LOG.error("While trying to perform {} with params {}", query, getParameters(qName, atts), e);
-            if (!continueOnError) {
-                throw e;
+            try {
+                jdbcTemplate.update(query.toString(), getParameters(qName, atts));
+            } catch (DataAccessException e) {
+                LOG.error("While trying to perform {} with params {}", query, getParameters(qName, atts), e);
+                if (!continueOnError) {
+                    throw e;
+                }
             }
         }
     }
