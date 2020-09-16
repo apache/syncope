@@ -130,6 +130,16 @@ public final class AMEntitlement {
 
     public static final String WA_CONFIG_PUSH = "WA_CONFIG_PUSH";
 
+    public static final String WEBAUTHN_DELETE_DEVICE = "WEBAUTHN_DELETE_DEVICE";
+
+    public static final String WEBAUTHN_READ_DEVICE = "WEBAUTHN_READ_DEVICE";
+
+    public static final String WEBAUTHN_UPDATE_DEVICE = "WEBAUTHN_UPDATE_DEVICE";
+
+    public static final String WEBAUTHN_CREATE_DEVICE = "WEBAUTHN_CREATE_DEVICE";
+
+    public static final String WEBAUTHN_LIST_DEVICE = "WEBAUTHN_LIST_DEVICE";
+
     private static final Set<String> VALUES;
 
     static {

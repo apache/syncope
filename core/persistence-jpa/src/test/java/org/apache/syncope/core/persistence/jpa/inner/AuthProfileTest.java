@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
+import org.apache.syncope.common.lib.types.WebAuthnRegisteredAccount;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
@@ -98,6 +99,37 @@ public class AuthProfileTest extends AbstractTest {
     }
 
     @Test
+    public void webAuthnRegisteredDevice() {
+        String id = SecureRandomUtils.generateRandomUUID().toString();
+        String record = "[ {" +
+            "    \"userIdentity\" : {" +
+            "      \"name\" : \"casuser\"," +
+            "      \"displayName\" : \"casuser\"" +
+            "    }," +
+            "    \"credential\" : {" +
+            "      \"credentialId\" : \"fFGyV3K5x1U4FQUgGuFaIecOD6mYz5_fAzBd_dKD9-0uvgoe20tZHE9enVsBlTo-sjt5tUAf04ElXr3vEeAX-g\"" +
+            "    }," +
+            "    \"username\" : \"casuser\"" +
+            "  } ]";
+        createAuthProfileWithWebAuthnDevice(id, record);
+
+        Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
+        assertTrue(result.isPresent());
+
+        assertFalse(authProfileDAO.findAll().isEmpty());
+
+        AuthProfile authProfile = result.get();
+        result = authProfileDAO.findByKey(authProfile.getKey());
+        assertTrue(result.isPresent());
+
+        authProfile.setOwner("SyncopeCreate-NewU2F");
+        authProfile.setWebAuthnAccount(null);
+        authProfileDAO.save(authProfile);
+
+        assertFalse(authProfileDAO.findByOwner(id).isPresent());
+    }
+
+    @Test
     public void googleMfaAccount() {
         String id = SecureRandomUtils.generateRandomUUID().toString();
 
@@ -143,6 +175,17 @@ public class AuthProfileTest extends AbstractTest {
             .owner(owner)
             .build();
         profile.add(token);
+        return authProfileDAO.save(profile);
+    }
+
+    private AuthProfile createAuthProfileWithWebAuthnDevice(final String owner, final String records) {
+        AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
+        profile.setOwner(owner);
+        WebAuthnRegisteredAccount account = new WebAuthnRegisteredAccount.Builder()
+            .records(records)
+            .owner(owner)
+            .build();
+        profile.setWebAuthnAccount(account);
         return authProfileDAO.save(profile);
     }
 
