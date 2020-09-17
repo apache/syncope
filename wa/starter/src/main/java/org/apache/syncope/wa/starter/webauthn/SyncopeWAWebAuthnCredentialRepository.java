@@ -71,7 +71,8 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
             getResult().
             stream().
             map(record -> getCipherExecutor().decode(record.getRecords())).
-            map(Unchecked.function(record -> getObjectMapper().readValue(record, new TypeReference<Set<CredentialRegistration>>() {
+            map(Unchecked.function(record -> getObjectMapper().
+                readValue(record, new TypeReference<Set<CredentialRegistration>>() {
             })))
             .flatMap(Collection::stream);
     }
