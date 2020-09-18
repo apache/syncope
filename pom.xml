@@ -455,7 +455,7 @@ under the License.
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.7.0</junit.version>
-    <mockito.version>3.5.10</mockito.version>
+    <mockito.version>3.5.11</mockito.version>
 
     <swagger-core.version>2.1.4</swagger-core.version>
     <swagger-ui.version>3.32.5</swagger-ui.version>
