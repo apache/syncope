@@ -53,7 +53,7 @@ public class SyncopeWASAML2ClientCustomizerTest extends BaseSyncopeWASAML2Client
             .build();
         WASAML2SPKeystoreService saml2SPKeystoreService = mock(WASAML2SPKeystoreService.class);
         when(saml2SPKeystoreService.getByOwner(anyString())).thenReturn(keystoreTO);
-        when(saml2SPKeystoreService.set(any())).thenReturn(Response.created(new URI("http://localhost:9080/syncop-wa")).build());
+        when(saml2SPKeystoreService.set(any())).thenReturn(Response.created(new URI("http://localhost:9081/syncop-wa")).build());
 
         SAML2SPMetadataTO metadataTO = new SAML2SPMetadataTO.Builder()
             .owner("Syncope")
@@ -62,7 +62,7 @@ public class SyncopeWASAML2ClientCustomizerTest extends BaseSyncopeWASAML2Client
 
         WASAML2SPMetadataService saml2SPMetadataService = mock(WASAML2SPMetadataService.class);
         when(saml2SPMetadataService.getByOwner(anyString())).thenReturn(metadataTO);
-        when(saml2SPMetadataService.set(any())).thenReturn(Response.created(new URI("http://localhost:9080/syncop-wa")).build());
+        when(saml2SPMetadataService.set(any())).thenReturn(Response.created(new URI("http://localhost:9081/syncop-wa")).build());
 
         WARestClient restClient = mock(WARestClient.class);
 

@@ -411,7 +411,7 @@ under the License.
 
     <spring.version>5.2.9.RELEASE</spring.version>
     <spring-security.version>5.4.0</spring-security.version>
-    <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
+    <spring-boot.version>2.3.4.RELEASE</spring-boot.version>
     <spring-cloud-gateway.version>2.2.5.RELEASE</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.2</openjpa.version>
@@ -1582,11 +1582,39 @@ under the License.
         <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-webauthn</artifactId>
         <version>${cas.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-webauthn-core</artifactId>
         <version>${cas.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apereo.cas</groupId>
@@ -2242,7 +2270,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.8.0</version>
+          <version>1.8.1</version>
           <configuration>
             <configuration>
               <type>standalone</type>
