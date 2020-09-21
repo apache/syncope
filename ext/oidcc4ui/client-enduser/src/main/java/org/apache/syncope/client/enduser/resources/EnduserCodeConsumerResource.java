@@ -18,12 +18,16 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.enduser.pages.OIDCClientLogin;
 import org.apache.syncope.client.enduser.pages.Self;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
 import org.apache.syncope.client.ui.commons.resources.oidcc4ui.CodeConsumerResource;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 @Resource(
         key = OIDCC4UIConstants.URL_CONTEXT + ".codeConsumer",
@@ -38,7 +42,9 @@ public class EnduserCodeConsumerResource extends CodeConsumerResource {
     }
 
     @Override
-    protected Class<? extends WebPage> getSelfRegPageClass() {
-        return Self.class;
+    protected Pair<Class<? extends WebPage>, PageParameters> getSelfRegInfo(final UserTO newUser)
+            throws JsonProcessingException {
+
+        return Pair.of(Self.class, new PageParameters().add(Self.NEW_USER_PARAM, MAPPER.writeValueAsString(newUser)));
     }
 }

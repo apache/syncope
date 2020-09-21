@@ -26,8 +26,6 @@ public final class OIDCC4UIConstants {
 
     public static final String OIDCC4UI_JWT = "oidcc4ui.jwt";
 
-    public static final String OIDCC4UI_NEW_USER = "oidcc4ui.newUser";
-
     public static final String OIDCC4UI_SLO_SUPPORTED = "oidcc4ui.sloSupported";
 
     private OIDCC4UIConstants() {
