@@ -504,7 +504,7 @@ under the License.
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
 
     <tycho.version>1.2.0</tycho.version>
-    <netbeans.version>RELEASE111</netbeans.version>
+    <netbeans.version>RELEASE121</netbeans.version>
 
     <antlr4.version>4.8-1</antlr4.version>
 
