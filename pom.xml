@@ -1727,11 +1727,6 @@ under the License.
         <artifactId>org-netbeans-api-progress-nb</artifactId>
         <version>${netbeans.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.netbeans.external</groupId>
-        <artifactId>asm-all-5.0.1</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
 
       <dependency>
         <groupId>org.antlr</groupId>
