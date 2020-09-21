@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -47,6 +46,9 @@ import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
@@ -231,9 +233,9 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
             return;
         }
 
-        taskDAO.deleteAll(resource, TaskType.PROPAGATION);
-        taskDAO.deleteAll(resource, TaskType.PULL);
-        taskDAO.deleteAll(resource, TaskType.PUSH);
+        taskDAO.deleteAll(resource, PropagationTask.class);
+        taskDAO.deleteAll(resource, PullTask.class);
+        taskDAO.deleteAll(resource, PushTask.class);
 
         realmDAO.findByResource(resource).
                 forEach(realm -> realm.getResources().remove(resource));

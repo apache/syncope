@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -31,6 +30,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -39,10 +39,12 @@ import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
 
 @Entity
-@DiscriminatorValue("NotificationTask")
+@Table(name = JPANotificationTask.TABLE)
 public class JPANotificationTask extends AbstractTask implements NotificationTask {
 
     private static final long serialVersionUID = 95731573485279180L;
+
+    public static final String TABLE = "NotificationTask";
 
     @NotNull
     @ManyToOne

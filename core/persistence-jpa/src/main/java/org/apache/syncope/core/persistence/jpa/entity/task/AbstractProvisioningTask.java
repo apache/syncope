@@ -32,7 +32,7 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResour
 
 @MappedSuperclass
 @ProvisioningTaskCheck
-public abstract class AbstractProvisioningTask extends JPASchedTask implements ProvisioningTask {
+public abstract class AbstractProvisioningTask extends AbstractSchedTask implements ProvisioningTask {
 
     private static final long serialVersionUID = -4141057723006682562L;
 

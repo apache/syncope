@@ -30,13 +30,16 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -60,15 +63,15 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void findWithoutExecs() {
-        List<PropagationTask> tasks = taskDAO.findToExec(TaskType.PROPAGATION);
+        List<PropagationTask> tasks = taskDAO.findToExec(PropagationTask.class);
         assertNotNull(tasks);
         assertEquals(3, tasks.size());
     }
 
     @Test
     public void findPaginated() {
-        List<Task> tasks = taskDAO.findAll(
-                TaskType.PROPAGATION, null, null, null, null, 1, 2, Collections.<OrderByClause>emptyList());
+        List<PropagationTask> tasks = taskDAO.findAll(
+                PropagationTask.class, null, null, null, null, 1, 2, Collections.<OrderByClause>emptyList());
         assertNotNull(tasks);
         assertEquals(2, tasks.size());
 
@@ -77,7 +80,7 @@ public class TaskTest extends AbstractTest {
         }
 
         tasks = taskDAO.findAll(
-                TaskType.PROPAGATION, null, null, null, null, 2, 2, Collections.<OrderByClause>emptyList());
+                PropagationTask.class, null, null, null, null, 2, 2, Collections.<OrderByClause>emptyList());
         assertNotNull(tasks);
         assertEquals(2, tasks.size());
 
@@ -86,20 +89,20 @@ public class TaskTest extends AbstractTest {
         }
 
         tasks = taskDAO.findAll(
-                TaskType.PROPAGATION, null, null, null, null, 1000, 2, Collections.<OrderByClause>emptyList());
+                PropagationTask.class, null, null, null, null, 1000, 2, Collections.<OrderByClause>emptyList());
         assertNotNull(tasks);
         assertTrue(tasks.isEmpty());
 
-        assertEquals(5, taskDAO.count(TaskType.PROPAGATION, null, null, null, null));
+        assertEquals(5, taskDAO.count(PropagationTask.class, null, null, null, null));
     }
 
     @Test
     public void findAll() {
-        assertEquals(5, taskDAO.findAll(TaskType.PROPAGATION).size());
-        assertEquals(1, taskDAO.findAll(TaskType.NOTIFICATION).size());
-        assertEquals(3, taskDAO.findAll(TaskType.SCHEDULED).size());
-        assertEquals(10, taskDAO.findAll(TaskType.PULL).size());
-        assertEquals(11, taskDAO.findAll(TaskType.PUSH).size());
+        assertEquals(5, taskDAO.findAll(PropagationTask.class).size());
+        assertEquals(1, taskDAO.findAll(NotificationTask.class).size());
+        assertEquals(3, taskDAO.findAll(SchedTask.class).size());
+        assertEquals(10, taskDAO.findAll(PullTask.class).size());
+        assertEquals(11, taskDAO.findAll(PushTask.class).size());
     }
 
     @Test
@@ -144,7 +147,7 @@ public class TaskTest extends AbstractTest {
         resource = resourceDAO.find(resource.getKey());
         assertNotNull(resource);
         assertFalse(taskDAO.findAll(
-                TaskType.PROPAGATION, resource, null, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
+                PropagationTask.class, resource, null, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
                 contains(task));
     }
 }

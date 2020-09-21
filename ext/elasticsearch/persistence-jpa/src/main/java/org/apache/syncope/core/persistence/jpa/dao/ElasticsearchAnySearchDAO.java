@@ -140,7 +140,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 size(size);
         sortBuilders.forEach(sort -> sourceBuilder.sort(sort));
 
-        return new SearchRequest(elasticsearchUtils.getContextDomainName(kind)).
+        return new SearchRequest(elasticsearchUtils.getContextDomainName(kind.name())).
                 searchType(SearchType.QUERY_THEN_FETCH).
                 source(sourceBuilder);
     }

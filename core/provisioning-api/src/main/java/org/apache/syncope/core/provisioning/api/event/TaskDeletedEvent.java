@@ -16,20 +16,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity.task;
+package org.apache.syncope.core.provisioning.api.event;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.jpa.validation.entity.SchedTaskCheck;
+import org.springframework.context.ApplicationEvent;
 
-@Entity
-@Table(name = JPASchedTask.TABLE)
-@SchedTaskCheck
-public class JPASchedTask extends AbstractSchedTask implements SchedTask {
+public class TaskDeletedEvent extends ApplicationEvent {
 
-    private static final long serialVersionUID = 7596236684832602180L;
+    private static final long serialVersionUID = 6389886937942135639L;
 
-    public static final String TABLE = "SchedTask";
+    private final String taskKey;
 
+    private final String taskType;
+
+    private final String domain;
+
+    public TaskDeletedEvent(
+            final Object source,
+            final String taskKey,
+            final String domain) {
+
+        super(source);
+        this.taskKey = taskKey;
+        this.taskType = taskKey;
+        this.domain = domain;
+    }
+
+    public String getTaskType() {
+        return taskType;
+    }
+
+    public String getTaskKey() {
+        return taskKey;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
 }

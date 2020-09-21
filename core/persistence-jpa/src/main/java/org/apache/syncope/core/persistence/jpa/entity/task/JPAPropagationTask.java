@@ -21,12 +21,12 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -41,11 +41,13 @@ import org.identityconnectors.framework.common.objects.Attribute;
  * Encapsulate all information about a propagation task.
  */
 @Entity
-@DiscriminatorValue("PropagationTask")
 @PropagationTaskCheck
+@Table(name = JPAPropagationTask.TABLE)
 public class JPAPropagationTask extends AbstractTask implements PropagationTask {
 
     private static final long serialVersionUID = 7086054884614511210L;
+    
+    public static final String TABLE = "PropagationTask";
 
     /**
      * @see ResourceOperation

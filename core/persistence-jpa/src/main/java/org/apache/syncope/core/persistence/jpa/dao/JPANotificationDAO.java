@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -29,6 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
+import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -87,7 +87,7 @@ public class JPANotificationDAO extends AbstractDAO<Notification> implements Not
         }
 
         taskDAO.findAll(
-                TaskType.NOTIFICATION, null, notification, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
+                NotificationTask.class, null, notification, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
                 stream().map(Entity::getKey).forEach(task -> delete(task));
 
         entityManager().remove(notification);

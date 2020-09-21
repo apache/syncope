@@ -31,29 +31,23 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * Listen to any create / update and delete in order to keep the Elasticsearch indexes consistent.
  */
-public class ElasticsearchIndexManager {
+public class ElasticsearchAnyIndexManager 
+        extends AbstractIndexManager<AnyCreatedUpdatedEvent<Any<?>>, AnyDeletedEvent> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchIndexManager.class);
-
-    @Autowired
-    private RestHighLevelClient client;
-
-    @Autowired
-    private ElasticsearchUtils elasticsearchUtils;
+    private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchAnyIndexManager.class);
 
     @TransactionalEventListener
-    public void after(final AnyCreatedUpdatedEvent<Any<?>> event) throws IOException {
+    @Override
+    public void afterCreate(final AnyCreatedUpdatedEvent<Any<?>> event) throws IOException {
         GetRequest getRequest = new GetRequest(
-                elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind()),
+                elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind().name()),
                 event.getAny().getType().getKind().name(),
                 event.getAny().getKey());
         GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
@@ -61,7 +55,7 @@ public class ElasticsearchIndexManager {
             LOG.debug("About to update index for {}", event.getAny());
 
             UpdateRequest request = new UpdateRequest(
-                    elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind()),
+                    elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind().name()),
                     event.getAny().getType().getKind().name(),
                     event.getAny().getKey()).
                     retryOnConflict(elasticsearchUtils.getRetryOnConflict()).
@@ -72,7 +66,7 @@ public class ElasticsearchIndexManager {
             LOG.debug("About to create index for {}", event.getAny());
 
             IndexRequest request = new IndexRequest(
-                    elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind()),
+                    elasticsearchUtils.getContextDomainName(event.getAny().getType().getKind().name()),
                     event.getAny().getType().getKind().name(),
                     event.getAny().getKey()).
                     source(elasticsearchUtils.builder(event.getAny()));
@@ -82,15 +76,17 @@ public class ElasticsearchIndexManager {
     }
 
     @TransactionalEventListener
-    public void after(final AnyDeletedEvent event) throws IOException {
+    @Override
+    public void afterDelete(final AnyDeletedEvent event) throws IOException {
         LOG.debug("About to delete index for {}[{}]", event.getAnyTypeKind(), event.getAnyKey());
 
         DeleteRequest request = new DeleteRequest(
-                elasticsearchUtils.getContextDomainName(event.getAnyTypeKind()),
+                elasticsearchUtils.getContextDomainName(event.getAnyTypeKind().name()),
                 event.getAnyTypeKind().name(),
                 event.getAnyKey());
         DeleteResponse response = client.delete(request, RequestOptions.DEFAULT);
         LOG.debug("Index successfully deleted for {}[{}]: {}",
                 event.getAnyTypeKind(), event.getAnyKey(), response);
     }
+
 }

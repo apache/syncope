@@ -41,6 +41,7 @@ under the License.
     <property name="numberOfShards" value="1"/>
     <property name="numberOfReplicas" value="1"/>
   </bean>
-  <bean class="org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager"/>
+  <bean class="org.apache.syncope.ext.elasticsearch.client.ElasticsearchAnyIndexManager"/>
+  <bean class="org.apache.syncope.ext.elasticsearch.client.ElasticsearchTaskIndexManager"/>
   
 </beans>

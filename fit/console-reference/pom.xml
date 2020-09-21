@@ -276,6 +276,7 @@ under the License.
 
       <properties>
         <skipTests>true</skipTests>
+        <docker.autoCreateCustomNetworks>true</docker.autoCreateCustomNetworks>
       </properties>
 
       <build>
@@ -303,6 +304,65 @@ under the License.
               <execution>
                 <id>stop-container</id>
                 <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>docker.elastic.co/elasticsearch/elasticsearch:${elasticsearch.version}</name>
+                  <alias>elasticsearch</alias>
+                  <run>
+                    <containerNamePattern>%a</containerNamePattern>
+                    <hostname>elasticsearch</hostname>
+                    <network>
+                      <mode>custom</mode>
+                      <name>es</name>
+                    </network>
+                    <env>
+                      <discovery.type>single-node</discovery.type>
+                      <cluster.name>elasticsearch</cluster.name>
+                      <xpack.security.enabled>false</xpack.security.enabled>
+                    </env>
+                    <ports>
+                      <port>9200:9200</port>
+                      <port>9300:9300</port>
+                    </ports>
+                  </run>
+                </image>
+                <image>
+                  <name>docker.elastic.co/kibana/kibana:${elasticsearch.version}</name>
+                  <run>
+                    <dependsOn>
+                      <container>elasticsearch</container>
+                    </dependsOn>
+                    <network>
+                      <mode>custom</mode>
+                      <name>es</name>
+                    </network>
+                    <env>
+                      <ELASTICSEARCH_URL>http://elasticsearch:9200</ELASTICSEARCH_URL>
+                      <ELASTICSEARCH_HOSTS>http://elasticsearch:9200</ELASTICSEARCH_HOSTS>
+                    </env>
+                    <ports>
+                      <port>5601:5601</port>
+                    </ports>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-elasticsearch</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                  <goal>start</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>

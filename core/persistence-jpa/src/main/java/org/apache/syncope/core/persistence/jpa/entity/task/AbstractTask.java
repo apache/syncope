@@ -21,25 +21,19 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
-import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
-@Table(name = AbstractTask.TABLE)
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "DTYPE")
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class AbstractTask extends AbstractGeneratedKeyEntity implements Task {
 
     private static final long serialVersionUID = 5837401178128177511L;
-
-    public static final String TABLE = "Task";
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
     private List<JPATaskExec> executions = new ArrayList<>();

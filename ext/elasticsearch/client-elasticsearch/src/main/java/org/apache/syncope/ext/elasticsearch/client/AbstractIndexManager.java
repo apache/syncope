@@ -16,20 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity.task;
+package org.apache.syncope.ext.elasticsearch.client;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.jpa.validation.entity.SchedTaskCheck;
+import java.io.IOException;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
 
-@Entity
-@Table(name = JPASchedTask.TABLE)
-@SchedTaskCheck
-public class JPASchedTask extends AbstractSchedTask implements SchedTask {
+public abstract class AbstractIndexManager<CE extends ApplicationEvent, DE extends ApplicationEvent> {
 
-    private static final long serialVersionUID = 7596236684832602180L;
+    @Autowired
+    protected RestHighLevelClient client;
 
-    public static final String TABLE = "SchedTask";
+    @Autowired
+    protected ElasticsearchUtils elasticsearchUtils;
+
+    public abstract void afterCreate(CE event) throws IOException;
+
+    public abstract void afterDelete(DE event) throws IOException;
 
 }
