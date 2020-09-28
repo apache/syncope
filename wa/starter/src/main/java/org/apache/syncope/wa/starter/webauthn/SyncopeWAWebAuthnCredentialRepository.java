@@ -28,6 +28,7 @@ import com.yubico.webauthn.data.CredentialRegistration;
 import lombok.val;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.WebAuthnDeviceCredential;
 import org.apache.syncope.common.lib.types.WebAuthnRegisteredAccount;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
@@ -37,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentialRepository {
@@ -70,25 +71,37 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
         return getService().list().
             getResult().
             stream().
-            map(record -> getCipherExecutor().decode(record.getRecords())).
-            map(Unchecked.function(record -> getObjectMapper().
-                readValue(record, new TypeReference<Set<CredentialRegistration>>() {
-            })))
-            .flatMap(Collection::stream);
+            map(WebAuthnRegisteredAccount::getRecords).
+            flatMap(Collection::stream).
+            map(Unchecked.function(record -> {
+                String json = getCipherExecutor().decode(record.getJson());
+                return getObjectMapper().readValue(json, new TypeReference<>() {
+                });
+            }));
     }
 
     @Override
     protected void update(final String username, final Collection<CredentialRegistration> records) {
         try {
-            val jsonRecords = getCipherExecutor().encode(getObjectMapper().writeValueAsString(records));
+            List<WebAuthnDeviceCredential> devices = records.stream().
+                map(Unchecked.function(record -> {
+                    String json = getCipherExecutor().encode(getObjectMapper().writeValueAsString(record));
+                    return new WebAuthnDeviceCredential.Builder().
+                        json(json).
+                        owner(username).
+                        identifier(record.getCredential().getCredentialId().getHex()).
+                        build();
+                })).
+                collect(Collectors.toList());
+
             WebAuthnRegisteredAccount account = getService().findAccountFor(username);
             if (account != null) {
-                account.setRecords(jsonRecords);
+                account.setRecords(devices);
                 getService().update(account);
             } else {
                 account = new WebAuthnRegisteredAccount.Builder()
                     .owner(username)
-                    .records(jsonRecords)
+                    .records(devices)
                     .build();
                 getService().create(account);
             }
@@ -102,9 +115,14 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
         try {
             WebAuthnRegisteredAccount account = getService().findAccountFor(username);
             if (account != null) {
-                return getObjectMapper().readValue(getCipherExecutor().decode(account.getRecords()),
-                    new TypeReference<Set<CredentialRegistration>>() {
-                    });
+
+                return account.getRecords().stream().
+                    map(Unchecked.function(record -> {
+                        String json = getCipherExecutor().decode(record.getJson());
+                        return getObjectMapper().readValue(json, new TypeReference<CredentialRegistration>() {
+                        });
+                    })).
+                    collect(Collectors.toList());
             }
         } catch (final SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {

@@ -23,6 +23,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.WebAuthnDeviceCredential;
 import org.apache.syncope.common.lib.types.WebAuthnRegisteredAccount;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
@@ -97,6 +98,7 @@ public class WebAuthnRegistrationServiceLogic extends AbstractTransactionalLogic
     public List<WebAuthnRegisteredAccount> list() {
         return authProfileDAO.findAll().stream().
             map(AuthProfile::getWebAuthnAccount).
+            filter(Objects::nonNull).
             collect(Collectors.toList());
     }
 
@@ -124,9 +126,18 @@ public class WebAuthnRegistrationServiceLogic extends AbstractTransactionalLogic
     @PreAuthorize("hasRole('" + AMEntitlement.WEBAUTHN_DELETE_DEVICE + "') "
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final String owner, final String credentialId) {
-        authProfileDAO.findByOwner(owner).ifPresent(profile -> {
-            authProfileDAO.save(profile);
-        });
+        authProfileDAO.findByOwner(owner).
+            stream().
+            filter(Objects::nonNull).
+            findFirst().
+            ifPresent(profile -> {
+                WebAuthnRegisteredAccount webAuthnAccount = profile.getWebAuthnAccount();
+                final List<WebAuthnDeviceCredential> accounts = webAuthnAccount.getRecords();
+                if (accounts.removeIf(acct -> acct.getIdentifier().equals(credentialId))) {
+                    profile.setWebAuthnAccount(webAuthnAccount);
+                    authProfileDAO.save(profile);
+                }
+            });
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WEBAUTHN_CREATE_DEVICE + "') "
@@ -157,5 +168,15 @@ public class WebAuthnRegistrationServiceLogic extends AbstractTransactionalLogic
                 authProfileDAO.save(profile);
             }
         });
+    }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.WEBAUTHN_DELETE_DEVICE + "') "
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public void deleteAll() {
+        authProfileDAO.findAll().
+            forEach(profile -> {
+                profile.setWebAuthnAccount(null);
+                authProfileDAO.save(profile);
+            });
     }
 }

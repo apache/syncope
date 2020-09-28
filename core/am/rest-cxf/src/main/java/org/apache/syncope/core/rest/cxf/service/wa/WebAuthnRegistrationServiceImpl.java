@@ -72,6 +72,12 @@ public class WebAuthnRegistrationServiceImpl extends AbstractServiceImpl impleme
     }
 
     @Override
+    public Response deleteAll() {
+        logic.deleteAll();
+        return Response.noContent().build();
+    }
+
+    @Override
     public Response create(final WebAuthnRegisteredAccount account) {
         final WebAuthnRegisteredAccount token = logic.create(account);
         URI location = uriInfo.getAbsolutePathBuilder().path(token.getKey()).build();

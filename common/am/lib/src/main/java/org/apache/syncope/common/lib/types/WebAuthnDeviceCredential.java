@@ -23,32 +23,30 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
-import java.util.List;
+public class WebAuthnDeviceCredential implements BaseBean {
 
-public class WebAuthnRegisteredAccount implements BaseBean {
+    private static final long serialVersionUID = 1185073386484048953L;
 
-    private static final long serialVersionUID = 2285073386484048953L;
-
-    private String key;
-
-    private List<WebAuthnDeviceCredential> records;
+    private String json;
 
     private String owner;
 
-    public String getKey() {
-        return key;
+    private String identifier;
+
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setKey(final String key) {
-        this.key = key;
+    public void setIdentifier(final String identifier) {
+        this.identifier = identifier;
     }
 
-    public List<WebAuthnDeviceCredential> getRecords() {
-        return records;
+    public String getJson() {
+        return json;
     }
 
-    public void setRecords(final List<WebAuthnDeviceCredential> record) {
-        this.records = record;
+    public void setJson(final String json) {
+        this.json = json;
     }
 
     public String getOwner() {
@@ -63,8 +61,8 @@ public class WebAuthnRegisteredAccount implements BaseBean {
     public int hashCode() {
         return new HashCodeBuilder()
             .appendSuper(super.hashCode())
-            .append(key)
-            .append(records)
+            .append(json)
+            .append(identifier)
             .append(owner)
             .toHashCode();
     }
@@ -80,11 +78,11 @@ public class WebAuthnRegisteredAccount implements BaseBean {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        WebAuthnRegisteredAccount rhs = (WebAuthnRegisteredAccount) obj;
+        WebAuthnDeviceCredential rhs = (WebAuthnDeviceCredential) obj;
         return new EqualsBuilder()
             .appendSuper(super.equals(obj))
-            .append(this.key, rhs.key)
-            .append(this.records, rhs.records)
+            .append(this.json, rhs.json)
+            .append(this.identifier, rhs.identifier)
             .append(this.owner, rhs.owner)
             .isEquals();
     }
@@ -92,32 +90,32 @@ public class WebAuthnRegisteredAccount implements BaseBean {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-            .append("key", key)
-            .append("records", records)
+            .append("records", json)
+            .append("identifier", identifier)
             .append("owner", owner)
             .toString();
     }
 
     public static class Builder {
 
-        private final WebAuthnRegisteredAccount instance = new WebAuthnRegisteredAccount();
+        private final WebAuthnDeviceCredential instance = new WebAuthnDeviceCredential();
 
-        public WebAuthnRegisteredAccount.Builder records(final List<WebAuthnDeviceCredential> records) {
-            instance.setRecords(records);
+        public WebAuthnDeviceCredential.Builder json(final String json) {
+            instance.setJson(json);
             return this;
         }
 
-        public WebAuthnRegisteredAccount.Builder owner(final String owner) {
+        public WebAuthnDeviceCredential.Builder owner(final String owner) {
             instance.setOwner(owner);
             return this;
         }
 
-        public WebAuthnRegisteredAccount.Builder key(final String key) {
-            instance.setKey(key);
+        public WebAuthnDeviceCredential.Builder identifier(final String identifier) {
+            instance.setIdentifier(identifier);
             return this;
         }
 
-        public WebAuthnRegisteredAccount build() {
+        public WebAuthnDeviceCredential build() {
             return instance;
         }
     }

@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
+import org.apache.syncope.common.lib.types.WebAuthnDeviceCredential;
 import org.apache.syncope.common.lib.types.WebAuthnRegisteredAccount;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -107,11 +108,18 @@ public class AuthProfileTest extends AbstractTest {
             "      \"displayName\" : \"casuser\"" +
             "    }," +
             "    \"credential\" : {" +
-            "      \"credentialId\" : \"fFGyV3K5x1U4FQUgGuFaIecOD6mYz5_fAzBd_dKD9-0uvgoe20tZHE9enVsBlTo-sjt5tUAf04ElXr3vEeAX-g\"" +
+            "      \"credentialId\" : \"fFGyV3K5x1\"" +
             "    }," +
             "    \"username\" : \"casuser\"" +
             "  } ]";
-        createAuthProfileWithWebAuthnDevice(id, record);
+
+        WebAuthnDeviceCredential credential = new WebAuthnDeviceCredential.Builder().
+            json(record).
+            owner(id).
+            identifier("fFGyV3K5x1").
+            build();
+        
+        createAuthProfileWithWebAuthnDevice(id, List.of(credential));
 
         Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
         assertTrue(result.isPresent());
@@ -178,7 +186,7 @@ public class AuthProfileTest extends AbstractTest {
         return authProfileDAO.save(profile);
     }
 
-    private AuthProfile createAuthProfileWithWebAuthnDevice(final String owner, final String records) {
+    private AuthProfile createAuthProfileWithWebAuthnDevice(final String owner, final List<WebAuthnDeviceCredential> records) {
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
         profile.setOwner(owner);
         WebAuthnRegisteredAccount account = new WebAuthnRegisteredAccount.Builder()

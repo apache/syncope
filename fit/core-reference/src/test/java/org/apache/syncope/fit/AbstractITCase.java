@@ -145,6 +145,7 @@ import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
+import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
 import org.apache.syncope.fit.core.CoreITContext;
 import org.apache.syncope.fit.core.UserITCase;
 import org.junit.jupiter.api.BeforeAll;
@@ -343,6 +344,8 @@ public abstract class AbstractITCase {
 
     protected static WAConfigService waConfigService;
 
+    protected static WebAuthnRegistrationService webAuthnRegistrationService;
+
     @BeforeAll
     public static void securitySetup() {
         try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/security.properties")) {
@@ -423,6 +426,7 @@ public abstract class AbstractITCase {
         oidcJWKSService = adminClient.getService(OIDCJWKSService.class);
         u2FRegistrationService = adminClient.getService(U2FRegistrationService.class);
         waConfigService = adminClient.getService(WAConfigService.class);
+        webAuthnRegistrationService = adminClient.getService(WebAuthnRegistrationService.class);
     }
 
     @Autowired

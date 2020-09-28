@@ -78,6 +78,11 @@ public interface WebAuthnRegistrationService extends JAXRSService {
     @Path("${owner}/${credentialId}")
     Response delete(@NotNull @PathParam("owner") String owner, @NotNull @PathParam("credentialId") String credentialId);
 
+    @DELETE
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    Response deleteAll();
+
     @ApiResponses({
         @ApiResponse(responseCode = "201",
             description = "WebAuthn successfully created", headers = {
