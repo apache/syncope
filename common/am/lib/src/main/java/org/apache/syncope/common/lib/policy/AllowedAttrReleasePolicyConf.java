@@ -18,8 +18,14 @@
  */
 package org.apache.syncope.common.lib.policy;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AllowedAttrReleasePolicyConf implements AttrReleasePolicyConf {
 
@@ -29,9 +35,65 @@ public class AllowedAttrReleasePolicyConf implements AttrReleasePolicyConf {
      * Specify the list of allowed attribute to release.
      * Use the special {@code *} to release everything.
      */
+    @JacksonXmlElementWrapper(localName = "allowedAttrs")
+    @JacksonXmlProperty(localName = "allowedAttrs")
+    @JsonProperty("allowedAttrs")
     private final List<String> allowedAttrs = new ArrayList<>();
+
+    private ConsentPolicy consentPolicy;
 
     public List<String> getAllowedAttrs() {
         return allowedAttrs;
     }
+
+    public ConsentPolicy getConsentPolicy() {
+        return consentPolicy;
+    }
+
+    public void setConsentPolicy(final ConsentPolicy consentPolicy) {
+        this.consentPolicy = consentPolicy;
+    }
+
+    public class ConsentPolicy implements Serializable {
+
+        private static final long serialVersionUID = 6744647343202583865L;
+
+        private Boolean status = null;
+
+        @JacksonXmlElementWrapper(localName = "excludedAttributes")
+        @JacksonXmlProperty(localName = "excludedAttributes")
+        @JsonProperty("excludedAttributes")
+        private final Set<String> excludedAttrs = new HashSet<>();
+
+        @JacksonXmlElementWrapper(localName = "includeOnlyAttrs")
+        @JacksonXmlProperty(localName = "includeOnlyAttrs")
+        @JsonProperty("includeOnlyAttrs")
+        private final Set<String> includeOnlyAttrs = new HashSet<>();
+
+        public Boolean getStatus() {
+            return status;
+        }
+
+        public void setStatus(final Boolean status) {
+            this.status = status;
+        }
+
+        public Set<String> getExcludedAttrs() {
+            return excludedAttrs;
+        }
+
+        public void addExcludedAttr(final String attr) {
+            excludedAttrs.add(attr);
+        }
+
+        public Set<String> getIncludeOnlyAttrs() {
+            return includeOnlyAttrs;
+        }
+
+        public void addIncludeOnlyAttribute(final String attr) {
+            includeOnlyAttrs.add(attr);
+        }
+
+    }
+
 }

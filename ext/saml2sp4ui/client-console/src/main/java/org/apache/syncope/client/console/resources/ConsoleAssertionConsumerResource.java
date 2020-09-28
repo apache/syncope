@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.client.console.resources;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.pages.SAML2SPLogin;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.resources.saml2sp4ui.AssertionConsumerResource;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 @Resource(
         key = SAML2SP4UIConstants.URL_CONTEXT + ".assertionConsumer",
@@ -37,7 +40,7 @@ public class ConsoleAssertionConsumerResource extends AssertionConsumerResource 
     }
 
     @Override
-    protected Class<? extends WebPage> getSelfRegPageClass() {
+    protected Pair<Class<? extends WebPage>, PageParameters> getSelfRegInfo(final UserTO newUser) {
         throw new UnsupportedOperationException("Self-registration not supported by Admin Console");
     }
 }

@@ -71,7 +71,7 @@ public class SyncopeWASAML2ClientMetadataGeneratorTest extends BaseSyncopeWASAML
         client.getConfiguration().setKeystoreResourceFilepath(keystoreFile);
 
         SAML2MetadataGenerator generator = new SyncopeWASAML2ClientMetadataGenerator(
-            getWaRestClient(Response.created(new URI("http://localhost:9080/syncop-wa")).build()), client);
+            getWaRestClient(Response.created(new URI("http://localhost:9081/syncop-wa")).build()), client);
         EntityDescriptor entityDescriptor = generator.buildEntityDescriptor();
         String metadata = generator.getMetadata(entityDescriptor);
         assertNotNull(generator.storeMetadata(metadata, null, false));

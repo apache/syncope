@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
 import org.apache.syncope.common.lib.oidc.OIDCConstants;
@@ -39,16 +40,17 @@ import org.slf4j.LoggerFactory;
 
 public abstract class CodeConsumerResource extends AbstractResource {
 
+    private static final long serialVersionUID = -692581789294259519L;
+
     protected static final Logger LOG = LoggerFactory.getLogger(CodeConsumerResource.class);
 
-    private static final ObjectMapper MAPPER =
+    protected static final ObjectMapper MAPPER =
             new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-
-    private static final long serialVersionUID = -692581789294259519L;
 
     protected abstract Class<? extends WebPage> getLoginPageClass();
 
-    protected abstract Class<? extends WebPage> getSelfRegPageClass();
+    protected abstract Pair<Class<? extends WebPage>, PageParameters> getSelfRegInfo(UserTO newUser)
+            throws JsonProcessingException;
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
@@ -69,10 +71,8 @@ public abstract class CodeConsumerResource extends AbstractResource {
             newUser.getPlainAttrs().addAll(oidcResponse.getAttrs());
 
             try {
-                throw new RestartResponseException(
-                        getSelfRegPageClass(),
-                        new PageParameters().
-                                set(OIDCC4UIConstants.OIDCC4UI_NEW_USER, MAPPER.writeValueAsString(newUser)));
+                Pair<Class<? extends WebPage>, PageParameters> selfRegInfo = getSelfRegInfo(newUser);
+                throw new RestartResponseException(selfRegInfo.getLeft(), selfRegInfo.getRight());
             } catch (JsonProcessingException e) {
                 LOG.error("Could not serialize new user {}", newUser, e);
                 throw new WicketRuntimeException(e);

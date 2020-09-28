@@ -227,12 +227,19 @@ public class PolicyTest extends AbstractTest {
 
         AllowedAttrReleasePolicyConf attrReleasePolicyConf = new AllowedAttrReleasePolicyConf();
         attrReleasePolicyConf.getAllowedAttrs().addAll(List.of("*"));
+
+        AllowedAttrReleasePolicyConf.ConsentPolicy consentPolicy = attrReleasePolicyConf.new ConsentPolicy();
+        consentPolicy.setStatus(Boolean.TRUE);
+        consentPolicy.getIncludeOnlyAttrs().addAll(Set.of("cn"));
+        attrReleasePolicyConf.setConsentPolicy(consentPolicy);
         attrReleasePolicy.setConf(attrReleasePolicyConf);
 
         attrReleasePolicy = policyDAO.save(attrReleasePolicy);
 
         assertNotNull(attrReleasePolicy);
         assertNotNull(attrReleasePolicy.getKey());
+        assertNotNull(((AllowedAttrReleasePolicyConf) attrReleasePolicy.getConf()).getAllowedAttrs());
+        assertNotNull(((AllowedAttrReleasePolicyConf) attrReleasePolicy.getConf()).getConsentPolicy());
 
         afterCount = policyDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);

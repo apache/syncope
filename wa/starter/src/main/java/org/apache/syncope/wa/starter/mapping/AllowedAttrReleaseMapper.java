@@ -22,7 +22,10 @@ import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
+import org.apereo.cas.services.RegisteredServiceConsentPolicy;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
+import org.apereo.cas.services.consent.DefaultRegisteredServiceConsentPolicy;
+import org.apereo.cas.util.model.TriStateBoolean;
 import org.springframework.stereotype.Component;
 
 @AttrReleaseMapFor(attrReleasePolicyConfClass = AllowedAttrReleasePolicyConf.class)
@@ -40,6 +43,16 @@ public class AllowedAttrReleaseMapper implements AttrReleaseMapper {
             attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
             ((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).
                     setAllowedAttributes((aarpc.getAllowedAttrs()));
+
+            if (aarpc.getConsentPolicy() != null) {
+                RegisteredServiceConsentPolicy consentPolicy =
+                        new DefaultRegisteredServiceConsentPolicy(aarpc.getConsentPolicy().getExcludedAttrs(),
+                                aarpc.getConsentPolicy().getIncludeOnlyAttrs());
+                ((DefaultRegisteredServiceConsentPolicy) consentPolicy).setStatus(
+                        aarpc.getConsentPolicy().getStatus() == null ? TriStateBoolean.UNDEFINED
+                        : TriStateBoolean.fromBoolean(aarpc.getConsentPolicy().getStatus()));
+                ((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).setConsentPolicy(consentPolicy);
+            }
         }
 
         return attributeReleasePolicy;

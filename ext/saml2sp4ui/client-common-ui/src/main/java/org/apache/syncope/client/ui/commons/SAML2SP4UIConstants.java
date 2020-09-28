@@ -30,8 +30,6 @@ public final class SAML2SP4UIConstants {
 
     public static final String SAML2SP4UI_IDP_ENTITY_ID = "saml2sp4ui.idpEntityID";
 
-    public static final String SAML2SP4UI_NEW_USER = "saml2sp4ui.newUser";
-
     private SAML2SP4UIConstants() {
         // private constructor for static utility class
     }

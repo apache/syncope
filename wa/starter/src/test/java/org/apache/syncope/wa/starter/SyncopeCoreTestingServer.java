@@ -50,7 +50,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
 
     public static final List<WAClientApp> APPS = new ArrayList<>();
 
-    private static final String ADDRESS = "http://localhost:9080/syncope/rest";
+    private static final String ADDRESS = "http://localhost:9081/syncope/rest";
 
     @Autowired
     private ServiceOps serviceOps;

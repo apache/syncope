@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.client.console.resources;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.pages.OIDCClientLogin;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
 import org.apache.syncope.client.ui.commons.resources.oidcc4ui.CodeConsumerResource;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 @Resource(
         key = OIDCC4UIConstants.URL_CONTEXT + ".codeConsumer",
@@ -37,7 +40,7 @@ public class ConsoleCodeConsumerResource extends CodeConsumerResource {
     }
 
     @Override
-    protected Class<? extends WebPage> getSelfRegPageClass() {
+    protected Pair<Class<? extends WebPage>, PageParameters> getSelfRegInfo(final UserTO newUser) {
         throw new UnsupportedOperationException("Self-registration not supported by Admin Console");
     }
 }

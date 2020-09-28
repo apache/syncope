@@ -41,6 +41,12 @@ public class AbstractClientAppTest extends AbstractTest {
 
         AllowedAttrReleasePolicyConf conf = new AllowedAttrReleasePolicyConf();
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
+
+        AllowedAttrReleasePolicyConf.ConsentPolicy consentPolicy = conf.new ConsentPolicy();
+        consentPolicy.setStatus(Boolean.TRUE);
+        consentPolicy.getIncludeOnlyAttrs().addAll(Set.of("cn"));
+        conf.setConsentPolicy(consentPolicy);
+
         attrRelPolicy.setConf(conf);
 
         return policyDAO.save(attrRelPolicy);

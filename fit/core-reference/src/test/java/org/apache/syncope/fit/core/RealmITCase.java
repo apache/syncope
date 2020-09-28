@@ -299,6 +299,10 @@ public class RealmITCase extends AbstractITCase {
         AllowedAttrReleasePolicyConf ruleConf = new AllowedAttrReleasePolicyConf();
         ruleConf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
 
+        AllowedAttrReleasePolicyConf.ConsentPolicy consentPolicy1 = ruleConf.new ConsentPolicy();
+        consentPolicy1.getIncludeOnlyAttrs().addAll(Set.of("cn"));
+        ruleConf.setConsentPolicy(consentPolicy1);
+
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
         policy.setDescription("Test Attribute Release policy");
         policy.setConf(ruleConf);
