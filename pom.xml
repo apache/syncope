@@ -2052,7 +2052,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.36</version>
+              <version>8.36.2</version>
             </dependency>
           </dependencies>
           <configuration>
