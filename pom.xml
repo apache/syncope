@@ -450,7 +450,7 @@ under the License.
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.7.0</junit.version>
-    <mockito.version>3.5.11</mockito.version>
+    <mockito.version>3.5.13</mockito.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -480,7 +480,7 @@ under the License.
     <chartjs.version>1.0.2</chartjs.version>
     
     <wicket.version>8.9.0</wicket.version>
-    <wicket-jqueryui.version>8.8.0</wicket-jqueryui.version>
+    <wicket-jqueryui.version>8.9.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>2.0.13</wicket-bootstrap.version>
 
     <angular.version>1.7.5</angular.version>
@@ -2070,7 +2070,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.34.0</version>
+          <version>0.34.1</version>
         </plugin>
 
         <plugin>
