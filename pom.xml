@@ -407,7 +407,7 @@ under the License.
     <cxf.version>3.4.0</cxf.version>
     <bouncycastle.version>1.66</bouncycastle.version>
 
-    <jackson.version>2.11.2</jackson.version>
+    <jackson.version>2.11.3</jackson.version>
 
     <spring.version>5.2.9.RELEASE</spring.version>
     <spring-security.version>5.4.0</spring-security.version>
@@ -457,7 +457,7 @@ under the License.
     <junit.version>5.7.0</junit.version>
     <mockito.version>3.5.13</mockito.version>
 
-    <swagger-core.version>2.1.4</swagger-core.version>
+    <swagger-core.version>2.1.5</swagger-core.version>
     <swagger-ui.version>3.34.0</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
