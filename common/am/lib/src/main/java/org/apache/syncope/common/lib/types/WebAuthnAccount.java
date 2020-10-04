@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.BaseBean;
 
 import java.util.List;
 
-public class WebAuthnRegisteredAccount implements BaseBean {
+public class WebAuthnAccount implements BaseBean {
 
     private static final long serialVersionUID = 2285073386484048953L;
 
@@ -80,7 +80,7 @@ public class WebAuthnRegisteredAccount implements BaseBean {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        WebAuthnRegisteredAccount rhs = (WebAuthnRegisteredAccount) obj;
+        WebAuthnAccount rhs = (WebAuthnAccount) obj;
         return new EqualsBuilder()
             .appendSuper(super.equals(obj))
             .append(this.key, rhs.key)
@@ -100,24 +100,24 @@ public class WebAuthnRegisteredAccount implements BaseBean {
 
     public static class Builder {
 
-        private final WebAuthnRegisteredAccount instance = new WebAuthnRegisteredAccount();
+        private final WebAuthnAccount instance = new WebAuthnAccount();
 
-        public WebAuthnRegisteredAccount.Builder records(final List<WebAuthnDeviceCredential> records) {
+        public WebAuthnAccount.Builder records(final List<WebAuthnDeviceCredential> records) {
             instance.setRecords(records);
             return this;
         }
 
-        public WebAuthnRegisteredAccount.Builder owner(final String owner) {
+        public WebAuthnAccount.Builder owner(final String owner) {
             instance.setOwner(owner);
             return this;
         }
 
-        public WebAuthnRegisteredAccount.Builder key(final String key) {
+        public WebAuthnAccount.Builder key(final String key) {
             instance.setKey(key);
             return this;
         }
 
-        public WebAuthnRegisteredAccount build() {
+        public WebAuthnAccount build() {
             return instance;
         }
     }

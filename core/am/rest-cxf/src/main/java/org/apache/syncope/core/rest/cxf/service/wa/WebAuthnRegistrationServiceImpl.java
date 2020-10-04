@@ -19,8 +19,7 @@
 
 package org.apache.syncope.core.rest.cxf.service.wa;
 
-import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.types.WebAuthnRegisteredAccount;
+import org.apache.syncope.common.lib.types.WebAuthnAccount;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
 import org.apache.syncope.core.logic.WebAuthnRegistrationServiceLogic;
@@ -39,23 +38,17 @@ public class WebAuthnRegistrationServiceImpl extends AbstractServiceImpl impleme
     private WebAuthnRegistrationServiceLogic logic;
 
     @Override
-    public PagedResult<WebAuthnRegisteredAccount> list() {
-        List<WebAuthnRegisteredAccount> accounts = logic.list();
-        PagedResult<WebAuthnRegisteredAccount> result = new PagedResult<>();
-        result.getResult().addAll(accounts);
-        result.setPage(1);
-        result.setSize(result.getResult().size());
-        result.setTotalCount(result.getSize());
-        return result;
+    public List<WebAuthnAccount> list() {
+        return logic.list();
     }
 
     @Override
-    public WebAuthnRegisteredAccount read(final String key) {
+    public WebAuthnAccount read(final String key) {
         return logic.read(key);
     }
 
     @Override
-    public WebAuthnRegisteredAccount findAccountFor(final String owner) {
+    public WebAuthnAccount findAccountFor(final String owner) {
         return logic.findAccountBy(owner);
     }
 
@@ -72,14 +65,8 @@ public class WebAuthnRegistrationServiceImpl extends AbstractServiceImpl impleme
     }
 
     @Override
-    public Response deleteAll() {
-        logic.deleteAll();
-        return Response.noContent().build();
-    }
-
-    @Override
-    public Response create(final WebAuthnRegisteredAccount account) {
-        final WebAuthnRegisteredAccount token = logic.create(account);
+    public Response create(final WebAuthnAccount account) {
+        final WebAuthnAccount token = logic.create(account);
         URI location = uriInfo.getAbsolutePathBuilder().path(token.getKey()).build();
         return Response.created(location).
             header(RESTHeaders.RESOURCE_KEY, token.getKey()).
@@ -88,7 +75,7 @@ public class WebAuthnRegistrationServiceImpl extends AbstractServiceImpl impleme
     }
 
     @Override
-    public void update(final WebAuthnRegisteredAccount account) {
+    public void update(final WebAuthnAccount account) {
         logic.update(account);
     }
 }

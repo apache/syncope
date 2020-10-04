@@ -19,11 +19,10 @@
 
 package org.apache.syncope.fit.core;
 
+import org.apache.syncope.common.lib.types.WebAuthnAccount;
 import org.apache.syncope.common.lib.types.WebAuthnDeviceCredential;
-import org.apache.syncope.common.lib.types.WebAuthnRegisteredAccount;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.Response;
@@ -31,13 +30,13 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WebAuthnRegisteredAccountITCase extends AbstractITCase {
+public class WebAuthnAccountITCase extends AbstractITCase {
 
-    private static WebAuthnRegisteredAccount createWebAuthnRegisteredAccount() {
+    private static WebAuthnAccount createWebAuthnRegisteredAccount() {
         String id = SecureRandomUtils.generateRandomUUID().toString();
         String record = "[ {" +
             "    \"userIdentity\" : {" +
@@ -54,36 +53,31 @@ public class WebAuthnRegisteredAccountITCase extends AbstractITCase {
             owner(id).
             identifier("fFGyV3K5x1").
             build();
-        return new WebAuthnRegisteredAccount.Builder()
+        return new WebAuthnAccount.Builder()
             .owner(id)
             .records(List.of(credential))
             .build();
     }
 
-    @BeforeEach
-    public void setup() {
-        webAuthnRegistrationService.deleteAll();
-    }
-
     @Test
     public void listAndFind() {
-        WebAuthnRegisteredAccount acct = createWebAuthnRegisteredAccount();
+        WebAuthnAccount acct = createWebAuthnRegisteredAccount();
         webAuthnRegistrationService.create(acct);
-        assertTrue(webAuthnRegistrationService.list().getSize() > 0);
+        assertFalse(webAuthnRegistrationService.list().isEmpty());
         assertNotNull(webAuthnRegistrationService.findAccountFor(acct.getOwner()));
     }
 
     @Test
     public void deleteByOwner() {
-        WebAuthnRegisteredAccount acct = createWebAuthnRegisteredAccount();
+        WebAuthnAccount acct = createWebAuthnRegisteredAccount();
         webAuthnRegistrationService.create(acct);
         assertNotNull(webAuthnRegistrationService.delete(acct.getOwner()));
-        assertEquals(0, webAuthnRegistrationService.list().getSize());
+        assertTrue(webAuthnRegistrationService.list().isEmpty());
     }
 
     @Test
     public void deleteByAcct() {
-        WebAuthnRegisteredAccount acct = createWebAuthnRegisteredAccount();
+        WebAuthnAccount acct = createWebAuthnRegisteredAccount();
         webAuthnRegistrationService.create(acct);
         assertNotNull(webAuthnRegistrationService.delete(acct.getOwner(), acct.getRecords().get(0).getIdentifier()));
         acct = webAuthnRegistrationService.findAccountFor(acct.getOwner());
@@ -92,7 +86,7 @@ public class WebAuthnRegisteredAccountITCase extends AbstractITCase {
 
     @Test
     public void create() {
-        WebAuthnRegisteredAccount acct = createWebAuthnRegisteredAccount();
+        WebAuthnAccount acct = createWebAuthnRegisteredAccount();
         assertDoesNotThrow(() -> {
             Response response = webAuthnRegistrationService.create(acct);
             if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {

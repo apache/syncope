@@ -26,8 +26,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.types.WebAuthnRegisteredAccount;
+import org.apache.syncope.common.lib.types.WebAuthnAccount;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
@@ -43,6 +42,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.util.List;
+
 @Tag(name = "WA Registrations")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
@@ -52,19 +53,19 @@ public interface WebAuthnRegistrationService extends JAXRSService {
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    PagedResult<WebAuthnRegisteredAccount> list();
+    List<WebAuthnAccount> list();
 
     @GET
     @Path("{key}")
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    WebAuthnRegisteredAccount read(@NotNull @PathParam("key") String key);
+    WebAuthnAccount read(@NotNull @PathParam("key") String key);
 
     @GET
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Path("users/${owner}")
-    WebAuthnRegisteredAccount findAccountFor(@NotNull @PathParam("owner") String owner);
+    WebAuthnAccount findAccountFor(@NotNull @PathParam("owner") String owner);
 
     @DELETE
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
@@ -78,11 +79,6 @@ public interface WebAuthnRegistrationService extends JAXRSService {
     @Path("${owner}/${credentialId}")
     Response delete(@NotNull @PathParam("owner") String owner, @NotNull @PathParam("credentialId") String credentialId);
 
-    @DELETE
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response deleteAll();
-
     @ApiResponses({
         @ApiResponse(responseCode = "201",
             description = "WebAuthn successfully created", headers = {
@@ -92,11 +88,11 @@ public interface WebAuthnRegistrationService extends JAXRSService {
     @POST
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Response create(WebAuthnRegisteredAccount account);
+    Response create(WebAuthnAccount account);
 
     @PUT
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    void update(@NotNull WebAuthnRegisteredAccount account);
+    void update(@NotNull WebAuthnAccount account);
 
 }

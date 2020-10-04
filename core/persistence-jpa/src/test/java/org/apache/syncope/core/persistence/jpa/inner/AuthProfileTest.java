@@ -22,7 +22,7 @@ import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
 import org.apache.syncope.common.lib.types.WebAuthnDeviceCredential;
-import org.apache.syncope.common.lib.types.WebAuthnRegisteredAccount;
+import org.apache.syncope.common.lib.types.WebAuthnAccount;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
@@ -189,7 +189,7 @@ public class AuthProfileTest extends AbstractTest {
     private AuthProfile createAuthProfileWithWebAuthnDevice(final String owner, final List<WebAuthnDeviceCredential> records) {
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
         profile.setOwner(owner);
-        WebAuthnRegisteredAccount account = new WebAuthnRegisteredAccount.Builder()
+        WebAuthnAccount account = new WebAuthnAccount.Builder()
             .records(records)
             .owner(owner)
             .build();

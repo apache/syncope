@@ -22,7 +22,7 @@ package org.apache.syncope.core.persistence.api.entity.auth;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
-import org.apache.syncope.common.lib.types.WebAuthnRegisteredAccount;
+import org.apache.syncope.common.lib.types.WebAuthnAccount;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
 import java.util.List;
@@ -45,9 +45,9 @@ public interface AuthProfile extends Entity {
 
     void setGoogleMfaAuthAccounts(List<GoogleMfaAuthAccount> accounts);
 
-    WebAuthnRegisteredAccount getWebAuthnAccount();
+    WebAuthnAccount getWebAuthnAccount();
 
-    void setWebAuthnAccount(WebAuthnRegisteredAccount accounts);
+    void setWebAuthnAccount(WebAuthnAccount accounts);
 
     void add(GoogleMfaAuthToken token);
 

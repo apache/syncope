@@ -29,7 +29,7 @@ import lombok.val;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.WebAuthnDeviceCredential;
-import org.apache.syncope.common.lib.types.WebAuthnRegisteredAccount;
+import org.apache.syncope.common.lib.types.WebAuthnAccount;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.jooq.lambda.Unchecked;
@@ -69,9 +69,8 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
     @Override
     protected Stream<CredentialRegistration> load() {
         return getService().list().
-            getResult().
             stream().
-            map(WebAuthnRegisteredAccount::getRecords).
+            map(WebAuthnAccount::getRecords).
             flatMap(Collection::stream).
             map(Unchecked.function(record -> {
                 String json = getCipherExecutor().decode(record.getJson());
@@ -94,12 +93,12 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
                 })).
                 collect(Collectors.toList());
 
-            WebAuthnRegisteredAccount account = getService().findAccountFor(username);
+            WebAuthnAccount account = getService().findAccountFor(username);
             if (account != null) {
                 account.setRecords(devices);
                 getService().update(account);
             } else {
-                account = new WebAuthnRegisteredAccount.Builder()
+                account = new WebAuthnAccount.Builder()
                     .owner(username)
                     .records(devices)
                     .build();
@@ -113,7 +112,7 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
     @Override
     public Collection<CredentialRegistration> getRegistrationsByUsername(final String username) {
         try {
-            WebAuthnRegisteredAccount account = getService().findAccountFor(username);
+            WebAuthnAccount account = getService().findAccountFor(username);
             if (account != null) {
 
                 return account.getRecords().stream().
