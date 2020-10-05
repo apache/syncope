@@ -29,6 +29,7 @@ import javax.persistence.UniqueConstraint;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
+import org.apache.syncope.common.lib.types.WebAuthnAccount;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -50,6 +51,9 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
 
     @Lob
     private String googleMfaAuthTokens;
+
+    @Lob
+    private String webAuthnAccount;
 
     @Column(nullable = false)
     private String owner;
@@ -109,6 +113,19 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public void setU2FRegisteredDevices(final List<U2FRegisteredDevice> records) {
         this.u2fRegisteredDevices = POJOHelper.serialize(records);
+    }
+
+    @Override
+    public WebAuthnAccount getWebAuthnAccount() {
+        return webAuthnAccount == null
+            ? null
+            : POJOHelper.deserialize(webAuthnAccount, new TypeReference<WebAuthnAccount>() {
+        });
+    }
+
+    @Override
+    public void setWebAuthnAccount(final WebAuthnAccount accounts) {
+        this.webAuthnAccount = POJOHelper.serialize(accounts);
     }
 
     @Override

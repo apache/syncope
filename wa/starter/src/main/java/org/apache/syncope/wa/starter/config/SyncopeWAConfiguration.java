@@ -65,6 +65,8 @@ import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
 import org.apereo.cas.support.saml.idp.metadata.writer.SamlIdPCertificateAndKeyWriter;
 import org.apereo.cas.util.DateTimeUtils;
 import org.apereo.cas.util.crypto.CipherExecutor;
+
+import org.apache.syncope.wa.starter.webauthn.SyncopeWAWebAuthnCredentialRepository;
 import org.pac4j.core.client.Client;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +84,7 @@ import java.util.Map;
 import org.apache.syncope.wa.starter.events.SyncopeWAEventRepository;
 import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
+import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
 
 public class SyncopeWAConfiguration {
 
@@ -242,6 +245,13 @@ public class SyncopeWAConfiguration {
         JWSAlgorithm algorithm = ctx.getEnvironment().
                 getProperty("cas.authn.oidc.jwks.algorithm", JWSAlgorithm.class, JWSAlgorithm.RS256);
         return new SyncopeWAOIDCJWKSGeneratorService(restClient, size, algorithm);
+    }
+
+    @RefreshScope
+    @Bean
+    @Autowired
+    public WebAuthnCredentialRepository webAuthnCredentialRepository(final WARestClient restClient) {
+        return new SyncopeWAWebAuthnCredentialRepository(casProperties, restClient);
     }
 
     @Bean
