@@ -2526,7 +2526,6 @@ under the License.
             <exclude>**/*.json</exclude>
             <exclude>**/banner.txt</exclude>
             <exclude>**/target/**</exclude>
-            <exclude>**/codeql-analysis.yml</exclude>
           </excludes>
         </configuration>
         <executions>
