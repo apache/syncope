@@ -93,7 +93,7 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
     @Override
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
-        if (event.getPayload() instanceof ExitEvent && modal != null) {
+        if (event.getPayload() instanceof ExitEvent) {
             final AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
             baseModal.show(false);
             baseModal.close(target);

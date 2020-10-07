@@ -440,7 +440,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 numbersInfo.setAnyType1(entry.getKey().getKey());
                 numbersInfo.setTotalAny1(entry.getValue());
                 numbersInfo.getAny1ByRealm().putAll(anyObjectDAO.countByRealm(entry.getKey()));
-            } else if (i == 1) {
+            } else {
                 numbersInfo.setAnyType2(entry.getKey().getKey());
                 numbersInfo.setTotalAny2(entry.getValue());
                 numbersInfo.getAny2ByRealm().putAll(anyObjectDAO.countByRealm(entry.getKey()));

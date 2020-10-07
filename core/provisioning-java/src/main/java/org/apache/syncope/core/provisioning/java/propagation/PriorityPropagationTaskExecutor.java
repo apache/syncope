@@ -125,7 +125,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                                 taskInfo, ExecStatus.CREATED, null, null, null);
                     }
                 } catch (Exception e) {
-                    LOG.error("While submitting task for async execution", taskInfo, e);
+                    LOG.error("While submitting task for async execution: {}", taskInfo, e);
                     rejected(taskInfo, e.getMessage(), reporter, executor);
                 }
             });

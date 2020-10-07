@@ -248,7 +248,7 @@ public class Groups extends AbstractGroups {
 
                 List<CompleteCondition> conditions = GroupableRelatableTO.class.cast(anyTO).getMemberships().
                         stream().
-                        skip((page - 1) * Constants.MAX_GROUP_LIST_SIZE).
+                        skip(((long) page - 1L) * (long) Constants.MAX_GROUP_LIST_SIZE).
                         limit(Constants.MAX_GROUP_LIST_SIZE).
                         map(m -> builder.is(Constants.KEY_FIELD_NAME).equalTo(m.getGroupKey()).wrap()).
                         collect(Collectors.toList());
