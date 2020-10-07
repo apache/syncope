@@ -126,7 +126,7 @@ public class MemoryVirAttrCache implements VirAttrCache {
      */
     @Override
     public boolean isValidEntry(final VirAttrCacheValue value) {
-        final Date expiringDate = new Date(value == null ? 0 : value.getCreationDate().getTime() + ttl * 1000);
+        Date expiringDate = new Date(value == null ? 0 : value.getCreationDate().getTime() + ttl * 1000L);
         return expiringDate.after(new Date());
     }
 }

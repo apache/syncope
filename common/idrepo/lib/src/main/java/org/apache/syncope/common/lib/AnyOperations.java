@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -58,7 +59,7 @@ public final class AnyOperations {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnyOperations.class);
 
-    private static final Set<String> NULL_SINGLETON = Collections.singleton(null);
+    private static final List<String> NULL_SINGLETON_LIST = Collections.singletonList(null);
 
     private AnyOperations() {
         // empty constructor for static utility classes
@@ -631,6 +632,6 @@ public final class AnyOperations {
     }
 
     private static boolean isEmpty(final Attr attr) {
-        return attr.getValues().isEmpty() || NULL_SINGLETON.equals(attr.getValues());
+        return attr.getValues().isEmpty() || NULL_SINGLETON_LIST.equals(attr.getValues());
     }
 }

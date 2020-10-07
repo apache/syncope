@@ -773,11 +773,7 @@ public class MappingManagerImpl implements MappingManager {
                     case PLAIN:
                         PlainAttr<?> attr;
                         if (membership == null) {
-                            if (ref instanceof Attributable) {
-                                attr = plainAttrGetter.apply((Attributable) ref, intAttrName.getSchema().getKey());
-                            } else {
-                                attr = ref.getPlainAttr(intAttrName.getSchema().getKey()).orElse(null);
-                            }
+                            attr = plainAttrGetter.apply((Attributable) ref, intAttrName.getSchema().getKey());
                         } else {
                             attr = ((GroupableRelatable<?, ?, ?, ?, ?>) ref).getPlainAttr(
                                     intAttrName.getSchema().getKey(), membership).orElse(null);

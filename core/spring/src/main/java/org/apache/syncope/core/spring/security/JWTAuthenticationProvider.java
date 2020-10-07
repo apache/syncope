@@ -40,7 +40,7 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         JWTAuthentication jwtAuthentication = (JWTAuthentication) authentication;
 
         JWTClaimsSet claims = jwtAuthentication.getClaims();
-        Long referenceTime = System.currentTimeMillis();
+        long referenceTime = System.currentTimeMillis();
 
         Date expiryTime = claims.getExpirationTime();
         if (expiryTime == null || expiryTime.getTime() < referenceTime) {
