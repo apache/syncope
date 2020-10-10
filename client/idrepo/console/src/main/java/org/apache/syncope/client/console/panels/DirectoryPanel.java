@@ -221,7 +221,7 @@ public abstract class DirectoryPanel<
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                PreferenceManager.set(getRequest(), getResponse(), paginatorRowsKey(), String.valueOf(rows));
+                PreferenceManager.set(paginatorRowsKey(), String.valueOf(rows));
 
                 EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);

@@ -29,7 +29,6 @@ import org.apache.directory.api.ldap.model.ldif.LdifReader;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.CoreSession;
 import org.apache.directory.server.i18n.I18n;
-import org.apache.directory.server.protocol.shared.store.LdifLoadFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,19 +61,6 @@ public class LdifInputStreamLoader {
      * @param ldif the file of LDIF entries to load.
      */
     public LdifInputStreamLoader(final CoreSession coreSession, final InputStream ldif) {
-        this(coreSession, ldif, null);
-    }
-
-    /**
-     * Creates a new instance of LdifFileLoader.
-     *
-     * @param coreSession core session
-     * @param ldif LDIF content
-     * @param filters filters
-     */
-    public LdifInputStreamLoader(
-            final CoreSession coreSession, final InputStream ldif, final List<? extends LdifLoadFilter> filters) {
-
         this.coreSession = coreSession;
         this.ldif = ldif;
     }

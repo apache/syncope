@@ -56,10 +56,11 @@ public final class PropertyUtils {
                     File confDirProps = new File(confDir, propertiesFileName);
                     if (confDirProps.exists() && confDirProps.canRead() && confDirProps.isFile()) {
                         props.clear();
-                        props.load(new FileInputStream(confDirProps));
+                        try (FileInputStream fis = new FileInputStream(confDirProps)) {
+                            props.load(fis);
+                        }
                     }
                 } else {
-                    confDir = null;
                     LOG.warn("{} not existing, unreadable or not a directory, ignoring", confDirName);
                 }
             }

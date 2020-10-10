@@ -32,17 +32,17 @@ import org.apache.wicket.model.StringResourceModel;
 public class AnyPropagationTasks extends AbstractPropagationTasks {
 
     private static final long serialVersionUID = -4013796607157549641L;
-    
+
     public <T extends AnyTO> AnyPropagationTasks(
             final BaseModal<?> baseModal,
             final AnyTypeKind anyTypeKind,
             final String entityKey,
-            final PageReference pageReference) {
+            final PageReference pageRef) {
 
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
-        mlp.setFirstLevel(new AnyPropagationTaskDirectoryPanel(baseModal, mlp, anyTypeKind, entityKey, pageReference) {
+        mlp.setFirstLevel(new AnyPropagationTaskDirectoryPanel(baseModal, mlp, anyTypeKind, entityKey, pageRef) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
@@ -50,7 +50,7 @@ public class AnyPropagationTasks extends AbstractPropagationTasks {
             protected void viewTask(final PropagationTaskTO taskTO, final AjaxRequestTarget target) {
                 mlp.next(
                         new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
-                        new TaskExecutionDetails<>(baseModal, taskTO, pageReference),
+                        new TaskExecutionDetails<>(baseModal, taskTO, pageRef),
                         target);
             }
 
@@ -59,7 +59,7 @@ public class AnyPropagationTasks extends AbstractPropagationTasks {
                 mlp.next(
                         new StringResourceModel("task.view.details", this, new Model<>(Pair.of(null, taskTO))).
                                 getObject(),
-                        new TaskAttributesDetailsView(baseModal, taskTO, pageReference),
+                        new TaskAttributesDetailsView(taskTO),
                         target);
             }
         });

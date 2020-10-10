@@ -699,7 +699,6 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             FlowableRuntimeUtils.saveForFormSubmit(
                     engine,
                     procInstID,
-                    user,
                     dataBinder.getUserTO(user, true),
                     clearPassword,
                     enabled,

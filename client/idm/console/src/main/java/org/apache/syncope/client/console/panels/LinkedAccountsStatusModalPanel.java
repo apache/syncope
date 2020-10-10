@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.model.IModel;
@@ -28,12 +27,11 @@ public class LinkedAccountsStatusModalPanel extends MultilevelPanel.SecondLevel 
     private static final long serialVersionUID = 8804361394735366181L;
 
     public LinkedAccountsStatusModalPanel(
-            final BaseModal<?> baseModal,
             final IModel<UserTO> model,
             final PageReference pageRef) {
 
         super(MultilevelPanel.SECOND_LEVEL_ID);
 
-        add(new LinkedAccountModalPanel(baseModal, model, pageRef, true).setOutputMarkupId(true));
+        add(new LinkedAccountModalPanel(model, pageRef, true).setOutputMarkupId(true));
     }
 }

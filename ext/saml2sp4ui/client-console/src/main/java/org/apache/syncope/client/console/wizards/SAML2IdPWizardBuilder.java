@@ -97,7 +97,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2SP4UIIdPTO> {
     protected WizardModel buildModelSteps(final SAML2SP4UIIdPTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new IdP(modelObject));
 
-        Mapping mapping = new Mapping(modelObject);
+        Mapping mapping = new Mapping();
         mapping.setOutputMarkupId(true);
 
         ItemTransformersTogglePanel mapItemTransformers = new ItemTransformersTogglePanel(mapping, pageRef);
@@ -200,7 +200,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2SP4UIIdPTO> {
 
         private static final long serialVersionUID = 3454904947720856253L;
 
-        Mapping(final SAML2SP4UIIdPTO item) {
+        Mapping() {
             setTitleModel(Model.of("Mapping"));
             setSummaryModel(Model.of(StringUtils.EMPTY));
         }

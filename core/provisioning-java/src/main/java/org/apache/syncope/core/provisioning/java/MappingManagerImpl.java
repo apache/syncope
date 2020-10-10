@@ -223,7 +223,7 @@ public class MappingManagerImpl implements MappingManager {
         }
 
         // Evaluate connObjectKey expression
-        String connObjectLink = provision == null || provision.getMapping() == null
+        String connObjectLink = provision.getMapping() == null
                 ? null
                 : provision.getMapping().getConnObjectLink();
         String evalConnObjectLink = null;
@@ -255,9 +255,7 @@ public class MappingManagerImpl implements MappingManager {
         }
 
         // Evaluate connObjectKey expression
-        String connObjectLink = orgUnit == null
-                ? null
-                : orgUnit.getConnObjectLink();
+        String connObjectLink = orgUnit.getConnObjectLink();
         String evalConnObjectLink = null;
         if (StringUtils.isNotBlank(connObjectLink)) {
             JexlContext jexlContext = new MapContext();

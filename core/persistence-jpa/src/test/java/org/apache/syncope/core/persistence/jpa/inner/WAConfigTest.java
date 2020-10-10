@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,8 +65,7 @@ public class WAConfigTest extends AbstractTest {
     }
 
     @Test
-    public void saveMap() {
-        HashMap<String, Double> map = new HashMap<>();
+    public void saveList() {
         create("system.example.key[0].key1", List.of("value1"));
         assertFalse(configDAO.findAll().isEmpty());
     }

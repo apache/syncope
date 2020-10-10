@@ -241,7 +241,7 @@ public class Domain implements Serializable {
     private String read(final String filename) {
         String read = null;
         try {
-            read = IOUtils.toString(getClass().getResourceAsStream('/' + filename));
+            read = IOUtils.toString(Domain.class.getResourceAsStream('/' + filename));
         } catch (IOException e) {
             LOG.error("Could not read {}", filename, e);
         }

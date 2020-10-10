@@ -174,7 +174,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
             }
 
             PreferenceManager.setList(
-                    getRequest(), getResponse(), DisplayAttributesModalPanel.getPrefDetailView(type),
+                    DisplayAttributesModalPanel.getPrefDetailView(type),
                     List.of(getDefaultAttributeSelection()));
         }
 

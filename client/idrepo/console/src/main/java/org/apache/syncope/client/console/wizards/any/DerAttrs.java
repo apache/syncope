@@ -161,7 +161,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
         membershipTO.getDerAttrs().addAll(attrs);
     }
 
-    public class DerSchemas extends Schemas {
+    public static class DerSchemas extends Schemas {
 
         private static final long serialVersionUID = -4730563859116024676L;
 
@@ -169,6 +169,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
                 final String id,
                 final Map<String, DerSchemaTO> schemas,
                 final IModel<List<Attr>> attrTOs) {
+
             super(id);
 
             add(new ListView<Attr>("schemas", attrTOs) {

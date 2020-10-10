@@ -35,13 +35,13 @@ public class PropagationTasks extends AbstractPropagationTasks {
     public <T extends AnyTO> PropagationTasks(
             final BaseModal<?> baseModal,
             final String resource,
-            final PageReference pageReference) {
+            final PageReference pageRef) {
 
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel tasks = new MultilevelPanel("tasks");
         
-        tasks.setFirstLevel(new PropagationTaskDirectoryPanel(baseModal, tasks, resource, pageReference) {
+        tasks.setFirstLevel(new PropagationTaskDirectoryPanel(baseModal, tasks, resource, pageRef) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
@@ -49,7 +49,7 @@ public class PropagationTasks extends AbstractPropagationTasks {
             protected void viewTask(final PropagationTaskTO taskTO, final AjaxRequestTarget target) {
                 tasks.next(
                         new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
-                        new TaskExecutionDetails<>(baseModal, taskTO, pageReference),
+                        new TaskExecutionDetails<>(baseModal, taskTO, pageRef),
                         target);
             }
 
@@ -58,7 +58,7 @@ public class PropagationTasks extends AbstractPropagationTasks {
                 tasks.next(
                         new StringResourceModel("task.view.details", this, new Model<>(Pair.of(null, taskTO))).
                                 getObject(),
-                        new TaskAttributesDetailsView(baseModal, taskTO, pageReference),
+                        new TaskAttributesDetailsView(taskTO),
                         target);
             }
         });

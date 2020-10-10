@@ -148,7 +148,7 @@ public class StartupDomainLoader implements SyncopeCoreLoader {
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | NumberFormatException e) {
             LOG.error("Error during domain initialization", e);
         }
     }

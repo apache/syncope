@@ -88,7 +88,6 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
 
     @SuppressWarnings("unchecked")
     public LinkedAccountModalPanel(
-            final BaseModal<?> baseModal,
             final IModel<UserTO> model,
             final PageReference pageRef,
             final boolean recounciliationOnly) {

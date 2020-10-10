@@ -183,8 +183,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
             final boolean modalPanelAvailable = newItemEvent.getModalPanel() != null || newItemPanelBuilder != null;
 
             if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && modalPanelAvailable) {
-                final WizardModalPanel<?> modalPanel;
-                if (newItemEvent.getModalPanel() == null) {
+                WizardModalPanel<?> modalPanel;
+                if (newItemEvent.getModalPanel() == null && newItemPanelBuilder != null) {
                     newItemPanelBuilder.setItem(item);
 
                     modalPanel = newItemPanelBuilder.build(

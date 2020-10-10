@@ -117,8 +117,8 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
                     getGroovyTemplateClassName(implementation.getType());
             if (templateClassName != null) {
                 try {
-                    implementation.setBody(StringUtils.substringAfter(IOUtils.toString(getClass().
-                            getResourceAsStream(
+                    implementation.setBody(StringUtils.substringAfter(
+                            IOUtils.toString(ImplementationModalPanel.class.getResourceAsStream(
                                     "/org/apache/syncope/client/console/implementations/" + templateClassName
                                     + ".groovy")),
                             "*/\n"));

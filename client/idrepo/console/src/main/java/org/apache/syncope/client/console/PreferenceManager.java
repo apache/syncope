@@ -143,7 +143,7 @@ public final class PreferenceManager implements Serializable {
         }
     }
 
-    public static void set(final Request request, final Response response, final String key, final String value) {
+    public static void set(final String key, final String value) {
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
 
         final Map<String, String> current = new HashMap<>();
@@ -161,9 +161,8 @@ public final class PreferenceManager implements Serializable {
         }
     }
 
-    public static void setList(
-            final Request request, final Response response, final String key, final List<String> values) {
-        set(request, response, key, StringUtils.join(values, ";"));
+    public static void setList(final String key, final List<String> values) {
+        set(key, StringUtils.join(values, ";"));
     }
 
     public static void setList(

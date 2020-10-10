@@ -172,7 +172,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
         // read customFormAttributes.json
         File enduserDir;
-        try (InputStream is = getClass().getResourceAsStream('/' + CUSTOM_FORM_ATTRIBUTES_FILE)) {
+        try (InputStream is = SyncopeWebApplication.class.getResourceAsStream('/' + CUSTOM_FORM_ATTRIBUTES_FILE)) {
             customFormAttributes = MAPPER.readValue(is,
                     new TypeReference<HashMap<String, CustomAttributesInfo>>() {
             });

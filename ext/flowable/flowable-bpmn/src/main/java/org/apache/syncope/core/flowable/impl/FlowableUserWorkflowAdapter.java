@@ -154,7 +154,6 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         FlowableRuntimeUtils.saveForFormSubmit(
                 engine,
                 procInst.getProcessInstanceId(),
-                created,
                 dataBinder.getUserTO(created, true),
                 userCR.getPassword(),
                 enabled,
@@ -292,7 +291,6 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         FlowableRuntimeUtils.saveForFormSubmit(
                 engine,
                 procInstID,
-                updated,
                 dataBinder.getUserTO(updated, true),
                 userUR.getPassword() == null ? null : userUR.getPassword().getValue(),
                 null,
@@ -453,7 +451,6 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             FlowableRuntimeUtils.saveForFormSubmit(
                     engine,
                     procInstID,
-                    user,
                     dataBinder.getUserTO(user, true),
                     null,
                     null,
@@ -507,7 +504,6 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             FlowableRuntimeUtils.saveForFormSubmit(
                     engine,
                     procInstID,
-                    user,
                     dataBinder.getUserTO(user, true),
                     null,
                     null,

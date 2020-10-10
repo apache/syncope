@@ -23,10 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
@@ -43,14 +41,12 @@ public class TaskAttributesDetailsView extends MultilevelPanel.SecondLevel {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    public TaskAttributesDetailsView(final BaseModal<?> baseModal, final PropagationTaskTO taskTO,
-            final PageReference pageRef) {
+    public TaskAttributesDetailsView(final PropagationTaskTO taskTO) {
         super();
 
         Pair<String, String> info = Pair.of(taskTO.getEntityKey(), getJSONInfo(taskTO));
         JsonEditorPanel jsonPanel =
-                new JsonEditorPanel(null, new PropertyModel<String>(info, "value"), true,
-                        null) {
+                new JsonEditorPanel(null, new PropertyModel<String>(info, "value"), true, null) {
 
             private static final long serialVersionUID = -8927036362466990179L;
 

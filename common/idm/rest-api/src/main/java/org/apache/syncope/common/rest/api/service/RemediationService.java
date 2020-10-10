@@ -111,7 +111,7 @@ public interface RemediationService extends JAXRSService {
     @ApiResponses(
             @ApiResponse(responseCode = "201",
                     description = "Object successfully created enriched with propagation status information, as Entity,"
-                    + "or empty if 'Prefer: return-no-content' was specified",
+                    + " or empty if 'Prefer: return-no-content' was specified",
                     content =
                     @Content(schema =
                             @Schema(implementation = ProvisioningResult.class)), headers = {

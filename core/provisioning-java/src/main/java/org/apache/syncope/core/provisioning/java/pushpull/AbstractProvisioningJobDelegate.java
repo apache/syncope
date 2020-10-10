@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -81,9 +80,6 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
 
         return sb.toString();
     }
-
-    @Resource(name = "adminUser")
-    protected String adminUser;
 
     /**
      * ConnInstance loader.

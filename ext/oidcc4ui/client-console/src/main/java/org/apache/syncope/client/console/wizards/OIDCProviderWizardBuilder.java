@@ -105,7 +105,7 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
             wizardModel.add(new OPContinue(modelObject, true));
         }
 
-        Mapping mapping = new Mapping(modelObject);
+        Mapping mapping = new Mapping();
         mapping.setOutputMarkupId(true);
 
         ItemTransformersTogglePanel mapItemTransformers = new ItemTransformersTogglePanel(mapping, pageRef);
@@ -327,7 +327,7 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
 
         private static final long serialVersionUID = 3454904947720856253L;
 
-        Mapping(final OIDCC4UIProviderTO item) {
+        Mapping() {
             setTitleModel(Model.of("Mapping"));
             setSummaryModel(Model.of(StringUtils.EMPTY));
         }

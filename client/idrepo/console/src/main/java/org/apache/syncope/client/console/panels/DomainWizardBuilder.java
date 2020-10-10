@@ -79,7 +79,7 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
         wizardModel.add(new Storage(domain));
         wizardModel.add(new AdminCredentials(domain));
         wizardModel.add(new Content(domain));
-        wizardModel.add(new KeymasterConfParams(domain));
+        wizardModel.add(new KeymasterConfParams(domain, pageRef));
         return wizardModel;
     }
 
@@ -202,11 +202,11 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
         }
     }
 
-    public class KeymasterConfParams extends WizardStep {
+    public static class KeymasterConfParams extends WizardStep {
 
         private static final long serialVersionUID = -8448363577805933925L;
 
-        public KeymasterConfParams(final Domain domain) {
+        public KeymasterConfParams(final Domain domain, final PageReference pageRef) {
             JsonEditorPanel keymasterConfParams = new JsonEditorPanel(
                     null, new PropertyModel<>(domain, "keymasterConfParams"), false, pageRef);
             keymasterConfParams.setOutputMarkupPlaceholderTag(true);

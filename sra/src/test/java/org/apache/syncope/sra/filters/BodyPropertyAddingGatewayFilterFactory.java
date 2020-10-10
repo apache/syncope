@@ -67,7 +67,7 @@ public class BodyPropertyAddingGatewayFilterFactory extends CustomGatewayFilterF
         return new ModifyResponseGatewayFilter(config);
     }
 
-    public class ModifyResponseGatewayFilter implements GatewayFilter, Ordered {
+    public static class ModifyResponseGatewayFilter implements GatewayFilter, Ordered {
 
         private final Config config;
 

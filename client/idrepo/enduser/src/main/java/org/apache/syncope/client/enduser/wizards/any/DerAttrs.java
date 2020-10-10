@@ -161,7 +161,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
         membershipTO.getDerAttrs().addAll(derAttrs);
     }
 
-    public class DerSchemas extends Schemas {
+    public static class DerSchemas extends Schemas {
 
         private static final long serialVersionUID = -4730563859116024676L;
 

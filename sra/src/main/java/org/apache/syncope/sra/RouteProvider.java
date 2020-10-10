@@ -124,7 +124,7 @@ public class RouteProvider {
 
     @SuppressWarnings("unchecked")
     private GatewayFilter toFilter(final SRARouteTO route, final SRARouteFilter gwfilter)
-            throws ClassNotFoundException {
+            throws ClassNotFoundException, NumberFormatException {
 
         GatewayFilter filter;
 
@@ -399,7 +399,7 @@ public class RouteProvider {
     }
 
     private AsyncPredicate<ServerWebExchange> toPredicate(final SRARoutePredicate gwpredicate, final boolean negate)
-            throws ClassNotFoundException {
+            throws ClassNotFoundException, NumberFormatException {
 
         AsyncPredicate<ServerWebExchange> predicate;
         switch (gwpredicate.getFactory()) {

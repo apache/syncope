@@ -26,6 +26,6 @@ public class MIMETypesLoader extends AbstractMIMETypesLoader {
 
     @Override
     protected String getMimeTypesFile() throws IOException {
-        return IOUtils.toString(getClass().getResourceAsStream("/MIMETypes.json"));
+        return IOUtils.toString(MIMETypesLoader.class.getResourceAsStream("/MIMETypes.json"));
     }
 }

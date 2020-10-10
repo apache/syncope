@@ -41,7 +41,6 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
     @Override
     protected void processOBS(
             final SearchSupport svs,
-            final Set<String> involvedPlainAttrs,
             final OrderBySupport obs,
             final StringBuilder where) {
 

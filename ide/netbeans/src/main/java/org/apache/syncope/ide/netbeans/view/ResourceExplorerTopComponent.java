@@ -174,7 +174,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     @Override
     public Image getIcon() {
-        return new ImageIcon(getClass().getResource("/org/apache/syncope/ide/netbeans/view/favicon.png")).getImage();
+        return new ImageIcon(ResourceExplorerTopComponent.class.getResource(
+                "/org/apache/syncope/ide/netbeans/view/favicon.png")).getImage();
     }
 
     private void resourceExplorerTreeMouseClicked(final java.awt.event.MouseEvent evt) {
@@ -452,7 +453,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
                             default:
                         }
-                        newNode.setBody(IOUtils.toString(getClass().getResourceAsStream(
+                        newNode.setBody(IOUtils.toString(ResourceExplorerTopComponent.class.getResourceAsStream(
                                 "/org/apache/syncope/ide/netbeans/implementations/" + templateClassName + ".groovy"),
                                 StandardCharsets.UTF_8.name()));
                         added = implementationManagerService.create(newNode);

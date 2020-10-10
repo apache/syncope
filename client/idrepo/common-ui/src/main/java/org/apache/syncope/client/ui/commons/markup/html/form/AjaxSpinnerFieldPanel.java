@@ -147,17 +147,21 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
                 if (obj != null && !obj.toString().isEmpty()) {
                     if (obj instanceof String) {
-                        number = reference.equals(Integer.class)
-                                ? reference.cast(Integer.valueOf((String) obj))
-                                : reference.equals(Long.class)
-                                ? reference.cast(Long.valueOf((String) obj))
-                                : reference.equals(Short.class)
-                                ? reference.cast(Short.valueOf((String) obj))
-                                : reference.equals(Float.class)
-                                ? reference.cast(Float.valueOf((String) obj))
-                                : reference.equals(byte.class)
-                                ? reference.cast(Byte.valueOf((String) obj))
-                                : reference.cast(Double.valueOf((String) obj));
+                        try {
+                            number = reference.equals(Integer.class)
+                                    ? reference.cast(Integer.valueOf((String) obj))
+                                    : reference.equals(Long.class)
+                                    ? reference.cast(Long.valueOf((String) obj))
+                                    : reference.equals(Short.class)
+                                    ? reference.cast(Short.valueOf((String) obj))
+                                    : reference.equals(Float.class)
+                                    ? reference.cast(Float.valueOf((String) obj))
+                                    : reference.equals(byte.class)
+                                    ? reference.cast(Byte.valueOf((String) obj))
+                                    : reference.cast(Double.valueOf((String) obj));
+                        } catch (NumberFormatException e) {
+                            LOG.error("While attempting to parse {}", obj, e);
+                        }
                     } else if (obj instanceof Number) {
                         // Don't parse anything
                         number = reference.cast(obj);

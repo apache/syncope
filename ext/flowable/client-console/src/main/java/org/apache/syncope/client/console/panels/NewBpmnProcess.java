@@ -59,7 +59,7 @@ public class NewBpmnProcess extends TogglePanel<Serializable> {
                 try {
                     BpmnProcessRestClient.setDefinition(MediaType.APPLICATION_XML_TYPE, key.getModelObject(),
                             IOUtils.toString(
-                                    getClass().getResourceAsStream("empty.bpmn20.xml"),
+                                    NewBpmnProcess.class.getResourceAsStream("empty.bpmn20.xml"),
                                     Charsets.UTF_8.name()).replaceAll("%KEY%", key.getModelObject()));
 
                     key.getModel().setObject(null);

@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.chartjs.Bar;
@@ -159,9 +160,9 @@ public class AnyByRealmWidget extends BaseWidget {
 
         if (!this.usersByRealm.equals(usersByRealm)
                 || !this.groupsByRealm.equals(groupsByRealm)
-                || (!(this.anyType1 == null && anyType1 == null) && !this.anyType1.equals(anyType1))
+                || (!(this.anyType1 == null && anyType1 == null) && !Objects.equals(this.anyType1, anyType1))
                 || !this.any1ByRealm.equals(any1ByRealm)
-                || (!(this.anyType2 == null && anyType2 == null) && !this.anyType2.equals(anyType2))
+                || (!(this.anyType2 == null && anyType2 == null) && !Objects.equals(this.anyType2, anyType2))
                 || !this.any2ByRealm.equals(any2ByRealm)) {
 
             this.usersByRealm = usersByRealm;

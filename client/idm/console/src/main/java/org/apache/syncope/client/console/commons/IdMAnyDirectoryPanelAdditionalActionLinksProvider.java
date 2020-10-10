@@ -125,7 +125,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 model.setObject(new UserRestClient().read(model.getObject().getKey()));
                 modal.setFooterVisible(false);
-                target.add(modal.setContent(new LinkedAccountModalPanel(modal, model, pageRef, false)));
+                target.add(modal.setContent(new LinkedAccountModalPanel(model, pageRef, false)));
 
                 modal.header(new Model<>(header));
 

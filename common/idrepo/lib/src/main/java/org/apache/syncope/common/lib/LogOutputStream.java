@@ -27,7 +27,7 @@ import org.slf4j.Logger;
  * Delegates output stream writing onto an SLF4J logger.
  * Inspired by {@code org.apache.commons.exec.LogOutputStream}
  */
-public class LogOutputStream extends OutputStream {
+public class LogOutputStream extends OutputStream implements AutoCloseable {
 
     /** Initial buffer size. */
     private static final int INTIAL_SIZE = 132;

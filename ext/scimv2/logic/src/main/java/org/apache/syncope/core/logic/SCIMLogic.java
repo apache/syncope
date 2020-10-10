@@ -68,7 +68,7 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
     private void init() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode tree = mapper.readTree(getClass().getResourceAsStream('/' + SCHEMAS_JSON));
+            JsonNode tree = mapper.readTree(SCIMLogic.class.getResourceAsStream('/' + SCHEMAS_JSON));
             if (!tree.isArray()) {
                 throw new IOException("JSON node is not a tree");
             }

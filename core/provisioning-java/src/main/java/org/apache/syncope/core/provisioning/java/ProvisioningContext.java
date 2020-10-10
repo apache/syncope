@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
@@ -203,7 +204,7 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    public JavaMailSender mailSender() throws IllegalArgumentException, NamingException {
+    public JavaMailSender mailSender() throws IllegalArgumentException, NamingException, IOException {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl() {
 
             @Override
@@ -265,7 +266,9 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
             if (BooleanUtils.toBoolean(mailDebug)) {
                 session = mailSender.getSession();
                 session.setDebug(true);
-                session.setDebugOut(new PrintStream(new LogOutputStream(LOG)));
+                try (LogOutputStream los = new LogOutputStream(LOG)) {
+                    session.setDebugOut(new PrintStream(los));
+                }
             }
         } else {
             mailSender.setSession(session);

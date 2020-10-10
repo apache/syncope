@@ -159,7 +159,6 @@ public final class FlowableRuntimeUtils {
      *
      * @param engine Flowable engine
      * @param procInstId process instance id
-     * @param user user JPA entity
      * @param userTO user transfer object
      * @param password password
      * @param enabled is user to be enabled or not?
@@ -169,7 +168,6 @@ public final class FlowableRuntimeUtils {
     public static void saveForFormSubmit(
             final DomainProcessEngine engine,
             final String procInstId,
-            final User user,
             final UserTO userTO,
             final String password,
             final Boolean enabled,

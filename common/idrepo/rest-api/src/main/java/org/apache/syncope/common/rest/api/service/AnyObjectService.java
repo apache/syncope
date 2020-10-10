@@ -89,7 +89,7 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
             @ApiResponse(responseCode = "201",
                     description =
                     "Any object successfully created enriched with propagation status information, as Entity,"
-                    + "or empty if 'Prefer: return-no-content' was specified",
+                    + " or empty if 'Prefer: return-no-content' was specified",
                     content =
                     @Content(schema =
                             @Schema(implementation = ProvisioningResult.class)), headers = {

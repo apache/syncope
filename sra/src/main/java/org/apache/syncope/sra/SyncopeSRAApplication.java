@@ -26,7 +26,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
-import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import reactor.core.publisher.Flux;
@@ -44,7 +43,7 @@ public class SyncopeSRAApplication {
     private RouteProvider provider;
 
     @Bean
-    public RouteLocator routes(final RouteLocatorBuilder builder) {
+    public RouteLocator routes() {
         return () -> Flux.fromIterable(provider.fetch()).map(Route.AbstractBuilder::build);
     }
 

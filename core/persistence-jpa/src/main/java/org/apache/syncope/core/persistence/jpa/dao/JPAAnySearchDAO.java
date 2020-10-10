@@ -173,10 +173,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             OrderBySupport obs = parseOrderBy(svs, orderBy);
             if (queryString.charAt(0) == '(') {
                 queryString.insert(0, buildSelect(obs));
-                queryString.append(buildWhere(svs, queryInfo.getRight(), obs));
+                queryString.append(buildWhere(svs, obs));
             } else {
                 queryString.insert(0, buildSelect(obs).append('('));
-                queryString.append(')').append(buildWhere(svs, queryInfo.getRight(), obs));
+                queryString.append(')').append(buildWhere(svs, obs));
             }
             queryString.
                     append(filter.getLeft()).
@@ -238,7 +238,6 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     protected void processOBS(
             final SearchSupport svs,
-            final Set<String> involvedPlainAttrs,
             final OrderBySupport obs,
             final StringBuilder where) {
 
@@ -290,11 +289,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     private StringBuilder buildWhere(
             final SearchSupport svs,
-            final Set<String> involvedPlainAttrs,
             final OrderBySupport obs) {
 
         StringBuilder where = new StringBuilder(" u");
-        processOBS(svs, involvedPlainAttrs, obs, where);
+        processOBS(svs, obs, where);
         where.append(" WHERE ");
         obs.views.forEach(searchView -> where.append("u.any_id=").append(searchView.alias).append(".any_id AND "));
 
@@ -535,12 +533,12 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 Pair<StringBuilder, Set<String>> rigthAndInfo = getQuery(cond.getRight(), parameters, svs);
                 involvedPlainAttrs.addAll(rigthAndInfo.getRight());
 
-                String andSubQuery = leftAndInfo.getKey().toString();
+                String andSubQuery = leftAndInfo.getLeft().toString();
                 // Add extra parentheses
                 andSubQuery = andSubQuery.replaceFirst("WHERE ", "WHERE (");
                 query.append(andSubQuery).
                         append(" AND any_id IN ( ").
-                        append(rigthAndInfo.getKey()).
+                        append(rigthAndInfo.getLeft()).
                         append("))");
                 break;
 

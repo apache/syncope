@@ -261,8 +261,7 @@ public class AnyStatusDirectoryPanel
                     @Override
                     public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                         multiLevelPanelRef.next("ACCOUNTS",
-                                new LinkedAccountsStatusModalPanel(
-                                        baseModal, Model.of(UserTO.class.cast(anyTO)), pageRef),
+                                new LinkedAccountsStatusModalPanel(Model.of(UserTO.class.cast(anyTO)), pageRef),
                                 target);
                         target.add(multiLevelPanelRef);
                         AnyStatusDirectoryPanel.this.getTogglePanel().close(target);

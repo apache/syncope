@@ -257,6 +257,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return query.getResultList();
     }
 
+    @Override
     public List<String> findAllKeys(final int page, final int itemsPerPage) {
         return findAllKeys(JPAUser.TABLE, page, itemsPerPage);
     }

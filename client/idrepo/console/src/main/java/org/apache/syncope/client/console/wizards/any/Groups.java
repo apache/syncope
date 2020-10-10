@@ -198,18 +198,18 @@ public class Groups extends AbstractGroups {
 
         private static final long serialVersionUID = -4541954630939063927L;
 
-        protected List<GroupTO> groups;
+        protected List<GroupTO> groupsObj;
 
-        protected List<MembershipTO> memberships;
+        protected List<MembershipTO> membershipsObj;
 
-        protected List<String> dynMemberships;
+        protected List<String> dynMembershipsObj;
 
-        protected String realm;
+        protected String realmObj;
 
         @Override
         public List<GroupTO> getObject() {
             reload();
-            return groups;
+            return groupsObj;
         }
 
         /**
@@ -217,8 +217,7 @@ public class Groups extends AbstractGroups {
          */
         @Override
         protected void reloadObject() {
-            groups = groupRestClient.search(
-                    realm,
+            groupsObj = groupRestClient.search(realmObj,
                     SyncopeClient.getGroupSearchConditionBuilder().isAssignable().query(),
                     1,
                     Constants.MAX_GROUP_LIST_SIZE,
@@ -229,7 +228,7 @@ public class Groups extends AbstractGroups {
         @Override
         public List<MembershipTO> getMemberships() {
             reload();
-            return memberships;
+            return membershipsObj;
         }
 
         /**
@@ -254,8 +253,7 @@ public class Groups extends AbstractGroups {
                         collect(Collectors.toList());
 
                 if (!conditions.isEmpty()) {
-                    assignedGroups.putAll(groupRestClient.search(
-                            realm,
+                    assignedGroups.putAll(groupRestClient.search(realmObj,
                             builder.isAssignable().and().or(conditions).query(),
                             1,
                             Constants.MAX_GROUP_LIST_SIZE,
@@ -275,14 +273,14 @@ public class Groups extends AbstractGroups {
             });
             GroupableRelatableTO.class.cast(anyTO).getMemberships().removeAll(toBeRemoved);
 
-            memberships = GroupableRelatableTO.class.cast(anyTO).getMemberships();
-            memberships.sort(Comparator.comparing(MembershipTO::getGroupName));
+            membershipsObj = GroupableRelatableTO.class.cast(anyTO).getMemberships();
+            membershipsObj.sort(Comparator.comparing(MembershipTO::getGroupName));
         }
 
         @Override
         public List<String> getDynMemberships() {
             reload();
-            return dynMemberships;
+            return dynMembershipsObj;
         }
 
         /**
@@ -297,9 +295,9 @@ public class Groups extends AbstractGroups {
                     equalTo(membership.getGroupKey()).wrap()).
                     collect(Collectors.toList());
 
-            dynMemberships = new ArrayList<>();
+            dynMembershipsObj = new ArrayList<>();
             if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH) && !conditions.isEmpty()) {
-                dynMemberships.addAll(groupRestClient.search(
+                dynMembershipsObj.addAll(groupRestClient.search(
                         SyncopeConstants.ROOT_REALM,
                         builder.or(conditions).query(),
                         -1,
@@ -316,11 +314,11 @@ public class Groups extends AbstractGroups {
         protected void reload() {
             boolean reload;
             if (Groups.this.templateMode) {
-                reload = realm == null;
-                realm = SyncopeConstants.ROOT_REALM;
+                reload = realmObj == null;
+                realmObj = SyncopeConstants.ROOT_REALM;
             } else {
-                reload = !Groups.this.anyTO.getRealm().equalsIgnoreCase(realm);
-                realm = Groups.this.anyTO.getRealm();
+                reload = !Groups.this.anyTO.getRealm().equalsIgnoreCase(realmObj);
+                realmObj = Groups.this.anyTO.getRealm();
             }
 
             if (reload) {

@@ -274,7 +274,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
         public abstract String call() throws Exception;
     }
 
-    class ConnectorChecker extends Checker {
+    static class ConnectorChecker extends Checker {
 
         ConnectorChecker(final String key, final Application application) {
             super(key, application);
@@ -300,7 +300,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
         }
     }
 
-    class ResourceChecker extends Checker {
+    static class ResourceChecker extends Checker {
 
         ResourceChecker(final String key, final Application application) {
             super(key, application);

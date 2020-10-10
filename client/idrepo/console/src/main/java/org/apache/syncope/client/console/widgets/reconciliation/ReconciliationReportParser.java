@@ -40,7 +40,9 @@ public final class ReconciliationReportParser {
         XML_INPUT_FACTORY.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
     }
 
-    public static ReconciliationReport parse(final Date run, final InputStream in) throws XMLStreamException {
+    public static ReconciliationReport parse(final Date run, final InputStream in)
+            throws XMLStreamException, NumberFormatException {
+
         XMLStreamReader streamReader = XML_INPUT_FACTORY.createXMLStreamReader(in);
         streamReader.nextTag(); // root
         streamReader.nextTag(); // report
@@ -140,22 +142,28 @@ public final class ReconciliationReportParser {
             } else if (streamReader.isEndElement()) {
                 switch (streamReader.getLocalName()) {
                     case "user":
-                        user.getMissing().addAll(missing);
-                        user.getMisaligned().addAll(misaligned);
+                        Optional.ofNullable(user).ifPresent(u -> {
+                            u.getMissing().addAll(missing);
+                            u.getMisaligned().addAll(misaligned);
+                        });
                         missing.clear();
                         misaligned.clear();
                         break;
 
                     case "group":
-                        group.getMissing().addAll(missing);
-                        group.getMisaligned().addAll(misaligned);
+                        Optional.ofNullable(group).ifPresent(g -> {
+                            g.getMissing().addAll(missing);
+                            g.getMisaligned().addAll(misaligned);
+                        });
                         missing.clear();
                         misaligned.clear();
                         break;
 
                     case "anyObject":
-                        anyObject.getMissing().addAll(missing);
-                        anyObject.getMisaligned().addAll(misaligned);
+                        Optional.ofNullable(anyObject).ifPresent(a -> {
+                            a.getMissing().addAll(missing);
+                            a.getMisaligned().addAll(misaligned);
+                        });
                         missing.clear();
                         misaligned.clear();
                         break;

@@ -196,9 +196,27 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         maxWaitTime = Integer.valueOf(props.getProperty("maxWaitTimeOnApplyChanges", "30"));
 
         // Resource connections check thread pool size
-        corePoolSize = Integer.valueOf(props.getProperty("executor.corePoolSize", "5"));
-        maxPoolSize = Integer.valueOf(props.getProperty("executor.maxPoolSize", "10"));
-        queueCapacity = Integer.valueOf(props.getProperty("executor.queueCapacity", "50"));
+        try {
+            corePoolSize = Integer.valueOf(props.getProperty("executor.corePoolSize", "5"));
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid value provided for 'executor.corePoolSize': {}",
+                    props.getProperty("executor.corePoolSize"));
+            corePoolSize = 5;
+        }
+        try {
+            maxPoolSize = Integer.valueOf(props.getProperty("executor.maxPoolSize", "10"));
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid value provided for 'executor.maxPoolSize': {}",
+                    props.getProperty("executor.maxPoolSize"));
+            maxPoolSize = 10;
+        }
+        try {
+            queueCapacity = Integer.valueOf(props.getProperty("executor.queueCapacity", "50"));
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid value provided for 'executor.queueCapacity': {}",
+                    props.getProperty("executor.queueCapacity"));
+            maxPoolSize = 50;
+        }
 
         // process page properties
         pageClasses = new HashMap<>();
