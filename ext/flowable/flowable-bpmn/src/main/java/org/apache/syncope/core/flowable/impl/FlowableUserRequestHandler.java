@@ -643,7 +643,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             throw new NotFoundException("User with key " + getUserKey(procInstID));
         }
 
-        Set<String> preTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID, user);
+        Set<String> preTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID);
 
         engine.getRuntimeService().setVariable(procInstID, FlowableRuntimeUtils.TASK, "submit");
         engine.getRuntimeService().setVariable(procInstID, FlowableRuntimeUtils.FORM_SUBMITTER, authUser);
@@ -653,7 +653,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         } catch (FlowableException e) {
             FlowableRuntimeUtils.throwException(e, "While submitting form for task " + form.getTaskId());
         }
-        Set<String> postTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID, user);
+        Set<String> postTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID);
         postTasks.removeAll(preTasks);
         postTasks.add(form.getTaskId());
         if (procInstID.equals(FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey()))) {

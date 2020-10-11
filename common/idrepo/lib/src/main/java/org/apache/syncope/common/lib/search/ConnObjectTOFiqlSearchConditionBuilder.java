@@ -39,7 +39,7 @@ public class ConnObjectTOFiqlSearchConditionBuilder extends AbstractFiqlSearchCo
         return newBuilderInstance().is(property);
     }
 
-    protected class Builder extends AbstractFiqlSearchConditionBuilder.Builder<
+    protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder<
         ConnObjectTOProperty, ConnObjectTOPartialCondition, ConnObjectTOCompleteCondition>
             implements ConnObjectTOProperty, ConnObjectTOPartialCondition, ConnObjectTOCompleteCondition {
 

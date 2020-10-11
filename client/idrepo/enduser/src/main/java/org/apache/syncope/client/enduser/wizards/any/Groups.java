@@ -42,7 +42,7 @@ public class Groups extends AbstractGroups {
 
     private final EnduserGroupsModel groupsModel;
 
-    public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject, final boolean templateMode) {
+    public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject) {
         super(modelObject);
         this.groupsModel = new EnduserGroupsModel();
 

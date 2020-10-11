@@ -19,12 +19,16 @@
 package org.apache.syncope.client.console.widgets;
 
 import java.io.Serializable;
+import org.apache.wicket.PageReference;
 
 public abstract class ExtAlertWidget<T extends Serializable> extends AlertWidget<T> {
 
     private static final long serialVersionUID = -5622060468533516192L;
 
-    public ExtAlertWidget(final String id) {
+    protected final PageReference pageRef;
+
+    public ExtAlertWidget(final String id, final PageReference pageRef) {
         super(id);
+        this.pageRef = pageRef;
     }
 }

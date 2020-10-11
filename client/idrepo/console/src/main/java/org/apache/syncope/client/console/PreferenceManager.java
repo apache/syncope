@@ -31,7 +31,6 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.wicket.request.Request;
-import org.apache.wicket.request.Response;
 import org.apache.wicket.util.cookies.CookieDefaults;
 import org.apache.wicket.util.cookies.CookieUtils;
 import org.slf4j.Logger;
@@ -125,7 +124,7 @@ public final class PreferenceManager implements Serializable {
         return result;
     }
 
-    public static void set(final Request request, final Response response, final Map<String, List<String>> prefs) {
+    public static void set(final Map<String, List<String>> prefs) {
         Map<String, String> current = new HashMap<>();
 
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
@@ -165,9 +164,8 @@ public final class PreferenceManager implements Serializable {
         set(key, StringUtils.join(values, ";"));
     }
 
-    public static void setList(
-            final Request request, final Response response, final Map<String, List<String>> prefs) {
-        set(request, response, prefs);
+    public static void setList(final Map<String, List<String>> prefs) {
+        set(prefs);
     }
 
     private PreferenceManager() {

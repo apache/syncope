@@ -160,7 +160,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 propByRes,
                 propByLinkedAccount);
 
-        Set<String> tasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInst.getProcessInstanceId(), user);
+        Set<String> tasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInst.getProcessInstanceId());
 
         return new UserWorkflowResult<>(
                 Pair.of(created.getKey(), propagateEnable),
@@ -174,7 +174,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             final User user,
             final Map<String, Object> moreVariables) {
 
-        Set<String> preTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID, user);
+        Set<String> preTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID);
 
         Map<String, Object> variables = new HashMap<>();
         variables.put(FlowableRuntimeUtils.WF_EXECUTOR, AuthContextUtils.getUsername());
@@ -198,7 +198,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             LOG.warn("Expected a single task, found {}", tasks.size());
         }
 
-        Set<String> postTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID, user);
+        Set<String> postTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID);
         postTasks.removeAll(preTasks);
         if (task != null) {
             postTasks.add(task);

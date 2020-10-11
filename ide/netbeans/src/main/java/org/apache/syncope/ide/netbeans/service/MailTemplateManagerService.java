@@ -60,9 +60,4 @@ public class MailTemplateManagerService {
     public void setFormat(final String key, final MailTemplateFormat format, final InputStream templateIn) {
         service.setFormat(key, format, templateIn);
     }
-
-    public static boolean removeFormat(final String key, final MailTemplateFormat format) {
-        return false;
-    }
-
 }

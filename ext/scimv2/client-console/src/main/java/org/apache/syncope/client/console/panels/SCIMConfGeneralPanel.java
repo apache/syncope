@@ -27,14 +27,16 @@ import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMGeneralConf;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
 
     private static final long serialVersionUID = 2765863608539154422L;
 
-    public SCIMConfGeneralPanel(
-            final String id,
-            final SCIMConf scimConf) {
+    private static final Logger LOG = LoggerFactory.getLogger(SCIMConfGeneralPanel.class);
+
+    public SCIMConfGeneralPanel(final String id, final SCIMConf scimConf) {
         super(id, scimConf);
 
         final SCIMGeneralConf scimGeneralConf = scimConf.getGeneralConf();
@@ -126,9 +128,12 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
 
                     @Override
                     public void setObject(final String object) {
-                        scimGeneralConf.setFilterMaxResults(Integer.parseInt(object));
+                        try {
+                            scimGeneralConf.setFilterMaxResults(Integer.parseInt(object));
+                        } catch (NumberFormatException e) {
+                            LOG.error("Invalid value provided for 'filterMaxResults': {}", object, e);
+                        }
                     }
-
                 });
         filterMaxResultsPanel.setChoices(plainSchemaNames);
 

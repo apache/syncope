@@ -30,5 +30,4 @@ public abstract class BaseExtWidget extends BaseWidget {
         super(id);
         this.pageRef = pageRef;
     }
-
 }

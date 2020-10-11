@@ -103,11 +103,9 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
         }
     }
 
-    public class PushTask extends WizardStep {
+    public static class PushTask extends WizardStep {
 
         private static final long serialVersionUID = -2747583614435078452L;
-
-        private final ImplementationRestClient implRestClient = new ImplementationRestClient();
 
         private final IModel<List<String>> propActions = new LoadableDetachableModel<List<String>>() {
 
@@ -115,7 +113,7 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
 
             @Override
             protected List<String> load() {
-                return implRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
+                return ImplementationRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
                         map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
@@ -126,7 +124,7 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
 
             @Override
             protected List<String> load() {
-                return implRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
+                return ImplementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
                         map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };

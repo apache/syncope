@@ -145,8 +145,12 @@ public final class BatchPayloadParser {
                     }
                 } else if (item instanceof BatchResponseItem) {
                     BatchResponseItem bri = BatchResponseItem.class.cast(item);
-                    bri.setStatus(Integer.valueOf(StringUtils.substringBefore(
-                            StringUtils.substringAfter(currentLine.toString(), " "), " ").trim()));
+                    try {
+                        bri.setStatus(Integer.valueOf(StringUtils.substringBefore(
+                                StringUtils.substringAfter(currentLine.toString(), " "), " ").trim()));
+                    } catch (NumberFormatException e) {
+                        LOG.error("Invalid value found in response for HTTP status", e);
+                    }
                 }
             } else {
                 Matcher headerMatcher = PATTERN_HEADER_LINE.matcher(currentLine.toString());

@@ -121,9 +121,7 @@ public final class FlowableRuntimeUtils {
         }
     }
 
-    public static Set<String> getPerformedTasks(
-            final DomainProcessEngine engine, final String procInstId, final User user) {
-
+    public static Set<String> getPerformedTasks(final DomainProcessEngine engine, final String procInstId) {
         return engine.getHistoryService().createHistoricActivityInstanceQuery().
                 executionId(procInstId).
                 list().stream().

@@ -193,7 +193,13 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
                 ? null
                 : Integer.valueOf(props.getProperty("maxUploadFileSizeMB"));
 
-        maxWaitTime = Integer.valueOf(props.getProperty("maxWaitTimeOnApplyChanges", "30"));
+        try {
+            maxWaitTime = Integer.valueOf(props.getProperty("maxWaitTimeOnApplyChanges", "30"));
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid value provided for 'maxWaitTimeOnApplyChanges': {}",
+                    props.getProperty("maxWaitTimeOnApplyChanges"));
+            maxWaitTime = 30;
+        }
 
         // Resource connections check thread pool size
         try {

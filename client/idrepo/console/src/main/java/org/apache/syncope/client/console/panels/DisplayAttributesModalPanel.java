@@ -120,7 +120,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
         // remove old schemas from selected lists
         selectedPlainSchemas.retainAll(pSchemaNames);
         selectedDerSchemas.retainAll(dSchemaNames);
-        
+
         final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
@@ -162,12 +162,11 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
             SyncopeConsoleSession.get().error(getString("tooManySelections"));
             onError(target);
         } else {
-            final Map<String, List<String>> prefs = new HashMap<>();
-
+            Map<String, List<String>> prefs = new HashMap<>();
             prefs.put(DisplayAttributesModalPanel.getPrefDetailView(type), selectedDetails);
             prefs.put(DisplayAttributesModalPanel.getPrefPlainAttributeView(type), selectedPlainSchemas);
             prefs.put(DisplayAttributesModalPanel.getPrefDerivedAttributeView(type), selectedDerSchemas);
-            PreferenceManager.setList(getRequest(), getResponse(), prefs);
+            PreferenceManager.setList(prefs);
 
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);

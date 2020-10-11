@@ -46,8 +46,8 @@ public class DashboardExtensionsPanel extends Panel {
 
         List<BaseExtWidget> instances = new ArrayList<>();
 
-        for (final Class<? extends BaseExtWidget> clazz : extWidgetClasses) {
-            final Constructor<? extends BaseExtWidget> constructor =
+        extWidgetClasses.forEach(clazz -> {
+            Constructor<? extends BaseExtWidget> constructor =
                     ClassUtils.getConstructorIfAvailable(clazz, String.class, PageReference.class);
             if (constructor == null) {
                 LOG.error("Could not find required construtor in {}, ignoring", clazz);
@@ -58,7 +58,7 @@ public class DashboardExtensionsPanel extends Panel {
                     LOG.error("While creating instance of {}", clazz, e);
                 }
             }
-        }
+        });
 
         ListView<BaseExtWidget> widgets = new ListView<BaseExtWidget>("widgets", instances) {
 

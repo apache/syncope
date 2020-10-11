@@ -189,9 +189,11 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                 }
             }
             FileAlterationObserver observer = existsEnduserDir
-                    ? new FileAlterationObserver(enduserDir,
+                    ? new FileAlterationObserver(
+                            enduserDir,
                             pathname -> StringUtils.contains(pathname.getPath(), CUSTOM_FORM_ATTRIBUTES_FILE))
-                    : new FileAlterationObserver(getClass().getResource('/' + CUSTOM_FORM_ATTRIBUTES_FILE).getFile(),
+                    : new FileAlterationObserver(
+                            SyncopeWebApplication.class.getResource('/' + CUSTOM_FORM_ATTRIBUTES_FILE).getFile(),
                             pathname -> StringUtils.contains(pathname.getPath(), CUSTOM_FORM_ATTRIBUTES_FILE));
 
             customFormAttributesMonitor = new FileAlterationMonitor(5000);

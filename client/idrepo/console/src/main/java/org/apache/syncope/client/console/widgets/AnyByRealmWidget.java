@@ -83,8 +83,6 @@ public class AnyByRealmWidget extends BaseWidget {
             final String anyType2,
             final Map<String, Integer> any2ByRealm) {
 
-        List<String> labels = new ArrayList<>();
-
         List<Integer> userValues = new ArrayList<>();
         List<Integer> groupValues = new ArrayList<>();
         List<Integer> any1Values = new ArrayList<>();

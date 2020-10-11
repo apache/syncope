@@ -51,7 +51,7 @@ public class UserRequestFormsWidget extends ExtAlertWidget<UserRequestForm> {
     private final List<UserRequestForm> lastForms = new ArrayList<>();
 
     public UserRequestFormsWidget(final String id, final PageReference pageRef) {
-        super(id);
+        super(id, pageRef);
         setOutputMarkupId(true);
 
         latestAlertsList.add(new IndicatorAjaxTimerBehavior(Duration.of(30, ChronoUnit.SECONDS)) {

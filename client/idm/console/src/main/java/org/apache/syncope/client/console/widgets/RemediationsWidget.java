@@ -50,7 +50,7 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
     private final List<RemediationTO> lastRemediations = new ArrayList<>();
 
     public RemediationsWidget(final String id, final PageReference pageRef) {
-        super(id);
+        super(id, pageRef);
         setOutputMarkupId(true);
 
         latestAlertsList.add(new IndicatorAjaxTimerBehavior(Duration.of(30, ChronoUnit.SECONDS)) {

@@ -136,7 +136,7 @@ public class DefaultRealmPullResultHandler
             return List.of();
         }
 
-        RealmTO realmTO = connObjectUtils.getRealmTO(delta.getObject(), profile.getTask(), orgUnit);
+        RealmTO realmTO = connObjectUtils.getRealmTO(delta.getObject(), orgUnit);
         if (realmTO.getFullPath() == null) {
             if (realmTO.getParent() == null) {
                 realmTO.setParent(profile.getTask().getDestinationRealm().getFullPath());
@@ -175,7 +175,7 @@ public class DefaultRealmPullResultHandler
             return List.of();
         }
 
-        RealmTO realmTO = connObjectUtils.getRealmTO(delta.getObject(), profile.getTask(), orgUnit);
+        RealmTO realmTO = connObjectUtils.getRealmTO(delta.getObject(), orgUnit);
         if (realmTO.getFullPath() == null) {
             if (realmTO.getParent() == null) {
                 realmTO.setParent(profile.getTask().getDestinationRealm().getFullPath());

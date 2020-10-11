@@ -103,7 +103,7 @@ public abstract class AnyWizardBuilder extends AbstractAnyWizardBuilder<UserTO> 
         }
 
         if (formLayoutInfo.isGroups()) {
-            wizardModel.add(new Groups(modelObject, mode == AjaxWizard.Mode.TEMPLATE));
+            wizardModel.add(new Groups(modelObject));
         }
 
         // attributes panel steps

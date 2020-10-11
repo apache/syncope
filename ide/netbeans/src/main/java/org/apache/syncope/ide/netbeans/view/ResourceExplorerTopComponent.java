@@ -95,7 +95,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     private static final long serialVersionUID = -1643737786852621861L;
 
-    public static final Logger LOG = Logger.getLogger("ResourceExplorerTopComponent");
+    private static final Logger LOG = Logger.getLogger(ResourceExplorerTopComponent.class.getSimpleName());
 
     private static final RequestProcessor REQUEST_PROCESSOR = new RequestProcessor(ResourceExplorerTopComponent.class);
 
@@ -562,9 +562,10 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 mailTemplatesDir.mkdirs();
             }
             File file = new File(mailTemplatesDirName + name + '.' + type);
-            FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
-            fw.write(content);
-            fw.flush();
+            try (FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8)) {
+                fw.write(content);
+                fw.flush();
+            }
             FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
             fob.setAttribute("description", "TEXT");
             DataObject data = DataObject.find(fob);
@@ -587,9 +588,10 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             groovyScriptsDir.mkdirs();
         }
         File file = new File(groovyScriptsDirName + name + ".groovy");
-        FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
-        fw.write(node.getBody());
-        fw.flush();
+        try (FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8)) {
+            fw.write(node.getBody());
+            fw.flush();
+        }
         FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
         DataObject data = DataObject.find(fob);
         data.getLookup().lookup(OpenCookie.class).open();
@@ -631,11 +633,11 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             if (!reportTemplatesDir.exists()) {
                 reportTemplatesDir.mkdirs();
             }
-            File file = new File(reportTemplatesDirName + name + '.' + format.
-                    name().toLowerCase());
-            FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
-            fw.write(content);
-            fw.flush();
+            File file = new File(reportTemplatesDirName + name + '.' + format.name().toLowerCase());
+            try (FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8)) {
+                fw.write(content);
+                fw.flush();
+            }
             FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
             DataObject data = DataObject.find(fob);
             data.getLookup().lookup(OpenCookie.class).open();

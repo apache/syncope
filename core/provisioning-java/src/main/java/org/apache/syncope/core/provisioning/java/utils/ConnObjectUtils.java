@@ -202,7 +202,7 @@ public class ConnObjectUtils {
         return anyCR;
     }
 
-    public RealmTO getRealmTO(final ConnectorObject obj, final PullTask task, final OrgUnit orgUnit) {
+    public RealmTO getRealmTO(final ConnectorObject obj, final OrgUnit orgUnit) {
         RealmTO realmTO = new RealmTO();
 
         MappingUtils.getPullItems(orgUnit.getItems().stream()).forEach(item
