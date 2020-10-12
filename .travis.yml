@@ -29,7 +29,6 @@ git:
 env:
   global:
   - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
-  - JAVAEE_CONTAINER=Tomcat
   - DBMS=H2
   - jaxrsContentType=application/json
   - TestCommand="mvn -U -T 1C clean test -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true"
@@ -60,17 +59,17 @@ jobs:
     - stage: test
       name: "Unit Tests via JDK 14"
       script: 
-      - ~/install-jdk.sh --target "/home/travis/openjdk14" --workspace "/home/travis/.cache/install-jdk" --feature "14" --license "GPL" --cacerts
+      - ~/install-jdk.sh --target "/home/travis/openjdk14" --workspace "/home/travis/.cache/install-jdk" --feature "14" --license "GPLv2+CE" --cacerts
       - export JAVA_HOME=~/openjdk14
       - export PATH="$JAVA_HOME/bin:$PATH"
       - eval $TestCommand
     - stage: test
-      name: "Unit Tests via JDK 15"
+      name: "Unit Tests via JDK 16"
       script: 
-      - ~/install-jdk.sh --target "/home/travis/openjdk15" --workspace "/home/travis/.cache/install-jdk" --feature "15" --license "GPL" --cacerts
-      - export JAVA_HOME=~/openjdk15
+      - ~/install-jdk.sh --target "/home/travis/openjdk16" --workspace "/home/travis/.cache/install-jdk" --feature "16" --license "GPLv2+CE" --cacerts
+      - export JAVA_HOME=~/openjdk16
       - export PATH="$JAVA_HOME/bin:$PATH"
-      - eval $TestCommand
+      - mvn clean test -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true -DargLine="-Dnet.bytebuddy.experimental=true"
     - stage: test
       name: "Persistence Unit Tests via JDK 11: PostgreSQL (JSONB)"
       script: mvn -f core/persistence-jpa-json/pom.xml -P postgres -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true
