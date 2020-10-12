@@ -510,7 +510,7 @@ under the License.
 
     <tomcat.version>9.0.39</tomcat.version>
     <wildfly.version>20.0.1.Final</wildfly.version>
-    <payara.version>5.2020.4</payara.version>
+    <payara.version>5.2020.5</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
     <docker.postgresql.version>12</docker.postgresql.version>
@@ -2462,7 +2462,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.10.1</version>
+        <version>1.11.0</version>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.groovy</groupId>
