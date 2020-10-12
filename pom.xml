@@ -407,7 +407,7 @@ under the License.
     <cxf.version>3.4.0</cxf.version>
     <bouncycastle.version>1.66</bouncycastle.version>
 
-    <jackson.version>2.11.3</jackson.version>
+    <jackson.version>2.12.0-rc1</jackson.version>
 
     <spring.version>5.2.9.RELEASE</spring.version>
     <spring-security.version>5.4.1</spring-security.version>
@@ -471,7 +471,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
 
-    <wicket.version>9.0.0</wicket.version>
+    <wicket.version>9.1.0</wicket.version>
     <wicket-jqueryui.version>9.0.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.1</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>

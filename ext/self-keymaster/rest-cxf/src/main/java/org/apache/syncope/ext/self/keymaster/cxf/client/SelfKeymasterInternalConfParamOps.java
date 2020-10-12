@@ -20,7 +20,6 @@ package org.apache.syncope.ext.self.keymaster.cxf.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -64,12 +63,7 @@ public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
             return defaultValue;
         }
 
-        try {
-            return MAPPER.treeToValue(valueNode, reference);
-        } catch (IOException e) {
-            LOG.error("Could not deserialize {}", valueNode, e);
-            return defaultValue;
-        }
+        return MAPPER.treeToValue(valueNode, reference);
     }
 
     @Override

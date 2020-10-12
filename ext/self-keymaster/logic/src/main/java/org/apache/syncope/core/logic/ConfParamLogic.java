@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Method;
@@ -51,11 +50,7 @@ public class ConfParamLogic extends AbstractTransactionalLogic<EntityTO> {
     public Map<String, Object> list() {
         Map<String, Object> params = new TreeMap<>();
         confParamDAO.findAll().forEach(param -> {
-            try {
-                params.put(param.getKey(), MAPPER.treeToValue(param.getValue(), Object.class));
-            } catch (JsonProcessingException e) {
-                LOG.error("While processing {}'s value", param.getKey(), e);
-            }
+            params.put(param.getKey(), MAPPER.treeToValue(param.getValue(), Object.class));
         });
         return params;
     }
