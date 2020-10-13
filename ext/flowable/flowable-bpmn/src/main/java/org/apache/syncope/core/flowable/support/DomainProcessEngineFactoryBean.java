@@ -25,7 +25,6 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.common.engine.impl.cfg.SpringBeanFactoryProxyMap;
-import org.flowable.common.engine.impl.interceptor.EngineConfigurationConstants;
 import org.flowable.engine.impl.util.EngineServiceUtil;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.spring.SpringExpressionManager;
