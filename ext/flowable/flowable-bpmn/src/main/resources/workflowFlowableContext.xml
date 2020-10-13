@@ -30,9 +30,12 @@ under the License.
     <property name="fallback" value="classpath:userWorkflow.bpmn20.xml"/>
   </bean>
 
-  <bean id="syncopeIdmIdentityService" class="org.apache.syncope.core.flowable.support.SyncopeIdmIdentityService"/>
   <bean id="syncopeIdmEngineConfiguration" class="org.flowable.idm.spring.SpringIdmEngineConfiguration">
-    <property name="idmIdentityService" ref="syncopeIdmIdentityService"/> 
+    <property name="idmIdentityService">
+      <bean class="org.apache.syncope.core.flowable.support.SyncopeIdmIdentityService">
+        <constructor-arg ref="syncopeIdmEngineConfiguration"/>
+      </bean>
+    </property>
   </bean>
   <bean id="syncopeIdmEngineConfigurator" class="org.flowable.idm.spring.configurator.SpringIdmEngineConfigurator">
     <property name="idmEngineConfiguration" ref="syncopeIdmEngineConfiguration"/> 

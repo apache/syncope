@@ -423,7 +423,7 @@ under the License.
 
     <groovy.version>3.0.6</groovy.version>
 
-    <flowable.version>6.5.0</flowable.version>
+    <flowable.version>6.6.0</flowable.version>
 
     <camel.version>2.24.2</camel.version>	
 
@@ -1257,9 +1257,13 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.flowable</groupId>
-        <artifactId>flowable-ui-modeler-app</artifactId>
+        <artifactId>flowable-ui-modeler-frontend</artifactId>
         <version>${flowable.version}</version>
-        <type>war</type>
+      </dependency>
+      <dependency>
+        <groupId>org.flowable</groupId>
+        <artifactId>flowable-ui-modeler-logic</artifactId>
+        <version>${flowable.version}</version>
       </dependency>
       <!-- /Flowable -->
 

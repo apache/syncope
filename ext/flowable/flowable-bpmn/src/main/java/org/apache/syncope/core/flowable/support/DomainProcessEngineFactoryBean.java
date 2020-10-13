@@ -79,9 +79,8 @@ public class DomainProcessEngineFactoryBean
                         conf.setExpressionManager(new SpringExpressionManager(ctx, conf.getBeans()));
                     }
                     if (EngineServiceUtil.getIdmEngineConfiguration(conf) == null) {
-                        conf.addEngineConfiguration(
-                                EngineConfigurationConstants.KEY_IDM_ENGINE_CONFIG,
-                                ctx.getBean(SpringIdmEngineConfiguration.class));
+                        SpringIdmEngineConfiguration spiec = ctx.getBean(SpringIdmEngineConfiguration.class);
+                        conf.addEngineConfiguration(spiec.getEngineCfgKey(), spiec.getEngineScopeType(), spiec);
                     }
                     conf.setEnableSafeBpmnXml(true);
                     conf.setCustomFormTypes(Arrays.asList(new DropdownFormType(null)));
@@ -112,5 +111,4 @@ public class DomainProcessEngineFactoryBean
             engine.close();
         }
     }
-
 }

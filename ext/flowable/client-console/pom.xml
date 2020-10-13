@@ -60,11 +60,15 @@ under the License.
       <artifactId>syncope-client-console</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.flowable</groupId>
-      <artifactId>flowable-ui-modeler-app</artifactId>
-      <type>war</type>
+      <artifactId>flowable-ui-modeler-frontend</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.flowable</groupId>
+      <artifactId>flowable-ui-modeler-logic</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -81,39 +85,34 @@ under the License.
             <phase>process-resources</phase>
             <configuration>
               <target>
-                <unzip src="${settings.localRepository}/org/flowable/flowable-ui-modeler-app/${flowable.version}/flowable-ui-modeler-app-${flowable.version}.war" dest="${flowable-modeler.directory}">
+                <unzip src="${settings.localRepository}/org/flowable/flowable-ui-modeler-frontend/${flowable.version}/flowable-ui-modeler-frontend-${flowable.version}.jar" dest="${flowable-modeler.directory}"/>
+
+                <unzip src="${settings.localRepository}/org/flowable/flowable-ui-modeler-logic/${flowable.version}/flowable-ui-modeler-logic-${flowable.version}.jar" dest="${flowable-modeler.directory}">
                   <patternset>
-                    <include name="WEB-INF/classes/static/**" />
-                    <include name="WEB-INF/lib/flowable-ui-modeler-logic-${flowable.version}.jar" />
-                  </patternset>
-                </unzip>
-                
-                <unzip src="${flowable-modeler.directory}/WEB-INF/lib/flowable-ui-modeler-logic-${flowable.version}.jar" dest="${flowable-modeler.directory}">
-                  <patternset>
-                    <include name="stencilset_bpmn.json" />
+                    <include name="stencilset_bpmn.json"/>
                   </patternset>
                 </unzip>
                 
                 <move todir="${flowable-modeler.directory}">
-                  <fileset dir="${flowable-modeler.directory}/WEB-INF/classes/static/">
-                    <include name="**" />
+                  <fileset dir="${flowable-modeler.directory}/static/modeler">
+                    <include name="**"/>
                   </fileset>
                 </move>
-                <delete dir="${flowable-modeler.directory}/WEB-INF" />
-                
-                <replace file="${flowable-modeler.directory}/index.html" token="&lt;/head&gt;" value="&lt;script type=&quot;text/javascript&quot;&gt;window.onunload = refreshParent; function refreshParent() { window.opener.location.reload(); }&lt;/script&gt;&lt;/head&gt;" />
-                <replace file="${flowable-modeler.directory}/index.html" token=" ng-click=&quot;backToLanding()&quot;" value=" disabled=&quot;disabled&quot;" />
-                <replace file="${flowable-modeler.directory}/index.html" token="&lt;ul class=&quot;nav navbar-nav&quot; id=&quot;main-nav&quot;" value="&lt;ul class=&quot;nav navbar-nav&quot; id=&quot;main-nav&quot; style=&quot;display: none;&quot;" />
-                <replace file="${flowable-modeler.directory}/index.html" token="&lt;div class=&quot;pull-right" value="&lt;div style=&quot;display: none;&quot; class=&quot;pull-right" />
-                <replace file="${flowable-modeler.directory}/editor-app/editor.html" token="&lt;div class=&quot;btn-group pull-right&quot;" value="&lt;div style=&quot;display: none;&quot; class=&quot;btn-group pull-right&quot;" />
-                <replace file="${flowable-modeler.directory}/editor-app/configuration/toolbar-default-actions.js" token="$location.path('/processes');" value="window.close();" />
- 
-                <copy file="${basedir}/src/main/resources/app-cfg.js" todir="${flowable-modeler.directory}/scripts" overwrite="true" />
-                <copy file="${basedir}/src/main/resources/url-config.js" todir="${flowable-modeler.directory}/editor-app/configuration" overwrite="true" />
-                <copy file="${basedir}/src/main/resources/toolbar.js" todir="${flowable-modeler.directory}/editor-app/configuration" overwrite="true" />
-                <copy file="${basedir}/src/main/resources/save-model.html" todir="${flowable-modeler.directory}/editor-app/popups" overwrite="true" />
+                <delete dir="${flowable-modeler.directory}/static"/>
 
-                <patch patchfile="${basedir}/src/main/resources/dropdown.diff" dir="${flowable-modeler.directory}" strip="1" />
+                <replace file="${flowable-modeler.directory}/index.html" token="&lt;/head&gt;" value="&lt;script type=&quot;text/javascript&quot;&gt;window.onunload = refreshParent; function refreshParent() { window.opener.location.reload(); }&lt;/script&gt;&lt;/head&gt;"/>
+                <replace file="${flowable-modeler.directory}/index.html" token=" ng-click=&quot;backToLanding()&quot;" value=" disabled=&quot;disabled&quot;"/>
+                <replace file="${flowable-modeler.directory}/index.html" token="&lt;ul class=&quot;nav navbar-nav&quot; id=&quot;main-nav&quot;" value="&lt;ul class=&quot;nav navbar-nav&quot; id=&quot;main-nav&quot; style=&quot;display: none;&quot;"/>
+                <replace file="${flowable-modeler.directory}/index.html" token="&lt;div class=&quot;pull-right" value="&lt;div style=&quot;display: none;&quot; class=&quot;pull-right"/>
+                <replace file="${flowable-modeler.directory}/editor-app/editor.html" token="&lt;div class=&quot;btn-group pull-right&quot;" value="&lt;div style=&quot;display: none;&quot; class=&quot;btn-group pull-right&quot;"/>
+                <replace file="${flowable-modeler.directory}/editor-app/configuration/toolbar-default-actions.js" token="$location.path('/processes');" value="window.close();"/>
+ 
+                <copy file="${basedir}/src/main/resources/app-cfg.js" todir="${flowable-modeler.directory}/scripts" overwrite="true"/>
+                <copy file="${basedir}/src/main/resources/url-config.js" todir="${flowable-modeler.directory}/editor-app/configuration" overwrite="true"/>
+                <copy file="${basedir}/src/main/resources/toolbar.js" todir="${flowable-modeler.directory}/editor-app/configuration" overwrite="true"/>
+                <copy file="${basedir}/src/main/resources/save-model.html" todir="${flowable-modeler.directory}/editor-app/popups" overwrite="true"/>
+
+                <patch patchfile="${basedir}/src/main/resources/dropdown.diff" dir="${flowable-modeler.directory}" strip="1"/>
               </target>
             </configuration>
             <goals>
