@@ -20,6 +20,7 @@ package org.apache.syncope.core.flowable.support;
 
 import org.flowable.idm.api.GroupQuery;
 import org.flowable.idm.api.UserQuery;
+import org.flowable.idm.engine.IdmEngineConfiguration;
 import org.flowable.idm.engine.impl.IdmIdentityServiceImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -30,6 +31,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class SyncopeIdmIdentityService extends IdmIdentityServiceImpl implements ApplicationContextAware {
 
     private ConfigurableApplicationContext ctx;
+
+    public SyncopeIdmIdentityService(final IdmEngineConfiguration idmEngineConfiguration) {
+        super(idmEngineConfiguration);
+    }
 
     @Override
     public void setApplicationContext(final ApplicationContext ctx) throws BeansException {
@@ -47,5 +52,4 @@ public class SyncopeIdmIdentityService extends IdmIdentityServiceImpl implements
         return (GroupQuery) ctx.getBeanFactory().
                 createBean(SyncopeGroupQueryImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
     }
-
 }

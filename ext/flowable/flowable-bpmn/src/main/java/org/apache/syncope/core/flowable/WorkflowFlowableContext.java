@@ -57,15 +57,9 @@ public class WorkflowFlowableContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeIdmIdentityService syncopeIdmIdentityService() {
-        return new SyncopeIdmIdentityService();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public SpringIdmEngineConfiguration syncopeIdmEngineConfiguration() {
         SpringIdmEngineConfiguration conf = new SpringIdmEngineConfiguration();
-        conf.setIdmIdentityService(syncopeIdmIdentityService());
+        conf.setIdmIdentityService(new SyncopeIdmIdentityService(conf));
         return conf;
     }
 

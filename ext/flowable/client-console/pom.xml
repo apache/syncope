@@ -63,8 +63,12 @@ under the License.
     
     <dependency>
       <groupId>org.flowable</groupId>
-      <artifactId>flowable-ui-modeler-app</artifactId>
-      <type>war</type>
+      <artifactId>flowable-ui-modeler-frontend</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.flowable</groupId>
+      <artifactId>flowable-ui-modeler-logic</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -81,26 +85,21 @@ under the License.
             <phase>process-resources</phase>
             <configuration>
               <target>
-                <unzip src="${settings.localRepository}/org/flowable/flowable-ui-modeler-app/${flowable.version}/flowable-ui-modeler-app-${flowable.version}.war" dest="${flowable-modeler.directory}">
-                  <patternset>
-                    <include name="WEB-INF/classes/static/**"/>
-                    <include name="WEB-INF/lib/flowable-ui-modeler-logic-${flowable.version}.jar"/>
-                  </patternset>
-                </unzip>
-                
-                <unzip src="${flowable-modeler.directory}/WEB-INF/lib/flowable-ui-modeler-logic-${flowable.version}.jar" dest="${flowable-modeler.directory}">
+                <unzip src="${settings.localRepository}/org/flowable/flowable-ui-modeler-frontend/${flowable.version}/flowable-ui-modeler-frontend-${flowable.version}.jar" dest="${flowable-modeler.directory}"/>
+
+                <unzip src="${settings.localRepository}/org/flowable/flowable-ui-modeler-logic/${flowable.version}/flowable-ui-modeler-logic-${flowable.version}.jar" dest="${flowable-modeler.directory}">
                   <patternset>
                     <include name="stencilset_bpmn.json"/>
                   </patternset>
                 </unzip>
                 
                 <move todir="${flowable-modeler.directory}">
-                  <fileset dir="${flowable-modeler.directory}/WEB-INF/classes/static/">
+                  <fileset dir="${flowable-modeler.directory}/static/modeler">
                     <include name="**"/>
                   </fileset>
                 </move>
-                <delete dir="${flowable-modeler.directory}/WEB-INF"/>
-                
+                <delete dir="${flowable-modeler.directory}/static"/>
+
                 <replace file="${flowable-modeler.directory}/index.html" token="&lt;/head&gt;" value="&lt;script type=&quot;text/javascript&quot;&gt;window.onunload = refreshParent; function refreshParent() { window.opener.location.reload(); }&lt;/script&gt;&lt;/head&gt;"/>
                 <replace file="${flowable-modeler.directory}/index.html" token=" ng-click=&quot;backToLanding()&quot;" value=" disabled=&quot;disabled&quot;"/>
                 <replace file="${flowable-modeler.directory}/index.html" token="&lt;ul class=&quot;nav navbar-nav&quot; id=&quot;main-nav&quot;" value="&lt;ul class=&quot;nav navbar-nav&quot; id=&quot;main-nav&quot; style=&quot;display: none;&quot;"/>

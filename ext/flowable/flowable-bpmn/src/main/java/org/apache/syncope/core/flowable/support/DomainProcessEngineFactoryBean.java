@@ -28,7 +28,6 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.common.engine.impl.cfg.SpringBeanFactoryProxyMap;
-import org.flowable.common.engine.impl.interceptor.EngineConfigurationConstants;
 import org.flowable.engine.impl.util.EngineServiceUtil;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.spring.SpringExpressionManager;
@@ -84,9 +83,8 @@ public class DomainProcessEngineFactoryBean
             conf.setExpressionManager(new SpringExpressionManager(ctx, conf.getBeans()));
         }
         if (EngineServiceUtil.getIdmEngineConfiguration(conf) == null) {
-            conf.addEngineConfiguration(
-                    EngineConfigurationConstants.KEY_IDM_ENGINE_CONFIG,
-                    ctx.getBean(SpringIdmEngineConfiguration.class));
+            SpringIdmEngineConfiguration spiec = ctx.getBean(SpringIdmEngineConfiguration.class);
+            conf.addEngineConfiguration(spiec.getEngineCfgKey(), spiec.getEngineScopeType(), spiec);
         }
         conf.setEnableSafeBpmnXml(true);
         conf.setCustomFormTypes(List.of(new DropdownFormType(null)));
