@@ -19,7 +19,6 @@
 package org.apache.syncope.core.flowable;
 
 import java.util.List;
-
 import org.apache.syncope.core.flowable.impl.FlowableBpmnProcessManager;
 import org.apache.syncope.core.flowable.impl.FlowableUserRequestHandler;
 import org.apache.syncope.core.flowable.impl.FlowableWorkflowUtils;
@@ -36,8 +35,10 @@ import org.flowable.common.engine.impl.persistence.StrongUuidGenerator;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.idm.spring.configurator.SpringIdmEngineConfigurator;
 import org.flowable.spring.SpringProcessEngineConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -49,6 +50,9 @@ import org.springframework.context.annotation.Scope;
 @Configuration
 public class WorkflowFlowableContext {
 
+    @Autowired
+    private ConfigurableApplicationContext ctx;
+
     @Value("${wf.directory}")
     private String wfDirectory;
 
@@ -59,7 +63,7 @@ public class WorkflowFlowableContext {
     @Bean
     public SpringIdmEngineConfiguration syncopeIdmEngineConfiguration() {
         SpringIdmEngineConfiguration conf = new SpringIdmEngineConfiguration();
-        conf.setIdmIdentityService(new SyncopeIdmIdentityService(conf));
+        conf.setIdmIdentityService(new SyncopeIdmIdentityService(conf, ctx));
         return conf;
     }
 

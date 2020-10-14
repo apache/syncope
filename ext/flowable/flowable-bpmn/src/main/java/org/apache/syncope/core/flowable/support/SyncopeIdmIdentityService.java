@@ -22,23 +22,19 @@ import org.flowable.idm.api.GroupQuery;
 import org.flowable.idm.api.UserQuery;
 import org.flowable.idm.engine.IdmEngineConfiguration;
 import org.flowable.idm.engine.impl.IdmIdentityServiceImpl;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
-public class SyncopeIdmIdentityService extends IdmIdentityServiceImpl implements ApplicationContextAware {
+public class SyncopeIdmIdentityService extends IdmIdentityServiceImpl {
 
-    private ConfigurableApplicationContext ctx;
+    private final ConfigurableApplicationContext ctx;
 
-    public SyncopeIdmIdentityService(final IdmEngineConfiguration idmEngineConfiguration) {
+    public SyncopeIdmIdentityService(
+            final IdmEngineConfiguration idmEngineConfiguration,
+            final ConfigurableApplicationContext ctx) {
+
         super(idmEngineConfiguration);
-    }
-
-    @Override
-    public void setApplicationContext(final ApplicationContext ctx) throws BeansException {
-        this.ctx = (ConfigurableApplicationContext) ctx;
+        this.ctx = ctx;
     }
 
     @Override
