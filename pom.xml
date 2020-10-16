@@ -449,7 +449,7 @@ under the License.
 
     <pac4j.version>4.1.0</pac4j.version>
 
-    <cas.version>6.3.0-RC3</cas.version>
+    <cas.version>6.3.0-SNAPSHOT</cas.version>
     <cas-client.version>3.6.1</cas-client.version>
 
     <h2.version>1.4.200</h2.version>
