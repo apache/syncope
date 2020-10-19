@@ -96,7 +96,21 @@ public class JPASAML2SP extends AbstractClientApp implements SAML2SP {
         joinColumns =
         @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
     private List<String> encryptionKeyAlgorithms = new ArrayList<>();
-    
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column
+    @CollectionTable(name = "SAML2SP_BlacklistedSigningAlgs",
+        joinColumns =
+        @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
+    private List<String> signingSignatureBlackListedAlgorithms = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column
+    @CollectionTable(name = "SAML2SP_BlacklistedEncryptionAlgs",
+        joinColumns =
+        @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
+    private List<String> encryptionBlackListedAlgorithms = new ArrayList<>();
+
     @Override
     public String getEntityId() {
         return entityId;
@@ -265,5 +279,24 @@ public class JPASAML2SP extends AbstractClientApp implements SAML2SP {
     @Override
     public void setEncryptionKeyAlgorithms(final List<String> encryptionKeyAlgorithms) {
         this.encryptionKeyAlgorithms = encryptionKeyAlgorithms;
+    }
+
+    @Override
+    public List<String> getSigningSignatureBlackListedAlgorithms() {
+        return signingSignatureBlackListedAlgorithms;
+    }
+
+    @Override
+    public void setSigningSignatureBlackListedAlgorithms(final List<String> signingSignatureBlackListedAlgorithms) {
+        this.signingSignatureBlackListedAlgorithms = signingSignatureBlackListedAlgorithms;
+    }
+
+    @Override
+    public List<String> getEncryptionBlackListedAlgorithms() {
+        return encryptionBlackListedAlgorithms;
+    }
+
+    public void setEncryptionBlackListedAlgorithms(final List<String> encryptionBlackListedAlgorithms) {
+        this.encryptionBlackListedAlgorithms = encryptionBlackListedAlgorithms;
     }
 }

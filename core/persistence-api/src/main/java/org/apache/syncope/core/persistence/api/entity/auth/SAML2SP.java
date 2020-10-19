@@ -91,4 +91,12 @@ public interface SAML2SP extends ClientApp {
     void setEncryptionDataAlgorithms(List<String> algorithms);
 
     void setEncryptionKeyAlgorithms(List<String> algorithms);
+
+    List<String> getSigningSignatureBlackListedAlgorithms();
+
+    List<String> getEncryptionBlackListedAlgorithms();
+
+    void setSigningSignatureBlackListedAlgorithms(List<String> algorithms);
+
+    void setEncryptionBlackListedAlgorithms(List<String> algorithms);
 }

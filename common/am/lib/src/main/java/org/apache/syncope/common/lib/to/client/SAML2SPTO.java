@@ -66,6 +66,10 @@ public class SAML2SPTO extends ClientAppTO {
     private List<String> encryptionDataAlgorithms = new ArrayList<>();
 
     private List<String> encryptionKeyAlgorithms = new ArrayList<>();
+    
+    private List<String> signingSignatureBlackListedAlgorithms = new ArrayList<>();
+
+    private List<String> encryptionBlackListedAlgorithms = new ArrayList<>();
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
@@ -211,6 +215,22 @@ public class SAML2SPTO extends ClientAppTO {
         this.encryptionKeyAlgorithms = encryptionKeyAlgorithms;
     }
 
+    public List<String> getSigningSignatureBlackListedAlgorithms() {
+        return signingSignatureBlackListedAlgorithms;
+    }
+
+    public void setSigningSignatureBlackListedAlgorithms(final List<String> signingSignatureBlackListedAlgorithms) {
+        this.signingSignatureBlackListedAlgorithms = signingSignatureBlackListedAlgorithms;
+    }
+
+    public List<String> getEncryptionBlackListedAlgorithms() {
+        return encryptionBlackListedAlgorithms;
+    }
+
+    public void setEncryptionBlackListedAlgorithms(final List<String> encryptionBlackListedAlgorithms) {
+        this.encryptionBlackListedAlgorithms = encryptionBlackListedAlgorithms;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (obj == null) {
@@ -242,6 +262,8 @@ public class SAML2SPTO extends ClientAppTO {
                 .append(this.signingSignatureReferenceDigestMethods, rhs.signingSignatureReferenceDigestMethods)
                 .append(this.encryptionDataAlgorithms, rhs.encryptionDataAlgorithms)
                 .append(this.encryptionKeyAlgorithms, rhs.encryptionKeyAlgorithms)
+                .append(this.encryptionBlackListedAlgorithms, rhs.encryptionBlackListedAlgorithms)
+                .append(this.signingSignatureBlackListedAlgorithms, rhs.signingSignatureBlackListedAlgorithms)
                 .isEquals();
     }
 
@@ -266,6 +288,8 @@ public class SAML2SPTO extends ClientAppTO {
                 .append(signingSignatureReferenceDigestMethods)
                 .append(encryptionDataAlgorithms)
                 .append(encryptionKeyAlgorithms)
+                .append(signingSignatureBlackListedAlgorithms)
+                .append(encryptionBlackListedAlgorithms)
                 .toHashCode();
     }
 }
