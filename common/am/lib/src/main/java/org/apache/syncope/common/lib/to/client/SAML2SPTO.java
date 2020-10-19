@@ -25,6 +25,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Schema(allOf = { ClientAppTO.class })
 public class SAML2SPTO extends ClientAppTO {
 
@@ -55,6 +58,14 @@ public class SAML2SPTO extends ClientAppTO {
     private String assertionAudiences;
 
     private String serviceProviderNameIdQualifier;
+
+    private List<String> signingSignatureAlgorithms = new ArrayList<>();
+
+    private List<String> signingSignatureReferenceDigestMethods = new ArrayList<>();
+
+    private List<String> encryptionDataAlgorithms = new ArrayList<>();
+
+    private List<String> encryptionKeyAlgorithms = new ArrayList<>();
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
@@ -168,6 +179,38 @@ public class SAML2SPTO extends ClientAppTO {
         this.serviceProviderNameIdQualifier = serviceProviderNameIdQualifier;
     }
 
+    public List<String> getSigningSignatureAlgorithms() {
+        return signingSignatureAlgorithms;
+    }
+
+    public List<String> getSigningSignatureReferenceDigestMethods() {
+        return signingSignatureReferenceDigestMethods;
+    }
+
+    public List<String> getEncryptionDataAlgorithms() {
+        return encryptionDataAlgorithms;
+    }
+
+    public List<String> getEncryptionKeyAlgorithms() {
+        return encryptionKeyAlgorithms;
+    }
+
+    public void setSigningSignatureAlgorithms(final List<String> signingSignatureAlgorithms) {
+        this.signingSignatureAlgorithms = signingSignatureAlgorithms;
+    }
+
+    public void setSigningSignatureReferenceDigestMethods(final List<String> signingSignatureReferenceDigestMethods) {
+        this.signingSignatureReferenceDigestMethods = signingSignatureReferenceDigestMethods;
+    }
+
+    public void setEncryptionDataAlgorithms(final List<String> encryptionDataAlgorithms) {
+        this.encryptionDataAlgorithms = encryptionDataAlgorithms;
+    }
+
+    public void setEncryptionKeyAlgorithms(final List<String> encryptionKeyAlgorithms) {
+        this.encryptionKeyAlgorithms = encryptionKeyAlgorithms;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (obj == null) {
@@ -195,6 +238,10 @@ public class SAML2SPTO extends ClientAppTO {
                 .append(this.nameIdQualifier, rhs.nameIdQualifier)
                 .append(this.assertionAudiences, rhs.assertionAudiences)
                 .append(this.serviceProviderNameIdQualifier, rhs.serviceProviderNameIdQualifier)
+                .append(this.signingSignatureAlgorithms, rhs.signingSignatureAlgorithms)
+                .append(this.signingSignatureReferenceDigestMethods, rhs.signingSignatureReferenceDigestMethods)
+                .append(this.encryptionDataAlgorithms, rhs.encryptionDataAlgorithms)
+                .append(this.encryptionKeyAlgorithms, rhs.encryptionKeyAlgorithms)
                 .isEquals();
     }
 
@@ -215,6 +262,10 @@ public class SAML2SPTO extends ClientAppTO {
                 .append(nameIdQualifier)
                 .append(assertionAudiences)
                 .append(serviceProviderNameIdQualifier)
+                .append(signingSignatureAlgorithms)
+                .append(signingSignatureReferenceDigestMethods)
+                .append(encryptionDataAlgorithms)
+                .append(encryptionKeyAlgorithms)
                 .toHashCode();
     }
 }

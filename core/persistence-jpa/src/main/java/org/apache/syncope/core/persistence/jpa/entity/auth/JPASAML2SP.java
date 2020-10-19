@@ -18,11 +18,18 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = JPASAML2SP.TABLE)
@@ -62,6 +69,34 @@ public class JPASAML2SP extends AbstractClientApp implements SAML2SP {
     @Column(name = "spNameIdQualifier")
     private String serviceProviderNameIdQualifier;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column
+    @CollectionTable(name = "SAML2SP_SigningSignatureAlgs",
+        joinColumns =
+        @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
+    private List<String> signingSignatureAlgorithms = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column
+    @CollectionTable(name = "SAML2SP_SigningSignatureRefDigestAlgs",
+        joinColumns =
+        @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
+    private List<String> signingSignatureReferenceDigestMethods = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column
+    @CollectionTable(name = "SAML2SP_EncryptionDataAlgs",
+        joinColumns =
+        @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
+    private List<String> encryptionDataAlgorithms = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column
+    @CollectionTable(name = "SAML2SP_EncryptionKeyAlgs",
+        joinColumns =
+        @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
+    private List<String> encryptionKeyAlgorithms = new ArrayList<>();
+    
     @Override
     public String getEntityId() {
         return entityId;
@@ -192,4 +227,43 @@ public class JPASAML2SP extends AbstractClientApp implements SAML2SP {
         this.serviceProviderNameIdQualifier = serviceProviderNameIdQualifier;
     }
 
+    @Override
+    public List<String> getSigningSignatureAlgorithms() {
+        return signingSignatureAlgorithms;
+    }
+
+    @Override
+    public void setSigningSignatureAlgorithms(final List<String> signingSignatureAlgorithms) {
+        this.signingSignatureAlgorithms = signingSignatureAlgorithms;
+    }
+
+    @Override
+    public List<String> getSigningSignatureReferenceDigestMethods() {
+        return signingSignatureReferenceDigestMethods;
+    }
+
+    @Override
+    public void setSigningSignatureReferenceDigestMethods(final List<String> signingSignatureReferenceDigestMethods) {
+        this.signingSignatureReferenceDigestMethods = signingSignatureReferenceDigestMethods;
+    }
+
+    @Override
+    public List<String> getEncryptionDataAlgorithms() {
+        return encryptionDataAlgorithms;
+    }
+
+    @Override
+    public void setEncryptionDataAlgorithms(final List<String> encryptionDataAlgorithms) {
+        this.encryptionDataAlgorithms = encryptionDataAlgorithms;
+    }
+
+    @Override
+    public List<String> getEncryptionKeyAlgorithms() {
+        return encryptionKeyAlgorithms;
+    }
+
+    @Override
+    public void setEncryptionKeyAlgorithms(final List<String> encryptionKeyAlgorithms) {
+        this.encryptionKeyAlgorithms = encryptionKeyAlgorithms;
+    }
 }

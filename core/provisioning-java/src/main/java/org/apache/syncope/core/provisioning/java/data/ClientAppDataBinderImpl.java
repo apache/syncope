@@ -118,6 +118,11 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setAssertionAudiences(clientAppTO.getAssertionAudiences());
         clientApp.setServiceProviderNameIdQualifier(clientAppTO.getServiceProviderNameIdQualifier());
 
+        clientApp.setSigningSignatureAlgorithms(clientAppTO.getSigningSignatureAlgorithms());
+        clientApp.setSigningSignatureReferenceDigestMethods(clientAppTO.getSigningSignatureReferenceDigestMethods());
+        clientApp.setEncryptionKeyAlgorithms(clientAppTO.getEncryptionKeyAlgorithms());
+        clientApp.setEncryptionDataAlgorithms(clientAppTO.getEncryptionDataAlgorithms());
+        
         if (clientAppTO.getAuthPolicy() == null) {
             clientApp.setAuthPolicy(null);
         } else {
@@ -181,6 +186,11 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setNameIdQualifier(clientApp.getNameIdQualifier());
         clientAppTO.setAssertionAudiences(clientApp.getAssertionAudiences());
         clientAppTO.setServiceProviderNameIdQualifier(clientApp.getServiceProviderNameIdQualifier());
+
+        clientAppTO.setSigningSignatureAlgorithms(clientApp.getSigningSignatureAlgorithms());
+        clientAppTO.setSigningSignatureReferenceDigestMethods(clientApp.getSigningSignatureReferenceDigestMethods());
+        clientAppTO.setEncryptionKeyAlgorithms(clientApp.getEncryptionKeyAlgorithms());
+        clientAppTO.setEncryptionDataAlgorithms(clientApp.getEncryptionDataAlgorithms());
 
         clientAppTO.setAuthPolicy(clientApp.getAuthPolicy() == null
                 ? null : clientApp.getAuthPolicy().getKey());

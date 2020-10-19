@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.api.entity.auth;
 
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 
+import java.util.List;
+
 public interface SAML2SP extends ClientApp {
 
     String getEntityId();
@@ -73,4 +75,20 @@ public interface SAML2SP extends ClientApp {
     void setServiceProviderNameIdQualifier(String location);
 
     String getServiceProviderNameIdQualifier();
+
+    List<String> getSigningSignatureAlgorithms();
+
+    List<String> getSigningSignatureReferenceDigestMethods();
+
+    List<String> getEncryptionDataAlgorithms();
+
+    List<String> getEncryptionKeyAlgorithms();
+
+    void setSigningSignatureAlgorithms(List<String> algorithms);
+
+    void setSigningSignatureReferenceDigestMethods(List<String> methods);
+
+    void setEncryptionDataAlgorithms(List<String> algorithms);
+
+    void setEncryptionKeyAlgorithms(List<String> algorithms);
 }
