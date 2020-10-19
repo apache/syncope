@@ -464,7 +464,7 @@ under the License.
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
 
     <bootbox.version>5.4.0</bootbox.version>
-    <font-awesome.version>5.15.0</font-awesome.version>
+    <font-awesome.version>5.15.1</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <codemirror.version>5.50.0</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
@@ -472,7 +472,7 @@ under the License.
     <chartjs.version>1.0.2</chartjs.version>
 
     <wicket.version>9.1.0</wicket.version>
-    <wicket-jqueryui.version>9.0.0</wicket-jqueryui.version>
+    <wicket-jqueryui.version>9.1.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.2</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
 
