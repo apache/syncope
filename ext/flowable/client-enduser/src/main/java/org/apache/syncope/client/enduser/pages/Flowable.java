@@ -240,7 +240,7 @@ public class Flowable extends BaseExtPage {
         @Override
         public Iterator<UserRequest> iterator(final long first, final long count) {
             final int page = ((int) first / paginatorRows);
-            return UserRequestRestClient.getUserRequests((page < 0 ? 0 : page) + 1,
+            return UserRequestRestClient.listRequests((page < 0 ? 0 : page) + 1,
                     paginatorRows,
                     SyncopeEnduserSession.get().getSelfTO().getUsername(),
                     new SortParam<>(sortParam, true)).iterator();
@@ -248,7 +248,7 @@ public class Flowable extends BaseExtPage {
 
         @Override
         public long size() {
-            return UserRequestRestClient.countUserRequests();
+            return UserRequestRestClient.countRequests();
         }
 
         @Override

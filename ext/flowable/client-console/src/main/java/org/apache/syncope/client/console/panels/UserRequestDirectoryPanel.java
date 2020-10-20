@@ -28,6 +28,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.UserRequestDirectoryPanel.UserRequestProvider;
+import org.apache.syncope.client.console.panels.UserRequestsPanel.UserRequestSearchEvent;
 import org.apache.syncope.client.console.rest.UserRequestRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -38,10 +39,12 @@ import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
 public class UserRequestDirectoryPanel
@@ -51,8 +54,10 @@ public class UserRequestDirectoryPanel
 
     private static final String PREF_USER_REQUEST_PAGINATOR_ROWS = "userrequest.paginator.rows";
 
-    public UserRequestDirectoryPanel(final String id, final PageReference pageReference) {
-        super(id, pageReference, true);
+    private String keyword;
+
+    public UserRequestDirectoryPanel(final String id, final PageReference pageRef) {
+        super(id, pageRef, true);
         disableCheckBoxes();
         setFooterVisibility(false);
         modal.size(Modal.Size.Large);
@@ -121,7 +126,19 @@ public class UserRequestDirectoryPanel
         return List.of();
     }
 
-    protected static class UserRequestProvider extends DirectoryDataProvider<UserRequest> {
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof UserRequestSearchEvent) {
+            UserRequestSearchEvent payload = UserRequestSearchEvent.class.cast(event.getPayload());
+            keyword = payload.getKeyword();
+
+            updateResultTable(payload.getTarget());
+        } else {
+            super.onEvent(event);
+        }
+    }
+
+    protected final class UserRequestProvider extends DirectoryDataProvider<UserRequest> {
 
         private static final long serialVersionUID = -1392420250782313734L;
 
@@ -134,26 +151,18 @@ public class UserRequestDirectoryPanel
         @Override
         public Iterator<UserRequest> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return UserRequestRestClient.getUserRequests((page < 0 ? 0 : page) + 1,
-                paginatorRows, getSort()).iterator();
+            return UserRequestRestClient.listRequests(
+                    keyword, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return UserRequestRestClient.countUserRequests();
+            return UserRequestRestClient.countRequests(keyword);
         }
 
         @Override
         public IModel<UserRequest> model(final UserRequest request) {
-            return new IModel<UserRequest>() {
-
-                private static final long serialVersionUID = -2566070996511906708L;
-
-                @Override
-                public UserRequest getObject() {
-                    return request;
-                }
-            };
+            return Model.of(request);
         }
     }
 }

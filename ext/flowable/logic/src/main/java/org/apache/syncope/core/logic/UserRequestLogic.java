@@ -73,7 +73,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<UserRequest>> list(
+    public Pair<Integer, List<UserRequest>> listRequests(
             final String userKey,
             final int page,
             final int size,
@@ -109,12 +109,12 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public UserRequest start(final String bpmnProcess, final WorkflowTaskExecInput inputVariables) {
+    public UserRequest startRequest(final String bpmnProcess, final WorkflowTaskExecInput inputVariables) {
         return doStart(bpmnProcess, userDAO.findByUsername(AuthContextUtils.getUsername()), inputVariables);
     }
 
     @PreAuthorize("hasRole('" + FlowableEntitlement.USER_REQUEST_START + "')")
-    public UserRequest start(
+    public UserRequest startRequest(
             final String bpmnProcess,
             final String userKey,
             final WorkflowTaskExecInput inputVariables) {
@@ -133,7 +133,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public void cancel(final String executionId, final String reason) {
+    public void cancelRequest(final String executionId, final String reason) {
         Pair<ProcessInstance, String> parsed = userRequestHandler.parse(executionId);
 
         securityChecks(userDAO.find(parsed.getRight()).getUsername(),
@@ -187,11 +187,12 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<UserRequestForm>> getForms(
+    public Pair<Integer, List<UserRequestForm>> listForms(
             final String userKey,
             final int page,
             final int size,
             final List<OrderByClause> orderByClauses) {
+
         evaluateKey(userKey);
 
         return userRequestHandler.getForms(userKey, page, size, orderByClauses);

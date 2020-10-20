@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
-import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
@@ -33,21 +32,22 @@ public class UserRequestRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4785231164900813921L;
 
-    public static int countUserRequests() {
+    public static int countRequests() {
         return getService(UserRequestService.class).
-                list(new UserRequestQuery.Builder()
+                listRequests(new UserRequestQuery.Builder()
                         .user(SyncopeEnduserSession.get().getSelfTO().getUsername())
                         .page(1)
                         .size(0)
                         .build()).getTotalCount();
     }
 
-    public static List<UserRequest> getUserRequests(
-        final int page,
-        final int size,
-        final String username,
-        final SortParam<String> sort) {
-        return getService(UserRequestService.class).list(new UserRequestQuery.Builder().
+    public static List<UserRequest> listRequests(
+            final int page,
+            final int size,
+            final String username,
+            final SortParam<String> sort) {
+
+        return getService(UserRequestService.class).listRequests(new UserRequestQuery.Builder().
                 user(StringUtils.isBlank(username)
                         ? SyncopeEnduserSession.get().getSelfTO().getUsername()
                         : username).
@@ -55,18 +55,18 @@ public class UserRequestRestClient extends BaseRestClient {
     }
 
     public static void cancelRequest(final String executionId, final String reason) {
-        getService(UserRequestService.class).cancel(executionId, reason);
+        getService(UserRequestService.class).cancelRequest(executionId, reason);
     }
 
     public static int countForms() {
         return getService(UserRequestService.class).
-                getForms(new UserRequestFormQuery.Builder().page(1).size(0).build()).
+                listForms(new UserRequestQuery.Builder().page(1).size(0).build()).
                 getTotalCount();
     }
 
     public static List<UserRequestForm> getForms(final int page, final int size, final SortParam<String> sort) {
         return getService(UserRequestService.class).
-                getForms(new UserRequestFormQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
+                listForms(new UserRequestQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
                 getResult();
     }
 
@@ -82,7 +82,7 @@ public class UserRequestRestClient extends BaseRestClient {
     }
 
     public static void start(final String bpmnProcess, final String user) {
-        getService(UserRequestService.class).start(bpmnProcess, user, null);
+        getService(UserRequestService.class).startRequest(bpmnProcess, user, null);
     }
 
     public static UserRequestForm claimForm(final String taskKey) {
