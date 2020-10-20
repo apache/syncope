@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
+import org.apache.openjpa.jdbc.kernel.exps.Lit;
+import org.apache.syncope.common.lib.XmlSecAlgorithms;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
@@ -53,12 +55,10 @@ public class SAML2SPTest extends AbstractClientAppTest {
         sp.setRequiredNameIdFormat(SAML2SPNameId.EMAIL_ADDRESS);
         sp.setEncryptionOptional(true);
         sp.setEncryptAssertions(true);
-        sp.setEncryptionDataAlgorithms(List.of("http://www.w3.org/2001/04/xmlenc#aes128-cbc"));
-        sp.setEncryptionKeyAlgorithms(List.of("http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p"));
-        sp.setSigningSignatureReferenceDigestMethods(List.of("http://www.w3.org/2000/09/xmldsig#sha1"));
-        sp.setSigningSignatureAlgorithms(List.of(
-            "http://www.w3.org/2000/09/xmldsig#rsa-sha1",
-            "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1"));
+        sp.setEncryptionDataAlgorithms(List.of(XmlSecAlgorithms.AES_128_GCM));
+        sp.setEncryptionKeyAlgorithms(List.of(XmlSecAlgorithms.RSA_OAEP_11));
+        sp.setSigningSignatureReferenceDigestMethods(List.of(XmlSecAlgorithms.SHA1));
+        sp.setSigningSignatureAlgorithms(List.of(XmlSecAlgorithms.SHA256, XmlSecAlgorithms.SHA512));
 
         AccessPolicy accessPolicy = buildAndSaveAccessPolicy();
         sp.setAccessPolicy(accessPolicy);

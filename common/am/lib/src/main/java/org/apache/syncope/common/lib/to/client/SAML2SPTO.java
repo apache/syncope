@@ -23,6 +23,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.XmlSecAlgorithms;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 
 import java.util.ArrayList;
@@ -59,17 +60,17 @@ public class SAML2SPTO extends ClientAppTO {
 
     private String serviceProviderNameIdQualifier;
 
-    private List<String> signingSignatureAlgorithms = new ArrayList<>();
+    private List<XmlSecAlgorithms> signingSignatureAlgorithms = new ArrayList<>();
 
-    private List<String> signingSignatureReferenceDigestMethods = new ArrayList<>();
+    private List<XmlSecAlgorithms> signingSignatureReferenceDigestMethods = new ArrayList<>();
 
-    private List<String> encryptionDataAlgorithms = new ArrayList<>();
+    private List<XmlSecAlgorithms> encryptionDataAlgorithms = new ArrayList<>();
 
-    private List<String> encryptionKeyAlgorithms = new ArrayList<>();
+    private List<XmlSecAlgorithms> encryptionKeyAlgorithms = new ArrayList<>();
     
-    private List<String> signingSignatureBlackListedAlgorithms = new ArrayList<>();
+    private List<XmlSecAlgorithms> signingSignatureBlackListedAlgorithms = new ArrayList<>();
 
-    private List<String> encryptionBlackListedAlgorithms = new ArrayList<>();
+    private List<XmlSecAlgorithms> encryptionBlackListedAlgorithms = new ArrayList<>();
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
@@ -183,52 +184,52 @@ public class SAML2SPTO extends ClientAppTO {
         this.serviceProviderNameIdQualifier = serviceProviderNameIdQualifier;
     }
 
-    public List<String> getSigningSignatureAlgorithms() {
+    public List<XmlSecAlgorithms> getSigningSignatureAlgorithms() {
         return signingSignatureAlgorithms;
     }
 
-    public List<String> getSigningSignatureReferenceDigestMethods() {
+    public List<XmlSecAlgorithms> getSigningSignatureReferenceDigestMethods() {
         return signingSignatureReferenceDigestMethods;
     }
 
-    public List<String> getEncryptionDataAlgorithms() {
+    public List<XmlSecAlgorithms> getEncryptionDataAlgorithms() {
         return encryptionDataAlgorithms;
     }
 
-    public List<String> getEncryptionKeyAlgorithms() {
+    public List<XmlSecAlgorithms> getEncryptionKeyAlgorithms() {
         return encryptionKeyAlgorithms;
     }
 
-    public void setSigningSignatureAlgorithms(final List<String> signingSignatureAlgorithms) {
+    public void setSigningSignatureAlgorithms(final List<XmlSecAlgorithms> signingSignatureAlgorithms) {
         this.signingSignatureAlgorithms = signingSignatureAlgorithms;
     }
 
-    public void setSigningSignatureReferenceDigestMethods(final List<String> signingSignatureReferenceDigestMethods) {
-        this.signingSignatureReferenceDigestMethods = signingSignatureReferenceDigestMethods;
+    public void setSigningSignatureReferenceDigestMethods(final List<XmlSecAlgorithms> algs) {
+        this.signingSignatureReferenceDigestMethods = algs;
     }
 
-    public void setEncryptionDataAlgorithms(final List<String> encryptionDataAlgorithms) {
+    public void setEncryptionDataAlgorithms(final List<XmlSecAlgorithms> encryptionDataAlgorithms) {
         this.encryptionDataAlgorithms = encryptionDataAlgorithms;
     }
 
-    public void setEncryptionKeyAlgorithms(final List<String> encryptionKeyAlgorithms) {
+    public void setEncryptionKeyAlgorithms(final List<XmlSecAlgorithms> encryptionKeyAlgorithms) {
         this.encryptionKeyAlgorithms = encryptionKeyAlgorithms;
     }
 
-    public List<String> getSigningSignatureBlackListedAlgorithms() {
+    public List<XmlSecAlgorithms> getSigningSignatureBlackListedAlgorithms() {
         return signingSignatureBlackListedAlgorithms;
     }
 
-    public void setSigningSignatureBlackListedAlgorithms(final List<String> signingSignatureBlackListedAlgorithms) {
-        this.signingSignatureBlackListedAlgorithms = signingSignatureBlackListedAlgorithms;
+    public void setSigningSignatureBlackListedAlgorithms(final List<XmlSecAlgorithms> algs) {
+        this.signingSignatureBlackListedAlgorithms = algs;
     }
 
-    public List<String> getEncryptionBlackListedAlgorithms() {
+    public List<XmlSecAlgorithms> getEncryptionBlackListedAlgorithms() {
         return encryptionBlackListedAlgorithms;
     }
 
-    public void setEncryptionBlackListedAlgorithms(final List<String> encryptionBlackListedAlgorithms) {
-        this.encryptionBlackListedAlgorithms = encryptionBlackListedAlgorithms;
+    public void setEncryptionBlackListedAlgorithms(final List<XmlSecAlgorithms> algs) {
+        this.encryptionBlackListedAlgorithms = algs;
     }
 
     @Override

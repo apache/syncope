@@ -27,6 +27,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
+import org.apache.syncope.common.lib.XmlSecAlgorithms;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,42 +75,42 @@ public class JPASAML2SP extends AbstractClientApp implements SAML2SP {
     @CollectionTable(name = "SAML2SP_SigningSignatureAlgs",
         joinColumns =
         @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<String> signingSignatureAlgorithms = new ArrayList<>();
+    private List<XmlSecAlgorithms> signingSignatureAlgorithms = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column
     @CollectionTable(name = "SAML2SP_SigningSignatureRefDigestAlgs",
         joinColumns =
         @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<String> signingSignatureReferenceDigestMethods = new ArrayList<>();
+    private List<XmlSecAlgorithms> signingSignatureReferenceDigestMethods = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column
     @CollectionTable(name = "SAML2SP_EncryptionDataAlgs",
         joinColumns =
         @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<String> encryptionDataAlgorithms = new ArrayList<>();
+    private List<XmlSecAlgorithms> encryptionDataAlgorithms = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column
     @CollectionTable(name = "SAML2SP_EncryptionKeyAlgs",
         joinColumns =
         @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<String> encryptionKeyAlgorithms = new ArrayList<>();
+    private List<XmlSecAlgorithms> encryptionKeyAlgorithms = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column
     @CollectionTable(name = "SAML2SP_BlacklistedSigningAlgs",
         joinColumns =
         @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<String> signingSignatureBlackListedAlgorithms = new ArrayList<>();
+    private List<XmlSecAlgorithms> signingSignatureBlackListedAlgorithms = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column
     @CollectionTable(name = "SAML2SP_BlacklistedEncryptionAlgs",
         joinColumns =
         @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<String> encryptionBlackListedAlgorithms = new ArrayList<>();
+    private List<XmlSecAlgorithms> encryptionBlackListedAlgorithms = new ArrayList<>();
 
     @Override
     public String getEntityId() {
@@ -242,62 +243,62 @@ public class JPASAML2SP extends AbstractClientApp implements SAML2SP {
     }
 
     @Override
-    public List<String> getSigningSignatureAlgorithms() {
+    public List<XmlSecAlgorithms> getSigningSignatureAlgorithms() {
         return signingSignatureAlgorithms;
     }
 
     @Override
-    public void setSigningSignatureAlgorithms(final List<String> signingSignatureAlgorithms) {
+    public void setSigningSignatureAlgorithms(final List<XmlSecAlgorithms> signingSignatureAlgorithms) {
         this.signingSignatureAlgorithms = signingSignatureAlgorithms;
     }
 
     @Override
-    public List<String> getSigningSignatureReferenceDigestMethods() {
+    public List<XmlSecAlgorithms> getSigningSignatureReferenceDigestMethods() {
         return signingSignatureReferenceDigestMethods;
     }
 
     @Override
-    public void setSigningSignatureReferenceDigestMethods(final List<String> signingSignatureReferenceDigestMethods) {
-        this.signingSignatureReferenceDigestMethods = signingSignatureReferenceDigestMethods;
+    public void setSigningSignatureReferenceDigestMethods(final List<XmlSecAlgorithms> algorithms) {
+        this.signingSignatureReferenceDigestMethods = algorithms;
     }
 
     @Override
-    public List<String> getEncryptionDataAlgorithms() {
+    public List<XmlSecAlgorithms> getEncryptionDataAlgorithms() {
         return encryptionDataAlgorithms;
     }
 
     @Override
-    public void setEncryptionDataAlgorithms(final List<String> encryptionDataAlgorithms) {
-        this.encryptionDataAlgorithms = encryptionDataAlgorithms;
+    public void setEncryptionDataAlgorithms(final List<XmlSecAlgorithms> algorithms) {
+        this.encryptionDataAlgorithms = algorithms;
     }
 
     @Override
-    public List<String> getEncryptionKeyAlgorithms() {
+    public List<XmlSecAlgorithms> getEncryptionKeyAlgorithms() {
         return encryptionKeyAlgorithms;
     }
 
     @Override
-    public void setEncryptionKeyAlgorithms(final List<String> encryptionKeyAlgorithms) {
-        this.encryptionKeyAlgorithms = encryptionKeyAlgorithms;
+    public void setEncryptionKeyAlgorithms(final List<XmlSecAlgorithms> algorithms) {
+        this.encryptionKeyAlgorithms = algorithms;
     }
 
     @Override
-    public List<String> getSigningSignatureBlackListedAlgorithms() {
+    public List<XmlSecAlgorithms> getSigningSignatureBlackListedAlgorithms() {
         return signingSignatureBlackListedAlgorithms;
     }
 
     @Override
-    public void setSigningSignatureBlackListedAlgorithms(final List<String> signingSignatureBlackListedAlgorithms) {
-        this.signingSignatureBlackListedAlgorithms = signingSignatureBlackListedAlgorithms;
+    public void setSigningSignatureBlackListedAlgorithms(final List<XmlSecAlgorithms> algorithms) {
+        this.signingSignatureBlackListedAlgorithms = algorithms;
     }
 
     @Override
-    public List<String> getEncryptionBlackListedAlgorithms() {
+    public List<XmlSecAlgorithms> getEncryptionBlackListedAlgorithms() {
         return encryptionBlackListedAlgorithms;
     }
 
     @Override
-    public void setEncryptionBlackListedAlgorithms(final List<String> encryptionBlackListedAlgorithms) {
-        this.encryptionBlackListedAlgorithms = encryptionBlackListedAlgorithms;
+    public void setEncryptionBlackListedAlgorithms(final List<XmlSecAlgorithms> algorithms) {
+        this.encryptionBlackListedAlgorithms = algorithms;
     }
 }

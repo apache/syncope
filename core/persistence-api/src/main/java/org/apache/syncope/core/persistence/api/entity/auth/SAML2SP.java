@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity.auth;
 
+import org.apache.syncope.common.lib.XmlSecAlgorithms;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 
 import java.util.List;
@@ -76,27 +77,27 @@ public interface SAML2SP extends ClientApp {
 
     String getServiceProviderNameIdQualifier();
 
-    List<String> getSigningSignatureAlgorithms();
+    List<XmlSecAlgorithms> getSigningSignatureAlgorithms();
 
-    List<String> getSigningSignatureReferenceDigestMethods();
+    List<XmlSecAlgorithms> getSigningSignatureReferenceDigestMethods();
 
-    List<String> getEncryptionDataAlgorithms();
+    List<XmlSecAlgorithms> getEncryptionDataAlgorithms();
 
-    List<String> getEncryptionKeyAlgorithms();
+    List<XmlSecAlgorithms> getEncryptionKeyAlgorithms();
 
-    void setSigningSignatureAlgorithms(List<String> algorithms);
+    void setSigningSignatureAlgorithms(List<XmlSecAlgorithms> algorithms);
 
-    void setSigningSignatureReferenceDigestMethods(List<String> methods);
+    void setSigningSignatureReferenceDigestMethods(List<XmlSecAlgorithms> methods);
 
-    void setEncryptionDataAlgorithms(List<String> algorithms);
+    void setEncryptionDataAlgorithms(List<XmlSecAlgorithms> algorithms);
 
-    void setEncryptionKeyAlgorithms(List<String> algorithms);
+    void setEncryptionKeyAlgorithms(List<XmlSecAlgorithms> algorithms);
 
-    List<String> getSigningSignatureBlackListedAlgorithms();
+    List<XmlSecAlgorithms> getSigningSignatureBlackListedAlgorithms();
 
-    List<String> getEncryptionBlackListedAlgorithms();
+    List<XmlSecAlgorithms> getEncryptionBlackListedAlgorithms();
 
-    void setSigningSignatureBlackListedAlgorithms(List<String> algorithms);
+    void setSigningSignatureBlackListedAlgorithms(List<XmlSecAlgorithms> algorithms);
 
-    void setEncryptionBlackListedAlgorithms(List<String> algorithms);
+    void setEncryptionBlackListedAlgorithms(List<XmlSecAlgorithms> algorithms);
 }
