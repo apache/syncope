@@ -24,7 +24,7 @@ import org.apereo.cas.util.crypto.CipherExecutor;
 import org.apereo.cas.webauthn.storage.BaseWebAuthnCredentialRepository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.yubico.webauthn.data.CredentialRegistration;
+import com.yubico.data.CredentialRegistration;
 import lombok.val;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
