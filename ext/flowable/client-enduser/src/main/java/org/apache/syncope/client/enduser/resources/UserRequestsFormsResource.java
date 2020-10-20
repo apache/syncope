@@ -32,7 +32,7 @@ import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.types.UserRequestFormPropertyType;
-import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
+import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.wicket.request.IRequestParameters;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -66,17 +66,17 @@ public class UserRequestsFormsResource extends BaseResource {
                     StringValue size = requestParameters.getParameterValue("size");
                     LOG.debug("List available Flowable User Requests Forms by user [{}]", username);
                     final PagedResult<UserRequestForm> userRequestForms = SyncopeEnduserSession.get().
-                            getService(UserRequestService.class).getForms(
-                            new UserRequestFormQuery.Builder()
+                            getService(UserRequestService.class).listForms(
+                            new UserRequestQuery.Builder()
                                     .user(username.isEmpty()
                                             ? SyncopeEnduserSession.get().getSelfTO().getUsername()
                                             : username.toString())
                                     .page(page.isEmpty()
                                             ? 1
-                                            : Integer.parseInt(page.toString()))
+                                            : page.toInt())
                                     .size(size.isEmpty()
                                             ? 10
-                                            : Integer.parseInt(size.toString())).build());
+                                            : size.toInt()).build());
 
                     // Date -> millis conversion for Date properties of the form
                     userRequestForms.getResult().stream().forEach(form
@@ -117,8 +117,8 @@ public class UserRequestsFormsResource extends BaseResource {
                             && StringUtils.isNotBlank(prop.getValue()))
                             .forEach(prop -> {
                                 try {
-                                    prop.setValue(FastDateFormat.getInstance(prop.getDatePattern()).format(Long.valueOf(
-                                            prop.getValue())));
+                                    prop.setValue(FastDateFormat.getInstance(prop.getDatePattern()).
+                                            format(Long.valueOf(prop.getValue())));
                                 } catch (NumberFormatException e) {
                                     LOG.error("Unable to format date", e);
                                 }

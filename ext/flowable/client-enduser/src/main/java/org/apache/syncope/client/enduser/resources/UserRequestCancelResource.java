@@ -66,8 +66,8 @@ public class UserRequestCancelResource extends BaseResource {
                 throw new IllegalArgumentException("Empty executionId, please provide a value");
             }
 
-            SyncopeEnduserSession.get().getService(UserRequestService.class).cancel(executionId.toString(),
-                    reason.toString());
+            SyncopeEnduserSession.get().getService(UserRequestService.class).
+                    cancelRequest(executionId.toString(), reason.toString());
 
             final String outcomeMessage = String.format(
                     "User Request with execution id [%s] successfully canceled for User [%s]", executionId.

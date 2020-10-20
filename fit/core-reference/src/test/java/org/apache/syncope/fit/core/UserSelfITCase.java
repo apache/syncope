@@ -58,7 +58,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
-import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
+import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -134,8 +134,8 @@ public class UserSelfITCase extends AbstractITCase {
         }
 
         // 2. now approve and verify that propagation has happened
-        UserRequestForm form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+        UserRequestForm form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
         userTO = userRequestService.submitForm(form);
@@ -171,8 +171,8 @@ public class UserSelfITCase extends AbstractITCase {
         }
 
         // 2. unclaim and verify that propagation has NOT happened
-        UserRequestForm form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+        UserRequestForm form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
         form = userRequestService.unclaimForm(form.getTaskId());
         assertNull(form.getAssignee());
         assertNotNull(userTO);
@@ -185,8 +185,8 @@ public class UserSelfITCase extends AbstractITCase {
         }
 
         // 3. approve and verify that propagation has happened
-        form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+        form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
         userTO = userRequestService.submitForm(form);
@@ -285,8 +285,8 @@ public class UserSelfITCase extends AbstractITCase {
         }
 
         // 3. approve self-update as admin
-        UserRequestForm form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(updated.getKey()).build()).getResult().get(0);
+        UserRequestForm form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(updated.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("approveUpdate").get().setValue(Boolean.TRUE.toString());
         updated = userRequestService.submitForm(form);
@@ -486,8 +486,8 @@ public class UserSelfITCase extends AbstractITCase {
         assertEquals("createApproval", userTO.getStatus());
 
         // 2. request if there is any pending task for user just created
-        UserRequestForm form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+        UserRequestForm form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
         assertNotNull(form);
         assertNotNull(form.getUsername());
         assertEquals(userTO.getUsername(), form.getUsername());
@@ -518,8 +518,8 @@ public class UserSelfITCase extends AbstractITCase {
         // 4. claim task from bellini, with role "User manager" and in groupForWorkflowApproval
         UserRequestService userService3 = clientFactory.create("bellini", ADMIN_PWD).
                 getService(UserRequestService.class);
-        assertEquals(1, userService3.getForms(
-                new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getTotalCount());
+        assertEquals(1, userService3.listForms(
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getTotalCount());
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
@@ -550,7 +550,7 @@ public class UserSelfITCase extends AbstractITCase {
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // read forms *before* any operation
-        PagedResult<UserRequestForm> forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        PagedResult<UserRequestForm> forms = userRequestService.listForms(new UserRequestQuery.Builder().build());
         int preForms = forms.getTotalCount();
 
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithApproval@syncope.apache.org");
@@ -583,7 +583,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(exception);
 
         // 2. request if there is any pending form for user just created
-        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        forms = userRequestService.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms + 1, forms.getTotalCount());
 
         // 3. as admin, update user: still pending approval
@@ -593,8 +593,8 @@ public class UserSelfITCase extends AbstractITCase {
         userPatch.setUsername(new StringReplacePatchItem.Builder().value(updatedUsername).build());
         updateUser(userPatch);
 
-        UserRequestForm form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+        UserRequestForm form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
         assertNotNull(form);
         assertNotNull(form.getTaskId());
         assertNotNull(form.getUserTO());
@@ -638,8 +638,8 @@ public class UserSelfITCase extends AbstractITCase {
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // read forms *before* any operation
-        PagedResult<UserRequestForm> forms = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().build());
+        PagedResult<UserRequestForm> forms = userRequestService.listForms(
+                new UserRequestQuery.Builder().build());
         int preForms = forms.getTotalCount();
 
         UserTO created = createUser(UserITCase.getUniqueSampleTO("updateApproval@syncope.apache.org")).getEntity();
@@ -656,11 +656,11 @@ public class UserSelfITCase extends AbstractITCase {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals("updateApproval", userService.read(created.getKey()).getStatus());
 
-        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        forms = userRequestService.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms + 1, forms.getTotalCount());
 
-        UserRequestForm form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(created.getKey()).build()).getResult().get(0);
+        UserRequestForm form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(created.getKey()).build()).getResult().get(0);
         assertNotNull(form);
         assertNotNull(form.getTaskId());
         assertNull(form.getAssignee());
@@ -679,8 +679,8 @@ public class UserSelfITCase extends AbstractITCase {
         assertEquals(0, updated.getMemberships().size());
 
         // the patch is not updated in the approval form
-        form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(created.getKey()).build()).getResult().get(0);
+        form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(created.getKey()).build()).getResult().get(0);
         assertEquals(patch, form.getUserPatch());
 
         // approve the user
@@ -716,7 +716,7 @@ public class UserSelfITCase extends AbstractITCase {
         assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
 
         // read forms *before* any operation
-        PagedResult<UserRequestForm> forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        PagedResult<UserRequestForm> forms = userRequestService.listForms(new UserRequestQuery.Builder().build());
         int preForms = forms.getTotalCount();
 
         UserTO userTO = UserITCase.getUniqueSampleTO("issueSYNCOPE15@syncope.apache.org");
@@ -740,11 +740,11 @@ public class UserSelfITCase extends AbstractITCase {
         assertEquals(userTO.getCreationDate(), userTO.getLastChangeDate());
 
         // 2. request if there is any pending form for user just created
-        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        forms = userRequestService.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms + 1, forms.getTotalCount());
 
-        UserRequestForm form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+        UserRequestForm form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
         assertNotNull(form);
 
         // 3. first claim by bellini ....
@@ -766,12 +766,12 @@ public class UserSelfITCase extends AbstractITCase {
         userTO = userRequestService.submitForm(form);
         assertNotNull(userTO);
         assertEquals(preForms,
-                userRequestService.getForms(new UserRequestFormQuery.Builder().build()).getTotalCount());
-        assertTrue(userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(userTO.getKey()).build()).getResult().isEmpty());
+                userRequestService.listForms(new UserRequestQuery.Builder().build()).getTotalCount());
+        assertTrue(userRequestService.listForms(
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().isEmpty());
 
         // 7.check that no more forms are still to be processed
-        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        forms = userRequestService.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms, forms.getTotalCount());
     }
 

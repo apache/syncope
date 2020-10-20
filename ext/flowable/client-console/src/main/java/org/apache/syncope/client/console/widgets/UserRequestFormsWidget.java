@@ -88,7 +88,7 @@ public class UserRequestFormsWidget extends ExtAlertWidget<UserRequestForm> {
     @Override
     protected int getLatestAlertsSize() {
         return SyncopeConsoleSession.get().owns(FlowableEntitlement.USER_REQUEST_FORM_LIST)
-                ? restClient.countForms()
+                ? restClient.countForms(null)
                 : 0;
     }
 
@@ -102,9 +102,9 @@ public class UserRequestFormsWidget extends ExtAlertWidget<UserRequestForm> {
             public List<UserRequestForm> getObject() {
                 List<UserRequestForm> updatedForms;
                 if (SyncopeConsoleSession.get().owns(FlowableEntitlement.USER_REQUEST_FORM_LIST)) {
-                    updatedForms = restClient.getForms(1, MAX_SIZE, new SortParam<>("createTime", true));
+                    updatedForms = restClient.listForms(null, 1, MAX_SIZE, new SortParam<>("createTime", true));
                 } else {
-                    updatedForms = Collections.<UserRequestForm>emptyList();
+                    updatedForms = Collections.emptyList();
                 }
 
                 return updatedForms;

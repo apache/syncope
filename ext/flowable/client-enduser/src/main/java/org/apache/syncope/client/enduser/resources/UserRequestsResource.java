@@ -66,8 +66,8 @@ public class UserRequestsResource extends BaseResource {
                     if (executionId.isEmpty()) {
                         throw new IllegalArgumentException("Empty executionId, please provide a value");
                     }
-                    SyncopeEnduserSession.get().getService(UserRequestService.class).cancel(executionId.toString(),
-                            reason.toString());
+                    SyncopeEnduserSession.get().getService(UserRequestService.class).
+                            cancelRequest(executionId.toString(), reason.toString());
                     response.setStatusCode(Response.Status.NO_CONTENT.getStatusCode());
                     response.setWriteCallback(new AbstractResource.WriteCallback() {
 
@@ -126,16 +126,14 @@ public class UserRequestsResource extends BaseResource {
     private static PagedResult<UserRequest> list(final StringValue page, final StringValue size)
             throws NumberFormatException {
         return SyncopeEnduserSession.get().getService(UserRequestService.class)
-                .list(new UserRequestQuery.Builder()
+                .listRequests(new UserRequestQuery.Builder()
                         .user(SyncopeEnduserSession.get().getSelfTO().getUsername())
                         .page(page.isEmpty()
                                 ? 1
-                                : Integer.parseInt(
-                                        page.toString()))
+                                : page.toInt())
                         .size(size.isEmpty()
                                 ? 10
-                                : Integer.parseInt(
-                                        size.toString())).build());
+                                : size.toInt()).build());
     }
 
     private PagedResult<UserRequestWrapper> fillWithForms(final PagedResult<UserRequest> reqsResult) {

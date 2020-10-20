@@ -98,6 +98,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         return this;
     }
 
+    @Override
     public FieldPanel<T> setReadOnly(final boolean readOnly) {
         field.setEnabled(!readOnly);
         return this;
@@ -148,7 +149,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
                 }
             }
         });
-        
+
         return this;
     }
 

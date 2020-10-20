@@ -40,7 +40,6 @@ import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.fit.AbstractITCase;
@@ -78,7 +77,7 @@ public class UserRequestITCase extends AbstractITCase {
         assertFalse(user.getMembership("ebf97068-aa4b-4a85-9f01-680e8c4cf227").isPresent());
 
         // start request
-        UserRequest req = userRequestService.start("directorGroupRequest", user.getKey(), null);
+        UserRequest req = userRequestService.startRequest("directorGroupRequest", user.getKey(), null);
         assertNotNull(req);
         assertEquals("directorGroupRequest", req.getBpmnProcess());
         assertNotNull(req.getExecutionId());
@@ -87,59 +86,59 @@ public class UserRequestITCase extends AbstractITCase {
         // check that user can see the ongoing request
         SyncopeClient client = clientFactory.create(user.getUsername(), "password123");
         PagedResult<UserRequest> requests = client.getService(UserRequestService.class).
-                list(new UserRequestQuery.Builder().user(user.getKey()).build());
+                listRequests(new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(1, requests.getTotalCount());
         assertEquals("directorGroupRequest", requests.getResult().get(0).getBpmnProcess());
 
         // 1st approval -> reject
-        UserRequestForm form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(user.getKey()).build()).getResult().get(0);
+        UserRequestForm form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("firstLevelApprove").get().setValue(Boolean.FALSE.toString());
         userRequestService.submitForm(form);
 
         // no more forms, group not assigned
-        assertTrue(userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
+        assertTrue(userRequestService.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
         assertFalse(userService.read(user.getKey()).getMembership("ebf97068-aa4b-4a85-9f01-680e8c4cf227").isPresent());
 
         // start request again
-        req = userRequestService.start("directorGroupRequest", user.getKey(), null);
+        req = userRequestService.startRequest("directorGroupRequest", user.getKey(), null);
         assertNotNull(req);
 
         // 1st approval -> accept
-        form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(user.getKey()).build()).getResult().get(0);
+        form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("firstLevelApprove").get().setValue(Boolean.TRUE.toString());
         userRequestService.submitForm(form);
 
         // 2nd approval -> reject
-        form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(user.getKey()).build()).getResult().get(0);
+        form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("secondLevelApprove").get().setValue(Boolean.FALSE.toString());
         user = userRequestService.submitForm(form);
 
         // no more forms, group not assigned
-        assertTrue(userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
+        assertTrue(userRequestService.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
         assertFalse(userService.read(user.getKey()).getMembership("ebf97068-aa4b-4a85-9f01-680e8c4cf227").isPresent());
 
         // start request again
-        req = userRequestService.start("directorGroupRequest", user.getKey(), null);
+        req = userRequestService.startRequest("directorGroupRequest", user.getKey(), null);
         assertNotNull(req);
 
         // 1st approval -> accept
-        form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(user.getKey()).build()).getResult().get(0);
+        form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("firstLevelApprove").get().setValue(Boolean.TRUE.toString());
         userRequestService.submitForm(form);
 
         // 2nd approval -> accept
-        form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(user.getKey()).build()).getResult().get(0);
+        form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("secondLevelApprove").get().setValue(Boolean.TRUE.toString());
         user = userRequestService.submitForm(form);
@@ -152,7 +151,7 @@ public class UserRequestITCase extends AbstractITCase {
     @Test
     public void cancel() {
         PagedResult<UserRequestForm> forms =
-                userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+                userRequestService.listForms(new UserRequestQuery.Builder().build());
         int preForms = forms.getTotalCount();
 
         UserTO user = createUser(UserITCase.getUniqueSampleTO("twoLevelsApproval@tirasa.net")).getEntity();
@@ -160,31 +159,31 @@ public class UserRequestITCase extends AbstractITCase {
         assertFalse(user.getMembership("ebf97068-aa4b-4a85-9f01-680e8c4cf227").isPresent());
 
         // start request
-        UserRequest req = userRequestService.start("directorGroupRequest", user.getKey(), null);
+        UserRequest req = userRequestService.startRequest("directorGroupRequest", user.getKey(), null);
         assertNotNull(req);
 
         // check that form was generated
-        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        forms = userRequestService.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms + 1, forms.getTotalCount());
 
-        assertEquals(1, userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(user.getKey()).build()).getResult().size());
+        assertEquals(1, userRequestService.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().size());
 
         // cancel request
-        userRequestService.cancel(req.getExecutionId(), "nothing in particular");
+        userRequestService.cancelRequest(req.getExecutionId(), "nothing in particular");
 
         // check that form was removed
-        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        forms = userRequestService.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms, forms.getTotalCount());
 
-        assertTrue(userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
+        assertTrue(userRequestService.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
     }
 
     @Test
     public void userSelection() {
         PagedResult<UserRequestForm> forms =
-                userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+                userRequestService.listForms(new UserRequestQuery.Builder().build());
         int preForms = forms.getTotalCount();
 
         UserTO user = createUser(UserITCase.getUniqueSampleTO("userSelection@tirasa.net")).getEntity();
@@ -195,16 +194,16 @@ public class UserRequestITCase extends AbstractITCase {
         SyncopeClient client = clientFactory.create(user.getUsername(), "password123");
 
         // start request as user
-        UserRequest req = client.getService(UserRequestService.class).start("assignPrinterRequest", null, null);
+        UserRequest req = client.getService(UserRequestService.class).startRequest("assignPrinterRequest", null, null);
         assertNotNull(req);
 
         // check (as admin) that a new form is available
-        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        forms = userRequestService.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms + 1, forms.getTotalCount());
 
         // get (as user) the form, claim and submit
         PagedResult<UserRequestForm> userForms = client.getService(UserRequestService.class).
-                getForms(new UserRequestFormQuery.Builder().user(user.getKey()).build());
+                listForms(new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(1, userForms.getTotalCount());
 
         UserRequestForm form = userForms.getResult().get(0);
@@ -219,19 +218,19 @@ public class UserRequestITCase extends AbstractITCase {
 
         client.getService(UserRequestService.class).submitForm(form);
 
-        userForms = client.getService(UserRequestService.class).getForms(
-                new UserRequestFormQuery.Builder().user(user.getKey()).build());
+        userForms = client.getService(UserRequestService.class).listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(0, userForms.getTotalCount());
 
         // check that user can see the ongoing request
         PagedResult<UserRequest> requests = client.getService(UserRequestService.class).
-                list(new UserRequestQuery.Builder().user(user.getKey()).build());
+                listRequests(new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(1, requests.getTotalCount());
         assertEquals("assignPrinterRequest", requests.getResult().get(0).getBpmnProcess());
 
         // get (as admin) the new form, claim and submit
-        form = userRequestService.getForms(
-                new UserRequestFormQuery.Builder().user(user.getKey()).build()).getResult().get(0);
+        form = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
         assertEquals("assignPrinterRequest", form.getBpmnProcess());
         form = userRequestService.claimForm(form.getTaskId());
 
@@ -241,11 +240,11 @@ public class UserRequestITCase extends AbstractITCase {
         userRequestService.submitForm(form);
 
         // no more forms available
-        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        forms = userRequestService.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms, forms.getTotalCount());
 
         assertTrue(client.getService(UserRequestService.class).
-                list(new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
+                listRequests(new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
 
         // check that relationship was made effective by approval
         relationships = userService.read(user.getKey()).getRelationships();
@@ -257,7 +256,7 @@ public class UserRequestITCase extends AbstractITCase {
     @Test
     public void addVariablesToUserRequestAtStart() {
         PagedResult<UserRequestForm> forms =
-                userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+                userRequestService.listForms(new UserRequestQuery.Builder().build());
         int preForms = forms.getTotalCount();
 
         UserTO user = createUser(UserITCase.getUniqueSampleTO("addVariables@tirasa.net")).getEntity();
@@ -269,16 +268,17 @@ public class UserRequestITCase extends AbstractITCase {
         testInput.getVariables().put("providedVariable", "test");
 
         // start request as user
-        UserRequest req = client.getService(UserRequestService.class).start("verifyAddedVariables", null, testInput);
+        UserRequest req = client.getService(UserRequestService.class).
+                startRequest("verifyAddedVariables", null, testInput);
         assertNotNull(req);
 
         // check that a new form is available
-        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        forms = userRequestService.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms + 1, forms.getTotalCount());
 
         // get the form and verify the property value
-        PagedResult<UserRequestForm> userForms = userRequestService.
-                getForms(new UserRequestFormQuery.Builder().user(user.getKey()).build());
+        PagedResult<UserRequestForm> userForms = userRequestService.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(1, userForms.getTotalCount());
 
         UserRequestForm form = userForms.getResult().get(0);
@@ -286,14 +286,14 @@ public class UserRequestITCase extends AbstractITCase {
         assertEquals(form.getProperty("providedVariable").get().getValue(), "test");
 
         // cancel request
-        userRequestService.cancel(req.getExecutionId(), "nothing in particular");
+        userRequestService.cancelRequest(req.getExecutionId(), "nothing in particular");
 
         // no more forms available
-        forms = userRequestService.getForms(new UserRequestFormQuery.Builder().build());
+        forms = userRequestService.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms, forms.getTotalCount());
 
         assertTrue(client.getService(UserRequestService.class).
-                list(new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
+                listRequests(new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
     }
 
     @Test

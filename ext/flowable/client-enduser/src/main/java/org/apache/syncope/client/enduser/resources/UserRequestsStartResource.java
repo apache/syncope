@@ -57,7 +57,8 @@ public class UserRequestsStartResource extends BaseResource {
             if (bpmnProcess.isEmpty()) {
                 throw new IllegalArgumentException("Empty bpmnProcess, please provide a value");
             }
-            SyncopeEnduserSession.get().getService(UserRequestService.class).start(bpmnProcess.toString(), null, null);
+            SyncopeEnduserSession.get().getService(UserRequestService.class).
+                    startRequest(bpmnProcess.toString(), null, null);
             response.setStatusCode(Response.Status.NO_CONTENT.getStatusCode());
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 

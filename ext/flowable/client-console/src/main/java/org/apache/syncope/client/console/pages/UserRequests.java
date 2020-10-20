@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.UserRequestFormDirectoryPanel;
 import org.apache.syncope.client.console.panels.UserRequestDirectoryPanel;
+import org.apache.syncope.client.console.panels.UserRequestsPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -48,7 +49,7 @@ public class UserRequests extends BasePage {
     }
 
     private List<ITab> buildTabList() {
-        final List<ITab> tabs = new ArrayList<>();
+        List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new AbstractTab(new ResourceModel("userRequestForms")) {
 
@@ -56,7 +57,7 @@ public class UserRequests extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new UserRequestFormDirectoryPanel(panelId, getPageReference());
+                return new UserRequestsPanel(panelId, new UserRequestFormDirectoryPanel("inner", getPageReference()));
             }
         });
 
@@ -66,9 +67,10 @@ public class UserRequests extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new UserRequestDirectoryPanel(panelId, getPageReference());
+                return new UserRequestsPanel(panelId, new UserRequestDirectoryPanel("inner", getPageReference()));
             }
         });
+
         return tabs;
     }
 }

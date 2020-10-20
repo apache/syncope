@@ -40,7 +40,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 
 /**
@@ -61,7 +60,7 @@ public interface UserRequestService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    PagedResult<UserRequest> list(@BeanParam UserRequestQuery query);
+    PagedResult<UserRequest> listRequests(@BeanParam UserRequestQuery query);
 
     /**
      * Starts a new request for the given BPMN Process and user (if provided) or requesting user (if not provided).
@@ -74,7 +73,7 @@ public interface UserRequestService extends JAXRSService {
     @POST
     @Path("start/{bpmnProcess}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    UserRequest start(
+    UserRequest startRequest(
             @NotNull @PathParam("bpmnProcess") String bpmnProcess,
             @QueryParam(JAXRSService.PARAM_USER) String user,
             WorkflowTaskExecInput inputVariables);
@@ -90,7 +89,7 @@ public interface UserRequestService extends JAXRSService {
     @DELETE
     @Path("{executionId}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void cancel(
+    void cancelRequest(
             @NotNull @PathParam("executionId") String executionId,
             @QueryParam("reason") String reason);
 
@@ -117,7 +116,7 @@ public interface UserRequestService extends JAXRSService {
     @GET
     @Path("forms")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    PagedResult<UserRequestForm> getForms(@BeanParam UserRequestFormQuery query);
+    PagedResult<UserRequestForm> listForms(@BeanParam UserRequestQuery query);
 
     /**
      * Requests to manage the form for the given task id.

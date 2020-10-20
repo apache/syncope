@@ -18,12 +18,13 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
-import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
@@ -32,37 +33,59 @@ public class UserRequestRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4785231164900813921L;
 
-    public int countUserRequests() {
-        return getService(UserRequestService.class).
-                list(new UserRequestQuery.Builder().page(1).size(0).build()).
-                getTotalCount();
+    public int countRequests(final String keyword) {
+        try {
+            return getService(UserRequestService.class).
+                    listRequests(new UserRequestQuery.Builder().user(keyword).page(1).size(0).build()).
+                    getTotalCount();
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
-    public List<UserRequest> getUserRequests(final int page, final int size, final SortParam<String> sort) {
-        return getService(UserRequestService.class).
-                list(new UserRequestQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
-                getResult();
+    public List<UserRequest> listRequests(
+            final String keyword, final int page, final int size, final SortParam<String> sort) {
+
+        try {
+            return getService(UserRequestService.class).listRequests(
+                    new UserRequestQuery.Builder().user(keyword).page(page).size(size).
+                            orderBy(toOrderBy(sort)).build()).
+                    getResult();
+        } catch (SyncopeClientException e) {
+            return Collections.emptyList();
+        }
     }
 
     public void cancelRequest(final String executionId, final String reason) {
-        getService(UserRequestService.class).cancel(executionId, reason);
+        getService(UserRequestService.class).cancelRequest(executionId, reason);
     }
 
-    public int countForms() {
-        return getService(UserRequestService.class).
-                getForms(new UserRequestFormQuery.Builder().page(1).size(0).build()).
-                getTotalCount();
+    public int countForms(final String keyword) {
+        try {
+            return getService(UserRequestService.class).
+                    listForms(new UserRequestQuery.Builder().user(keyword).page(1).size(0).build()).
+                    getTotalCount();
+        } catch (SyncopeClientException e) {
+            return 0;
+        }
     }
 
-    public List<UserRequestForm> getForms(final int page, final int size, final SortParam<String> sort) {
-        return getService(UserRequestService.class).
-                getForms(new UserRequestFormQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
-                getResult();
+    public List<UserRequestForm> listForms(
+            final String keyword, final int page, final int size, final SortParam<String> sort) {
+
+        try {
+            return getService(UserRequestService.class).listForms(
+                    new UserRequestQuery.Builder().user(keyword).page(page).size(size).
+                            orderBy(toOrderBy(sort)).build()).
+                    getResult();
+        } catch (SyncopeClientException e) {
+            return Collections.emptyList();
+        }
     }
 
     public Optional<UserRequestForm> getForm(final String userKey) {
         PagedResult<UserRequestForm> forms = getService(UserRequestService.class).
-                getForms(new UserRequestFormQuery.Builder().user(userKey).page(1).size(1).build());
+                listForms(new UserRequestQuery.Builder().user(userKey).page(1).size(1).build());
         UserRequestForm form = forms.getResult().isEmpty()
                 ? null
                 : forms.getResult().get(0);

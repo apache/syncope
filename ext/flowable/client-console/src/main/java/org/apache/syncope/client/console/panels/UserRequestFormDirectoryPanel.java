@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.client.console.panels.TogglePanel.HEADER_FIRST_ABBREVIATION;
-
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,6 +33,7 @@ import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.rest.UserRequestRestClient;
 import org.apache.syncope.client.console.panels.UserRequestFormDirectoryPanel.UserRequestFormProvider;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.UserRequestsPanel.UserRequestSearchEvent;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -53,6 +52,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -71,7 +71,7 @@ public class UserRequestFormDirectoryPanel
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
-    protected final BaseModal<UserRequestForm> manageFormModal = new BaseModal<UserRequestForm>("outer") {
+    private final BaseModal<UserRequestForm> manageFormModal = new BaseModal<UserRequestForm>("outer") {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -81,11 +81,12 @@ public class UserRequestFormDirectoryPanel
             addSubmitButton();
             size(Modal.Size.Large);
         }
-
     };
 
-    public UserRequestFormDirectoryPanel(final String id, final PageReference pageReference) {
-        super(id, pageReference, true);
+    private String keyword;
+
+    public UserRequestFormDirectoryPanel(final String id, final PageReference pageRef) {
+        super(id, pageRef, true);
         disableCheckBoxes();
         setFooterVisibility(false);
         modal.size(Modal.Size.Large);
@@ -164,10 +165,14 @@ public class UserRequestFormDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final UserRequestForm ignore) {
-                claimForm(model.getObject().getTaskId());
-                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                try {
+                    restClient.claimForm(model.getObject().getTaskId());
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (Exception e) {
+                    SyncopeConsoleSession.get().onException(e);
+                }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                target.add(container);
             }
 
         }, ActionLink.ActionType.CLAIM, FlowableEntitlement.USER_REQUEST_FORM_CLAIM);
@@ -178,10 +183,14 @@ public class UserRequestFormDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final UserRequestForm ignore) {
-                unclaimForm(model.getObject().getTaskId());
-                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                UserRequestFormDirectoryPanel.this.getTogglePanel().close(target);
-                target.add(container);
+                try {
+                    restClient.unclaimForm(model.getObject().getTaskId());
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                    UserRequestFormDirectoryPanel.this.getTogglePanel().close(target);
+                    target.add(container);
+                } catch (Exception e) {
+                    SyncopeConsoleSession.get().onException(e);
+                }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
 
@@ -292,11 +301,26 @@ public class UserRequestFormDirectoryPanel
         return PREF_USER_REQUEST_FORM_PAGINATOR_ROWS;
     }
 
-    protected static class UserRequestFormProvider extends DirectoryDataProvider<UserRequestForm> {
+    @Override
+    protected Collection<ActionLink.ActionType> getBatches() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof UserRequestSearchEvent) {
+            UserRequestSearchEvent payload = UserRequestSearchEvent.class.cast(event.getPayload());
+            keyword = payload.getKeyword();
+
+            updateResultTable(payload.getTarget());
+        } else {
+            super.onEvent(event);
+        }
+    }
+
+    protected final class UserRequestFormProvider extends DirectoryDataProvider<UserRequestForm> {
 
         private static final long serialVersionUID = -2311716167583335852L;
-
-        private final UserRequestRestClient restClient = new UserRequestRestClient();
 
         public UserRequestFormProvider(final int paginatorRows) {
             super(paginatorRows);
@@ -307,47 +331,17 @@ public class UserRequestFormDirectoryPanel
         @Override
         public Iterator<UserRequestForm> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.getForms((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
+            return restClient.listForms(keyword, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.countForms();
+            return restClient.countForms(keyword);
         }
 
         @Override
         public IModel<UserRequestForm> model(final UserRequestForm form) {
-            return new IModel<UserRequestForm>() {
-
-                private static final long serialVersionUID = -2566070996511906708L;
-
-                @Override
-                public UserRequestForm getObject() {
-                    return form;
-                }
-            };
+            return Model.of(form);
         }
     }
-
-    @Override
-    protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>emptyList();
-    }
-
-    private void claimForm(final String taskId) {
-        try {
-            restClient.claimForm(taskId);
-        } catch (SyncopeClientException e) {
-            SyncopeConsoleSession.get().onException(e);
-        }
-    }
-
-    private void unclaimForm(final String taskId) {
-        try {
-            restClient.unclaimForm(taskId);
-        } catch (SyncopeClientException e) {
-            SyncopeConsoleSession.get().onException(e);
-        }
-    }
-
 }
