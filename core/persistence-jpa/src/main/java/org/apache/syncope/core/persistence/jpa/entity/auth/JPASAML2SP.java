@@ -296,6 +296,7 @@ public class JPASAML2SP extends AbstractClientApp implements SAML2SP {
         return encryptionBlackListedAlgorithms;
     }
 
+    @Override
     public void setEncryptionBlackListedAlgorithms(final List<String> encryptionBlackListedAlgorithms) {
         this.encryptionBlackListedAlgorithms = encryptionBlackListedAlgorithms;
     }
