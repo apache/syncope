@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import static org.apache.syncope.client.console.rest.BaseRestClient.LOG;
-import static org.apache.syncope.client.console.rest.BaseRestClient.getStatus;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
