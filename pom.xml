@@ -428,7 +428,7 @@ under the License.
 
     <flowable.version>6.6.0</flowable.version>
 
-    <camel.version>3.5.0</camel.version>
+    <camel.version>3.6.0</camel.version>
 
     <slf4j.version>2.0.0-alpha1</slf4j.version>
 
@@ -455,7 +455,7 @@ under the License.
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.7.0</junit.version>
-    <mockito.version>3.5.13</mockito.version>
+    <mockito.version>3.5.15</mockito.version>
 
     <swagger-core.version>2.1.5</swagger-core.version>
     <swagger-ui.version>3.35.2</swagger-ui.version>
@@ -1975,7 +1975,7 @@ under the License.
       <dependency>
         <groupId>com.nimbusds</groupId>
         <artifactId>nimbus-jose-jwt</artifactId>
-        <version>8.20</version>
+        <version>8.20.1</version>
       </dependency>
 
       <dependency>

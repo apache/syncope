@@ -51,7 +51,7 @@ public class UserRequestRestClient extends BaseRestClient {
                 user(StringUtils.isBlank(username)
                         ? SyncopeEnduserSession.get().getSelfTO().getUsername()
                         : username).
-                page(page).size(size).build()).getResult();
+                page(page).size(size).orderBy(toOrderBy(sort)).build()).getResult();
     }
 
     public static void cancelRequest(final String executionId, final String reason) {
