@@ -19,13 +19,13 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
-import org.apache.syncope.common.rest.api.beans.UserRequestFormQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.core.logic.UserRequestLogic;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
@@ -43,26 +43,28 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
     private UserDAO userDAO;
 
     @Override
-    public PagedResult<UserRequest> list(final UserRequestQuery query) {
+    public PagedResult<UserRequest> listRequests(final UserRequestQuery query) {
         if (query.getUser() != null) {
-            query.setUser(getActualKey(userDAO, query.getUser()));
+            query.setUser(Optional.ofNullable(getActualKey(userDAO, query.getUser())).orElse(query.getUser()));
         }
 
-        Pair<Integer, List<UserRequest>> result = logic.list(
+        Pair<Integer, List<UserRequest>> result = logic.listRequests(
                 query.getUser(), query.getPage(), query.getSize(), getOrderByClauses(query.getOrderBy()));
         return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
     }
 
     @Override
-    public UserRequest start(final String bpmnProcess, final String user, final WorkflowTaskExecInput inputVariables) {
+    public UserRequest startRequest(
+            final String bpmnProcess, final String user, final WorkflowTaskExecInput inputVariables) {
+
         return user == null
-                ? logic.start(bpmnProcess, inputVariables)
-                : logic.start(bpmnProcess, getActualKey(userDAO, user), inputVariables);
+                ? logic.startRequest(bpmnProcess, inputVariables)
+                : logic.startRequest(bpmnProcess, getActualKey(userDAO, user), inputVariables);
     }
 
     @Override
-    public void cancel(final String executionId, final String reason) {
-        logic.cancel(executionId, reason);
+    public void cancelRequest(final String executionId, final String reason) {
+        logic.cancelRequest(executionId, reason);
     }
 
     @Override
@@ -81,12 +83,12 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
     }
 
     @Override
-    public PagedResult<UserRequestForm> getForms(final UserRequestFormQuery query) {
+    public PagedResult<UserRequestForm> listForms(final UserRequestQuery query) {
         if (query.getUser() != null) {
-            query.setUser(getActualKey(userDAO, query.getUser()));
+            query.setUser(Optional.ofNullable(getActualKey(userDAO, query.getUser())).orElse(query.getUser()));
         }
 
-        Pair<Integer, List<UserRequestForm>> result = logic.getForms(
+        Pair<Integer, List<UserRequestForm>> result = logic.listForms(
                 query.getUser(), query.getPage(), query.getSize(), getOrderByClauses(query.getOrderBy()));
         return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
     }

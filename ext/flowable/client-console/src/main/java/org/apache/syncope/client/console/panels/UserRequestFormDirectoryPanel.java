@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.rest.UserRequestRestClient;
 import org.apache.syncope.client.console.panels.UserRequestFormDirectoryPanel.UserRequestFormProvider;
 import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.UserRequestsPanel.UserRequestSearchEvent;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -51,6 +52,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -66,7 +68,7 @@ public class UserRequestFormDirectoryPanel
 
     private static final String PREF_USER_REQUEST_FORM_PAGINATOR_ROWS = "userrequestform.paginator.rows";
 
-    protected final BaseModal<UserRequestForm> manageFormModal = new BaseModal<UserRequestForm>("outer") {
+    private final BaseModal<UserRequestForm> manageFormModal = new BaseModal<UserRequestForm>("outer") {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -76,11 +78,12 @@ public class UserRequestFormDirectoryPanel
             addSubmitButton();
             size(Modal.Size.Large);
         }
-
     };
 
-    public UserRequestFormDirectoryPanel(final String id, final PageReference pageReference) {
-        super(id, pageReference, true);
+    private String keyword;
+
+    public UserRequestFormDirectoryPanel(final String id, final PageReference pageRef) {
+        super(id, pageRef, true);
         disableCheckBoxes();
         setFooterVisibility(false);
         modal.size(Modal.Size.Large);
@@ -159,10 +162,14 @@ public class UserRequestFormDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final UserRequestForm ignore) {
-                claimForm(model.getObject().getTaskId());
-                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                try {
+                    UserRequestRestClient.claimForm(model.getObject().getTaskId());
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (Exception e) {
+                    SyncopeConsoleSession.get().onException(e);
+                }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                target.add(container);
             }
 
         }, ActionLink.ActionType.CLAIM, FlowableEntitlement.USER_REQUEST_FORM_CLAIM);
@@ -173,10 +180,14 @@ public class UserRequestFormDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final UserRequestForm ignore) {
-                unclaimForm(model.getObject().getTaskId());
-                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                UserRequestFormDirectoryPanel.this.getTogglePanel().close(target);
-                target.add(container);
+                try {
+                    UserRequestRestClient.unclaimForm(model.getObject().getTaskId());
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                    UserRequestFormDirectoryPanel.this.getTogglePanel().close(target);
+                    target.add(container);
+                } catch (Exception e) {
+                    SyncopeConsoleSession.get().onException(e);
+                }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
 
@@ -287,7 +298,24 @@ public class UserRequestFormDirectoryPanel
         return PREF_USER_REQUEST_FORM_PAGINATOR_ROWS;
     }
 
-    protected static class UserRequestFormProvider extends DirectoryDataProvider<UserRequestForm> {
+    @Override
+    protected Collection<ActionLink.ActionType> getBatches() {
+        return List.of();
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof UserRequestSearchEvent) {
+            UserRequestSearchEvent payload = UserRequestSearchEvent.class.cast(event.getPayload());
+            keyword = payload.getKeyword();
+
+            updateResultTable(payload.getTarget());
+        } else {
+            super.onEvent(event);
+        }
+    }
+
+    protected final class UserRequestFormProvider extends DirectoryDataProvider<UserRequestForm> {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
@@ -300,46 +328,18 @@ public class UserRequestFormDirectoryPanel
         @Override
         public Iterator<UserRequestForm> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return UserRequestRestClient.getForms((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
+            return UserRequestRestClient.listForms(
+                    keyword, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return UserRequestRestClient.countForms();
+            return UserRequestRestClient.countForms(keyword);
         }
 
         @Override
         public IModel<UserRequestForm> model(final UserRequestForm form) {
-            return new IModel<UserRequestForm>() {
-
-                private static final long serialVersionUID = -2566070996511906708L;
-
-                @Override
-                public UserRequestForm getObject() {
-                    return form;
-                }
-            };
-        }
-    }
-
-    @Override
-    protected Collection<ActionLink.ActionType> getBatches() {
-        return List.of();
-    }
-
-    private void claimForm(final String taskId) {
-        try {
-            UserRequestRestClient.claimForm(taskId);
-        } catch (SyncopeClientException scee) {
-            SyncopeConsoleSession.get().onException(scee);
-        }
-    }
-
-    private void unclaimForm(final String taskId) {
-        try {
-            UserRequestRestClient.unclaimForm(taskId);
-        } catch (SyncopeClientException scee) {
-            SyncopeConsoleSession.get().onException(scee);
+            return Model.of(form);
         }
     }
 }
