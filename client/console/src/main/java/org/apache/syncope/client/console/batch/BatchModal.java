@@ -21,11 +21,13 @@ package org.apache.syncope.client.console.batch;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.RestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 
 public class BatchModal<T extends Serializable, S> extends AbstractModalPanel<T> {
@@ -43,6 +45,20 @@ public class BatchModal<T extends Serializable, S> extends AbstractModalPanel<T>
 
         super(modal, pageRef);
         add(new BatchContent<>("content", modal, items, columns, actions, batchExecutor, keyFieldName).
+                setRenderBodyOnly(true));
+    }
+
+    public BatchModal(
+            final BaseModal<T> modal,
+            final PageReference pageRef,
+            final List<T> items,
+            final List<IColumn<T, S>> columns,
+            final Map<String, String> results,
+            final String keyFieldName,
+            final AjaxRequestTarget target) {
+
+        super(modal, pageRef);
+        add(new BatchContent<>("content", modal, items, columns, results, keyFieldName, target, pageRef).
                 setRenderBodyOnly(true));
     }
 }
