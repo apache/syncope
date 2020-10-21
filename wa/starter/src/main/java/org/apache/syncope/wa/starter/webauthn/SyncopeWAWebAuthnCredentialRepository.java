@@ -25,7 +25,7 @@ import org.apereo.cas.webauthn.storage.BaseWebAuthnCredentialRepository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.yubico.data.CredentialRegistration;
-import lombok.val;
+
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.WebAuthnDeviceCredential;
@@ -55,7 +55,7 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
     @Override
     public boolean removeRegistrationByUsername(final String username,
                                                 final CredentialRegistration credentialRegistration) {
-        val id = credentialRegistration.getCredential().getCredentialId().getHex();
+        String id = credentialRegistration.getCredential().getCredentialId().getHex();
         getService().delete(username, id);
         return true;
     }
