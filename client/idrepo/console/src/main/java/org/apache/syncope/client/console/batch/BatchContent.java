@@ -64,6 +64,7 @@ import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.common.rest.api.service.UserService;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -79,7 +80,13 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
 
     private static final long serialVersionUID = 4114026480146090963L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(BatchContent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BatchContent.class);
+
+    private WebMarkupContainer container;
+
+    private ActionsPanel<Serializable> actionPanel;
+
+    private SortableDataProvider<T, S> dataProvider;
 
     public BatchContent(
             final BaseModal<?> modal,
@@ -103,38 +110,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
 
         super(id);
 
-        WebMarkupContainer container = new WebMarkupContainer("container");
-        container.setOutputMarkupId(true);
-        add(container);
-
-        SortableDataProvider<T, S> dataProvider = new SortableDataProvider<T, S>() {
-
-            private static final long serialVersionUID = 5291903859908641954L;
-
-            @Override
-            public Iterator<? extends T> iterator(final long first, final long count) {
-                return items.iterator();
-            }
-
-            @Override
-            public long size() {
-                return items.size();
-            }
-
-            @Override
-            public IModel<T> model(final T object) {
-                return new CompoundPropertyModel<>(object);
-            }
-        };
-
-        container.add(new AjaxFallbackDefaultDataTable<>(
-                "selectedObjects",
-                columns,
-                dataProvider,
-                Integer.MAX_VALUE).setMarkupId("selectedObjects").setVisible(!CollectionUtils.isEmpty(items)));
-
-        ActionsPanel<Serializable> actionPanel = new ActionsPanel<>("actions", null);
-        container.add(actionPanel);
+        setup(items, columns);
 
         for (ActionLink.ActionType action : actions) {
             actionPanel.add(new ActionLink<Serializable>() {
@@ -388,5 +364,68 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                 }
             }, action, null).hideLabel();
         }
+    }
+
+    public BatchContent(
+            final String id,
+            final BaseModal<T> modal,
+            final List<T> items,
+            final List<IColumn<T, S>> columns,
+            final Map<String, String> results,
+            final String keyFieldName,
+            final AjaxRequestTarget target,
+            final PageReference pageRef) {
+
+        super(id);
+
+        List<IColumn<T, S>> newColumnList = new ArrayList<>(columns);
+        newColumnList.add(newColumnList.size(), new BatchResponseColumn<>(results, keyFieldName));
+        setup(items, newColumnList);
+
+        actionPanel.setEnabled(false);
+        actionPanel.setVisible(false);
+        target.add(container);
+        target.add(actionPanel);
+
+        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+    }
+
+    private void setup(
+            final List<T> items,
+            final List<IColumn<T, S>> columns) {
+
+        container = new WebMarkupContainer("container");
+        container.setOutputMarkupId(true);
+        add(container);
+
+        dataProvider = new SortableDataProvider<T, S>() {
+
+            private static final long serialVersionUID = 5291903859908641954L;
+
+            @Override
+            public Iterator<? extends T> iterator(final long first, final long count) {
+                return items.iterator();
+            }
+
+            @Override
+            public long size() {
+                return items.size();
+            }
+
+            @Override
+            public IModel<T> model(final T object) {
+                return new CompoundPropertyModel<>(object);
+            }
+        };
+
+        container.add(new AjaxFallbackDefaultDataTable<>(
+                "selectedObjects",
+                columns,
+                dataProvider,
+                Integer.MAX_VALUE).setMarkupId("selectedObjects").setVisible(!CollectionUtils.isEmpty(items)));
+
+        actionPanel = new ActionsPanel<>("actions", null);
+        container.add(actionPanel);
     }
 }

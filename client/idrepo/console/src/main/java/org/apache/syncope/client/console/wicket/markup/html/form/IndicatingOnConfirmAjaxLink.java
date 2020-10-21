@@ -18,21 +18,15 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
-import static de.agilecoders.wicket.jquery.JQuery.$;
-
-import de.agilecoders.wicket.jquery.function.JavaScriptInlineFunction;
-import java.util.ArrayList;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
-import org.apache.wicket.model.ResourceModel;
 
 public abstract class IndicatingOnConfirmAjaxLink<T> extends IndicatingAjaxLink<T> {
 
     private static final long serialVersionUID = 2228670850922265663L;
 
-    private final String msg;
+    private final ConfirmBehavior confirmBehavior;
 
     private final boolean enabled;
 
@@ -42,7 +36,8 @@ public abstract class IndicatingOnConfirmAjaxLink<T> extends IndicatingAjaxLink<
 
     public IndicatingOnConfirmAjaxLink(final String id, final String msg, final boolean enabled) {
         super(id);
-        this.msg = msg;
+
+        this.confirmBehavior = new ConfirmBehavior(this, msg);
         this.enabled = enabled;
     }
 
@@ -51,26 +46,7 @@ public abstract class IndicatingOnConfirmAjaxLink<T> extends IndicatingAjaxLink<
         super.renderHead(response);
 
         if (enabled) {
-            response.render(JavaScriptHeaderItem.forScript("proceed = false;", null));
-            response.render($(this).on("click",
-                    new JavaScriptInlineFunction(""
-                            + "var element = $(this);"
-                            + "evt.preventDefault();"
-                            + "if (proceed == false) {"
-                            + "  evt.stopImmediatePropagation();"
-                            + "  bootbox.confirm('" + new ResourceModel(msg).getObject() + "', function(result) {"
-                            + "    if (result == true) {"
-                            + "      proceed = true;"
-                            + "      element.click();"
-                            + "    } else {"
-                            + "      proceed = false;"
-                            + "    }"
-                            + "  return true;"
-                            + "  })"
-                            + "} else {"
-                            + "  proceed = false;"
-                            + "};", new ArrayList<>()
-                    )).asDomReadyScript());
+            confirmBehavior.renderHead(this, response);
         }
     }
 
@@ -78,5 +54,4 @@ public abstract class IndicatingOnConfirmAjaxLink<T> extends IndicatingAjaxLink<
     public String getAjaxIndicatorMarkupId() {
         return Constants.VEIL_INDICATOR_MARKUP_ID;
     }
-
 }

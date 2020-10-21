@@ -18,12 +18,20 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
+import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
@@ -101,5 +109,22 @@ public class UserRequestRestClient extends BaseRestClient {
 
     public static void submitForm(final UserRequestForm form) {
         getService(UserRequestService.class).submitForm(form);
+    }
+
+    public static Map<String, String> batch(final BatchRequest batchRequest) {
+        List<BatchRequestItem> batchRequestItems = new ArrayList<>(batchRequest.getItems());
+
+        Map<String, String> result = new LinkedHashMap<>();
+        try {
+            List<BatchResponseItem> batchResponseItems = batchRequest.commit().getItems();
+            for (int i = 0; i < batchResponseItems.size(); i++) {
+                String status = getStatus(batchResponseItems.get(i).getStatus());
+                result.put(StringUtils.substringAfterLast(batchRequestItems.get(i).getRequestURI(), "/"), status);
+            }
+        } catch (IOException e) {
+            LOG.error("While processing Batch response", e);
+        }
+
+        return result;
     }
 }

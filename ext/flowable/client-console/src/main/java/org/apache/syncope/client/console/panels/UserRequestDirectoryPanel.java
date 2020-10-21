@@ -18,14 +18,16 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.batch.BatchModal;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.UserRequestDirectoryPanel.UserRequestProvider;
 import org.apache.syncope.client.console.panels.UserRequestsPanel.UserRequestSearchEvent;
@@ -33,6 +35,8 @@ import org.apache.syncope.client.console.rest.UserRequestRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ConfirmBehavior;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
@@ -40,9 +44,11 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -58,13 +64,44 @@ public class UserRequestDirectoryPanel
 
     public UserRequestDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, pageRef, true);
-        disableCheckBoxes();
         setFooterVisibility(false);
-        modal.size(Modal.Size.Large);
 
         restClient = new UserRequestRestClient();
 
         initResultTable();
+
+        IndicatingAjaxButton batchLink = new IndicatingAjaxButton("batchLink", resultTable.group.getForm()) {
+
+            private static final long serialVersionUID = 382302811235019988L;
+
+            @Override
+            public void onSubmit(final AjaxRequestTarget target) {
+                Collection<UserRequest> items = resultTable.group.getModelObject();
+                if (!items.isEmpty()) {
+                    BatchRequest batch = SyncopeConsoleSession.get().batch();
+                    UserRequestService service = batch.getService(UserRequestService.class);
+                    items.forEach(item -> service.cancelRequest(item.getExecutionId(), null));
+
+                    Map<String, String> results = restClient.batch(batch);
+
+                    resultTable.batchModal.header(new ResourceModel("batch"));
+                    resultTable.batchModal.changeCloseButtonLabel(getString("cancel", null, "Cancel"), target);
+
+                    target.add(resultTable.batchModal.setContent(new BatchModal<>(
+                            resultTable.batchModal,
+                            pageRef,
+                            new ArrayList<>(items),
+                            getColumns(),
+                            results,
+                            "executionId",
+                            target)));
+
+                    resultTable.batchModal.show(true);
+                }
+            }
+        };
+        batchLink.add(new ConfirmBehavior(batchLink, "confirmDelete"));
+        ((WebMarkupContainer) resultTable.get("tablePanel")).addOrReplace(batchLink);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, FlowableEntitlement.USER_REQUEST_LIST);
     }
@@ -87,7 +124,7 @@ public class UserRequestDirectoryPanel
 
     @Override
     public ActionsPanel<UserRequest> getActions(final IModel<UserRequest> model) {
-        final ActionsPanel<UserRequest> panel = super.getActions(model);
+        ActionsPanel<UserRequest> panel = super.getActions(model);
 
         panel.add(new ActionLink<UserRequest>() {
 

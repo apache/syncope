@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
@@ -166,10 +167,12 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
         }
     }
 
+    protected final BaseModal<T> batchModal;
+
     private AjaxDataTablePanel(final String id, final Builder<T, S> builder) {
         super(id);
 
-        BaseModal<T> batchModal = new BaseModal<>("batchModal");
+        batchModal = new BaseModal<>("batchModal");
         batchModal.size(Modal.Size.Large);
         add(batchModal);
 
@@ -186,18 +189,16 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                 data.setRows(builder.rowsPerPage);
 
                 send(builder.pageRef.getPage(), Broadcast.BREADTH, data);
-                BasePage page = (BasePage) findPage();
-                if (page != null) {
-                    page.getNotificationPanel().refresh(target);
-                }
+                Optional.ofNullable((BasePage) findPage()).
+                        ifPresent(page -> page.getNotificationPanel().refresh(target));
             }
         });
 
         Fragment fragment = new Fragment("tablePanel", "batchAvailable", this);
         add(fragment);
 
-        Form<T> batchForm = new Form<>("groupForm");
-        fragment.add(batchForm);
+        Form<T> groupForm = new Form<>("groupForm");
+        fragment.add(groupForm);
 
         group = new CheckGroup<>("checkgroup", model);
         group.add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
@@ -212,7 +213,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                 });
             }
         });
-        batchForm.add(group);
+        groupForm.add(group);
 
         if (builder.checkBoxEnabled) {
             builder.columns.add(0, new CheckGroupColumn<>(group));
@@ -239,7 +240,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
         group.add(dataTable);
 
-        fragment.add(new IndicatingAjaxButton("batchLink", batchForm) {
+        fragment.add(new IndicatingAjaxButton("batchLink", groupForm) {
 
             private static final long serialVersionUID = 382302811235019988L;
 
