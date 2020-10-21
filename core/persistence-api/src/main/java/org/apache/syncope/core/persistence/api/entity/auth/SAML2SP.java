@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.core.persistence.api.entity.auth;
 
+import org.apache.syncope.common.lib.XmlSecAlgorithms;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
+
+import java.util.List;
 
 public interface SAML2SP extends ClientApp {
 
@@ -73,4 +76,28 @@ public interface SAML2SP extends ClientApp {
     void setServiceProviderNameIdQualifier(String location);
 
     String getServiceProviderNameIdQualifier();
+
+    List<XmlSecAlgorithms> getSigningSignatureAlgorithms();
+
+    List<XmlSecAlgorithms> getSigningSignatureReferenceDigestMethods();
+
+    List<XmlSecAlgorithms> getEncryptionDataAlgorithms();
+
+    List<XmlSecAlgorithms> getEncryptionKeyAlgorithms();
+
+    void setSigningSignatureAlgorithms(List<XmlSecAlgorithms> algorithms);
+
+    void setSigningSignatureReferenceDigestMethods(List<XmlSecAlgorithms> methods);
+
+    void setEncryptionDataAlgorithms(List<XmlSecAlgorithms> algorithms);
+
+    void setEncryptionKeyAlgorithms(List<XmlSecAlgorithms> algorithms);
+
+    List<XmlSecAlgorithms> getSigningSignatureBlackListedAlgorithms();
+
+    List<XmlSecAlgorithms> getEncryptionBlackListedAlgorithms();
+
+    void setSigningSignatureBlackListedAlgorithms(List<XmlSecAlgorithms> algorithms);
+
+    void setEncryptionBlackListedAlgorithms(List<XmlSecAlgorithms> algorithms);
 }

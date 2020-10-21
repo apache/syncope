@@ -23,7 +23,11 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.XmlSecAlgorithms;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Schema(allOf = { ClientAppTO.class })
 public class SAML2SPTO extends ClientAppTO {
@@ -55,6 +59,18 @@ public class SAML2SPTO extends ClientAppTO {
     private String assertionAudiences;
 
     private String serviceProviderNameIdQualifier;
+
+    private List<XmlSecAlgorithms> signingSignatureAlgorithms = new ArrayList<>();
+
+    private List<XmlSecAlgorithms> signingSignatureReferenceDigestMethods = new ArrayList<>();
+
+    private List<XmlSecAlgorithms> encryptionDataAlgorithms = new ArrayList<>();
+
+    private List<XmlSecAlgorithms> encryptionKeyAlgorithms = new ArrayList<>();
+    
+    private List<XmlSecAlgorithms> signingSignatureBlackListedAlgorithms = new ArrayList<>();
+
+    private List<XmlSecAlgorithms> encryptionBlackListedAlgorithms = new ArrayList<>();
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
@@ -168,6 +184,54 @@ public class SAML2SPTO extends ClientAppTO {
         this.serviceProviderNameIdQualifier = serviceProviderNameIdQualifier;
     }
 
+    public List<XmlSecAlgorithms> getSigningSignatureAlgorithms() {
+        return signingSignatureAlgorithms;
+    }
+
+    public List<XmlSecAlgorithms> getSigningSignatureReferenceDigestMethods() {
+        return signingSignatureReferenceDigestMethods;
+    }
+
+    public List<XmlSecAlgorithms> getEncryptionDataAlgorithms() {
+        return encryptionDataAlgorithms;
+    }
+
+    public List<XmlSecAlgorithms> getEncryptionKeyAlgorithms() {
+        return encryptionKeyAlgorithms;
+    }
+
+    public void setSigningSignatureAlgorithms(final List<XmlSecAlgorithms> signingSignatureAlgorithms) {
+        this.signingSignatureAlgorithms = signingSignatureAlgorithms;
+    }
+
+    public void setSigningSignatureReferenceDigestMethods(final List<XmlSecAlgorithms> algs) {
+        this.signingSignatureReferenceDigestMethods = algs;
+    }
+
+    public void setEncryptionDataAlgorithms(final List<XmlSecAlgorithms> encryptionDataAlgorithms) {
+        this.encryptionDataAlgorithms = encryptionDataAlgorithms;
+    }
+
+    public void setEncryptionKeyAlgorithms(final List<XmlSecAlgorithms> encryptionKeyAlgorithms) {
+        this.encryptionKeyAlgorithms = encryptionKeyAlgorithms;
+    }
+
+    public List<XmlSecAlgorithms> getSigningSignatureBlackListedAlgorithms() {
+        return signingSignatureBlackListedAlgorithms;
+    }
+
+    public void setSigningSignatureBlackListedAlgorithms(final List<XmlSecAlgorithms> algs) {
+        this.signingSignatureBlackListedAlgorithms = algs;
+    }
+
+    public List<XmlSecAlgorithms> getEncryptionBlackListedAlgorithms() {
+        return encryptionBlackListedAlgorithms;
+    }
+
+    public void setEncryptionBlackListedAlgorithms(final List<XmlSecAlgorithms> algs) {
+        this.encryptionBlackListedAlgorithms = algs;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (obj == null) {
@@ -195,6 +259,12 @@ public class SAML2SPTO extends ClientAppTO {
                 .append(this.nameIdQualifier, rhs.nameIdQualifier)
                 .append(this.assertionAudiences, rhs.assertionAudiences)
                 .append(this.serviceProviderNameIdQualifier, rhs.serviceProviderNameIdQualifier)
+                .append(this.signingSignatureAlgorithms, rhs.signingSignatureAlgorithms)
+                .append(this.signingSignatureReferenceDigestMethods, rhs.signingSignatureReferenceDigestMethods)
+                .append(this.encryptionDataAlgorithms, rhs.encryptionDataAlgorithms)
+                .append(this.encryptionKeyAlgorithms, rhs.encryptionKeyAlgorithms)
+                .append(this.encryptionBlackListedAlgorithms, rhs.encryptionBlackListedAlgorithms)
+                .append(this.signingSignatureBlackListedAlgorithms, rhs.signingSignatureBlackListedAlgorithms)
                 .isEquals();
     }
 
@@ -215,6 +285,12 @@ public class SAML2SPTO extends ClientAppTO {
                 .append(nameIdQualifier)
                 .append(assertionAudiences)
                 .append(serviceProviderNameIdQualifier)
+                .append(signingSignatureAlgorithms)
+                .append(signingSignatureReferenceDigestMethods)
+                .append(encryptionDataAlgorithms)
+                .append(encryptionKeyAlgorithms)
+                .append(signingSignatureBlackListedAlgorithms)
+                .append(encryptionBlackListedAlgorithms)
                 .toHashCode();
     }
 }
