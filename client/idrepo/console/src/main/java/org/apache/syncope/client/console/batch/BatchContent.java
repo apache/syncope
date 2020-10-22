@@ -38,7 +38,6 @@ import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BatchResponseColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.lib.batch.BatchRequest;
@@ -89,19 +88,17 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
     private SortableDataProvider<T, S> dataProvider;
 
     public BatchContent(
-            final BaseModal<?> modal,
             final List<T> items,
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
             final RestClient batchExecutor,
             final String keyFieldName) {
 
-        this(MultilevelPanel.SECOND_LEVEL_ID, modal, items, columns, actions, batchExecutor, keyFieldName);
+        this(MultilevelPanel.SECOND_LEVEL_ID, items, columns, actions, batchExecutor, keyFieldName);
     }
 
     public BatchContent(
             final String id,
-            final BaseModal<?> modal,
             final List<T> items,
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
@@ -368,7 +365,6 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
 
     public BatchContent(
             final String id,
-            final BaseModal<T> modal,
             final List<T> items,
             final List<IColumn<T, S>> columns,
             final Map<String, String> results,

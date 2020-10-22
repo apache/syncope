@@ -100,10 +100,12 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
         this.authPolicy = (JPAAuthPolicy) authPolicy;
     }
 
+    @Override
     public JPAAccessPolicy getAccessPolicy() {
         return accessPolicy;
     }
 
+    @Override
     public void setAccessPolicy(final AccessPolicy accessPolicy) {
         checkType(accessPolicy, JPAAccessPolicy.class);
         this.accessPolicy = (JPAAccessPolicy) accessPolicy;

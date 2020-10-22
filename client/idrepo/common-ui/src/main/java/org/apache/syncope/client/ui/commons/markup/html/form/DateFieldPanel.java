@@ -124,6 +124,7 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
     public FieldPanel<Date> setNewModel(final Attributable attributableTO, final String schema) {
         field.setModel(new Model() {
 
@@ -148,7 +149,6 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
                     attributableTO.getPlainAttr(schema).get().getValues().add(fmt.format(object));
                 }
             }
-
         });
 
         return this;

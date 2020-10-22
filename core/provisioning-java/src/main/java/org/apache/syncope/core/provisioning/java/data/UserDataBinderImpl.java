@@ -740,8 +740,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 user.getPlainAttrs(),
                 derAttrHandler.getValues(user),
                 details ? virAttrHandler.getValues(user) : Map.of(),
-                userDAO.findAllResources(user),
-                details);
+                userDAO.findAllResources(user));
 
         // dynamic realms
         userTO.getDynRealms().addAll(userDAO.findDynRealms(user.getKey()));

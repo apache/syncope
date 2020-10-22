@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
@@ -56,7 +55,6 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     public <T extends AnyTO> PlainAttrs(
             final AnyWrapper<T> modelObject,
-            final Form<?> form,
             final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
             final List<String> whichPlainAttrs) throws IllegalArgumentException {

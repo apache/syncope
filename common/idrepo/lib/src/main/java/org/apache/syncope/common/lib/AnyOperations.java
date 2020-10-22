@@ -402,7 +402,7 @@ public final class AnyOperations {
             if (patch.getAttr() == null) {
                 LOG.warn("Invalid {} specified: {}", AttrPatch.class.getName(), patch);
             } else {
-                Attr removed = rwattrs.remove(patch.getAttr().getSchema());
+                rwattrs.remove(patch.getAttr().getSchema());
                 if (patch.getOperation() == PatchOperation.ADD_REPLACE && !patch.getAttr().getValues().isEmpty()) {
                     rwattrs.put(patch.getAttr().getSchema(), patch.getAttr());
                 }

@@ -181,7 +181,8 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
         return this;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
     public FieldPanel<T> setNewModel(final Attributable attributableTO, final String schema) {
         field.setModel(new Model() {
 
@@ -213,7 +214,6 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
                     attributableTO.getPlainAttr(schema).get().getValues().add(object.toString());
                 }
             }
-
         });
 
         return this;

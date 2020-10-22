@@ -60,7 +60,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -84,7 +83,6 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     public <T extends AnyTO> PlainAttrs(
             final AnyWrapper<T> modelObject,
-            final Form<?> form,
             final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
             final Map<String, CustomizationOption> whichPlainAttrs) throws IllegalArgumentException {
@@ -378,7 +376,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         panel.setReadOnly(readOnly);
         panel.setMarkupId(StringUtils.isBlank(groupName) ? schemaTO.getKey() : groupName + '.' + schemaTO.getKey());
-        
+
         return panel;
     }
 
@@ -423,7 +421,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     } else {
                         FieldPanel.class.cast(panel).setNewModel(attrTO.getValues());
                     }
-                    
+
                     item.add(panel);
                 }
             });

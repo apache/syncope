@@ -22,6 +22,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -282,8 +283,15 @@ public class RouteProvider {
                 break;
 
             case RETRY:
+                AtomicInteger retries = new AtomicInteger();
+                try {
+                    retries.set(Integer.valueOf(gwfilter.getArgs().trim()));
+                } catch (NumberFormatException e) {
+                    LOG.error("Unexpected argument value: {}", gwfilter.getArgs().trim(), e);
+                    retries.set(0);
+                }
                 filter = ctx.getBean(RetryGatewayFilterFactory.class).
-                        apply(c -> c.setRetries(Integer.valueOf(gwfilter.getArgs().trim())));
+                        apply(c -> c.setRetries(retries.get()));
                 break;
 
             case SAVE_SESSION:
@@ -321,8 +329,15 @@ public class RouteProvider {
                 break;
 
             case STRIP_PREFIX:
+                AtomicInteger parts = new AtomicInteger();
+                try {
+                    parts.set(Integer.valueOf(gwfilter.getArgs().trim()));
+                } catch (NumberFormatException e) {
+                    LOG.error("Unexpected argument value: {}", gwfilter.getArgs().trim(), e);
+                    parts.set(0);
+                }
                 filter = ctx.getBean(StripPrefixGatewayFilterFactory.class).
-                        apply(c -> c.setParts(Integer.valueOf(gwfilter.getArgs().trim())));
+                        apply(c -> c.setParts(parts.get()));
                 break;
 
             case REQUEST_HEADER_TO_REQUEST_URI:
@@ -471,9 +486,16 @@ public class RouteProvider {
 
             case WEIGHT:
                 String[] weigthArgs = gwpredicate.getArgs().split(",");
+                AtomicInteger weight = new AtomicInteger();
+                try {
+                    weight.set(Integer.valueOf(weigthArgs[1].trim()));
+                } catch (NumberFormatException e) {
+                    LOG.error("Unexpected argument value: {}", weigthArgs[1].trim(), e);
+                    weight.set(0);
+                }
                 predicate = ctx.getBean(WeightRoutePredicateFactory.class).
                         applyAsync(c -> c.setGroup(weigthArgs[0].trim()).
-                        setWeight(Integer.valueOf(weigthArgs[1].trim())));
+                        setWeight(weight.get()));
                 break;
 
             case CUSTOM:

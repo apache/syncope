@@ -41,21 +41,16 @@ public class LocaleValueHandler extends AbstractValueHandler {
         return INSTANCE;
     }
 
-    /**
-     *
-     *
-     * @deprecated
-     */
     @Override
     @Deprecated
     public Column[] map(final ValueMapping vm, final String name, final ColumnIO io, final boolean adapt) {
         DBDictionary dict = vm.getMappingRepository().getDBDictionary();
-        DBIdentifier colName = DBIdentifier.newColumn(name, Optional.ofNullable(dict)
-            .filter(DBDictionary::delimitAll).isPresent());
-        return map(vm, colName, io, adapt);
+        DBIdentifier colName = DBIdentifier.newColumn(
+                name, Optional.ofNullable(dict).filter(DBDictionary::delimitAll).isPresent());
+        return map(colName);
     }
 
-    public static Column[] map(final ValueMapping vm, final DBIdentifier name, final ColumnIO io, final boolean adapt) {
+    public static Column[] map(final DBIdentifier name) {
         Column col = new Column();
         col.setIdentifier(name);
         col.setJavaType(JavaTypes.STRING);

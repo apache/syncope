@@ -61,7 +61,7 @@ import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.protocol.http.CsrfPreventionRequestCycleListener;
+import org.apache.wicket.protocol.http.ResourceIsolationRequestCycleListener;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.servlet.XForwardedRequestWrapperFactory;
 import org.apache.wicket.request.Request;
@@ -159,16 +159,45 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
         useGZIPCompression = BooleanUtils.toBoolean(props.getProperty("useGZIPCompression"));
         Args.notNull(useGZIPCompression, "<useGZIPCompression>");
-        maxUploadFileSizeMB = props.getProperty("maxUploadFileSizeMB") == null
-                ? null
-                : Integer.valueOf(props.getProperty("maxUploadFileSizeMB"));
 
-        maxWaitTime = Integer.valueOf(props.getProperty("maxWaitTimeOnApplyChanges", "30"));
+        try {
+            maxUploadFileSizeMB = Integer.valueOf(props.getProperty("maxUploadFileSizeMB", "4"));
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid value provided for 'maxUploadFileSizeMB': {}",
+                    props.getProperty("maxUploadFileSizeMB"));
+            maxUploadFileSizeMB = 4;
+        }
+
+        try {
+            maxWaitTime = Integer.valueOf(props.getProperty("maxWaitTimeOnApplyChanges", "30"));
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid value provided for 'maxWaitTimeOnApplyChanges': {}",
+                    props.getProperty("maxWaitTimeOnApplyChanges"));
+            maxWaitTime = 30;
+        }
 
         // Resource connections check thread pool size
-        corePoolSize = Integer.valueOf(props.getProperty("executor.corePoolSize", "5"));
-        maxPoolSize = Integer.valueOf(props.getProperty("executor.maxPoolSize", "10"));
-        queueCapacity = Integer.valueOf(props.getProperty("executor.queueCapacity", "50"));
+        try {
+            corePoolSize = Integer.valueOf(props.getProperty("executor.corePoolSize", "5"));
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid value provided for 'executor.corePoolSize': {}",
+                    props.getProperty("executor.corePoolSize"));
+            corePoolSize = 5;
+        }
+        try {
+            maxPoolSize = Integer.valueOf(props.getProperty("executor.maxPoolSize", "10"));
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid value provided for 'executor.maxPoolSize': {}",
+                    props.getProperty("executor.maxPoolSize"));
+            maxPoolSize = 10;
+        }
+        try {
+            queueCapacity = Integer.valueOf(props.getProperty("executor.queueCapacity", "50"));
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid value provided for 'executor.queueCapacity': {}",
+                    props.getProperty("executor.queueCapacity"));
+            maxPoolSize = 50;
+        }
 
         // read customFormAttributes.json
         File enduserDir;
@@ -295,8 +324,20 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         if (BooleanUtils.toBoolean(props.getProperty("x-forward"))) {
             XForwardedRequestWrapperFactory.Config config = new XForwardedRequestWrapperFactory.Config();
             config.setProtocolHeader(props.getProperty("x-forward.protocol.header", HttpHeaders.X_FORWARDED_PROTO));
-            config.setHttpServerPort(Integer.valueOf(props.getProperty("x-forward.http.port", "80")));
-            config.setHttpsServerPort(Integer.valueOf(props.getProperty("x-forward.https.port", "443")));
+            try {
+                config.setHttpServerPort(Integer.valueOf(props.getProperty("x-forward.http.port", "80")));
+            } catch (NumberFormatException e) {
+                LOG.error("Invalid value provided for 'x-forward.http.port': {}",
+                        props.getProperty("x-forward.http.port"));
+                config.setHttpServerPort(80);
+            }
+            try {
+                config.setHttpsServerPort(Integer.valueOf(props.getProperty("x-forward.https.port", "443")));
+            } catch (NumberFormatException e) {
+                LOG.error("Invalid value provided for 'x-forward.https.port': {}",
+                        props.getProperty("x-forward.https.port"));
+                config.setHttpsServerPort(443);
+            }
 
             XForwardedRequestWrapperFactory factory = new XForwardedRequestWrapperFactory();
             factory.setConfig(config);
@@ -304,7 +345,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         }
 
         if (BooleanUtils.toBoolean(props.getProperty("csrf"))) {
-            getRequestCycleListeners().add(new CsrfPreventionRequestCycleListener());
+            getRequestCycleListeners().add(new ResourceIsolationRequestCycleListener());
         }
         getRequestCycleListeners().add(new IRequestCycleListener() {
 

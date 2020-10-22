@@ -557,8 +557,7 @@ abstract class AbstractAnyDataBinder {
             final Collection<? extends PlainAttr<?>> plainAttrs,
             final Map<DerSchema, String> derAttrs,
             final Map<VirSchema, List<String>> virAttrs,
-            final Collection<? extends ExternalResource> resources,
-            final boolean details) {
+            final Collection<? extends ExternalResource> resources) {
 
         anyTO.setRealm(realmFullPath);
 

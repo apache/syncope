@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.search;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 import org.apache.cxf.jaxrs.ext.search.ConditionType;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
@@ -72,7 +73,7 @@ public class SyncopeFiqlParser<T> extends FiqlParser<T> {
             String propertyName = expr.substring(0, m.start(1));
             String operator = m.group(1);
             String value = expr.substring(m.end(1));
-            if ("".equals(value)) {
+            if (StringUtils.isBlank(value)) {
                 throw new SearchParseException("Not a comparison expression: " + expr);
             }
 

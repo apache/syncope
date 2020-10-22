@@ -271,8 +271,20 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         if (BooleanUtils.toBoolean(props.getProperty("x-forward"))) {
             XForwardedRequestWrapperFactory.Config config = new XForwardedRequestWrapperFactory.Config();
             config.setProtocolHeader(props.getProperty("x-forward.protocol.header", HttpHeaders.X_FORWARDED_PROTO));
-            config.setHttpServerPort(Integer.valueOf(props.getProperty("x-forward.http.port", "80")));
-            config.setHttpsServerPort(Integer.valueOf(props.getProperty("x-forward.https.port", "443")));
+            try {
+                config.setHttpServerPort(Integer.valueOf(props.getProperty("x-forward.http.port", "80")));
+            } catch (NumberFormatException e) {
+                LOG.error("Invalid value provided for 'x-forward.http.port': {}",
+                        props.getProperty("x-forward.http.port"));
+                config.setHttpServerPort(80);
+            }
+            try {
+                config.setHttpsServerPort(Integer.valueOf(props.getProperty("x-forward.https.port", "443")));
+            } catch (NumberFormatException e) {
+                LOG.error("Invalid value provided for 'x-forward.https.port': {}",
+                        props.getProperty("x-forward.https.port"));
+                config.setHttpsServerPort(443);
+            }
 
             XForwardedRequestWrapperFactory factory = new XForwardedRequestWrapperFactory();
             factory.setConfig(config);

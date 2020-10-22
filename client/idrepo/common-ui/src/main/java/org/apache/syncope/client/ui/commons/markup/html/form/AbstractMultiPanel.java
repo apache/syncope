@@ -81,7 +81,7 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
     private Fragment getNoDataFragment(final IModel<List<INNER>> model, final String label) {
         final Fragment fragment = new Fragment("content", "noDataFragment", AbstractMultiPanel.this);
         fragment.add(new Label("field-label", new ResourceModel(label, label)));
-        fragment.add(getPlusFragment(model, label));
+        fragment.add(getPlusFragment(model));
         return fragment;
     }
 
@@ -91,7 +91,7 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
         return contentFragment;
     }
 
-    private Fragment getPlusFragment(final IModel<List<INNER>> model, final String label) {
+    private Fragment getPlusFragment(final IModel<List<INNER>> model) {
         final IndicatorAjaxSubmitLink plus = new IndicatorAjaxSubmitLink("add") {
 
             private static final long serialVersionUID = -7978723352517770644L;
@@ -186,7 +186,7 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
 
             final Fragment fragment;
             if (item.getIndex() == model.getObject().size() - 1) {
-                fragment = getPlusFragment(model, label);
+                fragment = getPlusFragment(model);
             } else {
                 fragment = new Fragment("panelPlus", "emptyFragment", AbstractMultiPanel.this);
             }
@@ -201,6 +201,7 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
         // do nothing by default
     }
 
+    @Override
     public AbstractFieldPanel<List<INNER>> setReadOnly(final boolean readOnly) {
         container.setEnabled(!readOnly);
         return this;

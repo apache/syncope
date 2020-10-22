@@ -99,8 +99,9 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
 
             for (MembershipTO membership : (List<MembershipTO>) PropertyResolver.getPropertyField(
                     "memberships", anyTO).get(anyTO)) {
-                setSchemas(Pair.of(membership.getGroupKey(), membership.getGroupName()), getMembershipAuxClasses(
-                        membership, anyTO.getType()));
+                setSchemas(
+                        Pair.of(membership.getGroupKey(), membership.getGroupName()),
+                        getMembershipAuxClasses(membership));
                 setAttrs(membership);
 
                 if (AbstractAttrs.this instanceof PlainAttrs && !membership.getPlainAttrs().isEmpty()) {
@@ -134,7 +135,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
     protected List<String> getDefaultValues(final String schema) {
         return getDefaultValues(schema, null);
     }
-    
+
     protected List<String> getDefaultValues(final String schema, final String groupName) {
         String schemaName = (org.apache.commons.lang3.StringUtils.isBlank(groupName)
                 ? org.apache.commons.lang3.StringUtils.EMPTY
@@ -203,7 +204,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends WizardStep imple
 
     protected abstract List<Attr> getAttrsFromTO(MembershipTO membershipTO);
 
-    protected static List<String> getMembershipAuxClasses(final MembershipTO membershipTO, final String anyType) {
+    protected static List<String> getMembershipAuxClasses(final MembershipTO membershipTO) {
         try {
             return SyncopeRestClient.searchUserTypeExtensions(membershipTO.getGroupName());
         } catch (Exception e) {

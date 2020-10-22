@@ -86,7 +86,7 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
             final int maxWaitSeconds) throws Exception {
 
         AtomicReference<Boolean> read = new AtomicReference<>(false);
-        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+        await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
                 read.set(pop3(sender, subject, mailAddress));
                 return read.get();

@@ -271,7 +271,6 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                 } else {
                     builder.multiLevelPanel.next(getString("batch"),
                             new BatchContent<>(
-                                    builder.baseModal,
                                     new ArrayList<>(group.getModelObject()),
                                     builder.columns.size() == 1
                                     ? builder.columns

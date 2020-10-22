@@ -18,11 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
-import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
 
 @Entity
 @Table(name = JPACASSP.TABLE)
@@ -35,10 +34,12 @@ public class JPACASSP extends AbstractClientApp implements CASSP {
     @Column(unique = true, nullable = false)
     private String serviceId;
 
+    @Override
     public String getServiceId() {
         return serviceId;
     }
 
+    @Override
     public void setServiceId(final String serviceId) {
         this.serviceId = serviceId;
     }

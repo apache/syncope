@@ -80,5 +80,4 @@ public abstract class ImplementationEngineTogglePanel extends TogglePanel<Serial
     public void setHeaderLabel(final AjaxRequestTarget target) {
         setHeader(target, getString("engine"));
     }
-
 }

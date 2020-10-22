@@ -74,7 +74,6 @@ public class UserDetails extends WizardStep {
     public UserDetails(
             final UserWrapper wrapper,
             final boolean templateMode,
-            final boolean includeStatusPanel,
             final boolean showPasswordManagement,
             final PageReference pageRef) {
         super();

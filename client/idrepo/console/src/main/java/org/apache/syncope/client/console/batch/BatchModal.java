@@ -44,7 +44,7 @@ public class BatchModal<T extends Serializable, S> extends AbstractModalPanel<T>
             final String keyFieldName) {
 
         super(modal, pageRef);
-        add(new BatchContent<>("content", modal, items, columns, actions, batchExecutor, keyFieldName).
+        add(new BatchContent<>("content", items, columns, actions, batchExecutor, keyFieldName).
                 setRenderBodyOnly(true));
     }
 
@@ -58,7 +58,7 @@ public class BatchModal<T extends Serializable, S> extends AbstractModalPanel<T>
             final AjaxRequestTarget target) {
 
         super(modal, pageRef);
-        add(new BatchContent<>("content", modal, items, columns, results, keyFieldName, target, pageRef).
+        add(new BatchContent<>("content", items, columns, results, keyFieldName, target, pageRef).
                 setRenderBodyOnly(true));
     }
 }

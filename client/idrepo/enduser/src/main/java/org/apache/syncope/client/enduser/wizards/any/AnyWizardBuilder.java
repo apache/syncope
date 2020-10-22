@@ -94,7 +94,6 @@ public abstract class AnyWizardBuilder extends AbstractAnyWizardBuilder<UserTO> 
         wizardModel.add(new UserDetails(
                 UserWrapper.class.cast(modelObject),
                 mode == AjaxWizard.Mode.TEMPLATE,
-                modelObject.getInnerObject().getKey() != null,
                 UserFormLayoutInfo.class.cast(formLayoutInfo).isPasswordManagement(),
                 pageRef));
 
@@ -110,7 +109,6 @@ public abstract class AnyWizardBuilder extends AbstractAnyWizardBuilder<UserTO> 
         if (formLayoutInfo.isPlainAttrs()) {
             wizardModel.add(new PlainAttrs(
                     modelObject,
-                    null,
                     mode,
                     anyTypeClasses,
                     formLayoutInfo.getWhichPlainAttrs()) {
