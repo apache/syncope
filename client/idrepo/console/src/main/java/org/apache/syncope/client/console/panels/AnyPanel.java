@@ -169,8 +169,6 @@ public class AnyPanel extends Panel implements ModalPanel {
 
     protected final RealmTO realmTO;
 
-    protected final AnyLayout anyLayout;
-
     protected final PageReference pageRef;
 
     protected AbstractSearchPanel searchPanel;
@@ -200,7 +198,6 @@ public class AnyPanel extends Panel implements ModalPanel {
         super(id);
         this.anyTypeTO = anyTypeTO;
         this.realmTO = realmTO;
-        this.anyLayout = anyLayout;
         this.pageRef = pageRef;
         // ------------------------
         // Accordion
