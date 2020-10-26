@@ -205,7 +205,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
                 @Override
                 protected void populateItem(final ListItem<AttrTO> item) {
-                    setPanel(schemas, item, false);
+                    PlainSchemaTO schema = schemas.get(item.getModelObject().getSchema());
+                    setPanel(schemas, item, schema == null ? false : schema.isReadonly());
                 }
             });
         }
@@ -228,9 +229,9 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 private static final long serialVersionUID = 5306618783986001008L;
 
                 @Override
-                @SuppressWarnings({ "unchecked", "rawtypes" })
                 protected void populateItem(final ListItem<AttrTO> item) {
-                    setPanel(schemas, item, false);
+                    PlainSchemaTO schema = schemas.get(item.getModelObject().getSchema());
+                    setPanel(schemas, item, schema == null ? false : schema.isReadonly());
                 }
             });
         }
