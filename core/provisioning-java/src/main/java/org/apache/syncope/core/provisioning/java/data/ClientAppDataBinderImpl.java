@@ -78,14 +78,15 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     @SuppressWarnings("unchecked")
     public <T extends ClientAppTO> T getClientAppTO(final ClientApp clientApp) {
         if (clientApp instanceof SAML2SP) {
-            return (T) getClientAppTO((SAML2SP) clientApp);
-        } else if (clientApp instanceof OIDCRP) {
-            return (T) getClientAppTO((OIDCRP) clientApp);
-        } else if (clientApp instanceof CASSP) {
-            return (T) getClientAppTO((CASSP) clientApp);
-        } else {
-            throw new IllegalArgumentException("Unsupported client app: " + clientApp.getClass().getName());
+            return (T) getSAMLClientAppTO((SAML2SP) clientApp);
+        } 
+        if (clientApp instanceof OIDCRP) {
+            return (T) getOIDCClientAppTO((OIDCRP) clientApp);
+        } 
+        if (clientApp instanceof CASSP) {
+            return (T) getCASClientAppTO((CASSP) clientApp);
         }
+        throw new IllegalArgumentException("Unsupported client app: " + clientApp.getClass().getName());
     }
 
     private SAML2SP doCreate(final SAML2SPTO clientAppTO) {
@@ -126,7 +127,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setEncryptionBlackListedAlgorithms(clientAppTO.getEncryptionBlackListedAlgorithms());
     }
 
-    private static SAML2SPTO getClientAppTO(final SAML2SP clientApp) {
+    private static SAML2SPTO getSAMLClientAppTO(final SAML2SP clientApp) {
         SAML2SPTO clientAppTO = new SAML2SPTO();
         updateCommonClientAppTO(clientApp, clientAppTO);
 
@@ -175,7 +176,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setLogoutUri(clientAppTO.getLogoutUri());
     }
 
-    private static OIDCRPTO getClientAppTO(final OIDCRP clientApp) {
+    private static OIDCRPTO getOIDCClientAppTO(final OIDCRP clientApp) {
         OIDCRPTO clientAppTO = new OIDCRPTO();
         updateCommonClientAppTO(clientApp, clientAppTO);
 
@@ -197,7 +198,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setServiceId(clientAppTO.getServiceId());
     }
 
-    private static CASSPTO getClientAppTO(final CASSP clientApp) {
+    private static CASSPTO getCASClientAppTO(final CASSP clientApp) {
         CASSPTO clientAppTO = new CASSPTO();
         updateCommonClientAppTO(clientApp, clientAppTO);
         clientAppTO.setServiceId(clientApp.getServiceId());
