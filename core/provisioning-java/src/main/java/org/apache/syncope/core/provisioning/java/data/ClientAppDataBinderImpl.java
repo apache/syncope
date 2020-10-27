@@ -101,9 +101,8 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     }
 
     private void doUpdate(final SAML2SP clientApp, final SAML2SPTO clientAppTO) {
-        clientApp.setDescription(clientAppTO.getDescription());
-        clientApp.setName(clientAppTO.getName());
-        clientApp.setClientAppId(clientAppTO.getClientAppId());
+        doUpdateCommon(clientApp, clientAppTO);
+
         clientApp.setEntityId(clientAppTO.getEntityId());
         clientApp.setMetadataLocation(clientAppTO.getMetadataLocation());
         clientApp.setMetadataSignatureLocation(clientAppTO.getMetadataSignatureLocation());
@@ -125,57 +124,12 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
         clientApp.setSigningSignatureBlackListedAlgorithms(clientAppTO.getSigningSignatureBlackListedAlgorithms());
         clientApp.setEncryptionBlackListedAlgorithms(clientAppTO.getEncryptionBlackListedAlgorithms());
-
-        if (clientAppTO.getAuthPolicy() == null) {
-            clientApp.setAuthPolicy(null);
-        } else {
-            Policy policy = policyDAO.find(clientAppTO.getAuthPolicy());
-            if (policy instanceof AuthPolicy) {
-                clientApp.setAuthPolicy((AuthPolicy) policy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AuthPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
-
-        if (clientAppTO.getAccessPolicy() == null) {
-            clientApp.setAccessPolicy(null);
-        } else {
-            Policy policy = policyDAO.find(clientAppTO.getAccessPolicy());
-            if (policy instanceof AccessPolicy) {
-                clientApp.setAccessPolicy((AccessPolicy) policy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AccessPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
-
-        if (clientAppTO.getAttrReleasePolicy() == null) {
-            clientApp.setAttrReleasePolicy(null);
-        } else {
-            Policy policy = policyDAO.find(clientAppTO.getAttrReleasePolicy());
-            if (policy instanceof AttrReleasePolicy) {
-                clientApp.setAttrReleasePolicy((AttrReleasePolicy) policy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AttrReleasePolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
     }
 
     private static SAML2SPTO getClientAppTO(final SAML2SP clientApp) {
         SAML2SPTO clientAppTO = new SAML2SPTO();
+        updateCommonClientAppTO(clientApp, clientAppTO);
 
-        clientAppTO.setName(clientApp.getName());
-        clientAppTO.setKey(clientApp.getKey());
-        clientAppTO.setDescription(clientApp.getDescription());
-        clientAppTO.setClientAppId(clientApp.getClientAppId());
         clientAppTO.setEntityId(clientApp.getEntityId());
         clientAppTO.setMetadataLocation(clientApp.getMetadataLocation());
         clientAppTO.setMetadataSignatureLocation(clientApp.getMetadataSignatureLocation());
@@ -198,13 +152,6 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setSigningSignatureBlackListedAlgorithms(clientApp.getSigningSignatureBlackListedAlgorithms());
         clientAppTO.setEncryptionBlackListedAlgorithms(clientApp.getEncryptionBlackListedAlgorithms());
 
-        clientAppTO.setAuthPolicy(clientApp.getAuthPolicy() == null
-                ? null : clientApp.getAuthPolicy().getKey());
-        clientAppTO.setAccessPolicy(clientApp.getAccessPolicy() == null
-                ? null : clientApp.getAccessPolicy().getKey());
-        clientAppTO.setAttrReleasePolicy(clientApp.getAttrReleasePolicy() == null
-                ? null : clientApp.getAttrReleasePolicy().getKey());
-
         return clientAppTO;
     }
 
@@ -215,9 +162,8 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     }
 
     private void doUpdate(final OIDCRP clientApp, final OIDCRPTO clientAppTO) {
-        clientApp.setName(clientAppTO.getName());
-        clientApp.setClientAppId(clientAppTO.getClientAppId());
-        clientApp.setDescription(clientAppTO.getDescription());
+        doUpdateCommon(clientApp, clientAppTO);
+
         clientApp.setClientSecret(clientAppTO.getClientSecret());
         clientApp.setClientId(clientAppTO.getClientId());
         clientApp.setSignIdToken(clientAppTO.isSignIdToken());
@@ -226,70 +172,13 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.getSupportedGrantTypes().addAll(clientAppTO.getSupportedGrantTypes());
         clientApp.getSupportedResponseTypes().addAll(clientAppTO.getSupportedResponseTypes());
 
-        if (clientAppTO.getAuthPolicy() == null) {
-            clientApp.setAuthPolicy(null);
-        } else {
-            Policy policy = policyDAO.find(clientAppTO.getAuthPolicy());
-            if (policy instanceof AuthPolicy) {
-                clientApp.setAuthPolicy((AuthPolicy) policy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                if (policy == null) {
-                    sce.getElements().add("Policy " + clientAppTO.getAuthPolicy() + " not found");
-                } else {
-                    sce.getElements().add("Expected " + AuthPolicy.class.getSimpleName()
-                            + ", found " + policy.getClass().getSimpleName());
-                }
-                throw sce;
-            }
-        }
-
-        if (clientAppTO.getAccessPolicy() == null) {
-            clientApp.setAccessPolicy(null);
-        } else {
-            Policy policy = policyDAO.find(clientAppTO.getAccessPolicy());
-            if (policy instanceof AccessPolicy) {
-                clientApp.setAccessPolicy((AccessPolicy) policy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                if (policy == null) {
-                    sce.getElements().add("Policy " + clientAppTO.getAccessPolicy() + " not found");
-                } else {
-                    sce.getElements().add("Expected " + AccessPolicy.class.getSimpleName()
-                            + ", found " + policy.getClass().getSimpleName());
-                }
-                throw sce;
-            }
-        }
-
-        if (clientAppTO.getAttrReleasePolicy() == null) {
-            clientApp.setAttrReleasePolicy(null);
-        } else {
-            Policy policy = policyDAO.find(clientAppTO.getAttrReleasePolicy());
-            if (policy instanceof AttrReleasePolicy) {
-                clientApp.setAttrReleasePolicy((AttrReleasePolicy) policy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                if (policy == null) {
-                    sce.getElements().add("Policy " + clientAppTO.getAttrReleasePolicy() + " not found");
-                } else {
-                    sce.getElements().add("Expected " + AttrReleasePolicy.class.getSimpleName()
-                            + ", found " + policy.getClass().getSimpleName());
-                }
-                throw sce;
-            }
-        }
-
         clientApp.setLogoutUri(clientAppTO.getLogoutUri());
     }
 
     private static OIDCRPTO getClientAppTO(final OIDCRP clientApp) {
         OIDCRPTO clientAppTO = new OIDCRPTO();
+        updateCommonClientAppTO(clientApp, clientAppTO);
 
-        clientAppTO.setName(clientApp.getName());
-        clientAppTO.setKey(clientApp.getKey());
-        clientAppTO.setDescription(clientApp.getDescription());
-        clientAppTO.setClientAppId(clientApp.getClientAppId());
         clientAppTO.setClientId(clientApp.getClientId());
         clientAppTO.setClientSecret(clientApp.getClientSecret());
         clientAppTO.setSignIdToken(clientApp.isSignIdToken());
@@ -297,25 +186,45 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.getRedirectUris().addAll(clientApp.getRedirectUris());
         clientAppTO.getSupportedGrantTypes().addAll(clientApp.getSupportedGrantTypes());
         clientAppTO.getSupportedResponseTypes().addAll(clientApp.getSupportedResponseTypes());
-
-        clientAppTO.setAuthPolicy(clientApp.getAuthPolicy() == null
-                ? null : clientApp.getAuthPolicy().getKey());
-        clientAppTO.setAccessPolicy(clientApp.getAccessPolicy() == null
-                ? null : clientApp.getAccessPolicy().getKey());
-        clientAppTO.setAttrReleasePolicy(clientApp.getAttrReleasePolicy() == null
-                ? null : clientApp.getAttrReleasePolicy().getKey());
-
         clientAppTO.setLogoutUri(clientApp.getLogoutUri());
 
         return clientAppTO;
     }
 
     private void doUpdate(final CASSP clientApp, final CASSPTO clientAppTO) {
+        doUpdateCommon(clientApp, clientAppTO);
+
+        clientApp.setServiceId(clientAppTO.getServiceId());
+    }
+
+    private static CASSPTO getClientAppTO(final CASSP clientApp) {
+        CASSPTO clientAppTO = new CASSPTO();
+        updateCommonClientAppTO(clientApp, clientAppTO);
+        clientAppTO.setServiceId(clientApp.getServiceId());
+        return clientAppTO;
+    }
+
+    private static void updateCommonClientAppTO(final ClientApp clientApp, final ClientAppTO clientAppTO) {
+        clientAppTO.setName(clientApp.getName());
+        clientAppTO.setKey(clientApp.getKey());
+        clientAppTO.setDescription(clientApp.getDescription());
+        clientAppTO.setClientAppId(clientApp.getClientAppId());
+        clientAppTO.setTheme(clientApp.getTheme());
+
+        clientAppTO.setAuthPolicy(clientApp.getAuthPolicy() == null
+            ? null : clientApp.getAuthPolicy().getKey());
+        clientAppTO.setAccessPolicy(clientApp.getAccessPolicy() == null
+            ? null : clientApp.getAccessPolicy().getKey());
+        clientAppTO.setAttrReleasePolicy(clientApp.getAttrReleasePolicy() == null
+            ? null : clientApp.getAttrReleasePolicy().getKey());
+    }
+
+    private void doUpdateCommon(final ClientApp clientApp, final ClientAppTO clientAppTO) {
         clientApp.setName(clientAppTO.getName());
         clientApp.setClientAppId(clientAppTO.getClientAppId());
         clientApp.setDescription(clientAppTO.getDescription());
-        clientApp.setServiceId(clientAppTO.getServiceId());
-
+        clientApp.setTheme(clientAppTO.getTheme());
+        
         if (clientAppTO.getAuthPolicy() == null) {
             clientApp.setAuthPolicy(null);
         } else {
@@ -357,24 +266,5 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
                 throw sce;
             }
         }
-    }
-
-    private static CASSPTO getClientAppTO(final CASSP clientApp) {
-        CASSPTO clientAppTO = new CASSPTO();
-
-        clientAppTO.setName(clientApp.getName());
-        clientAppTO.setKey(clientApp.getKey());
-        clientAppTO.setDescription(clientApp.getDescription());
-        clientAppTO.setClientAppId(clientApp.getClientAppId());
-        clientAppTO.setServiceId(clientApp.getServiceId());
-
-        clientAppTO.setAuthPolicy(clientApp.getAuthPolicy() == null
-            ? null : clientApp.getAuthPolicy().getKey());
-        clientAppTO.setAccessPolicy(clientApp.getAccessPolicy() == null
-            ? null : clientApp.getAccessPolicy().getKey());
-        clientAppTO.setAttrReleasePolicy(clientApp.getAttrReleasePolicy() == null
-            ? null : clientApp.getAttrReleasePolicy().getKey());
-
-        return clientAppTO;
     }
 }
