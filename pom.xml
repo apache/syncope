@@ -416,7 +416,7 @@ under the License.
 
     <openjpa.version>3.1.2</openjpa.version>
     <hikaricp.version>3.4.5</hikaricp.version>
-    <bval.version>2.0.4</bval.version>
+    <bval.version>2.0.5</bval.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
