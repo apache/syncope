@@ -47,6 +47,9 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     @Column
     private String description;
 
+    @Column
+    private String theme;
+
     @ManyToOne(fetch = FetchType.EAGER)
     private JPARealm realm;
 
@@ -131,5 +134,15 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     public void setRealm(final Realm realm) {
         checkType(realm, JPARealm.class);
         this.realm = (JPARealm) realm;
+    }
+
+    @Override
+    public String getTheme() {
+        return theme;
+    }
+
+    @Override
+    public void setTheme(final String theme) {
+        this.theme = theme;
     }
 }

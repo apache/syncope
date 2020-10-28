@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import org.apache.openjpa.jdbc.kernel.exps.Lit;
 import org.apache.syncope.common.lib.XmlSecAlgorithms;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;

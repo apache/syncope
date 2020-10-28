@@ -53,6 +53,8 @@ public abstract class ClientAppTO implements EntityTO {
 
     private String attrReleasePolicy;
 
+    private String theme;
+
     @Schema(name = "_class", required = true)
     public abstract String getDiscriminator();
 
@@ -82,6 +84,14 @@ public abstract class ClientAppTO implements EntityTO {
 
     public void setAuthPolicy(final String authPolicy) {
         this.authPolicy = authPolicy;
+    }
+
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(final String theme) {
+        this.theme = theme;
     }
 
     @Override
@@ -130,6 +140,7 @@ public abstract class ClientAppTO implements EntityTO {
                 .append(authPolicy)
                 .append(accessPolicy)
                 .append(attrReleasePolicy)
+                .append(theme)
                 .toHashCode();
     }
 
@@ -154,6 +165,7 @@ public abstract class ClientAppTO implements EntityTO {
                 .append(this.authPolicy, rhs.authPolicy)
                 .append(this.accessPolicy, rhs.accessPolicy)
                 .append(this.attrReleasePolicy, rhs.attrReleasePolicy)
+                .append(this.theme, rhs.theme)
                 .isEquals();
     }
 }

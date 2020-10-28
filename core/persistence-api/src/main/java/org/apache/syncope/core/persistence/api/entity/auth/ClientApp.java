@@ -53,4 +53,8 @@ public interface ClientApp extends Entity {
     Realm getRealm();
 
     void setRealm(Realm realm);
+
+    void setTheme(String name);
+
+    String getTheme();
 }
