@@ -409,14 +409,14 @@ under the License.
 
     <jackson.version>2.11.3</jackson.version>
 
-    <spring.version>5.2.9.RELEASE</spring.version>
+    <spring.version>5.2.10.RELEASE</spring.version>
     <spring-security.version>5.4.1</spring-security.version>
     <spring-boot.version>2.3.4.RELEASE</spring-boot.version>
     <spring-cloud-gateway.version>2.2.5.RELEASE</spring-cloud-gateway.version>
 
     <openjpa.version>3.1.2</openjpa.version>
     <hikaricp.version>3.4.5</hikaricp.version>
-    <bval.version>2.0.4</bval.version>
+    <bval.version>2.0.5</bval.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -432,7 +432,7 @@ under the License.
 
     <slf4j.version>2.0.0-alpha1</slf4j.version>
 
-    <elasticsearch.version>7.9.2</elasticsearch.version>
+    <elasticsearch.version>7.9.3</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -455,7 +455,7 @@ under the License.
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.7.0</junit.version>
-    <mockito.version>3.5.15</mockito.version>
+    <mockito.version>3.6.0</mockito.version>
 
     <swagger-core.version>2.1.5</swagger-core.version>
     <swagger-ui.version>3.35.2</swagger-ui.version>

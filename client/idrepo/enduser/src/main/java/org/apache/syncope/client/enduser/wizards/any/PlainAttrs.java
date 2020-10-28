@@ -402,24 +402,26 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 @Override
                 @SuppressWarnings({ "unchecked", "rawtypes" })
                 protected void populateItem(final ListItem<Attr> item) {
-                    Attr attrTO = item.getModelObject();
+                    Attr attr = item.getModelObject();
+                    PlainSchemaTO schema = schemas.get(attr.getSchema());
 
                     // set default values, if any
-                    if (attrTO.getValues().stream().noneMatch(StringUtils::isNotBlank)) {
-                        attrTO.getValues().clear();
-                        attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema(), groupName));
+                    if (attr.getValues().stream().noneMatch(StringUtils::isNotBlank)) {
+                        attr.getValues().clear();
+                        attr.getValues().addAll(getDefaultValues(attr.getSchema(), groupName));
                     }
 
-                    AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
-                    if (schemas.get(attrTO.getSchema()).isMultivalue()) {
+                    AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attr.getSchema()));
+                    if (schemas.get(attr.getSchema()).isMultivalue()) {
                         panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<>(
-                                        attributableTO.getObject().getPlainAttr(attrTO.getSchema()), "values"))
-                                .build("panel", attrTO.getSchema(), FieldPanel.class.cast(panel));
+                                        attributableTO.getObject().getPlainAttr(attr.getSchema()), "values"))
+                                .build("panel", attr.getSchema(), FieldPanel.class.cast(panel));
                         // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
-                        ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
+                        ((MultiFieldPanel) panel).setReadOnly(schema == null ? false : schema.isReadonly());
                     } else {
-                        FieldPanel.class.cast(panel).setNewModel(attrTO.getValues());
+                        FieldPanel.class.cast(panel).setNewModel(attr.getValues()).
+                                setReadOnly(schema == null ? false : schema.isReadonly());
                     }
 
                     item.add(panel);
@@ -446,25 +448,27 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 @Override
                 @SuppressWarnings({ "unchecked", "rawtypes" })
                 protected void populateItem(final ListItem<Attr> item) {
-                    Attr attrTO = item.getModelObject();
+                    Attr attr = item.getModelObject();
+                    PlainSchemaTO schema = schemas.get(attr.getSchema());
 
                     // set default values, if any
-                    if (attrTO.getValues().stream().noneMatch(StringUtils::isNotBlank)) {
-                        attrTO.getValues().clear();
-                        attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema()));
+                    if (attr.getValues().stream().noneMatch(StringUtils::isNotBlank)) {
+                        attr.getValues().clear();
+                        attr.getValues().addAll(getDefaultValues(attr.getSchema()));
                     }
 
-                    AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
-                    if (schemas.get(attrTO.getSchema()).isMultivalue()) {
+                    AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attr.getSchema()));
+                    if (schemas.get(attr.getSchema()).isMultivalue()) {
                         panel = new MultiFieldPanel.Builder<>(
-                                new PropertyModel<>(attrTO, "values")).build(
+                                new PropertyModel<>(attr, "values")).build(
                                 "panel",
-                                attrTO.getSchema(),
+                                attr.getSchema(),
                                 FieldPanel.class.cast(panel));
                         // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
-                        ((MultiFieldPanel) panel).setReadOnly(schemas.get(attrTO.getSchema()).isReadonly());
+                        ((MultiFieldPanel) panel).setReadOnly(schema == null ? false : schema.isReadonly());
                     } else {
-                        FieldPanel.class.cast(panel).setNewModel(attrTO.getValues());
+                        FieldPanel.class.cast(panel).setNewModel(attr.getValues()).
+                                setReadOnly(schema == null ? false : schema.isReadonly());
                     }
                     item.add(panel);
                 }
