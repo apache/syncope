@@ -225,7 +225,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setClientAppId(clientAppTO.getClientAppId());
         clientApp.setDescription(clientAppTO.getDescription());
         clientApp.setTheme(clientAppTO.getTheme());
-        
+
         if (clientAppTO.getAuthPolicy() == null) {
             clientApp.setAuthPolicy(null);
         } else {
