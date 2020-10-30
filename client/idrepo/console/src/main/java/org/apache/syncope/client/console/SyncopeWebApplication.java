@@ -68,6 +68,7 @@ import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.pages.MustChangePassword;
+import org.apache.syncope.client.console.panels.AnyPanel;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -142,6 +143,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     private PolicyTabProvider policyTabProvider;
 
     private Map<String, Class<? extends BasePage>> pageClasses;
+    
+    private String defaultAnyLayoutClass;
 
     @SuppressWarnings("unchecked")
     protected void populatePageClasses(final Properties props) {
@@ -229,6 +232,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         populatePageClasses(props);
         pageClasses = Collections.unmodifiableMap(pageClasses);
 
+        defaultAnyLayoutClass = props.getProperty("default.any.panel.class", AnyPanel.class.getName());
+        
         // Application settings
         IBootstrapSettings settings = new BootstrapSettings();
 
@@ -393,6 +398,10 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return queueCapacity;
     }
 
+    public String getDefaultAnyLayoutClass() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
     public SyncopeClientFactoryBean newClientFactory() {
         return new SyncopeClientFactoryBean().
                 setAddress(serviceOps.get(NetworkService.Type.CORE).getAddress()).

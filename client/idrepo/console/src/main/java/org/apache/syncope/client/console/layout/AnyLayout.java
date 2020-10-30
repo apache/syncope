@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 
 public class AnyLayout implements Serializable {
 
@@ -41,7 +41,7 @@ public class AnyLayout implements Serializable {
     private final Map<String, AnyObjectFormLayoutInfo> anyObjects = new HashMap<>();
 
     public AnyLayout() {
-        this.anyPanelClass = SyncopeConsoleApplication.get().getDefaultAnyLayoutClass();
+        this.anyPanelClass = SyncopeWebApplication.get().getDefaultAnyLayoutClass();
     }
 
     public String getAnyPanelClass() {
