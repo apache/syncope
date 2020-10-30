@@ -24,13 +24,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.syncope.client.console.panels.AnyPanel;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 
 public class AnyLayout implements Serializable {
 
     private static final long serialVersionUID = 488645029994410970L;
 
-    private String anyPanelClass = AnyPanel.class.getName();
+    private String anyPanelClass;
 
     @JsonProperty("USER")
     private UserFormLayoutInfo user;
@@ -39,6 +39,10 @@ public class AnyLayout implements Serializable {
     private GroupFormLayoutInfo group;
 
     private final Map<String, AnyObjectFormLayoutInfo> anyObjects = new HashMap<>();
+
+    public AnyLayout() {
+        this.anyPanelClass = SyncopeWebApplication.get().getDefaultAnyLayoutClass();
+    }
 
     public String getAnyPanelClass() {
         return anyPanelClass;
