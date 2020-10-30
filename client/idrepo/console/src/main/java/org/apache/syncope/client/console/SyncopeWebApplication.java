@@ -399,7 +399,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     }
 
     public String getDefaultAnyLayoutClass() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return defaultAnyLayoutClass;
     }
     
     public SyncopeClientFactoryBean newClientFactory() {
