@@ -44,6 +44,7 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.MustChangePassword;
 import org.apache.syncope.client.console.pages.Login;
+import org.apache.syncope.client.console.panels.AnyPanel;
 import org.apache.syncope.client.console.themes.AdminLTE;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -116,6 +117,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     private List<String> domains;
 
     private Map<String, Class<? extends BasePage>> pageClasses;
+    
+    private String defaultAnyLayoutClass;
 
     @SuppressWarnings("unchecked")
     protected void populatePageClasses(final Properties props) {
@@ -187,6 +190,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         populatePageClasses(props);
         pageClasses = Collections.unmodifiableMap(pageClasses);
 
+        defaultAnyLayoutClass = props.getProperty("default.any.panel.class", AnyPanel.class.getName());
+        
         // Application settings
         IBootstrapSettings settings = new BootstrapSettings();
 
@@ -323,6 +328,10 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public Integer getQueueCapacity() {
         return queueCapacity;
+    }
+
+    public String getDefaultAnyLayoutClass() {
+        return defaultAnyLayoutClass;
     }
 
     public SyncopeClientFactoryBean newClientFactory() {
