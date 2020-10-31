@@ -143,7 +143,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     private PolicyTabProvider policyTabProvider;
 
     private Map<String, Class<? extends BasePage>> pageClasses;
-    
+
     private String defaultAnyLayoutClass;
 
     @SuppressWarnings("unchecked")
@@ -233,7 +233,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         pageClasses = Collections.unmodifiableMap(pageClasses);
 
         defaultAnyLayoutClass = props.getProperty("default.any.panel.class", AnyPanel.class.getName());
-        
+
         // Application settings
         IBootstrapSettings settings = new BootstrapSettings();
 
@@ -401,7 +401,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     public String getDefaultAnyLayoutClass() {
         return defaultAnyLayoutClass;
     }
-    
+
     public SyncopeClientFactoryBean newClientFactory() {
         return new SyncopeClientFactoryBean().
                 setAddress(serviceOps.get(NetworkService.Type.CORE).getAddress()).
