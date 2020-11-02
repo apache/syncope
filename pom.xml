@@ -405,7 +405,7 @@ under the License.
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
     <cxf.version>3.4.0</cxf.version>
-    <bouncycastle.version>1.66</bouncycastle.version>
+    <bouncycastle.version>1.67</bouncycastle.version>
 
     <jackson.version>2.11.3</jackson.version>
 
@@ -2317,7 +2317,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.36.2</version>
+              <version>8.37</version>
             </dependency>
           </dependencies>
           <configuration>
