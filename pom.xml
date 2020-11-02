@@ -1748,7 +1748,7 @@ under the License.
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
-        <version>1.65</version>
+        <version>1.67</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -2056,7 +2056,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.36.2</version>
+              <version>8.37</version>
             </dependency>
           </dependencies>
           <configuration>
