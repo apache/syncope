@@ -34,6 +34,9 @@ import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ItemTO;
@@ -299,6 +302,43 @@ public class MembershipITCase extends AbstractITCase {
                 taskService.delete(TaskType.PULL, newTask.getKey());
             }
             resourceService.delete(newResource.getKey());
+        }
+    }
+
+    @Test
+    public void createDoubleMembership() {
+        AnyObjectCR anyObjectCR = AnyObjectITCase.getSample("createDoubleMembership");
+        anyObjectCR.setRealm("/even/two");
+        anyObjectCR.getMemberships().add(new MembershipTO.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").build());
+        anyObjectCR.getMemberships().add(new MembershipTO.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").build());
+
+        try {
+            createAnyObject(anyObjectCR);
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidMembership, e.getType());
+        }
+    }
+
+    @Test
+    public void updateDoubleMembership() {
+        AnyObjectCR anyObjecCR = AnyObjectITCase.getSample("update");
+        anyObjecCR.setRealm("/even/two");
+        AnyObjectTO anyObjecTO = createAnyObject(anyObjecCR).getEntity();
+        assertNotNull(anyObjecTO.getKey());
+
+        AnyObjectUR req = new AnyObjectUR();
+        req.setKey(anyObjecTO.getKey());
+        req.getMemberships().add(new MembershipUR.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").build());
+        MembershipUR mp = new MembershipUR.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").build();
+        mp.getPlainAttrs().add(attr("any", "useless"));
+        req.getMemberships().add(mp);
+
+        try {
+            updateAnyObject(req).getEntity();
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidMembership, e.getType());
         }
     }
 }
