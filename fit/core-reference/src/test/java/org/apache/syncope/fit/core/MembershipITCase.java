@@ -28,10 +28,12 @@ import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -304,6 +306,46 @@ public class MembershipITCase extends AbstractITCase {
                 taskService.delete(TaskType.PULL, newTask.getKey());
             }
             resourceService.delete(newResource.getKey());
+        }
+    }
+
+    @Test
+    public void createDoubleMembership() {
+        AnyObjectTO anyObjectTO = AnyObjectITCase.getSampleTO("createDoubleMembership");
+        anyObjectTO.setRealm("/even/two");
+        anyObjectTO.getMemberships().add(
+                new MembershipTO.Builder().group("034740a9-fa10-453b-af37-dc7897e98fb1").build());
+        anyObjectTO.getMemberships().add(
+                new MembershipTO.Builder().group("034740a9-fa10-453b-af37-dc7897e98fb1").build());
+
+        try {
+            createAnyObject(anyObjectTO);
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidMembership, e.getType());
+        }
+    }
+
+    @Test
+    public void updateDoubleMembership() {
+        AnyObjectTO anyObjectTO = AnyObjectITCase.getSampleTO("update");
+        anyObjectTO.setRealm("/even/two");
+        anyObjectTO = createAnyObject(anyObjectTO).getEntity();
+        assertNotNull(anyObjectTO.getKey());
+
+        AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
+        anyObjectPatch.setKey(anyObjectTO.getKey());
+        anyObjectPatch.getMemberships().add(
+                new MembershipPatch.Builder().group("034740a9-fa10-453b-af37-dc7897e98fb1").build());
+        MembershipPatch mp = new MembershipPatch.Builder().group("034740a9-fa10-453b-af37-dc7897e98fb1").build();
+        mp.getPlainAttrs().add(attrTO("any", "useless"));
+        anyObjectPatch.getMemberships().add(mp);
+
+        try {
+            updateAnyObject(anyObjectPatch).getEntity();
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidMembership, e.getType());
         }
     }
 }

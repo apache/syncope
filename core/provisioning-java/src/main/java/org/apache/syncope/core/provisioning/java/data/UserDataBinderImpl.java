@@ -267,11 +267,22 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         user.setRealm(realm);
 
         // relationships
+        Set<Pair<String, String>> relationships = new HashSet<>();
         userTO.getRelationships().forEach(relationshipTO -> {
             AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getOtherEndKey());
             if (otherEnd == null) {
                 LOG.debug("Ignoring invalid anyObject " + relationshipTO.getOtherEndKey());
+            } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipTO.getType()))) {
+                LOG.error("{} was already in relationship {} with {}", otherEnd, relationshipTO.getType(), user);
+
+                SyncopeClientException assigned =
+                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                assigned.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
+                        + " in relationship " + relationshipTO.getType());
+                scce.addException(assigned);
             } else if (user.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
+                relationships.add(Pair.of(otherEnd.getKey(), relationshipTO.getType()));
+
                 RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
                 if (relationshipType == null) {
                     LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
@@ -295,6 +306,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         });
 
         // memberships
+        Set<String> groups = new HashSet<>();
         userTO.getMemberships().forEach(membershipTO -> {
             Group group = membershipTO.getGroupKey() == null
                     ? groupDAO.findByName(membershipTO.getGroupName())
@@ -302,7 +314,16 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             if (group == null) {
                 LOG.debug("Ignoring invalid group {}",
                         membershipTO.getGroupKey() + " / " + membershipTO.getGroupName());
+            } else if (groups.contains(group.getKey())) {
+                LOG.error("{} was already assigned to {}", group, user);
+
+                SyncopeClientException assigned =
+                        SyncopeClientException.build(ClientExceptionType.InvalidMembership);
+                assigned.getElements().add("Group " + group.getName() + " was already assigned");
+                scce.addException(assigned);
             } else if (user.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
+                groups.add(group.getKey());
+
                 UMembership membership = entityFactory.newEntity(UMembership.class);
                 membership.setRightEnd(group);
                 membership.setLeftEnd(user);
@@ -450,6 +471,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         propByRes.merge(fill(user, userPatch, anyUtils, scce));
 
         // relationships
+        Set<Pair<String, String>> relationships = new HashSet<>();
         userPatch.getRelationships().stream().filter(patch -> patch.getRelationshipTO() != null).forEach(patch -> {
             RelationshipType relationshipType = relationshipTypeDAO.find(patch.getRelationshipTO().getType());
             if (relationshipType == null) {
@@ -465,7 +487,21 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getOtherEndKey());
                     if (otherEnd == null) {
                         LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getOtherEndKey());
+                    } else if (relationships.contains(
+                            Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()))) {
+
+                        LOG.error("{} was already in relationship {} with {}",
+                                user, patch.getRelationshipTO().getType(), otherEnd);
+
+                        SyncopeClientException assigned =
+                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                        assigned.getElements().add("User was already in relationship "
+                                + patch.getRelationshipTO().getType() + " with "
+                                + otherEnd.getType().getKey() + " " + otherEnd.getName());
+                        scce.addException(assigned);
                     } else if (user.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
+                        relationships.add(Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()));
+
                         URelationship newRelationship = entityFactory.newEntity(URelationship.class);
                         newRelationship.setType(relationshipType);
                         newRelationship.setRightEnd(otherEnd);
@@ -507,6 +543,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // memberships
+        Set<String> groups = new HashSet<>();
         userPatch.getMemberships().stream().filter(patch -> patch.getGroup() != null).forEach(patch -> {
             user.getMembership(patch.getGroup()).ifPresent(membership -> {
                 user.remove(membership);
@@ -532,7 +569,16 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 Group group = groupDAO.find(patch.getGroup());
                 if (group == null) {
                     LOG.debug("Ignoring invalid group {}", patch.getGroup());
+                } else if (groups.contains(group.getKey())) {
+                    LOG.error("Multiple patches for group {} of {} were found", group, user);
+
+                    SyncopeClientException assigned =
+                            SyncopeClientException.build(ClientExceptionType.InvalidMembership);
+                    assigned.getElements().add("Multiple patches for group " + group.getName() + " were found");
+                    scce.addException(assigned);
                 } else if (user.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
+                    groups.add(group.getKey());
+
                     UMembership newMembership = entityFactory.newEntity(UMembership.class);
                     newMembership.setRightEnd(group);
                     newMembership.setLeftEnd(user);

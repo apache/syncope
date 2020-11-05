@@ -162,77 +162,96 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         }
         anyObject.setRealm(realm);
 
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
-        if (anyObject.getRealm() != null) {
-            // relationships
-            anyObjectTO.getRelationships().forEach(relationshipTO -> {
-                if (StringUtils.isBlank(relationshipTO.getOtherEndType())
-                        || AnyTypeKind.USER.name().equals(relationshipTO.getOtherEndType())
-                        || AnyTypeKind.GROUP.name().equals(relationshipTO.getOtherEndType())) {
+        // relationships
+        Set<Pair<String, String>> relationships = new HashSet<>();
+        anyObjectTO.getRelationships().forEach(relationshipTO -> {
+            if (StringUtils.isBlank(relationshipTO.getOtherEndType())
+                    || AnyTypeKind.USER.name().equals(relationshipTO.getOtherEndType())
+                    || AnyTypeKind.GROUP.name().equals(relationshipTO.getOtherEndType())) {
 
-                    SyncopeClientException invalidAnyType =
-                            SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
-                    invalidAnyType.getElements().add(AnyType.class.getSimpleName()
-                            + " not allowed for relationship: " + relationshipTO.getOtherEndType());
-                    scce.addException(invalidAnyType);
-                } else {
-                    AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getOtherEndKey());
-                    if (otherEnd == null) {
-                        LOG.debug("Ignoring invalid anyObject " + relationshipTO.getOtherEndKey());
-                    } else if (anyObject.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
-                        RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
-                        if (relationshipType == null) {
-                            LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
-                        } else {
-                            ARelationship relationship = entityFactory.newEntity(ARelationship.class);
-                            relationship.setType(relationshipType);
-                            relationship.setRightEnd(otherEnd);
-                            relationship.setLeftEnd(anyObject);
+                SyncopeClientException invalidAnyType =
+                        SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
+                invalidAnyType.getElements().add(AnyType.class.getSimpleName()
+                        + " not allowed for relationship: " + relationshipTO.getOtherEndType());
+                scce.addException(invalidAnyType);
+            } else {
+                AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getOtherEndKey());
+                if (otherEnd == null) {
+                    LOG.debug("Ignoring invalid anyObject " + relationshipTO.getOtherEndKey());
+                } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipTO.getType()))) {
+                    LOG.error("{} was already in relationship {} with {}",
+                            otherEnd, relationshipTO.getType(), anyObject);
 
-                            anyObject.add(relationship);
-                        }
+                    SyncopeClientException assigned =
+                            SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                    assigned.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
+                            + " in relationship " + relationshipTO.getType());
+                    scce.addException(assigned);
+                } else if (anyObject.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
+                    relationships.add(Pair.of(otherEnd.getKey(), relationshipTO.getType()));
+
+                    RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
+                    if (relationshipType == null) {
+                        LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
                     } else {
-                        LOG.error("{} cannot be related to {}", otherEnd, anyObject);
+                        ARelationship relationship = entityFactory.newEntity(ARelationship.class);
+                        relationship.setType(relationshipType);
+                        relationship.setRightEnd(otherEnd);
+                        relationship.setLeftEnd(anyObject);
 
-                        SyncopeClientException unrelatable =
-                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                        unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
-                                + " cannot be related");
-                        scce.addException(unrelatable);
+                        anyObject.add(relationship);
                     }
-                }
-            });
-
-            // memberships
-            anyObjectTO.getMemberships().forEach(membershipTO -> {
-                Group group = membershipTO.getGroupKey() == null
-                        ? groupDAO.findByName(membershipTO.getGroupName())
-                        : groupDAO.find(membershipTO.getGroupKey());
-                if (group == null) {
-                    LOG.debug("Ignoring invalid group "
-                            + membershipTO.getGroupKey() + " / " + membershipTO.getGroupName());
-                } else if (anyObject.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
-                    AMembership membership = entityFactory.newEntity(AMembership.class);
-                    membership.setRightEnd(group);
-                    membership.setLeftEnd(anyObject);
-
-                    anyObject.add(membership);
-
-                    // membership attributes
-                    fill(anyObject, membership, membershipTO, anyUtils, scce);
                 } else {
-                    LOG.error("{} cannot be assigned to {}", group, anyObject);
+                    LOG.error("{} cannot be related to {}", otherEnd, anyObject);
 
-                    SyncopeClientException unassignable =
-                            SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                    unassignable.getElements().add("Group " + group.getName() + " cannot be assigned");
-                    scce.addException(unassignable);
+                    SyncopeClientException unrelatable =
+                            SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                    unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
+                            + " cannot be related");
+                    scce.addException(unrelatable);
                 }
-            });
-        }
+            }
+        });
+
+        // memberships
+        Set<String> groups = new HashSet<>();
+        anyObjectTO.getMemberships().forEach(membershipTO -> {
+            Group group = membershipTO.getGroupKey() == null
+                    ? groupDAO.findByName(membershipTO.getGroupName())
+                    : groupDAO.find(membershipTO.getGroupKey());
+            if (group == null) {
+                LOG.debug("Ignoring invalid group "
+                        + membershipTO.getGroupKey() + " / " + membershipTO.getGroupName());
+            } else if (groups.contains(group.getKey())) {
+                LOG.error("{} was already assigned to {}", group, anyObject);
+
+                SyncopeClientException assigned =
+                        SyncopeClientException.build(ClientExceptionType.InvalidMembership);
+                assigned.getElements().add("Group " + group.getName() + " was already assigned");
+                scce.addException(assigned);
+            } else if (anyObject.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
+                groups.add(group.getKey());
+
+                AMembership membership = entityFactory.newEntity(AMembership.class);
+                membership.setRightEnd(group);
+                membership.setLeftEnd(anyObject);
+
+                anyObject.add(membership);
+
+                // membership attributes
+                fill(anyObject, membership, membershipTO, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
+            } else {
+                LOG.error("{} cannot be assigned to {}", group, anyObject);
+
+                SyncopeClientException unassignable =
+                        SyncopeClientException.build(ClientExceptionType.InvalidMembership);
+                unassignable.getElements().add("Group " + group.getName() + " cannot be assigned");
+                scce.addException(unassignable);
+            }
+        });
 
         // attributes and resources
-        fill(anyObject, anyObjectTO, anyUtils, scce);
+        fill(anyObject, anyObjectTO, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -270,6 +289,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         propByRes.merge(fill(anyObject, anyObjectPatch, anyUtils, scce));
 
         // relationships
+        Set<Pair<String, String>> relationships = new HashSet<>();
         anyObjectPatch.getRelationships().stream().
                 filter(patch -> patch.getRelationshipTO() != null).forEachOrdered((patch) -> {
             RelationshipType relationshipType = relationshipTypeDAO.find(patch.getRelationshipTO().getType());
@@ -296,7 +316,21 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getOtherEndKey());
                         if (otherEnd == null) {
                             LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getOtherEndKey());
+                        } else if (relationships.contains(
+                                Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()))) {
+
+                            LOG.error("{} was already in relationship {} with {}",
+                                    anyObject, patch.getRelationshipTO().getType(), otherEnd);
+
+                            SyncopeClientException assigned =
+                                    SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                            assigned.getElements().add("AnyObject was already in relationship "
+                                    + patch.getRelationshipTO().getType() + " with "
+                                    + otherEnd.getType().getKey() + " " + otherEnd.getName());
+                            scce.addException(assigned);
                         } else if (anyObject.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
+                            relationships.add(Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()));
+
                             ARelationship newRelationship = entityFactory.newEntity(ARelationship.class);
                             newRelationship.setType(relationshipType);
                             newRelationship.setRightEnd(otherEnd);
@@ -339,6 +373,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // memberships
+        Set<String> groups = new HashSet<>();
         anyObjectPatch.getMemberships().stream().filter(patch -> patch.getGroup() != null).forEach(patch -> {
             anyObject.getMembership(patch.getGroup()).ifPresent(membership -> {
                 anyObject.remove(membership);
@@ -363,7 +398,16 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 Group group = groupDAO.find(patch.getGroup());
                 if (group == null) {
                     LOG.debug("Ignoring invalid group {}", patch.getGroup());
+                } else if (groups.contains(group.getKey())) {
+                    LOG.error("Multiple patches for group {} of {} were found", group, anyObject);
+
+                    SyncopeClientException assigned =
+                            SyncopeClientException.build(ClientExceptionType.InvalidMembership);
+                    assigned.getElements().add("Multiple patches for group " + group.getName() + " were found");
+                    scce.addException(assigned);
                 } else if (anyObject.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
+                    groups.add(group.getKey());
+
                     AMembership newMembership = entityFactory.newEntity(AMembership.class);
                     newMembership.setRightEnd(group);
                     newMembership.setLeftEnd(anyObject);
