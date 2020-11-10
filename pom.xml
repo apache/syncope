@@ -409,7 +409,7 @@ under the License.
 
     <jackson.version>2.11.3</jackson.version>
 
-    <spring.version>5.2.10.RELEASE</spring.version>
+    <spring.version>5.2.11.RELEASE</spring.version>
     <spring-security.version>5.4.1</spring-security.version>
     <spring-boot.version>2.3.5.RELEASE</spring-boot.version>
     <spring-cloud-gateway.version>2.2.5.RELEASE</spring-cloud-gateway.version>
