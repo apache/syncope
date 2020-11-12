@@ -27,7 +27,7 @@ More information at http://syncope.apache.org
 <a href="#">
   <img src="https://img.shields.io/maven-central/v/org.apache.syncope/syncope.svg"/>
 </a>
-<a href="https://travis-ci.org/apache/syncope"><img src="https://api.travis-ci.org/apache/syncope.png"/></a>
+<a href="https://travis-ci.com/github/apache/syncope"><img src="https://api.travis-ci.com/apache/syncope.png"/></a>
 <a href="https://ci.appveyor.com/project/ApacheSoftwareFoundation/syncope">
   <img src="https://ci.appveyor.com/api/projects/status/k3moao48iilrq2pw?svg=true"/>
 </a>
