@@ -60,6 +60,10 @@ public class SyncopeTaskFormHandler extends DefaultTaskFormHandler {
                 }
                 break;
 
+            case "password":
+                formType = new PasswordFormType();
+                break;
+
             default:
         }
 

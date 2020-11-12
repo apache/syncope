@@ -82,7 +82,7 @@ public class DomainProcessEngineFactoryBean
                         conf.addEngineConfiguration(spiec.getEngineCfgKey(), spiec.getEngineScopeType(), spiec);
                     }
                     conf.setEnableSafeBpmnXml(true);
-                    conf.setCustomFormTypes(Arrays.asList(new DropdownFormType(null)));
+                    conf.setCustomFormTypes(Arrays.asList(new DropdownFormType(null), new PasswordFormType()));
 
                     engines.put(domain, conf.buildProcessEngine());
                 }

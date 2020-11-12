@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.UserRequestFormProperty;
 import org.apache.syncope.common.lib.to.UserRequestForm;
@@ -161,6 +162,10 @@ public abstract class UserRequestFormPanel extends Panel {
                                 prop.setValue(String.valueOf(object));
                             }
                         });
+                        break;
+
+                    case Password:
+                        field = new AjaxPasswordFieldPanel("value", label, new PropertyModel<>(prop, "value"), false);
                         break;
 
                     case String:
