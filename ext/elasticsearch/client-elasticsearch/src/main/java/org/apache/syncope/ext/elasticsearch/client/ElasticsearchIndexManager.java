@@ -71,10 +71,10 @@ public class ElasticsearchIndexManager {
         XContentBuilder settings = XContentFactory.jsonBuilder().
                 startObject().
                 startObject("analysis").
-                startObject("analyzer").
+                startObject("normalizer").
                 startObject("string_lowercase").
                 field("type", "custom").
-                field("tokenizer", "standard").
+                field("char_filter", new Object[0]).
                 field("filter").
                 startArray().
                 value("lowercase").
@@ -96,7 +96,7 @@ public class ElasticsearchIndexManager {
                 field("match_mapping_type", "string").
                 startObject("mapping").
                 field("type", "keyword").
-                field("analyzer", "string_lowercase").
+                field("normalizer", "string_lowercase").
                 endObject().
                 endObject().
                 endObject().
