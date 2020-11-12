@@ -34,8 +34,8 @@ under the License.
 
     <section name="Travis CI">
       <p>
-        <a href="https://travis-ci.org/apache/syncope">
-          <img src="https://api.travis-ci.org/apache/syncope.png"/>
+        <a href="https://travis-ci.com/github/apache/syncope">
+          <img src="https://api.travis-ci.com/apache/syncope.png"/>
         </a>
       </p>
     </section>
