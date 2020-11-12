@@ -22,12 +22,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
-import org.flowable.engine.ProcessEngine;
 import org.flowable.common.engine.impl.cfg.SpringBeanFactoryProxyMap;
+import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.impl.util.EngineServiceUtil;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.spring.SpringExpressionManager;
@@ -87,7 +86,7 @@ public class DomainProcessEngineFactoryBean
             conf.addEngineConfiguration(spiec.getEngineCfgKey(), spiec.getEngineScopeType(), spiec);
         }
         conf.setEnableSafeBpmnXml(true);
-        conf.setCustomFormTypes(List.of(new DropdownFormType(null)));
+        conf.setCustomFormTypes(List.of(new DropdownFormType(null), new PasswordFormType()));
 
         return conf.buildProcessEngine();
     }

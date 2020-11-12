@@ -16,16 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.core.flowable.support;
 
-public enum UserRequestFormPropertyType {
+import org.flowable.engine.impl.form.StringFormType;
 
-    String,
-    Long,
-    Enum,
-    Date,
-    Boolean,
-    Dropdown,
-    Password
+public class PasswordFormType extends StringFormType {
 
+    private static final long serialVersionUID = 4657839355580978699L;
+
+    @Override
+    public String getName() {
+        return "password";
+    }
 }

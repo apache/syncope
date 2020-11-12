@@ -28,6 +28,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.ui.commons.MapChoiceRenderer;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
@@ -174,6 +175,10 @@ public abstract class UserRequestFormPanel extends Panel {
                                 prop.setValue(String.valueOf(object));
                             }
                         });
+                        break;
+
+                    case Password:
+                        field = new AjaxPasswordFieldPanel("value", label, new PropertyModel<>(prop, "value"), false);
                         break;
 
                     case String:
