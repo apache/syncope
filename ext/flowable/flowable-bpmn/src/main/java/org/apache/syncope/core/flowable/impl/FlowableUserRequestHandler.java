@@ -290,6 +290,10 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                 case "dropdown":
                     result = UserRequestFormPropertyType.Dropdown;
                     break;
+                    
+                case "password":
+                    result = UserRequestFormPropertyType.Password;
+                    break;
 
                 case "string":
                 default:
