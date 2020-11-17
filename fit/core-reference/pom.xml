@@ -738,6 +738,9 @@ under the License.
                       <log>database system is ready to accept connections</log>
                       <time>30000</time>
                     </wait>
+                    <tmpfs>
+                      <mount>/var/lib/postgresql/data:rw</mount>
+                    </tmpfs>
                   </run>
                 </image>
               </images>
@@ -868,6 +871,9 @@ under the License.
                       <log>database system is ready to accept connections</log>
                       <time>30000</time>
                     </wait>
+                    <tmpfs>
+                      <mount>/var/lib/postgresql/data:rw</mount>
+                    </tmpfs>
                   </run>
                 </image>
               </images>
@@ -1016,6 +1022,9 @@ under the License.
                       <MYSQL_USER>syncope</MYSQL_USER>
                       <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
                     </env>
+                    <tmpfs>
+                      <mount>/var/lib/mysql:rw</mount>
+                    </tmpfs>
                     <wait>
                       <log>MySQL init process done. Ready for start up.</log>
                       <time>30000</time>
@@ -1148,6 +1157,9 @@ under the License.
                       <MYSQL_USER>syncope</MYSQL_USER>
                       <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
                     </env>
+                    <tmpfs>
+                      <mount>/var/lib/mysql:rw</mount>
+                    </tmpfs>
                     <wait>
                       <log>MySQL init process done. Ready for start up.</log>
                       <time>30000</time>
@@ -1252,6 +1264,9 @@ under the License.
                       <MYSQL_USER>syncope</MYSQL_USER>
                       <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
                     </env>
+                    <tmpfs>
+                      <mount>/var/lib/mysql:rw</mount>
+                    </tmpfs>
                     <wait>
                       <log>MySQL init process done. Ready for start up.</log>
                       <time>30000</time>
