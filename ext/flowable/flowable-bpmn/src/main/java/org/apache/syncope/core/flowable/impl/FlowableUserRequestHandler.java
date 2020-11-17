@@ -20,6 +20,7 @@ package org.apache.syncope.core.flowable.impl;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -68,6 +69,7 @@ import org.flowable.identitylink.api.IdentityLinkType;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskQuery;
 import org.flowable.task.api.history.HistoricTaskInstance;
+import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -290,7 +292,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                 case "dropdown":
                     result = UserRequestFormPropertyType.Dropdown;
                     break;
-                    
+
                 case "password":
                     result = UserRequestFormPropertyType.Password;
                     break;
@@ -621,12 +623,19 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         return FlowableUserRequestHandler.this.getForm(task, parsed.getRight());
     }
 
-    private static Map<String, String> getPropertiesForSubmit(final UserRequestForm form) {
+    protected Map<String, String> getPropertiesForSubmit(final UserRequestForm form) {
         Map<String, String> props = new HashMap<>();
         form.getProperties().stream().
                 filter(UserRequestFormProperty::isWritable).
                 forEach(prop -> props.put(prop.getId(), prop.getValue()));
         return Collections.unmodifiableMap(props);
+    }
+
+    protected <T> T getHistoricVariable(
+            final List<HistoricVariableInstance> historicVariables, final String name, final Class<T> valueRef) {
+
+        return historicVariables.stream().filter(v -> name.equals(v.getVariableName())).
+                findFirst().map(v -> valueRef.cast(v.getValue())).orElse(null);
     }
 
     @Override
@@ -666,37 +675,54 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         user = userDAO.save(user);
 
-        UserUR userUR = null;
+        PropagationByResource<String> propByRes;
+        PropagationByResource<Pair<String, String>> propByLinkedAccount;
         String clearPassword = null;
-        PropagationByResource<String> propByRes = null;
-        PropagationByResource<Pair<String, String>> propByLinkedAccount = null;
+        UserUR userUR;
+        if (engine.getRuntimeService().
+                createProcessInstanceQuery().processInstanceId(procInstID).singleResult() == null) {
 
-        ProcessInstance afterSubmitPI = engine.getRuntimeService().
-                createProcessInstanceQuery().processInstanceId(procInstID).singleResult();
-        if (afterSubmitPI != null) {
+            List<HistoricVariableInstance> historicVariables = engine.getHistoryService().
+                    createHistoricVariableInstanceQuery().processInstanceId(procInstID).list();
+
+            // see if there is any propagation to be done
+            propByRes = getHistoricVariable(
+                    historicVariables, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
+            propByLinkedAccount = getHistoricVariable(
+                    historicVariables, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, PropagationByResource.class);
+
+            // fetch - if available - the encrypted password
+            String encryptedPwd = getHistoricVariable(
+                    historicVariables, FlowableRuntimeUtils.ENCRYPTED_PWD, String.class);
+            if (StringUtils.isNotBlank(encryptedPwd)) {
+                clearPassword = FlowableRuntimeUtils.decrypt(encryptedPwd);
+            }
+
+            userUR = getHistoricVariable(historicVariables, FlowableRuntimeUtils.USER_UR, UserUR.class);
+        } else {
             engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.TASK);
             engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.FORM_SUBMITTER);
             engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
             engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER_TO);
 
             // see if there is any propagation to be done
-            propByRes = engine.getRuntimeService().
-                    getVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
+            propByRes = engine.getRuntimeService().getVariable(
+                    procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
             engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE);
             propByLinkedAccount = engine.getRuntimeService().getVariable(
                     procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, PropagationByResource.class);
             engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT);
 
             // fetch - if available - the encrypted password
-            String encryptedPwd = engine.getRuntimeService().
-                    getVariable(procInstID, FlowableRuntimeUtils.ENCRYPTED_PWD, String.class);
+            String encryptedPwd = engine.getRuntimeService().getVariable(
+                    procInstID, FlowableRuntimeUtils.ENCRYPTED_PWD, String.class);
             engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.ENCRYPTED_PWD);
             if (StringUtils.isNotBlank(encryptedPwd)) {
                 clearPassword = FlowableRuntimeUtils.decrypt(encryptedPwd);
             }
 
-            Boolean enabled = engine.getRuntimeService().
-                    getVariable(procInstID, FlowableRuntimeUtils.ENABLED, Boolean.class);
+            Boolean enabled = engine.getRuntimeService().getVariable(
+                    procInstID, FlowableRuntimeUtils.ENABLED, Boolean.class);
             engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.ENABLED);
 
             // supports approval chains
@@ -709,22 +735,25 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                     propByRes,
                     propByLinkedAccount);
 
-            userUR = engine.getRuntimeService().getVariable(procInstID, FlowableRuntimeUtils.USER_UR, UserUR.class);
+            userUR = engine.getRuntimeService().getVariable(
+                    procInstID, FlowableRuntimeUtils.USER_UR, UserUR.class);
             engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER_UR);
         }
+
         if (userUR == null) {
             userUR = new UserUR();
             userUR.setKey(user.getKey());
             userUR.setPassword(new PasswordPatch.Builder().onSyncope(true).value(clearPassword).build());
 
+            Set<String> pwdResources = new HashSet<>();
             if (propByRes != null) {
-                userUR.getPassword().getResources().addAll(propByRes.get(ResourceOperation.CREATE));
+                pwdResources.addAll(propByRes.get(ResourceOperation.CREATE));
             }
             if (propByLinkedAccount != null) {
-                for (Pair<String, String> account : propByLinkedAccount.get(ResourceOperation.CREATE)) {
-                    userUR.getPassword().getResources().add(account.getLeft());
-                }
+                pwdResources.addAll(propByLinkedAccount.get(ResourceOperation.CREATE).stream().
+                        map(Pair::getLeft).collect(Collectors.toList()));
             }
+            userUR.getPassword().getResources().addAll(pwdResources);
         }
 
         return new UserWorkflowResult<>(userUR, propByRes, propByLinkedAccount, postTasks);
