@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 import java.io.IOException;
@@ -52,6 +53,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     private enum AuthModuleSupportedType {
         GOOGLE_MFA,
+        DUO,
         SAML2_IDP,
         STATIC,
         SYNCOPE,
@@ -89,6 +91,14 @@ public class AuthModuleITCase extends AbstractITCase {
                 GoogleMfaAuthModuleConf.class.cast(conf).setLabel("Syncope");
                 GoogleMfaAuthModuleConf.class.cast(conf).setTimeStepSize(30);
                 GoogleMfaAuthModuleConf.class.cast(conf).setWindowSize(3);
+                break;
+
+            case DUO:
+                conf = new DuoMfaAuthModuleConf();
+                DuoMfaAuthModuleConf.class.cast(conf).setSecretKey("Q2IU2i6BFNd6VYflZT8Evl6lF7oPlj4PM15BmRU7");
+                DuoMfaAuthModuleConf.class.cast(conf).setIntegrationKey("DIOXVRZD1UMZ8XXMNFQ6");
+                DuoMfaAuthModuleConf.class.cast(conf).setApiHost("theapi.duosecurity.com");
+                DuoMfaAuthModuleConf.class.cast(conf).setApplicationKey("u4IHCaREMB7Cb0S6QMISAgHycpj6lPBkDGfWt99I");
                 break;
 
             case JAAS:
@@ -183,6 +193,9 @@ public class AuthModuleITCase extends AbstractITCase {
                 authModule -> isSpecificConf(authModule.getConf(), GoogleMfaAuthModuleConf.class)
                 && authModule.getKey().equals("DefaultGoogleMfaAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
+            authModule -> isSpecificConf(authModule.getConf(), DuoMfaAuthModuleConf.class)
+                && authModule.getKey().equals("DefaultDuoMfaAuthModule")));
+        assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), OIDCAuthModuleConf.class)
                 && authModule.getKey().equals("DefaultOIDCAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
@@ -233,6 +246,15 @@ public class AuthModuleITCase extends AbstractITCase {
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
         assertTrue(isSpecificConf(authModuleTO.getConf(), GoogleMfaAuthModuleConf.class));
         assertFalse(isSpecificConf(authModuleTO.getConf(), OIDCAuthModuleConf.class));
+    }
+
+    @Test
+    public void getDuoMfaAuthModule() {
+        AuthModuleTO authModuleTO = authModuleService.read("DefaultDuoMfaAuthModule");
+
+        assertNotNull(authModuleTO);
+        assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
+        assertTrue(isSpecificConf(authModuleTO.getConf(), DuoMfaAuthModuleConf.class));
     }
 
     @Test
@@ -306,7 +328,7 @@ public class AuthModuleITCase extends AbstractITCase {
     }
 
     @Test
-    public void create() throws IOException {
+    public void create() {
         EnumSet.allOf(AuthModuleSupportedType.class).forEach(type -> {
             AuthModuleTO authModuleTO = createAuthModule(buildAuthModuleTO(type));
             assertNotNull(authModuleTO);
@@ -336,6 +358,30 @@ public class AuthModuleITCase extends AbstractITCase {
 
         conf = newGoogleMfaAuthModuleTO.getConf();
         assertEquals("newLabel", GoogleMfaAuthModuleConf.class.cast(conf).getLabel());
+    }
+
+    @Test
+    public void updateDuoMfaAuthModule() {
+        AuthModuleTO duoMfaAuthModuleTO = authModuleService.read("DefaultDuoMfaAuthModule");
+        assertNotNull(duoMfaAuthModuleTO);
+
+        AuthModuleTO newDuoMfaAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.DUO);
+        newDuoMfaAuthModuleTO = createAuthModule(newDuoMfaAuthModuleTO);
+        assertNotNull(newDuoMfaAuthModuleTO);
+
+        AuthModuleConf conf = duoMfaAuthModuleTO.getConf();
+        assertNotNull(conf);
+        String secretKey = UUID.randomUUID().toString();
+        DuoMfaAuthModuleConf.class.cast(conf).setSecretKey(secretKey);
+        newDuoMfaAuthModuleTO.setConf(conf);
+
+        // update new auth module
+        authModuleService.update(newDuoMfaAuthModuleTO);
+        newDuoMfaAuthModuleTO = authModuleService.read(newDuoMfaAuthModuleTO.getKey());
+        assertNotNull(newDuoMfaAuthModuleTO);
+
+        conf = newDuoMfaAuthModuleTO.getConf();
+        assertEquals(secretKey, DuoMfaAuthModuleConf.class.cast(conf).getSecretKey());
     }
 
     @Test
