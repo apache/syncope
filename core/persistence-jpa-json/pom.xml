@@ -45,7 +45,7 @@ under the License.
     </dependency>
 
     <!-- TEST -->
-    <dependency> 
+    <dependency>
       <groupId>javax.servlet</groupId> 
       <artifactId>javax.servlet-api</artifactId> 
       <scope>test</scope>
@@ -255,6 +255,9 @@ under the License.
                     <ports>
                       <port>5432:5432</port>
                     </ports>
+                    <tmpfs>
+                      <mount>/var/lib/postgresql/data:rw</mount>
+                    </tmpfs>
                   </run>
                 </image>
               </images>
@@ -370,6 +373,9 @@ under the License.
                     <ports>
                       <port>3306:3306</port>
                     </ports>
+                    <tmpfs>
+                      <mount>/var/lib/mysql:rw</mount>
+                    </tmpfs>
                     <wait>
                       <log>MySQL init process done. Ready for start up.</log>
                       <time>30000</time>

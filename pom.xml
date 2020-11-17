@@ -824,6 +824,12 @@ under the License.
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-jdbc</artifactId>
         <version>${openjpa.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.xbean</groupId>
+            <artifactId>xbean-asm8-shaded</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.openjpa</groupId>
