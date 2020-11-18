@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.provisioning.api.AccountGetter;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,8 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
         List<Filter> filters = new ArrayList<>();
 
         provision.getMapping().getItems().stream().filter(
-                item -> item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH).
+                item -> conf.getSchemas().contains(item.getIntAttrName())
+                && (item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH)).
                 forEach(item -> {
                     Pair<String, Attribute> attr = mappingManager.prepareAttr(
                             provision,
@@ -69,10 +71,18 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
                             AccountGetter.DEFAULT,
                             AccountGetter.DEFAULT,
                             PlainAttrGetter.DEFAULT);
-                    if (attr != null && attr.getRight() != null && conf.getSchemas().contains(item.getIntAttrName())) {
-                        filters.add(provision.isIgnoreCaseMatch()
-                                ? FilterBuilder.equalsIgnoreCase(attr.getRight())
-                                : FilterBuilder.equalTo(attr.getRight()));
+                    if (attr != null) {
+                        Attribute toFilter = null;
+                        if (attr.getLeft() != null) {
+                            toFilter = AttributeBuilder.build(item.getExtAttrName(), attr.getLeft());
+                        } else if (attr.getRight() != null) {
+                            toFilter = attr.getRight();
+                        }
+                        if (toFilter != null) {
+                            filters.add(provision.isIgnoreCaseMatch()
+                                    ? FilterBuilder.equalsIgnoreCase(toFilter)
+                                    : FilterBuilder.equalTo(toFilter));
+                        }
                     }
                 });
 
