@@ -20,6 +20,8 @@ package org.apache.syncope.wa.bootstrap;
 
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JDBCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JaasAuthModuleConf;
@@ -48,6 +51,7 @@ import org.apereo.cas.configuration.model.support.jdbc.JdbcAuthenticationPropert
 import org.apereo.cas.configuration.model.support.jdbc.authn.QueryJdbcAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.ldap.AbstractLdapAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.ldap.LdapAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.mfa.DuoSecurityMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.MultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorProperties;
@@ -144,6 +148,32 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
                 SimpleBeanPropertyFilter.filterOutAllExcept(
                         CasCoreConfigurationUtils.getPropertyName(
                                 AuthenticationProperties.class, AuthenticationProperties::getLdap)));
+        return filterCasProperties(casProperties, filterProvider);
+    }
+
+    private static Map<String, Object> mapAuthModule(
+        final String authModule,
+        final DuoMfaAuthModuleConf conf) {
+        DuoSecurityMultifactorProperties props = new DuoSecurityMultifactorProperties();
+        props.setName(authModule);
+        props.setDuoApiHost(conf.getApiHost());
+        props.setDuoApplicationKey(conf.getApplicationKey());
+        props.setDuoIntegrationKey(conf.getIntegrationKey());
+        props.setDuoSecretKey(conf.getSecretKey());
+
+        CasConfigurationProperties casProperties = new CasConfigurationProperties();
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
+        casProperties.getAuthn().getMfa().setDuo(List.of(props));
+        
+        filterProvider.
+            addFilter(AuthenticationProperties.class.getSimpleName(),
+                SimpleBeanPropertyFilter.filterOutAllExcept(
+                    CasCoreConfigurationUtils.getPropertyName(AuthenticationProperties.class,
+                        AuthenticationProperties::getMfa))).
+            addFilter(MultifactorAuthenticationProperties.class.getSimpleName(),
+                SimpleBeanPropertyFilter.filterOutAllExcept(
+                    CasCoreConfigurationUtils.getPropertyName(MultifactorAuthenticationProperties.class,
+                        MultifactorAuthenticationProperties::getDuo)));
         return filterCasProperties(casProperties, filterProvider);
     }
 
@@ -408,6 +438,8 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
                         (SyncopeAuthModuleConf) authConf, syncopeClient.getAddress()));
             } else if (authConf instanceof GoogleMfaAuthModuleConf) {
                 properties.putAll(mapAuthModule(authModuleTO.getKey(), (GoogleMfaAuthModuleConf) authConf));
+            } else if (authConf instanceof DuoMfaAuthModuleConf) {
+                properties.putAll(mapAuthModule(authModuleTO.getKey(), (DuoMfaAuthModuleConf) authConf));
             } else if (authConf instanceof JaasAuthModuleConf) {
                 properties.putAll(mapAuthModule(authModuleTO.getKey(), (JaasAuthModuleConf) authConf));
             } else if (authConf instanceof JDBCAuthModuleConf) {

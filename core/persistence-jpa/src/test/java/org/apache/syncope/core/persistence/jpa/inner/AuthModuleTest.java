@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JDBCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JaasAuthModuleConf;
@@ -74,6 +75,10 @@ public class AuthModuleTest extends AbstractTest {
         assertNotNull(authModule);
         assertTrue(authModule.getConf() instanceof GoogleMfaAuthModuleConf);
 
+        authModule = authModuleDAO.find("DefaultDuoMfaAuthModule");
+        assertNotNull(authModule);
+        assertTrue(authModule.getConf() instanceof DuoMfaAuthModuleConf);
+
         authModule = authModuleDAO.find("DefaultOIDCAuthModule");
         assertNotNull(authModule);
         assertTrue(authModule.getConf() instanceof OIDCAuthModuleConf);
@@ -115,6 +120,9 @@ public class AuthModuleTest extends AbstractTest {
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), GoogleMfaAuthModuleConf.class)
                 && authModule.getKey().equals("DefaultGoogleMfaAuthModule")));
+        assertTrue(authModules.stream().anyMatch(
+            authModule -> isSpecificConf(authModule.getConf(), DuoMfaAuthModuleConf.class)
+                && authModule.getKey().equals("DefaultDuoMfaAuthModule")));
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), OIDCAuthModuleConf.class)
                 && authModule.getKey().equals("DefaultOIDCAuthModule")));
@@ -182,6 +190,16 @@ public class AuthModuleTest extends AbstractTest {
         conf.setWindowSize(3);
 
         saveAuthModule("GoogleMfaAuthModuleTest", conf);
+    }
+
+    @Test
+    public void saveWithDuoAuthenticatorModule() {
+        DuoMfaAuthModuleConf conf = new DuoMfaAuthModuleConf();
+        conf.setSecretKey("Q2IU2i6BFNd6VYflZT8Evl6lF7oPlj4PM15BmRU7");
+        conf.setIntegrationKey("DIOXVRZD1UMZ8XXMNFQ6");
+        conf.setApiHost("theapi.duosecurity.com");
+        conf.setApplicationKey("u4IHCaREMB7Cb0S6QMISAgHycpj6lPBkDGfWt99I");
+        saveAuthModule("DuoMfaAuthModuleTest", conf);
     }
 
     @Test
@@ -291,6 +309,24 @@ public class AuthModuleTest extends AbstractTest {
         assertNotNull(found);
         assertEquals("newLabel", GoogleMfaAuthModuleConf.class.cast(found.getConf()).getLabel());
     }
+
+    @Test
+    public void updateWithDuoMfaModule() {
+        AuthModule module = authModuleDAO.find("DefaultDuoMfaAuthModule");
+        assertNotNull(module);
+        AuthModuleConf conf = module.getConf();
+        String secretKey = UUID.randomUUID().toString();
+        DuoMfaAuthModuleConf.class.cast(conf).setSecretKey(secretKey);
+        module.setConf(conf);
+
+        module = authModuleDAO.save(module);
+        assertNotNull(module);
+        assertNotNull(module.getKey());
+        AuthModule found = authModuleDAO.find(module.getKey());
+        assertNotNull(found);
+        assertEquals(secretKey, DuoMfaAuthModuleConf.class.cast(found.getConf()).getSecretKey());
+    }
+
 
     @Test
     public void updateWithSAML2IdPModule() {
