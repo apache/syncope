@@ -55,7 +55,6 @@ public class StreamAnyObjectPushResultHandler extends DefaultAnyObjectPushResult
                 profile.getTask().getResource(),
                 ResourceOperation.CREATE,
                 provision,
-                false,
                 items,
                 preparedAttrs);
         propagationTask.setConnector(profile.getConnector());

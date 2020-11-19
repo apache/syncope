@@ -710,27 +710,21 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 forEach(delete -> {
                     groupDAO.find(delete).getResources().stream().
                             filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> {
-                                propByRes.add(ResourceOperation.DELETE, resource.getKey());
-                            });
+                            forEach(resource -> propByRes.add(ResourceOperation.DELETE, resource.getKey()));
                 });
         dynGroupMembs.getLeft().stream().
                 filter(group -> dynGroupMembs.getRight().contains(group)).
                 forEach(update -> {
                     groupDAO.find(update).getResources().stream().
                             filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> {
-                                propByRes.add(ResourceOperation.UPDATE, resource.getKey());
-                            });
+                            forEach(resource -> propByRes.add(ResourceOperation.UPDATE, resource.getKey()));
                 });
         dynGroupMembs.getRight().stream().
                 filter(group -> !dynGroupMembs.getLeft().contains(group)).
                 forEach(create -> {
                     groupDAO.find(create).getResources().stream().
                             filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> {
-                                propByRes.add(ResourceOperation.CREATE, resource.getKey());
-                            });
+                            forEach(resource -> propByRes.add(ResourceOperation.CREATE, resource.getKey()));
                 });
 
         // Throw composite exception if there is at least one element set in the composing exceptions
@@ -739,7 +733,16 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         // Re-merge any pending change from above
-        userDAO.save(user);
+        User saved = userDAO.save(user);
+
+        // ensure not to DELETE on External Resources that remain assigned
+        Set<String> assigned = saved.getResources().stream().
+                map(ExternalResource::getKey).collect(Collectors.toCollection(HashSet::new));
+        assigned.addAll(saved.getMemberships().stream().
+                flatMap(m -> m.getRightEnd().getResources().stream()).map(ExternalResource::getKey).
+                collect(Collectors.toSet()));
+        propByRes.removeAll(ResourceOperation.DELETE, assigned);
+
         return Pair.of(propByRes, propByLinkedAccount);
     }
 

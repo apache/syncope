@@ -55,7 +55,6 @@ public class StreamUserPushResultHandler extends DefaultUserPushResultHandler {
                 profile.getTask().getResource(),
                 ResourceOperation.CREATE,
                 provision,
-                false,
                 items,
                 preparedAttrs);
         propagationTask.setConnector(profile.getConnector());

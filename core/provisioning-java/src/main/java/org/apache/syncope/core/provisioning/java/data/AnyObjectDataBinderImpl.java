@@ -493,27 +493,21 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 forEach(delete -> {
                     groupDAO.find(delete).getResources().stream().
                             filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> {
-                                propByRes.add(ResourceOperation.DELETE, resource.getKey());
-                            });
+                            forEach(resource -> propByRes.add(ResourceOperation.DELETE, resource.getKey()));
                 });
         dynGroupMembs.getLeft().stream().
                 filter(group -> dynGroupMembs.getRight().contains(group)).
                 forEach(update -> {
                     groupDAO.find(update).getResources().stream().
                             filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> {
-                                propByRes.add(ResourceOperation.UPDATE, resource.getKey());
-                            });
+                            forEach(resource -> propByRes.add(ResourceOperation.UPDATE, resource.getKey()));
                 });
         dynGroupMembs.getRight().stream().
                 filter(group -> !dynGroupMembs.getLeft().contains(group)).
                 forEach(create -> {
                     groupDAO.find(create).getResources().stream().
                             filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> {
-                                propByRes.add(ResourceOperation.CREATE, resource.getKey());
-                            });
+                            forEach(resource -> propByRes.add(ResourceOperation.CREATE, resource.getKey()));
                 });
 
         // Throw composite exception if there is at least one element set in the composing exceptions
@@ -522,7 +516,16 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         }
 
         // Re-merge any pending change from above
-        anyObjectDAO.save(anyObject);
+        AnyObject saved = anyObjectDAO.save(anyObject);
+
+        // ensure not to DELETE on External Resources that remain assigned
+        Set<String> assigned = saved.getResources().stream().
+                map(ExternalResource::getKey).collect(Collectors.toCollection(HashSet::new));
+        assigned.addAll(saved.getMemberships().stream().
+                flatMap(m -> m.getRightEnd().getResources().stream()).map(ExternalResource::getKey).
+                collect(Collectors.toSet()));
+        propByRes.removeAll(ResourceOperation.DELETE, assigned);
+
         return propByRes;
     }
 }

@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.propagation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -278,61 +277,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         Uid result;
         if (beforeObj == null) {
-            LOG.debug("{} not found on external resource: ignoring delete", task.getConnObjectKey());
+            LOG.debug("{} not found on {}: ignoring delete", task.getConnObjectKey(), task.getResource().getKey());
             result = null;
         } else {
-            /*
-             * We must choose here whether to
-             * a. actually delete the provided entity from the external resource
-             * b. just update the provided entity data onto the external resource
-             *
-             * (a) happens when either there is no entity associated with the PropagationTask (this takes place
-             * when the task is generated via Logic's delete()) or the provided updated
-             * entity hasn't the current resource assigned (when the task is generated via
-             * Logic's update()).
-             *
-             * (b) happens when the provided updated entity does have the current resource assigned (when the task
-             * is generated via Logic's update()): this basically means that before such
-             * update, this entity used to have the current resource assigned by more than one mean (for example,
-             * two different memberships with the same resource).
-             */
-            Collection<String> resources = Collections.emptySet();
-            if (task.getEntityKey() != null && task.getAnyTypeKind() != null) {
-                switch (task.getAnyTypeKind()) {
-                    case USER:
-                        try {
-                        resources = userDAO.findAllResourceKeys(task.getEntityKey());
-                    } catch (Exception e) {
-                        LOG.error("Could not read user {}", task.getEntityKey(), e);
-                    }
-                    break;
+            LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getKey());
 
-                    case GROUP:
-                        try {
-                        resources = groupDAO.findAllResourceKeys(task.getEntityKey());
-                    } catch (Exception e) {
-                        LOG.error("Could not read group {}", task.getEntityKey(), e);
-                    }
-                    break;
-
-                    case ANY_OBJECT:
-                    default:
-                        try {
-                        resources = anyObjectDAO.findAllResourceKeys(task.getEntityKey());
-                    } catch (Exception e) {
-                        LOG.error("Could not read any object {}", task.getEntityKey(), e);
-                    }
-                    break;
-                }
-            }
-            if (task.getAnyTypeKind() == null || !resources.contains(task.getResource().getKey())) {
-                LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getKey());
-
-                connector.delete(beforeObj.getObjectClass(), beforeObj.getUid(), null, propagationAttempted);
-                result = beforeObj.getUid();
-            } else {
-                result = createOrUpdate(task, beforeObj, connector, propagationAttempted);
-            }
+            connector.delete(beforeObj.getObjectClass(), beforeObj.getUid(), null, propagationAttempted);
+            result = beforeObj.getUid();
         }
 
         return result;

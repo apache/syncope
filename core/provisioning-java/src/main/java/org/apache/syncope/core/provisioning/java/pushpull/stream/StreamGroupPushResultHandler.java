@@ -55,7 +55,6 @@ public class StreamGroupPushResultHandler extends DefaultGroupPushResultHandler 
                 profile.getTask().getResource(),
                 ResourceOperation.CREATE,
                 provision,
-                false,
                 items,
                 preparedAttrs);
         propagationTask.setConnector(profile.getConnector());

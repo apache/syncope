@@ -142,28 +142,12 @@ public interface PropagationManager {
             PropagationByResource<Pair<String, String>> propByLinkedAccount,
             Collection<String> noPropResourceKeys);
 
-    /**
-     * Create the delete tasks for the any object from each resource associated, unless in {@code noPropResourceKeys}.
-     *
-     * @param key any object key
-     * @param propByRes operation to be performed per resource
-     * @param propByLinkedAccount operation to be performed for linked accounts
-     * @param noPropResourceKeys external resource keys not to be considered for propagation
-     * @return list of propagation tasks
-     */
-    List<PropagationTaskInfo> getUserDeleteTasks(
-            String key,
-            PropagationByResource<String> propByRes,
-            PropagationByResource<Pair<String, String>> propByLinkedAccount,
-            Collection<String> noPropResourceKeys);
-
     PropagationTaskInfo newTask(
             DerAttrHandler derAttrHandler,
             Any<?> any,
             ExternalResource resource,
             ResourceOperation operation,
             Provision provision,
-            boolean deleteOnResource,
             Stream<? extends Item> mappingItems,
             Pair<String, Set<Attribute>> preparedAttrs);
 

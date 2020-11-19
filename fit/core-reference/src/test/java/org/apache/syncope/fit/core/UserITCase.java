@@ -1325,9 +1325,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getResources().add(RESOURCE_NAME_REST);
 
         // 1. create
-        ProvisioningResult<UserTO> result = userService.create(userTO, true).readEntity(
-                new GenericType<ProvisioningResult<UserTO>>() {
-        });
+        ProvisioningResult<UserTO> result = createUser(userTO);
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
@@ -1344,9 +1342,7 @@ public class UserITCase extends AbstractITCase {
         patch.setKey(result.getEntity().getKey());
         patch.getPlainAttrs().add(new AttrPatch.Builder().
                 attrTO(new AttrTO.Builder().schema("surname").value("surname2").build()).build());
-        result = userService.update(patch).readEntity(
-                new GenericType<ProvisioningResult<UserTO>>() {
-        });
+        result = updateUser(patch);
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
@@ -1358,9 +1354,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(response.getEntity());
 
         // 3. delete
-        result = userService.delete(result.getEntity().getKey()).readEntity(
-                new GenericType<ProvisioningResult<UserTO>>() {
-        });
+        result = deleteUser(result.getEntity().getKey());
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
