@@ -725,7 +725,16 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         // Re-merge any pending change from above
-        userDAO.save(user);
+        User saved = userDAO.save(user);
+
+        // ensure not to DELETE on External Resources that remain assigned
+        Set<String> assigned = saved.getResources().stream().
+                map(ExternalResource::getKey).collect(Collectors.toCollection(HashSet::new));
+        assigned.addAll(saved.getMemberships().stream().
+                flatMap(m -> m.getRightEnd().getResources().stream()).map(ExternalResource::getKey).
+                collect(Collectors.toSet()));
+        propByRes.removeAll(ResourceOperation.DELETE, assigned);
+
         return Pair.of(propByRes, propByLinkedAccount);
     }
 

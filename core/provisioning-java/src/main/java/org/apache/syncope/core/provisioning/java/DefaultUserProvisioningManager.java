@@ -213,7 +213,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         // information could only be available after uwfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
-        List<PropagationTaskInfo> taskInfos = propagationManager.getUserDeleteTasks(
+        List<PropagationTaskInfo> taskInfos = propagationManager.getDeleteTasks(
+                AnyTypeKind.USER,
                 key,
                 propByRes,
                 propByLinkedAccount,

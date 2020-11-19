@@ -509,7 +509,16 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         }
 
         // Re-merge any pending change from above
-        anyObjectDAO.save(anyObject);
+        AnyObject saved = anyObjectDAO.save(anyObject);
+
+        // ensure not to DELETE on External Resources that remain assigned
+        Set<String> assigned = saved.getResources().stream().
+                map(ExternalResource::getKey).collect(Collectors.toCollection(HashSet::new));
+        assigned.addAll(saved.getMemberships().stream().
+                flatMap(m -> m.getRightEnd().getResources().stream()).map(ExternalResource::getKey).
+                collect(Collectors.toSet()));
+        propByRes.removeAll(ResourceOperation.DELETE, assigned);
+
         return propByRes;
     }
 }

@@ -74,7 +74,8 @@ public class DeleteProducer extends AbstractProducer {
                     // information could only be available after uwfAdapter.delete(), which
                     // will also effectively remove user from db, thus making virtually
                     // impossible by NotificationManager to fetch required user information
-                    taskInfos = getPropagationManager().getUserDeleteTasks(
+                    taskInfos = getPropagationManager().getDeleteTasks(
+                            AnyTypeKind.USER,
                             key,
                             propByRes,
                             propByLinkedAccount,

@@ -36,10 +36,6 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.AnyDAO;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -84,15 +80,6 @@ public class PropagationManagerImpl implements PropagationManager {
     protected VirSchemaDAO virSchemaDAO;
 
     @Autowired
-    protected AnyObjectDAO anyObjectDAO;
-
-    @Autowired
-    protected UserDAO userDAO;
-
-    @Autowired
-    protected GroupDAO groupDAO;
-
-    @Autowired
     protected ExternalResourceDAO resourceDAO;
 
     @Autowired
@@ -110,25 +97,6 @@ public class PropagationManagerImpl implements PropagationManager {
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
 
-    protected AnyDAO<? extends Any<?>> dao(final AnyTypeKind kind) {
-        AnyDAO<? extends Any<?>> dao;
-        switch (kind) {
-            case ANY_OBJECT:
-                dao = anyObjectDAO;
-                break;
-
-            case GROUP:
-                dao = groupDAO;
-                break;
-
-            case USER:
-            default:
-                dao = userDAO;
-        }
-
-        return dao;
-    }
-
     @Override
     public List<PropagationTaskInfo> getCreateTasks(
             final AnyTypeKind kind,
@@ -139,7 +107,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final Collection<String> noPropResourceKeys) {
 
         return getCreateTasks(
-                dao(kind).authFind(key),
+                anyUtilsFactory.getInstance(kind).dao().authFind(key),
                 null,
                 enable,
                 propByRes,
@@ -159,7 +127,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final Collection<String> noPropResourceKeys) {
 
         return getCreateTasks(
-                userDAO.authFind(key),
+                anyUtilsFactory.getInstance(AnyTypeKind.USER).dao().authFind(key),
                 password,
                 enable,
                 propByRes,
@@ -194,7 +162,7 @@ public class PropagationManagerImpl implements PropagationManager {
             }
         }
 
-        return createTasks(any, password, true, enable, false, propByRes, propByLinkedAccount, vAttrs);
+        return createTasks(any, password, true, enable, propByRes, propByLinkedAccount, vAttrs);
     }
 
     @Override
@@ -209,7 +177,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final Collection<String> noPropResourceKeys) {
 
         return getUpdateTasks(
-                dao(kind).authFind(key),
+                anyUtilsFactory.getInstance(kind).dao().authFind(key),
                 null,
                 changePwd,
                 enable,
@@ -226,7 +194,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final Collection<String> noPropResourceKeys) {
 
         return getUpdateTasks(
-                userDAO.authFind(wfResult.getResult().getLeft().getKey()),
+                anyUtilsFactory.getInstance(AnyTypeKind.USER).dao().authFind(wfResult.getResult().getLeft().getKey()),
                 wfResult.getResult().getLeft().getPassword() == null
                 ? null
                 : wfResult.getResult().getLeft().getPassword().getValue(),
@@ -259,7 +227,8 @@ public class PropagationManagerImpl implements PropagationManager {
                     wfResult.getPerformedTasks());
 
             Set<String> pwdResourceNames = new HashSet<>(userUR.getPassword().getResources());
-            Collection<String> allResourceNames = userDAO.findAllResourceKeys(userUR.getKey());
+            Collection<String> allResourceNames = anyUtilsFactory.getInstance(AnyTypeKind.USER).
+                    dao().findAllResourceKeys(userUR.getKey());
             pwdResourceNames.retainAll(allResourceNames);
 
             pwdWFResult.getPropByRes().addAll(ResourceOperation.UPDATE, pwdResourceNames);
@@ -321,7 +290,6 @@ public class PropagationManagerImpl implements PropagationManager {
                 password,
                 changePwd,
                 enable,
-                false,
                 Optional.ofNullable(propByRes).orElseGet(PropagationByResource::new),
                 propByLinkedAccount,
                 vAttrs);
@@ -335,17 +303,9 @@ public class PropagationManagerImpl implements PropagationManager {
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
             final Collection<String> noPropResourceKeys) {
 
-        return getDeleteTasks(dao(kind).authFind(key), propByRes, propByLinkedAccount, noPropResourceKeys);
-    }
-
-    @Override
-    public List<PropagationTaskInfo> getUserDeleteTasks(
-            final String key,
-            final PropagationByResource<String> propByRes,
-            final PropagationByResource<Pair<String, String>> propByLinkedAccount,
-            final Collection<String> noPropResourceKeys) {
-
-        return getDeleteTasks(userDAO.authFind(key), propByRes, propByLinkedAccount, noPropResourceKeys);
+        return getDeleteTasks(
+                anyUtilsFactory.getInstance(kind).dao().authFind(key),
+                propByRes, propByLinkedAccount, noPropResourceKeys);
     }
 
     protected List<PropagationTaskInfo> getDeleteTasks(
@@ -359,7 +319,7 @@ public class PropagationManagerImpl implements PropagationManager {
         if (propByRes == null || propByRes.isEmpty()) {
             localPropByRes.addAll(
                     ResourceOperation.DELETE,
-                    dao(any.getType().getKind()).findAllResourceKeys(any.getKey()));
+                    anyUtilsFactory.getInstance(any).dao().findAllResourceKeys(any.getKey()));
         } else {
             localPropByRes.merge(propByRes);
         }
@@ -377,7 +337,7 @@ public class PropagationManagerImpl implements PropagationManager {
             }
         }
 
-        return createTasks(any, null, false, false, true, localPropByRes, propByLinkedAccount, null);
+        return createTasks(any, null, false, false, localPropByRes, propByLinkedAccount, null);
     }
 
     @Override
@@ -387,7 +347,6 @@ public class PropagationManagerImpl implements PropagationManager {
             final ExternalResource resource,
             final ResourceOperation operation,
             final Provision provision,
-            final boolean deleteOnResource,
             final Stream<? extends Item> mappingItems,
             final Pair<String, Set<Attribute>> preparedAttrs) {
 
@@ -395,9 +354,7 @@ public class PropagationManagerImpl implements PropagationManager {
         task.setObjectClassName(provision.getObjectClass().getObjectClassValue());
         task.setAnyTypeKind(any.getType().getKind());
         task.setAnyType(any.getType().getKey());
-        if (!deleteOnResource) {
-            task.setEntityKey(any.getKey());
-        }
+        task.setEntityKey(any.getKey());
         task.setOperation(operation);
         task.setConnObjectKey(preparedAttrs.getLeft());
 
@@ -437,7 +394,6 @@ public class PropagationManagerImpl implements PropagationManager {
      * @param password clear text password to be provisioned
      * @param changePwd whether password should be included for propagation attributes or not
      * @param enable whether user must be enabled or not
-     * @param deleteOnResource whether any must be deleted anyway from external resource or not
      * @param propByRes operation to be performed per resource
      * @param propByLinkedAccount operation to be performed on linked accounts
      * @param vAttrs virtual attributes to be set
@@ -448,7 +404,6 @@ public class PropagationManagerImpl implements PropagationManager {
             final String password,
             final boolean changePwd,
             final Boolean enable,
-            final boolean deleteOnResource,
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
             final Collection<Attr> vAttrs) {
@@ -463,7 +418,7 @@ public class PropagationManagerImpl implements PropagationManager {
         Set<String> virtualResources = new HashSet<>();
         virtualResources.addAll(propByRes.get(ResourceOperation.CREATE));
         virtualResources.addAll(propByRes.get(ResourceOperation.UPDATE));
-        virtualResources.addAll(dao(any.getType().getKind()).findAllResourceKeys(any.getKey()));
+        virtualResources.addAll(anyUtilsFactory.getInstance(any).dao().findAllResourceKeys(any.getKey()));
 
         Map<String, Set<Attribute>> vAttrMap = new HashMap<>();
         if (vAttrs != null) {
@@ -527,7 +482,6 @@ public class PropagationManagerImpl implements PropagationManager {
                         resource,
                         operation,
                         provision,
-                        deleteOnResource,
                         mappingItems,
                         preparedAttrs);
                 task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resourceKey));
@@ -571,7 +525,6 @@ public class PropagationManagerImpl implements PropagationManager {
                             account.getResource(),
                             operation,
                             provision,
-                            deleteOnResource,
                             mappingItems,
                             Pair.of(account.getConnObjectKeyValue(),
                                     mappingManager.prepareAttrsFromLinkedAccount(
