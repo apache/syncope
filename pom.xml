@@ -509,7 +509,7 @@ under the License.
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
     <tomcat.version>9.0.40</tomcat.version>
-    <wildfly.version>21.0.0.Final</wildfly.version>
+    <wildfly.version>21.0.1.Final</wildfly.version>
     <payara.version>5.2020.6</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
