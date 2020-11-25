@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.AttributableTO;
@@ -55,7 +56,6 @@ public class DateFieldPanel extends FieldPanel<Date> {
             @Override
             public Date getObject() {
                 Date date = null;
-
                 if (list != null && !list.isEmpty() && StringUtils.hasText(list.get(0).toString())) {
                     try {
                         // Parse string using datePattern
@@ -116,7 +116,7 @@ public class DateFieldPanel extends FieldPanel<Date> {
             @Override
             @SuppressWarnings("unchecked")
             public void setObject(final Date object) {
-                item.setModelObject(object != null ? fmt.format(object) : null);
+                item.setModelObject(Optional.ofNullable(object).map(fmt::format).orElse(null));
             }
         };
 
@@ -124,17 +124,17 @@ public class DateFieldPanel extends FieldPanel<Date> {
         return this;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public FieldPanel<Date> setNewModel(final AttributableTO attributableTO, final String schema) {
-        field.setModel(new Model() {
+    @Override
+    public FieldPanel<Date> setNewModel(final AttributableTO attributable, final String schema) {
+        field.setModel(new Model<Date>() {
 
             private static final long serialVersionUID = -4214654722524358000L;
 
             @Override
-            public Serializable getObject() {
-                if (!attributableTO.getPlainAttr(schema).get().getValues().isEmpty()) {
+            public Date getObject() {
+                if (!attributable.getPlainAttr(schema).get().getValues().isEmpty()) {
                     try {
-                        return fmt.parse(attributableTO.getPlainAttr(schema).get().getValues().get(0));
+                        return fmt.parse(attributable.getPlainAttr(schema).get().getValues().get(0));
                     } catch (ParseException ex) {
                         LOG.error("While parsing date", ex);
                     }
@@ -143,13 +143,12 @@ public class DateFieldPanel extends FieldPanel<Date> {
             }
 
             @Override
-            public void setObject(final Serializable object) {
-                attributableTO.getPlainAttr(schema).get().getValues().clear();
+            public void setObject(final Date object) {
+                attributable.getPlainAttr(schema).get().getValues().clear();
                 if (object != null) {
-                    attributableTO.getPlainAttr(schema).get().getValues().add(fmt.format(object));
+                    attributable.getPlainAttr(schema).get().getValues().add(fmt.format(object));
                 }
             }
-
         });
 
         return this;
@@ -159,6 +158,6 @@ public class DateFieldPanel extends FieldPanel<Date> {
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
         response.render(JavaScriptHeaderItem.forReference(
-                new KendoCultureResourceReference(SyncopeConsoleSession.get().getLocale())));
+                new KendoCultureResourceReference(getLocale())));
     }
 }

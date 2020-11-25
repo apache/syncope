@@ -47,11 +47,11 @@ public class LDAPPasswordPullActions implements PullActions {
     protected static final Logger LOG = LoggerFactory.getLogger(LDAPPasswordPullActions.class);
 
     @Autowired
-    private UserDAO userDAO;
+    protected UserDAO userDAO;
 
-    private String encodedPassword;
+    protected String encodedPassword;
 
-    private CipherAlgorithm cipher;
+    protected CipherAlgorithm cipher;
 
     @Transactional(readOnly = true)
     @Override
@@ -80,7 +80,7 @@ public class LDAPPasswordPullActions implements PullActions {
         }
     }
 
-    private void parseEncodedPassword(final String password) {
+    protected void parseEncodedPassword(final String password) {
         if (password != null && password.startsWith("{")) {
             int closingBracketIndex = password.indexOf('}');
             String digest = password.substring(1, password.indexOf('}'));

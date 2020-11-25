@@ -18,14 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.Optional;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -47,16 +45,16 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class DBPasswordPullActions implements PullActions {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DBPasswordPullActions.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DBPasswordPullActions.class);
 
-    private static final String CLEARTEXT = "CLEARTEXT";
+    protected static final String CLEARTEXT = "CLEARTEXT";
 
     @Autowired
-    private UserDAO userDAO;
+    protected UserDAO userDAO;
 
-    private String encodedPassword;
+    protected String encodedPassword;
 
-    private CipherAlgorithm cipher;
+    protected CipherAlgorithm cipher;
 
     @Transactional(readOnly = true)
     @Override
@@ -85,7 +83,7 @@ public class DBPasswordPullActions implements PullActions {
         }
     }
 
-    private void parseEncodedPassword(final String password, final Connector connector) {
+    protected void parseEncodedPassword(final String password, final Connector connector) {
         if (password != null) {
             ConnInstance connInstance = connector.getConnInstance();
 
@@ -102,14 +100,12 @@ public class DBPasswordPullActions implements PullActions {
         }
     }
 
-    private String getCipherAlgorithm(final ConnInstance connInstance) {
-        Optional<ConnConfProperty> cipherAlgorithm = connInstance.getConf().stream().
+    protected String getCipherAlgorithm(final ConnInstance connInstance) {
+        return connInstance.getConf().stream().
                 filter(property -> "cipherAlgorithm".equals(property.getSchema().getName())
-                && property.getValues() != null && !property.getValues().isEmpty()).findFirst();
-
-        return cipherAlgorithm.isPresent()
-                ? (String) cipherAlgorithm.get().getValues().get(0)
-                : CLEARTEXT;
+                && property.getValues() != null && !property.getValues().isEmpty()).findFirst().
+                map(cipherAlgorithm -> cipherAlgorithm.getValues().get(0).toString()).
+                orElse(CLEARTEXT);
     }
 
     @Transactional
