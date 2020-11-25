@@ -19,7 +19,11 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import com.googlecode.wicket.kendo.ui.form.datetime.AjaxDateTimePicker;
+
+import java.text.DateFormat;
 import java.util.Date;
+
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -36,7 +40,10 @@ public class AjaxDateTimeFieldPanel extends DateFieldPanel {
 
         // dateTimePattern should be spit into separate date and time pattern strings in order to be passed to the
         // AjaxDateTimePicker constructor, but there is no safe way to do that - ignoring
-        field = new AjaxDateTimePicker("field", model, SyncopeConsoleSession.get().getLocale());
+        field = new AjaxDateTimePicker("field", model, SyncopeConsoleSession.get().getLocale(),
+                FastDateFormat.getDateInstance(DateFormat.SHORT, SyncopeConsoleSession.get().getLocale()).getPattern()
+                        .replace("yy", "yyyy"),
+                FastDateFormat.getTimeInstance(DateFormat.SHORT, SyncopeConsoleSession.get().getLocale()).getPattern());
         add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
     }
 
