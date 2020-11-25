@@ -625,7 +625,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         formTester.submit("buttons:next");
 
         Calendar cal = Calendar.getInstance();
-        cal.set(17, Calendar.JANUARY, 19, 0, 0, 0);
+        cal.set(2017, Calendar.JANUARY, 19, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
 
         TESTER.assertModelValue("body:content:body:container:content:"
@@ -637,15 +637,11 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + "container:content:tabbedPanel:panel:searchResult:"
                 + "outerObjectsRepeater:0:outer:form:content:form:view:plainSchemas:"
                 + "tabs:0:body:content:schemas:1:panel:field:timepicker").getDefaultModelObjectAsString(), "12:00 AM");
-        
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2017, Calendar.JANUARY, 19, 0, 0, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
 
         TESTER.assertModelValue("body:content:body:container:content:"
                 + "tabbedPanel:panel:searchResult:outerObjectsRepeater:0:outer:form:content:"
                 + "form:view:plainSchemas:tabs:0:body:content:schemas:8:panel:"
-                + "multiValueContainer:innerForm:content:view:0:panel:field", calendar.getTime());
+                + "multiValueContainer:innerForm:content:view:0:panel:field", cal.getTime());
     }
 
     @Test
