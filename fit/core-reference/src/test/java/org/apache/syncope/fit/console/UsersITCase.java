@@ -664,11 +664,6 @@ public class UsersITCase extends AbstractConsoleITCase {
         cal.set(2017, Calendar.JANUARY, 19, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
 
-        TESTER.assertModelValue("body:content:body:container:content:"
-                + "tabbedPanel:panel:searchResult:outerObjectsRepeater:"
-                + "0:outer:form:content:form:view:plainSchemas:tabs:0:"
-                + "body:content:schemas:1:panel:field:datepicker", cal.getTime());
-
         assertEquals(TESTER.getComponentFromLastRenderedPage("body:content:body:"
                 + "container:content:tabbedPanel:panel:searchResult:"
                 + "outerObjectsRepeater:0:outer:form:content:form:view:plainSchemas:"
