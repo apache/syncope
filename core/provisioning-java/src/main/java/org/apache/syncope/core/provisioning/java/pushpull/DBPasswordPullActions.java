@@ -29,7 +29,6 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -51,16 +50,16 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class DBPasswordPullActions implements PullActions {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DBPasswordPullActions.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DBPasswordPullActions.class);
 
-    private static final String CLEARTEXT = "CLEARTEXT";
+    protected static final String CLEARTEXT = "CLEARTEXT";
 
     @Autowired
-    private UserDAO userDAO;
+    protected UserDAO userDAO;
 
-    private String encodedPassword;
+    protected String encodedPassword;
 
-    private CipherAlgorithm cipher;
+    protected CipherAlgorithm cipher;
 
     @Transactional(readOnly = true)
     @Override
@@ -86,11 +85,11 @@ public class DBPasswordPullActions implements PullActions {
         if (anyUR instanceof UserUR) {
             PasswordPatch modPassword = ((UserUR) anyUR).getPassword();
             parseEncodedPassword(Optional.ofNullable(modPassword)
-                .map(AbstractPatchItem::getValue).orElse(null), profile.getConnector());
+                    .map(AbstractPatchItem::getValue).orElse(null), profile.getConnector());
         }
     }
 
-    private void parseEncodedPassword(final String password, final Connector connector) {
+    protected void parseEncodedPassword(final String password, final Connector connector) {
         if (password != null) {
             ConnInstance connInstance = connector.getConnInstance();
 
@@ -107,14 +106,12 @@ public class DBPasswordPullActions implements PullActions {
         }
     }
 
-    private static String getCipherAlgorithm(final ConnInstance connInstance) {
-        Optional<ConnConfProperty> cipherAlgorithm = connInstance.getConf().stream().
+    protected String getCipherAlgorithm(final ConnInstance connInstance) {
+        return connInstance.getConf().stream().
                 filter(property -> "cipherAlgorithm".equals(property.getSchema().getName())
-                && property.getValues() != null && !property.getValues().isEmpty()).findFirst();
-
-        return cipherAlgorithm.isPresent()
-                ? (String) cipherAlgorithm.get().getValues().get(0)
-                : CLEARTEXT;
+                && property.getValues() != null && !property.getValues().isEmpty()).findFirst().
+                map(cipherAlgorithm -> cipherAlgorithm.getValues().get(0).toString()).
+                orElse(CLEARTEXT);
     }
 
     @Transactional
