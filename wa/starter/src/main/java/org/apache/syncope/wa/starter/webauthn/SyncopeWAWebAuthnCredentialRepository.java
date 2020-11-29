@@ -85,7 +85,8 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
         try {
             List<WebAuthnDeviceCredential> devices = records.stream().
                 map(Unchecked.function(record -> {
-                    String json = getCipherExecutor().encode(WebAuthnUtils.getObjectMapper().writeValueAsString(record));
+                    String json = getCipherExecutor().encode(WebAuthnUtils.getObjectMapper().
+                        writeValueAsString(record));
                     return new WebAuthnDeviceCredential.Builder().
                         json(json).
                         owner(username).
@@ -119,8 +120,8 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
                 return account.getRecords().stream().
                     map(Unchecked.function(record -> {
                         String json = getCipherExecutor().decode(record.getJson());
-                        return WebAuthnUtils.getObjectMapper().readValue(json, new TypeReference<CredentialRegistration>() {
-                        });
+                        return WebAuthnUtils.getObjectMapper()
+                            .readValue(json, new TypeReference<CredentialRegistration>() {});
                     })).
                     collect(Collectors.toList());
             }
