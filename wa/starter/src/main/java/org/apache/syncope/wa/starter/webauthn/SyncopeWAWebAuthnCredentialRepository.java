@@ -121,7 +121,7 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
                     map(Unchecked.function(record -> {
                         String json = getCipherExecutor().decode(record.getJson());
                         return WebAuthnUtils.getObjectMapper()
-                            .readValue(json, new TypeReference<CredentialRegistration>() {});
+                            .readValue(json, new TypeReference<CredentialRegistration>() { });
                     })).
                     collect(Collectors.toList());
             }
