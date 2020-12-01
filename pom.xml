@@ -406,7 +406,7 @@ under the License.
 
     <cxf.version>3.2.14</cxf.version>
 
-    <jackson.version>2.10.5</jackson.version>
+    <jackson.version>2.11.3</jackson.version>
 
     <spring.version>5.1.19.RELEASE</spring.version>
     <spring-security.version>5.1.13.RELEASE</spring-security.version>
@@ -458,7 +458,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.0.10</swagger-core.version>    
-    <swagger-ui.version>3.37.0</swagger-ui.version>
+    <swagger-ui.version>3.37.2</swagger-ui.version>
     <guava.version>29.0-jre</guava.version>
 
     <jquery.version>3.4.1</jquery.version>
@@ -2062,7 +2062,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.37</version>
+              <version>8.38</version>
             </dependency>
           </dependencies>
           <configuration>
