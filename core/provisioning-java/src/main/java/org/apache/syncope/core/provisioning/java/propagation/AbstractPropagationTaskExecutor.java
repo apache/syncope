@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -229,16 +230,14 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             // 2. check wether anything is actually needing to be propagated, i.e. if there is attribute
             // difference between beforeObj - just read above from the connector - and the values to be propagated
             Map<String, Attribute> originalAttrMap = beforeObj.getAttributes().stream().
-                    collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), attr -> attr));
+                    collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), Function.identity()));
             Map<String, Attribute> updateAttrMap = attributes.stream().
-                    collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), attr -> attr));
+                    collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), Function.identity()));
 
             // Only compare attribute from beforeObj that are also being updated
-            Set<String> skipAttrNames = originalAttrMap.keySet();
+            Set<String> skipAttrNames = new HashSet<>(originalAttrMap.keySet());
             skipAttrNames.removeAll(updateAttrMap.keySet());
-            new HashSet<>(skipAttrNames).forEach(attrName -> {
-                originalAttrMap.remove(attrName);
-            });
+            skipAttrNames.forEach(originalAttrMap::remove);
 
             Set<Attribute> originalAttrs = new HashSet<>(originalAttrMap.values());
 
@@ -248,11 +247,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             } else {
                 LOG.debug("Attributes that would be updated {}", attributes);
 
-                Set<Attribute> strictlyModified = new HashSet<>();
-                attributes.stream().filter(attr -> (!originalAttrs.contains(attr))).
-                        forEachOrdered(attr -> {
-                            strictlyModified.add(attr);
-                        });
+                Set<Attribute> strictlyModified =
+                        attributes.stream().filter(attr -> !originalAttrs.contains(attr)).collect(Collectors.toSet());
 
                 // 3. provision entry
                 LOG.debug("Update {} on {}", strictlyModified, task.getResource().getKey());

@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,12 +32,13 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -52,7 +51,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -266,27 +264,24 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
 
+        // Save projection on Resources (before update)
+        Map<String, ConnObjectTO> beforeOnResources =
+                onResources(anyObject, anyObjectDAO.findAllResourceKeys(anyObject.getKey()), null, false);
+
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
-
-        Collection<String> currentResources = anyObjectDAO.findAllResourceKeys(anyObject.getKey());
-
-        // fetch connObjectKeys before update
-        Map<String, String> oldConnObjectKeys = getConnObjectKeys(anyObject, anyUtils);
 
         // realm
         setRealm(anyObject, anyObjectPatch);
 
         // name
         if (anyObjectPatch.getName() != null && StringUtils.isNotBlank(anyObjectPatch.getName().getValue())) {
-            propByRes.addAll(ResourceOperation.UPDATE, anyObjectDAO.findAllResourceKeys(anyObject.getKey()));
-
             anyObject.setName(anyObjectPatch.getName().getValue());
         }
 
         // attributes and resources
-        propByRes.merge(fill(anyObject, anyObjectPatch, anyUtils, scce));
+        fill(anyObject, anyObjectPatch, anyUtils, scce);
 
         // relationships
         Set<Pair<String, String>> relationships = new HashSet<>();
@@ -351,25 +346,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             }
         });
 
-        // prepare for membership-related resource management
-        Collection<ExternalResource> resources = anyObjectDAO.findAllResources(anyObject);
-
-        Map<String, Set<String>> reasons = new HashMap<>();
-        anyObject.getResources().forEach(resource -> {
-            reasons.put(resource.getKey(), new HashSet<>(Collections.singleton(anyObject.getKey())));
-        });
-        anyObjectDAO.findAllGroupKeys(anyObject).forEach(group -> {
-            groupDAO.findAllResourceKeys(group).forEach(resource -> {
-                if (!reasons.containsKey(resource)) {
-                    reasons.put(resource, new HashSet<>());
-                }
-                reasons.get(resource).add(group);
-            });
-        });
-
-        Set<String> toBeDeprovisioned = new HashSet<>();
-        Set<String> toBeProvisioned = new HashSet<>();
-
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // memberships
@@ -386,12 +362,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 });
 
                 if (patch.getOperation() == PatchOperation.DELETE) {
-                    groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()).stream().
-                            filter(resource -> reasons.containsKey(resource)).
-                            forEach(resource -> {
-                                reasons.get(resource).remove(membership.getRightEnd().getKey());
-                                toBeProvisioned.add(resource);
-                            });
+                    propByRes.addAll(
+                            ResourceOperation.UPDATE,
+                            groupDAO.findAllResourceKeys((membership.getRightEnd().getKey())));
                 }
             });
             if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
@@ -438,8 +411,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                                         schema,
                                         newAttr,
                                         anyUtils,
-                                        resources,
-                                        propByRes,
                                         invalidValues);
                             }
                         }
@@ -448,7 +419,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         scce.addException(invalidValues);
                     }
 
-                    toBeProvisioned.addAll(groupDAO.findAllResourceKeys(group.getKey()));
+                    propByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
                 } else {
                     LOG.error("{} cannot be assigned to {}", group, anyObject);
 
@@ -460,56 +431,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             }
         });
 
-        // finalize resource management
-        reasons.entrySet().stream().
-                filter(entry -> entry.getValue().isEmpty()).
-                forEach(entry -> toBeDeprovisioned.add(entry.getKey()));
-
-        propByRes.addAll(ResourceOperation.DELETE, toBeDeprovisioned);
-        propByRes.addAll(ResourceOperation.UPDATE, toBeProvisioned);
-
-        // in case of new memberships all current resources need to be updated in order to propagate new group
-        // attribute values.
-        if (!toBeDeprovisioned.isEmpty() || !toBeProvisioned.isEmpty()) {
-            currentResources.removeAll(toBeDeprovisioned);
-            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
-        }
-
-        // check if some connObjectKey was changed by the update above
-        Map<String, String> newConnObjectKeys = getConnObjectKeys(anyObject, anyUtils);
-        oldConnObjectKeys.entrySet().stream().
-                filter(entry -> newConnObjectKeys.containsKey(entry.getKey())
-                && !entry.getValue().equals(newConnObjectKeys.get(entry.getKey()))).
-                forEach(entry -> {
-                    propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
-                    propByRes.add(ResourceOperation.UPDATE, entry.getKey());
-                });
-
-        Pair<Set<String>, Set<String>> dynGroupMembs = anyObjectDAO.saveAndGetDynGroupMembs(anyObject);
-
-        // finally check if any resource assignment is to be processed due to dynamic group membership change
-        dynGroupMembs.getLeft().stream().
-                filter(group -> !dynGroupMembs.getRight().contains(group)).
-                forEach(delete -> {
-                    groupDAO.find(delete).getResources().stream().
-                            filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> propByRes.add(ResourceOperation.DELETE, resource.getKey()));
-                });
-        dynGroupMembs.getLeft().stream().
-                filter(group -> dynGroupMembs.getRight().contains(group)).
-                forEach(update -> {
-                    groupDAO.find(update).getResources().stream().
-                            filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> propByRes.add(ResourceOperation.UPDATE, resource.getKey()));
-                });
-        dynGroupMembs.getRight().stream().
-                filter(group -> !dynGroupMembs.getLeft().contains(group)).
-                forEach(create -> {
-                    groupDAO.find(create).getResources().stream().
-                            filter(resource -> !propByRes.contains(resource.getKey())).
-                            forEach(resource -> propByRes.add(ResourceOperation.CREATE, resource.getKey()));
-                });
-
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
             throw scce;
@@ -518,14 +439,10 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         // Re-merge any pending change from above
         AnyObject saved = anyObjectDAO.save(anyObject);
 
-        // ensure not to DELETE on External Resources that remain assigned
-        Set<String> assigned = saved.getResources().stream().
-                map(ExternalResource::getKey).collect(Collectors.toCollection(HashSet::new));
-        assigned.addAll(saved.getMemberships().stream().
-                flatMap(m -> m.getRightEnd().getResources().stream()).map(ExternalResource::getKey).
-                collect(Collectors.toSet()));
-        propByRes.removeAll(ResourceOperation.DELETE, assigned);
-
+        // Build final information for next stage (propagation)
+        propByRes.merge(propByRes(
+                beforeOnResources,
+                onResources(saved, anyObjectDAO.findAllResourceKeys(anyObject.getKey()), null, false)));
         return propByRes;
     }
 }

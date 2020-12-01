@@ -674,10 +674,8 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 7. restore original resource-ldap group mapping
         ldap.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems().stream().
-                filter(item -> ("uniqueMember".equals(item.getExtAttrName()))).
-                forEachOrdered(item -> {
-                    item.setExtAttrName("description");
-                });
+                filter(item -> "uniqueMember".equals(item.getExtAttrName())).
+                forEach(item -> item.setExtAttrName("description"));
         resourceService.update(ldap);
     }
 
