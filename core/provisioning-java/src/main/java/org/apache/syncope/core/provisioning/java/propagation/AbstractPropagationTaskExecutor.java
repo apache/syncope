@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -234,9 +234,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), Function.identity()));
 
             // Only compare attribute from beforeObj that are also being updated
-            Set<String> skipAttrNames = originalAttrMap.keySet();
+            Set<String> skipAttrNames = new HashSet<>(originalAttrMap.keySet());
             skipAttrNames.removeAll(updateAttrMap.keySet());
-            new HashSet<>(skipAttrNames).forEach(originalAttrMap::remove);
+            skipAttrNames.forEach(originalAttrMap::remove);
 
             Set<Attribute> originalAttrs = new HashSet<>(originalAttrMap.values());
 
@@ -246,8 +246,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             } else {
                 LOG.debug("Attributes that would be updated {}", attributes);
 
-                Set<Attribute> strictlyModified = new HashSet<>();
-                attributes.stream().filter(attr -> (!originalAttrs.contains(attr))).forEach(strictlyModified::add);
+                Set<Attribute> strictlyModified =
+                        attributes.stream().filter(attr -> !originalAttrs.contains(attr)).collect(Collectors.toSet());
 
                 // 3. provision entry
                 LOG.debug("Update {} on {}", strictlyModified, task.getResource().getKey());

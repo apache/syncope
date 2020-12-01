@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +38,7 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -381,28 +380,35 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.USER);
 
-        Collection<String> currentResources = userDAO.findAllResourceKeys(user.getKey());
-
-        // fetch connObjectKeys before update
-        Map<String, String> oldConnObjectKeys = getConnObjectKeys(user, anyUtils);
-
         // realm
         setRealm(user, userUR);
 
         // password
+        String password = null;
+        boolean changePwd = false;
         if (userUR.getPassword() != null) {
             if (userUR.getPassword().getOperation() == PatchOperation.DELETE) {
                 user.setEncodedPassword(null, null);
-                propByRes.addAll(ResourceOperation.UPDATE, userUR.getPassword().getResources());
+
+                changePwd = true;
             } else if (StringUtils.isNotBlank(userUR.getPassword().getValue())) {
                 if (userUR.getPassword().isOnSyncope()) {
                     setPassword(user, userUR.getPassword().getValue(), scce);
                     user.setChangePwdDate(new Date());
                 }
 
+                password = userUR.getPassword().getValue();
+                changePwd = true;
+            }
+
+            if (changePwd) {
                 propByRes.addAll(ResourceOperation.UPDATE, userUR.getPassword().getResources());
             }
         }
+
+        // Save projection on Resources (before update)
+        Map<String, ConnObjectTO> beforeOnResources =
+                onResources(user, userDAO.findAllResourceKeys(user.getKey()), password, changePwd);
 
         // username
         if (userUR.getUsername() != null && StringUtils.isNotBlank(userUR.getUsername().getValue())) {
@@ -418,8 +424,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 accessToken.setOwner(userUR.getUsername().getValue());
                 accessTokenDAO.save(accessToken);
             }
-
-            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
         }
 
         // security question / answer:
@@ -435,19 +439,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     user.setSecurityAnswer(userUR.getSecurityAnswer().getValue());
                 }
             }
-        }
-
-        if (userUR.getMustChangePassword() != null) {
-            user.setMustChangePassword(userUR.getMustChangePassword().getValue());
-
-            propByRes.addAll(
-                    ResourceOperation.UPDATE,
-                    anyUtils.getAllResources(toBeUpdated).stream().
-                            filter(resource -> resource.getProvision(toBeUpdated.getType()).isPresent()).
-                            filter(resource -> mappingManager.hasMustChangePassword(
-                            resource.getProvision(toBeUpdated.getType()).get())).
-                            map(Entity::getKey).
-                            collect(Collectors.toSet()));
         }
 
         // roles
@@ -469,7 +460,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         // attributes and resources
-        propByRes.merge(fill(user, userUR, anyUtils, scce));
+        fill(user, userUR, anyUtils, scce);
 
         // relationships
         Set<Pair<String, String>> relationships = new HashSet<>();
@@ -522,22 +513,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             }
         });
 
-        // prepare for membership-related resource management
-        Collection<ExternalResource> resources = userDAO.findAllResources(user);
-
-        Map<String, Set<String>> reasons = new HashMap<>();
-        user.getResources().forEach(
-                resource -> reasons.put(resource.getKey(), new HashSet<>(Set.of(user.getKey()))));
-        userDAO.findAllGroupKeys(user).forEach(group -> groupDAO.findAllResourceKeys(group).forEach(resource -> {
-            if (!reasons.containsKey(resource)) {
-                reasons.put(resource, new HashSet<>());
-            }
-            reasons.get(resource).add(group);
-        }));
-
-        Set<String> toBeDeprovisioned = new HashSet<>();
-        Set<String> toBeProvisioned = new HashSet<>();
-
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // memberships
@@ -555,12 +530,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 });
 
                 if (patch.getOperation() == PatchOperation.DELETE) {
-                    groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()).stream().
-                            filter(reasons::containsKey).
-                            forEach(resource -> {
-                                reasons.get(resource).remove(membership.getRightEnd().getKey());
-                                toBeProvisioned.add(resource);
-                            });
+                    propByRes.addAll(
+                            ResourceOperation.UPDATE,
+                            groupDAO.findAllResourceKeys((membership.getRightEnd().getKey())));
                 }
             });
             if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
@@ -606,8 +578,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                                         schema,
                                         attr,
                                         anyUtils,
-                                        resources,
-                                        propByRes,
                                         invalidValues);
                             }
                         }
@@ -616,7 +586,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         scce.addException(invalidValues);
                     }
 
-                    toBeProvisioned.addAll(groupDAO.findAllResourceKeys(group.getKey()));
+                    propByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
 
                     // SYNCOPE-686: if password is invertible and we are adding resources with password mapping,
                     // ensure that they are counted for password propagation
@@ -675,50 +645,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 ResourceOperation.CREATE,
                 Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
-        // finalize resource management
-        reasons.entrySet().stream().
-                filter(entry -> entry.getValue().isEmpty()).
-                forEach(entry -> toBeDeprovisioned.add(entry.getKey()));
-
-        propByRes.addAll(ResourceOperation.DELETE, toBeDeprovisioned);
-        propByRes.addAll(ResourceOperation.UPDATE, toBeProvisioned);
-
-        // in case of new memberships all current resources need to be updated in order to propagate new group
-        // attribute values.
-        if (!toBeDeprovisioned.isEmpty() || !toBeProvisioned.isEmpty()) {
-            currentResources.removeAll(toBeDeprovisioned);
-            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
-        }
-
-        // check if some connObjectKey was changed by the update above
-        Map<String, String> newConnObjectKeys = getConnObjectKeys(user, anyUtils);
-        oldConnObjectKeys.entrySet().stream().
-                filter(entry -> newConnObjectKeys.containsKey(entry.getKey())
-                && !entry.getValue().equals(newConnObjectKeys.get(entry.getKey()))).
-                forEach(entry -> {
-                    propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
-                    propByRes.add(ResourceOperation.UPDATE, entry.getKey());
-                });
-
-        Pair<Set<String>, Set<String>> dynGroupMembs = userDAO.saveAndGetDynGroupMembs(user);
-
-        // finally check if any resource assignment is to be processed due to dynamic group membership change
-        dynGroupMembs.getLeft().stream().
-                filter(group -> !dynGroupMembs.getRight().contains(group)).
-                forEach(delete -> groupDAO.find(delete).getResources().stream().
-                filter(resource -> !propByRes.contains(resource.getKey())).
-                forEach(resource -> propByRes.add(ResourceOperation.DELETE, resource.getKey())));
-        dynGroupMembs.getLeft().stream().
-                filter(group -> dynGroupMembs.getRight().contains(group)).
-                forEach(update -> groupDAO.find(update).getResources().stream().
-                filter(resource -> !propByRes.contains(resource.getKey())).
-                forEach(resource -> propByRes.add(ResourceOperation.UPDATE, resource.getKey())));
-        dynGroupMembs.getRight().stream().
-                filter(group -> !dynGroupMembs.getLeft().contains(group)).
-                forEach(create -> groupDAO.find(create).getResources().stream().
-                filter(resource -> !propByRes.contains(resource.getKey())).
-                forEach(resource -> propByRes.add(ResourceOperation.CREATE, resource.getKey())));
-
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
             throw scce;
@@ -727,13 +653,23 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         // Re-merge any pending change from above
         User saved = userDAO.save(user);
 
-        // ensure not to DELETE on External Resources that remain assigned
-        Set<String> assigned = saved.getResources().stream().
-                map(ExternalResource::getKey).collect(Collectors.toCollection(HashSet::new));
-        assigned.addAll(saved.getMemberships().stream().
-                flatMap(m -> m.getRightEnd().getResources().stream()).map(ExternalResource::getKey).
-                collect(Collectors.toSet()));
-        propByRes.removeAll(ResourceOperation.DELETE, assigned);
+        // Build final information for next stage (propagation)
+        Map<String, ConnObjectTO> afterOnResources =
+                onResources(user, userDAO.findAllResourceKeys(user.getKey()), password, changePwd);
+        propByRes.merge(propByRes(beforeOnResources, afterOnResources));
+
+        if (userUR.getMustChangePassword() != null) {
+            user.setMustChangePassword(userUR.getMustChangePassword().getValue());
+
+            propByRes.addAll(
+                    ResourceOperation.UPDATE,
+                    anyUtils.getAllResources(saved).stream().
+                            map(resource -> resource.getProvision(saved.getType())).
+                            filter(Optional::isPresent).map(Optional::get).
+                            filter(mappingManager::hasMustChangePassword).
+                            map(provision -> provision.getResource().getKey()).
+                            collect(Collectors.toSet()));
+        }
 
         return Pair.of(propByRes, propByLinkedAccount);
     }

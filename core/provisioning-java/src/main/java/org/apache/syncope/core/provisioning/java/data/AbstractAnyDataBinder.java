@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -40,7 +41,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -64,18 +64,20 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.AccountGetter;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
-import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,6 +155,32 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
+    protected Map<String, ConnObjectTO> onResources(
+            final Any<?> any,
+            final Collection<String> resources,
+            final String password,
+            final boolean changePwd) {
+
+        Map<String, ConnObjectTO> onResources = new HashMap<>();
+
+        resources.stream().map(resourceDAO::find).map(resource -> resource.getProvision(any.getType())).
+                filter(Optional::isPresent).map(Optional::get).
+                forEach(provision -> MappingUtils.getConnObjectKeyItem(provision).ifPresent(connObjectKeyItem -> {
+
+            Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
+                    any, password, changePwd, true, provision);
+
+            ConnObjectTO connObjectTO = ConnObjectUtils.getConnObjectTO(prepared.getRight());
+            connObjectTO.getAttrs().add(
+                    new Attr.Builder(connObjectKeyItem.getExtAttrName()).value(prepared.getLeft()).build());
+            connObjectTO.getAttrs().add(new Attr.Builder(Uid.NAME).value(prepared.getLeft()).build());
+
+            onResources.put(provision.getResource().getKey(), connObjectTO);
+        }));
+
+        return onResources;
+    }
+
     protected PlainSchema getPlainSchema(final String schemaName) {
         PlainSchema schema = null;
         if (StringUtils.isNotBlank(schemaName)) {
@@ -218,7 +246,8 @@ abstract class AbstractAnyDataBinder {
                         ? ((PlainSchema) intAttrName.getSchema()).getType()
                         : AttrSchemaType.String;
 
-                Pair<AttrSchemaType, List<PlainAttrValue>> intValues = mappingManager.getIntValues(provision,
+                Pair<AttrSchemaType, List<PlainAttrValue>> intValues = mappingManager.getIntValues(
+                        provision,
                         mapItem,
                         intAttrName,
                         schemaType,
@@ -300,8 +329,6 @@ abstract class AbstractAnyDataBinder {
             final PlainSchema schema,
             final PlainAttr<?> attr,
             final AnyUtils anyUtils,
-            final Collection<ExternalResource> resources,
-            final PropagationByResource<String> propByRes,
             final SyncopeClientException invalidValues) {
 
         switch (patch.getOperation()) {
@@ -338,30 +365,14 @@ abstract class AbstractAnyDataBinder {
                 any.remove(attr);
                 plainAttrDAO.delete(attr);
         }
-
-        resources.stream().
-                filter(resource -> resource.getProvision(any.getType()).isPresent()
-                && resource.getProvision(any.getType()).get().getMapping() != null).
-                forEach(resource -> MappingUtils.getPropagationItems(
-                resource.getProvision(any.getType()).get().getMapping().getItems().stream()).
-                filter(item -> (schema.getKey().equals(item.getIntAttrName()))).
-                forEach(item -> {
-                    propByRes.add(ResourceOperation.UPDATE, resource.getKey());
-
-                    if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
-                        propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
-                    }
-                }));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected PropagationByResource<String> fill(
+    protected void fill(
             final Any any,
             final AnyUR anyUR,
             final AnyUtils anyUtils,
             final SyncopeClientCompositeException scce) {
-
-        PropagationByResource<String> propByRes = new PropagationByResource<>();
 
         // 1. anyTypeClasses
         for (StringPatchItem patch : anyUR.getAuxClasses()) {
@@ -389,13 +400,11 @@ abstract class AbstractAnyDataBinder {
             } else {
                 switch (patch.getOperation()) {
                     case ADD_REPLACE:
-                        propByRes.add(ResourceOperation.CREATE, resource.getKey());
                         any.add(resource);
                         break;
 
                     case DELETE:
                     default:
-                        propByRes.add(ResourceOperation.DELETE, resource.getKey());
                         any.getResources().remove(resource);
                 }
             }
@@ -424,7 +433,7 @@ abstract class AbstractAnyDataBinder {
                     }
                 }
                 if (attr != null) {
-                    processAttrPatch(any, patch, schema, attr, anyUtils, resources, propByRes, invalidValues);
+                    processAttrPatch(any, patch, schema, attr, anyUtils, invalidValues);
                 }
             }
         });
@@ -440,6 +449,30 @@ abstract class AbstractAnyDataBinder {
         if (!requiredValuesMissing.isEmpty()) {
             scce.addException(requiredValuesMissing);
         }
+    }
+
+    protected PropagationByResource<String> propByRes(
+            final Map<String, ConnObjectTO> before,
+            final Map<String, ConnObjectTO> after) {
+
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
+
+        after.forEach((resource, connObject) -> {
+            if (before.containsKey(resource)) {
+                ConnObjectTO beforeObject = before.get(resource);
+                if (!beforeObject.equals(connObject)) {
+                    propByRes.add(ResourceOperation.UPDATE, resource);
+
+                    beforeObject.getAttr(Uid.NAME).map(attr -> attr.getValues().get(0)).
+                            ifPresent(value -> propByRes.addOldConnObjectKey(resource, value));
+                }
+            } else {
+                propByRes.add(ResourceOperation.CREATE, resource);
+            }
+        });
+        propByRes.addAll(
+                ResourceOperation.DELETE,
+                before.keySet().stream().filter(resource -> !after.containsKey(resource)).collect(Collectors.toSet()));
 
         return propByRes;
     }
@@ -606,24 +639,5 @@ abstract class AbstractAnyDataBinder {
                 build()));
 
         return membershipTO;
-    }
-
-    protected Map<String, String> getConnObjectKeys(final Any<?> any, final AnyUtils anyUtils) {
-        Map<String, String> connObjectKeys = new HashMap<>();
-
-        anyUtils.getAllResources(any).
-                forEach(resource -> resource.getProvision(any.getType()).
-                filter(provision -> provision.getMapping() != null).
-                ifPresent(provision -> {
-                    MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
-                            orElseThrow(() -> new NotFoundException(
-                            "ConnObjectKey mapping for " + any.getType().getKey() + ' ' + any.getKey()
-                            + " on resource '" + resource.getKey() + '\''));
-
-                    mappingManager.getConnObjectKeyValue(any, provision).
-                            ifPresent(value -> connObjectKeys.put(resource.getKey(), value));
-                }));
-
-        return connObjectKeys;
     }
 }
