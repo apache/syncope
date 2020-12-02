@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -44,7 +45,6 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -194,22 +194,17 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         // Re-merge any pending change from workflow tasks
         Group group = groupDAO.save(toBeUpdated);
 
-        PropagationByResource<String> propByRes = new PropagationByResource<>();
+        // Save projection on Resources (before update)
+        Map<String, ConnObjectTO> beforeOnResources =
+                onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, false);
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
-
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.GROUP);
-
-        // fetch connObjectKeys before update
-        Map<String, String> oldConnObjectKeys = getConnObjectKeys(group, anyUtils);
 
         // realm
         setRealm(group, groupUR);
 
         // name
         if (groupUR.getName() != null && StringUtils.isNotBlank(groupUR.getName().getValue())) {
-            propByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
-
             group.setName(groupUR.getName().getValue());
         }
 
@@ -226,17 +221,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         // attributes and resources
-        propByRes.merge(fill(group, groupUR, anyUtils, scce));
-
-        // check if some connObjectKey was changed by the update above
-        Map<String, String> newConnObjectKeys = getConnObjectKeys(group, anyUtils);
-        oldConnObjectKeys.entrySet().stream().
-                filter(entry -> newConnObjectKeys.containsKey(entry.getKey())
-                && !entry.getValue().equals(newConnObjectKeys.get(entry.getKey()))).
-                forEach(entry -> {
-                    propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
-                    propByRes.add(ResourceOperation.UPDATE, entry.getKey());
-                });
+        fill(group, groupUR, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
 
         group = groupDAO.save(group);
 
@@ -311,8 +296,11 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         // Re-merge any pending change from above
-        groupDAO.save(group);
-        return propByRes;
+        group = groupDAO.save(group);
+
+        // Build final information for next stage (propagation)
+        return propByRes(
+                beforeOnResources, onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, false));
     }
 
     @Override

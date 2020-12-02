@@ -21,6 +21,7 @@ package org.apache.syncope.wa.starter.webauthn;
 
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.util.crypto.CipherExecutor;
+import org.apereo.cas.webauthn.WebAuthnUtils;
 import org.apereo.cas.webauthn.storage.BaseWebAuthnCredentialRepository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -74,7 +75,7 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
             flatMap(Collection::stream).
             map(Unchecked.function(record -> {
                 String json = getCipherExecutor().decode(record.getJson());
-                return getObjectMapper().readValue(json, new TypeReference<>() {
+                return WebAuthnUtils.getObjectMapper().readValue(json, new TypeReference<>() {
                 });
             }));
     }
@@ -84,7 +85,8 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
         try {
             List<WebAuthnDeviceCredential> devices = records.stream().
                 map(Unchecked.function(record -> {
-                    String json = getCipherExecutor().encode(getObjectMapper().writeValueAsString(record));
+                    String json = getCipherExecutor().encode(WebAuthnUtils.getObjectMapper().
+                        writeValueAsString(record));
                     return new WebAuthnDeviceCredential.Builder().
                         json(json).
                         owner(username).
@@ -118,8 +120,8 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
                 return account.getRecords().stream().
                     map(Unchecked.function(record -> {
                         String json = getCipherExecutor().decode(record.getJson());
-                        return getObjectMapper().readValue(json, new TypeReference<CredentialRegistration>() {
-                        });
+                        return WebAuthnUtils.getObjectMapper()
+                            .readValue(json, new TypeReference<CredentialRegistration>() { });
                     })).
                     collect(Collectors.toList());
             }

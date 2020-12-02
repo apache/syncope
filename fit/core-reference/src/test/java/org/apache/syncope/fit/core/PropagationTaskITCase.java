@@ -20,6 +20,7 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -49,6 +50,7 @@ import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -69,9 +71,11 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -84,6 +88,7 @@ import org.apache.syncope.fit.core.reference.DateToDateItemTransformer;
 import org.apache.syncope.fit.core.reference.DateToLongItemTransformer;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.Name;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -624,6 +629,82 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertNotNull(connObject);
             assertTrue(connObject.getAttr("l").isPresent());
             assertEquals("Canon MFC8030", connObject.getAttr("l").get().getValues().get(0));
+        } finally {
+            try {
+                resourceService.delete(ldap.getKey());
+            } catch (Exception ignore) {
+                // ignore
+            }
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE1605() throws ParseException {
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        try {
+            // 1. clone the LDAP resource and add some sensible mappings
+            ProvisionTO provisionGroup =
+                    SerializationUtils.clone(ldap.getProvision(AnyTypeKind.GROUP.name()).orElse(null));
+            assertNotNull(provisionGroup);
+            provisionGroup.getVirSchemas().clear();
+            provisionGroup.getMapping().getItems().clear();
+
+            ItemTO item = new ItemTO();
+            item.setConnObjectKey(true);
+            item.setIntAttrName("name");
+            item.setExtAttrName("description");
+            item.setPurpose(MappingPurpose.BOTH);
+
+            provisionGroup.getMapping().setConnObjectKeyItem(item);
+            provisionGroup.getMapping().setConnObjectLink("'cn=' + originalName + ',ou=groups,o=isp'");
+
+            ldap.getProvisions().clear();
+            ldap.getProvisions().add(provisionGroup);
+
+            ldap.setKey(RESOURCE_NAME_LDAP + "1605" + getUUIDString());
+            resourceService.create(ldap);
+
+            // 1. create group with the new resource assigned
+            String originalName = "grp1605-" + getUUIDString();
+
+            GroupCR groupCR = new GroupCR();
+            groupCR.setName("SYNCOPEGROUP1605-" + getUUIDString());
+            groupCR.setRealm("/");
+            groupCR.getResources().add(ldap.getKey());
+            groupCR.getPlainAttrs().add(new Attr.Builder("originalName").value(originalName).build());
+
+            GroupTO groupTO = createGroup(groupCR).getEntity();
+            assertNotNull(groupTO);
+
+            // 3. check attributes prepared for propagation
+            PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(groupTO.getResources().iterator().next()).
+                    anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).build());
+            assertEquals(1, tasks.getSize());
+            assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
+            assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
+
+            ConnObjectTO beforeConnObject =
+                    resourceService.readConnObject(ldap.getKey(), AnyTypeKind.GROUP.name(), groupTO.getKey());
+
+            GroupUR groupUR = new GroupUR();
+            groupUR.setKey(groupTO.getKey());
+
+            groupUR.getPlainAttrs().add(attrAddReplacePatch("originalName", "new" + originalName));
+            groupTO = updateGroup(groupUR).getEntity();
+
+            tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(groupTO.getResources().iterator().next()).
+                    anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).orderBy("start DESC").build());
+            assertEquals(2, tasks.getSize());
+            assertEquals(ResourceOperation.UPDATE, tasks.getResult().get(0).getOperation());
+            assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
+
+            ConnObjectTO afterConnObject =
+                    resourceService.readConnObject(ldap.getKey(), AnyTypeKind.GROUP.name(), groupTO.getKey());
+            assertNotEquals(afterConnObject.getAttr(Name.NAME).get().getValues().get(0),
+                    beforeConnObject.getAttr(Name.NAME).get().getValues().get(0));
+            assertTrue(afterConnObject.getAttr(Name.NAME).get().getValues().get(0).contains("new" + originalName));
         } finally {
             try {
                 resourceService.delete(ldap.getKey());
