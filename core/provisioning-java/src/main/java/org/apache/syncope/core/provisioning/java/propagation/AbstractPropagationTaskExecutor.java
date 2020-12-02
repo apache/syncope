@@ -235,28 +235,22 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), Function.identity()));
 
             // Only compare attribute from beforeObj that are also being updated
-            Set<String> skipAttrNames = new HashSet<>(originalAttrMap.keySet());
+            Set<String> skipAttrNames = originalAttrMap.keySet();
             skipAttrNames.removeAll(updateAttrMap.keySet());
-            skipAttrNames.forEach(originalAttrMap::remove);
 
-            Set<Attribute> originalAttrs = new HashSet<>(originalAttrMap.values());
-
-            if (originalAttrs.equals(attributes)) {
-                LOG.debug("Don't need to propagate anything: {} is equal to {}", originalAttrs, attributes);
+            if (originalAttrMap.values().equals(attributes)) {
+                LOG.debug("Don't need to propagate anything: {} is equal to {}", originalAttrMap.values(), attributes);
                 result = AttributeUtil.getUidAttribute(attributes);
             } else {
                 LOG.debug("Attributes that would be updated {}", attributes);
 
-                Set<Attribute> strictlyModified =
-                        attributes.stream().filter(attr -> !originalAttrs.contains(attr)).collect(Collectors.toSet());
-
                 // 3. provision entry
-                LOG.debug("Update {} on {}", strictlyModified, task.getResource().getKey());
+                LOG.debug("Update {} on {}", attributes, task.getResource().getKey());
 
                 result = connector.update(
                         beforeObj.getObjectClass(),
                         new Uid(beforeObj.getUid().getUidValue()),
-                        strictlyModified,
+                        attributes,
                         null,
                         propagationAttempted);
             }
