@@ -651,7 +651,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             item.setExtAttrName("description");
             item.setPurpose(MappingPurpose.BOTH);
 
-            provisionGroup.getMapping().getItems().add(item);
+            provisionGroup.getMapping().setConnObjectKeyItem(item);
             provisionGroup.getMapping().setConnObjectLink("'cn=' + originalName + ',ou=groups,o=isp'");
 
             ldap.getProvisions().clear();
@@ -691,7 +691,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
                     resource(groupTO.getResources().iterator().next()).
-                    anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).build());
+                    anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).orderBy("start DESC").build());
             assertEquals(2, tasks.getSize());
             assertEquals(ResourceOperation.UPDATE, tasks.getResult().get(0).getOperation());
             assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
