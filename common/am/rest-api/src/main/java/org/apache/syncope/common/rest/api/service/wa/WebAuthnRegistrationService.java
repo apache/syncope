@@ -44,7 +44,7 @@ import javax.ws.rs.core.Response;
 
 import java.util.List;
 
-@Tag(name = "WA Registrations")
+@Tag(name = "WA")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer")})
