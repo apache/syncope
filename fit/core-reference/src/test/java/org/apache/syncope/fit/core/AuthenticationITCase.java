@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.security.AccessControlException;
 import java.util.Map;
 import java.util.Set;
@@ -494,7 +495,8 @@ public class AuthenticationITCase extends AbstractITCase {
                 new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
-        userTO = userRequestService.submitForm(form);
+        userTO = userRequestService.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getEntity();
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 

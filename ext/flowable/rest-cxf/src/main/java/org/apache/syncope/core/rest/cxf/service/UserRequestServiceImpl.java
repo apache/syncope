@@ -20,8 +20,10 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
 import java.util.Optional;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
@@ -94,7 +96,8 @@ public class UserRequestServiceImpl extends AbstractServiceImpl implements UserR
     }
 
     @Override
-    public UserTO submitForm(final UserRequestForm form) {
-        return logic.submitForm(form);
+    public Response submitForm(final UserRequestForm form) {
+        ProvisioningResult<UserTO> submitted = logic.submitForm(form, isNullPriorityAsync());
+        return modificationResponse(submitted);
     }
 }

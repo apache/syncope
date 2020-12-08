@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
 import java.util.List;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -35,6 +36,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.UserRequest;
@@ -119,7 +121,8 @@ public class UserRequestITCase extends AbstractITCase {
                 new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("secondLevelApprove").get().setValue(Boolean.FALSE.toString());
-        user = userRequestService.submitForm(form);
+        user = userRequestService.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getEntity();
 
         // no more forms, group not assigned
         assertTrue(userRequestService.listForms(
@@ -142,7 +145,8 @@ public class UserRequestITCase extends AbstractITCase {
                 new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("secondLevelApprove").get().setValue(Boolean.TRUE.toString());
-        user = userRequestService.submitForm(form);
+        user = userRequestService.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getEntity();
 
         // check that the director group was effectively assigned
         assertTrue(user.getMembership("ebf97068-aa4b-4a85-9f01-680e8c4cf227").isPresent());
