@@ -25,6 +25,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
@@ -42,6 +43,7 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.flowable.engine.runtime.ProcessInstance;
@@ -199,7 +201,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public UserTO submitForm(final UserRequestForm form) {
+    public ProvisioningResult<UserTO> submitForm(final UserRequestForm form, final boolean nullPriorityAsync) {
         if (form.getUsername() == null) {
             securityChecks(null,
                     FlowableEntitlement.USER_REQUEST_FORM_SUBMIT,
@@ -209,6 +211,8 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
                     FlowableEntitlement.USER_REQUEST_FORM_SUBMIT,
                     "Submitting forms for user" + form.getUsername() + " not allowed");
         }
+
+        ProvisioningResult<UserTO> result = new ProvisioningResult<>();
 
         UserWorkflowResult<UserPatch> wfResult = userRequestHandler.submitForm(form);
 
@@ -222,7 +226,8 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
                             wfResult.getPropByLinkedAccount(),
                             wfResult.getPerformedTasks()));
 
-            taskExecutor.execute(taskInfos, false);
+            PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync);
+            result.getPropagationStatuses().addAll(propagationReporter.getStatuses());
         }
 
         UserTO userTO;
@@ -232,7 +237,9 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
         } else {
             userTO = binder.getUserTO(wfResult.getResult().getKey());
         }
-        return userTO;
+        result.setEntity(binder.returnUserTO(userTO));
+
+        return result;
     }
 
     @Override
