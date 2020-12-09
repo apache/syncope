@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.logic.wa;
 
-import static org.apache.syncope.common.lib.types.ClientAppType.OIDCRP;
-import static org.apache.syncope.common.lib.types.ClientAppType.SAML2SP;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

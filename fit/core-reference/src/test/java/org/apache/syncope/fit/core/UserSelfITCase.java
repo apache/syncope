@@ -129,7 +129,8 @@ public class UserSelfITCase extends AbstractITCase {
                 new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
-        userTO = userRequestService.submitForm(form);
+        userTO = userRequestService.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getEntity();
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey()));
@@ -179,7 +180,8 @@ public class UserSelfITCase extends AbstractITCase {
                 new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
-        userTO = userRequestService.submitForm(form);
+        userTO = userRequestService.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getEntity();
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey()));
@@ -277,7 +279,8 @@ public class UserSelfITCase extends AbstractITCase {
                 new UserRequestQuery.Builder().user(updated.getKey()).build()).getResult().get(0);
         form = userRequestService.claimForm(form.getTaskId());
         form.getProperty("approveUpdate").get().setValue(Boolean.TRUE.toString());
-        updated = userRequestService.submitForm(form);
+        updated = userRequestService.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getEntity();
         assertNotNull(updated);
         assertEquals("active", updated.getStatus());
         assertTrue(updated.getUsername().endsWith("XX"));
@@ -515,7 +518,8 @@ public class UserSelfITCase extends AbstractITCase {
         // 5. reject user
         form.getProperty("approveCreate").get().setValue(Boolean.FALSE.toString());
         form.getProperty("rejectReason").get().setValue("I don't like him.");
-        userTO = userService3.submitForm(form);
+        userTO = userService3.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getEntity();
         assertNotNull(userTO);
         assertEquals("rejected", userTO.getStatus());
 
@@ -599,7 +603,8 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 5. approve user (and verify that propagation occurred)
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
-        userTO = userRequestService.submitForm(form);
+        userTO = userRequestService.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getEntity();
         assertNotNull(userTO);
         assertEquals(updatedUsername, userTO.getUsername());
         assertEquals("active", userTO.getStatus());
@@ -745,8 +750,7 @@ public class UserSelfITCase extends AbstractITCase {
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
 
         // 6. submit approve
-        userTO = userRequestService.submitForm(form);
-        assertNotNull(userTO);
+        userRequestService.submitForm(form);
         assertEquals(preForms,
                 userRequestService.listForms(new UserRequestQuery.Builder().build()).getTotalCount());
         assertTrue(userRequestService.listForms(
