@@ -19,6 +19,10 @@
 
 @import 'utils';
 
+.content-wrapper.accent-success{
+  overflow: hidden;
+}
+
 .window {
   border: 1px solid #346789;
   @include shadow(2px 2px 19px #aaa);
@@ -111,6 +115,11 @@
   }
 }
 
+.checkbox {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
 #topology {
   position: relative;
   border: 0px;
@@ -195,3 +204,21 @@
   }
 }
 
+div.alert-widget > a > .badge {
+    font-size: 9px;
+    line-height: 0.9;
+    padding: 2px 3px;
+    position: absolute;
+    text-align: center;
+    margin-right:-13px;
+    top: 0px;
+}
+
+.card.card-outline {
+    margin-top: 20px;
+    margin-bottom: 0px;
+}
+
+.panel-group.box-group {
+    margin-bottom: 20px;
+}

@@ -252,7 +252,7 @@ a.help {
 }
 
 .modal-body {
-  max-height: 550px;
+  max-height: 650px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -320,6 +320,14 @@ a.help {
   }
 }
 
+.pull-right {
+  float: right;
+}
+
+.pull-left{
+  float:left;
+}
+
 .wizard-buttons {
   padding: 10px 0px 5px 0px;
   position: absolute;
@@ -355,6 +363,15 @@ a.help {
   }
 }
 
+.navbar-light .navbar-nav .nav-link {
+  color: #ffffff;
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+  color: #ffffff;
+  background-color: #00000026;
+}
+
 span.overridable div.checkbox {
   float: right;
   margin: 0px;
@@ -382,6 +399,16 @@ section#notifications .modal-lg {
   display: block;
 }
 
+.details-footer {
+  margin: 30px 0px 0px 0px;
+  border: 1px solid #EEE;
+  color: #888;
+  display: inline-table;
+  width: 100%;
+  float: none;
+  position: absolute;
+}
+
 th.checkGroupColumn {
   width: 20px;
   text-align: center;
@@ -392,6 +419,13 @@ td.checkGroupColumn {
   text-align: center;
 }
 
+.badge-success {
+  background-color: #17a2b8;
+}
+
+.bg-yellow, .bg-yellow>a {
+  color: #fff!important;
+}
 
 
 
@@ -512,6 +546,9 @@ td.checkGroupColumn {
   padding: 15px;
   input {
     background-color: rgba(200, 200, 200, 0.6) !important;
+  }
+  .input-group{
+    justify-content: space-between;
   }
 }
 
@@ -653,16 +690,46 @@ div.listview-actions a {
   clear: both;
 }
 
-
-
-
-
+.table.dataTable tbody tr.active td, .table.dataTable tbody tr.active th {
+  background-color: #17a2b8;
+  color: white;
+}
 
 /* Result page
 ============================================================================= */
 
 .attribute {
   padding: 0px 4px 0px 4px;
+}
+
+
+.attribute.right {
+  float: right;
+  width: 50%;
+}
+
+.attribute.left {
+  width: 50%;
+  float: left;
+}
+
+.left.page-header{
+  padding-bottom: 9px;
+  border-bottom: 1px solid #dee2e6;
+  width: 50%;
+  float: left;
+}
+
+.right.page-header{
+  padding-bottom: 9px;
+  border-bottom: 1px solid #dee2e6;
+  width: 50%;
+  float: right;
+}
+
+.page-header {
+  padding-bottom: 9px;
+  border-bottom: 1px solid #dee2e6;
 }
 
 span.highlight .attribute label {
@@ -689,8 +756,30 @@ span.highlight .attribute label {
   border-color: #c1e9c1;
 }
 
+span.ui-spinner.ui-corner-all.ui-widget.ui-widget-content {
+  width:20%;
+  display: block;
+}
 
+form.bs-example.bs-example-form  span.ui-spinner.ui-corner-all.ui-widget.ui-widget-content{
+  width:40%;
+}
 
+div.panel-collapse.collapse.show span.ui-spinner.ui-corner-all.ui-widget.ui-widget-content{
+  width: 20%;
+}
+
+.ui-spinner-input:focus {
+  outline:0;
+}
+
+.ui-spinner-input{
+  width:20%;
+}
+
+.form-group span:nth-child(4n) {
+  display:block;
+}
 
 /* AjaxDateTimePicker
 ============================================================================= */
@@ -702,85 +791,6 @@ span.highlight .attribute label {
 .icon-top-position {
   top: 5px !important;
 }
-
-
-
-
-
-/* Search - AjaxDateTimePicker
-============================================================================= */
-
-.searchBox .col-xs-12 {
-  padding-left: 0px !important;
-  padding-right: 0px !important;
-}
-
-.clause {
-  display: block;
-  line-height: 34px;
-  .operator {
-    width: 65px !important;
-    .checkbox {
-      margin: 0px !important;
-    }
-  }
-  .field {
-    line-height: 34px;
-    float: left;
-    padding: 0 3px 0px 0px;
-    display: inline-block !important;
-  }
-  .type {
-    width: 170px !important;
-    button {
-      width: 170px !important;
-    }
-  }
-  .property {
-    width: 300px;
-    button {
-      width: 300px;
-    }
-  }
-  .comparator {
-    width: 100px;
-    button {
-      width: 100px !important;
-    }
-  }
-  .value {
-    width: 220px;
-  }
-  .date {
-    width: 160px;
-  }
-  .hours {
-    width: 45px;
-  }
-  .separator {
-    width: 20px;
-    padding-left: 12px;
-  }
-  .action {
-    float: left;
-    padding: 0px 7px 0px;
-  }
-}
-
-.searchBox {
-  .input-group-addon:last-child {
-    border: 1px solid #ccc !important;
-  }
-  .input-group {
-    margin-top: 1px;
-  }
-}
-
-.custom-autocomplete-box li.selected {
-  background-color: #eee;
-}
-
-
 
 
 /* Parameters Details
@@ -812,6 +822,15 @@ li.todoitem a {
 .form-palette {
   display: inline-block;
   width: 110%;
+  margin-left: 10px;
+}
+
+i.fas.fa-backward {
+  font-size: 80%;
+}
+
+i.fas.fa-forward{
+  font-size: 80%;
 }
 
 .form-group-inline {
@@ -999,9 +1018,19 @@ div#userFilter {
 
 /* Others
 ============================================================================= */
+.form-check {
+  padding-bottom: 0.5rem;
+  display: inline-block;
+  float: right;
+  margin-right: 5px;
+}
+
+div#group-forum {
+  margin-bottom: 15px;
+}
 
 fieldset.input-group {
-  width: 100%;
+  width: 110%;
 }
 
 .modal-content > div {
@@ -1009,6 +1038,11 @@ fieldset.input-group {
     background-color: #f0f0f0;
     height: 64px;
   }
+}
+
+.modal-content div.toggle-menu {
+  position: fixed;
+  right: 20%;
 }
 
 .modal-body .box-body div.background-footer {
@@ -1125,6 +1159,11 @@ div#tablehandling ul.menu li a {
   }
 }
 
+h3.card-title {
+  display: contents;
+  float: right;
+}
+
 /* Form wrappers
 ============================================================================= */
 
@@ -1148,4 +1187,62 @@ div#tablehandling ul.menu li a {
 
 .max_height {
   height: 100% !important;
+}
+
+label.btn.btn-warning.btn-xs.active.toggle-off {
+  color: white;
+}
+
+div#ownership {
+  float: left;
+  margin-left: -20px;
+}
+
+pre {
+  padding: 9.5px;
+  margin: 0 0 10px;
+  line-height: 1.42857143;
+  color: #333;
+  word-break: break-all;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.input-group-addon {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #555;
+  text-align: center;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.input-group .input-group-addon {
+  border-color: #d2d6de;
+  background-color: #fff;
+}
+
+.multipanel-box {
+    padding: 5px;
+    display: inline-table;
+    margin: 0px;
+    position: relative;
+    border-radius: 3px;
+    background: #ffffff;
+    border-top: 3px solid #d2d6de;
+    width: 94%;
+    box-shadow: 0 1px 1px #d2d6de;
+}
+
+.multipanel-btn-minus.input-group-addon {
+    margin-top: 70px;
+}
+
+.multipanel-btn-plus.input-group-addon {
+    background: white;
+    border: none;
+    float: right;
+    margin-right:12px;
 }

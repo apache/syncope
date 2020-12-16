@@ -24,7 +24,6 @@
 .clause {
   display: block;
   line-height: 34px;
-  width: 100%;
   .operator {
     width: 65px !important;
     .checkbox {
@@ -36,24 +35,43 @@
     float: left;
     padding: 0 3px 0px 0px;
     display: inline-block !important;
+    .form-check{
+      margin-bottom: -50px;
+    }
+    .toggle.btn-xs {
+      min-width: 59px;
+    }
   }
   .type {
-    width: 120px !important;
+    width: 200px !important;
+    button {
+      width: 200px !important;
+    }
   }
   .property {
-    width: 190px;
+    width: 250px;
+    button {
+      width: 250px;
+    }
   }
   .comparator {
-    width: 100px;
+    width: 140px;
     button {
-      width: 100px !important;
+      width: 140px !important;
     }
   }
   .value {
-    width: 220px;
+    width: 250px;
   }
-  .textvalue {
+  .date {
+    width: 160px;
+  }
+  .hours {
     width: 45px;
+  }
+  .separator {
+    width: 20px;
+    padding-left: 12px;
   }
   .action {
     float: left;
@@ -68,4 +86,8 @@
   .input-group {
     margin-top: 1px;
   }
+}
+
+.custom-autocomplete-box li.selected {
+  background-color: #eee;
 }

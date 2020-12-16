@@ -91,7 +91,7 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             add(new AjaxTextFieldPanel(
                     "key",
                     "key",
-                    new PropertyModel<>(domain, "key")).setRequired(true));
+                    new PropertyModel<>(domain, "key")).setRequired(true).addRequiredLabel());
 
             AjaxDropDownChoicePanel<String> jdbcDriver = new AjaxDropDownChoicePanel<>(
                     "jdbcDriver", "jdbcDriver", new PropertyModel<>(domain, "jdbcDriver"), false);
@@ -103,7 +103,7 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             add(new AjaxTextFieldPanel(
                     "jdbcURL",
                     "jdbcURL",
-                    new PropertyModel<>(domain, "jdbcURL")).setRequired(true));
+                    new PropertyModel<>(domain, "jdbcURL")).setRequired(true).addRequiredLabel());
 
             add(new AjaxTextFieldPanel(
                     "dbSchema",
@@ -113,7 +113,7 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             add(new AjaxTextFieldPanel(
                     "dbUsername",
                     "dbUsername",
-                    new PropertyModel<>(domain, "dbUsername")).setRequired(true));
+                    new PropertyModel<>(domain, "dbUsername")).setRequired(true).addRequiredLabel());
             add(new EncryptedFieldPanel(
                     "dbPassword", "dbPassword", new PropertyModel<>(domain, "dbPassword"), false));
 
@@ -129,22 +129,22 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
                     "poolMaxActive",
                     "poolMaxActive",
                     Integer.class,
-                    new PropertyModel<>(domain, "poolMaxActive")).setRequired(true));
+                    new PropertyModel<>(domain, "poolMaxActive")).setRequired(true).addRequiredLabel());
             add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
                     "poolMinIdle",
                     "poolMinIdle",
                     Integer.class,
-                    new PropertyModel<>(domain, "poolMinIdle")).setRequired(true));
+                    new PropertyModel<>(domain, "poolMinIdle")).setRequired(true).addRequiredLabel());
 
             add(new AjaxTextFieldPanel(
                     "auditSql",
                     "auditSql",
-                    new PropertyModel<>(domain, "auditSql")).setRequired(true));
+                    new PropertyModel<>(domain, "auditSql")).setRequired(true).addRequiredLabel());
 
             add(new AjaxTextFieldPanel(
                     "orm",
                     "orm",
-                    new PropertyModel<>(domain, "orm")).setRequired(true));
+                    new PropertyModel<>(domain, "orm")).setRequired(true).addRequiredLabel());
 
             AjaxDropDownChoicePanel<String> databasePlatform = new AjaxDropDownChoicePanel<>(
                     "databasePlatform", "databasePlatform", new PropertyModel<>(domain, "databasePlatform"), false);
