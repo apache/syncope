@@ -2,6 +2,25 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.1.8
+================================================================================
+
+** Bug
+    * [SYNCOPE-1590] - Error when adding i18n labels to schemas
+    * [SYNCOPE-1596] - Console: read-only attributes not rendered as disabled
+    * [SYNCOPE-1598] - Create or update user with two+ memberships for the same group are not prevented
+    * [SYNCOPE-1601] - Propagation not always triggered after form submit in User Requests
+    * [SYNCOPE-1602] - ConnObjectKey attribute values not included with DefaultPushCorrelationRule
+    * [SYNCOPE-1603] - PushCorrelationRule not used for DELETE on External Resources
+    * [SYNCOPE-1604] - AjaxDateTimePicker doesn't handle some 1900 dates the right way
+    * [SYNCOPE-1605] - Propagation task not generated if update involves only ConnObjectLink
+
+** Improvement
+    * [SYNCOPE-1591] - Support fetching data from internal storage for XML content loader
+    * [SYNCOPE-1594] - Allow to filter user requests and forms by username
+    * [SYNCOPE-1597] - Enable default customization of console layout
+    * [SYNCOPE-1600] - Flowable: support password form property type
+
 Release Notes - Syncope - Version 2.1.7
 ================================================================================
 
