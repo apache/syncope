@@ -63,13 +63,13 @@ jobs:
       - export JAVA_HOME=~/openjdk14
       - export PATH="$JAVA_HOME/bin:$PATH"
       - eval $TestCommand
-      #- stage: test
-      #name: "Unit Tests via JDK 16"
-      #script:
-      #- ~/install-jdk.sh --target "/home/travis/openjdk16" --workspace "/home/travis/.cache/install-jdk" --feature "16" --license "GPLv2+CE" --cacerts
-      #- export JAVA_HOME=~/openjdk16
-      #- export PATH="$JAVA_HOME/bin:$PATH"
-      #- eval $TestCommand
+    - stage: test
+      name: "Unit Tests via JDK 16"
+      script:
+      - ~/install-jdk.sh --target "/home/travis/openjdk16" --workspace "/home/travis/.cache/install-jdk" --feature "16" --license "GPLv2+CE" --cacerts
+      - export JAVA_HOME=~/openjdk16
+      - export PATH="$JAVA_HOME/bin:$PATH"
+      - eval $TestCommand
     - stage: test
       name: "Persistence Unit Tests via JDK 11: PostgreSQL (JSONB)"
       script: mvn -f core/persistence-jpa-json/pom.xml -P postgres -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true

@@ -26,7 +26,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -96,7 +95,8 @@ public class RouteProviderTest extends AbstractTest {
         route.getPredicates().add(new SRARoutePredicate.Builder().
                 factory(SRARoutePredicateFactory.METHOD).args("GET").build());
         route.getPredicates().add(new SRARoutePredicate.Builder().
-                factory(SRARoutePredicateFactory.PATH).args("/addResponseHeader").cond(SRARoutePredicateCond.AND).build());
+                factory(SRARoutePredicateFactory.PATH).args("/addResponseHeader").cond(SRARoutePredicateCond.AND).
+                build());
         route.getFilters().add(new SRARouteFilter.Builder().
                 factory(SRARouteFilterFactory.ADD_RESPONSE_HEADER).args("Hello,World").build());
 
@@ -176,37 +176,6 @@ public class RouteProviderTest extends AbstractTest {
         routeRefresher.refresh();
 
         webClient.get().uri("/requestHeader").header("Hello", "Mondo").exchange().expectStatus().isOk();
-    }
-
-    @Test
-    public void hystrix() {
-        webClient.get().uri("/fallback").exchange().
-                expectStatus().isOk().
-                expectBody().
-                consumeWith(response -> assertThat(response.getResponseBody()).isEqualTo("fallback".getBytes()));
-
-        stubFor(get(urlEqualTo("/delay/3")).
-                willReturn(aResponse().
-                        withBody("no fallback").
-                        withFixedDelay(3000)));
-
-        SRARouteTO route = new SRARouteTO();
-        route.setKey("hystrix");
-        route.setTarget(URI.create("http://localhost:" + wiremockPort));
-        route.getPredicates().add(new SRARoutePredicate.Builder().
-                factory(SRARoutePredicateFactory.HOST).args("*.hystrix.com").build());
-        route.getFilters().add(new SRARouteFilter.Builder().
-                factory(SRARouteFilterFactory.HYSTRIX).args("fallbackcmd,forward:/fallback").build());
-
-        SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
-        routeRefresher.refresh();
-
-        webClient.get().uri("/delay/3").
-                header(HttpHeaders.HOST, "www.hystrix.com").
-                exchange().
-                expectStatus().isOk().
-                expectBody().
-                consumeWith(response -> assertThat(response.getResponseBody()).isEqualTo("fallback".getBytes()));
     }
 
     @Test
@@ -391,7 +360,8 @@ public class RouteProviderTest extends AbstractTest {
         webClient.get().uri("/redirect").exchange().expectStatus().isOk();
 
         route.getFilters().clear();
-        route.getFilters().add(new SRARouteFilter.Builder().factory(SRARouteFilterFactory.SET_STATUS).args("404").build());
+        route.getFilters().add(new SRARouteFilter.Builder().factory(SRARouteFilterFactory.SET_STATUS).args("404").
+                build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();
@@ -443,7 +413,8 @@ public class RouteProviderTest extends AbstractTest {
 
         route.getPredicates().clear();
         route.getPredicates().add(new SRARoutePredicate.Builder().
-                factory(SRARoutePredicateFactory.BEFORE).negate().args(ZonedDateTime.now().minusYears(1).toString()).build());
+                factory(SRARoutePredicateFactory.BEFORE).negate().args(ZonedDateTime.now().minusYears(1).toString()).
+                build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();

@@ -52,7 +52,6 @@ import org.springframework.cloud.gateway.filter.factory.AddRequestHeaderGatewayF
 import org.springframework.cloud.gateway.filter.factory.AddRequestParameterGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.AddResponseHeaderGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.FallbackHeadersGatewayFilterFactory;
-import org.springframework.cloud.gateway.filter.factory.HystrixGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.PrefixPathGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.PreserveHostHeaderGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.factory.RedirectToGatewayFilterFactory;
@@ -159,19 +158,6 @@ public class RouteProvider {
                             if (dedupeResponseHeaderArgs.length > 1) {
                                 c.setStrategy(DedupeResponseHeaderGatewayFilterFactory.Strategy.
                                         valueOf(dedupeResponseHeaderArgs[1].trim()));
-                            }
-                        });
-                break;
-
-            case HYSTRIX:
-                String[] hystrixArgs = gwfilter.getArgs().split(",");
-                filter = ctx.getBean(HystrixGatewayFilterFactory.class).
-                        apply(route.getKey(), c -> {
-                            if (StringUtils.isNotBlank(hystrixArgs[0])) {
-                                c.setName(hystrixArgs[0].trim());
-                            }
-                            if (StringUtils.isNotBlank(hystrixArgs[1])) {
-                                c.setFallbackUri(hystrixArgs[1].trim());
                             }
                         });
                 break;

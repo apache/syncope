@@ -414,7 +414,7 @@ under the License.
     <spring-boot.version>2.3.7.RELEASE</spring-boot.version>
     <spring-cloud-gateway.version>2.2.6.RELEASE</spring-cloud-gateway.version>
 
-    <openjpa.version>3.1.2</openjpa.version>
+    <openjpa.version>3.1.3-SNAPSHOT</openjpa.version>
     <hikaricp.version>3.4.5</hikaricp.version>
     <bval.version>2.0.5</bval.version>
 
@@ -970,11 +970,6 @@ under the License.
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-gateway</artifactId>
-        <version>${spring-cloud-gateway.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
         <version>${spring-cloud-gateway.version}</version>
       </dependency>
 
@@ -2965,20 +2960,61 @@ under the License.
       </activation>
 
       <properties>
+        <spring.version>5.3.2</spring.version>
+        <spring-boot.version>2.4.1</spring-boot.version>
+        <spring-cloud-gateway.version>3.0.0-RC1</spring-cloud-gateway.version>
+
         <argLine>-Xms512m -Xmx1024m -Xss256k -Dnet.bytebuddy.experimental=true</argLine>
       </properties>
 
       <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED</argLine>
-            </configuration>
-          </plugin>
-        </plugins>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                <release>16</release>
+                <fork>true</fork>
+                <compilerArgs>
+                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
+                </compilerArgs>
+                <annotationProcessorPaths>
+                  <path>
+                    <groupId>org.projectlombok</groupId>
+                    <artifactId>lombok</artifactId>
+                    <version>1.18.16</version>
+                  </path>
+                </annotationProcessorPaths>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
       </build>
+
+      <repositories>
+        <repository>
+          <id>repository.spring.milestone</id>
+          <name>Spring Milestone Repository</name>
+          <url>https://repo.spring.io/milestone</url>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>repository.spring.milestone</id>
+          <name>Spring Milestone Repository</name>
+          <url>https://repo.spring.io/milestone</url>
+        </pluginRepository>
+      </pluginRepositories>
     </profile>
   </profiles>
 

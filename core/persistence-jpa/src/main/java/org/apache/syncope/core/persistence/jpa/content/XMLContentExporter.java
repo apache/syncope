@@ -64,11 +64,10 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.openjpa.lib.util.collections.BidiMap;
+import org.apache.openjpa.lib.util.collections.DualHashBidiMap;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
@@ -109,13 +108,13 @@ public class XMLContentExporter implements ContentExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(XMLContentExporter.class);
 
-    private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = SetUtils.hashSet(
+    private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = Stream.of(
             "QRTZ_", "LOGGING", "NotificationTask_recipients", LoggerDAO.AUDIT_TABLE, JPAReportExec.TABLE,
             JPATaskExec.TABLE, JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE,
             JPAUPlainAttrUniqueValue.TABLE, JPAURelationship.TABLE, JPAUMembership.TABLE,
             JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
             JPAARelationship.TABLE, JPAAMembership.TABLE, JPAAccessToken.TABLE
-    );
+    ).collect(Collectors.toCollection(HashSet::new));
 
     private static final Map<String, String> TABLES_TO_BE_FILTERED =
             Map.of("TASK", "DTYPE <> 'PropagationTask' AND DTYPE <> 'NotificationTask'");
@@ -215,14 +214,14 @@ public class XMLContentExporter implements ContentExporter {
                 case Types.BINARY:
                 case Types.VARBINARY:
                 case Types.LONGVARBINARY:
-                    final InputStream is = rs.getBinaryStream(columnName);
+                    InputStream is = rs.getBinaryStream(columnName);
                     if (is != null) {
                         res = DatatypeConverter.printHexBinary(IOUtils.toByteArray(is));
                     }
                     break;
 
                 case Types.BLOB:
-                    final Blob blob = rs.getBlob(columnName);
+                    Blob blob = rs.getBlob(columnName);
                     if (blob != null) {
                         res = DatatypeConverter.printHexBinary(IOUtils.toByteArray(blob.getBinaryStream()));
                     }
@@ -230,17 +229,13 @@ public class XMLContentExporter implements ContentExporter {
 
                 case Types.BIT:
                 case Types.BOOLEAN:
-                    if (rs.getBoolean(columnName)) {
-                        res = "1";
-                    } else {
-                        res = "0";
-                    }
+                    res = rs.getBoolean(columnName) ? "1" : "0";
                     break;
 
                 case Types.DATE:
                 case Types.TIME:
                 case Types.TIMESTAMP:
-                    final Timestamp timestamp = rs.getTimestamp(columnName);
+                    Timestamp timestamp = rs.getTimestamp(columnName);
                     if (timestamp != null) {
                         res = FormatUtils.format(new Date(timestamp.getTime()));
                     }
