@@ -484,7 +484,7 @@ under the License.
     <antlr4.version>4.9</antlr4.version>
 
     <curator.version>5.1.0</curator.version>
-    <zookeeper.version>3.6.1</zookeeper.version>
+    <zookeeper.version>3.6.2</zookeeper.version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
@@ -2080,6 +2080,29 @@ under the License.
       <releases>
         <enabled>true</enabled>
       </releases>
+    </repository>
+
+    <!-- Disable some Spring repositories pulled in by dependencies - see
+    https://spring.io/blog/2020/10/29/notice-of-permissions-changes-to-repo-spring-io-fall-and-winter-2020 -->
+    <repository>
+      <id>spring-libs-milestone</id>
+      <url>https://repo.spring.io/libs-milestone</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>spring-plugins</id>
+      <url>https://repo.spring.io/plugins-release/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </repository>
   </repositories>
 
