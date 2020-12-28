@@ -405,7 +405,7 @@ under the License.
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
     <cxf.version>3.4.1</cxf.version>
-    <bouncycastle.version>1.67</bouncycastle.version>
+    <bouncycastle.version>1.68</bouncycastle.version>
 
     <jackson.version>2.12.0</jackson.version>
 
@@ -446,13 +446,11 @@ under the License.
     <commons-codec.version>1.15</commons-codec.version>
     <commons-logging.version>1.1.3</commons-logging.version>
 
-    <okio.version>2.9.0</okio.version>
-
     <modernizer-maven.version>2.1.0</modernizer-maven.version>
 
-    <pac4j.version>4.2.0</pac4j.version>
+    <pac4j.version>4.3.0</pac4j.version>
 
-    <cas.version>6.3.0-RC5</cas.version>
+    <cas.version>6.3.0</cas.version>
     <cas-client.version>3.6.2</cas-client.version>
 
     <h2.version>1.4.200</h2.version>
@@ -475,7 +473,7 @@ under the License.
     <chartjs.version>1.0.2</chartjs.version>
 
     <wicket.version>9.2.0</wicket.version>
-    <wicket-jqueryui.version>9.1.0</wicket-jqueryui.version>
+    <wicket-jqueryui.version>9.2.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.3</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
 
@@ -486,7 +484,7 @@ under the License.
     <antlr4.version>4.9</antlr4.version>
 
     <curator.version>5.1.0</curator.version>
-    <zookeeper.version>3.6.1</zookeeper.version>
+    <zookeeper.version>3.6.2</zookeeper.version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
@@ -1103,7 +1101,7 @@ under the License.
       <dependency>
         <groupId>com.squareup.okio</groupId>
         <artifactId>okio</artifactId>
-        <version>${okio.version}</version>
+        <version>2.9.0</version>
       </dependency>
 
       <dependency>
@@ -2083,6 +2081,29 @@ under the License.
         <enabled>true</enabled>
       </releases>
     </repository>
+
+    <!-- Disable some Spring repositories pulled in by dependencies - see
+    https://spring.io/blog/2020/10/29/notice-of-permissions-changes-to-repo-spring-io-fall-and-winter-2020 -->
+    <repository>
+      <id>spring-libs-milestone</id>
+      <url>https://repo.spring.io/libs-milestone</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>spring-plugins</id>
+      <url>https://repo.spring.io/plugins-release/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -2962,7 +2983,7 @@ under the License.
       <properties>
         <spring.version>5.3.2</spring.version>
         <spring-boot.version>2.4.1</spring-boot.version>
-        <spring-cloud-gateway.version>3.0.0-RC1</spring-cloud-gateway.version>
+        <spring-cloud-gateway.version>3.0.0</spring-cloud-gateway.version>
 
         <argLine>-Xms512m -Xmx1024m -Xss256k -Dnet.bytebuddy.experimental=true</argLine>
       </properties>
@@ -3000,21 +3021,6 @@ under the License.
           </plugins>
         </pluginManagement>
       </build>
-
-      <repositories>
-        <repository>
-          <id>repository.spring.milestone</id>
-          <name>Spring Milestone Repository</name>
-          <url>https://repo.spring.io/milestone</url>
-        </repository>
-      </repositories>
-      <pluginRepositories>
-        <pluginRepository>
-          <id>repository.spring.milestone</id>
-          <name>Spring Milestone Repository</name>
-          <url>https://repo.spring.io/milestone</url>
-        </pluginRepository>
-      </pluginRepositories>
     </profile>
   </profiles>
 
