@@ -18,24 +18,13 @@
  */
 package org.apache.syncope.common.lib;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
 
 public class XMLTest extends SerializationTest {
 
-    private static final XmlMapper XML_MAPPER;
-
-    static {
-        XML_MAPPER = new XmlMapper();
-        XML_MAPPER.configOverride(List.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
-        XML_MAPPER.configOverride(Set.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
-        XML_MAPPER.configOverride(Map.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
-    }
+    private static final XmlMapper XML_MAPPER = new SyncopeXmlMapper();
 
     @Override
     protected ObjectMapper objectMapper() {
