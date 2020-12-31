@@ -81,7 +81,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 modal.show(false);
             }
         });
-            }
+    }
 
     @Override
     protected String paginatorRowsKey() {
@@ -225,7 +225,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionLinksProvider().get(
                     model,
                     realm,
-                            altDefaultModal,
+                    altDefaultModal,
                     getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject()))),
                     this,
                     pageRef).forEach(panel::add);
@@ -257,10 +257,10 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     target.add(utilityModal);
                 }
             }, ActionType.NOTIFICATION_TASKS, IdRepoEntitlement.TASK_LIST);
-                }
+        }
 
-            if (wizardInModal) {
-                panel.add(new ActionLink<UserTO>() {
+        if (wizardInModal) {
+            panel.add(new ActionLink<UserTO>() {
 
                 private static final long serialVersionUID = -1978723352517770644L;
 
