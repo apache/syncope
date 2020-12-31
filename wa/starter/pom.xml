@@ -298,14 +298,17 @@ under the License.
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcpkix-jdk15on</artifactId>
     </dependency>
+
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
     </dependency>
+
     <dependency>
       <groupId>com.squareup.okio</groupId>
       <artifactId>okio</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-transports-http-jetty</artifactId>
@@ -416,28 +419,6 @@ under the License.
             <filtering>true</filtering>
           </resource>
         </resources>
-      </build>
-    </profile>
-
-    <profile>
-      <id>jdk16-plus</id>
-
-      <activation>
-        <jdk>[16,)</jdk>
-      </activation>
-      
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <includes>
-                <include>**/SyncopeWASAML2*.java</include>
-              </includes>            
-            </configuration>
-          </plugin>          
-        </plugins>
       </build>
     </profile>
   </profiles>
