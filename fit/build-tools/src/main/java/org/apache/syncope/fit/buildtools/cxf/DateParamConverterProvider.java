@@ -23,7 +23,7 @@ import java.lang.reflect.Type;
 import java.util.Date;
 import javax.ws.rs.ext.ParamConverter;
 import javax.ws.rs.ext.ParamConverterProvider;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class DateParamConverterProvider implements ParamConverterProvider {
 
@@ -31,7 +31,7 @@ public class DateParamConverterProvider implements ParamConverterProvider {
 
         @Override
         public Date fromString(final String value) {
-            if (StringUtils.isEmpty(value)) {
+            if (StringUtils.isBlank(value)) {
                 return null;
             }
             try {

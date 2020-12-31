@@ -170,7 +170,7 @@ public class SecurityConfig {
     public InMemoryReactiveClientRegistrationRepository oauth2ClientRegistrationRepository() {
         return new InMemoryReactiveClientRegistrationRepository(
                 ClientRegistration.withRegistrationId("OAUTH2").
-                        redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}").
+                        redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}").
                         tokenUri(env.getProperty("am.oauth2.tokenUri")).
                         authorizationUri(env.getProperty("am.oauth2.authorizationUri")).
                         userInfoUri(env.getProperty("am.oauth2.userInfoUri")).
