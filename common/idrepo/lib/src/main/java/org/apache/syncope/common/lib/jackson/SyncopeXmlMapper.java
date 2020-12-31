@@ -18,32 +18,45 @@
  */
 package org.apache.syncope.common.lib.jackson;
 
+import com.ctc.wstx.stax.WstxOutputFactory;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
 
 public class SyncopeXmlMapper extends XmlMapper {
 
     private static final long serialVersionUID = 1022020055828974308L;
 
     public SyncopeXmlMapper() {
-        super();
+        super(new XmlFactory() {
 
-        registerModule(new AfterburnerModule());
+            private static final long serialVersionUID = 1022020055828974306L;
 
-        registerModule(new JavaTimeModule());
+            @Override
+            protected void _initFactories(final XMLInputFactory xmlIn, final XMLOutputFactory xmlOut) {
+                super._initFactories(xmlIn, xmlOut);
+                xmlOut.setProperty(WstxOutputFactory.P_AUTOMATIC_EMPTY_ELEMENTS, Boolean.FALSE);
+            }
+        });
+
+        findAndRegisterModules();
+
         configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 
         configOverride(List.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
         configOverride(Set.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
         configOverride(Map.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
+
+        enable(ToXmlGenerator.Feature.WRITE_XML_DECLARATION);
         enable(FromXmlParser.Feature.EMPTY_ELEMENT_AS_NULL);
     }
 }

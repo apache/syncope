@@ -20,8 +20,6 @@ package org.apache.syncope.common.lib.jackson;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 
 public class SyncopeYAMLMapper extends YAMLMapper {
 
@@ -30,9 +28,8 @@ public class SyncopeYAMLMapper extends YAMLMapper {
     public SyncopeYAMLMapper() {
         super();
 
-        registerModule(new AfterburnerModule());
+        findAndRegisterModules();
 
-        registerModule(new JavaTimeModule());
         configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 }

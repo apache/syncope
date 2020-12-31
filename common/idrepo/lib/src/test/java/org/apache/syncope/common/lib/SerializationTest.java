@@ -25,7 +25,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import org.apache.syncope.common.lib.log.LoggerTO;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
@@ -42,6 +46,33 @@ import org.junit.jupiter.api.Test;
 public abstract class SerializationTest {
 
     protected abstract ObjectMapper objectMapper();
+
+    @Test
+    public void emptyListAsRoot() throws IOException {
+        List<LoggerTO> original = new ArrayList<>();
+
+        StringWriter writer = new StringWriter();
+        objectMapper().writeValue(writer, original);
+
+        List<LoggerTO> actual = objectMapper().readValue(writer.toString(),
+                new TypeReference<List<LoggerTO>>() {
+        });
+        assertEquals(original, actual);
+    }
+
+    @Test
+    public void nonEmptyListAsMember() throws IOException {
+        AnyObjectCR original = new AnyObjectCR();
+        original.setName("newPrinter");
+        original.setType("PRINTER");
+        original.getPlainAttrs().add(new Attr.Builder("location").value("new").build());
+
+        StringWriter writer = new StringWriter();
+        objectMapper().writeValue(writer, original);
+
+        AnyObjectCR actual = objectMapper().readValue(writer.toString(), AnyObjectCR.class);
+        assertEquals(original, actual);
+    }
 
     @Test
     public void map() throws IOException {

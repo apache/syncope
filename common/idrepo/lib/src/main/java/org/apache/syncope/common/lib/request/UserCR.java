@@ -246,6 +246,7 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
         return memberships;
     }
 
+    @JsonIgnore
     @Override
     public List<MembershipTO> getDynMemberships() {
         return List.of();

@@ -407,7 +407,7 @@ under the License.
     <cxf.version>3.4.2</cxf.version>
     <bouncycastle.version>1.68</bouncycastle.version>
 
-    <jackson.version>2.12.0</jackson.version>
+    <jackson.version>2.12.1-SNAPSHOT</jackson.version>
 
     <spring.version>5.2.12.RELEASE</spring.version>
     <spring-security.version>5.4.2</spring-security.version>
