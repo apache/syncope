@@ -2306,7 +2306,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.8.3</version>
+          <version>1.8.4</version>
           <configuration>
             <configuration>
               <type>standalone</type>
@@ -2358,7 +2358,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.38</version>
+              <version>8.39</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2512,7 +2512,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.12.0</version>
+        <version>1.12.1</version>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.groovy</groupId>
