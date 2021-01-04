@@ -2611,6 +2611,7 @@ under the License.
             </goals>
             <configuration>
               <outputDirectory>${project.build.outputDirectory}/META-INF</outputDirectory>
+              <skip>${skipTests}</skip>
               <resources>
                 <resource>
                   <directory>${rootpom.basedir}</directory>
@@ -2629,6 +2630,7 @@ under the License.
               <goal>copy-resources</goal>
             </goals>
             <configuration>
+              <skip>${skipTests}</skip>
               <outputDirectory>${project.build.directory}/apidocs/META-INF</outputDirectory>
               <resources>
                 <resource>
