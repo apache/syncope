@@ -457,7 +457,7 @@ under the License.
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.7.0</junit.version>
-    <mockito.version>3.6.28</mockito.version>
+    <mockito.version>3.7.0</mockito.version>
 
     <swagger-core.version>2.1.6</swagger-core.version>
     <swagger-ui.version>3.38.0</swagger-ui.version>
@@ -482,7 +482,7 @@ under the License.
 
     <netbeans.version>RELEASE122</netbeans.version>
 
-    <antlr4.version>4.9</antlr4.version>
+    <antlr4.version>4.9.1</antlr4.version>
 
     <curator.version>5.1.0</curator.version>
     <zookeeper.version>3.6.2</zookeeper.version>
@@ -519,11 +519,11 @@ under the License.
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10.5</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.2.16</jdbc.postgresql.version>
-    <jdbc.mysql.version>8.0.21</jdbc.mysql.version>
-    <jdbc.mariadb.version>2.6.2</jdbc.mariadb.version>
+    <jdbc.postgresql.version>42.2.18</jdbc.postgresql.version>
+    <jdbc.mysql.version>8.0.22</jdbc.mysql.version>
+    <jdbc.mariadb.version>2.7.1</jdbc.mariadb.version>
     <jdbc.mssql.version>8.4.1.jre</jdbc.mssql.version>
-    <jdbc.oracle.version>19.7.0.0</jdbc.oracle.version>
+    <jdbc.oracle.version>19.9.0.0</jdbc.oracle.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
