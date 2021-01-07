@@ -117,8 +117,6 @@ public final class OAuth2SecurityConfigUtils {
             final LogoutRouteMatcher logoutRouteMatcher,
             final ConfigurableApplicationContext ctx) {
 
-        builder.and().logout().disable();
-
         LogoutWebFilter logoutWebFilter = new LogoutWebFilter();
         logoutWebFilter.setRequiresLogoutMatcher(logoutRouteMatcher);
         logoutWebFilter.setLogoutHandler(new OAuth2SessionRemovalServerLogoutHandler(cacheManager));
@@ -136,7 +134,7 @@ public final class OAuth2SecurityConfigUtils {
             }
         }
 
-        builder.and().addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
+        builder.and().logout().disable().addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
     }
 
     private OAuth2SecurityConfigUtils() {
