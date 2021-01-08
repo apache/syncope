@@ -105,8 +105,9 @@ public class Login extends WebPage {
         form.add(languageSelect);
 
         domainSelect = new DomainDropDown("domain");
+        domainSelect.setOutputMarkupPlaceholderTag(true);
         if (SyncopeConsoleApplication.get().getDomains().size() == 1) {
-            domainSelect.setOutputMarkupPlaceholderTag(true);
+            domainSelect.setVisible(false);
         }
         form.add(domainSelect);
 
