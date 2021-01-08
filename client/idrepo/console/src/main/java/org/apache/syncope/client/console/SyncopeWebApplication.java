@@ -156,7 +156,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
                     Class<?> clazz = ClassUtils.getClass(props.getProperty(className));
                     if (BasePage.class.isAssignableFrom(clazz)) {
                         pageClasses.put(
-                                StringUtils.substringAfter("page.", className), (Class<? extends BasePage>) clazz);
+                                StringUtils.substringAfter(className, "page."), (Class<? extends BasePage>) clazz);
                     } else {
                         LOG.warn("{} does not extend {}, ignoring...", clazz.getName(), BasePage.class.getName());
                     }
