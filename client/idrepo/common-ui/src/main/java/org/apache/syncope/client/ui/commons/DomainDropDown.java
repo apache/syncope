@@ -55,8 +55,9 @@ public class DomainDropDown extends DropDownChoice<String> {
         // set default value to Master Domain
         getModel().setObject(SyncopeConstants.MASTER_DOMAIN);
 
+        setOutputMarkupPlaceholderTag(true);
         if (domains.getObject().size() == 1) {
-            setOutputMarkupPlaceholderTag(true);
+            setVisible(false);
         }
     }
 }
