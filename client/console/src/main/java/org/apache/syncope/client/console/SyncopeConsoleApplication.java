@@ -117,7 +117,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     private List<String> domains;
 
     private Map<String, Class<? extends BasePage>> pageClasses;
-    
+
     private String defaultAnyLayoutClass;
 
     @SuppressWarnings("unchecked")
@@ -130,7 +130,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
                     Class<?> clazz = ClassUtils.getClass(props.getProperty(className));
                     if (BasePage.class.isAssignableFrom(clazz)) {
                         pageClasses.put(
-                                StringUtils.substringAfter("page.", className), (Class<? extends BasePage>) clazz);
+                                StringUtils.substringAfter(className, "page."), (Class<? extends BasePage>) clazz);
                     } else {
                         LOG.warn("{} does not extend {}, ignoring...", clazz.getName(), BasePage.class.getName());
                     }
@@ -191,7 +191,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         pageClasses = Collections.unmodifiableMap(pageClasses);
 
         defaultAnyLayoutClass = props.getProperty("default.any.panel.class", AnyPanel.class.getName());
-        
+
         // Application settings
         IBootstrapSettings settings = new BootstrapSettings();
 

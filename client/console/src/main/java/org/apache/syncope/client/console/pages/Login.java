@@ -116,8 +116,9 @@ public class Login extends WebPage {
         form.add(languageSelect.setOutputMarkupId(true));
 
         DomainDropDown domainSelect = new DomainDropDown("domain");
+        domainSelect.setOutputMarkupPlaceholderTag(true);
         if (SyncopeConsoleApplication.get().getDomains().size() == 1) {
-            domainSelect.setOutputMarkupPlaceholderTag(true);
+            domainSelect.setVisible(false);
         }
         domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
@@ -256,7 +257,7 @@ public class Login extends WebPage {
     /**
      * Inner class which implements (custom) Domain DropDownChoice component.
      */
-    private class DomainDropDown extends BootstrapSelect<String> {
+    private static class DomainDropDown extends BootstrapSelect<String> {
 
         private static final long serialVersionUID = -7401167913360133325L;
 
