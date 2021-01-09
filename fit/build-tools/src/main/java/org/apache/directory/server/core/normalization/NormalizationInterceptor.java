@@ -532,6 +532,7 @@ public class NormalizationInterceptor extends BaseInterceptor
                 }
                 else if ( leafNode instanceof EqualityNode )
                 {
+                    @SuppressWarnings("unchecked")
                     Value value = ( ( EqualityNode<String> ) leafNode ).getValue();
 
                     if ( value.equals( SchemaConstants.TOP_OC ) )

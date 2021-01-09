@@ -23,6 +23,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler;
+import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
 public class OAuth2SessionRemovalServerLogoutHandler implements ServerLogoutHandler {
@@ -35,9 +36,8 @@ public class OAuth2SessionRemovalServerLogoutHandler implements ServerLogoutHand
 
     @Override
     public Mono<Void> logout(final WebFilterExchange exchange, final Authentication authentication) {
-        return exchange.getExchange().getSession().flatMap(session -> {
-            cacheManager.getCache(SessionConfig.DEFAULT_CACHE).evictIfPresent(session.getId());
-            return session.invalidate();
-        });
+        return exchange.getExchange().getSession().
+                doOnNext(session -> cacheManager.getCache(SessionConfig.DEFAULT_CACHE).evictIfPresent(session.getId())).
+                flatMap(WebSession::invalidate);
     }
 }

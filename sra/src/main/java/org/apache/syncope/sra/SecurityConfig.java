@@ -66,6 +66,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter;
@@ -138,6 +139,9 @@ public class SecurityConfig {
                         registrationId("OIDC").
                         clientId(env.getProperty("am.oidc.client.id")).
                         clientSecret(env.getProperty("am.oidc.client.secret")).
+                        scope(env.getProperty("am.oidc.scopes", String[].class,
+                                new String[] { OidcScopes.OPENID, OidcScopes.ADDRESS, OidcScopes.EMAIL,
+                                    OidcScopes.PHONE, OidcScopes.PROFILE })).
                         build());
     }
 
@@ -170,7 +174,7 @@ public class SecurityConfig {
     public InMemoryReactiveClientRegistrationRepository oauth2ClientRegistrationRepository() {
         return new InMemoryReactiveClientRegistrationRepository(
                 ClientRegistration.withRegistrationId("OAUTH2").
-                        redirectUriTemplate("{baseUrl}/{action}/oauth2/code/{registrationId}").
+                        redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}").
                         tokenUri(env.getProperty("am.oauth2.tokenUri")).
                         authorizationUri(env.getProperty("am.oauth2.authorizationUri")).
                         userInfoUri(env.getProperty("am.oauth2.userInfoUri")).

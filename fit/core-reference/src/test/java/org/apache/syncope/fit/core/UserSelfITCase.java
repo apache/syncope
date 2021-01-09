@@ -527,8 +527,7 @@ public class UserSelfITCase extends AbstractITCase {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         Exception exception = null;
         try {
-            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
-                    new String[] { userTO.getUsername() }, Integer.class);
+            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", Integer.class, userTO.getUsername());
         } catch (EmptyResultDataAccessException e) {
             exception = e;
         }
@@ -565,8 +564,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         Exception exception = null;
         try {
-            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?",
-                    new String[] { userTO.getUsername() }, Integer.class);
+            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", Integer.class, userTO.getUsername());
         } catch (EmptyResultDataAccessException e) {
             exception = e;
         }

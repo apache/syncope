@@ -51,7 +51,7 @@ public class OIDCRPTOMapper implements ClientAppMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(OIDCRPTOMapper.class);
 
-    public static final String CUSTOM_SCOPE = "syncope";
+    private static final String CUSTOM_SCOPE = "syncope";
 
     @Override
     public RegisteredService build(

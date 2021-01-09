@@ -23,6 +23,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jose.util.JSONObjectUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -58,7 +59,7 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
                     keyID(SecureRandomUtils.generateRandomUUID().toString()).
                     algorithm(new com.nimbusds.jose.JWSAlgorithm(algorithm.name())).
                     generate();
-            jwks.setJson(new JWKSet(jwk).toJSONObject(false).toString());
+            jwks.setJson(JSONObjectUtils.toJSONString(new JWKSet(jwk).toJSONObject(false)));
             return jwks;
         } catch (JOSEException e) {
             LOG.error("Could not create OIDC JWKS", e);
