@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -95,24 +96,21 @@ public class SearchITCase extends AbstractITCase {
                                 is("username").equalToIgnoreCase("RoSsINI").and("key").lessThan(2).query()).build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
-        assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
-        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", matchingUsers.getResult().iterator().next().getKey());
+        assertEquals("rossini", matchingUsers.getResult().get(0).getUsername());
 
         matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql("fullname=~*oSsINi").page(1).size(2).build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
-        assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
-        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", matchingUsers.getResult().iterator().next().getKey());
+        assertEquals("rossini", matchingUsers.getResult().get(0).getUsername());
 
         matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql("fullname=~*ino*rossini*").page(1).size(2).build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
-        assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
-        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", matchingUsers.getResult().iterator().next().getKey());
+        assertEquals("rossini", matchingUsers.getResult().get(0).getUsername());
     }
 
     @Test
@@ -123,8 +121,7 @@ public class SearchITCase extends AbstractITCase {
                                 is("username").equalTo("rossini").and("key").lessThan(2).query()).build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
-        assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
-        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", matchingUsers.getResult().iterator().next().getKey());
+        assertEquals("rossini", matchingUsers.getResult().get(0).getUsername());
     }
 
     @Test
@@ -141,15 +138,30 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchByGroup() {
-        PagedResult<UserTO> matchingUsers = userService.search(
+        PagedResult<UserTO> matchingChild = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups("root").query()).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups("child").query()).
                         build());
-        assertNotNull(matchingUsers);
-        assertFalse(matchingUsers.getResult().isEmpty());
+        assertTrue(matchingChild.getResult().stream().anyMatch(user -> "verdi".equals(user.getUsername())));
 
-        assertTrue(matchingUsers.getResult().stream().
-                anyMatch(user -> "1417acbe-cbf6-4277-9372-e75e04f97000".equals(user.getKey())));
+        PagedResult<UserTO> matchingOtherChild = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups("otherchild").query()).
+                        build());
+        assertTrue(matchingOtherChild.getResult().stream().anyMatch(user -> "rossini".equals(user.getUsername())));
+
+        Set<String> union = Stream.concat(
+                matchingChild.getResult().stream().map(UserTO::getUsername),
+                matchingOtherChild.getResult().stream().map(UserTO::getUsername)).
+                collect(Collectors.toSet());
+
+        PagedResult<UserTO> matchingStar = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups("*child").query()).
+                        build());
+        assertTrue(matchingStar.getResult().stream().anyMatch(user -> "verdi".equals(user.getUsername())));
+        assertTrue(matchingStar.getResult().stream().anyMatch(user -> "rossini".equals(user.getUsername())));
+        assertEquals(union, matchingStar.getResult().stream().map(UserTO::getUsername).collect(Collectors.toSet()));
     }
 
     @Test
@@ -194,8 +206,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
-        assertTrue(matchingUsers.getResult().stream().
-                anyMatch(user -> "1417acbe-cbf6-4277-9372-e75e04f97000".equals(user.getKey())));
+        assertTrue(matchingUsers.getResult().stream().anyMatch(user -> "rossini".equals(user.getUsername())));
     }
 
     @Test
@@ -207,8 +218,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
-        assertTrue(matchingUsers.getResult().stream().
-                anyMatch(user -> "1417acbe-cbf6-4277-9372-e75e04f97000".equals(user.getKey())));
+        assertTrue(matchingUsers.getResult().stream().anyMatch(user -> "rossini".equals(user.getUsername())));
     }
 
     @Test

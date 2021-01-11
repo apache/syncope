@@ -450,6 +450,12 @@ $resources==resource-ldap
 $groups==root
 ----
 ====
+.Wildcard group membership match (only for Users and Any Objects)
+====
+----
+$groups==*child
+----
+====
 
 .Role membership match (only for Users)
 ====

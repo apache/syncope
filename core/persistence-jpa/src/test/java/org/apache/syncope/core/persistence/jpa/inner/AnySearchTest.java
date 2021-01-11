@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.time.DateUtils;
+import java.util.stream.Stream;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -239,18 +240,30 @@ public class AnySearchTest extends AbstractTest {
     @Test
     public void searchByGroup() {
         MembershipCond groupCond = new MembershipCond();
-        groupCond.setGroup("root");
+        groupCond.setGroup("child");
 
-        List<User> users = searchDAO.search(SearchCond.getLeaf(groupCond), AnyTypeKind.USER);
-        assertNotNull(users);
-        assertEquals(2, users.size());
+        List<User> matchingChild = searchDAO.search(SearchCond.getLeaf(groupCond), AnyTypeKind.USER);
+        assertNotNull(matchingChild);
+        assertTrue(matchingChild.stream().anyMatch(user -> "verdi".equals(user.getUsername())));
 
-        groupCond = new MembershipCond();
-        groupCond.setGroup("secretary");
+        groupCond.setGroup("otherchild");
 
-        users = searchDAO.search(SearchCond.getNotLeaf(groupCond), AnyTypeKind.USER);
-        assertNotNull(users);
-        assertEquals(5, users.size());
+        List<User> matchingOtherChild = searchDAO.search(SearchCond.getLeaf(groupCond), AnyTypeKind.USER);
+        assertNotNull(matchingOtherChild);
+        assertTrue(matchingOtherChild.stream().anyMatch(user -> "rossini".equals(user.getUsername())));
+
+        Set<String> union = Stream.concat(
+                matchingChild.stream().map(User::getUsername),
+                matchingOtherChild.stream().map(User::getUsername)).
+                collect(Collectors.toSet());
+
+        groupCond.setGroup("%child");
+
+        List<User> matchingStar = searchDAO.search(SearchCond.getLeaf(groupCond), AnyTypeKind.USER);
+        assertNotNull(matchingStar);
+        assertTrue(matchingStar.stream().anyMatch(user -> "verdi".equals(user.getUsername())));
+        assertTrue(matchingStar.stream().anyMatch(user -> "rossini".equals(user.getUsername())));
+        assertEquals(union, matchingStar.stream().map(User::getUsername).collect(Collectors.toSet()));
     }
 
     @Test
