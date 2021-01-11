@@ -168,6 +168,17 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return result;
     }
 
+    @Override
+    public List<String> findKeysByNamePattern(final String pattern) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT id FROM " + JPAGroup.TABLE + " WHERE LOWER(name) LIKE LOWER(?1)");
+        query.setParameter(1, pattern);
+
+        @SuppressWarnings("unchecked")
+        List<Object> raw = query.getResultList();
+        return raw.stream().map(Object::toString).collect(Collectors.toList());
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<Group> findOwnedByUser(final String userKey) {

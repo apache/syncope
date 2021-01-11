@@ -349,14 +349,20 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     private QueryBuilder getQueryBuilder(final MembershipCond cond) {
-        String groupKey;
+        List<String> groupKeys;
         try {
-            groupKey = check(cond);
+            groupKeys = check(cond);
         } catch (IllegalArgumentException e) {
             return EMPTY_QUERY_BUILDER;
         }
 
-        return QueryBuilders.termQuery("memberships", groupKey);
+        if (groupKeys.size() == 1) {
+            return QueryBuilders.termQuery("memberships", groupKeys.get(0));
+        }
+
+        DisMaxQueryBuilder builder = QueryBuilders.disMaxQuery();
+        groupKeys.forEach(key -> builder.add(QueryBuilders.termQuery("memberships", key)));
+        return builder;
     }
 
     private QueryBuilder getQueryBuilder(final AssignableCond cond) {

@@ -657,12 +657,16 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        String groupKey;
+        List<String> groupKeys;
         try {
-            groupKey = check(cond);
+            groupKeys = check(cond);
         } catch (IllegalArgumentException e) {
             return EMPTY_QUERY;
         }
+
+        String where = groupKeys.stream().
+                map(key -> "group_id=?" + setParameter(parameters, key)).
+                collect(Collectors.joining(" OR "));
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE (");
@@ -675,7 +679,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.membership().name).append(" WHERE ").
-                append("group_id=?").append(setParameter(parameters, groupKey)).
+                append(where).
                 append(") ");
 
         if (not) {
@@ -686,7 +690,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.dyngroupmembership().name).append(" WHERE ").
-                append("group_id=?").append(setParameter(parameters, groupKey)).
+                append(where).
                 append("))");
 
         return query.toString();

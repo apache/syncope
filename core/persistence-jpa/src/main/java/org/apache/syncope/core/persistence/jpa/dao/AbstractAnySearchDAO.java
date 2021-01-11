@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.ValidationException;
@@ -58,7 +59,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -235,20 +235,21 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         return Triple.of(schema, attrValue, computed);
     }
 
-    protected String check(final MembershipCond cond) {
-        String groupKey;
+    protected List<String> check(final MembershipCond cond) {
         if (SyncopeConstants.UUID_PATTERN.matcher(cond.getGroup()).matches()) {
-            groupKey = cond.getGroup();
-        } else {
-            Group group = groupDAO.findByName(cond.getGroup());
-            groupKey = group == null ? null : group.getKey();
+            return Collections.singletonList(cond.getGroup());
         }
-        if (groupKey == null) {
-            LOG.error("Could not find group for '" + cond.getGroup() + "'");
+
+        List<String> matching = cond.getGroup().indexOf('%') == -1
+                ? Optional.ofNullable(groupDAO.findKey(cond.getGroup())).
+                        map(Collections::singletonList).orElseGet(() -> Collections.emptyList())
+                : groupDAO.findKeysByNamePattern(cond.getGroup());
+        if (matching.isEmpty()) {
+            LOG.error("Could not find group(s) for '" + cond.getGroup() + '\'');
             throw new IllegalArgumentException();
         }
 
-        return groupKey;
+        return matching;
     }
 
     protected String check(final RelationshipCond cond) {
