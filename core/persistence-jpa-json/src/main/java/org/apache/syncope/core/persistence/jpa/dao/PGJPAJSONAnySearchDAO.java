@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import static org.apache.syncope.core.persistence.jpa.dao.AbstractAnySearchDAO.RELATIONSHIP_FIELDS;
-import static org.apache.syncope.core.persistence.jpa.dao.AbstractDAO.LOG;
-
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,7 +65,7 @@ import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 
 public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
-    protected static final String EMPTY_QUERY = "1=2";
+    protected static final String ALWAYS_FALSE_ASSERTION = "1=2";
 
     @Override
     protected void parseOrderByForPlainSchema(
@@ -89,6 +86,133 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         item.orderBy = fieldName + " " + clause.getDirection().name();
     }
 
+    private void fillAttrQuery(
+            final AnyUtils anyUtils,
+            final StringBuilder query,
+            final PlainAttrValue attrValue,
+            final PlainSchema schema,
+            final AttrCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
+        if (not && !(cond instanceof AnyCond)) {
+            query.append("NOT (");
+            fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
+            query.append(")");
+        } else if (not && cond.getType() == AttrCond.Type.ISNULL) {
+            cond.setType(AttrCond.Type.ISNOTNULL);
+            fillAttrQuery(anyUtils, query, attrValue, schema, cond, true, parameters, svs);
+        } else {
+            String key = key(schema.getType());
+
+            String value = cond.getExpression();
+            if (schema.getType() == AttrSchemaType.Date) {
+                try {
+                    value = String.valueOf(FormatUtils.parseDate(value).getTime());
+                } catch (ParseException e) {
+                    LOG.error("Could not parse {} as date", value, e);
+                }
+            }
+
+            boolean isStr = true;
+            boolean lower;
+            if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+                lower = (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
+            } else {
+                lower = false;
+                try {
+                    switch (schema.getType()) {
+                        case Date:
+                        case Long:
+                            Long.parseLong(value);
+                            break;
+                        case Double:
+                            Double.parseDouble(value);
+                            break;
+                        case Boolean:
+                            if (!("true".equalsIgnoreCase(value)
+                                    || "false".equalsIgnoreCase(value))) {
+                                throw new IllegalArgumentException();
+                            }
+                            break;
+                        default:
+                    }
+
+                    isStr = false;
+                } catch (Exception nfe) {
+                    // ignore}
+                }
+            }
+
+            switch (cond.getType()) {
+
+                case ISNULL:
+                    // shouldn't occour: processed before
+                    break;
+
+                case ISNOTNULL:
+                    query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*]')");
+                    break;
+
+                case ILIKE:
+                case LIKE:
+                    // jsonb_path_exists(Nome, '$[*] ? (@.stringValue like_regex "EL.*" flag "i")')
+                    if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+                        query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
+                                append("(@.").append(key).append(" like_regex \"").
+                                append(value.replaceAll("%", ".*")).
+                                append("\"").
+                                append(lower ? " flag \"i\"" : "").append(")')");
+                    } else {
+                        query.append(" 1=2");
+                        LOG.error("LIKE is only compatible with string or enum schemas");
+                    }
+                    break;
+
+                case IEQ:
+                case EQ:
+                    query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
+                            append("(@.").append(key);
+                    if (isStr) {
+                        query.append(" like_regex \"").append(value).append("\"");
+                    } else {
+                        query.append(" == ").append(value);
+                    }
+
+                    query.append(lower ? " flag \"i\"" : "").append(")')");
+                    break;
+
+                case GE:
+                    query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
+                            append("(@.").append(key).append(" >= ").
+                            append(value).append(")')");
+                    break;
+
+                case GT:
+                    query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
+                            append("(@.").append(key).append(" > ").
+                            append(value).append(")')");
+                    break;
+
+                case LE:
+                    query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
+                            append("(@.").append(key).append(" <= ").
+                            append(value).append(")')");
+                    break;
+
+                case LT:
+                    query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
+                            append("(@.").append(key).append(" < ").
+                            append(value).append(")')");
+                    break;
+
+                default:
+            }
+        }
+    }
+
     @Override
     protected String getQuery(
             final AttrCond cond,
@@ -100,7 +224,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         try {
             checked = check(cond, svs.anyTypeKind);
         } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY;
+            return ALWAYS_FALSE_ASSERTION;
         }
 
         // normalize NULL / NOT NULL checks
@@ -290,7 +414,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         try {
             realm = check(cond);
         } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY;
+            return ALWAYS_FALSE_ASSERTION;
         }
 
         StringBuilder query = new StringBuilder("(");
@@ -322,7 +446,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         try {
             memberKey = check(cond);
         } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY;
+            return ALWAYS_FALSE_ASSERTION;
         }
 
         StringBuilder query = new StringBuilder("(");
@@ -393,7 +517,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         try {
             rightAnyObjectKey = check(cond);
         } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY;
+            return ALWAYS_FALSE_ASSERTION;
         }
 
         StringBuilder query = new StringBuilder("(");
@@ -425,7 +549,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         try {
             groupKeys = check(cond);
         } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY;
+            return ALWAYS_FALSE_ASSERTION;
         }
 
         String where = groupKeys.stream().
@@ -472,7 +596,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         try {
             checked = check(cond, svs.anyTypeKind);
         } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY;
+            return ALWAYS_FALSE_ASSERTION;
         }
 
         StringBuilder query = new StringBuilder();
@@ -806,133 +930,6 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                         query.append('<');
                     }
                     query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                    break;
-
-                default:
-            }
-        }
-    }
-
-    private void fillAttrQuery(
-            final AnyUtils anyUtils,
-            final StringBuilder query,
-            final PlainAttrValue attrValue,
-            final PlainSchema schema,
-            final AttrCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
-        if (not && !(cond instanceof AnyCond)) {
-            query.append("NOT (");
-            fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
-            query.append(")");
-        } else if (not && cond.getType() == AttrCond.Type.ISNULL) {
-            cond.setType(AttrCond.Type.ISNOTNULL);
-            fillAttrQuery(anyUtils, query, attrValue, schema, cond, true, parameters, svs);
-        } else {
-            String key = key(schema.getType());
-
-            String value = cond.getExpression();
-            if (schema.getType() == AttrSchemaType.Date) {
-                try {
-                    value = String.valueOf(FormatUtils.parseDate(value).getTime());
-                } catch (ParseException e) {
-                    LOG.error("Could not parse {} as date", value, e);
-                }
-            }
-
-            boolean isStr = true;
-            boolean lower;
-            if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
-                lower = (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
-            } else {
-                lower = false;
-                try {
-                    switch (schema.getType()) {
-                        case Date:
-                        case Long:
-                            Long.parseLong(value);
-                            break;
-                        case Double:
-                            Double.parseDouble(value);
-                            break;
-                        case Boolean:
-                            if (!("true".equalsIgnoreCase(value)
-                                    || "false".equalsIgnoreCase(value))) {
-                                throw new IllegalArgumentException();
-                            }
-                            break;
-                        default:
-                    }
-
-                    isStr = false;
-                } catch (Exception nfe) {
-                    // ignore}
-                }
-            }
-
-            switch (cond.getType()) {
-
-                case ISNULL:
-                    // shouldn't occour: processed before
-                    break;
-
-                case ISNOTNULL:
-                    query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*]')");
-                    break;
-
-                case ILIKE:
-                case LIKE:
-                    // jsonb_path_exists(Nome, '$[*] ? (@.stringValue like_regex "EL.*" flag "i")')
-                    if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
-                        query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
-                                append("(@.").append(key).append(" like_regex \"").
-                                append(value.replaceAll("%", ".*")).
-                                append("\"").
-                                append(lower ? " flag \"i\"" : "").append(")')");
-                    } else {
-                        query.append(" 1=2");
-                        LOG.error("LIKE is only compatible with string or enum schemas");
-                    }
-                    break;
-
-                case IEQ:
-                case EQ:
-                    query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
-                            append("(@.").append(key);
-                    if (isStr) {
-                        query.append(" like_regex \"").append(value).append("\"");
-                    } else {
-                        query.append(" == ").append(value);
-                    }
-
-                    query.append(lower ? " flag \"i\"" : "").append(")')");
-                    break;
-
-                case GE:
-                    query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
-                            append("(@.").append(key).append(" >= ").
-                            append(value).append(")')");
-                    break;
-
-                case GT:
-                    query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
-                            append("(@.").append(key).append(" > ").
-                            append(value).append(")')");
-                    break;
-
-                case LE:
-                    query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
-                            append("(@.").append(key).append(" <= ").
-                            append(value).append(")')");
-                    break;
-
-                case LT:
-                    query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
-                            append("(@.").append(key).append(" < ").
-                            append(value).append(")')");
                     break;
 
                 default:
