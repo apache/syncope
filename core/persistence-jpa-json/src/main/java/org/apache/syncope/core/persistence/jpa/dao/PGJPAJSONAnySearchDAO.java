@@ -617,10 +617,10 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             final SearchSupport svs,
             final List<Object> parameters) {
 
-        List<String> realmKeyArgs = realmKeys.stream().
+        String realmKeysArg = realmKeys.stream().
                 map(realmKey -> "?" + setParameter(parameters, realmKey)).
-                collect(Collectors.toList());
-        return "realm_id IN (" + StringUtils.join(realmKeyArgs, ", ") + ")";
+                collect(Collectors.joining(","));
+        return "realm_id IN (" + realmKeysArg + ")";
     }
 
     @Override
@@ -639,7 +639,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
         buildFrom(queryString, queryInfo, svs, null);
 
-        buildWhere(queryString, queryInfo, filter);
+        buildWhere(queryString, queryInfo, filter, svs, null);
 
         Query countQuery = entityManager().createNativeQuery(queryString.toString());
         fillWithParameters(countQuery, parameters);
@@ -673,13 +673,11 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             OrderBySupport obs = parseOrderBy(svs, orderBy);
 
             StringBuilder queryString = new StringBuilder("SELECT ").append(svs.table().alias).append(".id");
-            obs.items.forEach(item -> {
-                queryString.append(",").append(item.select);
-            });
+            obs.items.forEach(item -> queryString.append(",").append(item.select));
 
             buildFrom(queryString, queryInfo, svs, obs);
 
-            buildWhere(queryString, queryInfo, filter);
+            buildWhere(queryString, queryInfo, filter, svs, obs);
 
             LOG.debug("Query: {}, parameters: {}", queryString, parameters);
 
@@ -836,7 +834,6 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
         // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
         if (not && !(cond instanceof AnyCond)) {
-
             query.append("NOT (");
             fillAttrQuery(query, attrValue, schema, cond, false, parameters, svs);
             query.append(")");
@@ -1057,6 +1054,11 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         Set<String> schemas = queryInfo.getRight();
 
         if (obs != null) {
+            obs.views.stream().
+                    filter(view -> !svs.field().name.equals(view.name) && !svs.table().name.equals(view.name)).
+                    map(view -> view.name + " " + view.alias).
+                    forEach(view -> query.append(',').append(view));
+
             Pattern pattern = Pattern.compile("(.*) -> 0 AS .*");
             obs.items.forEach(item -> {
                 Matcher matcher = pattern.matcher(item.select);
@@ -1085,17 +1087,40 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
     protected void buildWhere(
             final StringBuilder query,
             final Pair<StringBuilder, Set<String>> queryInfo,
-            final Pair<String, Set<String>> realms) {
+            final Pair<String, Set<String>> realms,
+            final SearchSupport svs,
+            final OrderBySupport obs) {
+
+        StringBuilder where = new StringBuilder();
+
         if (queryInfo.getLeft().length() > 0) {
-            query.append(" WHERE ").append(queryInfo.getLeft());
+            where.append(" WHERE ").append(queryInfo.getLeft());
         }
 
-        if (realms.getLeft().length() > 0) {
-            if (queryInfo.getLeft().length() > 0) {
-                query.append(" AND ").append(realms.getLeft());
+        if (!realms.getLeft().isEmpty()) {
+            if (queryInfo.getLeft().length() == 0) {
+                where.append(" WHERE ");
             } else {
-                query.append(" WHERE ").append(realms.getLeft());
+                where.append(" AND ");
+            }
+            where.append(realms.getLeft());
+        }
+
+        if (obs != null) {
+            String obsWhere = obs.views.stream().
+                    filter(view -> !svs.field().name.equals(view.name) && !svs.table().name.equals(view.name)).
+                    map(view -> "t.id=" + view.alias + ".any_id").
+                    collect(Collectors.joining(" AND "));
+            if (!obsWhere.isEmpty()) {
+                if (where.length() == 0) {
+                    where.append(" WHERE ");
+                } else {
+                    where.append(" AND ");
+                }
+                where.append(obsWhere);
             }
         }
+
+        query.append(where);
     }
 }

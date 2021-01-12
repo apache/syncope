@@ -95,13 +95,6 @@ under the License.
   </entry>
 
   <!-- anyObject -->
-  <entry key="anyObject_search">
-    CREATE VIEW anyObject_search AS
-
-    SELECT a.id as any_id, a.*,attrs,attrValues
-    FROM AnyObject a, jsonb_array_elements(COALESCE(a.plainAttrs, '[{}]'::jsonb)) attrs,
-    jsonb_array_elements(COALESCE(attrs -> 'values', '[{}]'::jsonb)) attrValues
-  </entry>
   <entry key="anyObject_search_arelationship">
     CREATE VIEW anyObject_search_arelationship AS
 
@@ -130,13 +123,6 @@ under the License.
   </entry>
 
   <!-- group -->
-  <entry key="group_search">
-    CREATE VIEW group_search AS
-
-    SELECT g.id as any_id, g.*,attrs,attrValues
-    FROM SyncopeGroup g, jsonb_array_elements(COALESCE(g.plainAttrs, '[{}]'::jsonb)) attrs,
-    jsonb_array_elements(COALESCE(attrs -> 'values', '[{}]'::jsonb)) attrValues
-  </entry>
   <entry key="group_search_resource">
     CREATE VIEW group_search_resource AS
 
