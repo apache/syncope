@@ -241,10 +241,10 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         }
 
         List<String> matching = cond.getGroup().indexOf('%') == -1
-                ? Optional.ofNullable(groupDAO.findKey(cond.getGroup())).map(List::of).orElseGet(() -> List.of())
+                ? Optional.ofNullable(groupDAO.findKey(cond.getGroup())).map(List::of).orElseGet(List::of)
                 : groupDAO.findKeysByNamePattern(cond.getGroup());
         if (matching.isEmpty()) {
-            LOG.error("Could not find group(s) for '" + cond.getGroup() + '\'');
+            LOG.error("Could not find group(s) for '{}'", cond.getGroup());
             throw new IllegalArgumentException();
         }
 
