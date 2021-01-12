@@ -132,8 +132,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                             Double.parseDouble(value);
                             break;
                         case Boolean:
-                            if (!("true".equalsIgnoreCase(value)
-                                    || "false".equalsIgnoreCase(value))) {
+                            if (!("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value))) {
                                 throw new IllegalArgumentException();
                             }
                             break;
@@ -176,7 +175,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                     query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
                             append("(@.").append(key);
                     if (isStr) {
-                        query.append(" like_regex \"").append(value).append("\"");
+                        query.append(" like_regex \"").append(value.replace("'", "''")).append("\"");
                     } else {
                         query.append(" == ").append(value);
                     }
@@ -1099,5 +1098,4 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             }
         }
     }
-
 }
