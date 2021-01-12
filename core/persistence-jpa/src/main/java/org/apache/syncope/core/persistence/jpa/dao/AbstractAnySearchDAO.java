@@ -245,7 +245,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                         map(Collections::singletonList).orElseGet(() -> Collections.emptyList())
                 : groupDAO.findKeysByNamePattern(cond.getGroup());
         if (matching.isEmpty()) {
-            LOG.error("Could not find group(s) for '" + cond.getGroup() + '\'');
+            LOG.error("Could not find group(s) for '{}'", cond.getGroup());
             throw new IllegalArgumentException();
         }
 

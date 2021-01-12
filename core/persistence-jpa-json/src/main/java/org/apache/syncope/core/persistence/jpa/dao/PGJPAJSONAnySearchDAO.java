@@ -161,7 +161,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                     if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
                         query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
                                 append("(@.").append(key).append(" like_regex \"").
-                                append(value.replaceAll("%", ".*")).
+                                append(value.replace("%", ".*")).
                                 append("\"").
                                 append(lower ? " flag \"i\"" : "").append(")')");
                     } else {
@@ -418,9 +418,8 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
         StringBuilder query = new StringBuilder("(");
         if (cond.isFromGroup()) {
-            realmDAO.findDescendants(realm).forEach(current -> {
-                query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
-            });
+            realmDAO.findDescendants(realm).forEach(current -> query.append("realm_id=?").
+                    append(setParameter(parameters, current.getKey())).append(" OR "));
             query.setLength(query.length() - 4);
         } else {
             for (Realm current = realm; current.getParent() != null; current = current.getParent()) {
@@ -712,10 +711,9 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
     protected StringBuilder buildOrderBy(final OrderBySupport obs) {
         StringBuilder orderBy = new StringBuilder();
 
-        obs.items.forEach(item -> {
-            orderBy.append(item.orderBy).append(',');
-        });
         if (!obs.items.isEmpty()) {
+            obs.items.forEach(item -> orderBy.append(item.orderBy).append(','));
+
             orderBy.insert(0, " ORDER BY ");
             orderBy.deleteCharAt(orderBy.length() - 1);
         }
