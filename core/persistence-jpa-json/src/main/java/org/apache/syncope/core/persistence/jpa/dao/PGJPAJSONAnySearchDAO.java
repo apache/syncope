@@ -86,7 +86,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         item.orderBy = fieldName + " " + clause.getDirection().name();
     }
 
-    private void fillAttrQuery(
+    protected void fillAttrQuery(
             final AnyUtils anyUtils,
             final StringBuilder query,
             final PlainAttrValue attrValue,
@@ -712,7 +712,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         return Collections.emptyList();
     }
 
-    private StringBuilder buildOrderBy(final OrderBySupport obs) {
+    protected StringBuilder buildOrderBy(final OrderBySupport obs) {
         StringBuilder orderBy = new StringBuilder();
 
         obs.items.forEach(item -> {
@@ -726,7 +726,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         return orderBy;
     }
 
-    private Pair<StringBuilder, Set<String>> getQuery(
+    protected Pair<StringBuilder, Set<String>> getQuery(
             final SearchCond cond, final List<Object> parameters, final SearchSupport svs) {
 
         boolean not = cond.getType() == SearchCond.Type.NOT_LEAF;
@@ -826,7 +826,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         return Pair.of(query, involvedPlainAttrs);
     }
 
-    private void fillAttrQuery(
+    protected void fillAttrQuery(
             final StringBuilder query,
             final PlainAttrValue attrValue,
             final PlainSchema schema,
@@ -937,7 +937,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         }
     }
 
-    private void fillWithParameters(final Query query, final List<Object> parameters) {
+    protected void fillWithParameters(final Query query, final List<Object> parameters) {
         for (int i = 0; i < parameters.size(); i++) {
             if (parameters.get(i) instanceof Date) {
                 query.setParameter(i + 1, (Date) parameters.get(i), TemporalType.TIMESTAMP);
@@ -951,7 +951,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         }
     }
 
-    private OrderBySupport parseOrderBy(
+    protected OrderBySupport parseOrderBy(
             final SearchSupport svs,
             final List<OrderByClause> orderBy) {
 
@@ -1012,7 +1012,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         return obs;
     }
 
-    private Pair<String, Set<String>> getAdminRealmsFilter(
+    protected Pair<String, Set<String>> getAdminRealmsFilter(
             final Set<String> adminRealms,
             final SearchSupport svs,
             final List<Object> parameters) {
@@ -1047,7 +1047,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         return Pair.of(buildAdminRealmsFilter(realmKeys, svs, parameters), dynRealmKeys);
     }
 
-    private void buildFrom(
+    protected void buildFrom(
             final StringBuilder query,
             final Pair<StringBuilder, Set<String>> queryInfo,
             final SearchSupport svs,
@@ -1083,7 +1083,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         });
     }
 
-    private void buildWhere(
+    protected void buildWhere(
             final StringBuilder query,
             final Pair<StringBuilder, Set<String>> queryInfo,
             final Pair<String, Set<String>> realms) {
