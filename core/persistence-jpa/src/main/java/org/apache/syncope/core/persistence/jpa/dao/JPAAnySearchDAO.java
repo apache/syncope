@@ -564,7 +564,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return Pair.of(query, involvedPlainAttrs);
     }
 
-    protected static String getQuery(
+    protected String getQuery(
             final AnyTypeCond cond,
             final boolean not,
             final List<Object> parameters,
@@ -584,7 +584,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return query.toString();
     }
 
-    protected static String getQuery(
+    protected String getQuery(
             final RelationshipTypeCond cond,
             final boolean not,
             final List<Object> parameters,
@@ -685,7 +685,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return query.toString();
     }
 
-    protected static String getQuery(
+    protected String getQuery(
             final RoleCond cond,
             final boolean not,
             final List<Object> parameters,
@@ -719,7 +719,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return query.toString();
     }
 
-    protected static String getQuery(
+    protected String getQuery(
             final PrivilegeCond cond,
             final boolean not,
             final List<Object> parameters,
@@ -753,7 +753,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return query.toString();
     }
 
-    protected static String getQuery(
+    protected String getQuery(
             final DynRealmCond cond,
             final boolean not,
             final List<Object> parameters,
@@ -776,7 +776,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return query.toString();
     }
 
-    protected static String getQuery(
+    protected String getQuery(
             final ResourceCond cond,
             final boolean not,
             final List<Object> parameters,

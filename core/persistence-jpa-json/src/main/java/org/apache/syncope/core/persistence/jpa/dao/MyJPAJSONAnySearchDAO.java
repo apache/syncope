@@ -137,7 +137,7 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }
 
-    private void fillAttrQuery(
+    protected void fillAttrQuery(
             final AnyUtils anyUtils,
             final StringBuilder query,
             final PlainAttrValue attrValue,

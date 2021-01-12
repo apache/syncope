@@ -515,7 +515,7 @@ under the License.
     <payara.version>5.2020.7</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
-    <docker.postgresql.version>12</docker.postgresql.version>
+    <docker.postgresql.version>13</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10.5</docker.mariadb.version>
 
