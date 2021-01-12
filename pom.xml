@@ -537,7 +537,7 @@ under the License.
     <nodejs.version>v8.11.4</nodejs.version>    
     <protractor.version>5.4.0</protractor.version>    
 
-    <docker.postgresql.version>11</docker.postgresql.version>
+    <docker.postgresql.version>12</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10.5</docker.mariadb.version>
 
