@@ -208,7 +208,7 @@ public abstract class ReportDirectoryPanel
                         "reportlet.conf", ReportDirectoryPanel.this, Model.of(model.getObject())));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
-                        modal.getForm(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+                        modal.getForm(), ENABLE, StandardEntitlement.REPORT_UPDATE);
 
                 modal.show(true);
             }
