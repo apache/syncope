@@ -322,6 +322,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
     private String getFiql(final ConnObjectTO connObject) {
         List<CompleteCondition> conditions = connObject.getAttrs().stream().
+                filter(attr -> !attr.getValues().isEmpty()).
                 map(attr -> SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                 is(attr.getSchema()).equalTo(attr.getValues().get(0))).collect(Collectors.toList());
         return SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().and(conditions).query();
