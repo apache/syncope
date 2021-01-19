@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.api.cache;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -33,50 +32,22 @@ public class VirAttrCacheValue {
     /**
      * Virtual attribute values.
      */
-    private final List<String> values = new ArrayList<>();
-
-    /**
-     * Entry creation date.
-     */
-    private Date creationDate;
-
-    /**
-     * Entry access date.
-     */
-    private Date lastAccessDate;
+    private final transient List<String> values = new ArrayList<>();
 
     public VirAttrCacheValue(final Collection<Object> values) {
-        creationDate = new Date();
-        lastAccessDate = new Date();
-
         if (values != null) {
             values.forEach(value -> this.values.add(value.toString()));
         }
     }
 
     public List<String> getValues() {
-        lastAccessDate = new Date();
         return values;
-    }
-
-    public Date getCreationDate() {
-        return new Date(creationDate.getTime());
-    }
-
-    public void forceExpiring() {
-        creationDate = new Date(0);
-    }
-
-    public Date getLastAccessDate() {
-        return new Date(lastAccessDate.getTime());
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
                 append(values).
-                append(creationDate).
-                append(lastAccessDate).
                 build();
     }
 
@@ -94,15 +65,11 @@ public class VirAttrCacheValue {
         final VirAttrCacheValue other = (VirAttrCacheValue) obj;
         return new EqualsBuilder().
                 append(values, other.values).
-                append(creationDate, other.creationDate).
-                append(lastAccessDate, other.lastAccessDate).
                 build();
     }
 
     @Override
     public String toString() {
-        return "VirAttrCacheValue{"
-                + "values=" + values + ", creationDate=" + creationDate + ", lastAccessDate=" + lastAccessDate
-                + '}';
+        return "VirAttrCacheValue{" + "values=" + values + '}';
     }
 }

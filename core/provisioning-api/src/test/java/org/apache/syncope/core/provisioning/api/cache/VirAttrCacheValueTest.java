@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.api.cache;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -35,11 +34,7 @@ public class VirAttrCacheValueTest extends AbstractTest {
         VirAttrCacheValue cacheValue = new VirAttrCacheValue(Collections.singletonList("testValue"));
         VirAttrCacheValue cacheValue2 = new VirAttrCacheValue(Collections.emptyList());
 
-        cacheValue.forceExpiring();
-        cacheValue2.forceExpiring();
-        assertEquals(cacheValue.getCreationDate(), cacheValue2.getCreationDate());
         assertNotEquals(cacheValue.getValues(), cacheValue2.getValues());
-        assertEquals(cacheValue.getLastAccessDate(), cacheValue2.getLastAccessDate());
         assertNotEquals(cacheValue.hashCode(), cacheValue2.hashCode());
         assertFalse(cacheValue.equals(cacheValue2));
         assertTrue(cacheValue.equals(cacheValue));
