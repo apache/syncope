@@ -127,13 +127,14 @@ public class ConnObjects extends Panel implements ModalPanel {
 
         @Override
         protected void pullConnObject(
-                final String connObjectKeyValue,
+                final String fiql,
                 final AjaxRequestTarget target,
                 final String resource,
                 final String anyType,
                 final String realm,
                 final boolean isOnSyncope,
                 final PageReference pageRef) {
+
             anyTypes.setEnabled(false);
             target.add(anyTypes);
 
@@ -145,7 +146,7 @@ public class ConnObjects extends Panel implements ModalPanel {
                             pullTaskTO,
                             anyType,
                             null,
-                            connObjectKeyValue,
+                            fiql,
                             isOnSyncope,
                             connObjects,
                             pageRef),

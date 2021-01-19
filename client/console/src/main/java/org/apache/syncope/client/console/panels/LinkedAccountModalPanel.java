@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.layout.AnyLayout;
 import org.apache.syncope.client.console.layout.AnyLayoutUtils;
@@ -266,7 +267,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                                 new PushTaskTO(),
                                 model.getObject().getType(),
                                 null,
-                                linkedAccountTO.getConnObjectKeyValue(),
+                                ConnIdSpecialName.UID + "==" + linkedAccountTO.getConnObjectKeyValue(),
                                 true,
                                 mlp,
                                 pageRef),
@@ -292,7 +293,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                                 new PullTaskTO(),
                                 model.getObject().getType(),
                                 null,
-                                linkedAccountTO.getConnObjectKeyValue(),
+                                ConnIdSpecialName.UID + "==" + linkedAccountTO.getConnObjectKeyValue(),
                                 true,
                                 mlp,
                                 pageRef),

@@ -57,8 +57,8 @@ public final class StatusUtils implements Serializable {
 
         ReconStatus result = null;
         try {
-            result = RECONCILIATION_REST_CLIENT.status(
-                    new ReconQuery.Builder(anyTypeKey, resource).connObjectKeyValue(connObjectKeyValue).build());
+            result = RECONCILIATION_REST_CLIENT.status(new ReconQuery.Builder(anyTypeKey, resource).
+                    fiql(ConnIdSpecialName.UID + "==" + connObjectKeyValue).build());
         } catch (Exception e) {
             LOG.warn("Unexpected error for {} {} on {}", anyTypeKey, connObjectKeyValue, resource, e);
         }

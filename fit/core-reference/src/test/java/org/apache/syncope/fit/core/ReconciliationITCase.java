@@ -175,7 +175,7 @@ public class ReconciliationITCase extends AbstractITCase {
 
         // 2. verify reconciliation status
         ReconStatus status = reconciliationService.status(
-                new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).connObjectKeyValue(externalKey).build());
+                new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).fiql("ID==" + externalKey).build());
         assertNotNull(status);
         assertNull(status.getAnyTypeKind());
         assertNull(status.getAnyKey());
@@ -189,8 +189,8 @@ public class ReconciliationITCase extends AbstractITCase {
         PullTaskTO pullTask = new PullTaskTO();
         pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         pullTask.setPerformCreate(true);
-        reconciliationService.pull(new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).
-                connObjectKeyValue(externalKey).build(), pullTask);
+        reconciliationService.pull(
+                new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).fiql("ID==" + externalKey).build(), pullTask);
 
         // 4. verify reconciliation result
         AnyObjectTO printer = anyObjectService.read(externalName);
