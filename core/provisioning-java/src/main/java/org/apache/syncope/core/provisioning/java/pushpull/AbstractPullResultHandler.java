@@ -57,6 +57,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionExceptio
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
+import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
@@ -775,20 +776,16 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     }
             } else {
                 // update VirAttrCache
-                virSchemaDAO.findByProvision(provision).forEach(virSchema -> {
-                    Attribute attr = delta.getObject().getAttributeByName(virSchema.getExtAttrName());
+                virSchemaDAO.findByProvision(provision).forEach(schema -> {
+                    Attribute attr = delta.getObject().getAttributeByName(schema.getExtAttrName());
                     matches.forEach(match -> {
+                        VirAttrCacheKey cacheKey = new VirAttrCacheKey(
+                                provision.getAnyType().getKey(), match.getAny().getKey(),
+                                schema.getKey());
                         if (attr == null) {
-                            virAttrCache.expire(
-                                    provision.getAnyType().getKey(),
-                                    match.getAny().getKey(),
-                                    virSchema.getKey());
+                            virAttrCache.expire(cacheKey);
                         } else {
-                            virAttrCache.put(
-                                    provision.getAnyType().getKey(),
-                                    match.getAny().getKey(),
-                                    virSchema.getKey(),
-                                    new VirAttrCacheValue(attr.getValue()));
+                            virAttrCache.put(cacheKey, new VirAttrCacheValue(attr.getValue()));
                         }
                     });
                 });

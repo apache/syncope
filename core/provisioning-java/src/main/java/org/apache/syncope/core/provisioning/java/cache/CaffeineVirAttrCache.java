@@ -18,32 +18,34 @@
  */
 package org.apache.syncope.core.provisioning.java.cache;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 
-/**
- * Empty virtual attribute value cache implementation.
- */
-public class DisabledVirAttrCache implements VirAttrCache {
+public class CaffeineVirAttrCache implements VirAttrCache {
+
+    private Cache<VirAttrCacheKey, VirAttrCacheValue> cache;
 
     @Override
     public void setCacheSpec(final String cacheSpec) {
-        // nothing to do
+        cache = Caffeine.from(cacheSpec).build();
     }
 
     @Override
     public void expire(final VirAttrCacheKey key) {
-        // nothing to do
+        cache.invalidate(key);
     }
 
     @Override
     public VirAttrCacheValue get(final VirAttrCacheKey key) {
-        return null;
+        return cache.getIfPresent(key);
     }
 
     @Override
     public VirAttrCacheValue put(final VirAttrCacheKey key, final VirAttrCacheValue value) {
+        cache.put(key, value);
         return value;
     }
 }

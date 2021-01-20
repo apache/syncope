@@ -37,10 +37,6 @@ public class VirAttrCacheKeyTest extends AbstractTest {
         VirAttrCacheKey cacheKey3 = new VirAttrCacheKey(type, String.format(type, "3"), String.format(virSchema, "3"));
         Object nullObj = null;
 
-        assertEquals(type, cacheKey.getKind());
-        assertEquals(key, cacheKey.getKey());
-        assertEquals(virSchema, cacheKey.getVirSchema());
-
         assertEquals(cacheKey.hashCode(), cacheKey2.hashCode());
         assertFalse(cacheKey.equals(nullObj));
         assertFalse(cacheKey.equals(String.class));

@@ -14,6 +14,11 @@ Copyright (c) 2016 Daniel Eden
 
 ==
 
+This product includes software developed by the args4j project.
+Copyright (c) 2013 Kohsuke Kawaguchi and other contributors
+
+==
+
 This product includes software developed by the Bootbox.js project.
 Copyright (C) 2011-2015 by Nick Payne nick@kurai.co.uk
 
@@ -33,18 +38,46 @@ This product includes software developed by the Jackson project.
 
 ==
 
+This product includes software developed by the Open JSON project.
+
+==
+
+This product includes software developed by the Gson project.
+Copyright (c) 2008 Google Inc.
+
+==
+
+This product includes software developed by Error Prone.
+
+==
+
 This product includes software developed by the Google Guava project.
 Copyright (c) 2016 The Guava Authors.
 
 ==
 
-This product includes software developed by the Wicket - jQuery UI project.
-Copyright 2012-2013 Sebastien Briquet
+This product includes software developed by J2ObjC: Java to Objective-C Translator and Runtime.
 
 ==
 
-This product includes software developed by the JAXB project.
-Copyright (c) 2013-2016 The JAXB project.
+This product includes software developed by The Closure Compiler.
+Copyright (c) 2009 The Closure Compiler Authors.
+
+==
+
+This product includes software developed by JsInterop Annotations.
+Copyright (c) 2019 Google Inc. All Rights Reserved.
+
+==
+
+This product includes software developed by OWASP Java HTML Sanitizer.
+Copyright (c) 2011, Mike Samuel
+All rights reserved.
+
+==
+
+This product includes software developed by the Wicket - jQuery UI project.
+Copyright 2012-2013 Sebastien Briquet
 
 ==
 
@@ -65,6 +98,16 @@ Copyright (c) 2016 Drifty (http://drifty.com/)
 
 This product includes software developed by the slimScroll project.
 Copyright (c) 2011 Piotr Rochala (http://rocha.la)
+
+==
+
+This product includes software developed by the Eclipse Foundation.
+Copyright (c) 2019, 2020 Eclipse Foundation. All rights reserved.
+
+==
+
+This product includes software developed by the Eclipse Foundation.
+Copyright (c) 2019, 2020 Eclipse Foundation. All rights reserved.
 
 ==
 
@@ -113,11 +156,26 @@ Copyright (c) 2010 - 2014 jsPlumb, http://jsplumbtoolkit.com/
 
 ==
 
+This product includes software developed by The Checker Framework.
+Copyright (c) 2004-present by the Checker Framework developers
+
+==
+
 This product includes software developed by the Stax 2 Extension API Project.
 
 ==
 
 This product includes software developed by the Woodstox Project.
+
+==
+
+This product includes software developed by Serializable java.util.function Interfaces.
+Copyright (c) 2015 Jakub Danek
+
+==
+
+This product includes software developed by Java Hamcrest.
+Copyright (c) 2000-2015 www.hamcrest.org
 
 ==
 
@@ -132,20 +190,19 @@ All rights reserved.
 
 ==
 
-This product includes software developed by the spin.js project.
-Copyright (c) 2011-2015 Felix Gnass [fgnass at gmail dot com]
-
-==
-
 This product includes software developed by the Chart.js project.
 Copyright (c) 2018 Chart.js Contributors
 
 ==
 
-This product includes software developed by the X-editable project.
-Copyright (c) 2012 Vitaliy Potapov
+This product includes software developed by Moment.js.
+Copyright (c) JS Foundation and other contributors
 
 ==
 
-This product includes software developed by Adobe Systems Incorporated (http://www.adobe.com/).
-Copyright 2010, 2012, 2014 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. All Rights Reserved. Source is a trademark of Adobe Systems Incorporated in the United States and/or other countries.
+This product includes software developed by the SnakeYAML project.
+
+==
+
+This product includes software developed by the X-editable project.
+Copyright (c) 2012 Vitaliy Potapov
