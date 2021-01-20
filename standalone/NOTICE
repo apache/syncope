@@ -9,11 +9,6 @@ with which this file is now or was at one time distributed.
 
 ==
 
-This product includes software developed by the AngularJS UI Bootstrap project.
-Copyright (c) 2012-2016 the AngularUI Team, https://github.com/organizations/angular-ui/teams/291112]
-
-==
-
 This product includes software developed by the AngularJS UI Select project.
 Copyright (c) 2013-2014 AngularUI
 
@@ -24,7 +19,8 @@ Copyright (c) 2016 Daniel Eden
 
 ==
 
-This product includes software developed by the AOP Alliance (Java/J2EE AOP standards).
+This product includes software developed by the args4j project.
+Copyright (c) 2013 Kohsuke Kawaguchi and other contributors
 
 ==
 
@@ -56,8 +52,46 @@ This product includes software developed by the Java Uuid Generator (JUG) projec
 
 ==
 
+This product includes software developed by the Caffeine project.
+Copyright (c) 2021 Ben Manes. All Rights Reserved.
+
+==
+
+This product includes software developed by the Open JSON project.
+
+==
+
+This product includes software developed by the Gson project.
+Copyright (c) 2008 Google Inc.
+
+==
+
+This product includes software developed by Error Prone.
+
+==
+
 This product includes software developed by the Google Guava project.
 Copyright (c) 2016 The Guava Authors.
+
+==
+
+This product includes software developed by J2ObjC: Java to Objective-C Translator and Runtime.
+
+==
+
+This product includes software developed by The Closure Compiler.
+Copyright (c) 2009 The Closure Compiler Authors.
+
+==
+
+This product includes software developed by JsInterop Annotations.
+Copyright (c) 2019 Google Inc. All Rights Reserved.
+
+==
+
+This product includes software developed by OWASP Java HTML Sanitizer.
+Copyright (c) 2011, Mike Samuel
+All rights reserved.
 
 ==
 
@@ -66,8 +100,18 @@ Copyright 2012-2013 Sebastien Briquet
 
 ==
 
+This product includes software developed by the GreenMail project.
+Copyright (c) 2006 - 2019, Wael Chatila and GreenMail project contributors
+
+==
+
 This product includes software developed by the JAXB project.
 Copyright (c) 2013-2016 The JAXB project.
+
+==
+
+This product includes software developed by QDox.
+Copyright 2002-2009 Joe Walnes and QDox Project Team
 
 ==
 
@@ -90,6 +134,11 @@ Copyright (c) 2010-2014 Coda Hale, Yammer.com
 
 ==
 
+This product includes software developed by the ClassGraph project.
+Copyright (c) 2020 Luke Hutchison
+
+==
+
 This product includes software developed by the Swagger project.
 Copyright 2016 SmartBear Software
 
@@ -102,6 +151,16 @@ Copyright (c) 2016 Drifty (http://drifty.com/)
 
 This product includes software developed by the slimScroll project.
 Copyright (c) 2011 Piotr Rochala (http://rocha.la)
+
+==
+
+This product includes software developed by the Eclipse Foundation.
+Copyright (c) 2019, 2020 Eclipse Foundation. All rights reserved.
+
+==
+
+This product includes software developed by the Eclipse Foundation.
+Copyright (c) 2019, 2020 Eclipse Foundation. All rights reserved.
 
 ==
 
@@ -192,7 +251,8 @@ Copyright 2011-2016 Tirasa S.r.l. All rights reserved.
 
 ==
 
-This product includes software developed by the Flowable project.
+This product includes software developed by the ANTLR project.
+Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
 
 ==
 
@@ -206,11 +266,30 @@ Copyright (c) 2000-2016 The Legion of the Bouncy Castle Inc. (http://www.bouncyc
 
 ==
 
+This product includes software developed by The Checker Framework.
+Copyright (c) 2004-present by the Checker Framework developers
+
+==
+
 This product includes software developed by the Stax 2 Extension API Project.
 
 ==
 
 This product includes software developed by the Woodstox Project.
+
+==
+
+This product includes software developed by Serializable java.util.function Interfaces.
+Copyright (c) 2015 Jakub Danek
+
+==
+
+This product includes software developed by the Flowable project.
+
+==
+
+This product includes software developed by Java Hamcrest.
+Copyright (c) 2000-2015 www.hamcrest.org
 
 ==
 
@@ -221,6 +300,10 @@ Copyright (c) 2014 The JASYPT team. All Rights Reserved
 
 This product includes softare developed by the Javassist project.
 Copyright (C) 1999- by Shigeru Chiba, All rights reserved.
+
+==
+
+This product includes software developed by the Liquibase project.
 
 ==
 
@@ -243,10 +326,6 @@ Quartz Scheduler source code and documentation are Copyright (c) Terracotta, Inc
 
 ==
 
-This product includes software developed by the Reflections project.
-
-==
-
 This products includes software developed by the Simple Logging Facade for Java (SLF4J) project.
 Copyright (c) 2004-2016 QOS.ch.
 
@@ -255,11 +334,6 @@ Copyright (c) 2004-2016 QOS.ch.
 This product includes software developed by SpringSource.
 Copyright (c) 2004-2016 SpringSource
 All rights reserved.
-
-==
-
-This product includes software developed by the spin.js project.
-Copyright (c) 2011-2015 Felix Gnass [fgnass at gmail dot com]
 
 ==
 
@@ -288,6 +362,11 @@ Copyright (c) 2018 Chart.js Contributors
 
 ==
 
+This product includes software developed by Moment.js.
+Copyright (c) JS Foundation and other contributors
+
+==
+
 This product contains unmodified binary redistributions for H2 database engine,
 which is dual licensed and available under a modified version of the MPL 1.1 (Mozilla Public License) or under the
 (unmodified) EPL 1.0 (Eclipse Public License).
@@ -297,6 +376,11 @@ An original copy of the license agreement can be found at: http://www.h2database
 
 This product includes software developed by the Select2 project.
 Copyright (c) 2012-2015 Kevin Brown, Igor Vaynberg, and Select2 contributors
+
+==
+
+This product includes software developed by Native AngularJS (Angular) directives for Bootstrap 4.
+Copyright (c) 2012-2017 the AngularUI Team, https://github.com/organizations/angular-ui/teams/291112
 
 ==
 
@@ -312,8 +396,3 @@ All Rights Reserved.
 
 This product includes software developed by the X-editable project.
 Copyright (c) 2012 Vitaliy Potapov
-
-==
-
-This product includes software developed by Adobe Systems Incorporated (http://www.adobe.com/).
-Copyright 2010, 2012, 2014 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. All Rights Reserved. Source is a trademark of Adobe Systems Incorporated in the United States and/or other countries.

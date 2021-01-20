@@ -697,12 +697,18 @@ under the License.
         <groupId>org.webjars</groupId>
         <artifactId>swagger-ui</artifactId>
         <version>${swagger-ui.version}</version>
-      </dependency>
+      </dependency>      
       
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <!-- /Swagger -->      
 
@@ -1015,7 +1021,13 @@ under the License.
         <artifactId>aspectjweaver</artifactId>
         <version>1.9.6</version>
       </dependency>
-      
+
+      <dependency>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+        <version>2.8.8</version>
+      </dependency>
+
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
@@ -1125,6 +1137,12 @@ under the License.
         <groupId>org.apache.directory.server</groupId>
         <artifactId>apacheds-core-annotations</artifactId>
         <version>${apacheds.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.directory.server</groupId>
@@ -1363,6 +1381,10 @@ under the License.
           <exclusion>
             <groupId>org.webjars</groupId>
             <artifactId>momentjs</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
           </exclusion>
         </exclusions>
       </dependency>

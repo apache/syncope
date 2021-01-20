@@ -9,11 +9,6 @@ with which this file is now or was at one time distributed.
 
 ==
 
-This product includes software developed by the AngularJS UI Bootstrap project.
-Copyright (c) 2012-2016 the AngularUI Team, https://github.com/organizations/angular-ui/teams/291112]
-
-==
-
 This product includes software developed by the AngularJS UI Select project.
 Copyright (c) 2013-2014 AngularUI
 
@@ -33,13 +28,27 @@ This product includes software developed by the Jackson project.
 
 ==
 
-This product includes software developed by the JAXB project.
-Copyright (c) 2013-2016 The JAXB project.
+This product includes software developed by the Open JSON project.
+
+==
+
+This product includes software developed by the Swagger project.
+Copyright 2016 SmartBear Software
 
 ==
 
 This product includes software developed by the Ionicons project.
 Copyright (c) 2016 Drifty (http://drifty.com/)
+
+==
+
+This product includes software developed by the Eclipse Foundation.
+Copyright (c) 2019, 2020 Eclipse Foundation. All rights reserved.
+
+==
+
+This product includes software developed by the Eclipse Foundation.
+Copyright (c) 2019, 2020 Eclipse Foundation. All rights reserved.
 
 ==
 
@@ -55,11 +64,6 @@ Copyright (c) Red Hat, Inc., Emmanuel Bernard
 
 This product includes software developed by the JAX-RS project.
 Copyright (c) 2014, Oracle Corporation and/or its affiliates. All rights reserved.
-
-==
-
-This product includes software developed by the Joda Time project.
-Copyright (c) 2002-2016 Joda.org. All Rights Reserved.
 
 ==
 
@@ -93,6 +97,11 @@ This product includes software developed by the Stax 2 Extension API Project.
 ==
 
 This product includes software developed by the Woodstox Project.
+
+==
+
+This product includes software developed by Serializable java.util.function Interfaces.
+Copyright (c) 2015 Jakub Danek
 
 ==
 
@@ -136,3 +145,12 @@ An original copy of the license agreement can be found at: http://www.h2database
 
 This product includes software developed by the Select2 project.
 Copyright (c) 2012-2015 Kevin Brown, Igor Vaynberg, and Select2 contributors
+
+==
+
+This product includes software developed by Native AngularJS (Angular) directives for Bootstrap 4.
+Copyright (c) 2012-2017 the AngularUI Team, https://github.com/organizations/angular-ui/teams/291112
+
+==
+
+This product includes software developed by the SnakeYAML project.
