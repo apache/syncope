@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
+import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -76,17 +77,17 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
         Stream.concat(
                 schemas.getForSelf().stream(),
                 schemas.getForMemberships().values().stream().flatMap(Set::stream)).forEach(schema -> {
+
+            VirAttrCacheKey cacheKey = new VirAttrCacheKey(any.getType().getKey(), any.getKey(), schema.getKey());
+
             Attribute attr = connObj.getAttributeByName(schema.getExtAttrName());
             if (attr == null) {
-                virAttrCache.expire(any.getType().getKey(), any.getKey(), schema.getKey());
+                virAttrCache.expire(cacheKey);
+                LOG.debug("Evicted from cache: {}", cacheKey);
             } else {
-                VirAttrCacheValue virAttrCacheValue = new VirAttrCacheValue(attr.getValue());
-                virAttrCache.put(
-                        any.getType().getKey(),
-                        any.getKey(),
-                        schema.getKey(),
-                        virAttrCacheValue);
-                LOG.debug("Values for {} set in cache: {}", schema, virAttrCacheValue);
+                VirAttrCacheValue cacheValue = new VirAttrCacheValue(attr.getValue());
+                virAttrCache.put(cacheKey, cacheValue);
+                LOG.debug("Set in cache: {}={}", cacheKey, cacheValue);
             }
         });
     }
@@ -99,12 +100,12 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
         Map<Provision, Set<VirSchema>> toRead = new HashMap<>();
 
         schemas.stream().filter(schema -> resources.contains(schema.getProvision().getResource())).forEach(schema -> {
-            VirAttrCacheValue virAttrCacheValue =
-                    virAttrCache.get(any.getType().getKey(), any.getKey(), schema.getKey());
+            VirAttrCacheKey cacheKey = new VirAttrCacheKey(any.getType().getKey(), any.getKey(), schema.getKey());
+            VirAttrCacheValue cacheValue = virAttrCache.get(cacheKey);
 
-            if (virAttrCache.isValidEntry(virAttrCacheValue)) {
-                LOG.debug("Values for {} found in cache: {}", schema, virAttrCacheValue);
-                result.put(schema, virAttrCacheValue.getValues());
+            if (cacheValue != null) {
+                LOG.debug("Found in cache: {}={}", cacheKey, cacheValue);
+                result.put(schema, cacheValue.getValues());
             } else if (schema.getProvision().getAnyType().equals(any.getType())) {
                 Set<VirSchema> schemasToRead = toRead.get(schema.getProvision());
                 if (schemasToRead == null) {
@@ -128,15 +129,12 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
 
                 Attribute attr = connObj.getAttributeByName(schema.getExtAttrName());
                 if (attr != null) {
-                    VirAttrCacheValue virAttrCacheValue = new VirAttrCacheValue(attr.getValue());
-                    virAttrCache.put(
-                            any.getType().getKey(),
-                            any.getKey(),
-                            schema.getKey(),
-                            virAttrCacheValue);
-                    LOG.debug("Values for {} set in cache: {}", schema, virAttrCacheValue);
+                    VirAttrCacheKey cacheKey =
+                            new VirAttrCacheKey(any.getType().getKey(), any.getKey(), schema.getKey());
+                    VirAttrCacheValue cacheValue = virAttrCache.put(cacheKey, new VirAttrCacheValue(attr.getValue()));
+                    LOG.debug("Set in cache: {}={}", cacheKey, cacheValue);
 
-                    result.put(schema, virAttrCacheValue.getValues());
+                    result.put(schema, cacheValue.getValues());
                 }
             }));
         });

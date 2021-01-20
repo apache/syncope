@@ -130,12 +130,12 @@ Some implementations are provided by default - see table below - custom ones can
 
 | 
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/MemoryVirAttrCache.java[MemoryVirAttrCache^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/CaffeineVirAttrCache.java[CaffeineVirAttrCache^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/MemoryVirAttrCache.java[MemoryVirAttrCache^]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/MemoryVirAttrCache.java[CaffeineVirAttrCache^]
 endif::[]
-| Simple fixed-size in-memory cache, with configurable time-to-live.
+| In-memory cache based on https://github.com/ben-manes/caffeine[Caffeine Cache^].
 
 | 
 ifeval::["{snapshotOrRelease}" == "release"]

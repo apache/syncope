@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.api.cache;
 
-import java.util.Objects;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Cache entry key.
@@ -29,43 +30,31 @@ public class VirAttrCacheKey {
     /**
      * Any type name.
      */
-    private final String type;
+    private final transient String anyType;
 
     /**
      * Any object key.
      */
-    private final transient String key;
+    private final transient String any;
 
     /**
      * Virtual attribute schema name.
      */
-    private final transient String virSchema;
+    private final transient String schema;
 
-    public VirAttrCacheKey(final String type, final String key, final String virSchema) {
-        this.type = type;
-        this.key = key;
-        this.virSchema = virSchema;
-    }
-
-    public String getKind() {
-        return type;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public String getVirSchema() {
-        return virSchema;
+    public VirAttrCacheKey(final String anyType, final String any, final String schema) {
+        this.anyType = anyType;
+        this.any = any;
+        this.schema = schema;
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 89 * hash + Objects.hashCode(this.type);
-        hash = 89 * hash + Objects.hashCode(this.key);
-        hash = 89 * hash + Objects.hashCode(this.virSchema);
-        return hash;
+        return new HashCodeBuilder().
+                append(anyType).
+                append(any).
+                append(schema).
+                build();
     }
 
     @Override
@@ -80,17 +69,15 @@ public class VirAttrCacheKey {
             return false;
         }
         final VirAttrCacheKey other = (VirAttrCacheKey) obj;
-        if (!Objects.equals(this.type, other.type)) {
-            return false;
-        }
-        if (!Objects.equals(this.key, other.key)) {
-            return false;
-        }
-        return Objects.equals(this.virSchema, other.virSchema);
+        return new EqualsBuilder().
+                append(anyType, other.anyType).
+                append(any, other.any).
+                append(schema, other.schema).
+                build();
     }
 
     @Override
     public String toString() {
-        return "VirAttrCacheKey{" + "type=" + type + ", key=" + key + ", virSchema=" + virSchema + '}';
+        return "VirAttrCacheKey{" + "anyType=" + anyType + ", any=" + any + ", schema=" + schema + '}';
     }
 }

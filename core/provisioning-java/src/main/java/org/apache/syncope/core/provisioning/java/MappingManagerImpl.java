@@ -88,6 +88,7 @@ import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
+import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
@@ -804,11 +805,12 @@ public class MappingManagerImpl implements MappingManager {
                         // virtual attributes don't get transformed
                         transform = false;
 
-                        VirSchema virSchema = (VirSchema) intAttrName.getSchema();
-                        LOG.debug("Expire entry cache {}-{}", ref, intAttrName.getSchema().getKey());
-                        virAttrCache.expire(
+                        VirAttrCacheKey cacheKey = new VirAttrCacheKey(
                                 ref.getType().getKey(), ref.getKey(), intAttrName.getSchema().getKey());
+                        virAttrCache.expire(cacheKey);
+                        LOG.debug("Evicted from cache: {}", cacheKey);
 
+                        VirSchema virSchema = (VirSchema) intAttrName.getSchema();
                         List<String> virValues = membership == null
                                 ? virAttrHandler.getValues(ref, virSchema)
                                 : virAttrHandler.getValues(ref, membership, virSchema);

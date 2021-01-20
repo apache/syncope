@@ -203,11 +203,6 @@
 
 ==
 
-For AOP Alliance (http://aopalliance.sourceforge.net/):
-This is Public Domain.
-
-==
-
 For Jackson (http://wiki.fasterxml.com/JacksonHome):
 This is licensed under the AL 2.0, see above.
 
@@ -218,7 +213,22 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Caffeine (https://github.com/ben-manes/caffeine):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Error Prone (https://errorprone.info/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Guava (https://github.com/google/guava):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For J2ObjC: Java to Objective-C Translator and Runtime (http://j2objc.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -614,6 +624,11 @@ of liability.
 
 ==
 
+For QDox (https://github.com/paul-hammant/qdox):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For HikariCP (http://brettwooldridge.github.io/HikariCP/):
 This is licensed under the AL 2.0, see above.
 
@@ -654,32 +669,7 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Swagger (http://swagger.io/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For javax.annotation-api (https://jcp.org/en/jsr/detail?id=250):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
-For Bean Validation API (http://beanvalidation.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For javax.ws.rs-api (https://jax-rs-spec.java.net/):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
-For Joda Time (http://www.joda.org/joda-time/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For jQuery (http://jquery.com/):
+For ClassGraph (https://github.com/classgraph/classgraph):
 This is licensed under the MIT license:
 
  Permission is hereby granted, free  of charge, to any person obtaining
@@ -703,42 +693,12 @@ This is licensed under the MIT license:
 
 ==
 
-For jQuery UI (http://jqueryui.com/):
-This is licensed under the MIT license, see above.
-
-==
-
-For JavaGeom (http://geom-java.sourceforge.net/):
+For Swagger (http://swagger.io/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For Ehcache (http://ehcache.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Shibboleth (https://shibboleth.net/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For SERP (http://serp.sourceforge.net/):
-This is licensed under the BSD license, see above.
-
-==
-
-For ConnId (http://connid.tirasa.net/):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
-For Flowable (http://www.flowable.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For AspectJ (http://www.eclipse.org/aspectj/):
+For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
 This is licensed under the EPL 1.0:
 
 Eclipse Public License - v 1.0
@@ -947,7 +907,77 @@ any resulting litigation.
 
 ==
 
+For Jakarta XML Binding (https://eclipse-ee4j.github.io/jaxb-ri/):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For javax.annotation-api (https://jcp.org/en/jsr/detail?id=250):
+This is licensed under the CDDL 1.0, see above.
+
+==
+
+For Bean Validation API (http://beanvalidation.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For javax.ws.rs-api (https://jax-rs-spec.java.net/):
+This is licensed under the CDDL 1.0, see above.
+
+==
+
+For Joda Time (http://www.joda.org/joda-time/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For jQuery (http://jquery.com/):
+This is licensed under the MIT license, see above.
+
+==
+
+For jQuery UI (http://jqueryui.com/):
+This is licensed under the MIT license, see above.
+
+==
+
+For Ehcache (http://ehcache.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Shibboleth (https://shibboleth.net/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For SERP (http://serp.sourceforge.net/):
+This is licensed under the BSD license, see above.
+
+==
+
+For ConnId (http://connid.tirasa.net/):
+This is licensed under the CDDL 1.0, see above.
+
+==
+
+For ANTLR (https://www.antlr.org/):
+This is licensed under the BSD license, see above.
+
+==
+
+For AspectJ (http://www.eclipse.org/aspectj/):
+This is licensed under the EPL 1.0, see above.
+
+==
+
 For Legion of the Bouncy Castle (http://www.bouncycastle.org/java.html):
+This is licensed under the MIT license, see above.
+
+==
+
+For The Checker Framework (https://checkerframework.org/):
 This is licensed under the MIT license, see above.
 
 ==
@@ -967,12 +997,22 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Flowable (http://www.flowable.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For jasypt (http://www.jasypt.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
 For Javassist (https://jboss-javassist.github.io/javassist/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Liquibase (https://www.liquibase.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -989,11 +1029,6 @@ This is licensed under the AL 2.0, see above.
 
 For Quartz Scheduler (http://quartz-scheduler.org/):
 This is licensed under the AL 2.0, see above.
-
-==
-
-For Reflections (https://github.com/ronmamo/reflections):
-This is licensed under the BSD license, see above.
 
 ==
 

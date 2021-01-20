@@ -23,47 +23,29 @@ package org.apache.syncope.core.provisioning.api.cache;
  */
 public interface VirAttrCache {
 
-    default void setTtl(int ttl) {
-    }
-
-    default void setMaxCacheSize(int maxCacheSize) {
-    }
+    void setCacheSpec(String cacheSpec);
 
     /**
      * Force entry expiring.
      *
-     * @param type any object
-     * @param key any object key
-     * @param schemaKey virtual attribute schema
+     * @param key cache key
      */
-    void expire(String type, String key, String schemaKey);
+    void expire(VirAttrCacheKey key);
 
     /**
      * Retrieve cached value. Return null in case of virtual attribute not cached.
      *
-     * @param type any object
-     * @param key any object key
-     * @param schemaKey virtual attribute schema.
+     * @param key cache key
      * @return cached values or null if virtual attribute is not cached.
      */
-    VirAttrCacheValue get(String type, String key, String schemaKey);
-
-    /**
-     * Cache entry is valid if and only if value exist and it is not expired.
-     *
-     * @param value cache entry value.
-     * @return TRUE if the value is valid; FALSE otherwise.
-     */
-    boolean isValidEntry(VirAttrCacheValue value);
+    VirAttrCacheValue get(VirAttrCacheKey key);
 
     /**
      * Cache virtual attribute values.
      *
-     * @param type any object
-     * @param key any object key
-     * @param schemaName virtual attribute name
+     * @param key cache key
      * @param value virtual attribute values
+     * @return value after caching
      */
-    void put(String type, String key, String schemaName, VirAttrCacheValue value);
-
+    VirAttrCacheValue put(VirAttrCacheKey key, VirAttrCacheValue value);
 }

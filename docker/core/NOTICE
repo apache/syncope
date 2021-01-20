@@ -9,10 +9,6 @@ with which this file is now or was at one time distributed.
 
 ==
 
-This product includes software developed by the AOP Alliance (Java/J2EE AOP standards).
-
-==
-
 This product includes software developed by the Jackson project.
 
 ==
@@ -21,13 +17,31 @@ This product includes software developed by the Java Uuid Generator (JUG) projec
 
 ==
 
+This product includes software developed by the Caffeine project.
+Copyright (c) 2021 Ben Manes. All Rights Reserved.
+
+==
+
+This product includes software developed by Error Prone.
+
+==
+
 This product includes software developed by the Google Guava project.
 Copyright (c) 2016 The Guava Authors.
 
 ==
 
+This product includes software developed by J2ObjC: Java to Objective-C Translator and Runtime.
+
+==
+
 This product includes software developed by the JAXB project.
 Copyright (c) 2013-2016 The JAXB project.
+
+==
+
+This product includes software developed by QDox.
+Copyright 2002-2009 Joe Walnes and QDox Project Team
 
 ==
 
@@ -45,8 +59,23 @@ Copyright (c) 2010-2014 Coda Hale, Yammer.com
 
 ==
 
+This product includes software developed by the ClassGraph project.
+Copyright (c) 2020 Luke Hutchison
+
+==
+
 This product includes software developed by the Swagger project.
 Copyright 2016 SmartBear Software
+
+==
+
+This product includes software developed by the Eclipse Foundation.
+Copyright (c) 2019, 2020 Eclipse Foundation. All rights reserved.
+
+==
+
+This product includes software developed by the Eclipse Foundation.
+Copyright (c) 2019, 2020 Eclipse Foundation. All rights reserved.
 
 ==
 
@@ -97,7 +126,8 @@ Copyright 2011-2016 Tirasa S.r.l. All rights reserved.
 
 ==
 
-This product includes software developed by the Flowable project.
+This product includes software developed by the ANTLR project.
+Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
 
 ==
 
@@ -111,11 +141,20 @@ Copyright (c) 2000-2016 The Legion of the Bouncy Castle Inc. (http://www.bouncyc
 
 ==
 
+This product includes software developed by The Checker Framework.
+Copyright (c) 2004-present by the Checker Framework developers
+
+==
+
 This product includes software developed by the Stax 2 Extension API Project.
 
 ==
 
 This product includes software developed by the Woodstox Project.
+
+==
+
+This product includes software developed by the Flowable project.
 
 ==
 
@@ -129,6 +168,10 @@ Copyright (C) 1999- by Shigeru Chiba, All rights reserved.
 
 ==
 
+This product includes software developed by the Liquibase project.
+
+==
+
 This product includes software developed by the MyBatis project.
 
 ==
@@ -139,10 +182,6 @@ This product includes software developed by the Shibboleth project.
 
 This product includes software developed by Terracotta. Inc.
 Quartz Scheduler source code and documentation are Copyright (c) Terracotta, Inc.
-
-==
-
-This product includes software developed by the Reflections project.
 
 ==
 

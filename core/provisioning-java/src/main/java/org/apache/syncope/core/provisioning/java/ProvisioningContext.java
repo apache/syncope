@@ -337,8 +337,10 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
             throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
             IllegalArgumentException, InvocationTargetException {
 
-        return (VirAttrCache) Class.forName(env.getProperty("virAttrCache")).
+        VirAttrCache virAttrCache = (VirAttrCache) Class.forName(env.getProperty("virAttrCache")).
                 getConstructor().newInstance();
+        virAttrCache.setCacheSpec(env.getProperty("virAttrCacheSpec", "maximumSize=5000,expireAfterAccess=1m"));
+        return virAttrCache;
     }
 
     @Bean
