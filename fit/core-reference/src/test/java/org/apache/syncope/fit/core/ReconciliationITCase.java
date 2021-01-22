@@ -123,6 +123,10 @@ public class ReconciliationITCase extends AbstractITCase {
         if (enable != null) {
             status.getOnSyncope().getAttrs().remove(enable);
         }
+        // FIQL is always null for Syncope
+        assertNull(status.getOnSyncope().getFiql());
+        assertNotNull(status.getOnResource().getFiql());
+        status.getOnResource().setFiql(null);
         assertEquals(status.getOnSyncope(), status.getOnResource());
     }
 

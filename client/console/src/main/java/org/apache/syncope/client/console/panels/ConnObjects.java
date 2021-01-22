@@ -153,6 +153,5 @@ public class ConnObjects extends Panel implements ModalPanel {
                     target
             );
         }
-
     }
 }

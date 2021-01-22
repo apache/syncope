@@ -203,8 +203,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                ReconQuery reconQuery = new ReconQuery.Builder(anyType, resource).
-                        anyKey(anyKey).fiql(fiql).build();
+                ReconQuery reconQuery = new ReconQuery.Builder(anyType, resource).anyKey(anyKey).fiql(fiql).build();
                 try {
                     if (taskTO instanceof PushTaskTO) {
                         reconRestClient.push(reconQuery, (PushTaskTO) form.getModelObject());

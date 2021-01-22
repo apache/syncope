@@ -178,7 +178,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final String connObjectKeyValue,
             final Set<Attribute> attrs) {
 
-        ConnObjectTO connObjectTO = ConnObjectUtils.getConnObjectTO(attrs);
+        ConnObjectTO connObjectTO = ConnObjectUtils.getConnObjectTO(null, attrs);
         connObjectTO.getAttrs().add(new AttrTO.Builder().
                 schema(connObjectKeyItem.getExtAttrName()).value(connObjectKeyValue).build());
         connObjectTO.getAttrs().add(new AttrTO.Builder().
@@ -239,7 +239,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         List<ConnectorObject> connObjs = outboundMatcher.match(
                 connFactory.getConnector(provision.getResource()), any, provision, Optional.empty());
         if (!connObjs.isEmpty()) {
-            status.setOnResource(ConnObjectUtils.getConnObjectTO(connObjs.get(0).getAttributes()));
+            status.setOnResource(ConnObjectUtils.getConnObjectTO(
+                    outboundMatcher.getFIQL(connObjs.get(0), provision), connObjs.get(0).getAttributes()));
 
             if (connObjs.size() > 1) {
                 LOG.warn("Expected single match, found {}", connObjs);
@@ -317,7 +318,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 }
             });
 
-            status.setOnResource(ConnObjectUtils.getConnObjectTO(syncDeltaBuilder.getObject().getAttributes()));
+            status.setOnResource(ConnObjectUtils.getConnObjectTO(
+                    outboundMatcher.getFIQL(syncDeltaBuilder.getObject(), provision),
+                    syncDeltaBuilder.getObject().getAttributes()));
 
             if (status.getMatchType() == MatchType.ANY && StringUtils.isNotBlank(status.getAnyKey())) {
                 virAttrHandler.setValues(getAny(provision, status.getAnyKey()), syncDeltaBuilder.getObject());

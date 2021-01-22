@@ -26,10 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
@@ -146,9 +144,9 @@ public abstract class ConnObjectListViewPanel extends Panel {
         accordion.setOutputMarkupId(true);
         add(accordion.setEnabled(true).setVisible(true));
 
-        List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, null, null);
+        final List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, null, null);
 
-        ListViewPanel.Builder<ConnObjectTO> builder = new ListViewPanel.Builder<ConnObjectTO>(
+        final ListViewPanel.Builder<ConnObjectTO> builder = new ListViewPanel.Builder<ConnObjectTO>(
                 ConnObjectTO.class, pageRef) {
 
             private static final long serialVersionUID = -8251750413385566738L;
@@ -156,8 +154,8 @@ public abstract class ConnObjectListViewPanel extends Panel {
             @Override
             protected Component getValueComponent(final String key, final ConnObjectTO bean) {
                 if (StringUtils.equals(key, STATUS)) {
-                    ReconStatus status = reconRestClient.status(new ReconQuery.Builder(anyType, resource.getKey()).
-                            fiql(getFiql(bean)).build());
+                    ReconStatus status = reconRestClient.status(
+                            new ReconQuery.Builder(anyType, resource.getKey()).fiql(bean.getFiql()).build());
 
                     return status.getOnSyncope() == null
                             ? StatusUtils.getLabel("field", "notfound icon", "Not found", Constants.NOT_FOUND_ICON)
@@ -219,12 +217,11 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ConnObjectTO modelObject) {
-                    String fiql = getFiql(modelObject);
                     ReconStatus status = reconRestClient.status(
-                            new ReconQuery.Builder(anyType, resource.getKey()).fiql(fiql).build());
+                            new ReconQuery.Builder(anyType, resource.getKey()).fiql(modelObject.getFiql()).build());
 
                     pullConnObject(
-                            fiql,
+                            modelObject.getFiql(),
                             target,
                             resource.getKey(),
                             anyType,
@@ -318,14 +315,6 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
         return new ConnObjectSearchPanel.Builder(resource, anyTypeKind, anyType,
                 new ListModel<>(clauses)).required(true).enableSearch().build(id);
-    }
-
-    private String getFiql(final ConnObjectTO connObject) {
-        List<CompleteCondition> conditions = connObject.getAttrs().stream().
-                filter(attr -> !attr.getValues().isEmpty()).
-                map(attr -> SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
-                is(attr.getSchema()).equalTo(attr.getValues().get(0))).collect(Collectors.toList());
-        return SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().and(conditions).query();
     }
 
     private String getFiql() {

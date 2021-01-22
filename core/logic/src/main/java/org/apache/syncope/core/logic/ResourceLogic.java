@@ -335,7 +335,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             virAttrHandler.setValues(any, connObjs.get(0));
         }
 
-        return ConnObjectUtils.getConnObjectTO(connObjs.get(0).getAttributes());
+        return ConnObjectUtils.getConnObjectTO(
+                outboundMatcher.getFIQL(connObjs.get(0), provision), connObjs.get(0).getAttributes());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_GET_CONNOBJECT + "')")
@@ -352,20 +353,18 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 "ConnObjectKey mapping for " + provision.getAnyType().getKey()
                 + " on resource '" + provision.getResource().getKey() + "'"));
 
-        Optional<ConnectorObject> connObj = outboundMatcher.matchByConnObjectKeyValue(
+        return outboundMatcher.matchByConnObjectKeyValue(
                 connFactory.getConnector(provision.getResource()),
                 connObjectKeyItem,
                 connObjectKeyValue,
                 provision,
                 Optional.empty(),
-                Optional.empty());
-        if (connObj.isPresent()) {
-            return ConnObjectUtils.getConnObjectTO(connObj.get().getAttributes());
-        }
-
-        throw new NotFoundException(
+                Optional.empty()).
+                map(connectorObject -> ConnObjectUtils.getConnObjectTO(
+                outboundMatcher.getFIQL(connectorObject, provision), connectorObject.getAttributes())).
+                orElseThrow(() -> new NotFoundException(
                 "Object " + connObjectKeyValue + " with class " + provision.getObjectClass()
-                + " not found on resource " + provision.getResource().getKey());
+                + " not found on resource " + provision.getResource().getKey()));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_LIST_CONNOBJECT + "')")
@@ -380,6 +379,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             final List<OrderByClause> orderBy) {
 
         ExternalResource resource;
+        Provision provision;
         ObjectClass objectClass;
         OperationOptions options;
         if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
@@ -391,11 +391,12 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 throw new NotFoundException("Realm provisioning for resource '" + key + "'");
             }
 
+            provision = null;
             objectClass = resource.getOrgUnit().getObjectClass();
             options = MappingUtils.buildOperationOptions(
                     resource.getOrgUnit().getItems().stream(), moreAttrsToGet.toArray(new String[0]));
         } else {
-            Provision provision = getProvision(key, anyTypeKey);
+            provision = getProvision(key, anyTypeKey);
             resource = provision.getResource();
             objectClass = provision.getObjectClass();
 
@@ -413,7 +414,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
                     @Override
                     public boolean handle(final ConnectorObject connectorObject) {
-                        connObjects.add(ConnObjectUtils.getConnObjectTO(connectorObject.getAttributes()));
+                        connObjects.add(ConnObjectUtils.getConnObjectTO(
+                                provision == null ? null : outboundMatcher.getFIQL(connectorObject, provision),
+                                connectorObject.getAttributes()));
                         // safety protection against uncontrolled result size
                         count++;
                         return count < size;

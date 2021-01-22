@@ -44,6 +44,7 @@ public interface PropagationReporter {
      * @param taskInfo propagation task
      * @param execStatus propagation execution status
      * @param failureReason propagation execution failure message
+     * @param fiql FIQL string to match the connector objects into the external resource
      * @param beforeObj retrieved connector object before operation execution
      * @param afterObj retrieved connector object after operation execution
      */
@@ -51,6 +52,7 @@ public interface PropagationReporter {
             PropagationTaskInfo taskInfo,
             ExecStatus execStatus,
             String failureReason,
+            String fiql,
             ConnectorObject beforeObj,
             ConnectorObject afterObj);
 

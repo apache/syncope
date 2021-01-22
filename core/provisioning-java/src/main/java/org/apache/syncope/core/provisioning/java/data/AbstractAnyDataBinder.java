@@ -83,9 +83,13 @@ import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,6 +147,9 @@ abstract class AbstractAnyDataBinder {
     @Autowired
     protected IntAttrNameParser intAttrNameParser;
 
+    @Autowired
+    protected OutboundMatcher outboundMatcher;
+
     protected void setRealm(final Any<?> any, final AnyPatch anyPatch) {
         if (anyPatch.getRealm() != null && StringUtils.isNotBlank(anyPatch.getRealm().getValue())) {
             Realm newRealm = realmDAO.findByFullPath(anyPatch.getRealm().getValue());
@@ -169,11 +176,20 @@ abstract class AbstractAnyDataBinder {
             Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
                     any, password, changePwd, true, provision);
 
-            ConnObjectTO connObjectTO = ConnObjectUtils.getConnObjectTO(prepared.getRight());
-            connObjectTO.getAttrs().add(new AttrTO.Builder().
-                    schema(connObjectKeyItem.getExtAttrName()).value(prepared.getLeft()).build());
-            connObjectTO.getAttrs().add(new AttrTO.Builder().
-                    schema(Uid.NAME).value(prepared.getLeft()).build());
+            ConnObjectTO connObjectTO;
+            if (StringUtils.isBlank(prepared.getLeft())) {
+                connObjectTO = ConnObjectUtils.getConnObjectTO(null, prepared.getRight());
+            } else {
+                ConnectorObject connectorObject = new ConnectorObjectBuilder().
+                        addAttributes(prepared.getRight()).
+                        addAttribute(new Uid(prepared.getLeft())).
+                        addAttribute(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), prepared.getLeft())).
+                        build();
+
+                connObjectTO = ConnObjectUtils.getConnObjectTO(
+                        outboundMatcher.getFIQL(connectorObject, provision),
+                        connectorObject.getAttributes());
+            }
 
             onResources.put(provision.getResource().getKey(), connObjectTO);
         }));
