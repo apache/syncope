@@ -665,7 +665,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             GroupTO groupTO = new GroupTO();
             groupTO.setName("SYNCOPEGROUP1605-" + getUUIDString());
-            groupTO.setRealm("/");
+            groupTO.setRealm(SyncopeConstants.ROOT_REALM);
             groupTO.getResources().add(ldap.getKey());
             groupTO.getPlainAttrs().add(new AttrTO.Builder().schema("originalName").value(originalName).build());
 
@@ -674,8 +674,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             // 3. check attributes prepared for propagation
             PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
-                    resource(groupTO.getResources().iterator().next()).
-                    anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).build());
+                    resource(ldap.getKey()).anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).build());
             assertEquals(1, tasks.getSize());
             assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
             assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
@@ -690,8 +689,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             groupTO = updateGroup(groupPatch).getEntity();
 
             tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
-                    resource(groupTO.getResources().iterator().next()).
-                    anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).orderBy("start DESC").build());
+                    resource(ldap.getKey()).anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).
+                    orderBy("start DESC").build());
             assertEquals(2, tasks.getSize());
             assertEquals(ResourceOperation.UPDATE, tasks.getResult().get(0).getOperation());
             assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());

@@ -18,18 +18,23 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-import org.apache.syncope.common.lib.to.ProvisioningReport;
-import java.util.List;
-import org.apache.syncope.common.lib.to.PullTaskTO;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.Connector;
-import org.quartz.JobExecutionException;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.filter.Filter;
+import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 
-public interface SyncopeSinglePullExecutor {
+public class KeyValueReconFilterBuilder implements ReconFilterBuilder {
 
-    List<ProvisioningReport> pull(
-            Provision provision,
-            Connector connector,
-            ReconFilterBuilder reconFilterBuilder,
-            PullTaskTO pullTaskTO) throws JobExecutionException;
+    private final String key;
+
+    private final String value;
+
+    public KeyValueReconFilterBuilder(final String key, final String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public Filter build() {
+        return FilterBuilder.equalTo(AttributeBuilder.build(key, value));
+    }
 }

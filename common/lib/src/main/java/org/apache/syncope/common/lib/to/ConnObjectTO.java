@@ -37,7 +37,17 @@ public class ConnObjectTO implements Serializable {
 
     private static final long serialVersionUID = 5139554911265442497L;
 
+    private String fiql;
+
     private final Set<AttrTO> attrs = new LinkedHashSet<>();
+
+    public String getFiql() {
+        return fiql;
+    }
+
+    public void setFiql(final String fiql) {
+        this.fiql = fiql;
+    }
 
     @XmlElementWrapper(name = "attrs")
     @XmlElement(name = "attribute")
@@ -54,6 +64,7 @@ public class ConnObjectTO implements Serializable {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
+                append(fiql).
                 append(attrs).
                 build();
     }
@@ -71,6 +82,7 @@ public class ConnObjectTO implements Serializable {
         }
         final ConnObjectTO other = (ConnObjectTO) obj;
         return new EqualsBuilder().
+                append(fiql, other.fiql).
                 append(attrs, other.attrs).
                 build();
     }

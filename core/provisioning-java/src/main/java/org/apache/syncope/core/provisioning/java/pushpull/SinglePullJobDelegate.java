@@ -50,9 +50,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecut
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
-import org.identityconnectors.framework.common.objects.filter.Filter;
-import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -73,8 +70,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
     public List<ProvisioningReport> pull(
             final Provision provision,
             final Connector connector,
-            final String connObjectKey,
-            final String connObjectValue,
+            final ReconFilterBuilder reconFilterBuilder,
             final PullTaskTO pullTaskTO) throws JobExecutionException {
 
         LOG.debug("Executing pull on {}", provision.getResource());
@@ -163,7 +159,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
 
             connector.filteredReconciliation(
                     provision.getObjectClass(),
-                    new SingleReconciliationFilterBuilder(connObjectKey, connObjectValue),
+                    reconFilterBuilder,
                     handler,
                     MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(new String[0])));
 
@@ -182,23 +178,6 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e
                     : new JobExecutionException("While pulling from connector", e);
-        }
-    }
-
-    class SingleReconciliationFilterBuilder implements ReconFilterBuilder {
-
-        private final String key;
-
-        private final String value;
-
-        SingleReconciliationFilterBuilder(final String key, final String value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        @Override
-        public Filter build() {
-            return FilterBuilder.equalTo(AttributeBuilder.build(key, value));
         }
     }
 }

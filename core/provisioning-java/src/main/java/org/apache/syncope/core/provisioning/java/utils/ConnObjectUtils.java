@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.utils;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +60,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Component
 public class ConnObjectUtils {
@@ -95,7 +97,7 @@ public class ConnObjectUtils {
      * @return password value
      */
     public static String getPassword(final Object pwd) {
-        final StringBuilder result = new StringBuilder();
+        StringBuilder result = new StringBuilder();
 
         if (pwd instanceof GuardedString) {
             result.append(SecurityUtil.decrypt((GuardedString) pwd));
@@ -113,27 +115,31 @@ public class ConnObjectUtils {
     /**
      * Builds {@link ConnObjectTO} out of a collection of {@link Attribute} instances.
      *
+     * @param fiql FIQL expression to uniquely identify the given Connector Object
      * @param attrs attributes
      * @return transfer object
      */
-    public static ConnObjectTO getConnObjectTO(final Set<Attribute> attrs) {
-        final ConnObjectTO connObjectTO = new ConnObjectTO();
+    public static ConnObjectTO getConnObjectTO(final String fiql, final Set<Attribute> attrs) {
+        ConnObjectTO connObjectTO = new ConnObjectTO();
+        connObjectTO.setFiql(fiql);
 
-        if (attrs != null) {
+        if (!CollectionUtils.isEmpty(attrs)) {
             connObjectTO.getAttrs().addAll(attrs.stream().map(attr -> {
                 AttrTO attrTO = new AttrTO();
                 attrTO.setSchema(attr.getName());
-                if (attr.getValue() != null) {
-                    attr.getValue().stream().filter(value -> value != null).forEachOrdered(value -> {
+
+                if (!CollectionUtils.isEmpty(attr.getValue())) {
+                    attr.getValue().stream().filter(Objects::nonNull).forEach(value -> {
                         if (value instanceof GuardedString || value instanceof GuardedByteArray) {
                             attrTO.getValues().add(getPassword(value));
                         } else if (value instanceof byte[]) {
                             attrTO.getValues().add(Base64.getEncoder().encodeToString((byte[]) value));
-                        } else if (value != null) {
+                        } else {
                             attrTO.getValues().add(value.toString());
                         }
                     });
                 }
+
                 return attrTO;
             }).collect(Collectors.toList()));
         }

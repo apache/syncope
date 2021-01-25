@@ -117,7 +117,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
 
                     if (nullPriorityAsync) {
                         reporter.onSuccessOrNonPriorityResourceFailures(
-                                taskInfo, ExecStatus.CREATED, null, null, null);
+                                taskInfo, ExecStatus.CREATED, null, null, null, null);
                     }
                 } catch (Exception e) {
                     LOG.error("While submitting task for async execution", taskInfo, e);

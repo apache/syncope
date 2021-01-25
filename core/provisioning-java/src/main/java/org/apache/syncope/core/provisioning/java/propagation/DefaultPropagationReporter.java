@@ -50,6 +50,7 @@ public class DefaultPropagationReporter implements PropagationReporter {
             final PropagationTaskInfo taskInfo,
             final ExecStatus executionStatus,
             final String failureReason,
+            final String fiql,
             final ConnectorObject beforeObj,
             final ConnectorObject afterObj) {
 
@@ -59,11 +60,11 @@ public class DefaultPropagationReporter implements PropagationReporter {
         status.setFailureReason(failureReason);
 
         if (beforeObj != null) {
-            status.setBeforeObj(ConnObjectUtils.getConnObjectTO(beforeObj.getAttributes()));
+            status.setBeforeObj(ConnObjectUtils.getConnObjectTO(fiql, beforeObj.getAttributes()));
         }
 
         if (afterObj != null) {
-            status.setAfterObj(ConnObjectUtils.getConnObjectTO(afterObj.getAttributes()));
+            status.setAfterObj(ConnObjectUtils.getConnObjectTO(fiql, afterObj.getAttributes()));
         }
 
         add(status);

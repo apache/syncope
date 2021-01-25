@@ -164,7 +164,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
             SyncopeConsoleSession.get().error(getString("tooManySelections"));
             onError(target);
         } else {
-            final Map<String, List<String>> prefs = new HashMap<>();
+            Map<String, List<String>> prefs = new HashMap<>();
 
             prefs.put(DisplayAttributesModalPanel.getPrefDetailView(type), selectedDetails);
             prefs.put(DisplayAttributesModalPanel.getPrefPlainAttributeView(type), selectedPlainSchemas);

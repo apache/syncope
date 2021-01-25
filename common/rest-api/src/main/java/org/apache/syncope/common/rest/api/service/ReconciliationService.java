@@ -69,6 +69,7 @@ public interface ReconciliationService extends JAXRSService {
      *
      * @param query query conditions
      * @param pushTask push specification
+     * @return push report
      */
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
@@ -76,13 +77,14 @@ public interface ReconciliationService extends JAXRSService {
     @Path("push")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void push(@BeanParam ReconQuery query, @NotNull PushTaskTO pushTask);
+    List<ProvisioningReport> push(@BeanParam ReconQuery query, @NotNull PushTaskTO pushTask);
 
     /**
      * Pulls the matching user, group, any object or linked account from the External Resource into Syncope.
      *
      * @param query query conditions
      * @param pullTask pull specification
+     * @return pull report
      */
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
@@ -90,7 +92,7 @@ public interface ReconciliationService extends JAXRSService {
     @Path("pull")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void pull(@BeanParam ReconQuery query, @NotNull PullTaskTO pullTask);
+    List<ProvisioningReport> pull(@BeanParam ReconQuery query, @NotNull PullTaskTO pullTask);
 
     /**
      * Export a list of any objects matching the given query as CSV according to the provided specification.

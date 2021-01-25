@@ -28,9 +28,11 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
 import org.apache.syncope.client.console.panels.search.AbstractSearchPanel;
 import org.apache.syncope.client.console.panels.search.ConnObjectSearchPanel;
@@ -70,10 +72,14 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ConnObjectListViewPanel extends Panel {
 
     private static final long serialVersionUID = 4986172040062752781L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConnObjectListViewPanel.class);
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
@@ -144,9 +150,9 @@ public abstract class ConnObjectListViewPanel extends Panel {
         accordion.setOutputMarkupId(true);
         add(accordion.setEnabled(true).setVisible(true));
 
-        final List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, null, null);
+        List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, null, null);
 
-        final ListViewPanel.Builder<ConnObjectTO> builder = new ListViewPanel.Builder<ConnObjectTO>(
+        ListViewPanel.Builder<ConnObjectTO> builder = new ListViewPanel.Builder<ConnObjectTO>(
                 ConnObjectTO.class, pageRef) {
 
             private static final long serialVersionUID = -8251750413385566738L;
@@ -154,13 +160,21 @@ public abstract class ConnObjectListViewPanel extends Panel {
             @Override
             protected Component getValueComponent(final String key, final ConnObjectTO bean) {
                 if (StringUtils.equals(key, STATUS)) {
-                    ReconStatus status = reconRestClient.status(new ReconQuery.Builder(anyType, resource.getKey()).
-                            connObjectKeyValue(bean.getAttr(ConnIdSpecialName.UID).get().getValues().get(0)).build());
+                    ReconStatus status;
+                    try {
+                        status = reconRestClient.status(
+                                new ReconQuery.Builder(anyType, resource.getKey()).fiql(bean.getFiql()).build());
+                    } catch (Exception e) {
+                        LOG.error("While requesting for reconciliation status of {} {} with FIQL '{}'",
+                                anyType, resource.getKey(), bean.getFiql(), e);
+
+                        status = new ReconStatus();
+                    }
 
                     return status.getOnSyncope() == null
                             ? StatusUtils.getLabel("field", "notfound icon", "Not found", Constants.NOT_FOUND_ICON)
                             : new Label("field", Model.of()).add(new PopoverBehavior(
-                                    Model.<String>of(),
+                                    Model.of(),
                                     Model.of(status.getAnyKey()),
                                     new PopoverConfig().
                                             withTitle(status.getMatchType() == MatchType.LINKED_ACCOUNT
@@ -217,20 +231,25 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ConnObjectTO modelObject) {
-                    String connObjectKeyValue = modelObject.getAttr(ConnIdSpecialName.UID).get().getValues().get(0);
-                    ReconStatus status = reconRestClient.status(
-                            new ReconQuery.Builder(anyType, resource.getKey())
-                                    .connObjectKeyValue(connObjectKeyValue)
-                                    .build());
+                    try {
+                        ReconStatus status = reconRestClient.status(
+                                new ReconQuery.Builder(anyType, resource.getKey()).fiql(modelObject.getFiql()).build());
 
-                    pullConnObject(
-                            connObjectKeyValue,
-                            target,
-                            resource.getKey(),
-                            anyType,
-                            status.getRealm(),
-                            StringUtils.isNotBlank(status.getAnyKey()),
-                            pageRef);
+                        pullConnObject(
+                                modelObject.getFiql(),
+                                target,
+                                resource.getKey(),
+                                anyType,
+                                status.getRealm(),
+                                StringUtils.isNotBlank(status.getAnyKey()),
+                                pageRef);
+                    } catch (Exception e) {
+                        LOG.error("While puling single object {} {} with FIQL '{}'",
+                                anyType, resource.getKey(), modelObject.getFiql(), e);
+
+                        SyncopeConsoleSession.get().onException(e);
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
                 }
             }, ActionLink.ActionType.RECONCILIATION_PULL, StandardEntitlement.TASK_EXECUTE);
 
@@ -276,7 +295,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
     protected abstract void viewConnObject(ConnObjectTO connObjectTO, AjaxRequestTarget target);
 
     protected abstract void pullConnObject(
-            String connObjectTO,
+            String fiql,
             AjaxRequestTarget target,
             String resource,
             String anyType,

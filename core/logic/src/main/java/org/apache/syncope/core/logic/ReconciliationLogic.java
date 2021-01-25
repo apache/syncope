@@ -23,9 +23,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -41,7 +43,6 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
-import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -68,6 +69,10 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.provisioning.api.pushpull.ConstantReconFilterBuilder;
+import org.apache.syncope.core.provisioning.api.pushpull.KeyValueReconFilterBuilder;
+import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.java.pushpull.stream.CSVStreamConnector;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePushExecutor;
@@ -82,11 +87,17 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPushExecutor;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.SearchResult;
+import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.identityconnectors.framework.common.objects.SyncToken;
+import org.identityconnectors.framework.common.objects.filter.Filter;
+import org.identityconnectors.framework.spi.SearchResultsHandler;
 
 @Component
 public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
@@ -167,7 +178,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final String connObjectKeyValue,
             final Set<Attribute> attrs) {
 
-        ConnObjectTO connObjectTO = ConnObjectUtils.getConnObjectTO(attrs);
+        ConnObjectTO connObjectTO = ConnObjectUtils.getConnObjectTO(null, attrs);
         connObjectTO.getAttrs().add(new AttrTO.Builder().
                 schema(connObjectKeyItem.getExtAttrName()).value(connObjectKeyValue).build());
         connObjectTO.getAttrs().add(new AttrTO.Builder().
@@ -208,71 +219,111 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_GET_CONNOBJECT + "')")
-    public ReconStatus status(final ReconQuery query) {
-        Provision provision = getProvision(query.getAnyTypeKey(), query.getResourceKey());
+    public ReconStatus status(final String anyTypeKey, final String resourceKey, final String anyKey) {
+        Provision provision = getProvision(anyTypeKey, resourceKey);
 
         MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
                 orElseThrow(() -> new NotFoundException(
                 "ConnObjectKey for " + provision.getAnyType().getKey()
                 + " on resource '" + provision.getResource().getKey() + "'"));
 
+        Any<?> any = getAny(provision, anyKey);
+
         ReconStatus status = new ReconStatus();
+        status.setMatchType(MatchType.ANY);
+        status.setAnyTypeKind(any.getType().getKind());
+        status.setAnyKey(any.getKey());
+        status.setRealm(any.getRealm().getFullPath());
+        status.setOnSyncope(getOnSyncope(any, connObjectKeyItem, provision));
 
-        if (query.getConnObjectKeyValue() != null) {
-            inboundMatcher.matchByConnObjectKeyValue(connObjectKeyItem, query.getConnObjectKeyValue(), provision).
-                    stream().findFirst().ifPresent(match -> {
-                        if (match.getAny() != null) {
-                            status.setMatchType(MatchType.ANY);
-                            status.setAnyTypeKind(match.getAny().getType().getKind());
-                            status.setAnyKey(match.getAny().getKey());
-                            status.setRealm(match.getAny().getRealm().getFullPath());
-                            status.setOnSyncope(getOnSyncope(match.getAny(), connObjectKeyItem, provision));
-                        } else if (match.getLinkedAccount() != null) {
-                            status.setMatchType(MatchType.LINKED_ACCOUNT);
-                            status.setAnyTypeKind(AnyTypeKind.USER);
-                            status.setAnyKey(match.getLinkedAccount().getOwner().getKey());
-                            status.setRealm(match.getLinkedAccount().getOwner().getRealm().getFullPath());
-                            status.setOnSyncope(getOnSyncope(match.getLinkedAccount(), connObjectKeyItem, provision));
-                        }
-                    });
+        List<ConnectorObject> connObjs = outboundMatcher.match(
+                connFactory.getConnector(provision.getResource()), any, provision, Optional.empty());
+        if (!connObjs.isEmpty()) {
+            status.setOnResource(ConnObjectUtils.getConnObjectTO(
+                    outboundMatcher.getFIQL(connObjs.get(0), provision), connObjs.get(0).getAttributes()));
 
-            Optional<String[]> moreAttrsToGet = CollectionUtils.isEmpty(query.getMoreAttrsToGet())
-                    ? Optional.empty()
-                    : Optional.of(query.getMoreAttrsToGet().toArray(new String[0]));
-
-            outboundMatcher.matchByConnObjectKeyValue(
-                    connFactory.getConnector(provision.getResource()),
-                    connObjectKeyItem,
-                    query.getConnObjectKeyValue(),
-                    provision,
-                    moreAttrsToGet,
-                    Optional.empty()).
-                    ifPresent(connObj -> {
-                        status.setOnResource(ConnObjectUtils.getConnObjectTO(connObj.getAttributes()));
-
-                        if (status.getMatchType() == MatchType.ANY && StringUtils.isNotBlank(status.getAnyKey())) {
-                            virAttrHandler.setValues(getAny(provision, status.getAnyKey()), connObj);
-                        }
-                    });
+            if (connObjs.size() > 1) {
+                LOG.warn("Expected single match, found {}", connObjs);
+            } else {
+                virAttrHandler.setValues(any, connObjs.get(0));
+            }
         }
-        if (query.getAnyKey() != null) {
-            Any<?> any = getAny(provision, query.getAnyKey());
-            status.setMatchType(MatchType.ANY);
-            status.setAnyTypeKind(any.getType().getKind());
-            status.setAnyKey(any.getKey());
-            status.setRealm(any.getRealm().getFullPath());
-            status.setOnSyncope(getOnSyncope(any, connObjectKeyItem, provision));
 
-            List<ConnectorObject> connObjs = outboundMatcher.match(
-                    connFactory.getConnector(provision.getResource()), any, provision, Optional.empty());
-            if (!connObjs.isEmpty()) {
-                status.setOnResource(ConnObjectUtils.getConnObjectTO(connObjs.get(0).getAttributes()));
+        return status;
+    }
 
-                if (connObjs.size() > 1) {
-                    LOG.warn("Expected single match, found {}", connObjs);
-                } else {
-                    virAttrHandler.setValues(any, connObjs.get(0));
+    private SyncDeltaBuilder syncDeltaBuilder(
+            final Provision provision,
+            final Filter filter,
+            final Set<String> moreAttrsToGet) {
+
+        Stream<MappingItem> mapItems = Stream.concat(
+                provision.getMapping().getItems().stream(),
+                virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
+        OperationOptions options = MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(new String[0]));
+
+        SyncDeltaBuilder syncDeltaBuilder = new SyncDeltaBuilder().
+                setToken(new SyncToken("")).
+                setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
+                setObjectClass(provision.getObjectClass());
+        connFactory.getConnector(provision.getResource()).
+                search(provision.getObjectClass(), filter, new SearchResultsHandler() {
+
+                    @Override
+                    public boolean handle(final ConnectorObject connObj) {
+                        syncDeltaBuilder.setObject(connObj);
+                        return false;
+                    }
+
+                    @Override
+                    public void handleResult(final SearchResult sr) {
+                        // do nothing
+                    }
+                }, 1, null, Collections.emptyList(), options);
+
+        return syncDeltaBuilder;
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_GET_CONNOBJECT + "')")
+    public ReconStatus status(
+            final String anyTypeKey,
+            final String resourceKey,
+            final Filter filter,
+            final Set<String> moreAttrsToGet) {
+
+        Provision provision = getProvision(anyTypeKey, resourceKey);
+
+        SyncDeltaBuilder syncDeltaBuilder = syncDeltaBuilder(provision, filter, moreAttrsToGet);
+
+        ReconStatus status = new ReconStatus();
+        if (syncDeltaBuilder.getObject() != null) {
+            MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
+                    orElseThrow(() -> new NotFoundException(
+                    "ConnObjectKey for " + provision.getAnyType().getKey()
+                    + " on resource '" + provision.getResource().getKey() + "'"));
+
+            inboundMatcher.match(syncDeltaBuilder.build(), provision).stream().findFirst().ifPresent(match -> {
+                if (match.getAny() != null) {
+                    status.setMatchType(MatchType.ANY);
+                    status.setAnyTypeKind(match.getAny().getType().getKind());
+                    status.setAnyKey(match.getAny().getKey());
+                    status.setRealm(match.getAny().getRealm().getFullPath());
+                    status.setOnSyncope(getOnSyncope(match.getAny(), connObjectKeyItem, provision));
+                } else if (match.getLinkedAccount() != null) {
+                    status.setMatchType(MatchType.LINKED_ACCOUNT);
+                    status.setAnyTypeKind(AnyTypeKind.USER);
+                    status.setAnyKey(match.getLinkedAccount().getOwner().getKey());
+                    status.setRealm(match.getLinkedAccount().getOwner().getRealm().getFullPath());
+                    status.setOnSyncope(getOnSyncope(match.getLinkedAccount(), connObjectKeyItem, provision));
                 }
+            });
+
+            status.setOnResource(ConnObjectUtils.getConnObjectTO(
+                    outboundMatcher.getFIQL(syncDeltaBuilder.getObject(), provision),
+                    syncDeltaBuilder.getObject().getAttributes()));
+
+            if (status.getMatchType() == MatchType.ANY && StringUtils.isNotBlank(status.getAnyKey())) {
+                virAttrHandler.setValues(getAny(provision, status.getAnyKey()), syncDeltaBuilder.getObject());
             }
         }
 
@@ -280,102 +331,22 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
-    public void push(final ReconQuery query, final PushTaskTO pushTask) {
-        Provision provision = getProvision(query.getAnyTypeKey(), query.getResourceKey());
+    public List<ProvisioningReport> push(
+            final String anyTypeKey,
+            final String resourceKey,
+            final String anyKey,
+            final PushTaskTO pushTask) {
 
-        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
-                orElseThrow(() -> new NotFoundException(
-                "ConnObjectKey for " + provision.getAnyType().getKey()
-                + " on resource '" + provision.getResource().getKey() + "'"));
+        Provision provision = getProvision(anyTypeKey, resourceKey);
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
         List<ProvisioningReport> results = new ArrayList<>();
-
-        if (query.getConnObjectKeyValue() != null) {
-            inboundMatcher.matchByConnObjectKeyValue(connObjectKeyItem, query.getConnObjectKeyValue(), provision).
-                    stream().findFirst().ifPresent(match -> {
-                        try {
-                            if (match.getMatchTarget() == MatchType.ANY) {
-                                results.addAll(singlePushExecutor.push(
-                                        provision,
-                                        connFactory.getConnector(provision.getResource()),
-                                        match.getAny(),
-                                        pushTask));
-                                if (!results.isEmpty()
-                                        && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
-
-                                    sce.getElements().add(results.get(0).getMessage());
-                                }
-                            } else {
-                                ProvisioningReport result = singlePushExecutor.push(
-                                        provision,
-                                        connFactory.getConnector(provision.getResource()),
-                                        match.getLinkedAccount(),
-                                        pushTask);
-                                if (result.getStatus() == ProvisioningReport.Status.FAILURE) {
-                                    sce.getElements().add(result.getMessage());
-                                } else {
-                                    results.add(result);
-                                }
-                            }
-                        } catch (JobExecutionException e) {
-                            sce.getElements().add(e.getMessage());
-                        }
-                    });
-        }
-
-        if (sce.isEmpty() && results.isEmpty() && query.getAnyKey() != null) {
-            try {
-                results.addAll(singlePushExecutor.push(
-                        provision,
-                        connFactory.getConnector(provision.getResource()),
-                        getAny(provision, query.getAnyKey()),
-                        pushTask));
-                if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
-                    sce.getElements().add(results.get(0).getMessage());
-                }
-            } catch (JobExecutionException e) {
-                sce.getElements().add(e.getMessage());
-            }
-        }
-
-        if (!sce.isEmpty()) {
-            throw sce;
-        }
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
-    public void pull(final ReconQuery query, final PullTaskTO pullTask) {
-        Provision provision = getProvision(query.getAnyTypeKey(), query.getResourceKey());
-
-        Optional<String> connObjectKeyValue = Optional.ofNullable(query.getConnObjectKeyValue());
-        if (query.getAnyKey() != null) {
-            Any<?> any = getAny(provision, query.getAnyKey());
-            connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, provision);
-        }
-        if (!connObjectKeyValue.isPresent()) {
-            throw new NotFoundException(
-                    "ConnObjectKey for " + provision.getAnyType().getKey()
-                    + " on resource '" + provision.getResource().getKey() + "'");
-        }
-
-        if (pullTask.getDestinationRealm() == null || realmDAO.findByFullPath(pullTask.getDestinationRealm()) == null) {
-            throw new NotFoundException("Realm " + pullTask.getDestinationRealm());
-        }
-
-        if (!provision.getMapping().getConnObjectKeyItem().isPresent()) {
-            throw new NotFoundException(
-                    "ConnObjectKey cannot be determines for mapping " + provision.getMapping().getKey());
-        }
-
-        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
         try {
-            List<ProvisioningReport> results = singlePullExecutor.pull(
+            results.addAll(singlePushExecutor.push(
                     provision,
                     connFactory.getConnector(provision.getResource()),
-                    provision.getMapping().getConnObjectKeyItem().get().getExtAttrName(),
-                    connObjectKeyValue.get(),
-                    pullTask);
+                    getAny(provision, anyKey),
+                    pushTask));
             if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
                 sce.getElements().add(results.get(0).getMessage());
             }
@@ -386,6 +357,135 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         if (!sce.isEmpty()) {
             throw sce;
         }
+
+        return results;
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    public List<ProvisioningReport> push(
+            final String anyTypeKey,
+            final String resourceKey,
+            final Filter filter,
+            final Set<String> moreAttrsToGet,
+            final PushTaskTO pushTask) {
+
+        Provision provision = getProvision(anyTypeKey, resourceKey);
+
+        SyncDeltaBuilder syncDeltaBuilder = syncDeltaBuilder(provision, filter, moreAttrsToGet);
+
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
+        List<ProvisioningReport> results = new ArrayList<>();
+
+        if (syncDeltaBuilder.getObject() != null) {
+            inboundMatcher.match(syncDeltaBuilder.build(), provision).stream().findFirst().ifPresent(match -> {
+                try {
+                    if (match.getMatchTarget() == MatchType.ANY) {
+                        results.addAll(singlePushExecutor.push(
+                                provision,
+                                connFactory.getConnector(provision.getResource()),
+                                match.getAny(),
+                                pushTask));
+                        if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
+                            sce.getElements().add(results.get(0).getMessage());
+                        }
+                    } else {
+                        ProvisioningReport result = singlePushExecutor.push(
+                                provision,
+                                connFactory.getConnector(provision.getResource()),
+                                match.getLinkedAccount(),
+                                pushTask);
+                        if (result.getStatus() == ProvisioningReport.Status.FAILURE) {
+                            sce.getElements().add(result.getMessage());
+                        } else {
+                            results.add(result);
+                        }
+                    }
+                } catch (JobExecutionException e) {
+                    sce.getElements().add(e.getMessage());
+                }
+            });
+        }
+
+        if (!sce.isEmpty()) {
+            throw sce;
+        }
+
+        return results;
+    }
+
+    private List<ProvisioningReport> pull(
+            final Provision provision,
+            final ReconFilterBuilder reconFilterBuilder,
+            final PullTaskTO pullTask) {
+
+        if (pullTask.getDestinationRealm() == null || realmDAO.findByFullPath(pullTask.getDestinationRealm()) == null) {
+            throw new NotFoundException("Realm " + pullTask.getDestinationRealm());
+        }
+
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
+        List<ProvisioningReport> results = new ArrayList<>();
+        try {
+            results.addAll(singlePullExecutor.pull(
+                    provision,
+                    connFactory.getConnector(provision.getResource()),
+                    reconFilterBuilder,
+                    pullTask));
+            if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
+                sce.getElements().add(results.get(0).getMessage());
+            }
+        } catch (JobExecutionException e) {
+            sce.getElements().add(e.getMessage());
+        }
+
+        if (!sce.isEmpty()) {
+            throw sce;
+        }
+
+        return results;
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    public List<ProvisioningReport> pull(
+            final String anyTypeKey,
+            final String resourceKey,
+            final String anyKey,
+            final PullTaskTO pullTask) {
+
+        Provision provision = getProvision(anyTypeKey, resourceKey);
+
+        Any<?> any = getAny(provision, anyKey);
+
+        if (!provision.getMapping().getConnObjectKeyItem().isPresent()) {
+            throw new NotFoundException(
+                    "ConnObjectKey cannot be determined for mapping " + provision.getMapping().getKey());
+        }
+
+        String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, provision).
+                orElseThrow(() -> new NotFoundException(
+                "ConnObjectKey for " + provision.getAnyType().getKey()
+                + " on resource '" + provision.getResource().getKey() + "'"));
+
+        return pull(
+                provision,
+                new KeyValueReconFilterBuilder(
+                        provision.getMapping().getConnObjectKeyItem().get().getExtAttrName(), connObjectKeyValue),
+                pullTask);
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    public List<ProvisioningReport> pull(
+            final String anyTypeKey,
+            final String resourceKey,
+            final Filter filter,
+            final Set<String> moreAttrsToGet,
+            final PullTaskTO pullTask) {
+
+        Provision provision = getProvision(anyTypeKey, resourceKey);
+
+        return pull(
+                provision,
+                new ConstantReconFilterBuilder(filter),
+                pullTask);
     }
 
     private CsvSchema.Builder csvSchema(final AbstractCSVSpec spec) {
