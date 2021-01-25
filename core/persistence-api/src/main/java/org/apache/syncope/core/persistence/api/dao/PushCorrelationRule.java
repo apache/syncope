@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.function.BiFunction;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 
 /**
@@ -29,15 +32,34 @@ import org.identityconnectors.framework.common.objects.filter.Filter;
 @FunctionalInterface
 public interface PushCorrelationRule {
 
+    /**
+     * Default FIQL builder using __UID__.
+     */
+    BiFunction<ConnectorObject, Provision, String> DEFAULT_FIQL_BUILDER =
+            (connectorObject, provision) -> Uid.NAME + "==" + connectorObject.getUid().getUidValue();
+
     default void setConf(PushCorrelationRuleConf conf) {
     }
 
     /**
-     * Return a search condition.
+     * Returns a filter to match the given any with a connector object on the external resource identified by
+     * the given provision.
      *
      * @param any user, group or any object
      * @param provision resource provision
-     * @return search condition.
+     * @return filter.
      */
     Filter getFilter(Any<?> any, Provision provision);
+
+    /**
+     * Returns a FIQL string to match the given connector object when searching into the external resource identified by
+     * the given provision.
+     *
+     * @param connectorObject connector object
+     * @param provision resource provision
+     * @return fiql
+     */
+    default String getFiql(ConnectorObject connectorObject, Provision provision) {
+        return DEFAULT_FIQL_BUILDER.apply(connectorObject, provision);
+    }
 }

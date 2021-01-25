@@ -449,9 +449,17 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 taskDAO.save(task);
             }
 
+            String fiql = provision == null
+                    ? null
+                    : afterObj != null
+                            ? outboundMatcher.getFIQL(afterObj, provision)
+                            : beforeObj != null
+                                    ? outboundMatcher.getFIQL(beforeObj, provision)
+                                    : null;
             reporter.onSuccessOrNonPriorityResourceFailures(taskInfo,
                     ExecStatus.valueOf(execution.getStatus()),
                     failureReason,
+                    fiql,
                     beforeObj,
                     afterObj);
         }
@@ -531,6 +539,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 taskInfo,
                 ExecStatus.valueOf(execution.getStatus()),
                 rejectReason,
+                null,
                 null,
                 null);
 

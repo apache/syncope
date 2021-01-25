@@ -33,7 +33,17 @@ public class ConnObjectTO implements BaseBean {
 
     private static final long serialVersionUID = 5139554911265442497L;
 
+    private String fiql;
+
     private final Set<Attr> attrs = new LinkedHashSet<>();
+
+    public String getFiql() {
+        return fiql;
+    }
+
+    public void setFiql(final String fiql) {
+        this.fiql = fiql;
+    }
 
     @JacksonXmlElementWrapper(localName = "attrs")
     @JacksonXmlProperty(localName = "attr")
@@ -49,6 +59,7 @@ public class ConnObjectTO implements BaseBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
+                append(fiql).
                 append(attrs).
                 build();
     }
@@ -66,6 +77,7 @@ public class ConnObjectTO implements BaseBean {
         }
         final ConnObjectTO other = (ConnObjectTO) obj;
         return new EqualsBuilder().
+                append(fiql, other.fiql).
                 append(attrs, other.attrs).
                 build();
     }

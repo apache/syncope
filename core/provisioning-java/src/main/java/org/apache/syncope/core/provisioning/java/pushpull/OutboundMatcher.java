@@ -93,6 +93,12 @@ public class OutboundMatcher {
         return rule;
     }
 
+    public String getFIQL(final ConnectorObject connectorObject, final Provision provision) {
+        return rule(provision).
+                map(rule -> rule.getFiql(connectorObject, provision)).
+                orElseGet(() -> PushCorrelationRule.DEFAULT_FIQL_BUILDER.apply(connectorObject, provision));
+    }
+
     public List<ConnectorObject> match(
             final PropagationTask task,
             final Connector connector,

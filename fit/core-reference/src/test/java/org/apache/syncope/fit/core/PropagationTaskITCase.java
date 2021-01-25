@@ -669,7 +669,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             GroupCR groupCR = new GroupCR();
             groupCR.setName("SYNCOPEGROUP1605-" + getUUIDString());
-            groupCR.setRealm("/");
+            groupCR.setRealm(SyncopeConstants.ROOT_REALM);
             groupCR.getResources().add(ldap.getKey());
             groupCR.getPlainAttrs().add(new Attr.Builder("originalName").value(originalName).build());
 
@@ -678,8 +678,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             // 3. check attributes prepared for propagation
             PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
-                    resource(groupTO.getResources().iterator().next()).
-                    anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).build());
+                    resource(ldap.getKey()).anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).build());
             assertEquals(1, tasks.getSize());
             assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
             assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
@@ -694,8 +693,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             groupTO = updateGroup(groupUR).getEntity();
 
             tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
-                    resource(groupTO.getResources().iterator().next()).
-                    anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).orderBy("start DESC").build());
+                    resource(ldap.getKey()).anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).
+                    orderBy("start DESC").build());
             assertEquals(2, tasks.getSize());
             assertEquals(ResourceOperation.UPDATE, tasks.getResult().get(0).getOperation());
             assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());

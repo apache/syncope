@@ -19,8 +19,8 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.HashMap;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.ws.rs.HttpMethod;
@@ -43,6 +43,7 @@ import org.apache.syncope.common.lib.request.LinkedAccountUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
@@ -78,7 +79,7 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
 
     @Override
     protected WizardModel buildModelSteps(final UserTO modelObject, final WizardModel wizardModel) {
-        this.model = new MergeLinkedAccountsWizardModel(modelObject);
+        model = new MergeLinkedAccountsWizardModel(modelObject);
         wizardModel.add(new MergeLinkedAccountsSearchPanel(model, getPageReference()));
         wizardModel.add(new MergeLinkedAccountsResourcesPanel(model, getPageReference()));
         wizardModel.add(new MergeLinkedAccountsReviewPanel(model, getPageReference()));
@@ -91,69 +92,76 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
             ((AjaxWizard.NewItemCancelEvent<?>) event.getPayload()).getTarget().ifPresent(modal::close);
         }
         if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-            Optional<AjaxRequestTarget> targetResult =
+            Optional<AjaxRequestTarget> target =
                     ((AjaxWizard.NewItemFinishEvent<?>) event.getPayload()).getTarget();
             try {
                 mergeAccounts();
-                this.parentPanel.info(this.parentPanel.getString(Constants.OPERATION_SUCCEEDED));
-                targetResult.ifPresent(target -> {
-                    ((BasePage) this.parentPanel.getPage()).getNotificationPanel().refresh(target);
-                    parentPanel.updateResultTable(target);
-                    modal.close(target);
+
+                parentPanel.info(parentPanel.getString(Constants.OPERATION_SUCCEEDED));
+                target.ifPresent(t -> {
+                    ((BasePage) parentPanel.getPage()).getNotificationPanel().refresh(t);
+                    parentPanel.updateResultTable(t);
+                    modal.close(t);
                 });
             } catch (Exception e) {
-                this.parentPanel.error(this.parentPanel.getString(Constants.ERROR) + ": " + e.getMessage());
-                targetResult.ifPresent(target -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target));
+                parentPanel.error(parentPanel.getString(Constants.ERROR) + ": " + e.getMessage());
+                target.ifPresent(t -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(t));
             }
         }
     }
 
     private void mergeAccounts() throws Exception {
-        ResourceRestClient resourceRestClient = new ResourceRestClient();
-
-        UserTO mergingUserTO = this.model.getMergingUser();
+        UserTO mergingUserTO = model.getMergingUser();
 
         UserUR userUR = new UserUR();
-        userUR.setKey(this.model.getBaseUser().getUsername());
+        userUR.setKey(model.getBaseUser().getUsername());
 
         // Move linked accounts into the target/base user as linked accounts
         mergingUserTO.getLinkedAccounts().forEach(acct -> {
             LinkedAccountTO linkedAccount =
-                    new LinkedAccountTO.Builder(acct.getResource(), acct.getConnObjectKeyValue())
-                            .password(acct.getPassword())
-                            .suspended(acct.isSuspended())
-                            .username(acct.getUsername())
-                            .build();
+                    new LinkedAccountTO.Builder(acct.getResource(), acct.getConnObjectKeyValue()).
+                            password(acct.getPassword()).
+                            suspended(acct.isSuspended()).
+                            username(acct.getUsername()).
+                            build();
             linkedAccount.getPlainAttrs().addAll(acct.getPlainAttrs());
             linkedAccount.getPrivileges().addAll(acct.getPrivileges());
-            userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(linkedAccount).build());
+            LinkedAccountUR patch = new LinkedAccountUR.Builder().
+                    linkedAccountTO(linkedAccount).
+                    operation(PatchOperation.ADD_REPLACE).
+                    build();
+            userUR.getLinkedAccounts().add(patch);
         });
 
         // Move merging user's resources into the target/base user as a linked account
         mergingUserTO.getResources().forEach(resource -> {
-            String connObjectKeyValue = resourceRestClient.getConnObjectKeyValue(resource,
+            String connObjectKeyValue = ResourceRestClient.getConnObjectKeyValue(resource,
                     mergingUserTO.getType(), mergingUserTO.getKey());
-            LinkedAccountTO linkedAccount =
-                    new LinkedAccountTO.Builder(resource, connObjectKeyValue)
-                            .build();
+            LinkedAccountTO linkedAccount = new LinkedAccountTO.Builder(resource, connObjectKeyValue).build();
             linkedAccount.getPlainAttrs().addAll(mergingUserTO.getPlainAttrs());
             linkedAccount.getPrivileges().addAll(mergingUserTO.getPrivileges());
-            userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(linkedAccount).build());
+            LinkedAccountUR patch = new LinkedAccountUR.Builder().
+                    linkedAccountTO(linkedAccount).
+                    operation(PatchOperation.ADD_REPLACE).
+                    build();
+            userUR.getLinkedAccounts().add(patch);
         });
 
         // Move merging user into target/base user as a linked account
-        String connObjectKeyValue = resourceRestClient.getConnObjectKeyValue(
-                this.model.getResource().getKey(),
+        String connObjectKeyValue = ResourceRestClient.getConnObjectKeyValue(
+                model.getResource().getKey(),
                 mergingUserTO.getType(), mergingUserTO.getKey());
-        LinkedAccountTO linkedAccount =
-                new LinkedAccountTO.Builder(this.model.getResource().getKey(), connObjectKeyValue)
-                        .password(mergingUserTO.getPassword())
-                        .suspended(mergingUserTO.isSuspended())
-                        .username(mergingUserTO.getUsername())
-                        .build();
+        LinkedAccountTO linkedAccount = new LinkedAccountTO.Builder(model.getResource().getKey(), connObjectKeyValue).
+                password(mergingUserTO.getPassword()).
+                suspended(mergingUserTO.isSuspended()).
+                username(mergingUserTO.getUsername()).
+                build();
         linkedAccount.getPlainAttrs().addAll(mergingUserTO.getPlainAttrs());
         linkedAccount.getPrivileges().addAll(mergingUserTO.getPrivileges());
-        userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(linkedAccount).build());
+        LinkedAccountUR patch = new LinkedAccountUR.Builder().linkedAccountTO(linkedAccount).
+                operation(PatchOperation.ADD_REPLACE).
+                build();
+        userUR.getLinkedAccounts().add(patch);
 
         BatchRequest batchRequest = SyncopeConsoleSession.get().batch();
 
@@ -168,7 +176,7 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
         String updateUserPayload = MAPPER.writeValueAsString(userUR);
         BatchRequestItem updateUser = new BatchRequestItem();
         updateUser.setMethod(HttpMethod.PATCH);
-        updateUser.setRequestURI("/users/" + this.model.getBaseUser().getUsername());
+        updateUser.setRequestURI("/users/" + model.getBaseUser().getUsername());
         updateUser.setHeaders(new HashMap<>());
         updateUser.getHeaders().put(RESTHeaders.PREFER, List.of(Preference.RETURN_NO_CONTENT.toString()));
         updateUser.getHeaders().put(HttpHeaders.ACCEPT, List.of(MediaType.APPLICATION_JSON));

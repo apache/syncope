@@ -19,17 +19,25 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.validation.ValidationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.jaxrs.ext.search.SearchBean;
+import org.apache.cxf.jaxrs.ext.search.SearchCondition;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
@@ -38,7 +46,9 @@ import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.core.logic.ReconciliationLogic;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.search.FilterVisitor;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -49,44 +59,91 @@ public class ReconciliationServiceImpl extends AbstractServiceImpl implements Re
     private ReconciliationLogic logic;
 
     private void validate(final ReconQuery reconQuery) {
-        if ((reconQuery.getAnyKey() == null && reconQuery.getConnObjectKeyValue() == null)
-                || (reconQuery.getAnyKey() != null && reconQuery.getConnObjectKeyValue() != null)) {
+        if ((reconQuery.getAnyKey() == null && reconQuery.getFiql() == null)
+                || (reconQuery.getAnyKey() != null && reconQuery.getFiql() != null)) {
 
-            throw new ValidationException("Either provide anyKey or connObjectKeyValue, not both");
+            throw new ValidationException("Either provide anyKey or fiql, not both");
         }
     }
 
-    @Override
-    public ReconStatus status(final ReconQuery reconQuery) {
-        validate(reconQuery);
-        return logic.status(reconQuery);
+    private Pair<Filter, Set<String>> buildFromFIQL(final ReconQuery reconQuery) {
+        Filter filter = null;
+        Set<String> moreAttrsToGet = new HashSet<>();
+        if (reconQuery.getMoreAttrsToGet() != null) {
+            moreAttrsToGet.addAll(reconQuery.getMoreAttrsToGet());
+        }
+        if (StringUtils.isNotBlank(reconQuery.getFiql())) {
+            try {
+                FilterVisitor visitor = new FilterVisitor();
+                SearchCondition<SearchBean> sc = searchContext.getCondition(reconQuery.getFiql(), SearchBean.class);
+                sc.accept(visitor);
+
+                filter = visitor.getQuery();
+                moreAttrsToGet.addAll(visitor.getAttrs());
+            } catch (Exception e) {
+                LOG.error("Invalid FIQL expression: {}", reconQuery.getFiql(), e);
+
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+                sce.getElements().add(reconQuery.getFiql());
+                sce.getElements().add(ExceptionUtils.getRootCauseMessage(e));
+                throw sce;
+            }
+        }
+
+        return Pair.of(filter, moreAttrsToGet);
     }
 
     @Override
-    public void push(final ReconQuery reconQuery, final PushTaskTO pushTask) {
-        validate(reconQuery);
-        logic.push(reconQuery, pushTask);
+    public ReconStatus status(final ReconQuery query) {
+        validate(query);
+
+        if (query.getAnyKey() != null) {
+            return logic.status(query.getAnyTypeKey(), query.getResourceKey(), query.getAnyKey());
+        }
+
+        Pair<Filter, Set<String>> fromFIQL = buildFromFIQL(query);
+        return logic.status(query.getAnyTypeKey(), query.getResourceKey(), fromFIQL.getLeft(), fromFIQL.getRight());
     }
 
     @Override
-    public void pull(final ReconQuery reconQuery, final PullTaskTO pullTask) {
-        validate(reconQuery);
-        logic.pull(reconQuery, pullTask);
+    public List<ProvisioningReport> push(final ReconQuery query, final PushTaskTO pushTask) {
+        validate(query);
+
+        if (query.getAnyKey() != null) {
+            return logic.push(query.getAnyTypeKey(), query.getResourceKey(), query.getAnyKey(), pushTask);
+        }
+
+        Pair<Filter, Set<String>> fromFIQL = buildFromFIQL(query);
+        return logic.push(
+                query.getAnyTypeKey(), query.getResourceKey(), fromFIQL.getLeft(), fromFIQL.getRight(), pushTask);
     }
 
     @Override
-    public Response push(final AnyQuery anyQuery, final CSVPushSpec spec) {
-        String realm = StringUtils.prependIfMissing(anyQuery.getRealm(), SyncopeConstants.ROOT_REALM);
+    public List<ProvisioningReport> pull(final ReconQuery query, final PullTaskTO pullTask) {
+        validate(query);
 
-        SearchCond searchCond = StringUtils.isBlank(anyQuery.getFiql())
+        if (query.getAnyKey() != null) {
+            return logic.pull(query.getAnyTypeKey(), query.getResourceKey(), query.getAnyKey(), pullTask);
+        }
+
+        Pair<Filter, Set<String>> fromFIQL = buildFromFIQL(query);
+        return logic.pull(
+                query.getAnyTypeKey(), query.getResourceKey(), fromFIQL.getLeft(), fromFIQL.getRight(), pullTask);
+    }
+
+    @Override
+    public Response push(final AnyQuery query, final CSVPushSpec spec) {
+        String realm = StringUtils.prependIfMissing(query.getRealm(), SyncopeConstants.ROOT_REALM);
+
+        SearchCond searchCond = StringUtils.isBlank(query.getFiql())
                 ? null
-                : getSearchCond(anyQuery.getFiql(), realm);
+                : getSearchCond(query.getFiql(), realm);
 
-        StreamingOutput sout = (os) -> logic.push(
+        StreamingOutput sout = os -> logic.push(
                 searchCond,
-                anyQuery.getPage(),
-                anyQuery.getSize(),
-                getOrderByClauses(anyQuery.getOrderBy()),
+                query.getPage(),
+                query.getSize(),
+                getOrderByClauses(query.getOrderBy()),
                 realm,
                 spec,
                 os);

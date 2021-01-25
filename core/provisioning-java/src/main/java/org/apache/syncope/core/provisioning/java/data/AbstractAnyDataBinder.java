@@ -18,6 +18,15 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
@@ -74,23 +83,17 @@ import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 abstract class AbstractAnyDataBinder {
 
@@ -144,6 +147,9 @@ abstract class AbstractAnyDataBinder {
     @Autowired
     protected IntAttrNameParser intAttrNameParser;
 
+    @Autowired
+    protected OutboundMatcher outboundMatcher;
+
     protected void setRealm(final Any<?> any, final AnyUR anyUR) {
         if (anyUR.getRealm() != null && StringUtils.isNotBlank(anyUR.getRealm().getValue())) {
             Realm newRealm = realmDAO.findByFullPath(anyUR.getRealm().getValue());
@@ -170,10 +176,20 @@ abstract class AbstractAnyDataBinder {
             Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
                     any, password, changePwd, true, provision);
 
-            ConnObjectTO connObjectTO = ConnObjectUtils.getConnObjectTO(prepared.getRight());
-            connObjectTO.getAttrs().add(
-                    new Attr.Builder(connObjectKeyItem.getExtAttrName()).value(prepared.getLeft()).build());
-            connObjectTO.getAttrs().add(new Attr.Builder(Uid.NAME).value(prepared.getLeft()).build());
+            ConnObjectTO connObjectTO;
+            if (StringUtils.isBlank(prepared.getLeft())) {
+                connObjectTO = ConnObjectUtils.getConnObjectTO(null, prepared.getRight());
+            } else {
+                ConnectorObject connectorObject = new ConnectorObjectBuilder().
+                        addAttributes(prepared.getRight()).
+                        addAttribute(new Uid(prepared.getLeft())).
+                        addAttribute(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), prepared.getLeft())).
+                        build();
+
+                connObjectTO = ConnObjectUtils.getConnObjectTO(
+                        outboundMatcher.getFIQL(connectorObject, provision),
+                        connectorObject.getAttributes());
+            }
 
             onResources.put(provision.getResource().getKey(), connObjectTO);
         }));

@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.ReconciliationRestClient;
+import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.slf4j.Logger;
@@ -42,8 +43,8 @@ public final class ReconStatusUtils implements Serializable {
 
         ReconStatus result = null;
         try {
-            result = ReconciliationRestClient.status(
-                    new ReconQuery.Builder(anyTypeKey, resource).connObjectKeyValue(connObjectKeyValue).build());
+            result = ReconciliationRestClient.status(new ReconQuery.Builder(anyTypeKey, resource).
+                    fiql(ConnIdSpecialName.UID + "==" + connObjectKeyValue).build());
         } catch (Exception e) {
             LOG.warn("Unexpected error for {} {} on {}", anyTypeKey, connObjectKeyValue, resource, e);
         }

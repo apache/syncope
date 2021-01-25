@@ -95,6 +95,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
             final boolean isOnSyncope,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef) {
+
         this(resource, taskTO, anyType, anyKey, null, isOnSyncope, multiLevelPanelRef, pageRef);
     }
 
@@ -103,7 +104,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
             final ProvisioningTaskTO taskTO,
             final String anyType,
             final String anyKey,
-            final String connObjectKeyValue,
+            final String fiql,
             final boolean isOnSyncope,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef) {
@@ -194,9 +195,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                ReconQuery reconQuery = new ReconQuery.Builder(anyType, resource).
-                        anyKey(anyKey).
-                        connObjectKeyValue(connObjectKeyValue).build();
+                ReconQuery reconQuery = new ReconQuery.Builder(anyType, resource).anyKey(anyKey).fiql(fiql).build();
                 try {
                     if (taskTO instanceof PushTaskTO) {
                         ReconciliationRestClient.push(reconQuery, (PushTaskTO) form.getModelObject());

@@ -67,29 +67,52 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     private static final long serialVersionUID = 747562246415852166L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleSession.class);
+    public enum Error {
+        SESSION_EXPIRED("error.session.expired", "Session expired: please login again"),
+        AUTHORIZATION("error.authorization", "Insufficient access rights when performing the requested operation"),
+        REST("error.rest", "There was an error while contacting the Core server");
 
-    private final SyncopeClientFactoryBean clientFactory;
+        private final String key;
 
-    private final SyncopeClient anonymousClient;
+        private final String fallback;
 
-    private final PlatformInfo platformInfo;
+        Error(final String key, final String fallback) {
+            this.key = key;
+            this.fallback = fallback;
+        }
 
-    private final SystemInfo systemInfo;
+        public String key() {
+            return key;
+        }
 
-    private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
+        public String fallback() {
+            return fallback;
+        }
+    }
 
-    private final ThreadPoolTaskExecutor executor;
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleSession.class);
 
-    private String domain;
+    protected final SyncopeClientFactoryBean clientFactory;
 
-    private SyncopeClient client;
+    protected final SyncopeClient anonymousClient;
 
-    private UserTO selfTO;
+    protected final PlatformInfo platformInfo;
 
-    private Map<String, Set<String>> auth;
+    protected final SystemInfo systemInfo;
 
-    private Roles roles;
+    protected final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
+
+    protected final ThreadPoolTaskExecutor executor;
+
+    protected String domain;
+
+    protected SyncopeClient client;
+
+    protected UserTO selfTO;
+
+    protected Map<String, Set<String>> auth;
+
+    protected Roles roles;
 
     public static SyncopeConsoleSession get() {
         return (SyncopeConsoleSession) Session.get();
@@ -114,6 +137,18 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         executor.initialize();
     }
 
+    protected String message(final SyncopeClientException sce) {
+        return sce.getType().name() + ": " + sce.getElements().stream().collect(Collectors.joining(", "));
+    }
+
+    /**
+     * Extract and localize (if translation available) the actual message from the given exception; then, report it
+     * via {@link Session#error(java.io.Serializable)}.
+     *
+     * @see org.apache.syncope.client.lib.RestClientExceptionMapper
+     *
+     * @param e raised exception
+     */
     @Override
     public void onException(final Exception e) {
         Throwable root = ExceptionUtils.getRootCause(e);
@@ -121,9 +156,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
         if (root instanceof SyncopeClientException) {
             SyncopeClientException sce = (SyncopeClientException) root;
-            if (!sce.isComposite()) {
-                message = sce.getElements().stream().collect(Collectors.joining(", "));
-            }
+            message = sce.isComposite()
+                    ? sce.asComposite().getExceptions().stream().
+                            map(c -> message(c)).collect(Collectors.joining("; "))
+                    : message(sce);
         } else if (root instanceof AccessControlException || root instanceof ForbiddenException) {
             Error error = StringUtils.containsIgnoreCase(message, "expired")
                     ? Error.SESSION_EXPIRED
@@ -256,7 +292,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     public List<String> getSearchableRealms() {
         Set<String> roots = auth.get(IdRepoEntitlement.REALM_LIST);
         return roots.isEmpty()
-                ? Collections.emptyList()
+                ? List.of()
                 : roots.stream().sorted().collect(Collectors.toList());
     }
 
@@ -328,7 +364,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T getCachedService(final Class<T> serviceClass) {
+    protected <T> T getCachedService(final Class<T> serviceClass) {
         T service;
         if (services.containsKey(serviceClass)) {
             service = (T) services.get(serviceClass);

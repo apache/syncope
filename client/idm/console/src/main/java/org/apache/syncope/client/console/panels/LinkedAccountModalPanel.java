@@ -39,6 +39,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.LinkedAccountWizardBuilder;
+import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
@@ -272,7 +273,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                                 new PushTaskTO(),
                                 model.getObject().getType(),
                                 null,
-                                linkedAccountTO.getConnObjectKeyValue(),
+                                ConnIdSpecialName.UID + "==" + linkedAccountTO.getConnObjectKeyValue(),
                                 true,
                                 mlp,
                                 pageRef),
@@ -298,7 +299,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                                 new PullTaskTO(),
                                 model.getObject().getType(),
                                 null,
-                                linkedAccountTO.getConnObjectKeyValue(),
+                                ConnIdSpecialName.UID + "==" + linkedAccountTO.getConnObjectKeyValue(),
                                 true,
                                 mlp,
                                 pageRef),

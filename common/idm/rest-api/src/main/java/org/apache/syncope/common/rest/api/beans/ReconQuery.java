@@ -48,8 +48,8 @@ public class ReconQuery implements Serializable {
             return this;
         }
 
-        public Builder connObjectKeyValue(final String connObjectKeyValue) {
-            instance.setConnObjectKeyValue(connObjectKeyValue);
+        public Builder fiql(final String fiql) {
+            instance.setFiql(fiql);
             return this;
         }
 
@@ -82,7 +82,7 @@ public class ReconQuery implements Serializable {
 
     private String resourceKey;
 
-    private String connObjectKeyValue;
+    private String fiql;
 
     private Set<String> moreAttrsToGet;
 
@@ -115,13 +115,13 @@ public class ReconQuery implements Serializable {
         this.resourceKey = resourceKey;
     }
 
-    public String getConnObjectKeyValue() {
-        return connObjectKeyValue;
+    public String getFiql() {
+        return fiql;
     }
 
-    @QueryParam("connObjectKeyValue")
-    public void setConnObjectKeyValue(final String connObjectKeyValue) {
-        this.connObjectKeyValue = connObjectKeyValue;
+    @QueryParam(JAXRSService.PARAM_FIQL)
+    public void setFiql(final String fiql) {
+        this.fiql = fiql;
     }
 
     public Set<String> getMoreAttrsToGet() {
