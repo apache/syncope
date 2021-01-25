@@ -116,11 +116,11 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
         // Move linked accounts into the target/base user as linked accounts
         mergingUserTO.getLinkedAccounts().forEach(acct -> {
             LinkedAccountTO linkedAccount =
-                    new LinkedAccountTO.Builder(acct.getResource(), acct.getConnObjectKeyValue())
-                            .password(acct.getPassword())
-                            .suspended(acct.isSuspended())
-                            .username(acct.getUsername())
-                            .build();
+                    new LinkedAccountTO.Builder(acct.getResource(), acct.getConnObjectKeyValue()).
+                            password(acct.getPassword()).
+                            suspended(acct.isSuspended()).
+                            username(acct.getUsername()).
+                            build();
             linkedAccount.getPlainAttrs().addAll(acct.getPlainAttrs());
             linkedAccount.getPrivileges().addAll(acct.getPrivileges());
             LinkedAccountPatch patch = new LinkedAccountPatch.Builder().
@@ -134,9 +134,7 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
         mergingUserTO.getResources().forEach(resource -> {
             String connObjectKeyValue = resourceRestClient.getConnObjectKeyValue(resource,
                     mergingUserTO.getType(), mergingUserTO.getKey());
-            LinkedAccountTO linkedAccount =
-                    new LinkedAccountTO.Builder(resource, connObjectKeyValue)
-                            .build();
+            LinkedAccountTO linkedAccount = new LinkedAccountTO.Builder(resource, connObjectKeyValue).build();
             linkedAccount.getPlainAttrs().addAll(mergingUserTO.getPlainAttrs());
             linkedAccount.getPrivileges().addAll(mergingUserTO.getPrivileges());
             LinkedAccountPatch patch = new LinkedAccountPatch.Builder().
