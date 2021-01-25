@@ -110,7 +110,7 @@ public class SyncopeConsoleApplicationTest extends AbstractTest {
         message = session.getFeedbackMessages().first();
         assertNotNull(message);
         assertTrue(message.isError());
-        assertEquals("Error 1", message.getMessage());
+        assertEquals(ClientExceptionType.InvalidUser.name() + ": Error 1", message.getMessage());
         session.getFeedbackMessages().clear();
 
         sce = SyncopeClientException.build(ClientExceptionType.InvalidUser);
@@ -120,7 +120,7 @@ public class SyncopeConsoleApplicationTest extends AbstractTest {
         message = session.getFeedbackMessages().first();
         assertNotNull(message);
         assertTrue(message.isError());
-        assertEquals("Error 1, Error 2", message.getMessage());
+        assertEquals(ClientExceptionType.InvalidUser.name() + ": Error 1, Error 2", message.getMessage());
         session.getFeedbackMessages().clear();
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
@@ -130,7 +130,9 @@ public class SyncopeConsoleApplicationTest extends AbstractTest {
         message = session.getFeedbackMessages().first();
         assertNotNull(message);
         assertTrue(message.isError());
-        assertEquals(scce.getMessage(), message.getMessage());
+        assertTrue(StringUtils.contains((CharSequence) message.getMessage(),
+                ClientExceptionType.InvalidExternalResource.name()));
+        assertTrue(StringUtils.contains((CharSequence) message.getMessage(), ClientExceptionType.InvalidUser.name()));
         session.getFeedbackMessages().clear();
     }
 }
