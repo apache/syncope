@@ -91,29 +91,29 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         }
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleSession.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleSession.class);
 
-    private final SyncopeClientFactoryBean clientFactory;
+    protected final SyncopeClientFactoryBean clientFactory;
 
-    private final SyncopeClient anonymousClient;
+    protected final SyncopeClient anonymousClient;
 
-    private final PlatformInfo platformInfo;
+    protected final PlatformInfo platformInfo;
 
-    private final SystemInfo systemInfo;
+    protected final SystemInfo systemInfo;
 
-    private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
+    protected final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
 
-    private final ThreadPoolTaskExecutor executor;
+    protected final ThreadPoolTaskExecutor executor;
 
-    private String domain;
+    protected String domain;
 
-    private SyncopeClient client;
+    protected SyncopeClient client;
 
-    private UserTO selfTO;
+    protected UserTO selfTO;
 
-    private Map<String, Set<String>> auth;
+    protected Map<String, Set<String>> auth;
 
-    private Roles roles;
+    protected Roles roles;
 
     public static SyncopeConsoleSession get() {
         return (SyncopeConsoleSession) Session.get();
@@ -139,6 +139,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         executor.initialize();
     }
 
+    protected String message(final SyncopeClientException sce) {
+        return sce.getType().name() + ": " + sce.getElements().stream().collect(Collectors.joining(", "));
+    }
+
     /**
      * Extract and localize (if translation available) the actual message from the given exception; then, report it
      * via {@link Session#error(java.io.Serializable)}.
@@ -153,9 +157,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
         if (root instanceof SyncopeClientException) {
             SyncopeClientException sce = (SyncopeClientException) root;
-            if (!sce.isComposite()) {
-                message = sce.getElements().stream().collect(Collectors.joining(", "));
-            }
+            message = sce.isComposite()
+                    ? sce.asComposite().getExceptions().stream().
+                            map(c -> message(c)).collect(Collectors.joining("; "))
+                    : message(sce);
         } else if (root instanceof AccessControlException || root instanceof ForbiddenException) {
             Error error = StringUtils.containsIgnoreCase(message, "expired")
                     ? Error.SESSION_EXPIRED
@@ -358,7 +363,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T getCachedService(final Class<T> serviceClass) {
+    protected <T> T getCachedService(final Class<T> serviceClass) {
         T service;
         if (services.containsKey(serviceClass)) {
             service = (T) services.get(serviceClass);
