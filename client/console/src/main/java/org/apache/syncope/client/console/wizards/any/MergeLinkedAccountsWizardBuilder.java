@@ -19,6 +19,13 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -47,16 +54,8 @@ import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.IModel;
 
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> implements IEventSink {
+
     private static final long serialVersionUID = -9142332740863374891L;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -68,7 +67,7 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
     private MergeLinkedAccountsWizardModel model;
 
     public MergeLinkedAccountsWizardBuilder(final IModel<UserTO> model, final PageReference pageRef,
-                                            final UserDirectoryPanel parentPanel, final BaseModal<?> modal) {
+            final UserDirectoryPanel parentPanel, final BaseModal<?> modal) {
         super(model.getObject(), pageRef);
         this.parentPanel = parentPanel;
         this.modal = modal;
@@ -76,7 +75,7 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
 
     @Override
     protected WizardModel buildModelSteps(final UserTO modelObject, final WizardModel wizardModel) {
-        this.model = new MergeLinkedAccountsWizardModel(modelObject);
+        model = new MergeLinkedAccountsWizardModel(modelObject);
         wizardModel.add(new MergeLinkedAccountsSearchPanel(model, getPageReference()));
         wizardModel.add(new MergeLinkedAccountsResourcesPanel(model, getPageReference()));
         wizardModel.add(new MergeLinkedAccountsReviewPanel(model, getPageReference()));
@@ -89,78 +88,78 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
             ((AjaxWizard.NewItemCancelEvent<?>) event.getPayload()).getTarget().ifPresent(modal::close);
         }
         if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-            Optional<AjaxRequestTarget> targetResult = ((AjaxWizard.NewItemFinishEvent<?>)
-                event.getPayload()).getTarget();
+            Optional<AjaxRequestTarget> target =
+                    ((AjaxWizard.NewItemFinishEvent<?>) event.getPayload()).getTarget();
             try {
                 mergeAccounts();
-                this.parentPanel.info(this.parentPanel.getString(Constants.OPERATION_SUCCEEDED));
-                targetResult.ifPresent(target -> {
-                    ((BasePage) this.parentPanel.getPage()).getNotificationPanel().refresh(target);
-                    parentPanel.updateResultTable(target);
-                    modal.close(target);
+
+                parentPanel.info(parentPanel.getString(Constants.OPERATION_SUCCEEDED));
+                target.ifPresent(t -> {
+                    ((BasePage) parentPanel.getPage()).getNotificationPanel().refresh(t);
+                    parentPanel.updateResultTable(t);
+                    modal.close(t);
                 });
-            }  catch (Exception e) {
-                this.parentPanel.error(this.parentPanel.getString(Constants.ERROR) + ": " + e.getMessage());
-                targetResult.ifPresent(target -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target));
+            } catch (Exception e) {
+                parentPanel.error(parentPanel.getString(Constants.ERROR) + ": " + e.getMessage());
+                target.ifPresent(t -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(t));
             }
         }
     }
 
     private void mergeAccounts() throws Exception {
-        final UserTO mergingUserTO = this.model.getMergingUser();
-        final ResourceRestClient resourceRestClient = new ResourceRestClient();
+        UserTO mergingUserTO = model.getMergingUser();
+        ResourceRestClient resourceRestClient = new ResourceRestClient();
 
         UserPatch userPatch = new UserPatch();
-        userPatch.setKey(this.model.getBaseUser().getUsername());
+        userPatch.setKey(model.getBaseUser().getUsername());
 
         // Move linked accounts into the target/base user as linked accounts
         mergingUserTO.getLinkedAccounts().forEach(acct -> {
             LinkedAccountTO linkedAccount =
-                new LinkedAccountTO.Builder(acct.getResource(), acct.getConnObjectKeyValue())
-                    .password(acct.getPassword())
-                    .suspended(acct.isSuspended())
-                    .username(acct.getUsername())
-                    .build();
+                    new LinkedAccountTO.Builder(acct.getResource(), acct.getConnObjectKeyValue())
+                            .password(acct.getPassword())
+                            .suspended(acct.isSuspended())
+                            .username(acct.getUsername())
+                            .build();
             linkedAccount.getPlainAttrs().addAll(acct.getPlainAttrs());
             linkedAccount.getPrivileges().addAll(acct.getPrivileges());
-            LinkedAccountPatch patch = new LinkedAccountPatch.Builder()
-                .linkedAccountTO(linkedAccount)
-                .operation(PatchOperation.ADD_REPLACE)
-                .build();
+            LinkedAccountPatch patch = new LinkedAccountPatch.Builder().
+                    linkedAccountTO(linkedAccount).
+                    operation(PatchOperation.ADD_REPLACE).
+                    build();
             userPatch.getLinkedAccounts().add(patch);
         });
 
         // Move merging user's resources into the target/base user as a linked account
         mergingUserTO.getResources().forEach(resource -> {
             String connObjectKeyValue = resourceRestClient.getConnObjectKeyValue(resource,
-                mergingUserTO.getType(), mergingUserTO.getKey());
+                    mergingUserTO.getType(), mergingUserTO.getKey());
             LinkedAccountTO linkedAccount =
-                new LinkedAccountTO.Builder(resource, connObjectKeyValue)
-                    .build();
+                    new LinkedAccountTO.Builder(resource, connObjectKeyValue)
+                            .build();
             linkedAccount.getPlainAttrs().addAll(mergingUserTO.getPlainAttrs());
             linkedAccount.getPrivileges().addAll(mergingUserTO.getPrivileges());
-            LinkedAccountPatch patch = new LinkedAccountPatch.Builder()
-                .linkedAccountTO(linkedAccount)
-                .operation(PatchOperation.ADD_REPLACE)
-                .build();
+            LinkedAccountPatch patch = new LinkedAccountPatch.Builder().
+                    linkedAccountTO(linkedAccount).
+                    operation(PatchOperation.ADD_REPLACE).
+                    build();
             userPatch.getLinkedAccounts().add(patch);
         });
 
         // Move merging user into target/base user as a linked account
         String connObjectKeyValue = resourceRestClient.getConnObjectKeyValue(
-            this.model.getResource().getKey(),
-            mergingUserTO.getType(), mergingUserTO.getKey());
-        LinkedAccountTO linkedAccount =
-            new LinkedAccountTO.Builder(this.model.getResource().getKey(), connObjectKeyValue)
-                .password(mergingUserTO.getPassword())
-                .suspended(mergingUserTO.isSuspended())
-                .username(mergingUserTO.getUsername())
-                .build();
+                model.getResource().getKey(),
+                mergingUserTO.getType(), mergingUserTO.getKey());
+        LinkedAccountTO linkedAccount = new LinkedAccountTO.Builder(model.getResource().getKey(), connObjectKeyValue).
+                password(mergingUserTO.getPassword()).
+                suspended(mergingUserTO.isSuspended()).
+                username(mergingUserTO.getUsername()).
+                build();
         linkedAccount.getPlainAttrs().addAll(mergingUserTO.getPlainAttrs());
         linkedAccount.getPrivileges().addAll(mergingUserTO.getPrivileges());
-        LinkedAccountPatch patch = new LinkedAccountPatch.Builder().linkedAccountTO(linkedAccount)
-            .operation(PatchOperation.ADD_REPLACE)
-            .build();
+        LinkedAccountPatch patch = new LinkedAccountPatch.Builder().linkedAccountTO(linkedAccount).
+                operation(PatchOperation.ADD_REPLACE).
+                build();
         userPatch.getLinkedAccounts().add(patch);
 
         BatchRequest batchRequest = SyncopeConsoleSession.get().batch();
@@ -176,16 +175,16 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
         String updateUserPayload = MAPPER.writeValueAsString(userPatch);
         BatchRequestItem updateUser = new BatchRequestItem();
         updateUser.setMethod(HttpMethod.PATCH);
-        updateUser.setRequestURI("/users/" + this.model.getBaseUser().getUsername());
+        updateUser.setRequestURI("/users/" + model.getBaseUser().getUsername());
         updateUser.setHeaders(new HashMap<>());
         updateUser.getHeaders().put(RESTHeaders.PREFER,
-            Collections.singletonList(Preference.RETURN_NO_CONTENT.toString()));
+                Collections.singletonList(Preference.RETURN_NO_CONTENT.toString()));
         updateUser.getHeaders().put(HttpHeaders.ACCEPT,
-            Collections.singletonList(MediaType.APPLICATION_JSON));
+                Collections.singletonList(MediaType.APPLICATION_JSON));
         updateUser.getHeaders().put(HttpHeaders.CONTENT_TYPE,
-            Collections.singletonList(MediaType.APPLICATION_JSON));
+                Collections.singletonList(MediaType.APPLICATION_JSON));
         updateUser.getHeaders().put(HttpHeaders.CONTENT_LENGTH,
-            Collections.singletonList(updateUserPayload.length()));
+                Collections.singletonList(updateUserPayload.length()));
         updateUser.setContent(updateUserPayload);
         batchRequest.getItems().add(updateUser);
 
@@ -196,5 +195,4 @@ public class MergeLinkedAccountsWizardBuilder extends AjaxWizardBuilder<UserTO> 
             }
         });
     }
-
 }

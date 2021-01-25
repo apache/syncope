@@ -73,8 +73,7 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
         List<Filter> filters = new ArrayList<>();
 
         provision.getMapping().getItems().stream().filter(
-                item -> conf.getSchemas().contains(item.getIntAttrName())
-                && (item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH)).
+                item -> conf.getSchemas().contains(item.getIntAttrName()) && item.getPurpose() != MappingPurpose.NONE).
                 forEach(item -> {
                     Pair<String, Attribute> attr = mappingManager.prepareAttr(
                             provision,
@@ -109,8 +108,7 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
         List<CompleteCondition> conditions = new ArrayList<>();
 
         provision.getMapping().getItems().stream().filter(
-                item -> conf.getSchemas().contains(item.getIntAttrName())
-                && (item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH)).
+                item -> conf.getSchemas().contains(item.getIntAttrName()) && item.getPurpose() != MappingPurpose.NONE).
                 forEach(item -> Optional.ofNullable(connectorObject.getAttributeByName(item.getExtAttrName())).
                 ifPresent(attr -> {
                     if (CollectionUtils.isEmpty(attr.getValue())) {
