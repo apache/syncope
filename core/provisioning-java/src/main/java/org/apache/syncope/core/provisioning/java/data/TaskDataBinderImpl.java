@@ -326,7 +326,6 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     private void fill(final SchedTaskTO schedTaskTO, final SchedTask schedTask) {
         schedTaskTO.setName(schedTask.getName());
         schedTaskTO.setDescription(schedTask.getDescription());
-        schedTaskTO.setStart(schedTask.getStartAt());
         schedTaskTO.setCronExpression(schedTask.getCronExpression());
         schedTaskTO.setActive(schedTask.isActive());
 
