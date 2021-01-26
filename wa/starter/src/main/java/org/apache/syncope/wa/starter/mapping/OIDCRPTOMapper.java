@@ -116,9 +116,9 @@ public class OIDCRPTOMapper implements ClientAppMapper {
                     LOG.warn("Could not locate the application context to add custom claims {}", customClaims);
                 } else {
                     CasConfigurationProperties properties = ctx.getBean(CasConfigurationProperties.class);
-                    List<String> supportedClaims = properties.getAuthn().getOidc().getClaims();
+                    List<String> supportedClaims = properties.getAuthn().getOidc().getDiscovery().getClaims();
                     if (!supportedClaims.containsAll(customClaims)) {
-                        properties.getAuthn().getOidc().setClaims(
+                        properties.getAuthn().getOidc().getDiscovery().setClaims(
                                 Stream.concat(supportedClaims.stream(), customClaims.stream()).
                                         distinct().collect(Collectors.toList()));
                     }
