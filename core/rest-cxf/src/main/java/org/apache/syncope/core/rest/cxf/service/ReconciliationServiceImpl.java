@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Optional;
 import javax.validation.ValidationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -99,7 +100,7 @@ public class ReconciliationServiceImpl extends AbstractServiceImpl implements Re
 
         if (query.getAnyKey() != null) {
             return logic.status(query.getAnyTypeKey(), query.getResourceKey(), query.getAnyKey(),
-                    query.getMoreAttrsToGet());
+                    Optional.ofNullable(query.getMoreAttrsToGet()).orElse(new HashSet<>()));
         }
 
         Pair<Filter, Set<String>> fromFIQL = buildFromFIQL(query);

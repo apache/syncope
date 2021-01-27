@@ -242,7 +242,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         List<ConnectorObject> connObjs = outboundMatcher.match(
                 connFactory.getConnector(provision.getResource()), any, provision,
-                Optional.ofNullable(moreAttrsToGet.toArray(new String[] {})));
+                Optional.of(moreAttrsToGet.toArray(new String[] {})));
         if (!connObjs.isEmpty()) {
             status.setOnResource(ConnObjectUtils.getConnObjectTO(
                     outboundMatcher.getFIQL(connObjs.get(0), provision), connObjs.get(0).getAttributes()));
