@@ -98,7 +98,8 @@ public class ReconciliationServiceImpl extends AbstractServiceImpl implements Re
         validate(query);
 
         if (query.getAnyKey() != null) {
-            return logic.status(query.getAnyTypeKey(), query.getResourceKey(), query.getAnyKey());
+            return logic.status(query.getAnyTypeKey(), query.getResourceKey(), query.getAnyKey(),
+                    query.getMoreAttrsToGet());
         }
 
         Pair<Filter, Set<String>> fromFIQL = buildFromFIQL(query);

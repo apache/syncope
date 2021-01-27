@@ -219,7 +219,11 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_GET_CONNOBJECT + "')")
-    public ReconStatus status(final String anyTypeKey, final String resourceKey, final String anyKey) {
+    public ReconStatus status(
+            final String anyTypeKey,
+            final String resourceKey,
+            final String anyKey,
+            final Set<String> moreAttrsToGet) {
         Provision provision = getProvision(anyTypeKey, resourceKey);
 
         MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
@@ -237,7 +241,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         status.setOnSyncope(getOnSyncope(any, connObjectKeyItem, provision));
 
         List<ConnectorObject> connObjs = outboundMatcher.match(
-                connFactory.getConnector(provision.getResource()), any, provision, Optional.empty());
+                connFactory.getConnector(provision.getResource()), any, provision,
+                Optional.ofNullable(moreAttrsToGet.toArray(new String[] {})));
         if (!connObjs.isEmpty()) {
             status.setOnResource(ConnObjectUtils.getConnObjectTO(
                     outboundMatcher.getFIQL(connObjs.get(0), provision), connObjs.get(0).getAttributes()));
