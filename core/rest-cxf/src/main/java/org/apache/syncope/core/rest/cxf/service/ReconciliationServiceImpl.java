@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -99,8 +100,11 @@ public class ReconciliationServiceImpl extends AbstractServiceImpl implements Re
         validate(query);
 
         if (query.getAnyKey() != null) {
-            return logic.status(query.getAnyTypeKey(), query.getResourceKey(), query.getAnyKey(),
-                    Optional.ofNullable(query.getMoreAttrsToGet()).orElse(new HashSet<>()));
+            return logic.status(
+                    query.getAnyTypeKey(),
+                    query.getResourceKey(),
+                    query.getAnyKey(),
+                    Optional.ofNullable(query.getMoreAttrsToGet()).orElse(Collections.emptySet()));
         }
 
         Pair<Filter, Set<String>> fromFIQL = buildFromFIQL(query);
@@ -125,7 +129,12 @@ public class ReconciliationServiceImpl extends AbstractServiceImpl implements Re
         validate(query);
 
         if (query.getAnyKey() != null) {
-            return logic.pull(query.getAnyTypeKey(), query.getResourceKey(), query.getAnyKey(), pullTask);
+            return logic.pull(
+                    query.getAnyTypeKey(),
+                    query.getResourceKey(),
+                    query.getAnyKey(),
+                    Optional.ofNullable(query.getMoreAttrsToGet()).orElse(Collections.emptySet()),
+                    pullTask);
         }
 
         Pair<Filter, Set<String>> fromFIQL = buildFromFIQL(query);

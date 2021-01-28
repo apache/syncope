@@ -240,9 +240,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         status.setRealm(any.getRealm().getFullPath());
         status.setOnSyncope(getOnSyncope(any, connObjectKeyItem, provision));
 
-        List<ConnectorObject> connObjs = outboundMatcher.match(
-                connFactory.getConnector(provision.getResource()), any, provision,
-                Optional.of(moreAttrsToGet.toArray(new String[] {})));
+        List<ConnectorObject> connObjs = outboundMatcher.match(connFactory.getConnector(
+                provision.getResource()), any, provision, Optional.of(moreAttrsToGet.toArray(new String[] {})));
         if (!connObjs.isEmpty()) {
             status.setOnResource(ConnObjectUtils.getConnObjectTO(
                     outboundMatcher.getFIQL(connObjs.get(0), provision), connObjs.get(0).getAttributes()));
@@ -421,6 +420,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     private List<ProvisioningReport> pull(
             final Provision provision,
             final ReconFilterBuilder reconFilterBuilder,
+            final Set<String> moreAttrsToGet,
             final PullTaskTO pullTask) {
 
         if (pullTask.getDestinationRealm() == null || realmDAO.findByFullPath(pullTask.getDestinationRealm()) == null) {
@@ -434,6 +434,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     provision,
                     connFactory.getConnector(provision.getResource()),
                     reconFilterBuilder,
+                    moreAttrsToGet,
                     pullTask));
             if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
                 sce.getElements().add(results.get(0).getMessage());
@@ -454,6 +455,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final String anyTypeKey,
             final String resourceKey,
             final String anyKey,
+            final Set<String> moreAttrsToGet,
             final PullTaskTO pullTask) {
 
         Provision provision = getProvision(anyTypeKey, resourceKey);
@@ -474,6 +476,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 provision,
                 new KeyValueReconFilterBuilder(
                         provision.getMapping().getConnObjectKeyItem().get().getExtAttrName(), connObjectKeyValue),
+                moreAttrsToGet,
                 pullTask);
     }
 
@@ -490,6 +493,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return pull(
                 provision,
                 new ConstantReconFilterBuilder(filter),
+                moreAttrsToGet,
                 pullTask);
     }
 
