@@ -68,6 +68,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             final Provision provision,
             final Connector connector,
             final ReconFilterBuilder reconFilterBuilder,
+            final Set<String> moreAttrsToGet,
             final PullTaskTO pullTaskTO) throws JobExecutionException {
 
         LOG.debug("Executing pull on {}", provision.getResource());
@@ -147,8 +148,8 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             handler.setPullExecutor(this);
 
             // execute filtered pull
-            Set<String> moreAttrsToGet = new HashSet<>();
-            actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
+            Set<String> matg = new HashSet<>(moreAttrsToGet);
+            actions.forEach(action -> matg.addAll(action.moreAttrsToGet(profile, provision)));
 
             Stream<? extends Item> mapItems = Stream.concat(
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
@@ -158,7 +159,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                     provision.getObjectClass(),
                     reconFilterBuilder,
                     handler,
-                    MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(new String[0])));
+                    MappingUtils.buildOperationOptions(mapItems, matg.toArray(new String[0])));
 
             try {
                 setGroupOwners(ghandler);

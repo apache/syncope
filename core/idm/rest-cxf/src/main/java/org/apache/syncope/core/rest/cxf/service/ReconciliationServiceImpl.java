@@ -99,8 +99,11 @@ public class ReconciliationServiceImpl extends AbstractServiceImpl implements Re
         validate(query);
 
         if (query.getAnyKey() != null) {
-            return logic.status(query.getAnyTypeKey(), query.getResourceKey(), query.getAnyKey(),
-                    Optional.ofNullable(query.getMoreAttrsToGet()).orElse(new HashSet<>()));
+            return logic.status(
+                    query.getAnyTypeKey(),
+                    query.getResourceKey(),
+                    query.getAnyKey(),
+                    Optional.ofNullable(query.getMoreAttrsToGet()).orElse(Set.of()));
         }
 
         Pair<Filter, Set<String>> fromFIQL = buildFromFIQL(query);
@@ -125,7 +128,12 @@ public class ReconciliationServiceImpl extends AbstractServiceImpl implements Re
         validate(query);
 
         if (query.getAnyKey() != null) {
-            return logic.pull(query.getAnyTypeKey(), query.getResourceKey(), query.getAnyKey(), pullTask);
+            return logic.pull(
+                    query.getAnyTypeKey(),
+                    query.getResourceKey(),
+                    query.getAnyKey(),
+                    Optional.ofNullable(query.getMoreAttrsToGet()).orElse(Set.of()),
+                    pullTask);
         }
 
         Pair<Filter, Set<String>> fromFIQL = buildFromFIQL(query);
