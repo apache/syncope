@@ -38,8 +38,10 @@
     .form-check{
       margin-bottom: -50px;
     }
-    .toggle.btn-xs {
-      min-width: 59px;
+    .toggle{
+      &.btn {
+        min-width: 59px
+      }
     }
   }
   .type {

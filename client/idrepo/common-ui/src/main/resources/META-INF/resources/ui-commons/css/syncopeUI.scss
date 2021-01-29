@@ -320,13 +320,6 @@ a.help {
   }
 }
 
-.pull-right {
-  float: right;
-}
-
-.pull-left{
-  float:left;
-}
 
 .wizard-buttons {
   padding: 10px 0px 5px 0px;
@@ -334,11 +327,11 @@ a.help {
   bottom: 4px;
   width: 100%;
   div {
-    &.pull-left {
+    &.float-left {
       position: absolute;
       left: 15px;
     }
-    &.pull-right {
+    &.float-right {
       position: absolute;
       right: 15px;
     }
@@ -403,10 +396,6 @@ section#notifications .modal-lg {
   margin: 30px 0px 0px 0px;
   border: 1px solid #EEE;
   color: #888;
-  display: inline-table;
-  width: 100%;
-  float: none;
-  position: absolute;
 }
 
 th.checkGroupColumn {
@@ -713,17 +702,18 @@ div.listview-actions a {
   float: left;
 }
 
-.left.page-header{
+.left.page-header,
+.right.page-heade {
   padding-bottom: 9px;
   border-bottom: 1px solid #dee2e6;
   width: 50%;
+}
+
+.left.page-header {
   float: left;
 }
 
 .right.page-header{
-  padding-bottom: 9px;
-  border-bottom: 1px solid #dee2e6;
-  width: 50%;
   float: right;
 }
 
@@ -1225,24 +1215,24 @@ pre {
 }
 
 .multipanel-box {
-    padding: 5px;
-    display: inline-table;
-    margin: 0px;
-    position: relative;
-    border-radius: 3px;
-    background: #ffffff;
-    border-top: 3px solid #d2d6de;
-    width: 94%;
-    box-shadow: 0 1px 1px #d2d6de;
+  padding: 5px;
+  display: inline-table;
+  margin: 0px;
+  position: relative;
+  border-radius: 3px;
+  background: #ffffff;
+  border-top: 3px solid #d2d6de;
+  width: 94%;
+  box-shadow: 0 1px 1px #d2d6de;
 }
 
 .multipanel-btn-minus.input-group-addon {
-    margin-top: 70px;
+  margin-top: 70px;
 }
 
 .multipanel-btn-plus.input-group-addon {
-    background: white;
-    border: none;
-    float: right;
-    margin-right:12px;
+  background: white;
+  border: none;
+  float: right;
+  margin-right:12px;
 }

@@ -116,8 +116,8 @@
 }
 
 .checkbox {
-    margin-top: 15px;
-    margin-bottom: 15px;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 
 #topology {
@@ -205,20 +205,31 @@
 }
 
 div.alert-widget > a > .badge {
-    font-size: 9px;
-    line-height: 0.9;
-    padding: 2px 3px;
-    position: absolute;
-    text-align: center;
-    margin-right:-13px;
-    top: 0px;
+  font-size: 9px;
+  line-height: 0.9;
+  padding: 2px 3px;
+  position: absolute;
+  text-align: center;
+  margin-right:-13px;
+  top: 0px;
 }
 
 .card.card-outline {
-    margin-top: 20px;
-    margin-bottom: 0px;
+  margin-top: 20px;
+  margin-bottom: 0px;
 }
 
 .panel-group.box-group {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.scrollable-tab-content{
+  padding-top:20px;
+}
+
+.conn-check-wrapper {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  z-index: 1;
 }
