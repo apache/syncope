@@ -30,7 +30,7 @@ public class DefaultModalCloseButton extends ModalCloseButton implements IAjaxIn
 
     public DefaultModalCloseButton() {
         super(new ResourceModel("cancel", "Cancel"));
-        add(new AttributeAppender("class", " pull-left"));
+        add(new AttributeAppender("class", " float-left"));
         setOutputMarkupId(true);
     }
 
