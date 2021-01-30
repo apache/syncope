@@ -318,7 +318,7 @@ under the License.
 
       <plugin>
         <groupId>org.codehaus.cargo</groupId>
-        <artifactId>cargo-maven2-plugin</artifactId>
+        <artifactId>cargo-maven3-plugin</artifactId>
         <inherited>true</inherited>
         <configuration>
           <container>
@@ -519,7 +519,7 @@ under the License.
 
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
           </plugin>
         </plugins>
@@ -618,7 +618,7 @@ under the License.
           
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
           </plugin>
         </plugins>
@@ -766,7 +766,7 @@ under the License.
 
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <container>
@@ -899,7 +899,7 @@ under the License.
 
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <container>
@@ -1054,7 +1054,7 @@ under the License.
 
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <container>
@@ -1189,7 +1189,7 @@ under the License.
 
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <container>
@@ -1296,7 +1296,7 @@ under the License.
           
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <container>
@@ -1409,7 +1409,7 @@ under the License.
           
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <container>
@@ -1514,7 +1514,7 @@ under the License.
           
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <container>
@@ -1606,7 +1606,7 @@ under the License.
 
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <container>
@@ -1695,11 +1695,11 @@ under the License.
         <plugins>
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly20x</containerId>
+                <containerId>wildfly21x</containerId>
                 <zipUrlInstaller>
                   <url>https://download.jboss.org/wildfly/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
@@ -1756,7 +1756,7 @@ under the License.
         <plugins>
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <configuration>
@@ -1787,7 +1787,7 @@ under the License.
         <plugins>
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <configuration>

@@ -451,7 +451,7 @@ under the License.
 
     <pac4j.version>4.3.1</pac4j.version>
 
-    <cas.version>6.4.0-SNAPSHOT</cas.version>
+    <cas.version>6.4.0-RC1</cas.version>
     <cas-client.version>3.6.2</cas-client.version>
 
     <h2.version>1.4.200</h2.version>
@@ -2362,8 +2362,8 @@ under the License.
 
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
-          <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.8.5</version>
+          <artifactId>cargo-maven3-plugin</artifactId>
+          <version>1.9.0</version>
           <configuration>
             <configuration>
               <type>standalone</type>
@@ -2410,7 +2410,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.1.1</version>
+          <version>3.1.2</version>
           <dependencies>
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>

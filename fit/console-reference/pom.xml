@@ -113,7 +113,7 @@ under the License.
     <plugins>
       <plugin>
         <groupId>org.codehaus.cargo</groupId>
-        <artifactId>cargo-maven2-plugin</artifactId>
+        <artifactId>cargo-maven3-plugin</artifactId>
         <inherited>true</inherited>
         <configuration>
           <container>
@@ -208,7 +208,7 @@ under the License.
         <plugins>
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <configuration>
@@ -277,7 +277,7 @@ under the License.
 
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
+            <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
               <configuration>
