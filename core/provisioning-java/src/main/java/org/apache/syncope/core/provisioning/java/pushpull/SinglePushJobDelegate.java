@@ -42,9 +42,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSinglePushExecutor {
 
     @Autowired

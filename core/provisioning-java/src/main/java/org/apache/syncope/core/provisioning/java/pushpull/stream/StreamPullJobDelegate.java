@@ -53,13 +53,11 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandle
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
-@Component
 public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStreamPullExecutor {
 
     @Autowired

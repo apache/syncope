@@ -42,22 +42,33 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPushExecutor;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class StreamPushJobDelegateTest extends AbstractTest {
 
     @Autowired
-    private SyncopeStreamPushExecutor streamPushExecutor;
-
-    @Autowired
     private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private UserDAO userDAO;
+
+    private SyncopeStreamPushExecutor executor;
+
+    private SyncopeStreamPushExecutor executor() {
+        synchronized (this) {
+            if (executor == null) {
+                executor = (SyncopeStreamPushExecutor) ApplicationContextProvider.getBeanFactory().
+                        createBean(StreamPushJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+            }
+        }
+        return executor;
+    }
 
     @Test
     public void push() throws IOException {
@@ -76,7 +87,7 @@ public class StreamPushJobDelegateTest extends AbstractTest {
                     null,
                     os)) {
 
-                return streamPushExecutor.push(
+                return executor().push(
                         anyTypeDAO.findUser(),
                         userDAO.findAll(1, 100),
                         Arrays.asList("username", "firstname", "surname", "email", "status", "loginDate"),
