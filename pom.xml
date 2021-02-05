@@ -449,7 +449,7 @@ under the License.
 
     <h2.version>1.4.200</h2.version>
 
-    <junit.version>5.7.0</junit.version>
+    <junit.version>5.7.1</junit.version>
     <mockito.version>3.7.7</mockito.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
@@ -458,7 +458,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.0.10</swagger-core.version>    
-    <swagger-ui.version>3.40.0</swagger-ui.version>
+    <swagger-ui.version>3.42.0</swagger-ui.version>
     <guava.version>29.0-jre</guava.version>
 
     <jquery.version>3.4.1</jquery.version>
