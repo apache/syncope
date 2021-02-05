@@ -50,9 +50,7 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.stereotype.Component;
 
-@Component
 public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStreamPushExecutor {
 
     @Autowired

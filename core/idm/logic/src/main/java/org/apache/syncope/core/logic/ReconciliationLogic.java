@@ -73,19 +73,24 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.pushpull.ConstantReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.KeyValueReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
-import org.apache.syncope.core.provisioning.java.pushpull.stream.CSVStreamConnector;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecutor;
+import org.apache.syncope.core.provisioning.java.pushpull.stream.CSVStreamConnector;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePushExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
-import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPushExecutor;
-import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPushExecutor;
+import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.provisioning.java.pushpull.SinglePullJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.SinglePushJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.stream.StreamPullJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.stream.StreamPushJobDelegate;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
@@ -98,6 +103,7 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 @Component
 public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
@@ -140,18 +146,6 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @Autowired
     private ConnectorFactory connFactory;
-
-    @Autowired
-    private SyncopeSinglePullExecutor singlePullExecutor;
-
-    @Autowired
-    private SyncopeSinglePushExecutor singlePushExecutor;
-
-    @Autowired
-    private SyncopeStreamPushExecutor streamPushExecutor;
-
-    @Autowired
-    private SyncopeStreamPullExecutor streamPullExecutor;
 
     private Provision getProvision(final String anyTypeKey, final String resourceKey) {
         AnyType anyType = anyTypeDAO.find(anyTypeKey);
@@ -335,6 +329,11 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return status;
     }
 
+    private SyncopeSinglePushExecutor singlePushExecutor() {
+        return (SyncopeSinglePushExecutor) ApplicationContextProvider.getBeanFactory().
+                createBean(SinglePushJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+    }
+
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     public List<ProvisioningReport> push(
             final String anyTypeKey,
@@ -347,7 +346,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
         List<ProvisioningReport> results = new ArrayList<>();
         try {
-            results.addAll(singlePushExecutor.push(
+            results.addAll(singlePushExecutor().push(
                     provision,
                     connFactory.getConnector(provision.getResource()),
                     getAny(provision, anyKey),
@@ -385,7 +384,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             inboundMatcher.match(syncDeltaBuilder.build(), provision).stream().findFirst().ifPresent(match -> {
                 try {
                     if (match.getMatchTarget() == MatchType.ANY) {
-                        results.addAll(singlePushExecutor.push(
+                        results.addAll(singlePushExecutor().push(
                                 provision,
                                 connFactory.getConnector(provision.getResource()),
                                 match.getAny(),
@@ -394,7 +393,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                             sce.getElements().add(results.get(0).getMessage());
                         }
                     } else {
-                        ProvisioningReport result = singlePushExecutor.push(
+                        ProvisioningReport result = singlePushExecutor().push(
                                 provision,
                                 connFactory.getConnector(provision.getResource()),
                                 match.getLinkedAccount(),
@@ -431,7 +430,11 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
         List<ProvisioningReport> results = new ArrayList<>();
         try {
-            results.addAll(singlePullExecutor.pull(
+            SyncopeSinglePullExecutor executor =
+                    (SyncopeSinglePullExecutor) ApplicationContextProvider.getBeanFactory().
+                            createBean(SinglePullJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+
+            results.addAll(executor.pull(
                     provision,
                     connFactory.getConnector(provision.getResource()),
                     reconFilterBuilder,
@@ -605,7 +608,10 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 os,
                 columns.toArray(new String[columns.size()]))) {
 
-            return streamPushExecutor.push(
+            SyncopeStreamPushExecutor executor =
+                    (SyncopeStreamPushExecutor) ApplicationContextProvider.getBeanFactory().
+                            createBean(StreamPushJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+            return executor.push(
                     anyType,
                     matching,
                     columns,
@@ -651,7 +657,10 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 throw new NotFoundException("Key column '" + spec.getKeyColumn() + "'");
             }
 
-            return streamPullExecutor.pull(anyType,
+            SyncopeStreamPullExecutor executor =
+                    (SyncopeStreamPullExecutor) ApplicationContextProvider.getBeanFactory().
+                            createBean(StreamPullJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+            return executor.pull(anyType,
                     spec.getKeyColumn(),
                     columns,
                     spec.getConflictResolutionAction(),

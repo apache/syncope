@@ -40,23 +40,34 @@ import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.junit.jupiter.api.Test;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class StreamPullJobDelegateTest extends AbstractTest {
 
     @Autowired
-    private SyncopeStreamPullExecutor streamPullExecutor;
-
-    @Autowired
     private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private UserDAO userDAO;
+
+    private SyncopeStreamPullExecutor executor;
+
+    private SyncopeStreamPullExecutor executor() {
+        synchronized (this) {
+            if (executor == null) {
+                executor = (SyncopeStreamPullExecutor) ApplicationContextProvider.getBeanFactory().
+                        createBean(StreamPullJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+            }
+        }
+        return executor;
+    }
 
     @Test
     public void pull() throws JobExecutionException, IOException {
@@ -96,7 +107,7 @@ public class StreamPullJobDelegateTest extends AbstractTest {
                 List<String> csvColumns = connector.getColumns(new CSVPullSpec());
                 assertEquals(columns, csvColumns);
 
-                return streamPullExecutor.pull(
+                return executor().pull(
                         anyTypeDAO.findUser(),
                         "username",
                         columns,
