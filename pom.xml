@@ -411,7 +411,7 @@ under the License.
     <jackson.version>2.12.1</jackson.version>
 
     <spring.version>5.3.3</spring.version>
-    <spring-security.version>5.4.2</spring-security.version>
+    <spring-security.version>5.4.4</spring-security.version>
     <spring-boot.version>2.4.2</spring-boot.version>
     <spring-cloud-gateway.version>3.0.1</spring-cloud-gateway.version>
 
@@ -460,7 +460,7 @@ under the License.
     <mockito.version>3.7.7</mockito.version>
 
     <swagger-core.version>2.1.6</swagger-core.version>
-    <swagger-ui.version>3.42.0</swagger-ui.version>
+    <swagger-ui.version>3.43.0</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
@@ -512,7 +512,7 @@ under the License.
 
     <tomcat.version>9.0.43</tomcat.version>
     <wildfly.version>21.0.1.Final</wildfly.version>
-    <payara.version>5.2020.7</payara.version>
+    <payara.version>5.2021.1</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
     <docker.postgresql.version>13</docker.postgresql.version>
