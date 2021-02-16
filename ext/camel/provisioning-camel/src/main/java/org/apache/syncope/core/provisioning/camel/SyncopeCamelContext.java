@@ -22,10 +22,10 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.camel.ExtendedCamelContext;
 import org.apache.camel.component.metrics.routepolicy.MetricsRoutePolicyFactory;
 import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.spring.SpringCamelContext;
+import org.apache.camel.xml.jaxb.JaxbHelper;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -66,15 +66,14 @@ public class SyncopeCamelContext {
 
     private void loadRouteDefinitions(final List<String> routes) {
         try {
-            RoutesDefinition routeDefs = (RoutesDefinition) camelContext.adapt(ExtendedCamelContext.class).
-                    getXMLRoutesDefinitionLoader().loadRoutesDefinition(
-                            camelContext,
-                            new ByteArrayInputStream(("<routes xmlns=\"http://camel.apache.org/schema/spring\">"
-                                    + routes.stream().collect(Collectors.joining())
-                                    + "</routes>").getBytes(StandardCharsets.UTF_8)));
+            RoutesDefinition routeDefs = JaxbHelper.loadRoutesDefinition(
+                    camelContext,
+                    new ByteArrayInputStream(("<routes xmlns=\"http://camel.apache.org/schema/spring\">"
+                            + routes.stream().collect(Collectors.joining())
+                            + "</routes>").getBytes(StandardCharsets.UTF_8)));
             camelContext.addRouteDefinitions(routeDefs.getRoutes());
         } catch (Exception e) {
-            LOG.error("While adding route definitions into Camel Context {}", getCamelContext(), e);
+            LOG.error("While adding route definitions into Camel Context {}", camelContext, e);
             throw new CamelException(e);
         }
     }
