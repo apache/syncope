@@ -192,6 +192,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         }
     }
 
+    @Override
     public <T> Future<T> execute(final Callable<T> command) {
         try {
             return executor.submit(command);
@@ -220,6 +221,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return StringUtils.isBlank(domain) ? SyncopeConstants.MASTER_DOMAIN : domain;
     }
 
+    @Override
     public String getJWT() {
         return Optional.ofNullable(client).map(SyncopeClient::getJWT).orElse(null);
     }

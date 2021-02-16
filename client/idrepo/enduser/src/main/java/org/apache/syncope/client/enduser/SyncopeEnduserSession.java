@@ -133,6 +133,7 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         services.clear();
     }
 
+    @Override
     public String getJWT() {
         return Optional.ofNullable(client).map(SyncopeClient::getJWT).orElse(null);
     }
@@ -240,6 +241,7 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         return selfTO;
     }
 
+    @Override
     public <T> Future<T> execute(final Callable<T> command) {
         try {
             return executor.submit(command);

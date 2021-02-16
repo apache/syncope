@@ -18,13 +18,19 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
@@ -32,6 +38,7 @@ import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.springframework.beans.BeanUtils;
 
@@ -163,6 +170,23 @@ public class ConnectorRestClient extends BaseRestClient {
             return prop;
         }).forEachOrdered(newProperties::add);
         return newProperties;
+    }
+
+    public static boolean check(final String coreAddress, final String domain, final String jwt, final String key)
+            throws IOException {
+
+        WebClient client = WebClient.create(coreAddress).path("connectors").
+                accept(MediaType.APPLICATION_JSON_TYPE).
+                type(MediaType.APPLICATION_JSON_TYPE).
+                header(RESTHeaders.DOMAIN, domain).
+                authorization("Bearer " + jwt);
+        Response response = client.path(key).get();
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            response = client.back(false).path("check").
+                    post(IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
+            return response.getStatus() == Response.Status.NO_CONTENT.getStatusCode();
+        }
+        return false;
     }
 
     public static Pair<Boolean, String> check(final ConnInstanceTO connectorTO) {

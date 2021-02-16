@@ -262,8 +262,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
         try {
             Future<Pair<Serializable, Serializable>> executor = execute(new ApplyFuture(target));
 
-            Pair<Serializable, Serializable> res =
-                    executor.get(getMaxWaitTimeInSeconds(), TimeUnit.SECONDS);
+            Pair<Serializable, Serializable> res = executor.get(getMaxWaitTimeInSeconds(), TimeUnit.SECONDS);
 
             if (res.getLeft() != null) {
                 send(pageRef.getPage(), Broadcast.BUBBLE, res.getLeft());

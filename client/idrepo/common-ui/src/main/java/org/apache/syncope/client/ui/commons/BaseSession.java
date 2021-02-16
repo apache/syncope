@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.ui.commons;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 public interface BaseSession {
@@ -49,6 +51,8 @@ public interface BaseSession {
 
     String getDomain();
 
+    String getJWT();
+
     <T> T getAnonymousService(Class<T> serviceClass);
 
     <T> T getService(Class<T> serviceClass);
@@ -68,4 +72,6 @@ public interface BaseSession {
      * @param e raised exception
      */
     void onException(Exception e);
+
+    <T> Future<T> execute(Callable<T> command);
 }

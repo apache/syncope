@@ -18,11 +18,17 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -37,6 +43,23 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 public class ResourceRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -6898907679835668987L;
+
+    public static boolean check(final String coreAddress, final String domain, final String jwt, final String key)
+            throws IOException {
+
+        WebClient client = WebClient.create(coreAddress).path("resources").
+                accept(MediaType.APPLICATION_JSON_TYPE).
+                type(MediaType.APPLICATION_JSON_TYPE).
+                header(RESTHeaders.DOMAIN, domain).
+                authorization("Bearer " + jwt);
+        Response response = client.path(key).get();
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            response = client.back(false).path("check").
+                    post(IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
+            return response.getStatus() == Response.Status.NO_CONTENT.getStatusCode();
+        }
+        return false;
+    }
 
     public static Pair<Boolean, String> check(final ResourceTO resourceTO) {
         boolean check = false;
@@ -66,7 +89,7 @@ public class ResourceRestClient extends BaseRestClient {
             LOG.debug("Error fetching connector object key", e);
         }
         LOG.error("Unable to determine connector object key value for resource {}, {} and {}",
-            resource, anyTypeKey, anyKey);
+                resource, anyTypeKey, anyKey);
         return null;
     }
 
