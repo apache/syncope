@@ -30,71 +30,92 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.wicket.Application;
-import org.apache.wicket.Session;
-import org.apache.wicket.ThreadContext;
 import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.protocol.ws.api.message.TextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.CollectionUtils;
 
 public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
     private static final long serialVersionUID = -1653665542635275551L;
 
+    private static final String CONNECTOR_TEST_TIMEOUT_PARAMETER = "connector.test.timeout";
+
+    private static final String RESOURCE_TEST_TIMEOUT_PARAMETER = "resource.test.timeout";
+
     private static final Logger LOG = LoggerFactory.getLogger(TopologyWebSocketBehavior.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final Map<String, String> resources = Collections.<String, String>synchronizedMap(new HashMap<>());
+    private static void timeoutHandlingConnectionChecker(
+            final Checker checker,
+            final Integer timeout,
+            final Map<String, String> responses,
+            final Set<String> running) {
 
-    private static final String CONNECTOR_TEST_TIMEOUT_PARAMETER = "connector.test.timeout";
+        String response;
+        try {
+            if (timeout == null || timeout <= 0) {
+                LOG.debug("No timeouts for resource connection checking ... ");
+                response = checker.call();
+            } else {
+                LOG.debug("Timeouts provided for resource connection checking ... ");
+                response = SyncopeConsoleSession.get().execute(checker).get(timeout, TimeUnit.SECONDS);
+            }
+        } catch (InterruptedException | TimeoutException e) {
+            LOG.warn("Connection with {} timed out", checker.key);
+            response = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
+                    TopologyNode.Status.UNREACHABLE, checker.key);
+        } catch (Exception e) {
+            LOG.error("Unexpected exception conneting to {}", checker.key, e);
+            response = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
+                    TopologyNode.Status.FAILURE, checker.key);
+        }
 
-    private Integer connectorTestTimeout = null;
+        responses.put(checker.key, response);
 
-    private static final String RESOURCE_TEST_TIMEOUT_PARAMETER = "resource.test.timeout";
+        running.remove(checker.key);
+    }
 
-    private Integer resourceTestTimeout = null;
-
-    private final Set<String> runningResCheck = Collections.synchronizedSet(new HashSet<>());
-
-    private final Map<String, String> connectors = Collections.<String, String>synchronizedMap(new HashMap<>());
+    private final Map<String, String> connectors = Collections.synchronizedMap(new HashMap<>());
 
     private final Set<String> runningConnCheck = Collections.synchronizedSet(new HashSet<>());
 
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
+    private final Map<String, String> resources = Collections.synchronizedMap(new HashMap<>());
 
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
+    private final Set<String> runningResCheck = Collections.synchronizedSet(new HashSet<>());
+
+    private String coreAddress;
+
+    private String domain;
+
+    private String jwt;
+
+    private Integer connectorTestTimeout = null;
+
+    private Integer resourceTestTimeout = null;
 
     public TopologyWebSocketBehavior() {
+        coreAddress = SyncopeConsoleApplication.get().newClientFactory().getAddress();
+        domain = SyncopeConsoleSession.get().getDomain();
+        jwt = SyncopeConsoleSession.get().getJWT();
+
         // Handling with timeout as per SYNCOPE-1379
+        ConfRestClient confRestClient = new ConfRestClient();
         try {
-            // Loop just to avoid NotFound exception raising on the Core side
-            for (AttrTO param : new ConfRestClient().list()) {
-                if (!CollectionUtils.isEmpty(param.getValues())) {
-                    try {
-                        if (CONNECTOR_TEST_TIMEOUT_PARAMETER.equalsIgnoreCase(param.getSchema())) {
-                            connectorTestTimeout = Integer.parseInt(param.getValues().get(0));
-                        } else if (RESOURCE_TEST_TIMEOUT_PARAMETER.equalsIgnoreCase(param.getSchema())) {
-                            resourceTestTimeout = Integer.parseInt(param.getValues().get(0));
-                        }
-                    } catch (NumberFormatException e) {
-                        LOG.warn("Invalid timeout {}", param);
-                    }
-                }
-            }
-        } catch (SyncopeClientException e) {
-            // ignore exception
+            connectorTestTimeout = Integer.parseInt(
+                    confRestClient.get(CONNECTOR_TEST_TIMEOUT_PARAMETER).getValues().get(0));
+            resourceTestTimeout = Integer.parseInt(
+                    confRestClient.get(RESOURCE_TEST_TIMEOUT_PARAMETER).getValues().get(0));
+        } catch (Exception e) {
+            LOG.debug("No {} or {} conf parameters found",
+                    CONNECTOR_TEST_TIMEOUT_PARAMETER, RESOURCE_TEST_TIMEOUT_PARAMETER, e);
         }
     }
 
@@ -102,10 +123,9 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
     protected void onMessage(final WebSocketRequestHandler handler, final TextMessage message) {
         try {
             JsonNode obj = OBJECT_MAPPER.readTree(message.getText());
-
             switch (Topology.SupportedOperation.valueOf(obj.get("kind").asText())) {
                 case CHECK_CONNECTOR:
-                    final String ckey = obj.get("target").asText();
+                    String ckey = obj.get("target").asText();
 
                     if (connectors.containsKey(ckey)) {
                         handler.push(connectors.get(ckey));
@@ -117,18 +137,19 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                     if (runningConnCheck.contains(ckey)) {
                         LOG.debug("Running connection check for connector {}", ckey);
                     } else {
-                        runningConnCheck.add(ckey);
-                    }
+                        try {
+                            SyncopeConsoleSession.get().execute(() -> timeoutHandlingConnectionChecker(
+                                    new ConnectorChecker(ckey), connectorTestTimeout, connectors, runningConnCheck));
 
-                    try {
-                        SyncopeConsoleSession.get().execute(new ConnCheck(ckey));
-                    } catch (Exception e) {
-                        LOG.error("Unexpected error", e);
+                            runningConnCheck.add(ckey);
+                        } catch (Exception e) {
+                            LOG.error("Unexpected error", e);
+                        }
                     }
-
                     break;
+
                 case CHECK_RESOURCE:
-                    final String rkey = obj.get("target").asText();
+                    String rkey = obj.get("target").asText();
 
                     if (resources.containsKey(rkey)) {
                         handler.push(resources.get(rkey));
@@ -140,22 +161,24 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                     if (runningResCheck.contains(rkey)) {
                         LOG.debug("Running connection check for resource {}", rkey);
                     } else {
-                        runningResCheck.add(rkey);
-                    }
+                        try {
+                            SyncopeConsoleSession.get().execute(() -> timeoutHandlingConnectionChecker(
+                                    new ResourceChecker(rkey), resourceTestTimeout, resources, runningResCheck));
 
-                    try {
-                        SyncopeConsoleSession.get().execute(new ResCheck(rkey));
-                    } catch (Exception e) {
-                        LOG.error("Unexpected error", e);
+                            runningResCheck.add(rkey);
+                        } catch (Exception e) {
+                            LOG.error("Unexpected error", e);
+                        }
                     }
-
                     break;
+
                 case ADD_ENDPOINT:
                     handler.appendJavaScript(String.format("addEndpoint('%s', '%s', '%s');",
                             obj.get("source").asText(),
                             obj.get("target").asText(),
                             obj.get("scope").asText()));
                     break;
+
                 default:
             }
         } catch (IOException e) {
@@ -171,170 +194,51 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
         return this.resources.keySet().containsAll(resources);
     }
 
-    private void timeoutHandlingConnectionChecker(
-            final Checker checker,
-            final Integer timeout,
-            final Map<String, String> responses,
-            final Set<String> running) {
-        String res = null;
-        try {
-            if (timeout == null) {
-                LOG.debug("No timeouts for resource connection checking ... ");
-                res = SyncopeConsoleSession.get().execute(checker).get();
-            } else if (timeout > 0) {
-                LOG.debug("Timeouts provided for resource connection checking ... ");
-                res = SyncopeConsoleSession.get().execute(checker).get(timeout, TimeUnit.SECONDS);
-            }
-        } catch (InterruptedException | TimeoutException e) {
-            LOG.warn("Connection with {} timed out", checker.getKey());
-            res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                    TopologyNode.Status.UNREACHABLE, checker.getKey());
-        } catch (Exception e) {
-            LOG.error("Unexpected exception conneting to {}", checker.getKey(), e);
-            res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                    TopologyNode.Status.FAILURE, checker.getKey());
-        }
-
-        if (res != null) {
-            responses.put(checker.getKey(), res);
-        }
-
-        running.remove(checker.getKey());
-    }
-
-    class ConnCheck implements Runnable {
-
-        private final String key;
-
-        private final Application application;
-
-        private final Session session;
-
-        ConnCheck(final String key) {
-            this.key = key;
-            this.application = Application.get();
-            this.session = Session.exists() ? Session.get() : null;
-        }
-
-        @Override
-        public void run() {
-            ThreadContext.setApplication(application);
-            ThreadContext.setSession(session);
-
-            try {
-                timeoutHandlingConnectionChecker(
-                        new ConnectorChecker(key, this.application),
-                        connectorTestTimeout,
-                        connectors,
-                        runningConnCheck);
-            } finally {
-                ThreadContext.detach();
-            }
-        }
-    }
-
-    class ResCheck implements Runnable {
-
-        private final String key;
-
-        private final Application application;
-
-        private final Session session;
-
-        ResCheck(final String key) {
-            this.key = key;
-            this.application = Application.get();
-            this.session = Session.exists() ? Session.get() : null;
-        }
-
-        @Override
-        public void run() {
-            ThreadContext.setApplication(application);
-            ThreadContext.setSession(session);
-
-            try {
-                timeoutHandlingConnectionChecker(
-                        new ResourceChecker(key, this.application),
-                        resourceTestTimeout,
-                        resources,
-                        runningResCheck);
-            } finally {
-                ThreadContext.detach();
-            }
-        }
-    }
-
-    abstract class Checker implements Callable<String> {
+    private abstract class Checker implements Callable<String> {
 
         protected final String key;
 
-        protected final Application application;
-
-        protected final Session session;
-
-        Checker(final String key, final Application application) {
+        Checker(final String key) {
             this.key = key;
-            this.application = application;
-            this.session = Session.exists() ? Session.get() : null;
         }
-
-        public String getKey() {
-            return key;
-        }
-
-        @Override
-        public abstract String call() throws Exception;
     }
 
-    class ConnectorChecker extends Checker {
+    private class ConnectorChecker extends Checker {
 
-        ConnectorChecker(final String key, final Application application) {
-            super(key, application);
+        ConnectorChecker(final String key) {
+            super(key);
         }
 
         @Override
         public String call() throws Exception {
-            ThreadContext.setApplication(application);
-            ThreadContext.setSession(session);
-
             try {
-                final ConnInstanceTO connector = connectorRestClient.read(key);
                 return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                        connectorRestClient.check(connector).getLeft()
+                        ConnectorRestClient.check(coreAddress, domain, jwt, key)
                         ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
             } catch (Exception e) {
                 LOG.warn("Error checking connection for {}", key, e);
                 return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
                         TopologyNode.Status.FAILURE, key);
-            } finally {
-                ThreadContext.detach();
             }
         }
     }
 
-    class ResourceChecker extends Checker {
+    private class ResourceChecker extends Checker {
 
-        ResourceChecker(final String key, final Application application) {
-            super(key, application);
+        ResourceChecker(final String key) {
+            super(key);
         }
 
         @Override
         public String call() throws Exception {
-            ThreadContext.setApplication(application);
-            ThreadContext.setSession(session);
-
             try {
-                final ResourceTO resource = resourceRestClient.read(key);
                 return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                        resourceRestClient.check(resource).getLeft()
+                        ResourceRestClient.check(coreAddress, domain, jwt, key)
                         ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
             } catch (Exception e) {
                 LOG.warn("Error checking connection for {}", key, e);
                 return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                        TopologyNode.Status.FAILURE,
-                        key);
-            } finally {
-                ThreadContext.detach();
+                        TopologyNode.Status.FAILURE, key);
             }
         }
     }

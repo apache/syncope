@@ -123,10 +123,9 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         super(request);
 
         clientFactory = SyncopeConsoleApplication.get().newClientFactory();
-        anonymousClient = clientFactory.
-                create(new AnonymousAuthenticationHandler(
-                        SyncopeConsoleApplication.get().getAnonymousUser(),
-                        SyncopeConsoleApplication.get().getAnonymousKey()));
+        anonymousClient = clientFactory.create(new AnonymousAuthenticationHandler(
+                SyncopeConsoleApplication.get().getAnonymousUser(),
+                SyncopeConsoleApplication.get().getAnonymousKey()));
 
         platformInfo = anonymousClient.getService(SyncopeService.class).platform();
         systemInfo = anonymousClient.getService(SyncopeService.class).system();
