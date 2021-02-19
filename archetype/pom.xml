@@ -346,7 +346,7 @@ under the License.
         <directory>../fit/wa-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/test/resources</targetPath>
         <includes>
-          <include>wa</include>
+          <include>wa.properties</include>
           <include>keymaster.properties</include>
         </includes>
       </resource>
