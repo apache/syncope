@@ -20,7 +20,6 @@ package org.apache.syncope.wa.bootstrap;
 
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -81,6 +80,23 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         this.waRestClient = waRestClient;
     }
 
+    private static SimpleFilterProvider getParentCasFilterProvider() {
+        return new SimpleFilterProvider().
+                setFailOnUnknownId(false).
+                addFilter(CasConfigurationProperties.class.getSimpleName(),
+                        SimpleBeanPropertyFilter.filterOutAllExcept(
+                                CasCoreConfigurationUtils.getPropertyName(
+                                        CasConfigurationProperties.class,
+                                        CasConfigurationProperties::getAuthn)));
+    }
+
+    private static Map<String, Object> filterCasProperties(
+            final CasConfigurationProperties casProperties,
+            final SimpleFilterProvider filters) {
+
+        return CasCoreConfigurationUtils.asMap(casProperties.withHolder(), filters);
+    }
+
     private static Map<String, Object> mapAuthModule(
             final String authModule,
             final SyncopeAuthModuleConf conf,
@@ -93,10 +109,12 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
         casProperties.getAuthn().setSyncope(syncopeProps);
+
         SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.addFilter(AuthenticationProperties.class.getSimpleName(),
                 SimpleBeanPropertyFilter.filterOutAllExcept(
-                        CasCoreConfigurationUtils.getPropertyName(AuthenticationProperties.class,
+                        CasCoreConfigurationUtils.getPropertyName(
+                                AuthenticationProperties.class,
                                 AuthenticationProperties::getSyncope)));
         return filterCasProperties(casProperties, filterProvider);
     }
@@ -113,11 +131,13 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         staticProps.setUsers(users);
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         casProperties.getAuthn().setAccept(staticProps);
+
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.addFilter(AuthenticationProperties.class.getSimpleName(),
                 SimpleBeanPropertyFilter.filterOutAllExcept(
-                        CasCoreConfigurationUtils.getPropertyName(AuthenticationProperties.class,
+                        CasCoreConfigurationUtils.getPropertyName(
+                                AuthenticationProperties.class,
                                 AuthenticationProperties::getAccept)));
         return filterCasProperties(casProperties, filterProvider);
     }
@@ -142,18 +162,21 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
         casProperties.getAuthn().getLdap().add(ldapProps);
+
         SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.addFilter(
                 AuthenticationProperties.class.getSimpleName(),
                 SimpleBeanPropertyFilter.filterOutAllExcept(
                         CasCoreConfigurationUtils.getPropertyName(
-                                AuthenticationProperties.class, AuthenticationProperties::getLdap)));
+                                AuthenticationProperties.class,
+                                AuthenticationProperties::getLdap)));
         return filterCasProperties(casProperties, filterProvider);
     }
 
     private static Map<String, Object> mapAuthModule(
-        final String authModule,
-        final DuoMfaAuthModuleConf conf) {
+            final String authModule,
+            final DuoMfaAuthModuleConf conf) {
+
         DuoSecurityMultifactorProperties props = new DuoSecurityMultifactorProperties();
         props.setName(authModule);
         props.setDuoApiHost(conf.getApiHost());
@@ -162,18 +185,20 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setDuoSecretKey(conf.getSecretKey());
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         casProperties.getAuthn().getMfa().setDuo(List.of(props));
-        
+
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.
-            addFilter(AuthenticationProperties.class.getSimpleName(),
-                SimpleBeanPropertyFilter.filterOutAllExcept(
-                    CasCoreConfigurationUtils.getPropertyName(AuthenticationProperties.class,
-                        AuthenticationProperties::getMfa))).
-            addFilter(MultifactorAuthenticationProperties.class.getSimpleName(),
-                SimpleBeanPropertyFilter.filterOutAllExcept(
-                    CasCoreConfigurationUtils.getPropertyName(MultifactorAuthenticationProperties.class,
-                        MultifactorAuthenticationProperties::getDuo)));
+                addFilter(AuthenticationProperties.class.getSimpleName(),
+                        SimpleBeanPropertyFilter.filterOutAllExcept(
+                                CasCoreConfigurationUtils.getPropertyName(
+                                        AuthenticationProperties.class,
+                                        AuthenticationProperties::getMfa))).
+                addFilter(MultifactorAuthenticationProperties.class.getSimpleName(),
+                        SimpleBeanPropertyFilter.filterOutAllExcept(
+                                CasCoreConfigurationUtils.getPropertyName(
+                                        MultifactorAuthenticationProperties.class,
+                                        MultifactorAuthenticationProperties::getDuo)));
         return filterCasProperties(casProperties, filterProvider);
     }
 
@@ -190,16 +215,19 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setWindowSize(conf.getWindowSize());
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         casProperties.getAuthn().getMfa().setGauth(props);
-        filterProvider.
-                addFilter(AuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(AuthenticationProperties.class,
-                                        AuthenticationProperties::getMfa))).
+
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
+        filterProvider.addFilter(
+                AuthenticationProperties.class.getSimpleName(),
+                SimpleBeanPropertyFilter.filterOutAllExcept(
+                        CasCoreConfigurationUtils.getPropertyName(
+                                AuthenticationProperties.class,
+                                AuthenticationProperties::getMfa))).
                 addFilter(MultifactorAuthenticationProperties.class.getSimpleName(),
                         SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(MultifactorAuthenticationProperties.class,
+                                CasCoreConfigurationUtils.getPropertyName(
+                                        MultifactorAuthenticationProperties.class,
                                         MultifactorAuthenticationProperties::getGauth)));
         return filterCasProperties(casProperties, filterProvider);
     }
@@ -216,17 +244,19 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setExpireRegistrationsTimeUnit(TimeUnit.valueOf(conf.getExpireRegistrationsTimeUnit()));
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         casProperties.getAuthn().getMfa().setU2f(props);
 
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.
                 addFilter(AuthenticationProperties.class.getSimpleName(),
                         SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(AuthenticationProperties.class,
+                                CasCoreConfigurationUtils.getPropertyName(
+                                        AuthenticationProperties.class,
                                         AuthenticationProperties::getMfa))).
                 addFilter(MultifactorAuthenticationProperties.class.getSimpleName(),
                         SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(MultifactorAuthenticationProperties.class,
+                                CasCoreConfigurationUtils.getPropertyName(
+                                        MultifactorAuthenticationProperties.class,
                                         MultifactorAuthenticationProperties::getU2f)));
         return filterCasProperties(casProperties, filterProvider);
     }
@@ -244,12 +274,13 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setRealm(conf.getRealm());
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         casProperties.getAuthn().getJaas().add(props);
 
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.addFilter(AuthenticationProperties.class.getSimpleName(),
                 SimpleBeanPropertyFilter.filterOutAllExcept(
-                        CasCoreConfigurationUtils.getPropertyName(AuthenticationProperties.class,
+                        CasCoreConfigurationUtils.getPropertyName(
+                                AuthenticationProperties.class,
                                 AuthenticationProperties::getJaas)));
         return filterCasProperties(casProperties, filterProvider);
     }
@@ -272,17 +303,19 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.setPrincipalAttributeList(conf.getPrincipalAttributeList());
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         casProperties.getAuthn().getJdbc().getQuery().add(props);
 
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.
                 addFilter(AuthenticationProperties.class.getSimpleName(),
                         SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(AuthenticationProperties.class,
+                                CasCoreConfigurationUtils.getPropertyName(
+                                        AuthenticationProperties.class,
                                         AuthenticationProperties::getJdbc))).
                 addFilter(MultifactorAuthenticationProperties.class.getSimpleName(),
                         SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(JdbcAuthenticationProperties.class,
+                                CasCoreConfigurationUtils.getPropertyName(
+                                        JdbcAuthenticationProperties.class,
                                         JdbcAuthenticationProperties::getQuery)));
         return filterCasProperties(casProperties, filterProvider);
     }
@@ -307,17 +340,19 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         client.setGeneric(props);
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         casProperties.getAuthn().getPac4j().getOidc().add(client);
 
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.
                 addFilter(AuthenticationProperties.class.getSimpleName(),
                         SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(AuthenticationProperties.class,
+                                CasCoreConfigurationUtils.getPropertyName(
+                                        AuthenticationProperties.class,
                                         AuthenticationProperties::getPac4j))).
                 addFilter(Pac4jDelegatedAuthenticationProperties.class.getSimpleName(),
                         SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(Pac4jDelegatedAuthenticationProperties.class,
+                                CasCoreConfigurationUtils.getPropertyName(
+                                        Pac4jDelegatedAuthenticationProperties.class,
                                         Pac4jDelegatedAuthenticationProperties::getOidc)));
         return filterCasProperties(casProperties, filterProvider);
     }
@@ -346,13 +381,15 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         props.getServer().setRetries(conf.getRetries());
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         casProperties.getAuthn().setRadius(props);
-        filterProvider.
-                addFilter(AuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(AuthenticationProperties.class,
-                                        AuthenticationProperties::getRadius)));
+
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
+        filterProvider.addFilter(
+                AuthenticationProperties.class.getSimpleName(),
+                SimpleBeanPropertyFilter.filterOutAllExcept(
+                        CasCoreConfigurationUtils.getPropertyName(
+                                AuthenticationProperties.class,
+                                AuthenticationProperties::getRadius)));
         return filterCasProperties(casProperties, filterProvider);
     }
 
@@ -386,32 +423,21 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
                 : TriStateBoolean.valueOf(conf.getNameIdPolicyAllowCreate().toUpperCase()));
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         casProperties.getAuthn().getPac4j().getSaml().add(props);
 
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.
                 addFilter(AuthenticationProperties.class.getSimpleName(),
                         SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(AuthenticationProperties.class,
+                                CasCoreConfigurationUtils.getPropertyName(
+                                        AuthenticationProperties.class,
                                         AuthenticationProperties::getPac4j))).
                 addFilter(Pac4jDelegatedAuthenticationProperties.class.getSimpleName(),
                         SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(Pac4jDelegatedAuthenticationProperties.class,
+                                CasCoreConfigurationUtils.getPropertyName(
+                                        Pac4jDelegatedAuthenticationProperties.class,
                                         Pac4jDelegatedAuthenticationProperties::getSaml)));
         return filterCasProperties(casProperties, filterProvider);
-    }
-
-    private static SimpleFilterProvider getParentCasFilterProvider() {
-        return new SimpleFilterProvider().
-                setFailOnUnknownId(false).
-                addFilter(CasConfigurationProperties.class.getSimpleName(), SimpleBeanPropertyFilter.filterOutAllExcept(
-                        CasCoreConfigurationUtils.getPropertyName(CasConfigurationProperties.class,
-                                CasConfigurationProperties::getAuthn)));
-    }
-
-    private static Map<String, Object> filterCasProperties(final CasConfigurationProperties casProperties,
-            final SimpleFilterProvider filters) {
-        return CasCoreConfigurationUtils.asMap(casProperties.withHolder(), filters);
     }
 
     @Override
@@ -455,8 +481,8 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             }
         });
 
-        syncopeClient.getService(WAConfigService.class).list()
-                .forEach(configTO -> properties.put(configTO.getSchema(), configTO.getValues()));
+        syncopeClient.getService(WAConfigService.class).list().
+                forEach(configTO -> properties.put(configTO.getSchema(), configTO.getValues()));
         LOG.debug("Collected WA properties: {}", properties);
         return new MapPropertySource(getClass().getName(), properties);
     }

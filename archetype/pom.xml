@@ -135,9 +135,6 @@ under the License.
       </resource>
       <resource>
         <directory>../core/provisioning-java/src/main/resources</directory>
-        <excludes>
-          <exclude>*Context.xml</exclude>
-        </excludes>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
       </resource>
       <resource>
@@ -324,15 +321,11 @@ under the License.
       </resource>
 
       <resource>
-        <directory>../wa/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/main/resources</targetPath>
-      </resource>
-      <resource>
-        <directory>../wa/src/test/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/main/resources</targetPath>
+        <directory>../wa/starter/src/main/resources</directory>
         <includes>
-          <include>keymaster.properties</include>          
+          <include>application.properties</include>
         </includes>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/main/resources</targetPath>
       </resource>
       <resource>
         <directory>../fit/wa-reference/src/main/resources</directory>
