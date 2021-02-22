@@ -471,7 +471,7 @@ under the License.
     <chartjs.version>1.0.2</chartjs.version>
     
     <wicket.version>7.17.0</wicket.version>
-    <wicket-jqueryui.version>7.10.2</wicket-jqueryui.version>
+    <wicket-jqueryui.version>7.17.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>0.10.18</wicket-bootstrap.version>
 
     <angular.version>1.7.5</angular.version>
