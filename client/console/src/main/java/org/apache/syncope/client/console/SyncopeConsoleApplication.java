@@ -194,7 +194,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
         getResourceSettings().setUseMinifiedResources(true);
 
-        getResourceSettings().setThrowExceptionOnMissingResource(true);
+        getResourceSettings().setUseDefaultOnMissingResource(false);
+        getResourceSettings().setThrowExceptionOnMissingResource(false);
 
         getJavaScriptLibrarySettings().setJQueryReference(new DynamicJQueryResourceReference());
 
