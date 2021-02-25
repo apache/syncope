@@ -245,7 +245,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
         getResourceSettings().setUseMinifiedResources(true);
 
-        getResourceSettings().setThrowExceptionOnMissingResource(true);
+        getResourceSettings().setUseDefaultOnMissingResource(false);
+        getResourceSettings().setThrowExceptionOnMissingResource(false);
 
         getSecuritySettings().setAuthorizationStrategy(new MetaDataRoleAuthorizationStrategy(this));
 
