@@ -202,8 +202,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         Bootstrap.install(this, settings);
 
         getResourceSettings().setUseMinifiedResources(true);
-
-        getResourceSettings().setUseDefaultOnMissingResource(false);
+        getResourceSettings().setUseDefaultOnMissingResource(true);
         getResourceSettings().setThrowExceptionOnMissingResource(false);
 
         getJavaScriptLibrarySettings().setJQueryReference(JQueryResourceReference.getV2());
