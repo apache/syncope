@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels.search;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -84,17 +85,17 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected List<SearchClause.Type> load() {
-                return List.of(SearchClause.Type.ATTRIBUTE);
+                return Collections.singletonList(SearchClause.Type.ATTRIBUTE);
             }
         };
 
-        this.dnames = new LoadableDetachableModel<List<String>>() {
+        this.dnames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
 
             private static final long serialVersionUID = 2989042618372L;
 
             @Override
-            protected List<String> load() {
-                return List.of();
+            protected Map<String, PlainSchemaTO> load() {
+                return Collections.emptyMap();
             }
         };
 

@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -75,7 +76,8 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
         super(modal, pageRef);
         this.type = type;
 
-        final List<String> detailslList = SearchableFields.get(DisplayAttributesModalPanel.getTOClass(type));
+        final List<String> detailslList = SearchableFields.get(DisplayAttributesModalPanel.getTOClass(type))
+                .keySet().stream().collect(Collectors.toList());
         Collections.sort(detailslList);
         Collections.sort(pSchemaNames);
         Collections.sort(dSchemaNames);

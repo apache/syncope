@@ -20,9 +20,9 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -220,7 +220,7 @@ public final class SearchUtils implements Serializable {
             final List<SearchClause> clauses,
             final AbstractFiqlSearchConditionBuilder<?, ?, ?> builder) {
 
-        return buildFIQL(clauses, builder, Map.of(), NO_CUSTOM_CONDITION);
+        return buildFIQL(clauses, builder, Collections.emptyMap(), NO_CUSTOM_CONDITION);
     }
 
     public static String buildFIQL(
@@ -243,7 +243,7 @@ public final class SearchUtils implements Serializable {
                 String value = clause.getValue() == null
                         ? null
                         : ENCODINGS.keySet().stream().
-                                reduce(clause.getValue(), (s, k) -> s.replace(k, ENCODINGS.get(k)));
+                                reduce(clause.getValue().toString(), (s, k) -> s.replace(k, ENCODINGS.get(k)));
 
                 switch (clause.getType()) {
                     case GROUP_MEMBER:
@@ -487,7 +487,7 @@ public final class SearchUtils implements Serializable {
             notTheFirst = true;
         }
 
-        String fiql = Optional.ofNullable(condition).map(CompleteCondition::query).orElse(null);
+        String fiql = condition == null ? null : condition.query();
         LOG.debug("Generated FIQL: {}", fiql);
 
         return fiql;

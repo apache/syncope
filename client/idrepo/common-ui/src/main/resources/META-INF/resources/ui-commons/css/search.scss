@@ -31,7 +31,7 @@
     }
   }
   .field {
-    line-height: 34px;
+    line-height: 30px;
     float: left;
     padding: 0 3px 0px 0px;
     display: inline-block !important;
@@ -63,7 +63,7 @@
     }
   }
   .value {
-    width: 250px;
+    width: 320px;
   }
   .date {
     width: 160px;
@@ -92,4 +92,12 @@
 
 .custom-autocomplete-box li.selected {
   background-color: #eee;
+}
+
+.search-spinner {
+  line-height: 23px !important;
+}
+
+.search-spinner span{
+  width: 70% !important;
 }

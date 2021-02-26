@@ -21,7 +21,11 @@ package org.apache.syncope.client.console.panels.search;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggle;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +33,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.panels.search.SearchClause.Comparator;
@@ -42,10 +47,14 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.SchemaUtils;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
@@ -72,6 +81,8 @@ import org.apache.wicket.model.PropertyModel;
 public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private static final long serialVersionUID = -527351923968737757L;
+
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = ThreadLocal.withInitial(SimpleDateFormat::new);
 
     protected static final AttributeModifier PREVENT_DEFAULT_RETURN = AttributeModifier.replace(
             "onkeydown",
@@ -111,7 +122,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         }
 
         default void setFieldAccess(
-                AjaxTextFieldPanel value,
+                FieldPanel value,
                 AjaxTextFieldPanel property,
                 LoadableDetachableModel<List<String>> properties) {
 
@@ -133,7 +144,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final IModel<Map<String, PlainSchemaTO>> anames;
 
-    private final IModel<List<String>> dnames;
+    private final IModel<Map<String, PlainSchemaTO>> dnames;
 
     private final Pair<IModel<List<String>>, IModel<Integer>> groupInfo;
 
@@ -157,6 +168,9 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private IEventSink resultContainer;
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private FieldPanel value;
+
     private final GroupRestClient groupRestClient = new GroupRestClient();
 
     public SearchClausePanel(
@@ -167,7 +181,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final IModel<List<SearchClause.Type>> types,
             final Customizer customizer,
             final IModel<Map<String, PlainSchemaTO>> anames,
-            final IModel<List<String>> dnames,
+            final IModel<Map<String, PlainSchemaTO>> dnames,
             final Pair<IModel<List<String>>, IModel<Integer>> groupInfo,
             final IModel<List<String>> roleNames,
             final IModel<List<String>> privilegeNames,
@@ -264,7 +278,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                 switch (field.getModel().getObject().getType()) {
                     case ATTRIBUTE:
-                        List<String> names = new ArrayList<>(dnames.getObject());
+                        List<String> names = new ArrayList<>(dnames.getObject().keySet());
                         if (anames != null && anames.getObject() != null && !anames.getObject().isEmpty()) {
                             names.addAll(anames.getObject().keySet());
                         }
@@ -356,6 +370,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     }
 
     @Override
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public FieldPanel<SearchClause> settingsDependingComponents() {
         SearchClause searchClause = this.clause.getObject();
 
@@ -488,36 +503,25 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         comparator.setChoiceRenderer(getComparatorRender(field.getModel()));
         field.add(comparator);
 
-        AjaxTextFieldPanel value = new AjaxTextFieldPanel(
-                "value", "value", new PropertyModel<>(searchClause, "value"), true);
-        value.hideLabel().setOutputMarkupId(true);
-        field.add(value);
+        renderSearchValueField(searchClause, property);
+        field.addOrReplace(value);
 
-        value.getField().add(PREVENT_DEFAULT_RETURN);
-        value.getField().add(new IndicatorAjaxEventBehavior(Constants.ON_KEYDOWN) {
+        property.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
-            private static final long serialVersionUID = -7133385027739964990L;
+            private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
-            protected void onEvent(final AjaxRequestTarget target) {
-                target.focusComponent(null);
-                value.getField().inputChanged();
-                value.getField().validate();
-                if (value.getField().isValid()) {
-                    value.getField().valid();
-                    value.getField().updateModel();
-                }
+            protected void onUpdate(final AjaxRequestTarget target) {
+                renderSearchValueField(searchClause, property);
+                field.addOrReplace(value);
+                target.add(value);
             }
-
-            @Override
-            protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
-                super.updateAjaxAttributes(attributes);
-                AJAX_SUBMIT_ON_RETURN.accept(attributes);
-            }
-        });
+        }
+        );
 
         AjaxDropDownChoicePanel<SearchClause.Type> type = new AjaxDropDownChoicePanel<>(
                 "type", "type", new PropertyModel<>(searchClause, "type"));
+
         type.setChoices(types).setChoiceRenderer(customizer.typeRenderer()).
                 hideLabel().setRequired(required).setOutputMarkupId(true);
         type.setNullValid(false);
@@ -583,11 +587,12 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         return this;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private void setFieldAccess(
             final Type type,
             final AjaxTextFieldPanel property,
             final FieldPanel<Comparator> comparator,
-            final AjaxTextFieldPanel value) {
+            final FieldPanel value) {
 
         if (type != null) {
             property.setEnabled(true);
@@ -877,6 +882,144 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 return comparator;
             }
         };
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private void renderSearchValueField(
+            final SearchClause searchClause,
+            final AjaxTextFieldPanel property) {
+
+        PlainSchemaTO plainSchemaTO = anames.getObject().get(property.getModelObject());
+        if (plainSchemaTO == null) {
+            PlainSchemaTO defaultPlainTO = new PlainSchemaTO();
+            defaultPlainTO.setType(AttrSchemaType.String);
+            plainSchemaTO = dnames.getObject().getOrDefault(property.getModelObject(), defaultPlainTO);
+        }
+
+        switch (plainSchemaTO.getType()) {
+            case Boolean:
+                value = new AjaxTextFieldPanel(
+                        "value",
+                        "value",
+                        new PropertyModel<>(searchClause, "value"),
+                        true);
+                ((AjaxTextFieldPanel) value).setChoices(Arrays.asList("true", "false"));
+
+                break;
+            case Date:
+                SimpleDateFormat df = DATE_FORMAT.get();
+                df.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
+
+                value = new AjaxDateTimeFieldPanel(
+                        "value",
+                        "value",
+                        new PropertyModel(searchClause, "value") {
+
+                    private static final long serialVersionUID = 1177692285167186690L;
+
+                    @Override
+                    public Object getObject() {
+                        String date = (String) super.getObject();
+                        try {
+                            return date != null ? df.parse(date) : null;
+                        } catch (ParseException ex) {
+                            LOG.error("Date parse error {}", date, ex);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    public void setObject(final Object object) {
+                        if (object instanceof Date) {
+                            String valueDate = df.format(object);
+                            super.setObject(valueDate);
+                        } else {
+                            super.setObject(object);
+                        }
+                    }
+                }, FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN));
+                break;
+
+            case Enum:
+                value = new AjaxDropDownChoicePanel<>(
+                        "value",
+                        "value",
+                        new PropertyModel(searchClause, "value"),
+                        true);
+                ((AjaxDropDownChoicePanel<String>) value).setChoices(SchemaUtils.getEnumeratedValues(plainSchemaTO));
+
+                if (StringUtils.isNotBlank(plainSchemaTO.getEnumerationKeys())) {
+                    Map<String, String> valueMap = SchemaUtils.getEnumeratedKeyValues(plainSchemaTO);
+                    ((AjaxDropDownChoicePanel) value).setChoiceRenderer(new IChoiceRenderer<String>() {
+
+                        private static final long serialVersionUID = -3724971416312135885L;
+
+                        @Override
+                        public String getDisplayValue(final String value) {
+                            return valueMap.get(value) == null ? value : valueMap.get(value);
+                        }
+
+                        @Override
+                        public String getIdValue(final String value, final int i) {
+                            return value;
+                        }
+
+                        @Override
+                        public String getObject(
+                                final String id, final IModel<? extends List<? extends String>> choices) {
+                            return id;
+                        }
+                    });
+                }
+                break;
+            case Long:
+                value = new AjaxSpinnerFieldPanel.Builder<Long>().enableOnChange().build(
+                        "value",
+                        "Value",
+                        Long.class,
+                        new PropertyModel(searchClause, "value"));
+
+                value.add(new AttributeModifier("class", "field value search-spinner"));
+                break;
+
+            case Double:
+                value = new AjaxSpinnerFieldPanel.Builder<Double>().enableOnChange().step(0.1).build(
+                        "value",
+                        "value",
+                        Double.class,
+                        new PropertyModel(searchClause, "value"));
+                value.add(new AttributeModifier("class", "field value search-spinner"));
+                break;
+
+            default:
+                value = new AjaxTextFieldPanel(
+                        "value", "value", new PropertyModel<>(searchClause, "value"), true);
+                break;
+        }
+
+        value.hideLabel().setOutputMarkupId(true);
+        value.getField().add(PREVENT_DEFAULT_RETURN);
+        value.getField().add(new IndicatorAjaxEventBehavior(Constants.ON_KEYDOWN) {
+
+            private static final long serialVersionUID = -7133385027739964990L;
+
+            @Override
+            protected void onEvent(final AjaxRequestTarget target) {
+                target.focusComponent(null);
+                value.getField().inputChanged();
+                value.getField().validate();
+                if (value.getField().isValid()) {
+                    value.getField().valid();
+                    value.getField().updateModel();
+                }
+            }
+
+            @Override
+            protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
+                super.updateAjaxAttributes(attributes);
+                AJAX_SUBMIT_ON_RETURN.accept(attributes);
+            }
+        });
     }
 
     @Override

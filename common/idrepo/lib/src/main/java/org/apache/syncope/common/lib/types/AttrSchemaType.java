@@ -19,6 +19,7 @@
 package org.apache.syncope.common.lib.types;
 
 import java.util.Date;
+import java.util.stream.Stream;
 
 public enum AttrSchemaType {
 
@@ -46,4 +47,10 @@ public enum AttrSchemaType {
                 || this == AttrSchemaType.Double
                 || this == AttrSchemaType.Long;
     }
+
+    public static AttrSchemaType getAttrSchemaTypeByClass(final Class<?> type) {
+        return Stream.of(AttrSchemaType.values())
+                .filter(item -> type == item.getType()).findFirst().orElse(AttrSchemaType.String);
+    }
+
 }
