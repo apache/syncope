@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.panels.search;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -56,7 +57,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected ResourceRestClient resourceRestClient = new ResourceRestClient();
 
-    protected IModel<List<String>> dnames;
+    protected IModel<Map<String, PlainSchemaTO>> dnames;
 
     protected IModel<Map<String, PlainSchemaTO>> anames;
 
@@ -188,13 +189,19 @@ public abstract class AbstractSearchPanel extends Panel {
     }
 
     protected void populate() {
-        dnames = new LoadableDetachableModel<List<String>>() {
+        dnames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected List<String> load() {
-                return SearchableFields.get(typeKind.getTOClass());
+            protected Map<String, PlainSchemaTO> load() {
+                Map<String, PlainSchemaTO> dSchemaNames = new HashMap<>();
+                SearchableFields.get(typeKind.getTOClass()).forEach((key, type) -> {
+                            PlainSchemaTO plain = new PlainSchemaTO();
+                            plain.setType(type);
+                            dSchemaNames.put(key, plain);
+                        });
+                return dSchemaNames;
             }
         };
 

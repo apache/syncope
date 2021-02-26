@@ -89,13 +89,13 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
             }
         };
 
-        this.dnames = new LoadableDetachableModel<List<String>>() {
+        this.dnames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
 
             private static final long serialVersionUID = 2989042618372L;
 
             @Override
-            protected List<String> load() {
-                return Collections.emptyList();
+            protected Map<String, PlainSchemaTO> load() {
+                return Collections.emptyMap();
             }
         };
 
