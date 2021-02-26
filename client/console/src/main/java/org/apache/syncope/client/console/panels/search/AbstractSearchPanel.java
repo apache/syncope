@@ -196,11 +196,10 @@ public abstract class AbstractSearchPanel extends Panel {
             @Override
             protected Map<String, PlainSchemaTO> load() {
                 Map<String, PlainSchemaTO> dSchemaNames = new HashMap<>();
-                SearchableFields.get(typeKind.getTOClass()).
-                        entrySet().forEach(dname -> {
+                SearchableFields.get(typeKind.getTOClass()).forEach((key, type) -> {
                             PlainSchemaTO plain = new PlainSchemaTO();
-                            plain.setType(dname.getValue());
-                            dSchemaNames.put(dname.getKey(), plain);
+                            plain.setType(type);
+                            dSchemaNames.put(key, plain);
                         });
                 return dSchemaNames;
             }
