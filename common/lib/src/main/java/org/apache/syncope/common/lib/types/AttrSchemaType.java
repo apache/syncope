@@ -19,6 +19,7 @@
 package org.apache.syncope.common.lib.types;
 
 import java.util.Date;
+import java.util.stream.Stream;
 import javax.xml.bind.annotation.XmlEnum;
 
 @XmlEnum
@@ -47,5 +48,10 @@ public enum AttrSchemaType {
         return this == AttrSchemaType.Date
                 || this == AttrSchemaType.Double
                 || this == AttrSchemaType.Long;
+    }
+
+    public static AttrSchemaType getAttrSchemaTypeByClass(final Class<?> type) {
+        return Stream.of(AttrSchemaType.values())
+                .filter(item -> type == item.getType()).findFirst().orElse(AttrSchemaType.String);
     }
 }

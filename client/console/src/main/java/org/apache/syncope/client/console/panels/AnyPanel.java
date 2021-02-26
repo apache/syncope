@@ -269,7 +269,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 case USER:
                     UserDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(
                             precond + SearchUtils.buildFIQL(
-                                    AnyPanel.this.searchPanel.getModel().getObject(),
+                                        AnyPanel.this.searchPanel.getModel().getObject(),
                                     SyncopeClient.getUserSearchConditionBuilder(),
                                     AnyPanel.this.searchPanel.getAvailableSchemaTypes(),
                                     SearchUtils.NO_CUSTOM_CONDITION),

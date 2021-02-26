@@ -802,7 +802,7 @@ START - Search - AjaxDateTimePicker
 }
 
 .clause .field {
-  line-height: 34px;
+  line-height: 30px;
   float: left;
   padding: 0 3px 0px 0px;
   display: inline-block !important;
@@ -833,7 +833,7 @@ START - Search - AjaxDateTimePicker
 }
 
 .clause .value{
-  width: 220px;
+  width: 285px;
 }
 
 .clause .date{
@@ -1179,6 +1179,10 @@ div#tablehandling ul.menu li a {
 .palette-scrollbar {
   min-width: 100%;
   overflow: scroll;
+}
+
+.search-spinner {
+  line-height: 20px !important;
 }
 
 @-moz-document url-prefix(''){
