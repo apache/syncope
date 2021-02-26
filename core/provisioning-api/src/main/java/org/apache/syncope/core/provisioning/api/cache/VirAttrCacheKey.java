@@ -48,6 +48,18 @@ public class VirAttrCacheKey {
         this.schema = schema;
     }
 
+    public String getAnyType() {
+        return anyType;
+    }
+
+    public String getAny() {
+        return any;
+    }
+
+    public String getSchema() {
+        return schema;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
