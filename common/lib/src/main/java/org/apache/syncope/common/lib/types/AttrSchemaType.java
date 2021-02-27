@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.types;
 import java.util.Date;
 import java.util.stream.Stream;
 import javax.xml.bind.annotation.XmlEnum;
+import org.apache.commons.lang3.ClassUtils;
 
 @XmlEnum
 public enum AttrSchemaType {
@@ -31,8 +32,8 @@ public enum AttrSchemaType {
     Boolean(Boolean.class),
     Date(Date.class),
     Enum(Enum.class),
-    Encrypted(byte[].class),
-    Binary(byte[].class);
+    Binary(byte[].class),
+    Encrypted(byte[].class);
 
     private final Class<?> type;
 
@@ -51,9 +52,10 @@ public enum AttrSchemaType {
     }
 
     public static AttrSchemaType getAttrSchemaTypeByClass(final Class<?> type) {
-        return type == boolean.class
-                ? AttrSchemaType.Boolean
-                : Stream.of(AttrSchemaType.values()).filter(item -> type == item.getType()).
-                        findFirst().orElse(AttrSchemaType.String);
+        return Stream.of(AttrSchemaType.values()).
+                filter(item -> type.isArray()
+                ? ClassUtils.isAssignable(type.getComponentType(), item.getType().getComponentType(), true)
+                : ClassUtils.isAssignable(type, item.getType(), true)).
+                findFirst().orElse(AttrSchemaType.String);
     }
 }
