@@ -49,8 +49,10 @@ public enum AttrSchemaType {
     }
 
     public static AttrSchemaType getAttrSchemaTypeByClass(final Class<?> type) {
-        return Stream.of(AttrSchemaType.values())
-                .filter(item -> type == item.getType()).findFirst().orElse(AttrSchemaType.String);
+        return type == boolean.class
+                ? AttrSchemaType.Boolean
+                : Stream.of(AttrSchemaType.values()).filter(item -> type == item.getType()).
+                        findFirst().orElse(AttrSchemaType.String);
     }
 
 }
