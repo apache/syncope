@@ -243,7 +243,7 @@ public final class SearchUtils implements Serializable {
                 String value = clause.getValue() == null
                         ? null
                         : ENCODINGS.keySet().stream().
-                                reduce(clause.getValue().toString(), (s, k) -> s.replace(k, ENCODINGS.get(k)));
+                                reduce(clause.getValue(), (s, k) -> s.replace(k, ENCODINGS.get(k)));
 
                 switch (clause.getType()) {
                     case GROUP_MEMBER:
