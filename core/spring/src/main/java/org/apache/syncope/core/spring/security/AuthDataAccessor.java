@@ -24,13 +24,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
-import org.apache.commons.lang3.ArrayUtils;
 import javax.security.auth.login.AccountNotFoundException;
-
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -42,8 +40,6 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -51,9 +47,11 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
@@ -237,16 +235,12 @@ public class AuthDataAccessor {
             String connObjectKey = null;
             try {
                 AnyType userType = anyTypeDAO.findUser();
-                Optional<? extends Provision> provision = resource.getProvision(userType);
-                if (provision.isEmpty()) {
-                    throw new AccountNotFoundException("Unable to locate provision for user type " + userType.getKey());
-                }
-                Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(user, provision.get());
-                if (connObjectKeyValue.isEmpty()) {
-                    throw new AccountNotFoundException(
-                            "Unable to locate conn object key value for " + userType.getKey());
-                }
-                connObjectKey = connObjectKeyValue.get();
+                Provision provision = resource.getProvision(userType).
+                        orElseThrow(() -> new AccountNotFoundException(
+                        "Unable to locate provision for user type " + userType.getKey()));
+                connObjectKey = mappingManager.getConnObjectKeyValue(user, provision).
+                        orElseThrow(() -> new AccountNotFoundException(
+                        "Unable to locate conn object key value for " + userType.getKey()));
                 Uid uid = connFactory.getConnector(resource).authenticate(connObjectKey, password, null);
                 if (uid != null) {
                     authenticated = true;
@@ -311,10 +305,9 @@ public class AuthDataAccessor {
                     realms = new HashSet<>();
                     entForRealms.put(entitlement, realms);
                 }
-                realms.addAll(role.getRealms().stream().
-                        map(Realm::getFullPath).collect(Collectors.toSet()));
+                realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
                 if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
-                    realms.addAll(role.getDynRealms().stream().map(Entity::getKey).collect(Collectors.toList()));
+                    realms.addAll(role.getDynRealms().stream().map(DynRealm::getKey).collect(Collectors.toList()));
                 }
             }));
 
@@ -332,11 +325,11 @@ public class AuthDataAccessor {
             });
 
             // Finally normalize realms for each given entitlement and generate authorities
-            entForRealms.entrySet().stream().map(entry -> {
-                SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entry.getKey());
-                authority.addRealms(RealmUtils.normalize(entry.getValue()));
-                return authority;
-            }).forEachOrdered(authorities::add);
+            entForRealms.forEach((key, value) -> {
+                SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(key);
+                authority.addRealms(RealmUtils.normalize(value));
+                authorities.add(authority);
+            });
         }
 
         return authorities;
