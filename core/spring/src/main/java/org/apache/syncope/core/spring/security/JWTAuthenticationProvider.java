@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import java.util.Date;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
@@ -49,16 +48,16 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         });
 
         JwtClaims claims = jwtAuthentication.getClaims();
-        Long referenceTime = new Date().getTime();
+        long referenceTime = System.currentTimeMillis();
 
         Long expiryTime = claims.getExpiryTime();
-        if (expiryTime == null || (expiryTime * 1000L) < referenceTime) {
+        if (expiryTime != null && (expiryTime * 1000L) < referenceTime) {
             dataAccessor.removeExpired(claims.getTokenId());
             throw new CredentialsExpiredException("JWT is expired");
         }
 
         Long notBefore = claims.getNotBefore();
-        if (notBefore == null || (notBefore * 1000L) > referenceTime) {
+        if (notBefore != null && (notBefore * 1000L) > referenceTime) {
             throw new CredentialsExpiredException("JWT not valid yet");
         }
 
