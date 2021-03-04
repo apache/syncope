@@ -43,13 +43,13 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         long referenceTime = System.currentTimeMillis();
 
         Date expiryTime = claims.getExpirationTime();
-        if (expiryTime == null || expiryTime.getTime() < referenceTime) {
+        if (expiryTime != null && expiryTime.getTime() < referenceTime) {
             dataAccessor.removeExpired(claims.getJWTID());
             throw new CredentialsExpiredException("JWT is expired");
         }
 
         Date notBefore = claims.getNotBeforeTime();
-        if (notBefore == null || notBefore.getTime() > referenceTime) {
+        if (notBefore != null && notBefore.getTime() > referenceTime) {
             throw new CredentialsExpiredException("JWT not valid yet");
         }
 
