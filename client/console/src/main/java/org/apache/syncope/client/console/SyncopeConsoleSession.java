@@ -157,8 +157,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         if (root instanceof SyncopeClientException) {
             SyncopeClientException sce = (SyncopeClientException) root;
             message = sce.isComposite()
-                    ? sce.asComposite().getExceptions().stream().
-                            map(c -> message(c)).collect(Collectors.joining("; "))
+                    ? sce.asComposite().getExceptions().stream().map(this::message).collect(Collectors.joining("; "))
                     : message(sce);
         } else if (root instanceof AccessControlException || root instanceof ForbiddenException) {
             Error error = StringUtils.containsIgnoreCase(message, "expired")
