@@ -141,14 +141,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return sce.getType().name() + ": " + sce.getElements().stream().collect(Collectors.joining(", "));
     }
 
-    /**
-     * Extract and localize (if translation available) the actual message from the given exception; then, report it
-     * via {@link Session#error(java.io.Serializable)}.
-     *
-     * @see org.apache.syncope.client.lib.RestClientExceptionMapper
-     *
-     * @param e raised exception
-     */
     @Override
     public void onException(final Exception e) {
         Throwable root = ExceptionUtils.getRootCause(e);
@@ -157,8 +149,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         if (root instanceof SyncopeClientException) {
             SyncopeClientException sce = (SyncopeClientException) root;
             message = sce.isComposite()
-                    ? sce.asComposite().getExceptions().stream().
-                            map(c -> message(c)).collect(Collectors.joining("; "))
+                    ? sce.asComposite().getExceptions().stream().map(this::message).collect(Collectors.joining("; "))
                     : message(sce);
         } else if (root instanceof AccessControlException || root instanceof ForbiddenException) {
             Error error = StringUtils.containsIgnoreCase(message, "expired")

@@ -44,7 +44,6 @@ import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.wicket.Session;
@@ -98,6 +97,10 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         executor.initialize();
     }
 
+    protected String message(final SyncopeClientException sce) {
+        return sce.getType().name() + ": " + sce.getElements().stream().collect(Collectors.joining(", "));
+    }
+
     @Override
     public void onException(final Exception e) {
         Throwable root = ExceptionUtils.getRootCause(e);
@@ -105,12 +108,9 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
 
         if (root instanceof SyncopeClientException) {
             SyncopeClientException sce = (SyncopeClientException) root;
-            if (sce.getType() == ClientExceptionType.InvalidSecurityAnswer) {
-                message = getApplication().getResourceSettings().getLocalizer().
-                        getString("invalid.security.answer", null);
-            } else if (!sce.isComposite()) {
-                message = sce.getElements().stream().collect(Collectors.joining(", "));
-            }
+            message = sce.isComposite()
+                    ? sce.asComposite().getExceptions().stream().map(this::message).collect(Collectors.joining("; "))
+                    : message(sce);
         } else if (root instanceof AccessControlException || root instanceof ForbiddenException) {
             Error error = StringUtils.containsIgnoreCase(message, "expired")
                     ? Error.SESSION_EXPIRED
