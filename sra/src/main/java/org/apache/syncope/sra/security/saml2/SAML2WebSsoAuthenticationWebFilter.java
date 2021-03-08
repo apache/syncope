@@ -81,7 +81,8 @@ public class SAML2WebSsoAuthenticationWebFilter extends AuthenticationWebFilter 
                 flatMap(matchResult -> {
                     ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange).setForm(form);
 
-                    SAML2Credentials credentials = (SAML2Credentials) saml2Client.getCredentialsExtractor().extract(swec, NoOpSessionStore.INSTANCE).
+                    SAML2Credentials credentials = (SAML2Credentials) saml2Client.getCredentialsExtractor().
+                        extract(swec, NoOpSessionStore.INSTANCE).
                             orElseThrow(() -> new IllegalStateException("No AuthnResponse found"));
 
                     saml2Client.getAuthenticator().validate(credentials, swec, NoOpSessionStore.INSTANCE);
