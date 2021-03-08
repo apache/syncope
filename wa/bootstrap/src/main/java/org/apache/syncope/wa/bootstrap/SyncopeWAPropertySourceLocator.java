@@ -206,7 +206,8 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             final String authModule,
             final GoogleMfaAuthModuleConf conf) {
 
-        GoogleAuthenticatorMultifactorAuthenticationProperties props = new GoogleAuthenticatorMultifactorAuthenticationProperties();
+        GoogleAuthenticatorMultifactorAuthenticationProperties props =
+            new GoogleAuthenticatorMultifactorAuthenticationProperties();
         props.setName(authModule);
         props.setIssuer(conf.getIssuer());
         props.setCodeDigits(conf.getCodeDigits());

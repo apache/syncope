@@ -303,7 +303,8 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
                     saml2Client.getConfiguration().getAuthnRequestBindingType(),
                     saml2Response);
 
-            credentials = (SAML2Credentials) saml2Client.getCredentialsExtractor().extract(ctx, NoOpSessionStore.INSTANCE).
+            credentials = (SAML2Credentials) saml2Client.getCredentialsExtractor().
+                extract(ctx, NoOpSessionStore.INSTANCE).
                     orElseThrow(() -> new IllegalStateException("No AuthnResponse found"));
 
             saml2Client.getAuthenticator().validate(credentials, ctx, NoOpSessionStore.INSTANCE);
