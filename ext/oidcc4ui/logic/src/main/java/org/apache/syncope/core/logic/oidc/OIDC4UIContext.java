@@ -25,18 +25,12 @@ import java.util.Set;
 import javax.ws.rs.HttpMethod;
 import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
 
 public class OIDC4UIContext implements WebContext {
 
     @Override
     public String getRequestMethod() {
         return HttpMethod.GET;
-    }
-
-    @Override
-    public SessionStore<OIDC4UIContext> getSessionStore() {
-        return NoOpSessionStore.INSTANCE;
     }
 
     @Override
@@ -72,6 +66,11 @@ public class OIDC4UIContext implements WebContext {
     @Override
     public void setResponseHeader(final String name, final String value) {
         // nothing to do
+    }
+
+    @Override
+    public Optional<String> getResponseHeader(final String s) {
+        return Optional.empty();
     }
 
     @Override

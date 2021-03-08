@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.saml2.SAML2Response;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
 
 public class SAML2SP4UIContext implements WebContext {
 
@@ -46,11 +45,6 @@ public class SAML2SP4UIContext implements WebContext {
         return SAML2BindingType.POST.getUri().equals(bindingType)
                 ? HttpMethod.POST
                 : HttpMethod.GET;
-    }
-
-    @Override
-    public SessionStore<SAML2SP4UIContext> getSessionStore() {
-        return NoOpSessionStore.INSTANCE;
     }
 
     @Override
@@ -95,6 +89,11 @@ public class SAML2SP4UIContext implements WebContext {
     @Override
     public void setResponseHeader(final String name, final String value) {
         // nothing to do
+    }
+
+    @Override
+    public Optional<String> getResponseHeader(final String s) {
+        return Optional.empty();
     }
 
     @Override

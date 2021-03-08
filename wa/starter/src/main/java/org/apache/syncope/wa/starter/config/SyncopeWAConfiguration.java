@@ -52,7 +52,7 @@ import org.apache.syncope.wa.starter.u2f.SyncopeWAU2FDeviceRepository;
 import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRepository;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorProperties;
+import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
 import org.apereo.cas.oidc.jwks.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
@@ -194,7 +194,8 @@ public class SyncopeWAConfiguration {
     @Autowired
     @Bean
     public SamlIdPMetadataLocator samlIdPMetadataLocator(final WARestClient restClient) {
-        return new RestfulSamlIdPMetadataLocator(CipherExecutor.noOpOfStringToString(), restClient);
+        return new RestfulSamlIdPMetadataLocator(CipherExecutor.noOpOfStringToString(),
+            Caffeine.newBuilder().build(), restClient);
     }
 
     @Autowired
@@ -218,7 +219,7 @@ public class SyncopeWAConfiguration {
 
     @Autowired
     @Bean
-    public DelegatedClientFactoryCustomizer<Client<?>> delegatedClientCustomizer(final WARestClient restClient) {
+    public DelegatedClientFactoryCustomizer<Client> delegatedClientCustomizer(final WARestClient restClient) {
         return new SyncopeWASAML2ClientCustomizer(restClient);
     }
 
@@ -258,7 +259,7 @@ public class SyncopeWAConfiguration {
     @Autowired
     @RefreshScope
     public U2FDeviceRepository u2fDeviceRepository(final WARestClient restClient) {
-        U2FMultifactorProperties u2f = casProperties.getAuthn().getMfa().getU2f();
+        U2FMultifactorAuthenticationProperties u2f = casProperties.getAuthn().getMfa().getU2f();
         LocalDate expirationDate = LocalDate.now(ZoneId.systemDefault()).
                 minus(u2f.getExpireDevices(), DateTimeUtils.toChronoUnit(u2f.getExpireDevicesTimeUnit()));
         LoadingCache<String, String> requestStorage = Caffeine.newBuilder().

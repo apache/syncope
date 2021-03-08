@@ -27,7 +27,7 @@ import org.pac4j.saml.config.SAML2Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SyncopeWASAML2ClientCustomizer implements DelegatedClientFactoryCustomizer<Client<?>> {
+public class SyncopeWASAML2ClientCustomizer implements DelegatedClientFactoryCustomizer<Client> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASAML2ClientCustomizer.class);
 
@@ -38,7 +38,7 @@ public class SyncopeWASAML2ClientCustomizer implements DelegatedClientFactoryCus
     }
 
     @Override
-    public void customize(final Client<?> client) {
+    public void customize(final Client client) {
         if (client instanceof SAML2Client) {
             LOG.debug("Customizing SAML2 client {}", client.getName());
             final SAML2Client saml2Client = (SAML2Client) client;

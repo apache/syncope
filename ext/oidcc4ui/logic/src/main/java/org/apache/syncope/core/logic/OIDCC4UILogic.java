@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.logic.oidc.NoOpSessionStore;
 import org.apache.syncope.core.logic.oidc.OIDC4UIContext;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.logic.oidc.OIDCUserManager;
@@ -56,7 +57,6 @@ import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.oidc.client.OidcClient;
-import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.profile.OidcProfile;
 
@@ -84,11 +84,11 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
     @Autowired
     private OIDCUserManager userManager;
 
-    private OidcClient<OidcConfiguration> getOidcClient(final OIDCC4UIProvider op, final String callbackUrl) {
+    private OidcClient getOidcClient(final OIDCC4UIProvider op, final String callbackUrl) {
         return oidcClientClientCache.get(op.getName()).orElseGet(() -> oidcClientClientCache.add(op, callbackUrl));
     }
 
-    private OidcClient<OidcConfiguration> getOidcClient(final String opName, final String callbackUrl) {
+    private OidcClient getOidcClient(final String opName, final String callbackUrl) {
         OIDCC4UIProvider op = opDAO.findByName(opName);
         if (op == null) {
             throw new NotFoundException("OIDC Provider '" + opName + '\'');
@@ -100,11 +100,11 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public OIDCRequest createLoginRequest(final String redirectURI, final String opName) {
         // 1. look for OidcClient
-        OidcClient<OidcConfiguration> oidcClient = getOidcClient(opName, redirectURI);
+        OidcClient oidcClient = getOidcClient(opName, redirectURI);
         oidcClient.setCallbackUrl(redirectURI);
 
         // 2. create OIDCRequest
-        WithLocationAction action = oidcClient.getRedirectionAction(new OIDC4UIContext()).
+        WithLocationAction action = oidcClient.getRedirectionAction(new OIDC4UIContext(), NoOpSessionStore.INSTANCE).
                 map(WithLocationAction.class::cast).
                 orElseThrow(() -> {
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
@@ -126,7 +126,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         // 1. look for configured client
-        OidcClient<OidcConfiguration> oidcClient = getOidcClient(opName, redirectURI);
+        OidcClient oidcClient = getOidcClient(opName, redirectURI);
         oidcClient.setCallbackUrl(redirectURI);
 
         // 2. get OpenID Connect tokens
@@ -138,7 +138,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
             OIDC4UIContext ctx = new OIDC4UIContext();
 
-            oidcClient.getAuthenticator().validate(credentials, ctx);
+            oidcClient.getAuthenticator().validate(credentials, ctx, NoOpSessionStore.INSTANCE);
 
             idToken = credentials.getIdToken().getJWTClaimsSet();
             idTokenHint = credentials.getIdToken().serialize();
@@ -257,7 +257,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         // 1. look for OidcClient
-        OidcClient<OidcConfiguration> oidcClient =
+        OidcClient oidcClient =
                 getOidcClient((String) claimsSet.getClaim(JWT_CLAIM_OP_NAME), redirectURI);
         oidcClient.setCallbackUrl(redirectURI);
 
@@ -267,6 +267,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
         WithLocationAction action = oidcClient.getLogoutAction(
                 new OIDC4UIContext(),
+                NoOpSessionStore.INSTANCE,
                 profile,
                 redirectURI).
                 map(WithLocationAction.class::cast).
