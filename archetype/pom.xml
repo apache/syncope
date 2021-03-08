@@ -324,6 +324,7 @@ under the License.
         <directory>../wa/starter/src/main/resources</directory>
         <includes>
           <include>application.properties</include>
+          <include>cas-theme-default.properties</include>
         </includes>
         <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/main/resources</targetPath>
       </resource>
