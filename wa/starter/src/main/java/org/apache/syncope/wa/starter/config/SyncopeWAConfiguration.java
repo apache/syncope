@@ -36,13 +36,19 @@ import org.apache.syncope.wa.starter.gauth.credential.SyncopeWAGoogleMfaAuthCred
 import org.apache.syncope.wa.starter.gauth.token.SyncopeWAGoogleMfaAuthTokenRepository;
 import org.apache.syncope.wa.starter.mapping.AccessMapFor;
 import org.apache.syncope.wa.starter.mapping.AccessMapper;
+import org.apache.syncope.wa.starter.mapping.AllowedAttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.AuthMapFor;
 import org.apache.syncope.wa.starter.mapping.AuthMapper;
+import org.apache.syncope.wa.starter.mapping.CASSPTOMapper;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapFor;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
+import org.apache.syncope.wa.starter.mapping.DefaultAccessMapper;
+import org.apache.syncope.wa.starter.mapping.DefaultAuthMapper;
+import org.apache.syncope.wa.starter.mapping.OIDCRPTOMapper;
 import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
+import org.apache.syncope.wa.starter.mapping.SAML2SPTOMapper;
 import org.apache.syncope.wa.starter.oidc.SyncopeWAOIDCJWKSGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.SyncopeWASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
@@ -122,6 +128,36 @@ public class SyncopeWAConfiguration {
                         new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("basic")).
                 schemaRequirement("Bearer",
                         new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"));
+    }
+
+    @Bean
+    public AttrReleaseMapper allowedAttrReleaseMapper() {
+        return new AllowedAttrReleaseMapper();
+    }
+
+    @Bean
+    public ClientAppMapper casSPTOMapper() {
+        return new CASSPTOMapper();
+    }
+
+    @Bean
+    public AccessMapper defaultAccessMapper() {
+        return new DefaultAccessMapper();
+    }
+
+    @Bean
+    public AuthMapper defaultAuthMapper() {
+        return new DefaultAuthMapper();
+    }
+
+    @Bean
+    public ClientAppMapper oidcRPTOMapper() {
+        return new OIDCRPTOMapper();
+    }
+
+    @Bean
+    public ClientAppMapper saml2SPTOMapper() {
+        return new SAML2SPTOMapper();
     }
 
     @ConditionalOnMissingBean

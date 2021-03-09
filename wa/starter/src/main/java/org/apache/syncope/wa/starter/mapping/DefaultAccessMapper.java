@@ -22,10 +22,8 @@ import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
-import org.springframework.stereotype.Component;
 
 @AccessMapFor(accessPolicyConfClass = DefaultAccessPolicyConf.class)
-@Component
 public class DefaultAccessMapper implements AccessMapper {
 
     @Override

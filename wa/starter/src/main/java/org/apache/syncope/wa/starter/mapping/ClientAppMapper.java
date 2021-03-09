@@ -24,6 +24,7 @@ import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 
+@FunctionalInterface
 public interface ClientAppMapper {
 
     RegisteredService build(

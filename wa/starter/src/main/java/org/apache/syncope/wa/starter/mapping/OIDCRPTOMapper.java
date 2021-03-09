@@ -43,10 +43,8 @@ import org.apereo.cas.util.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 
 @ClientAppMapFor(clientAppClass = OIDCRPTO.class)
-@Component
 public class OIDCRPTOMapper implements ClientAppMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(OIDCRPTOMapper.class);

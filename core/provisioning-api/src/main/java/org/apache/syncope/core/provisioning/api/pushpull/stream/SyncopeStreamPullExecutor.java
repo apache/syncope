@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.quartz.JobExecutionException;
 
+@FunctionalInterface
 public interface SyncopeStreamPullExecutor {
 
     List<ProvisioningReport> pull(
