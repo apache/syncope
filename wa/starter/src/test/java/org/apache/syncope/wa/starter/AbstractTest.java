@@ -20,13 +20,18 @@ package org.apache.syncope.wa.starter;
 
 import java.util.UUID;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
-    "cas.authn.accept.users=mrossi::password",
-    "cas.authn.syncope.url=http://localhost:8080",
-    "cas.sso.allow-missing-service-parameter=true"
+@SpringBootTest(
+    classes = AbstractTest.SyncopeTestConfiguration.class,
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = {
+        "cas.authn.accept.users=mrossi::password",
+        "cas.authn.syncope.url=http://localhost:8080",
+        "cas.sso.allow-missing-service-parameter=true"
 })
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
 public abstract class AbstractTest {
@@ -36,5 +41,13 @@ public abstract class AbstractTest {
 
     protected static String getUUIDString() {
         return UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    @TestConfiguration
+    public static class SyncopeTestConfiguration {
+        @Bean
+        public SyncopeCoreTestingServer syncopeCoreTestingServer() {
+            return new SyncopeCoreTestingServer();
+        }
     }
 }

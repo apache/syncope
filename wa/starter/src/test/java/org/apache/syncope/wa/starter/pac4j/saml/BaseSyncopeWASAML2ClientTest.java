@@ -35,9 +35,11 @@ import org.bouncycastle.asn1.x509.V3TBSCertificateGenerator;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -83,12 +85,13 @@ public abstract class BaseSyncopeWASAML2ClientTest {
         return cert;
     }
 
-    protected static SAML2Client getSAML2Client() {
+    protected static SAML2Client getSAML2Client() throws Exception {
         SAML2Configuration saml2Configuration = new SAML2Configuration();
         saml2Configuration.setKeystorePassword("password");
         saml2Configuration.setPrivateKeyPassword("password");
         saml2Configuration.setKeystoreAlias("Syncope");
         saml2Configuration.setIdentityProviderMetadataResource(new ClassPathResource("idp-metadata.xml"));
+        saml2Configuration.setServiceProviderMetadataResource(new FileSystemResource(File.createTempFile("sp-metadata", ".xml")));
         SAML2Client client = new SAML2Client(saml2Configuration);
         client.setCallbackUrl("https://syncope.apache.org");
         return client;
