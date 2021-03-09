@@ -943,10 +943,17 @@ div#userFilter {
   right: 400px;
 }
 
-
-
-
-
+/* FIREFOX FIX OF UGLY SELECT BOXES */
+@supports (-moz-appearance:none) {
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: url(../img/dropdown.svg) right / 10px no-repeat #fff;
+    background-position: calc(100% - 5px) center;
+    padding-right: 10px;
+  }
+}
 
 /* Crontab
 ============================================================================= */
@@ -1210,6 +1217,7 @@ pre {
   border-radius: 4px;
 }
 .input-group .input-group-addon {
+  height: 38px;
   border-color: #d2d6de;
   background-color: #fff;
 }

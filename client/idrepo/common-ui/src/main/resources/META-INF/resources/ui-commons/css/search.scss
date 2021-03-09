@@ -22,6 +22,7 @@
 }
 
 .clause {
+  height: 40px;
   display: block;
   line-height: 34px;
   .operator {
@@ -35,9 +36,6 @@
     float: left;
     padding: 0 3px 0px 0px;
     display: inline-block !important;
-    .form-check{
-      margin-bottom: -50px;
-    }
     .toggle{
       &.btn {
         min-width: 59px
