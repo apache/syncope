@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 /**
- * REST operations for WA.
+ * REST operations for WA to read client applications.
  */
 @Tag(name = "WA")
 @SecurityRequirements({

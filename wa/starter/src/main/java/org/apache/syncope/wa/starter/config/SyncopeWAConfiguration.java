@@ -32,8 +32,7 @@ import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.audit.SyncopeWAAuditTrailManager;
-import org.apache.syncope.wa.starter.gauth.credential.SyncopeWAGoogleMfaAuthCredentialRepository;
-import org.apache.syncope.wa.starter.gauth.token.SyncopeWAGoogleMfaAuthTokenRepository;
+import org.apache.syncope.wa.starter.gauth.SyncopeWAGoogleMfaAuthCredentialRepository;
 import org.apache.syncope.wa.starter.mapping.AccessMapFor;
 import org.apache.syncope.wa.starter.mapping.AccessMapper;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
@@ -82,6 +81,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.wa.starter.events.SyncopeWAEventRepository;
+import org.apache.syncope.wa.starter.gauth.SyncopeWAGoogleMfaAuthTokenRepository;
 import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
 import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
@@ -214,7 +214,6 @@ public class SyncopeWAConfiguration {
     public CasEventRepository casEventRepository(final WARestClient restClient) {
         return new SyncopeWAEventRepository(syncopeWAEventRepositoryFilter(), restClient);
     }
-
 
     @Autowired
     @Bean

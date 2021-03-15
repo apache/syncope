@@ -18,92 +18,81 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
-import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import javax.ws.rs.core.Response;
-
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class GoogleMfaAuthAccountITCase extends AbstractITCase {
 
     private static GoogleMfaAuthAccount createGoogleMfaAuthAccount() {
         String id = SecureRandomUtils.generateRandomUUID().toString();
         return new GoogleMfaAuthAccount.Builder()
-            .registrationDate(new Date())
-            .scratchCodes(List.of(1, 2, 3, 4, 5))
-            .secretKey(SecureRandomUtils.generateRandomUUID().toString())
-            .validationCode(123456)
-            .owner(id)
-            .name(SecureRandomUtils.generateRandomUUID().toString())
-            .build();
+                .registrationDate(new Date())
+                .scratchCodes(List.of(1, 2, 3, 4, 5))
+                .secretKey(SecureRandomUtils.generateRandomUUID().toString())
+                .validationCode(123456)
+                .name(SecureRandomUtils.generateRandomUUID().toString())
+                .build();
     }
 
     @BeforeEach
     public void setup() {
-        googleMfaAuthAccountService.deleteAll();
+        googleMfaAuthAccountService.delete();
     }
 
     @Test
     public void create() {
         GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
-        assertDoesNotThrow(() -> {
-            Response response = googleMfaAuthAccountService.save(acct);
-            if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-                Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
-                if (ex != null) {
-                    throw ex;
-                }
-            }
-        });
+        assertDoesNotThrow(() -> googleMfaAuthAccountService.create(UUID.randomUUID().toString(), acct));
     }
 
     @Test
     public void count() {
+        String owner = UUID.randomUUID().toString();
         GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
-        googleMfaAuthAccountService.save(acct);
-        assertFalse(googleMfaAuthAccountService.list().isEmpty());
-        assertEquals(1, googleMfaAuthAccountService.countAll().getTotalCount());
-        assertEquals(1, googleMfaAuthAccountService.countFor(acct.getOwner()).getTotalCount());
-        assertFalse(googleMfaAuthAccountService.findAccountsFor(acct.getOwner()).isEmpty());
+        googleMfaAuthAccountService.create(owner, acct);
+        PagedResult<GoogleMfaAuthAccount> list = googleMfaAuthAccountService.list();
+        assertFalse(list.getResult().isEmpty());
+        assertEquals(1, list.getTotalCount());
+
+        PagedResult<GoogleMfaAuthAccount> read = googleMfaAuthAccountService.readFor(owner);
+        assertEquals(1, read.getTotalCount());
+        assertFalse(read.getResult().isEmpty());
     }
 
     @Test
-    public void deleteByOwner() {
+    public void deleteFor() {
+        String owner = UUID.randomUUID().toString();
         GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
-        Response response = googleMfaAuthAccountService.save(acct);
-        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
-        assertNotNull(key);
-        response = googleMfaAuthAccountService.deleteAccountsFor(acct.getOwner());
-        assertEquals(response.getStatusInfo().getStatusCode(), Response.Status.NO_CONTENT.getStatusCode());
-        assertThrows(SyncopeClientException.class, () -> googleMfaAuthAccountService.findAccountsFor(acct.getOwner()));
+        googleMfaAuthAccountService.create(owner, acct);
+        googleMfaAuthAccountService.deleteFor(owner);
+        assertThrows(SyncopeClientException.class, () -> googleMfaAuthAccountService.readFor(owner));
     }
 
     @Test
     public void update() {
+        String owner = UUID.randomUUID().toString();
         GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
-        Response response = googleMfaAuthAccountService.save(acct);
-        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
-        acct = googleMfaAuthAccountService.findAccountBy(key);
-        acct = googleMfaAuthAccountService.findAccountBy(acct.getId());
+        googleMfaAuthAccountService.create(owner, acct);
+        acct = googleMfaAuthAccountService.read(acct.getId());
         acct.setSecretKey("NewSecret");
         acct.setScratchCodes(List.of(9, 8, 7, 6, 5));
-        googleMfaAuthAccountService.update(acct);
-        assertEquals(1, googleMfaAuthAccountService.countAll().getTotalCount());
-        acct = googleMfaAuthAccountService.findAccountsFor(acct.getOwner()).get(0);
+        googleMfaAuthAccountService.update(owner, acct);
+        assertEquals(1, googleMfaAuthAccountService.list().getTotalCount());
+        acct = googleMfaAuthAccountService.readFor(owner).getResult().get(0);
         assertEquals(acct.getSecretKey(), acct.getSecretKey());
-        googleMfaAuthAccountService.deleteAccountBy(acct.getKey());
+        googleMfaAuthAccountService.delete(acct.getKey());
     }
 }

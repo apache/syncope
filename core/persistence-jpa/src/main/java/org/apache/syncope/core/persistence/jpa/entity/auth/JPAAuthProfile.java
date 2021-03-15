@@ -26,10 +26,10 @@ import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
-import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
-import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
-import org.apache.syncope.common.lib.types.WebAuthnAccount;
+import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
+import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.wa.U2FDevice;
+import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -95,52 +95,28 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     }
 
     @Override
-    public void add(final GoogleMfaAuthToken token) {
-        checkType(token, GoogleMfaAuthToken.class);
-        List<GoogleMfaAuthToken> tokens = getGoogleMfaAuthTokens();
-        tokens.add(token);
-        setGoogleMfaAuthTokens(tokens);
-    }
-
-    @Override
-    public List<U2FRegisteredDevice> getU2FRegisteredDevices() {
+    public List<U2FDevice> getU2FRegisteredDevices() {
         return u2fRegisteredDevices == null
                 ? new ArrayList<>(0)
-                : POJOHelper.deserialize(u2fRegisteredDevices, new TypeReference<List<U2FRegisteredDevice>>() {
+                : POJOHelper.deserialize(u2fRegisteredDevices, new TypeReference<List<U2FDevice>>() {
                 });
     }
 
     @Override
-    public void setU2FRegisteredDevices(final List<U2FRegisteredDevice> records) {
+    public void setU2FRegisteredDevices(final List<U2FDevice> records) {
         this.u2fRegisteredDevices = POJOHelper.serialize(records);
     }
 
     @Override
     public WebAuthnAccount getWebAuthnAccount() {
         return webAuthnAccount == null
-            ? null
-            : POJOHelper.deserialize(webAuthnAccount, new TypeReference<WebAuthnAccount>() {
-        });
+                ? null
+                : POJOHelper.deserialize(webAuthnAccount, new TypeReference<WebAuthnAccount>() {
+                });
     }
 
     @Override
     public void setWebAuthnAccount(final WebAuthnAccount accounts) {
         this.webAuthnAccount = POJOHelper.serialize(accounts);
-    }
-
-    @Override
-    public void add(final GoogleMfaAuthAccount account) {
-        checkType(account, GoogleMfaAuthAccount.class);
-        List<GoogleMfaAuthAccount> accounts = getGoogleMfaAuthAccounts();
-        accounts.add(account);
-        setGoogleMfaAuthAccounts(accounts);
-    }
-
-    @Override
-    public void add(final U2FRegisteredDevice registration) {
-        checkType(registration, U2FRegisteredDevice.class);
-        List<U2FRegisteredDevice> records = getU2FRegisteredDevices();
-        records.add(registration);
-        setU2FRegisteredDevices(records);
     }
 }

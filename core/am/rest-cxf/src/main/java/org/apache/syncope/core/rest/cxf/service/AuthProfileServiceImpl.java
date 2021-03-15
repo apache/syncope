@@ -24,8 +24,6 @@ import org.apache.syncope.core.logic.AuthProfileLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.core.Response;
-
 import java.util.List;
 
 @Service
@@ -35,25 +33,23 @@ public class AuthProfileServiceImpl extends AbstractServiceImpl implements AuthP
     private AuthProfileLogic logic;
 
     @Override
-    public Response deleteByKey(final String key) {
-        logic.deleteByKey(key);
-        return Response.noContent().build();
+    public void delete(final String key) {
+        logic.delete(key);
     }
 
     @Override
-    public Response deleteByOwner(final String owner) {
+    public void deleteByOwner(final String owner) {
         logic.deleteByOwner(owner);
-        return Response.noContent().build();
     }
 
     @Override
-    public AuthProfileTO findByOwner(final String owner) {
-        return logic.findByOwner(owner);
+    public AuthProfileTO readByOwner(final String owner) {
+        return logic.readByOwner(owner);
     }
 
     @Override
-    public AuthProfileTO findByKey(final String key) {
-        return logic.findByKey(key);
+    public AuthProfileTO read(final String key) {
+        return logic.read(key);
     }
 
     @Override

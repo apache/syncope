@@ -16,19 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.fit.core;
-
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.WebAuthnAccount;
-import org.apache.syncope.common.lib.types.WebAuthnDeviceCredential;
-import org.apache.syncope.core.spring.security.SecureRandomUtils;
-import org.apache.syncope.fit.AbstractITCase;
-import org.junit.jupiter.api.Test;
-
-import javax.ws.rs.core.Response;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -36,67 +24,66 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.UUID;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.wa.WebAuthnAccount;
+import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
+import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Test;
+
 public class WebAuthnAccountITCase extends AbstractITCase {
 
     private static WebAuthnAccount createWebAuthnRegisteredAccount() {
         String id = SecureRandomUtils.generateRandomUUID().toString();
-        String record = "[ {" +
-            "    \"userIdentity\" : {" +
-            "      \"name\" : \"%s\"," +
-            "      \"displayName\" : \"%s\"" +
-            "    }," +
-            "    \"credential\" : {" +
-            "      \"credentialId\" : \"fFGyV3K5x1\"" +
-            "    }," +
-            "    \"username\" : \"%s\"" +
-            "  } ]";
+        String record = "[ {"
+                + "    \"userIdentity\" : {"
+                + "      \"name\" : \"%s\","
+                + "      \"displayName\" : \"%s\""
+                + "    },"
+                + "    \"credential\" : {"
+                + "      \"credentialId\" : \"fFGyV3K5x1\""
+                + "    },"
+                + "    \"username\" : \"%s\""
+                + "  } ]";
         WebAuthnDeviceCredential credential = new WebAuthnDeviceCredential.Builder().
-            json(String.format(record, id, id, id)).
-            owner(id).
-            identifier("fFGyV3K5x1").
-            build();
-        return new WebAuthnAccount.Builder()
-            .owner(id)
-            .records(List.of(credential))
-            .build();
+                json(String.format(record, id, id, id)).
+                identifier("fFGyV3K5x1").
+                build();
+        return new WebAuthnAccount.Builder().credential(credential).build();
     }
 
     @Test
     public void listAndFind() {
+        String owner = UUID.randomUUID().toString();
         WebAuthnAccount acct = createWebAuthnRegisteredAccount();
-        webAuthnRegistrationService.create(acct);
+        webAuthnRegistrationService.create(owner, acct);
         assertFalse(webAuthnRegistrationService.list().isEmpty());
-        assertNotNull(webAuthnRegistrationService.findAccountFor(acct.getOwner()));
+        assertNotNull(webAuthnRegistrationService.readFor(owner));
     }
 
     @Test
     public void deleteByOwner() {
+        String owner = UUID.randomUUID().toString();
         WebAuthnAccount acct = createWebAuthnRegisteredAccount();
-        webAuthnRegistrationService.create(acct);
-        assertNotNull(webAuthnRegistrationService.delete(acct.getOwner()));
-        assertThrows(SyncopeClientException.class, () -> webAuthnRegistrationService.findAccountFor(acct.getOwner()));
+        webAuthnRegistrationService.create(owner, acct);
+        assertNotNull(webAuthnRegistrationService.delete(owner));
+        assertThrows(SyncopeClientException.class, () -> webAuthnRegistrationService.readFor(owner));
     }
 
     @Test
     public void deleteByAcct() {
+        String owner = UUID.randomUUID().toString();
         WebAuthnAccount acct = createWebAuthnRegisteredAccount();
-        webAuthnRegistrationService.create(acct);
-        assertNotNull(webAuthnRegistrationService.delete(acct.getOwner(), acct.getRecords().get(0).getIdentifier()));
-        acct = webAuthnRegistrationService.findAccountFor(acct.getOwner());
-        assertTrue(acct.getRecords().isEmpty());
+        webAuthnRegistrationService.create(owner, acct);
+        assertNotNull(webAuthnRegistrationService.delete(owner, acct.getCredentials().get(0).getIdentifier()));
+        acct = webAuthnRegistrationService.readFor(owner);
+        assertTrue(acct.getCredentials().isEmpty());
     }
 
     @Test
     public void create() {
         WebAuthnAccount acct = createWebAuthnRegisteredAccount();
-        assertDoesNotThrow(() -> {
-            Response response = webAuthnRegistrationService.create(acct);
-            if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-                Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
-                if (ex != null) {
-                    throw ex;
-                }
-            }
-        });
+        assertDoesNotThrow(() -> webAuthnRegistrationService.create(UUID.randomUUID().toString(), acct));
     }
 }

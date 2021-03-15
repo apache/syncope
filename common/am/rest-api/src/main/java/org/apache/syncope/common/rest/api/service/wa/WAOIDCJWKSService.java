@@ -26,10 +26,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.to.OIDCJWKSTO;
-import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.JAXRSService;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -40,7 +36,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.JWSAlgorithm;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 @Tag(name = "OpenID Connect 1.0")
 @SecurityRequirements({

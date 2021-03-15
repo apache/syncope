@@ -16,19 +16,48 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.common.lib.wa;
 
+import java.util.Date;
+import java.util.Optional;
+import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
-import java.util.Date;
-import java.util.Optional;
-
-public class U2FRegisteredDevice implements BaseBean {
+public class U2FDevice implements BaseBean {
 
     private static final long serialVersionUID = 1185073386484048953L;
+
+    public static class Builder {
+
+        private final U2FDevice instance = new U2FDevice();
+
+        public U2FDevice.Builder issueDate(final Date issued) {
+            instance.setIssueDate(issued);
+            return this;
+        }
+
+        public U2FDevice.Builder record(final String record) {
+            instance.setRecord(record);
+            return this;
+        }
+
+        public U2FDevice.Builder key(final String key) {
+            instance.setKey(key);
+            return this;
+        }
+
+        public U2FDevice.Builder id(final long id) {
+            instance.setId(id);
+            return this;
+        }
+
+        public U2FDevice build() {
+            return instance;
+        }
+    }
 
     private long id;
 
@@ -36,14 +65,13 @@ public class U2FRegisteredDevice implements BaseBean {
 
     private String record;
 
-    private String owner;
-
     private Date issueDate;
 
     public String getKey() {
         return key;
     }
 
+    @PathParam("key")
     public void setKey(final String key) {
         this.key = key;
     }
@@ -56,14 +84,6 @@ public class U2FRegisteredDevice implements BaseBean {
         this.record = record;
     }
 
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(final String owner) {
-        this.owner = owner;
-    }
-
     public long getId() {
         return id;
     }
@@ -74,24 +94,23 @@ public class U2FRegisteredDevice implements BaseBean {
 
     public Date getIssueDate() {
         return Optional.ofNullable(this.issueDate).
-            map(date -> new Date(date.getTime())).orElse(null);
+                map(date -> new Date(date.getTime())).orElse(null);
     }
 
     public void setIssueDate(final Date issueDate) {
         this.issueDate = Optional.ofNullable(issueDate).
-            map(date -> new Date(date.getTime())).orElse(null);
+                map(date -> new Date(date.getTime())).orElse(null);
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-            .appendSuper(super.hashCode())
-            .append(key)
-            .append(record)
-            .append(owner)
-            .append(id)
-            .append(issueDate)
-            .toHashCode();
+                .appendSuper(super.hashCode())
+                .append(key)
+                .append(record)
+                .append(id)
+                .append(issueDate)
+                .toHashCode();
     }
 
     @Override
@@ -105,59 +124,23 @@ public class U2FRegisteredDevice implements BaseBean {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        U2FRegisteredDevice rhs = (U2FRegisteredDevice) obj;
+        U2FDevice rhs = (U2FDevice) obj;
         return new EqualsBuilder()
-            .appendSuper(super.equals(obj))
-            .append(this.key, rhs.key)
-            .append(this.record, rhs.record)
-            .append(this.owner, rhs.owner)
-            .append(this.id, rhs.id)
-            .append(this.issueDate, rhs.issueDate)
-            .isEquals();
+                .appendSuper(super.equals(obj))
+                .append(this.key, rhs.key)
+                .append(this.record, rhs.record)
+                .append(this.id, rhs.id)
+                .append(this.issueDate, rhs.issueDate)
+                .isEquals();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-            .append("key", key)
-            .append("record", record)
-            .append("owner", owner)
-            .append("id", id)
-            .append("issueDate", issueDate)
-            .toString();
-    }
-
-    public static class Builder {
-
-        private final U2FRegisteredDevice instance = new U2FRegisteredDevice();
-
-        public U2FRegisteredDevice.Builder issueDate(final Date issued) {
-            instance.setIssueDate(issued);
-            return this;
-        }
-
-        public U2FRegisteredDevice.Builder record(final String record) {
-            instance.setRecord(record);
-            return this;
-        }
-
-        public U2FRegisteredDevice.Builder owner(final String owner) {
-            instance.setOwner(owner);
-            return this;
-        }
-
-        public U2FRegisteredDevice.Builder key(final String key) {
-            instance.setKey(key);
-            return this;
-        }
-
-        public U2FRegisteredDevice.Builder id(final long id) {
-            instance.setId(id);
-            return this;
-        }
-
-        public U2FRegisteredDevice build() {
-            return instance;
-        }
+                .append("key", key)
+                .append("record", record)
+                .append("id", id)
+                .append("issueDate", issueDate)
+                .toString();
     }
 }

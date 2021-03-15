@@ -19,13 +19,22 @@
 package org.apache.syncope.wa.starter;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.ws.rs.NotFoundException;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.ClientAppType;
-import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
@@ -33,17 +42,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
-
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Response;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Component
 public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefreshedEvent> {
@@ -64,11 +62,11 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                 sf.setAddress(ADDRESS);
                 sf.setResourceClasses(WAClientAppService.class, GoogleMfaAuthTokenService.class);
                 sf.setResourceProvider(
-                    WAClientAppService.class,
-                    new SingletonResourceProvider(new StubWAClientAppService(), true));
+                        WAClientAppService.class,
+                        new SingletonResourceProvider(new StubWAClientAppService(), true));
                 sf.setResourceProvider(
-                    GoogleMfaAuthTokenService.class,
-                    new SingletonResourceProvider(new StubGoogleMfaAuthTokenService(), true));
+                        GoogleMfaAuthTokenService.class,
+                        new SingletonResourceProvider(new StubGoogleMfaAuthTokenService(), true));
                 sf.setProviders(List.of(new JacksonJsonProvider()));
                 sf.create();
 
@@ -83,75 +81,71 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
 
     public static class StubGoogleMfaAuthTokenService implements GoogleMfaAuthTokenService {
 
-        private final List<GoogleMfaAuthToken> tokens = new ArrayList<>();
+        private final Map<String, GoogleMfaAuthToken> tokens = new HashMap<>();
 
         @Override
-        public Response deleteTokensByDate(@NotNull final Date expirationDate) {
-            tokens.removeIf(token -> token.getIssueDate().compareTo(expirationDate) >= 0);
-            return Response.noContent().build();
+        public void delete(final Date expirationDate) {
+            if (expirationDate == null) {
+                tokens.clear();
+            } else {
+                tokens.entrySet().removeIf(token -> token.getValue().getIssueDate().compareTo(expirationDate) >= 0);
+            }
         }
 
         @Override
-        public Response deleteToken(@NotNull final String owner, @NotNull final Integer token) {
-            tokens.removeIf(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(owner));
-            return Response.noContent().build();
+        public void delete(final String owner, final int otp) {
+            tokens.entrySet().
+                    removeIf(e -> e.getValue().getOtp() == otp && e.getKey().equalsIgnoreCase(owner));
         }
 
         @Override
-        public Response deleteTokensFor(@NotNull final String owner) {
-            tokens.removeIf(to -> to.getOwner().equalsIgnoreCase(owner));
-            return Response.noContent().build();
+        public void deleteFor(final String owner) {
+            tokens.entrySet().removeIf(e -> e.getKey().equalsIgnoreCase(owner));
         }
 
         @Override
-        public Response deleteToken(@NotNull final Integer token) {
-            tokens.removeIf(to -> to.getToken().equals(token));
-            return Response.noContent().build();
+        public void delete(final int otp) {
+            tokens.entrySet().removeIf(to -> to.getValue().getOtp() == otp);
         }
 
         @Override
-        public Response deleteTokens() {
-            tokens.clear();
-            return Response.noContent().build();
-        }
-
-        @Override
-        public Response save(@NotNull final GoogleMfaAuthToken tokenTO) {
+        public void store(final String owner, final GoogleMfaAuthToken tokenTO) {
             tokenTO.setKey(UUID.randomUUID().toString());
-            tokens.add(tokenTO);
-            return Response.ok().build();
+            tokens.put(owner, tokenTO);
         }
 
         @Override
-        public GoogleMfaAuthToken findTokenFor(@NotNull final String owner, @NotNull final Integer token) {
-            return tokens.stream()
-                .filter(to -> to.getToken().equals(token) && to.getOwner().equalsIgnoreCase(owner))
-                .findFirst().get();
+        public GoogleMfaAuthToken readFor(final String owner, final int otp) {
+            return tokens.entrySet().stream()
+                    .filter(to -> to.getValue().getOtp() == otp && to.getKey().equalsIgnoreCase(owner))
+                    .findFirst().get().getValue();
         }
 
         @Override
-        public PagedResult<GoogleMfaAuthToken> findTokensFor(@NotNull final String user) {
+        public PagedResult<GoogleMfaAuthToken> readFor(final String user) {
             PagedResult<GoogleMfaAuthToken> result = new PagedResult<>();
-            result.getResult().addAll(tokens.stream().
-                filter(to -> to.getOwner().equalsIgnoreCase(user)).
-                collect(Collectors.toList()));
+            result.getResult().addAll(tokens.entrySet().stream().
+                    filter(to -> to.getKey().equalsIgnoreCase(user)).
+                    map(Map.Entry::getValue).
+                    collect(Collectors.toList()));
             result.setSize(result.getResult().size());
             result.setTotalCount(result.getSize());
             return result;
         }
 
         @Override
-        public GoogleMfaAuthToken findTokenFor(@NotNull final String key) {
-            return tokens.stream()
-                .filter(to -> to.getKey().equalsIgnoreCase(key))
-                .findFirst().get();
+        public GoogleMfaAuthToken read(final String key) {
+            return tokens.entrySet().stream()
+                    .filter(to -> to.getKey().equalsIgnoreCase(key))
+                    .findFirst().get().getValue();
         }
 
         @Override
-        public PagedResult<GoogleMfaAuthToken> countTokens() {
+        public PagedResult<GoogleMfaAuthToken> list() {
             PagedResult<GoogleMfaAuthToken> result = new PagedResult<>();
             result.setSize(tokens.size());
             result.setTotalCount(tokens.size());
+            result.getResult().addAll(tokens.values());
             return result;
         }
     }
@@ -166,13 +160,13 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public WAClientApp read(final Long clientAppId, final ClientAppType type) {
             return APPS.stream().filter(app -> Objects.equals(clientAppId, app.getClientAppTO().getClientAppId())).
-                findFirst().orElseThrow(() -> new NotFoundException("ClientApp with clientId " + clientAppId));
+                    findFirst().orElseThrow(() -> new NotFoundException("ClientApp with clientId " + clientAppId));
         }
 
         @Override
         public WAClientApp read(final String name, final ClientAppType type) {
             return APPS.stream().filter(app -> Objects.equals(name, app.getClientAppTO().getName())).
-                findFirst().orElseThrow(() -> new NotFoundException("ClientApp with name " + name));
+                    findFirst().orElseThrow(() -> new NotFoundException("ClientApp with name " + name));
         }
     }
 }

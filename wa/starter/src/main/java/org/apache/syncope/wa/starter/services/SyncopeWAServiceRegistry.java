@@ -63,7 +63,7 @@ public class SyncopeWAServiceRegistry extends AbstractServiceRegistry {
     public boolean delete(final RegisteredService registeredService) {
         throw new UnsupportedOperationException("Deleting registered services from WA is not supported");
     }
-    
+
     @Override
     public Collection<RegisteredService> load() {
         SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
@@ -107,7 +107,8 @@ public class SyncopeWAServiceRegistry extends AbstractServiceRegistry {
                 return (T) registeredServiceMapper.toRegisteredService(waRestClient.getSyncopeClient().
                         getService(WAClientAppService.class).read(id, ClientAppType.SAML2SP));
             } else {
-                return null;
+                return (T) registeredServiceMapper.toRegisteredService(waRestClient.getSyncopeClient().
+                        getService(WAClientAppService.class).read(id, ClientAppType.CASSP));
             }
         }
     }
@@ -128,7 +129,8 @@ public class SyncopeWAServiceRegistry extends AbstractServiceRegistry {
                 return (T) registeredServiceMapper.toRegisteredService(waRestClient.getSyncopeClient().
                         getService(WAClientAppService.class).read(name, ClientAppType.SAML2SP));
             } else {
-                return null;
+                return (T) registeredServiceMapper.toRegisteredService(waRestClient.getSyncopeClient().
+                        getService(WAClientAppService.class).read(name, ClientAppType.CASSP));
             }
         }
     }

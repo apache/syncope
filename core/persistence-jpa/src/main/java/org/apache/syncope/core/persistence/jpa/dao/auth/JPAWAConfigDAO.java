@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.persistence.jpa.dao.auth;
 
 import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
@@ -25,14 +24,12 @@ import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAWAConfigEntry;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-
 import java.util.List;
 
 @Repository
 public class JPAWAConfigDAO extends AbstractDAO<WAConfigEntry> implements WAConfigDAO {
+
     @Transactional(readOnly = true)
     @Override
     public WAConfigEntry find(final String key) {
@@ -43,7 +40,7 @@ public class JPAWAConfigDAO extends AbstractDAO<WAConfigEntry> implements WAConf
     @Override
     public List<WAConfigEntry> findAll() {
         TypedQuery<WAConfigEntry> query = entityManager().createQuery(
-            "SELECT e FROM " + JPAWAConfigEntry.class.getSimpleName() + " e", WAConfigEntry.class);
+                "SELECT e FROM " + JPAWAConfigEntry.class.getSimpleName() + " e", WAConfigEntry.class);
         return query.getResultList();
     }
 
@@ -58,17 +55,6 @@ public class JPAWAConfigDAO extends AbstractDAO<WAConfigEntry> implements WAConf
         if (entry == null) {
             return;
         }
-        delete(entry);
-    }
-
-    @Override
-    public void delete(final WAConfigEntry configEntry) {
-        entityManager().remove(configEntry);
-    }
-
-    @Override
-    public void deleteAll() {
-        Query delete = entityManager().createQuery("DELETE FROM " + JPAWAConfigEntry.class.getSimpleName());
-        delete.executeUpdate();
+        entityManager().remove(entry);
     }
 }

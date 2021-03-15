@@ -18,17 +18,15 @@
  */
 package org.apache.syncope.common.rest.api.service.wa;
 
-import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.JAXRSService;
-
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -38,11 +36,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import java.util.List;
+import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 /**
  * REST operations for WA Configuration.
@@ -50,50 +47,56 @@ import java.util.List;
 @Tag(name = "WA")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
-    @SecurityRequirement(name = "Bearer")})
+    @SecurityRequirement(name = "Bearer") })
 @Path("wa/config")
 public interface WAConfigService extends JAXRSService {
 
     @GET
-    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     List<Attr> list();
 
+    /**
+     * Returns configuration parameter with matching schema.
+     *
+     * @param schema identifier of configuration to be read
+     * @return configuration parameter with matching schema
+     */
     @GET
-    @Path("{key}")
-    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Attr read(@NotNull @PathParam("key") String key);
+    @Path("{schema}")
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    Attr get(@NotNull @PathParam("schema") String schema);
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "201",
-            description = "WAConfigTO successfully created", headers = {
-            @Header(name = RESTHeaders.RESOURCE_KEY, schema =
-            @Schema(type = "string"),
-                description = "UUID generated for the entity created"),
-            @Header(name = HttpHeaders.LOCATION, schema =
-            @Schema(type = "string"),
-                description = "URL of the entity created")}),
-        @ApiResponse(responseCode = "409",
-            description = "Config already existing")})
-    @POST
-    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Response create(@NotNull Attr configTO);
-    
+    /**
+     * Creates / updates the configuration parameter with the given schema.
+     *
+     * @param value parameter value
+     */
+    @Parameter(name = "schema", description = "Configuration schema", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
-    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    void update(Attr configTO);
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Path("{schema}")
+    void set(@NotNull Attr value);
 
+    /**
+     * Deletes the configuration parameter with matching schema.
+     *
+     * @param schema configuration parameter schema
+     */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
-    @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    @Path("{key}")
-    void delete(@NotNull @PathParam("key") String key);
+    @Path("{schema}")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void delete(@NotNull @PathParam("schema") String schema);
 
     @ApiResponses(
-        @ApiResponse(responseCode = "204", description = "Operation was successful"))
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("push")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
