@@ -252,7 +252,6 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
             if (requestedAuthnContextProvider != null) {
                 RequestedAuthnContext requestedAuthnContext = requestedAuthnContextProvider.get();
-                SAML2Configuration cfg = saml2Client.getConfiguration();
                 saml2Client.setRedirectionActionBuilder(new SAML2RedirectionActionBuilder(saml2Client) {
                     @Override
                     public Optional<RedirectionAction> getRedirectionAction(final WebContext wc,
