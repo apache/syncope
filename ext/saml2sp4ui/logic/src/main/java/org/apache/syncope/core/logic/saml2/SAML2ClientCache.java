@@ -20,6 +20,8 @@ package org.apache.syncope.core.logic.saml2;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -36,15 +38,35 @@ import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
+import org.pac4j.saml.metadata.SAML2IdentityProviderMetadataResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Basic in-memory cache for available {@link SAML2Client} instances.
  */
 @Component
 public class SAML2ClientCache {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(SAML2ClientCache.class);
+
+    private static Path METADATA_PATH;
+
+    static {
+        try {
+            METADATA_PATH = Files.createTempDirectory("saml2sp4ui-").toAbsolutePath();
+        } catch (IOException e) {
+            LOG.error("Could not create a temp directory to store metadata files", e);
+        }
+    }
+
+    public static Optional<String> getSPMetadataPath(final String spEntityID) {
+        return Optional.ofNullable(METADATA_PATH).
+                map(path -> Optional.of(path.resolve(spEntityID).toAbsolutePath().toString())).
+                orElse(Optional.empty());
+    }
 
     private final List<SAML2Client> cache = Collections.synchronizedList(new ArrayList<>());
 
@@ -53,37 +75,29 @@ public class SAML2ClientCache {
                 && spEntityID.equals(c.getConfiguration().getServiceProviderEntityId())).findFirst();
     }
 
-    private static SAML2Client newSAML2Client(final Resource metadata, final SAML2Configuration cfg) {
-        cfg.setIdentityProviderMetadataResource(metadata);
-
-        SAML2Client saml2Client = new SAML2Client(cfg);
-        saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
-
-        return saml2Client;
-    }
-
     public static SAML2SP4UIIdPTO importMetadata(
             final InputStream metadata, final SAML2Configuration cfg) throws IOException {
 
-        SAML2Client saml2Client = newSAML2Client(new ByteArrayResource(IOUtils.readBytesFromStream(metadata)), cfg);
-        String entityId = saml2Client.getConfiguration().getIdentityProviderMetadataResolver().getEntityId();
+        cfg.setIdentityProviderMetadataResource(new ByteArrayResource(IOUtils.readBytesFromStream(metadata)));
+        SAML2IdentityProviderMetadataResolver metadataResolver = new SAML2IdentityProviderMetadataResolver(cfg);
+        metadataResolver.init();
+
+        String entityId = metadataResolver.getEntityId();
 
         SAML2SP4UIIdPTO idpTO = new SAML2SP4UIIdPTO();
         idpTO.setEntityID(entityId);
         idpTO.setName(entityId);
 
-        EntityDescriptor entityDescriptor = (EntityDescriptor) saml2Client.getConfiguration().
-                getIdentityProviderMetadataResolver().getEntityDescriptorElement();
-        entityDescriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS).getSingleSignOnServices().
-                forEach(sso -> {
-                    if (idpTO.getBindingType() == null) {
-                        if (SAML2BindingType.POST.getUri().equals(sso.getBinding())) {
-                            idpTO.setBindingType(SAML2BindingType.POST);
-                        } else if (SAML2BindingType.REDIRECT.getUri().equals(sso.getBinding())) {
-                            idpTO.setBindingType(SAML2BindingType.REDIRECT);
-                        }
-                    }
-                });
+        EntityDescriptor entityDescriptor = (EntityDescriptor) metadataResolver.getEntityDescriptorElement();
+        entityDescriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS).getSingleSignOnServices().forEach(sso -> {
+            if (idpTO.getBindingType() == null) {
+                if (SAML2BindingType.POST.getUri().equals(sso.getBinding())) {
+                    idpTO.setBindingType(SAML2BindingType.POST);
+                } else if (SAML2BindingType.REDIRECT.getUri().equals(sso.getBinding())) {
+                    idpTO.setBindingType(SAML2BindingType.REDIRECT);
+                }
+            }
+        });
         if (idpTO.getBindingType() == null) {
             throw new IllegalArgumentException("Neither POST nor REDIRECT artifacts supported by " + entityId);
         }
@@ -99,8 +113,7 @@ public class SAML2ClientCache {
                 findFirst().
                 ifPresent(slo -> idpTO.setLogoutSupported(true));
 
-        idpTO.setMetadata(Base64.getEncoder().encodeToString(
-                saml2Client.getConfiguration().getIdentityProviderMetadataResolver().getMetadata().getBytes()));
+        idpTO.setMetadata(Base64.getEncoder().encodeToString(metadataResolver.getMetadata().getBytes()));
 
         ItemTO connObjectKeyItem = new ItemTO();
         connObjectKeyItem.setIntAttrName("username");
@@ -113,8 +126,12 @@ public class SAML2ClientCache {
     public SAML2Client add(
             final SAML2SP4UIIdP idp, final SAML2Configuration cfg, final String spEntityID, final String callbackUrl) {
 
-        SAML2Client saml2Client = newSAML2Client(new ByteArrayResource(idp.getMetadata()), cfg);
-        saml2Client.getConfiguration().setServiceProviderEntityId(spEntityID);
+        cfg.setIdentityProviderMetadataResource((new ByteArrayResource(idp.getMetadata())));
+        cfg.setServiceProviderEntityId(spEntityID);
+        getSPMetadataPath(spEntityID).ifPresent(cfg::setServiceProviderMetadataResourceFilepath);
+
+        SAML2Client saml2Client = new SAML2Client(cfg);
+        saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         saml2Client.setCallbackUrl(callbackUrl);
         saml2Client.init();
 
