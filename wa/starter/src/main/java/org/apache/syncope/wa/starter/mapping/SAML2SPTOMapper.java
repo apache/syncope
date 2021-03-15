@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
-import org.apache.syncope.common.lib.to.client.SAML2SPTO;
+import org.apache.syncope.common.lib.to.SAML2SPTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;

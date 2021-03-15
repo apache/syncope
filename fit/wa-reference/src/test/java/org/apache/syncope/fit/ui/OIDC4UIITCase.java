@@ -47,7 +47,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
-import org.apache.syncope.common.lib.to.client.OIDCRPTO;
+import org.apache.syncope.common.lib.to.OIDCRPTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;

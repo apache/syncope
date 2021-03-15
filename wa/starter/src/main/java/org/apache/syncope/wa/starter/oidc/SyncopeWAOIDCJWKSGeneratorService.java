@@ -19,19 +19,22 @@
 package org.apache.syncope.wa.starter.oidc;
 
 import java.nio.charset.StandardCharsets;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.JWSAlgorithm;
-import org.apache.syncope.common.rest.api.service.wa.WAOIDCJWKSService;
+import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.oidc.jwks.OidcJsonWebKeystoreGeneratorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 
 public class SyncopeWAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAOIDCJWKSGeneratorService.class);
 
     private final WARestClient waRestClient;
 
@@ -53,19 +56,25 @@ public class SyncopeWAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGen
             throw new RuntimeException("Syncope core is not yet ready");
         }
 
-        WAOIDCJWKSService service = waRestClient.getSyncopeClient().getService(WAOIDCJWKSService.class);
+        OIDCJWKSService service = waRestClient.getSyncopeClient().getService(OIDCJWKSService.class);
+        OIDCJWKSTO jwksTO = null;
         try {
-            Response response = service.set(size, algorithm);
-            OIDCJWKSTO jwksTO = response.readEntity(new GenericType<OIDCJWKSTO>() {
-            });
-            return new ByteArrayResource(jwksTO.getJson().getBytes(StandardCharsets.UTF_8), "OIDC JWKS");
+            jwksTO = service.get();
         } catch (SyncopeClientException e) {
-            if (e.getType() == ClientExceptionType.EntityExists) {
-                OIDCJWKSTO jwksTO = service.get();
-                return new ByteArrayResource(jwksTO.getJson().getBytes(StandardCharsets.UTF_8), "OIDC JWKS");
+            if (e.getType() == ClientExceptionType.NotFound) {
+                try {
+                    Response response = service.generate(size, algorithm);
+                    jwksTO = response.readEntity(OIDCJWKSTO.class);
+                } catch (Exception ge) {
+                    LOG.error("While generating new OIDC JWKS", ge);
+                }
+            } else {
+                LOG.error("While reading OIDC JWKS", e);
             }
-
-            throw new RuntimeException("Unable to determine OIDC JWKS resource", e);
         }
+        if (jwksTO == null) {
+            throw new RuntimeException("Unable to determine OIDC JWKS resource");
+        }
+        return new ByteArrayResource(jwksTO.getJson().getBytes(StandardCharsets.UTF_8), "OIDC JWKS");
     }
 }

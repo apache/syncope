@@ -45,7 +45,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.syncope.common.lib.to.client.CASSPTO;
+import org.apache.syncope.common.lib.to.CASSPTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.junit.jupiter.api.BeforeAll;

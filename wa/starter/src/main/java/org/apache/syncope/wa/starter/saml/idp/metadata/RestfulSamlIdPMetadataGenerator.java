@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
-import org.apache.syncope.common.rest.api.service.wa.WASAML2IdPMetadataService;
+import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataService;
 
 public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerator {
 
@@ -53,7 +53,7 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
             final Optional<SamlRegisteredService> registeredService) {
 
         LOG.info("Generating new SAML2 IdP metadata document");
-        doc.setAppliesTo(WASAML2IdPMetadataService.DEFAULT_OWNER);
+        doc.setAppliesTo(SAML2IdPMetadataService.DEFAULT_OWNER);
         SAML2IdPMetadataTO metadataTO = new SAML2IdPMetadataTO.Builder().
                 metadata(doc.getMetadata()).
                 encryptionKey(doc.getEncryptionKey()).
@@ -66,7 +66,7 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
         SyncopeClient client = getSyncopeClient();
         Response response = null;
         try {
-            response = client.getService(WASAML2IdPMetadataService.class).set(metadataTO);
+            response = client.getService(SAML2IdPMetadataService.class).set(metadataTO);
         } catch (Exception e) {
             LOG.warn("While generating SAML2 IdP metadata document", e);
         }

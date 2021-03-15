@@ -32,15 +32,14 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.rest.api.service.wa.WASAML2SPMetadataService;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class SAML2SPMetadataITCase extends AbstractITCase {
 
-    private static WASAML2SPMetadataService waSAML2SPMetadataService;
+    private static SAML2SPMetadataService waSAML2SPMetadataService;
 
     @BeforeAll
     public static void setup() {
@@ -48,7 +47,7 @@ public class SAML2SPMetadataITCase extends AbstractITCase {
 
         SyncopeClient anonymous = clientFactory.create(
                 new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
-        waSAML2SPMetadataService = anonymous.getService(WASAML2SPMetadataService.class);
+        waSAML2SPMetadataService = anonymous.getService(SAML2SPMetadataService.class);
     }
 
     private SAML2SPMetadataTO createSAML2SPMetadata(final SAML2SPMetadataTO metadata) {
@@ -59,7 +58,7 @@ public class SAML2SPMetadataITCase extends AbstractITCase {
                 throw (RuntimeException) ex;
             }
         }
-        return getObject(response.getLocation(), WASAML2SPMetadataService.class, metadata.getClass());
+        return getObject(response.getLocation(), SAML2SPMetadataService.class, metadata.getClass());
     }
 
     private static void testIsValid(final SAML2SPMetadataTO metadataTO) {
@@ -81,7 +80,7 @@ public class SAML2SPMetadataITCase extends AbstractITCase {
     public void read() {
         SAML2SPMetadataTO metadataTO;
         try {
-            metadataTO = waSAML2SPMetadataService.getByOwner(OWNER);
+            metadataTO = waSAML2SPMetadataService.readFor(OWNER);
         } catch (SyncopeClientException e) {
             metadataTO = createSAML2SPMetadata();
         }
@@ -93,7 +92,7 @@ public class SAML2SPMetadataITCase extends AbstractITCase {
     @Test
     public void create() {
         try {
-            waSAML2SPMetadataService.getByOwner(OWNER);
+            waSAML2SPMetadataService.readFor(OWNER);
         } catch (SyncopeClientException e) {
             createSAML2SPMetadata();
         }
@@ -107,24 +106,5 @@ public class SAML2SPMetadataITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
-    }
-
-    @Test
-    public void update() {
-        SAML2SPMetadataTO metadataTO;
-        try {
-            metadataTO = waSAML2SPMetadataService.getByOwner(OWNER);
-        } catch (NotFoundException e) {
-            metadataTO = createSAML2SPMetadata();
-        }
-        assertNotNull(metadataTO);
-        metadataTO.setMetadata("new-metadata");
-        metadataTO.setOwner("Syncope4");
-
-        saml2SPMetadataService.update(metadataTO);
-        metadataTO = waSAML2SPMetadataService.read(metadataTO.getKey());
-        assertNotNull(metadataTO);
-        assertEquals("new-metadata", metadataTO.getMetadata());
-        assertEquals("Syncope4", metadataTO.getOwner());
     }
 }

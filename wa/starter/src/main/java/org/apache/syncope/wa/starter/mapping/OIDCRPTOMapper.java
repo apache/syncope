@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.syncope.common.lib.to.client.OIDCRPTO;
+import org.apache.syncope.common.lib.to.OIDCRPTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;

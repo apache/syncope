@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 @Component
 public class SAML2SPKeystoreLogic extends AbstractTransactionalLogic<SAML2SPKeystoreTO> {
@@ -45,50 +46,36 @@ public class SAML2SPKeystoreLogic extends AbstractTransactionalLogic<SAML2SPKeys
     private SAML2SPKeystoreDAO saml2SPKeystoreDAO;
 
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_KEYSTORE_READ + "') "
-        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public SAML2SPKeystoreTO read(final String key) {
-        final SAML2SPKeystore keystore = saml2SPKeystoreDAO.find(key);
-        if (keystore == null) {
-            throw new NotFoundException(key + " not found");
-        }
-        return binder.getSAML2SPKeystoreTO(keystore);
+        return Optional.ofNullable(saml2SPKeystoreDAO.find(key)).
+                map(binder::getSAML2SPKeystoreTO).
+                orElseThrow(() -> new NotFoundException(key + " not found"));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_KEYSTORE_READ + "') "
-        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public SAML2SPKeystoreTO get(final String name) {
-        final SAML2SPKeystore keystore = saml2SPKeystoreDAO.findByOwner(name);
-        if (keystore == null) {
-            throw new NotFoundException("SAML2 SP keystore owned by " + name + " not found");
-        }
-
-        return binder.getSAML2SPKeystoreTO(keystore);
+        return Optional.ofNullable(saml2SPKeystoreDAO.findByOwner(name)).
+                map(binder::getSAML2SPKeystoreTO).
+                orElseThrow(() -> new NotFoundException("SAML2 SP keystore owned by " + name + " not found"));
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_KEYSTORE_CREATE + "') "
-        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_KEYSTORE_SET + "') "
+            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public SAML2SPKeystoreTO set(final SAML2SPKeystoreTO keystoreTO) {
-        final SAML2SPKeystore keystore = saml2SPKeystoreDAO.findByOwner(keystoreTO.getOwner());
+        SAML2SPKeystore keystore = saml2SPKeystoreDAO.findByOwner(keystoreTO.getOwner());
         if (keystore == null) {
             return binder.getSAML2SPKeystoreTO(saml2SPKeystoreDAO.save(binder.create(keystoreTO)));
         }
         throw SyncopeClientException.build(ClientExceptionType.EntityExists);
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_KEYSTORE_UPDATE + "')")
-    public SAML2SPKeystoreTO update(final SAML2SPKeystoreTO keystoreTO) {
-        final SAML2SPKeystore keystore = saml2SPKeystoreDAO.find(keystoreTO.getKey());
-        if (keystore == null) {
-            throw new NotFoundException(keystoreTO.getKey() + " not found");
-        }
-        return binder.getSAML2SPKeystoreTO(saml2SPKeystoreDAO.save(binder.update(keystore, keystoreTO)));
-    }
-
     @Override
     protected SAML2SPKeystoreTO resolveReference(final Method method, final Object... args)
-        throws UnresolvedReferenceException {
+            throws UnresolvedReferenceException {
         String name = null;
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; name == null && i < args.length; i++) {

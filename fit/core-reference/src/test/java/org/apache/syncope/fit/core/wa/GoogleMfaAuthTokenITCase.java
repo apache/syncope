@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.fit.core;
+package org.apache.syncope.fit.core.wa;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,13 +43,8 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private static GoogleMfaAuthToken createGoogleMfaAuthToken() {
-        Integer token = SECURE_RANDOM.ints(100_000, 999_999)
-                .findFirst()
-                .getAsInt();
-        return new GoogleMfaAuthToken.Builder()
-                .token(token)
-                .issueDate(new Date())
-                .build();
+        int token = SECURE_RANDOM.ints(100_000, 999_999).findFirst().getAsInt();
+        return new GoogleMfaAuthToken.Builder().token(token).issueDate(new Date()).build();
     }
 
     @BeforeEach
@@ -117,7 +112,7 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
     public void deleteByDate() {
         String owner = UUID.randomUUID().toString();
         Date dateTime = Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneId.systemDefault()).toInstant());
-        GoogleMfaAuthToken token = createGoogleMfaAuthToken();
+        createGoogleMfaAuthToken();
         googleMfaAuthTokenService.delete(dateTime);
         assertTrue(googleMfaAuthTokenService.readFor(owner).getResult().isEmpty());
         assertEquals(0, googleMfaAuthTokenService.readFor(owner).getTotalCount());

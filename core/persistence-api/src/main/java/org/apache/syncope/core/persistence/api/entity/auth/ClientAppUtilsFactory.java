@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity.auth;
 
-import org.apache.syncope.common.lib.to.client.ClientAppTO;
+import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 
 public interface ClientAppUtilsFactory {

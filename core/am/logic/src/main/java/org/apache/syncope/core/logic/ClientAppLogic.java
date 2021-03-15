@@ -27,6 +27,9 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Resource;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
@@ -34,7 +37,7 @@ import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.client.ClientAppTO;
+import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -53,10 +56,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.core.HttpHeaders;
 
 @Component
 public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
@@ -259,12 +258,12 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
         try {
             NetworkService wa = serviceOps.get(NetworkService.Type.WA);
             HttpClient.newBuilder().build().send(
-                HttpRequest.newBuilder(URI.create(
-                    StringUtils.appendIfMissing(wa.getAddress(), "/") + "actuator/registeredServices")).
-                    header(HttpHeaders.AUTHORIZATION,
-                        DefaultBasicAuthSupplier.getBasicAuthHeader(anonymousUser, anonymousKey)).
-                    GET().build(),
-                HttpResponse.BodyHandlers.discarding());
+                    HttpRequest.newBuilder(URI.create(
+                            StringUtils.appendIfMissing(wa.getAddress(), "/") + "actuator/registeredServices")).
+                            header(HttpHeaders.AUTHORIZATION,
+                                    DefaultBasicAuthSupplier.getBasicAuthHeader(anonymousUser, anonymousKey)).
+                            GET().build(),
+                    HttpResponse.BodyHandlers.discarding());
         } catch (KeymasterException e) {
             throw new NotFoundException("Could not find any WA instance", e);
         } catch (IOException | InterruptedException e) {

@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 @Component
 public class SAML2ClientCache {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(SAML2ClientCache.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SAML2ClientCache.class);
 
     private static Path METADATA_PATH;
 

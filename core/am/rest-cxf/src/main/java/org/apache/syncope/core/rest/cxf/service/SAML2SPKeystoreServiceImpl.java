@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import java.net.URI;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.logic.SAML2SPKeystoreLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,7 +34,21 @@ public class SAML2SPKeystoreServiceImpl extends AbstractServiceImpl implements S
     private SAML2SPKeystoreLogic logic;
 
     @Override
-    public void update(final SAML2SPKeystoreTO metadataTO) {
-        logic.update(metadataTO);
+    public SAML2SPKeystoreTO readFor(final String name) {
+        return logic.get(name);
+    }
+
+    @Override
+    public SAML2SPKeystoreTO read(final String key) {
+        return logic.read(key);
+    }
+
+    @Override
+    public Response set(final SAML2SPKeystoreTO keystoreTO) {
+        SAML2SPKeystoreTO keystore = logic.set(keystoreTO);
+        URI location = uriInfo.getAbsolutePathBuilder().path(keystore.getKey()).build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_KEY, keystore.getKey()).
+                build();
     }
 }

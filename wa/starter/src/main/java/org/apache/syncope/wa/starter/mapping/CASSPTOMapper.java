@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
-import org.apache.syncope.common.lib.to.client.CASSPTO;
+import org.apache.syncope.common.lib.to.CASSPTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.services.RegexRegisteredService;
 import org.apereo.cas.services.RegisteredService;

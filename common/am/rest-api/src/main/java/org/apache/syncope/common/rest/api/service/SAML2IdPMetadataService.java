@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -28,17 +27,22 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for SAML 2.0 IdP metadata.
  */
-@FunctionalInterface
 @Tag(name = "SAML 2.0")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
@@ -46,18 +50,49 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 @Path("saml2idp/metadata")
 public interface SAML2IdPMetadataService extends JAXRSService {
 
+    String DEFAULT_OWNER = "Syncope";
+
     /**
-     * Updates SAML 2.0 IdP metadata matching the given key.
+     * Returns a document outlining keys and metadata of Syncope as SAML 2.0 IdP.
      *
-     * @param saml2IdPMetadataTO SAML2IdPMetadata to replace existing SAML 2.0 IdP metadata
+     * @param appliesTo indicates the SAML 2.0 IdP metadata document owner and applicability, where a value of 'Syncope'
+     * indicates the Syncope server as the global owner of the metadata and keys.
+     * @return SAML 2.0 IdP metadata
      */
-    @Parameter(name = "key", description = "SAML2IdPMetadata's key", in = ParameterIn.PATH, schema =
-            @Schema(type = "string"))
-    @ApiResponses(
-            @ApiResponse(responseCode = "204", description = "Operation was successful"))
-    @PUT
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    SAML2IdPMetadataTO readFor(@QueryParam("appliesTo") @DefaultValue(DEFAULT_OWNER) String appliesTo);
+
+    /**
+     * Returns the SAML 2.0 IdP metadata matching the given key.
+     *
+     * @param key key of requested SAML 2.0 IdP metadata
+     * @return SAML 2.0 IdP metadata with matching id
+     */
+    @GET
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    SAML2IdPMetadataTO read(@NotNull @PathParam("key") String key);
+
+    /**
+     * Store the metadata and keys to finalize the metadata generation process.
+     *
+     * @param saml2IdPMetadataTO SAML2IdPMetadata to be created
+     * @return Response object featuring Location header of created SAML 2.0 IdP metadata
+     */
+    @ApiResponses({
+        @ApiResponse(responseCode = "201",
+                description = "SAML2IdPMetadata successfully created", headers = {
+                    @Header(name = RESTHeaders.RESOURCE_KEY, schema =
+                            @Schema(type = "string"),
+                            description = "UUID generated for the entity created"),
+                    @Header(name = HttpHeaders.LOCATION, schema =
+                            @Schema(type = "string"),
+                            description = "URL of the entity created") }),
+        @ApiResponse(responseCode = "409",
+                description = "Metadata already existing") })
+    @POST
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void update(@NotNull SAML2IdPMetadataTO saml2IdPMetadataTO);
+    Response set(@NotNull SAML2IdPMetadataTO saml2IdPMetadataTO);
 }

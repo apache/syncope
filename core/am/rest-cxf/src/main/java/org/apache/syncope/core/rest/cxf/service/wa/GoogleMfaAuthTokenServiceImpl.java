@@ -37,9 +37,9 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     @Override
     public void delete(final Date expirationDate) {
         if (expirationDate == null) {
-            logic.delete(expirationDate);
-        } else {
             logic.deleteAll();
+        } else {
+            logic.delete(expirationDate);
         }
     }
 

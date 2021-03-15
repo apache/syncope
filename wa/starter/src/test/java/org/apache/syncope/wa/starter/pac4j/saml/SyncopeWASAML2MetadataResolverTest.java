@@ -16,22 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.wa.starter.pac4j.saml;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
-import org.apache.syncope.wa.bootstrap.WARestClient;
-import org.junit.jupiter.api.Test;
-import org.pac4j.saml.client.SAML2Client;
-import org.springframework.core.io.ClassPathResource;
-
-import javax.ws.rs.core.Response;
-
-import java.io.File;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,9 +24,21 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.syncope.common.rest.api.service.wa.WASAML2SPMetadataService;
+import java.io.File;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
+import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
+import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
+import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.junit.jupiter.api.Test;
+import org.pac4j.saml.client.SAML2Client;
+import org.springframework.core.io.ClassPathResource;
 
 public class SyncopeWASAML2MetadataResolverTest extends BaseSyncopeWASAML2ClientTest {
+
     @Test
     public void fetchMetadata() throws Exception {
         SAML2Client client = getSAML2Client();
@@ -50,16 +47,18 @@ public class SyncopeWASAML2MetadataResolverTest extends BaseSyncopeWASAML2Client
         WARestClient restClient = mock(WARestClient.class);
 
         SAML2SPMetadataTO metadataTO = new SAML2SPMetadataTO.Builder()
-            .owner("Syncope")
-            .metadata(IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(), StandardCharsets.UTF_8))
-            .build();
+                .owner("Syncope")
+                .metadata(IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(),
+                        StandardCharsets.UTF_8))
+                .build();
 
-        WASAML2SPMetadataService saml2SPMetadataService = mock(WASAML2SPMetadataService.class);
-        when(saml2SPMetadataService.getByOwner(anyString())).thenReturn(metadataTO);
-        when(saml2SPMetadataService.set(any())).thenReturn(Response.created(new URI("http://localhost:9081/syncop-wa")).build());
+        SAML2SPMetadataService saml2SPMetadataService = mock(SAML2SPMetadataService.class);
+        when(saml2SPMetadataService.readFor(anyString())).thenReturn(metadataTO);
+        when(saml2SPMetadataService.set(any())).thenReturn(Response.created(new URI("http://localhost:9081/syncop-wa")).
+                build());
 
         SyncopeClient syncopeClient = mock(SyncopeClient.class);
-        when(syncopeClient.getService(WASAML2SPMetadataService.class)).thenReturn(saml2SPMetadataService);
+        when(syncopeClient.getService(SAML2SPMetadataService.class)).thenReturn(saml2SPMetadataService);
         when(restClient.getSyncopeClient()).thenReturn(syncopeClient);
 
         SyncopeWASAML2MetadataResolver resolver = new SyncopeWASAML2MetadataResolver(restClient, client);
