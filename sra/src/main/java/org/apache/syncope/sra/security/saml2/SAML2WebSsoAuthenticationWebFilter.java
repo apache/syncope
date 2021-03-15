@@ -19,6 +19,8 @@
 package org.apache.syncope.sra.security.saml2;
 
 import java.net.URI;
+
+import org.apache.syncope.sra.security.pac4j.NoOpSessionStore;
 import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import org.apache.syncope.sra.security.web.server.DoNothingIfCommittedServerRedirectStrategy;
 import org.apache.syncope.sra.session.SessionUtils;
@@ -79,10 +81,11 @@ public class SAML2WebSsoAuthenticationWebFilter extends AuthenticationWebFilter 
                 flatMap(matchResult -> {
                     ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange).setForm(form);
 
-                    SAML2Credentials credentials = saml2Client.getCredentialsExtractor().extract(swec).
+                    SAML2Credentials credentials = (SAML2Credentials) saml2Client.getCredentialsExtractor().
+                        extract(swec, NoOpSessionStore.INSTANCE).
                             orElseThrow(() -> new IllegalStateException("No AuthnResponse found"));
 
-                    saml2Client.getAuthenticator().validate(credentials, swec);
+                    saml2Client.getAuthenticator().validate(credentials, swec, NoOpSessionStore.INSTANCE);
 
                     return Mono.just(new SAML2AuthenticationToken(credentials));
                 }));

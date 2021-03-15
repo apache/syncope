@@ -50,7 +50,7 @@ public class OIDCClientCache {
 
     protected static final Logger LOG = LoggerFactory.getLogger(OIDCClientCache.class);
 
-    private final List<OidcClient<OidcConfiguration>> cache = Collections.synchronizedList(new ArrayList<>());
+    private final List<OidcClient> cache = Collections.synchronizedList(new ArrayList<>());
 
     private static OIDCProviderMetadata getDiscoveryDocument(final String issuer) {
         String discoveryDocumentURL = issuer + "/.well-known/openid-configuration";
@@ -86,11 +86,11 @@ public class OIDCClientCache {
                 Optional.ofNullable(metadata.getEndSessionEndpointURI()).map(URI::toASCIIString).orElse(null));
     }
 
-    public Optional<OidcClient<OidcConfiguration>> get(final String opName) {
+    public Optional<OidcClient> get(final String opName) {
         return cache.stream().filter(c -> opName.equals(c.getName())).findFirst();
     }
 
-    public OidcClient<OidcConfiguration> add(final OIDCC4UIProvider op, final String callbackUrl) {
+    public OidcClient add(final OIDCC4UIProvider op, final String callbackUrl) {
         OIDCProviderMetadata metadata = new OIDCProviderMetadata(
                 new Issuer(op.getIssuer()),
                 List.of(SubjectType.PUBLIC),
@@ -112,7 +112,7 @@ public class OIDCClientCache {
         config.setUseNonce(false);
         config.setLogoutHandler(new NoOpLogoutHandler());
 
-        OidcClient<OidcConfiguration> client = new OidcClient<>(config);
+        OidcClient client = new OidcClient(config);
         client.setName(op.getName());
         client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         client.setCallbackUrl(callbackUrl);

@@ -65,6 +65,11 @@ public class SyncopeWAServiceRegistry extends AbstractServiceRegistry {
     }
 
     @Override
+    public void deleteAll() {
+        throw new UnsupportedOperationException("Bulk deleting registered services from WA is not supported");
+    }
+
+    @Override
     public Collection<RegisteredService> load() {
         SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
         if (syncopeClient == null) {

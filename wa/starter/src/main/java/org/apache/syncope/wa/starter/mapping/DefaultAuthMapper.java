@@ -25,10 +25,8 @@ import org.apache.syncope.common.lib.policy.DefaultAuthPolicyCriteriaConf;
 import org.apereo.cas.services.AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria;
 import org.apereo.cas.services.DefaultRegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
-import org.springframework.stereotype.Component;
 
 @AuthMapFor(authPolicyConfClass = DefaultAuthPolicyConf.class)
-@Component
 public class DefaultAuthMapper implements AuthMapper {
 
     @Override

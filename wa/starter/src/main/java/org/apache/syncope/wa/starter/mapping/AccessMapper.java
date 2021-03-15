@@ -21,6 +21,7 @@ package org.apache.syncope.wa.starter.mapping;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 
+@FunctionalInterface
 public interface AccessMapper {
 
     RegisteredServiceAccessStrategy build(AccessPolicyConf conf);

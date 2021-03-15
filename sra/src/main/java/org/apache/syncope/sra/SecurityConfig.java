@@ -261,7 +261,7 @@ public class SecurityConfig {
         cfg.setWantsAssertionsSigned(true);
         cfg.setAuthnRequestSigned(true);
         cfg.setSpLogoutRequestSigned(true);
-
+        cfg.setServiceProviderMetadataResourceFilepath(env.getProperty("am.saml2.sp.metadata"));
         cfg.setAcceptedSkew(env.getProperty("am.saml2.sp.skew", int.class));
 
         cfg.setLogoutHandler(new NoOpLogoutHandler());

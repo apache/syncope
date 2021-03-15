@@ -382,6 +382,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
      * {@link BaseModal#setWindowClosedCallback(BaseModal.WindowClosedCallback)}, no ajax
      * request will be fired.
      */
+    @FunctionalInterface
     public interface WindowClosedCallback extends IClusterable {
 
         /**

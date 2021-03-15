@@ -35,13 +35,19 @@ import org.apache.syncope.wa.starter.audit.SyncopeWAAuditTrailManager;
 import org.apache.syncope.wa.starter.gauth.SyncopeWAGoogleMfaAuthCredentialRepository;
 import org.apache.syncope.wa.starter.mapping.AccessMapFor;
 import org.apache.syncope.wa.starter.mapping.AccessMapper;
+import org.apache.syncope.wa.starter.mapping.AllowedAttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.AuthMapFor;
 import org.apache.syncope.wa.starter.mapping.AuthMapper;
+import org.apache.syncope.wa.starter.mapping.CASSPTOMapper;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapFor;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
+import org.apache.syncope.wa.starter.mapping.DefaultAccessMapper;
+import org.apache.syncope.wa.starter.mapping.DefaultAuthMapper;
+import org.apache.syncope.wa.starter.mapping.OIDCRPTOMapper;
 import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
+import org.apache.syncope.wa.starter.mapping.SAML2SPTOMapper;
 import org.apache.syncope.wa.starter.oidc.SyncopeWAOIDCJWKSGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.SyncopeWASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
@@ -51,7 +57,7 @@ import org.apache.syncope.wa.starter.u2f.SyncopeWAU2FDeviceRepository;
 import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRepository;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorProperties;
+import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
 import org.apereo.cas.oidc.jwks.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
@@ -124,6 +130,36 @@ public class SyncopeWAConfiguration {
                         new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"));
     }
 
+    @Bean
+    public AttrReleaseMapper allowedAttrReleaseMapper() {
+        return new AllowedAttrReleaseMapper();
+    }
+
+    @Bean
+    public ClientAppMapper casSPTOMapper() {
+        return new CASSPTOMapper();
+    }
+
+    @Bean
+    public AccessMapper defaultAccessMapper() {
+        return new DefaultAccessMapper();
+    }
+
+    @Bean
+    public AuthMapper defaultAuthMapper() {
+        return new DefaultAuthMapper();
+    }
+
+    @Bean
+    public ClientAppMapper oidcRPTOMapper() {
+        return new OIDCRPTOMapper();
+    }
+
+    @Bean
+    public ClientAppMapper saml2SPTOMapper() {
+        return new SAML2SPTOMapper();
+    }
+
     @ConditionalOnMissingBean
     @Bean
     public RegisteredServiceMapper registeredServiceMapper() {
@@ -194,7 +230,8 @@ public class SyncopeWAConfiguration {
     @Autowired
     @Bean
     public SamlIdPMetadataLocator samlIdPMetadataLocator(final WARestClient restClient) {
-        return new RestfulSamlIdPMetadataLocator(CipherExecutor.noOpOfStringToString(), restClient);
+        return new RestfulSamlIdPMetadataLocator(CipherExecutor.noOpOfStringToString(),
+            Caffeine.newBuilder().build(), restClient);
     }
 
     @Autowired
@@ -217,7 +254,7 @@ public class SyncopeWAConfiguration {
 
     @Autowired
     @Bean
-    public DelegatedClientFactoryCustomizer<Client<?>> delegatedClientCustomizer(final WARestClient restClient) {
+    public DelegatedClientFactoryCustomizer<Client> delegatedClientCustomizer(final WARestClient restClient) {
         return new SyncopeWASAML2ClientCustomizer(restClient);
     }
 
@@ -257,7 +294,7 @@ public class SyncopeWAConfiguration {
     @Autowired
     @RefreshScope
     public U2FDeviceRepository u2fDeviceRepository(final WARestClient restClient) {
-        U2FMultifactorProperties u2f = casProperties.getAuthn().getMfa().getU2f();
+        U2FMultifactorAuthenticationProperties u2f = casProperties.getAuthn().getMfa().getU2f();
         LocalDate expirationDate = LocalDate.now(ZoneId.systemDefault()).
                 minus(u2f.getExpireDevices(), DateTimeUtils.toChronoUnit(u2f.getExpireDevicesTimeUnit()));
         LoadingCache<String, String> requestStorage = Caffeine.newBuilder().

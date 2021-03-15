@@ -41,9 +41,7 @@ import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefreshedEvent> {
 
     public static final List<WAClientApp> APPS = new ArrayList<>();
