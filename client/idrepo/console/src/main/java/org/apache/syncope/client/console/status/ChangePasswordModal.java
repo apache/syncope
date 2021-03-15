@@ -58,7 +58,7 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
 
         this.wrapper = wrapper;
 
-        final PasswordPanel passwordPanel = new PasswordPanel("passwordPanel", wrapper, false);
+        final PasswordPanel passwordPanel = new PasswordPanel("passwordPanel", wrapper, false, false);
         passwordPanel.setOutputMarkupId(true);
         add(passwordPanel);
 

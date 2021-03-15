@@ -38,14 +38,16 @@ public class PasswordPanel extends Panel {
     public PasswordPanel(
             final String id,
             final UserWrapper wrapper,
+            final Boolean storePasswordInSyncope,
             final boolean templateMode) {
-        this(id, wrapper, templateMode, null);
+        this(id, wrapper, templateMode, storePasswordInSyncope, null);
     }
 
     public PasswordPanel(
             final String id,
             final UserWrapper wrapper,
             final boolean templateMode,
+            final Boolean storePasswordInSyncope,
             final PasswordStrengthBehavior passwordStrengthBehavior) {
 
         super(id);
@@ -88,16 +90,16 @@ public class PasswordPanel extends Panel {
             form.add(new EqualPasswordInputValidator(passwordField.getField(), confirmPasswordField.getField()));
         }
 
-        AjaxCheckBoxPanel storePasswordInSyncope = new AjaxCheckBoxPanel("storePasswordInSyncope",
+        AjaxCheckBoxPanel storePasswordInSyncopePanel = new AjaxCheckBoxPanel("storePasswordInSyncope",
                 "storePasswordInSyncope", new PropertyModel<>(wrapper, "storePasswordInSyncope"));
-        storePasswordInSyncope.getField().setLabel(new ResourceModel("storePasswordInSyncope"));
-        storePasswordInSyncope.setOutputMarkupId(true);
-        storePasswordInSyncope.setOutputMarkupPlaceholderTag(true);
-        if (wrapper.getInnerObject().getKey() == null) {
-            storePasswordInSyncope.getField().setDefaultModelObject(Boolean.TRUE);
+        storePasswordInSyncopePanel.getField().setLabel(new ResourceModel("storePasswordInSyncope"));
+        storePasswordInSyncopePanel.setOutputMarkupId(true);
+        storePasswordInSyncopePanel.setOutputMarkupPlaceholderTag(true);
+        if (storePasswordInSyncope) {
+            storePasswordInSyncopePanel.getField().setDefaultModelObject(Boolean.TRUE);
         } else {
-            storePasswordInSyncope.setVisible(false);
+            storePasswordInSyncopePanel.setVisible(false);
         }
-        form.add(storePasswordInSyncope);
+        form.add(storePasswordInSyncopePanel);
     }
 }

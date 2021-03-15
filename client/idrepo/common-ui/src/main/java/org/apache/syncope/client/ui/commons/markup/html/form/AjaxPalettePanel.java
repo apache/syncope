@@ -1,20 +1,17 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ *  Copyright (C) 2020 Tirasa (info@tirasa.net)
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package org.apache.syncope.client.ui.commons.markup.html.form;
 
@@ -33,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.Component;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -193,6 +191,9 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
                         processInput();
+                        if (builder.event != null) {
+                            builder.event.apply(target);
+                        }
                     }
                 });
 
@@ -267,6 +268,8 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
         protected Function<String, Stream<String>> idExtractor =
                 (Function<String, Stream<String>> & Serializable) input -> Stream.of(Strings.split(input, ','));
 
+        protected Function<AjaxRequestTarget, Boolean> event;
+
         protected Function<Object, Map<String, String>> additionalAttributes;
 
         public Builder<T> setName(final String name) {
@@ -317,6 +320,11 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         public Builder<T> idExtractor(final Function<String, Stream<String>> idExtractor) {
             this.idExtractor = idExtractor;
+            return this;
+        }
+
+        public Builder<T> event(final Function<AjaxRequestTarget, Boolean> event) {
+            this.event = event;
             return this;
         }
 
@@ -402,6 +410,26 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             });
 
             return filtered;
+        }
+    }
+
+    public static class UpdateActionEvent {
+
+        private final UserTO item;
+
+        private final AjaxRequestTarget target;
+
+        public UpdateActionEvent(final UserTO item, final AjaxRequestTarget target) {
+            this.item = item;
+            this.target = target;
+        }
+
+        public UserTO getItem() {
+            return item;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
         }
     }
 }
