@@ -435,7 +435,7 @@ under the License.
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
 
-    <log4j.version>2.14.0</log4j.version>
+    <log4j.version>2.14.1</log4j.version>
     <disruptor.version>3.4.2</disruptor.version>
 
     <commons-io.version>2.7</commons-io.version>
