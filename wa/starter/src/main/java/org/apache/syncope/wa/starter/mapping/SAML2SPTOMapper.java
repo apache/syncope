@@ -25,10 +25,8 @@ import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
-import org.springframework.stereotype.Component;
 
 @ClientAppMapFor(clientAppClass = SAML2SPTO.class)
-@Component
 public class SAML2SPTOMapper implements ClientAppMapper {
 
     @Override

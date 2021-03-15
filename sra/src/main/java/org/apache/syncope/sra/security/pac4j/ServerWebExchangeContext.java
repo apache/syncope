@@ -26,7 +26,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.ArrayUtils;
 import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.util.CommonHelper;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
@@ -51,11 +50,6 @@ public class ServerWebExchangeContext implements WebContext {
     public ServerWebExchangeContext(final ServerWebExchange exchange) {
         CommonHelper.assertNotNull("exchange", exchange);
         this.exchange = exchange;
-    }
-
-    @Override
-    public SessionStore<ServerWebExchangeContext> getSessionStore() {
-        return NoOpSessionStore.INSTANCE;
     }
 
     @Override
@@ -125,7 +119,12 @@ public class ServerWebExchangeContext implements WebContext {
 
     @Override
     public void setResponseHeader(final String name, final String value) {
-        this.exchange.getResponse().getHeaders().set(name, value);
+
+    }
+
+    @Override
+    public Optional<String> getResponseHeader(final String s) {
+        return Optional.ofNullable(this.exchange.getResponse().getHeaders().getFirst(s));
     }
 
     @Override

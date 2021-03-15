@@ -20,6 +20,6 @@ package org.apache.syncope.sra.security.pac4j;
 
 import org.pac4j.core.logout.handler.LogoutHandler;
 
-public class NoOpLogoutHandler implements LogoutHandler<ServerWebExchangeContext> {
+public class NoOpLogoutHandler implements LogoutHandler {
 
 }

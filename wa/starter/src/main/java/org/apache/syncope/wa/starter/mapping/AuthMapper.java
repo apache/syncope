@@ -21,6 +21,7 @@ package org.apache.syncope.wa.starter.mapping;
 import org.apache.syncope.common.lib.policy.AuthPolicyConf;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 
+@FunctionalInterface
 public interface AuthMapper {
 
     RegisteredServiceAuthenticationPolicy build(AuthPolicyConf conf);

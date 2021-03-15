@@ -38,6 +38,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 /**
  * REST operations for SAML 2.0 SP metadata.
  */
+@FunctionalInterface
 @Tag(name = "SAML 2.0")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),

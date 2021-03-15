@@ -25,10 +25,8 @@ import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
-import org.springframework.stereotype.Component;
 
 @ClientAppMapFor(clientAppClass = CASSPTO.class)
-@Component
 public class CASSPTOMapper implements ClientAppMapper {
 
     @Override

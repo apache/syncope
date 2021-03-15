@@ -26,10 +26,8 @@ import org.apereo.cas.services.RegisteredServiceConsentPolicy;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.apereo.cas.services.consent.DefaultRegisteredServiceConsentPolicy;
 import org.apereo.cas.util.model.TriStateBoolean;
-import org.springframework.stereotype.Component;
 
 @AttrReleaseMapFor(attrReleasePolicyConfClass = AllowedAttrReleasePolicyConf.class)
-@Component
 public class AllowedAttrReleaseMapper implements AttrReleaseMapper {
 
     @Override

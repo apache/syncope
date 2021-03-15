@@ -50,10 +50,10 @@ import org.apereo.cas.configuration.model.support.jdbc.JdbcAuthenticationPropert
 import org.apereo.cas.configuration.model.support.jdbc.authn.QueryJdbcAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.ldap.AbstractLdapAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.ldap.LdapAuthenticationProperties;
-import org.apereo.cas.configuration.model.support.mfa.DuoSecurityMultifactorProperties;
+import org.apereo.cas.configuration.model.support.mfa.DuoSecurityMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.MultifactorAuthenticationProperties;
-import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorProperties;
-import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorProperties;
+import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.Pac4jDelegatedAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGenericOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jOidcClientProperties;
@@ -177,7 +177,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             final String authModule,
             final DuoMfaAuthModuleConf conf) {
 
-        DuoSecurityMultifactorProperties props = new DuoSecurityMultifactorProperties();
+        DuoSecurityMultifactorAuthenticationProperties props = new DuoSecurityMultifactorAuthenticationProperties();
         props.setName(authModule);
         props.setDuoApiHost(conf.getApiHost());
         props.setDuoApplicationKey(conf.getApplicationKey());
@@ -206,7 +206,8 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             final String authModule,
             final GoogleMfaAuthModuleConf conf) {
 
-        GoogleAuthenticatorMultifactorProperties props = new GoogleAuthenticatorMultifactorProperties();
+        GoogleAuthenticatorMultifactorAuthenticationProperties props =
+            new GoogleAuthenticatorMultifactorAuthenticationProperties();
         props.setName(authModule);
         props.setIssuer(conf.getIssuer());
         props.setCodeDigits(conf.getCodeDigits());
@@ -236,7 +237,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             final String authModule,
             final U2FAuthModuleConf conf) {
 
-        U2FMultifactorProperties props = new U2FMultifactorProperties();
+        U2FMultifactorAuthenticationProperties props = new U2FMultifactorAuthenticationProperties();
         props.setName(authModule);
         props.setExpireDevices(conf.getExpireDevices());
         props.setExpireDevicesTimeUnit(TimeUnit.valueOf(conf.getExpireDevicesTimeUnit()));

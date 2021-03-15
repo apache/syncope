@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.saml2.SAML2Response;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
 
 public class SAML2SP4UIContext implements WebContext {
 
@@ -49,11 +48,6 @@ public class SAML2SP4UIContext implements WebContext {
     }
 
     @Override
-    public SessionStore<SAML2SP4UIContext> getSessionStore() {
-        return NoOpSessionStore.INSTANCE;
-    }
-
-    @Override
     public Optional<String> getRequestParameter(final String name) {
         switch (name) {
             case SAML2Constants.SAML_RESPONSE:
@@ -69,12 +63,12 @@ public class SAML2SP4UIContext implements WebContext {
 
     @Override
     public Map<String, String[]> getRequestParameters() {
-        throw new UnsupportedOperationException();
+        return Map.of();
     }
 
     @Override
     public Optional<String> getRequestAttribute(final String name) {
-        throw new UnsupportedOperationException();
+        return Optional.empty();
     }
 
     @Override
@@ -89,7 +83,7 @@ public class SAML2SP4UIContext implements WebContext {
 
     @Override
     public String getRemoteAddr() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
@@ -98,28 +92,33 @@ public class SAML2SP4UIContext implements WebContext {
     }
 
     @Override
+    public Optional<String> getResponseHeader(final String s) {
+        return Optional.empty();
+    }
+
+    @Override
     public String getServerName() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
     public int getServerPort() {
-        throw new UnsupportedOperationException();
+        return -1;
     }
 
     @Override
     public String getScheme() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
     public boolean isSecure() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     @Override
     public String getFullRequestURL() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
@@ -134,7 +133,7 @@ public class SAML2SP4UIContext implements WebContext {
 
     @Override
     public String getPath() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.wa.starter.saml.idp.metadata;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
@@ -40,9 +41,10 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
 
     public RestfulSamlIdPMetadataLocator(
             final CipherExecutor<String, String> metadataCipherExecutor,
+            final Cache<String, SamlIdPMetadataDocument> metadataCache,
             final WARestClient restClient) {
 
-        super(metadataCipherExecutor);
+        super(metadataCipherExecutor, metadataCache);
         this.restClient = restClient;
     }
 
