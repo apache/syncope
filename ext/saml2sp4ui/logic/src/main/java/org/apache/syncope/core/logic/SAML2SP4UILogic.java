@@ -152,6 +152,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
             SAML2Configuration cfg = loader.newSAML2Configuration();
             cfg.setServiceProviderEntityId(spEntityID);
             cfg.setCallbackUrl(getCallbackUrl(spEntityID, urlContext));
+            SAML2ClientCache.getSPMetadataPath(spEntityID).ifPresent(cfg::setServiceProviderMetadataResourceFilepath);
 
             EntityDescriptor entityDescriptor =
                     (EntityDescriptor) new SAML2ServiceProviderMetadataResolver(cfg).getEntityDescriptorElement();
@@ -253,9 +254,11 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
             if (requestedAuthnContextProvider != null) {
                 RequestedAuthnContext requestedAuthnContext = requestedAuthnContextProvider.get();
                 saml2Client.setRedirectionActionBuilder(new SAML2RedirectionActionBuilder(saml2Client) {
+
                     @Override
-                    public Optional<RedirectionAction> getRedirectionAction(final WebContext wc,
-                                                                            final SessionStore sessionStore) {
+                    public Optional<RedirectionAction> getRedirectionAction(
+                            final WebContext wc, final SessionStore sessionStore) {
+
                         this.saml2ObjectBuilder = new SAML2AuthnRequestBuilder() {
 
                             @Override
@@ -303,7 +306,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
                     saml2Response);
 
             credentials = (SAML2Credentials) saml2Client.getCredentialsExtractor().
-                extract(ctx, NoOpSessionStore.INSTANCE).
+                    extract(ctx, NoOpSessionStore.INSTANCE).
                     orElseThrow(() -> new IllegalStateException("No AuthnResponse found"));
 
             saml2Client.getAuthenticator().validate(credentials, ctx, NoOpSessionStore.INSTANCE);
@@ -492,7 +495,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         LogoutResponse logoutResponse;
         try {
             SAML2MessageContext saml2Ctx = saml2Client.getContextProvider().
-                buildContext(saml2Client, ctx, NoOpSessionStore.INSTANCE);
+                    buildContext(saml2Client, ctx, NoOpSessionStore.INSTANCE);
             saml2Client.getLogoutProfileHandler().receive(saml2Ctx);
 
             logoutResponse = (LogoutResponse) saml2Ctx.getMessageContext().getMessage();
