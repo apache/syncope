@@ -16,26 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.wa.starter.pac4j.saml;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
-import org.apache.syncope.wa.bootstrap.WARestClient;
-import org.junit.jupiter.api.Test;
-import org.opensaml.saml.saml2.metadata.EntityDescriptor;
-import org.pac4j.saml.client.SAML2Client;
-import org.pac4j.saml.metadata.SAML2MetadataGenerator;
-import org.springframework.core.io.ClassPathResource;
-
-import javax.ws.rs.core.Response;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,22 +25,39 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.syncope.common.rest.api.service.wa.WASAML2SPMetadataService;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
+import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
+import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
+import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.junit.jupiter.api.Test;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.pac4j.saml.client.SAML2Client;
+import org.pac4j.saml.metadata.SAML2MetadataGenerator;
+import org.springframework.core.io.ClassPathResource;
 
 public class SyncopeWASAML2ClientMetadataGeneratorTest extends BaseSyncopeWASAML2ClientTest {
+
     private static WARestClient getWaRestClient(final Response response) throws IOException {
         WARestClient restClient = mock(WARestClient.class);
         SAML2SPMetadataTO metadataTO = new SAML2SPMetadataTO.Builder()
-            .owner("Syncope")
-            .metadata(IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(), StandardCharsets.UTF_8))
-            .build();
+                .owner("Syncope")
+                .metadata(IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(),
+                        StandardCharsets.UTF_8))
+                .build();
 
-        WASAML2SPMetadataService saml2SPMetadataService = mock(WASAML2SPMetadataService.class);
-        when(saml2SPMetadataService.getByOwner(anyString())).thenReturn(metadataTO);
+        SAML2SPMetadataService saml2SPMetadataService = mock(SAML2SPMetadataService.class);
+        when(saml2SPMetadataService.readFor(anyString())).thenReturn(metadataTO);
         when(saml2SPMetadataService.set(any())).thenReturn(response);
 
         SyncopeClient syncopeClient = mock(SyncopeClient.class);
-        when(syncopeClient.getService(WASAML2SPMetadataService.class)).thenReturn(saml2SPMetadataService);
+        when(syncopeClient.getService(SAML2SPMetadataService.class)).thenReturn(saml2SPMetadataService);
         when(restClient.getSyncopeClient()).thenReturn(syncopeClient);
         return restClient;
     }
@@ -71,7 +69,7 @@ public class SyncopeWASAML2ClientMetadataGeneratorTest extends BaseSyncopeWASAML
         client.getConfiguration().setKeystoreResourceFilepath(keystoreFile);
 
         SAML2MetadataGenerator generator = new SyncopeWASAML2ClientMetadataGenerator(
-            getWaRestClient(Response.created(new URI("http://localhost:9081/syncop-wa")).build()), client);
+                getWaRestClient(Response.created(new URI("http://localhost:9081/syncop-wa")).build()), client);
         EntityDescriptor entityDescriptor = generator.buildEntityDescriptor();
         String metadata = generator.getMetadata(entityDescriptor);
         assertNotNull(generator.storeMetadata(metadata, null, false));

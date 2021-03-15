@@ -112,7 +112,8 @@ public class SyncopeWAServiceRegistry extends AbstractServiceRegistry {
                 return (T) registeredServiceMapper.toRegisteredService(waRestClient.getSyncopeClient().
                         getService(WAClientAppService.class).read(id, ClientAppType.SAML2SP));
             } else {
-                return null;
+                return (T) registeredServiceMapper.toRegisteredService(waRestClient.getSyncopeClient().
+                        getService(WAClientAppService.class).read(id, ClientAppType.CASSP));
             }
         }
     }
@@ -133,7 +134,8 @@ public class SyncopeWAServiceRegistry extends AbstractServiceRegistry {
                 return (T) registeredServiceMapper.toRegisteredService(waRestClient.getSyncopeClient().
                         getService(WAClientAppService.class).read(name, ClientAppType.SAML2SP));
             } else {
-                return null;
+                return (T) registeredServiceMapper.toRegisteredService(waRestClient.getSyncopeClient().
+                        getService(WAClientAppService.class).read(name, ClientAppType.CASSP));
             }
         }
     }
@@ -150,6 +152,4 @@ public class SyncopeWAServiceRegistry extends AbstractServiceRegistry {
                     getService(WAClientAppService.class).read(name, null));
         }
     }
-
-
 }

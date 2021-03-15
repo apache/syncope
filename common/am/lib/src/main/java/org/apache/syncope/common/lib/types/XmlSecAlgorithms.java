@@ -16,8 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package org.apache.syncope.common.lib;
+package org.apache.syncope.common.lib.types;
 
 public enum XmlSecAlgorithms {
 

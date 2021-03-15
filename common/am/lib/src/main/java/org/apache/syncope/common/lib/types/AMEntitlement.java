@@ -56,31 +56,25 @@ public final class AMEntitlement {
 
     public static final String AUTH_MODULE_DELETE = "AUTH_MODULE_DELETE";
 
-    public static final String SAML2_IDP_METADATA_CREATE = "SAML2_IDP_METADATA_CREATE";
-
-    public static final String SAML2_IDP_METADATA_UPDATE = "SAML2_IDP_METADATA_UPDATE";
+    public static final String SAML2_IDP_METADATA_SET = "SAML2_IDP_METADATA_SET";
 
     public static final String SAML2_IDP_METADATA_READ = "SAML2_IDP_METADATA_READ";
 
-    public static final String SAML2_SP_METADATA_CREATE = "SAML2_SP_METADATA_CREATE";
-
-    public static final String SAML2_SP_METADATA_UPDATE = "SAML2_SP_METADATA_UPDATE";
+    public static final String SAML2_SP_METADATA_SET = "SAML2_SP_METADATA_SET";
 
     public static final String SAML2_SP_METADATA_READ = "SAML2_SP_METADATA_READ";
 
-    public static final String SAML2_SP_KEYSTORE_CREATE = "SAML2_SP_KEYSTORE_CREATE";
-
-    public static final String SAML2_SP_KEYSTORE_UPDATE = "SAML2_SP_KEYSTORE_UPDATE";
+    public static final String SAML2_SP_KEYSTORE_SET = "SAML2_SP_KEYSTORE_SET";
 
     public static final String SAML2_SP_KEYSTORE_READ = "SAML2_SP_KEYSTORE_READ";
 
     public static final String GOOGLE_MFA_DELETE_TOKEN = "GOOGLE_MFA_DELETE_TOKEN";
 
-    public static final String GOOGLE_MFA_SAVE_TOKEN = "GOOGLE_MFA_SAVE_TOKEN";
+    public static final String GOOGLE_MFA_STORE_TOKEN = "GOOGLE_MFA_STORE_TOKEN";
 
     public static final String GOOGLE_MFA_READ_TOKEN = "GOOGLE_MFA_READ_TOKEN";
 
-    public static final String GOOGLE_MFA_COUNT_TOKEN = "GOOGLE_MFA_COUNT_TOKEN";
+    public static final String GOOGLE_MFA_LIST_TOKENS = "GOOGLE_MFA_LIST_TOKENS";
 
     public static final String AUTH_PROFILE_DELETE = "AUTH_PROFILE_DELETE";
 
@@ -90,43 +84,37 @@ public final class AMEntitlement {
 
     public static final String GOOGLE_MFA_DELETE_ACCOUNT = "GOOGLE_MFA_DELETE_ACCOUNT";
 
-    public static final String GOOGLE_MFA_SAVE_ACCOUNT = "GOOGLE_MFA_SAVE_ACCOUNT";
+    public static final String GOOGLE_MFA_CREATE_ACCOUNT = "GOOGLE_MFA_CREATE_ACCOUNT";
 
     public static final String GOOGLE_MFA_UPDATE_ACCOUNT = "GOOGLE_MFA_UPDATE_ACCOUNT";
 
     public static final String GOOGLE_MFA_READ_ACCOUNT = "GOOGLE_MFA_READ_ACCOUNT";
 
-    public static final String GOOGLE_MFA_COUNT_ACCOUNTS = "GOOGLE_MFA_COUNT_ACCOUNTS";
-
     public static final String GOOGLE_MFA_LIST_ACCOUNTS = "GOOGLE_MFA_LIST_ACCOUNTS";
 
-    public static final String OIDC_JWKS_CREATE = "OIDC_JWKS_CREATE";
+    public static final String OIDC_JWKS_GENERATE = "OIDC_JWKS_GENERATE";
 
     public static final String OIDC_JWKS_READ = "OIDC_JWKS_READ";
-
-    public static final String OIDC_JWKS_UPDATE = "OIDC_JWKS_UPDATE";
 
     public static final String OIDC_JWKS_DELETE = "OIDC_JWKS_DELETE";
 
     public static final String U2F_DELETE_DEVICE = "U2F_DELETE_DEVICE";
 
-    public static final String U2F_SAVE_DEVICE = "U2F_SAVE_DEVICE";
+    public static final String U2F_CREATE_DEVICE = "U2F_CREATE_DEVICE";
 
     public static final String U2F_READ_DEVICE = "U2F_READ_DEVICE";
 
-    public static final String U2F_SEARCH = "U2F_SEARCH";
+    public static final String U2F_SEARCH_DEVICES = "U2F_SEARCH_DEVICES";
 
     public static final String U2F_UPDATE_DEVICE = "U2F_UPDATE_DEVICE";
 
     public static final String WA_CONFIG_LIST = "WA_CONFIG_LIST";
 
-    public static final String WA_CONFIG_UPDATE = "WA_CONFIG_UPDATE";
+    public static final String WA_CONFIG_SET = "WA_CONFIG_SET";
 
     public static final String WA_CONFIG_DELETE = "WA_CONFIG_DELETE";
 
-    public static final String WA_CONFIG_READ = "WA_CONFIG_READ";
-
-    public static final String WA_CONFIG_CREATE = "WA_CONFIG_CREATE";
+    public static final String WA_CONFIG_GET = "WA_CONFIG_GET";
 
     public static final String WA_CONFIG_PUSH = "WA_CONFIG_PUSH";
 

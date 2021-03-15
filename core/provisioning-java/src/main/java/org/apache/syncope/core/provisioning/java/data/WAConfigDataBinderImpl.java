@@ -16,10 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Optional;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
@@ -28,34 +29,26 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class WAConfigDataBinderImpl implements WAConfigDataBinder {
+
+    @Autowired
+    private WAConfigDAO waConfigDAO;
+
     @Autowired
     private EntityFactory entityFactory;
 
     @Override
-    public Attr getAttr(final WAConfigEntry waConfigEntry) {
+    public Attr get(final WAConfigEntry waConfigEntry) {
         return new Attr.Builder(waConfigEntry.getKey()).values(waConfigEntry.getValues()).build();
     }
 
     @Override
-    public WAConfigEntry create(final Attr configTO) {
-        return update(entityFactory.newEntity(WAConfigEntry.class), configTO);
-    }
-
-    @Override
-    public WAConfigEntry update(final WAConfigEntry entry, final Attr configTO) {
-        return getConfigEntry(entry, configTO);
-    }
-
-    private WAConfigEntry getConfigEntry(
-        final WAConfigEntry configEntry,
-        final Attr config) {
-
-        WAConfigEntry result = configEntry;
-        if (result == null) {
-            result = entityFactory.newEntity(WAConfigEntry.class);
-        }
-        result.setValues(config.getValues());
-        result.setKey(config.getSchema());
-        return result;
+    public WAConfigEntry set(final Attr attr) {
+        WAConfigEntry entry = Optional.ofNullable(waConfigDAO.find(attr.getSchema())).orElseGet(() -> {
+            WAConfigEntry waConfigEntry = entityFactory.newEntity(WAConfigEntry.class);
+            waConfigEntry.setKey(attr.getSchema());
+            return waConfigEntry;
+        });
+        entry.setValues(attr.getValues());
+        return entry;
     }
 }

@@ -567,7 +567,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         query.setParameter("connObjectKeyValue", connObjectKeyValue);
 
         List<LinkedAccount> result = query.getResultList();
-        return query.getResultList().isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     @Transactional(readOnly = true)

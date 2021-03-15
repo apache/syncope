@@ -19,10 +19,10 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.client.CASSPTO;
-import org.apache.syncope.common.lib.to.client.ClientAppTO;
-import org.apache.syncope.common.lib.to.client.OIDCRPTO;
-import org.apache.syncope.common.lib.to.client.SAML2SPTO;
+import org.apache.syncope.common.lib.to.CASSPTO;
+import org.apache.syncope.common.lib.to.ClientAppTO;
+import org.apache.syncope.common.lib.to.OIDCRPTO;
+import org.apache.syncope.common.lib.to.SAML2SPTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;

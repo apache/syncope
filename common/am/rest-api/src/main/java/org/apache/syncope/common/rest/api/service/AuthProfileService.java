@@ -26,7 +26,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
@@ -49,26 +48,26 @@ public interface AuthProfileService extends JAXRSService {
     List<AuthProfileTO> list();
 
     @GET
-    @Path("owners/{owner}")
+    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    AuthProfileTO findByOwner(@NotNull @PathParam("owner") String owner);
+    AuthProfileTO read(@NotNull @PathParam("key") String key);
 
     @GET
-    @Path("{key}")
+    @Path("owners/{owner}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    AuthProfileTO findByKey(@NotNull @PathParam("key") String key);
+    AuthProfileTO readByOwner(@NotNull @PathParam("owner") String owner);
 
     @DELETE
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response deleteByKey(@NotNull @PathParam("key") String key);
+    void delete(@NotNull @PathParam("key") String key);
 
     @DELETE
     @Path("owners/{owner}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response deleteByOwner(@NotNull @PathParam("owner") String owner);
+    void deleteByOwner(@NotNull @PathParam("owner") String owner);
 }

@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import java.net.URI;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.logic.SAML2IdPMetadataLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,7 +34,21 @@ public class SAML2IdPMetadataServiceImpl extends AbstractServiceImpl implements 
     private SAML2IdPMetadataLogic logic;
 
     @Override
-    public void update(final SAML2IdPMetadataTO saml2IdPMetadataTO) {
-        logic.update(saml2IdPMetadataTO);
+    public SAML2IdPMetadataTO readFor(final String appliesTo) {
+        return logic.readFor(appliesTo);
+    }
+
+    @Override
+    public SAML2IdPMetadataTO read(final String key) {
+        return logic.read(key);
+    }
+
+    @Override
+    public Response set(final SAML2IdPMetadataTO saml2IdPMetadataTO) {
+        SAML2IdPMetadataTO saml2IdPMetadata = logic.set(saml2IdPMetadataTO);
+        URI location = uriInfo.getAbsolutePathBuilder().path(saml2IdPMetadata.getKey()).build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_KEY, saml2IdPMetadata.getKey()).
+                build();
     }
 }

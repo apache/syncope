@@ -16,30 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.persistence.api.dao.auth;
-
-import org.apache.syncope.core.persistence.api.dao.DAO;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.core.persistence.api.dao.DAO;
+import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 
 public interface AuthProfileDAO extends DAO<AuthProfile> {
+
+    AuthProfile find(String key);
 
     List<AuthProfile> findAll();
 
     Optional<AuthProfile> findByOwner(String owner);
 
-    Optional<AuthProfile> findByKey(String key);
-
     AuthProfile save(AuthProfile profile);
 
-    void deleteByKey(String key);
-
-    void deleteByOwner(String owner);
+    void delete(String key);
 
     void delete(AuthProfile authProfile);
-
-    void deleteAll();
 }

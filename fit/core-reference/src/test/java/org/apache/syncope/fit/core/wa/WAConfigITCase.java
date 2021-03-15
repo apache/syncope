@@ -16,52 +16,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.fit.core;
-
-import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.fit.AbstractITCase;
-import org.junit.jupiter.api.Test;
-
-import javax.ws.rs.core.Response;
-
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+package org.apache.syncope.fit.core.wa;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Test;
+
 public class WAConfigITCase extends AbstractITCase {
+
     private static Attr runTest(final List<String> initialValue, final List<String> updatedValue) {
-        Attr configTO = new Attr.Builder(UUID.randomUUID().toString())
-            .values(initialValue)
-            .build();
-        Response response = waConfigService.create(configTO);
-        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
-        assertNotNull(key);
+        Attr config = new Attr.Builder(UUID.randomUUID().toString()).values(initialValue).build();
+        waConfigService.set(config);
 
         assertFalse(waConfigService.list().isEmpty());
 
-        configTO = waConfigService.read(key);
-        assertNotNull(configTO);
+        config = waConfigService.get(config.getSchema());
+        assertNotNull(config);
 
-        configTO = new Attr.Builder(configTO.getSchema())
-            .values(updatedValue)
-            .build();
-        waConfigService.update(configTO);
+        config = new Attr.Builder(config.getSchema()).values(updatedValue).build();
+        waConfigService.set(config);
 
-        Attr updatedTO = waConfigService.read(key);
+        Attr updatedTO = waConfigService.get(config.getSchema());
         updatedTO.getValues().stream().allMatch(((Collection) updatedValue)::contains);
         return updatedTO;
     }
 
     private static <T extends Serializable> void deleteEntry(final Attr configTO) {
         waConfigService.delete(configTO.getSchema());
-        assertThrows(SyncopeClientException.class, () -> waConfigService.read(configTO.getSchema()));
+        assertThrows(SyncopeClientException.class, () -> waConfigService.get(configTO.getSchema()));
     }
 
     @Test

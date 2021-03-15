@@ -18,21 +18,21 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
-import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
+import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
+import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPAWAConfigEntry;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class WAConfigTest extends AbstractTest {
@@ -42,7 +42,7 @@ public class WAConfigTest extends AbstractTest {
 
     @BeforeEach
     public void beforeEach() {
-        configDAO.deleteAll();
+        entityManager().createQuery("DELETE FROM " + JPAWAConfigEntry.class.getSimpleName()).executeUpdate();
     }
 
     @Test
@@ -94,5 +94,4 @@ public class WAConfigTest extends AbstractTest {
         assertNotNull(configDAO.find(entry.getKey()));
         return entry;
     }
-
 }

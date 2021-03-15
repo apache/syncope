@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity.auth;
 
-import org.apache.syncope.common.lib.XmlSecAlgorithms;
+import org.apache.syncope.common.lib.types.XmlSecAlgorithms;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 
 import java.util.List;

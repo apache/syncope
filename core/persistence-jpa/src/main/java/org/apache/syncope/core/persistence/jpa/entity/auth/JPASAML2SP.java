@@ -27,7 +27,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
-import org.apache.syncope.common.lib.XmlSecAlgorithms;
+import org.apache.syncope.common.lib.types.XmlSecAlgorithms;
 
 import java.util.ArrayList;
 import java.util.List;

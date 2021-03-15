@@ -16,16 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 
 public interface WAConfigDataBinder {
-    Attr getAttr(WAConfigEntry waConfigEntry);
 
-    WAConfigEntry create(Attr config);
+    Attr get(WAConfigEntry waConfigEntry);
 
-    WAConfigEntry update(WAConfigEntry entry, Attr config);
+    WAConfigEntry set(Attr value);
 }

@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.to.client;
+package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.XmlSecAlgorithms;
+import org.apache.syncope.common.lib.types.XmlSecAlgorithms;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 
 import java.util.ArrayList;

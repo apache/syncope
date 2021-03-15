@@ -21,7 +21,7 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.client.ClientAppTO;
+import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ClientAppService;

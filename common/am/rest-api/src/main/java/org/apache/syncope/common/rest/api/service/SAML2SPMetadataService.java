@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -28,17 +27,21 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for SAML 2.0 SP metadata.
  */
-@FunctionalInterface
 @Tag(name = "SAML 2.0")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
@@ -47,17 +50,45 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 public interface SAML2SPMetadataService extends JAXRSService {
 
     /**
-     * Updates SAML 2.0 SP metadata matching the given key.
+     * Returns a document outlining metadata for Syncope as SAML 2.0 SP.
      *
-     * @param metadataTO SAML2SPMetadata to replace existing SAML 2.0 SP metadata
+     * @param name indicates the SAML 2.0 SP metadata document owner.
+     * @return SAML 2.0 SP metadata
      */
-    @Parameter(name = "key", description = "SAML2SPMetadata's key", in = ParameterIn.PATH, schema =
-            @Schema(type = "string"))
-    @ApiResponses(
-            @ApiResponse(responseCode = "204", description = "Operation was successful"))
-    @PUT
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    SAML2SPMetadataTO readFor(@QueryParam("name") String name);
+
+    /**
+     * Returns the SAML 2.0 SP metadata matching the given key.
+     *
+     * @param key key of requested SAML 2.0 SP metadata
+     * @return SAML 2.0 SP metadata with matching id
+     */
+    @GET
     @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    SAML2SPMetadataTO read(@NotNull @PathParam("key") String key);
+
+    /**
+     * Store the metadata to finalize the metadata generation process.
+     *
+     * @param metadataTO SAML2SPMetadataTO to be created
+     * @return Response object featuring Location header of created SAML 2.0 SP metadata
+     */
+    @ApiResponses({
+        @ApiResponse(responseCode = "201",
+                description = "SAML2SPMetadata successfully created", headers = {
+                    @Header(name = RESTHeaders.RESOURCE_KEY, schema =
+                            @Schema(type = "string"),
+                            description = "UUID generated for the entity created"),
+                    @Header(name = HttpHeaders.LOCATION, schema =
+                            @Schema(type = "string"),
+                            description = "URL of the entity created") }),
+        @ApiResponse(responseCode = "409",
+                description = "Metadata already existing") })
+    @POST
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void update(@NotNull SAML2SPMetadataTO metadataTO);
+    Response set(@NotNull SAML2SPMetadataTO metadataTO);
 }

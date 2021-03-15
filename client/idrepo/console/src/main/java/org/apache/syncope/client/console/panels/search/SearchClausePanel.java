@@ -122,7 +122,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         }
 
         default void setFieldAccess(
-                FieldPanel value,
+                FieldPanel<String> value,
                 AjaxTextFieldPanel property,
                 LoadableDetachableModel<List<String>> properties) {
 

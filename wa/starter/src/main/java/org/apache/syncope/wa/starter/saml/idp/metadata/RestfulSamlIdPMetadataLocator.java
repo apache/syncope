@@ -31,7 +31,7 @@ import org.apereo.cas.util.crypto.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Optional;
-import org.apache.syncope.common.rest.api.service.wa.WASAML2IdPMetadataService;
+import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataService;
 
 public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
 
@@ -85,13 +85,13 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
         SAML2IdPMetadataTO result = null;
 
         String appliesToFor = registeredService.map(SamlRegisteredService::getName).
-                orElse(WASAML2IdPMetadataService.DEFAULT_OWNER);
+                orElse(SAML2IdPMetadataService.DEFAULT_OWNER);
+        SAML2IdPMetadataService service = getSyncopeClient().getService(SAML2IdPMetadataService.class);
         try {
-            result = getSyncopeClient().getService(WASAML2IdPMetadataService.class).getByOwner(appliesToFor);
+            result = service.readFor(appliesToFor);
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound && registeredService.isPresent()) {
-                result = getSyncopeClient().getService(WASAML2IdPMetadataService.class).
-                        getByOwner(WASAML2IdPMetadataService.DEFAULT_OWNER);
+                result = service.readFor(SAML2IdPMetadataService.DEFAULT_OWNER);
             } else {
                 throw e;
             }

@@ -32,18 +32,17 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.rest.api.service.wa.WASAML2SPKeystoreService;
-import org.apache.syncope.common.rest.api.service.wa.WASAML2SPMetadataService;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreService;
+import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class SAML2SPKeystoreITCase extends AbstractITCase {
 
-    private static WASAML2SPKeystoreService waSAML2SPKeystoreService;
+    private static SAML2SPKeystoreService waSAML2SPKeystoreService;
 
-    private static WASAML2SPMetadataService waSAML2SPMetadataService;
+    private static SAML2SPMetadataService waSAML2SPMetadataService;
 
     @BeforeAll
     public static void setup() {
@@ -51,8 +50,8 @@ public class SAML2SPKeystoreITCase extends AbstractITCase {
 
         SyncopeClient anonymous = clientFactory.create(
                 new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
-        waSAML2SPKeystoreService = anonymous.getService(WASAML2SPKeystoreService.class);
-        waSAML2SPMetadataService = anonymous.getService(WASAML2SPMetadataService.class);
+        waSAML2SPKeystoreService = anonymous.getService(SAML2SPKeystoreService.class);
+        waSAML2SPMetadataService = anonymous.getService(SAML2SPMetadataService.class);
     }
 
     private static void testIsValid(final SAML2SPKeystoreTO keystoreTO) {
@@ -68,7 +67,7 @@ public class SAML2SPKeystoreITCase extends AbstractITCase {
                 throw (RuntimeException) ex;
             }
         }
-        return getObject(response.getLocation(), WASAML2SPKeystoreService.class, keystoreTO.getClass());
+        return getObject(response.getLocation(), SAML2SPKeystoreService.class, keystoreTO.getClass());
     }
 
     private SAML2SPKeystoreTO createSAML2SPKeystore() {
@@ -85,7 +84,7 @@ public class SAML2SPKeystoreITCase extends AbstractITCase {
     public void read() {
         SAML2SPKeystoreTO keystoreTO;
         try {
-            keystoreTO = waSAML2SPKeystoreService.getByOwner(OWNER);
+            keystoreTO = waSAML2SPKeystoreService.readFor(OWNER);
         } catch (SyncopeClientException e) {
             keystoreTO = createSAML2SPKeystore();
         }
@@ -97,7 +96,7 @@ public class SAML2SPKeystoreITCase extends AbstractITCase {
     @Test
     public void create() {
         try {
-            waSAML2SPMetadataService.getByOwner(OWNER);
+            waSAML2SPMetadataService.readFor(OWNER);
         } catch (SyncopeClientException e) {
             createSAML2SPKeystore();
         }
@@ -111,24 +110,5 @@ public class SAML2SPKeystoreITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
-    }
-
-    @Test
-    public void update() {
-        SAML2SPKeystoreTO keystoreTO;
-        try {
-            keystoreTO = waSAML2SPKeystoreService.getByOwner(OWNER);
-        } catch (NotFoundException e) {
-            keystoreTO = createSAML2SPKeystore();
-        }
-        assertNotNull(keystoreTO);
-        keystoreTO.setKeystore("new-keystore");
-        keystoreTO.setOwner("Syncope4");
-
-        saml2SPKeystoreService.update(keystoreTO);
-        keystoreTO = waSAML2SPKeystoreService.read(keystoreTO.getKey());
-        assertNotNull(keystoreTO);
-        assertEquals("new-keystore", keystoreTO.getKeystore());
-        assertEquals("Syncope4", keystoreTO.getOwner());
     }
 }

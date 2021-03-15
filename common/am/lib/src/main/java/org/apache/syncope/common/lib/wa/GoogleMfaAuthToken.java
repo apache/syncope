@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.common.lib.wa;
 
 import java.util.Date;
 import java.util.Optional;
@@ -29,11 +29,33 @@ public class GoogleMfaAuthToken implements BaseBean {
 
     private static final long serialVersionUID = 2185073386484048953L;
 
+    public static class Builder {
+
+        private final GoogleMfaAuthToken instance = new GoogleMfaAuthToken();
+
+        public GoogleMfaAuthToken.Builder issueDate(final Date issued) {
+            instance.setIssueDate(issued);
+            return this;
+        }
+
+        public GoogleMfaAuthToken.Builder token(final int otp) {
+            instance.setOtp(otp);
+            return this;
+        }
+
+        public GoogleMfaAuthToken.Builder key(final String key) {
+            instance.setKey(key);
+            return this;
+        }
+
+        public GoogleMfaAuthToken build() {
+            return instance;
+        }
+    }
+
     private String key;
 
-    private Integer token;
-
-    private String owner;
+    private int otp;
 
     private Date issueDate;
 
@@ -45,20 +67,12 @@ public class GoogleMfaAuthToken implements BaseBean {
         this.key = key;
     }
 
-    public Integer getToken() {
-        return token;
+    public int getOtp() {
+        return otp;
     }
 
-    public void setToken(final Integer token) {
-        this.token = token;
-    }
-
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(final String owner) {
-        this.owner = owner;
+    public void setOtp(final int otp) {
+        this.otp = otp;
     }
 
     public Date getIssueDate() {
@@ -76,8 +90,7 @@ public class GoogleMfaAuthToken implements BaseBean {
         return new HashCodeBuilder()
                 .appendSuper(super.hashCode())
                 .append(key)
-                .append(token)
-                .append(owner)
+                .append(otp)
                 .append(issueDate)
                 .toHashCode();
     }
@@ -97,8 +110,7 @@ public class GoogleMfaAuthToken implements BaseBean {
         return new EqualsBuilder()
                 .appendSuper(super.equals(obj))
                 .append(this.key, rhs.key)
-                .append(this.token, rhs.token)
-                .append(this.owner, rhs.owner)
+                .append(this.otp, rhs.otp)
                 .append(this.issueDate, rhs.issueDate)
                 .isEquals();
     }
@@ -107,38 +119,8 @@ public class GoogleMfaAuthToken implements BaseBean {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("key", key)
-                .append("token", token)
-                .append("owner", owner)
+                .append("token", otp)
                 .append("issueDate", issueDate)
                 .toString();
-    }
-
-    public static class Builder {
-
-        private final GoogleMfaAuthToken instance = new GoogleMfaAuthToken();
-
-        public GoogleMfaAuthToken.Builder issueDate(final Date issued) {
-            instance.setIssueDate(issued);
-            return this;
-        }
-
-        public GoogleMfaAuthToken.Builder token(final Integer token) {
-            instance.setToken(token);
-            return this;
-        }
-
-        public GoogleMfaAuthToken.Builder owner(final String owner) {
-            instance.setOwner(owner);
-            return this;
-        }
-
-        public GoogleMfaAuthToken.Builder key(final String key) {
-            instance.setKey(key);
-            return this;
-        }
-
-        public GoogleMfaAuthToken build() {
-            return instance;
-        }
     }
 }

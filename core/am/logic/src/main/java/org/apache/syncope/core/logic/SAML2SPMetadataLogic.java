@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.logic;
 
+import java.lang.reflect.Method;
+import java.util.Optional;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
@@ -33,8 +35,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Method;
-
 @Component
 public class SAML2SPMetadataLogic extends AbstractTransactionalLogic<SAML2SPMetadataTO> {
 
@@ -45,30 +45,25 @@ public class SAML2SPMetadataLogic extends AbstractTransactionalLogic<SAML2SPMeta
     private SAML2SPMetadataDAO saml2SPMetadataDAO;
 
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_METADATA_READ + "') "
-        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public SAML2SPMetadataTO read(final String key) {
-        final SAML2SPMetadata metadata = saml2SPMetadataDAO.find(key);
-        if (metadata == null) {
-            throw new NotFoundException(key + " not found");
-        }
-        return binder.getSAML2SPMetadataTO(metadata);
+        return Optional.ofNullable(saml2SPMetadataDAO.find(key)).
+                map(binder::getSAML2SPMetadataTO).
+                orElseThrow(() -> new NotFoundException(key + " not found"));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_METADATA_READ + "') "
-        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
-    public SAML2SPMetadataTO get(final String name) {
-        final SAML2SPMetadata metadata = saml2SPMetadataDAO.findByOwner(name);
-        if (metadata == null) {
-            throw new NotFoundException("SAML2 SP Metadata owned by " + name + " not found");
-        }
-
-        return binder.getSAML2SPMetadataTO(metadata);
+    public SAML2SPMetadataTO readFor(final String name) {
+        return Optional.ofNullable(saml2SPMetadataDAO.findByOwner(name)).
+                map(binder::getSAML2SPMetadataTO).
+                orElseThrow(() -> new NotFoundException("SAML2 SP Metadata owned by " + name + " not found"));
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_METADATA_CREATE + "') "
-        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_METADATA_SET + "') "
+            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public SAML2SPMetadataTO set(final SAML2SPMetadataTO metadataTO) {
         SAML2SPMetadata metadata = saml2SPMetadataDAO.findByOwner(metadataTO.getOwner());
         if (metadata == null) {
@@ -77,18 +72,9 @@ public class SAML2SPMetadataLogic extends AbstractTransactionalLogic<SAML2SPMeta
         throw SyncopeClientException.build(ClientExceptionType.EntityExists);
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_METADATA_UPDATE + "')")
-    public SAML2SPMetadataTO update(final SAML2SPMetadataTO metadataTO) {
-        final SAML2SPMetadata metadata = saml2SPMetadataDAO.find(metadataTO.getKey());
-        if (metadata == null) {
-            throw new NotFoundException(metadataTO.getKey() + " not found");
-        }
-        return binder.getSAML2SPMetadataTO(saml2SPMetadataDAO.save(binder.update(metadata, metadataTO)));
-    }
-
     @Override
     protected SAML2SPMetadataTO resolveReference(final Method method, final Object... args)
-        throws UnresolvedReferenceException {
+            throws UnresolvedReferenceException {
         String name = null;
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; name == null && i < args.length; i++) {

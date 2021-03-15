@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.common.lib.wa;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -27,9 +27,26 @@ public class WebAuthnDeviceCredential implements BaseBean {
 
     private static final long serialVersionUID = 1185073386484048953L;
 
-    private String json;
+    public static class Builder {
 
-    private String owner;
+        private final WebAuthnDeviceCredential instance = new WebAuthnDeviceCredential();
+
+        public WebAuthnDeviceCredential.Builder json(final String json) {
+            instance.setJson(json);
+            return this;
+        }
+
+        public WebAuthnDeviceCredential.Builder identifier(final String identifier) {
+            instance.setIdentifier(identifier);
+            return this;
+        }
+
+        public WebAuthnDeviceCredential build() {
+            return instance;
+        }
+    }
+
+    private String json;
 
     private String identifier;
 
@@ -49,22 +66,13 @@ public class WebAuthnDeviceCredential implements BaseBean {
         this.json = json;
     }
 
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(final String owner) {
-        this.owner = owner;
-    }
-
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-            .appendSuper(super.hashCode())
-            .append(json)
-            .append(identifier)
-            .append(owner)
-            .toHashCode();
+                .appendSuper(super.hashCode())
+                .append(json)
+                .append(identifier)
+                .toHashCode();
     }
 
     @Override
@@ -80,43 +88,17 @@ public class WebAuthnDeviceCredential implements BaseBean {
         }
         WebAuthnDeviceCredential rhs = (WebAuthnDeviceCredential) obj;
         return new EqualsBuilder()
-            .appendSuper(super.equals(obj))
-            .append(this.json, rhs.json)
-            .append(this.identifier, rhs.identifier)
-            .append(this.owner, rhs.owner)
-            .isEquals();
+                .appendSuper(super.equals(obj))
+                .append(this.json, rhs.json)
+                .append(this.identifier, rhs.identifier)
+                .isEquals();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-            .append("records", json)
-            .append("identifier", identifier)
-            .append("owner", owner)
-            .toString();
-    }
-
-    public static class Builder {
-
-        private final WebAuthnDeviceCredential instance = new WebAuthnDeviceCredential();
-
-        public WebAuthnDeviceCredential.Builder json(final String json) {
-            instance.setJson(json);
-            return this;
-        }
-
-        public WebAuthnDeviceCredential.Builder owner(final String owner) {
-            instance.setOwner(owner);
-            return this;
-        }
-
-        public WebAuthnDeviceCredential.Builder identifier(final String identifier) {
-            instance.setIdentifier(identifier);
-            return this;
-        }
-
-        public WebAuthnDeviceCredential build() {
-            return instance;
-        }
+                .append("records", json)
+                .append("identifier", identifier)
+                .toString();
     }
 }

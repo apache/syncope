@@ -49,7 +49,7 @@ import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
-import org.apache.syncope.common.lib.to.client.SAML2SPTO;
+import org.apache.syncope.common.lib.to.SAML2SPTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.rest.api.RESTHeaders;

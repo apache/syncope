@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AuthPolicyConf;
-import org.apache.syncope.common.lib.to.client.ClientAppTO;
+import org.apache.syncope.common.lib.to.ClientAppTO;
 
 public class WAClientApp implements BaseBean {
 

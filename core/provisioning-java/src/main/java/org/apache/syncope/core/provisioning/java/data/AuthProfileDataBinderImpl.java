@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.common.lib.to.AuthProfileTO;
@@ -28,6 +27,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
+
     @Autowired
     private EntityFactory entityFactory;
 
@@ -37,6 +37,9 @@ public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
         authProfileTO.setKey(authProfile.getKey());
         authProfileTO.setOwner(authProfile.getOwner());
         authProfileTO.getGoogleMfaAuthTokens().addAll(authProfile.getGoogleMfaAuthTokens());
+        authProfileTO.getGoogleMfaAuthAccounts().addAll(authProfile.getGoogleMfaAuthAccounts());
+        authProfileTO.getU2FRegisteredDevices().addAll(authProfile.getU2FRegisteredDevices());
+        authProfileTO.setWebAuthnAccount(authProfile.getWebAuthnAccount());
         return authProfileTO;
     }
 
@@ -45,6 +48,9 @@ public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
         AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
         authProfile.setOwner(authProfileTO.getOwner());
         authProfile.setGoogleMfaAuthTokens(authProfileTO.getGoogleMfaAuthTokens());
+        authProfile.setGoogleMfaAuthAccounts(authProfileTO.getGoogleMfaAuthAccounts());
+        authProfile.setU2FRegisteredDevices(authProfileTO.getU2FRegisteredDevices());
+        authProfile.setWebAuthnAccount(authProfileTO.getWebAuthnAccount());
         return authProfile;
     }
 }

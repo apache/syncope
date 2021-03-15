@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.fit.core;
+package org.apache.syncope.fit.core.wa;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -34,8 +34,8 @@ import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apache.syncope.common.lib.to.client.OIDCRPTO;
-import org.apache.syncope.common.lib.to.client.SAML2SPTO;
+import org.apache.syncope.common.lib.to.OIDCRPTO;
+import org.apache.syncope.common.lib.to.SAML2SPTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.fit.AbstractITCase;
