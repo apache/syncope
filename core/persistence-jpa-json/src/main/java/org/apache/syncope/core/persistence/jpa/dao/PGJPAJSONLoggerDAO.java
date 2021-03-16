@@ -37,7 +37,7 @@ public class PGJPAJSONLoggerDAO extends AbstractJPAJSONLoggerDAO {
 
             if (!containers.isEmpty()) {
                 query.append(" AND (").
-                        append(containers.stream().map(container -> AUDIT_MESSAGE_COLUMN + " @> '"
+                        append(containers.stream().map(container -> AUDIT_MESSAGE_COLUMN + "::jsonb @> '"
                         + POJOHelper.serialize(container).replace("'", "''")
                         + "'::jsonb").collect(Collectors.joining(" OR "))).
                         append(')');
