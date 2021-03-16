@@ -28,8 +28,8 @@ git:
   depth: 2
 env:
   global:
+  - TMPDIR=/tmp
   - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
-  - DBMS=H2
   - jaxrsContentType=application/json
   - TestCommand="mvn -U -T 1C clean test -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true"
 before_install:
