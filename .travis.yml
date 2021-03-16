@@ -28,7 +28,6 @@ git:
   depth: 2
 env:
   global:
-  - TMPDIR=$TRAVIS_BUILD_DIR/tmp
   - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
   - jaxrsContentType=application/json
   - TestCommand="mvn -U -T 1C clean test -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true"
