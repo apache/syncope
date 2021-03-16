@@ -48,6 +48,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.PropertySource;
@@ -57,9 +58,15 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.SessionTrackingMode;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @PropertySource("classpath:wa.properties")
 @PropertySource(value = "file:${conf.directory}/wa.properties", ignoreResourceNotFound = true)
@@ -89,6 +96,9 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
     @Autowired
     private SchedulerFactoryBean scheduler;
 
+    @Autowired
+    private Session sessionProperties;
+
     @Value("${contextRefreshDelay:15}")
     private long contextRefreshDelay;
 
@@ -98,6 +108,17 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
 
     private static void validateConfiguration(final ApplicationReadyEvent event) {
         new CasConfigurationPropertiesValidator(event.getApplicationContext()).validate();
+    }
+
+    @Override
+    public void onStartup(final ServletContext servletContext) throws ServletException {
+        Set<SessionTrackingMode> trackingModes = sessionProperties.getTrackingModes().
+            stream().
+            map(mode -> SessionTrackingMode.valueOf(mode.name())).
+            collect(Collectors.toSet());
+        servletContext.setSessionTrackingModes(trackingModes);
+        LOG.debug("Set session tracking modes to {}", trackingModes);
+        super.onStartup(servletContext);
     }
 
     /**
