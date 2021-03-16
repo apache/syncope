@@ -28,7 +28,7 @@ public class PGJPAJSONPlainSchemaDAO extends AbstractJPAJSONPlainSchemaDAO {
     public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> reference) {
         Query query = entityManager().createNativeQuery(
                 "SELECT COUNT(id) FROM " + new SearchSupport(getAnyTypeKind(reference)).table().name
-                + " WHERE plainAttrs @> '[{\"schema\":\"" + schema.getKey() + "\"}]'::jsonb");
+                + " WHERE plainAttrs::jsonb @> '[{\"schema\":\"" + schema.getKey() + "\"}]'::jsonb");
 
         return ((Number) query.getSingleResult()).intValue() > 0;
     }
