@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic.saml2;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.pac4j.saml.metadata.SAML2IdentityProviderMetadataResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.util.UriUtils;
 
 /**
  * Basic in-memory cache for available {@link SAML2Client} instances.
@@ -64,7 +66,8 @@ public class SAML2ClientCache {
 
     public static Optional<String> getSPMetadataPath(final String spEntityID) {
         return Optional.ofNullable(METADATA_PATH).
-                map(path -> Optional.of(path.resolve(spEntityID).toAbsolutePath().toString())).
+                map(path -> Optional.of(path.resolve(
+                UriUtils.encodePath(spEntityID, StandardCharsets.UTF_8)).toAbsolutePath().toString())).
                 orElse(Optional.empty());
     }
 

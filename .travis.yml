@@ -40,8 +40,8 @@ notifications:
     - dev@syncope.apache.org
 stages:
   - build
-#  - validate
-#  - test
+  - validate
+  - test
   - fit
 jobs:
   include:
@@ -77,44 +77,44 @@ jobs:
       name: "Persistence Unit Tests via JDK 11: MySQL (JSON)"
       script: mvn -f core/persistence-jpa-json/pom.xml -P mysql -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true
       ######################################################
-#    - stage: fit
-#      name: "Integration Tests: Tomcat / H2 / JSON Content-Type"
-#      script: mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-#    - stage: fit
-#      name: "Integration Tests: Tomcat / H2 / XML Content-Type"
-#      script: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/xml -Dit.test=org.apache.syncope.fit.core.*ITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-#    - stage: fit
-#      name: "Integration Tests: Tomcat / H2 / YAML Content-Type"
-#      script: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/yaml -Dit.test=org.apache.syncope.fit.core.*ITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-#    - stage: fit
-#      name: "Integration Tests: Wildfly / H2 / JSON Content-Type"
-#      script: mvn -f fit/core-reference/pom.xml -P wildfly-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-#    - stage: fit
-#      name: "Integration Tests: Payara / H2 / JSON Content-Type"
-#      script: mvn -f fit/core-reference/pom.xml -P payara-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-#    - stage: fit
-#      name: "Integration Tests: Tomcat / PostgreSQL / JSON Content-Type"
-#      script: mvn -f fit/core-reference/pom.xml -P postgres-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-#    - stage: fit
-#      name: "Integration Tests: Tomcat / PostgreSQL (JSONB) / JSON Content-Type"
-#      script: mvn -f fit/core-reference/pom.xml -P pgjsonb-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-#    - stage: fit
-#      name: "Integration Tests: Tomcat / MySQL / JSON Content-Type"
-#      script: mvn -f fit/core-reference/pom.xml -P mysql-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-#    - stage: fit
-#      name: "Integration Tests: Tomcat / MySQL (JSON) / JSON Content-Type"
-#      script: mvn -f fit/core-reference/pom.xml -P myjson-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-#    - stage: fit
-#      name: "Integration Tests: Tomcat / MariaDB / JSON Content-Type"
-#      script: mvn -f fit/core-reference/pom.xml -P mariadb-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-#    - stage: fit
-#      name: "Integration Tests: Tomcat / H2 / JSON Content-Type + Elasticsearch"
-#      script: mvn -f fit/core-reference/pom.xml -P elasticsearch-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-#    - stage: fit
-#      name: "Integration Tests: Tomcat / H2 / JSON Content-Type + Zookeeper"
-#      script: mvn -f fit/core-reference/pom.xml -P zookeeper-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
     - stage: fit
-      name: "Integration Tests: SRA / CAS"
+      name: "Integration Tests: Tomcat / H2 / JSON Content-Type"
+      script: mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - stage: fit
+      name: "Integration Tests: Tomcat / H2 / XML Content-Type"
+      script: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/xml -Dit.test=org.apache.syncope.fit.core.*ITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - stage: fit
+      name: "Integration Tests: Tomcat / H2 / YAML Content-Type"
+      script: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/yaml -Dit.test=org.apache.syncope.fit.core.*ITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - stage: fit
+      name: "Integration Tests: Wildfly / H2 / JSON Content-Type"
+      script: mvn -f fit/core-reference/pom.xml -P wildfly-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - stage: fit
+      name: "Integration Tests: Payara / H2 / JSON Content-Type"
+      script: mvn -f fit/core-reference/pom.xml -P payara-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - stage: fit
+      name: "Integration Tests: Tomcat / PostgreSQL / JSON Content-Type"
+      script: mvn -f fit/core-reference/pom.xml -P postgres-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - stage: fit
+      name: "Integration Tests: Tomcat / PostgreSQL (JSONB) / JSON Content-Type"
+      script: mvn -f fit/core-reference/pom.xml -P pgjsonb-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - stage: fit
+      name: "Integration Tests: Tomcat / MySQL / JSON Content-Type"
+      script: mvn -f fit/core-reference/pom.xml -P mysql-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - stage: fit
+      name: "Integration Tests: Tomcat / MySQL (JSON) / JSON Content-Type"
+      script: mvn -f fit/core-reference/pom.xml -P myjson-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - stage: fit
+      name: "Integration Tests: Tomcat / MariaDB / JSON Content-Type"
+      script: mvn -f fit/core-reference/pom.xml -P mariadb-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - stage: fit
+      name: "Integration Tests: Tomcat / H2 / JSON Content-Type + Elasticsearch"
+      script: mvn -f fit/core-reference/pom.xml -P elasticsearch-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - stage: fit
+      name: "Integration Tests: Tomcat / H2 / JSON Content-Type + Zookeeper"
+      script: mvn -f fit/core-reference/pom.xml -P zookeeper-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - stage: fit
+      name: "Integration Tests: SRA / CAS client"
       script: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.sra.CASSRAITCase
     - stage: fit
       name: "Integration Tests: SRA / OAuth 2.0"
