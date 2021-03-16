@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service.wa;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -67,6 +69,10 @@ public interface U2FRegistrationService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response create(@NotNull @PathParam("owner") String owner, @NotNull U2FDevice device);
 
+    @Parameter(name = "key", description = "U2F device key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
