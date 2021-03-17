@@ -41,7 +41,7 @@ public class PGJPAJSONLoggerDAO extends AbstractJPAJSONLoggerDAO {
                 if (entityKey != null) {
                     query.append(" AND (");
                 }
-                query.append(containers.stream().map(container -> AUDIT_MESSAGE_COLUMN + " @> '"
+                query.append(containers.stream().map(container -> AUDIT_MESSAGE_COLUMN + "::jsonb @> '"
                         + POJOHelper.serialize(container).replace("'", "''")
                         + "'::jsonb").collect(Collectors.joining(" OR ")));
                 if (entityKey != null) {

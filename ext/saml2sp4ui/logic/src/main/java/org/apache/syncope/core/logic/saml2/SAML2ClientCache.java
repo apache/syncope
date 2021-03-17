@@ -27,6 +27,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
@@ -63,8 +64,10 @@ public class SAML2ClientCache {
     }
 
     public static Optional<String> getSPMetadataPath(final String spEntityID) {
+        String entityIDPath = StringUtils.replaceChars(
+                StringUtils.removeStart(StringUtils.removeStart(spEntityID, "https://"), "http://"), ":/", "__");
         return Optional.ofNullable(METADATA_PATH).
-                map(path -> Optional.of(path.resolve(spEntityID).toAbsolutePath().toString())).
+                map(path -> Optional.of(path.resolve(entityIDPath).toAbsolutePath().toString())).
                 orElse(Optional.empty());
     }
 
