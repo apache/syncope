@@ -45,10 +45,10 @@ import org.springframework.boot.autoconfigure.jersey.JerseyAutoConfiguration;
 import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.PropertySource;
@@ -97,7 +97,7 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
     private SchedulerFactoryBean scheduler;
 
     @Autowired
-    private Session sessionProperties;
+    private ServerProperties serverProperties;
 
     @Value("${contextRefreshDelay:15}")
     private long contextRefreshDelay;
@@ -112,7 +112,7 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
 
     @Override
     public void onStartup(final ServletContext servletContext) throws ServletException {
-        Set<SessionTrackingMode> trackingModes = sessionProperties.getTrackingModes().
+        Set<SessionTrackingMode> trackingModes = serverProperties.getServlet().getSession().getTrackingModes().
             stream().
             map(mode -> SessionTrackingMode.valueOf(mode.name())).
             collect(Collectors.toSet());
