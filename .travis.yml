@@ -36,9 +36,7 @@ before_install:
 install: true
 notifications:
   email:
-    - ilgrosso@apache.org
-after_failure:
-  - cat fit/core-reference/target/log/core*log
+    - dev@syncope.apache.org
 stages:
   - build
   - validate
