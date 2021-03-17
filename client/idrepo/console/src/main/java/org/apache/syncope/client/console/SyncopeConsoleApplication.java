@@ -29,11 +29,13 @@ import org.apache.syncope.client.console.commons.IdRepoAnyWizardBuilderAdditiona
 import org.apache.syncope.client.console.commons.IdRepoExternalResourceProvider;
 import org.apache.syncope.client.console.commons.IdRepoImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.IdRepoPolicyTabProvider;
+import org.apache.syncope.client.console.commons.IdRepoRealmPolicyProvider;
 import org.apache.syncope.client.console.commons.IdRepoStatusProvider;
 import org.apache.syncope.client.console.commons.IdRepoVirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.PreviewUtils;
+import org.apache.syncope.client.console.commons.RealmPolicyProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
@@ -152,9 +154,14 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
         return new IdRepoImplementationInfoProvider();
     }
 
-    @ConditionalOnMissingBean(name = "policyTabProvider")
+    @ConditionalOnMissingBean(name = "realmPolicyProvider")
     @Bean
-    public PolicyTabProvider policyTabProvider() {
+    public RealmPolicyProvider realmPolicyProvider() {
+        return new IdRepoRealmPolicyProvider();
+    }
+
+    @Bean
+    public PolicyTabProvider idRepoPolicyTabProvider() {
         return new IdRepoPolicyTabProvider();
     }
 }

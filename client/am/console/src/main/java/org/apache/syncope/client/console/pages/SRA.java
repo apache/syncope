@@ -25,6 +25,8 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.console.panels.SRARouteDirectoryPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -32,11 +34,15 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
-@AMPage(label = "SRA", icon = "fas fa-share-alt", listEntitlement = "", priority = 0)
+@AMPage(label = "SRA", icon = "fas fa-share-alt", listEntitlement = "", priority = 100)
 public class SRA extends BasePage {
 
     private static final long serialVersionUID = 9200112197134882164L;
+
+    @SpringBean
+    private ServiceOps serviceOps;
 
     public SRA(final PageParameters parameters) {
         super(parameters);
@@ -64,15 +70,18 @@ public class SRA extends BasePage {
             }
         });
 
-        tabs.add(new AbstractTab(new ResourceModel("metrics")) {
+        List<NetworkService> instances = serviceOps.list(NetworkService.Type.SRA);
+        if (!instances.isEmpty()) {
+            tabs.add(new AbstractTab(new ResourceModel("metrics")) {
 
-            private static final long serialVersionUID = 5211692813425391144L;
+                private static final long serialVersionUID = 5211692813425391144L;
 
-            @Override
-            public Panel getPanel(final String panelId) {
-                return new AjaxTextFieldPanel(panelId, panelId, Model.of(""));
-            }
-        });
+                @Override
+                public Panel getPanel(final String panelId) {
+                    return new AjaxTextFieldPanel(panelId, panelId, Model.of(instances.get(0).getAddress()));
+                }
+            });
+        }
 
         return tabs;
     }

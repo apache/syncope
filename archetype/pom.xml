@@ -325,6 +325,8 @@ under the License.
         <includes>
           <include>application.properties</include>
           <include>cas-theme-default.properties</include>
+          <include>wa.properties</include>
+          <include>log4j2.xml</include>
         </includes>
         <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/main/resources</targetPath>
       </resource>
@@ -333,14 +335,6 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/main/resources</targetPath>
         <includes>
           <include>application-embedded.properties</include>
-          <include>log4j2.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../fit/wa-reference/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/test/resources</targetPath>
-        <includes>
-          <include>wa.properties</include>
           <include>keymaster.properties</include>
         </includes>
       </resource>

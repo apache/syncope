@@ -120,8 +120,10 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("description", this), "description", "description"));
-        columns.add(new CollectionPropertyColumn<>(
-                new StringResourceModel("usedByResources", this), "usedByResources"));
+        if (type != PolicyType.ACCESS && type != PolicyType.ATTR_RELEASE && type != PolicyType.AUTH) {
+            columns.add(new CollectionPropertyColumn<>(
+                    new StringResourceModel("usedByResources", this), "usedByResources"));
+        }
         if (type != PolicyType.PULL && type != PolicyType.PUSH) {
             columns.add(new CollectionPropertyColumn<>(
                     new StringResourceModel("usedByRealms", this), "usedByRealms"));

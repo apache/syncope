@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class", "key", "description" })
 @Schema(
-        subTypes = { AccountPolicyTO.class, PasswordPolicyTO.class, PullPolicyTO.class },
+        subTypes = { AccountPolicyTO.class, PasswordPolicyTO.class, ProvisioningPolicyTO.class },
         discriminatorProperty = "_class")
 public abstract class PolicyTO implements EntityTO {
 

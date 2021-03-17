@@ -24,6 +24,7 @@ import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -77,6 +78,7 @@ import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -140,7 +142,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     private ImplementationInfoProvider implementationInfoProvider;
 
     @Autowired
-    private PolicyTabProvider policyTabProvider;
+    private ApplicationContext ctx;
 
     private Map<String, Class<? extends BasePage>> pageClasses;
 
@@ -436,7 +438,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return implementationInfoProvider;
     }
 
-    public PolicyTabProvider getPolicyTabProvider() {
-        return policyTabProvider;
+    public Collection<PolicyTabProvider> getPolicyTabProviders() {
+        return ctx.getBeansOfType(PolicyTabProvider.class).values();
     }
 }

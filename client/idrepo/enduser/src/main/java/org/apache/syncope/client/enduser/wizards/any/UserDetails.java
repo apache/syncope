@@ -20,7 +20,6 @@ package org.apache.syncope.client.enduser.wizards.any;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthConfig;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -110,9 +109,9 @@ public class UserDetails extends WizardStep {
         // ------------------------
         // Password
         // ------------------------
-        final Model<Integer> model = Model.of(-1);
+        Model<Integer> model = Model.of(-1);
 
-        final Accordion accordion = new Accordion("accordionPanel", Collections.<ITab>singletonList(
+        Accordion accordion = new Accordion("accordionPanel", List.of(
                 new AbstractTab(new ResourceModel("password.change", "Change password")) {
 
             private static final long serialVersionUID = 1037272333056449378L;

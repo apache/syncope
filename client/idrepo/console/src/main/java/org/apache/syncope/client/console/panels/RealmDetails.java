@@ -18,34 +18,28 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeWebApplication;
+import org.apache.syncope.client.console.commons.RealmPolicyProvider;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
-import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,28 +48,6 @@ public class RealmDetails extends Panel {
     private static final long serialVersionUID = -1100228004207271270L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(RealmDetails.class);
-
-    private final IModel<Map<String, String>> accountPolicies = new LoadableDetachableModel<Map<String, String>>() {
-
-        private static final long serialVersionUID = -2012833443695917883L;
-
-        @Override
-        protected Map<String, String> load() {
-            return PolicyRestClient.getPolicies(PolicyType.ACCOUNT).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
-        }
-    };
-
-    private final IModel<Map<String, String>> passwordPolicies = new LoadableDetachableModel<Map<String, String>>() {
-
-        private static final long serialVersionUID = -2012833443695917883L;
-
-        @Override
-        protected Map<String, String> load() {
-            return PolicyRestClient.getPolicies(PolicyType.PASSWORD).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
-        }
-    };
 
     private final IModel<List<String>> logicActions = new LoadableDetachableModel<List<String>>() {
 
@@ -97,6 +69,9 @@ public class RealmDetails extends Panel {
             return SyncopeWebApplication.get().getResourceProvider().get();
         }
     };
+
+    @SpringBean
+    private RealmPolicyProvider realmPolicyProvider;
 
     private final WebMarkupContainer container;
 
@@ -130,25 +105,9 @@ public class RealmDetails extends Panel {
         fullPath.setEnabled(false);
         generics.add(fullPath);
 
-        AjaxDropDownChoicePanel<String> accountPolicy = new AjaxDropDownChoicePanel<>(
-                "accountPolicy",
-                new ResourceModel("accountPolicy", "accountPolicy").getObject(),
-                new PropertyModel<>(realmTO, "accountPolicy"),
-                false);
-        accountPolicy.setChoiceRenderer(new PolicyRenderer(accountPolicies));
-        accountPolicy.setChoices(new ArrayList<>(accountPolicies.getObject().keySet()));
-        ((DropDownChoice<?>) accountPolicy.getField()).setNullValid(true);
-        container.add(accountPolicy);
-
-        AjaxDropDownChoicePanel<String> passwordPolicy = new AjaxDropDownChoicePanel<>(
-                "passwordPolicy",
-                new ResourceModel("passwordPolicy", "passwordPolicy").getObject(),
-                new PropertyModel<>(realmTO, "passwordPolicy"),
-                false);
-        passwordPolicy.setChoiceRenderer(new PolicyRenderer(passwordPolicies));
-        passwordPolicy.setChoices(new ArrayList<>(passwordPolicies.getObject().keySet()));
-        ((DropDownChoice<?>) passwordPolicy.getField()).setNullValid(true);
-        container.add(passwordPolicy);
+        RepeatingView policies = new RepeatingView("policies");
+        realmPolicyProvider.add(realmTO, policies);
+        container.add(policies);
 
         AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
                 setAllowMoveAll(true).setAllowOrder(true).

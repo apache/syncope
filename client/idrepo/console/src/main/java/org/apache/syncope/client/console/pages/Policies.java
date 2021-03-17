@@ -19,8 +19,13 @@
 package org.apache.syncope.client.console.pages;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeWebApplication;
+import org.apache.syncope.client.console.commons.PolicyTabProvider;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
@@ -36,8 +41,14 @@ public class Policies extends BasePage {
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
         content.setMarkupId("policies");
-        content.add(new AjaxBootstrapTabbedPanel<>(
-                "tabbedPanel", SyncopeWebApplication.get().getPolicyTabProvider().buildTabList(getPageReference())));
+
+        List<ITab> tabs = SyncopeWebApplication.get().getPolicyTabProviders().stream().
+                sorted(Comparator.comparing(PolicyTabProvider::getOrder)).
+                map(p -> p.buildTabList(getPageReference())).
+                flatMap(List::stream).
+                collect(Collectors.toList());
+        content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", tabs));
+
         body.add(content);
     }
 }

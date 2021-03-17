@@ -37,6 +37,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
@@ -51,11 +53,15 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class SRARouteDirectoryPanel
         extends DirectoryPanel<SRARouteTO, SRARouteTO, SRARouteProvider, SRARouteRestClient> {
 
     private static final long serialVersionUID = -2334397933375604015L;
+
+    @SpringBean
+    private ServiceOps serviceOps;
 
     public SRARouteDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, pageRef);
@@ -92,9 +98,10 @@ public class SRARouteDirectoryPanel
             }
         };
         initialFragment.addOrReplace(utilityAjaxLink);
-        utilityAjaxLink.add(utilityIcon);
         utilityIcon.add(new AttributeModifier("class", "fa fa-fast-forward"));
-        enableUtilityButton();
+        utilityAjaxLink.add(utilityIcon);
+        utilityAjaxLink.setEnabled(!serviceOps.list(NetworkService.Type.SRA).isEmpty());
+        utilityAjaxLink.setVisible(utilityAjaxLink.isEnabled());
     }
 
     @Override

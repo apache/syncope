@@ -41,11 +41,10 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertRenderedPage(Policies.class);
     }
 
-    private static void createAccountPolicy(final String description) {
+    private static void createAccountPolicy(String description) {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
-                Modal.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
         Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer");
@@ -99,11 +98,10 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         assertNotNull(component);
     }
 
-    private static void createPasswordPolicy(final String description) {
+    private static void createPasswordPolicy(String description) {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
-                Modal.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
         Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer");
@@ -150,11 +148,10 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
-    private static void createPullPolicy(final String description) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
+    private static void createPullPolicy(String description) {
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:5:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
-                Modal.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
         Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer");
@@ -196,7 +193,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
-    private static void deleteAccountPolicy(final String description) {
+    private static void deleteAccountPolicy(String description) {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
         Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -221,7 +218,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
-    private static void deletePasswordPolicy(final String description) {
+    private static void deletePasswordPolicy(String description) {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -246,8 +243,8 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
     }
 
-    private static void deletePullPolicy(final String description) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
+    private static void deletePullPolicy(String description) {
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:5:link");
         Component component = findComponentByProp("description",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
@@ -279,14 +276,14 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
     @Test
     public void createDeleteAccountPolicy() {
-        final String description = "My Test Account Policy";
+        String description = "My Test Account Policy";
         createAccountPolicy(description);
         deleteAccountPolicy(description);
     }
 
     @Test
     public void cloneDeleteAccountPolicy() {
-        final String description = "My Test Account Policy to be cloned";
+        String description = "My Test Account Policy to be cloned";
         createAccountPolicy(description);
 
         Component component = findComponentByProp("description",
@@ -330,14 +327,14 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
     @Test
     public void createDeletePasswordPolicy() {
-        final String description = "My Test Password Policy";
+        String description = "My Test Password Policy";
         createPasswordPolicy(description);
         deletePasswordPolicy(description);
     }
 
     @Test
     public void cloneDeletePasswordPolicy() {
-        final String description = "My Test Password Policy to be cloned";
+        String description = "My Test Password Policy to be cloned";
         createPasswordPolicy(description);
 
         Component component = findComponentByProp("description",
@@ -381,14 +378,14 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
     @Test
     public void createDeletePullPolicy() {
-        final String description = "My Test Pull Policy";
+        String description = "My Test Pull Policy";
         createPullPolicy(description);
         deletePullPolicy(description);
     }
 
     @Test
     public void cloneDeletePullPolicy() {
-        final String description = "My Test Pull Policy to be cloned";
+        String description = "My Test Pull Policy to be cloned";
         createPullPolicy(description);
 
         Component component = findComponentByProp("description",
@@ -432,7 +429,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
     @Test
     public void createUpdateDeleteAccountPolicy() {
-        final String description = "Account Policy To Be Updated";
+        String description = "Account Policy To Be Updated";
         createAccountPolicy(description);
 
         Component component = findComponentByProp("description",
@@ -526,7 +523,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
     @Test
     public void createComposeDeleteAccountPolicy() {
-        final String description = "Account Policy To Be Composed";
+        String description = "Account Policy To Be Composed";
         createAccountPolicy(description);
         composeDefaultAccountPolicy(description);
         deleteAccountPolicy(description);
@@ -534,7 +531,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
     @Test
     public void createUpdateDeletePasswordPolicy() {
-        final String description = "Password Policy To Be Updated";
+        String description = "Password Policy To Be Updated";
         createPasswordPolicy(description);
 
         Component component = findComponentByProp("description",
@@ -589,7 +586,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
     @Test
     public void createComposeDeletePasswordPolicy() {
-        final String description = "Password Policy To Be Composed";
+        String description = "Password Policy To Be Composed";
         createPasswordPolicy(description);
 
         Component component = findComponentByProp("description",
@@ -634,7 +631,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
     @Test
     public void createUpdateDeletePullPolicy() {
-        final String description = "Pull Policy To Be Updated";
+        String description = "Pull Policy To Be Updated";
         createPullPolicy(description);
 
         Component component = findComponentByProp("description",
@@ -689,7 +686,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
     @Test
     public void createComposeDeletePullPolicy() {
-        final String description = "Pull Policy To Be Composed";
+        String description = "Pull Policy To Be Composed";
         createPullPolicy(description);
 
         Component component = findComponentByProp("description",
@@ -738,7 +735,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
     @Test
     public void issueSYNCOPE1030() {
-        final String description = "SYNCOPE-1030";
+        String description = "SYNCOPE-1030";
         // Create account policy
         createAccountPolicy(description);
         composeDefaultAccountPolicy(description);

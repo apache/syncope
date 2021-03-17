@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -82,9 +81,7 @@ public class ParametersDirectoryPanel
             private static final long serialVersionUID = 1995192603527154740L;
 
             @Override
-            public WizardModalPanel<ConfParam> build(
-                    final String id, final int index, final AjaxWizard.Mode mode) {
-
+            public WizardModalPanel<ConfParam> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 return new ParametersModalPanel(modal, newModelObject(), confParamOps, mode, pageRef);
             }
         }, true);
@@ -108,7 +105,7 @@ public class ParametersDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>singletonList(ActionLink.ActionType.DELETE);
+        return List.of(ActionLink.ActionType.DELETE);
     }
 
     @Override
@@ -147,7 +144,6 @@ public class ParametersDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final ConfParam ignore) {
                 target.add(modal);
-                // modal.addSubmitButton();
                 modal.header(new StringResourceModel("any.edit"));
                 modal.setContent(new ParametersModalPanel(
                         modal, model.getObject(), confParamOps, AjaxWizard.Mode.EDIT, pageRef));
