@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -215,7 +216,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         }
 
         Set<ObjectClassInfo> objectClassInfo = connFactory.createConnector(
-                connFactory.buildConnInstanceOverride(actual, connInstanceTO.getConf(), null)).
+                connFactory.buildConnInstanceOverride(actual, connInstanceTO.getConf(), Optional.empty())).
                 getObjectClassInfo();
 
         return objectClassInfo.stream().map(info -> {
@@ -223,7 +224,6 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
             connIdObjectClassTO.setType(info.getType());
             connIdObjectClassTO.setAuxiliary(info.isAuxiliary());
             connIdObjectClassTO.setContainer(info.isContainer());
-
             connIdObjectClassTO.getAttributes().addAll(info.getAttributeInfo().stream().
                     filter(attrInfo -> includeSpecial || !AttributeUtil.isSpecialName(attrInfo.getName())).
                     map(attrInfo -> {
@@ -232,23 +232,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                         schema.setMandatoryCondition(BooleanUtils.toStringTrueFalse(attrInfo.isRequired()));
                         schema.setMultivalue(attrInfo.isMultiValued());
                         schema.setReadonly(!attrInfo.isUpdateable());
-
-                        if (attrInfo.getType().equals(int.class) || attrInfo.getType().equals(Integer.class)
-                                || attrInfo.getType().equals(long.class) || attrInfo.getType().equals(Long.class)) {
-
-                            schema.setType(AttrSchemaType.Long);
-                        } else if (attrInfo.getType().equals(float.class) || attrInfo.getType().equals(Float.class)
-                                || attrInfo.getType().equals(double.class) || attrInfo.getType().equals(Double.class)) {
-
-                            schema.setType(AttrSchemaType.Double);
-                        } else if (attrInfo.getType().equals(boolean.class)
-                                || attrInfo.getType().equals(Boolean.class)) {
-
-                            schema.setType(AttrSchemaType.Boolean);
-                        } else {
-                            schema.setType(AttrSchemaType.String);
-                        }
-
+                        schema.setType(AttrSchemaType.getAttrSchemaTypeByClass(attrInfo.getType()));
                         return schema;
                     }).
                     collect(Collectors.toList()));
