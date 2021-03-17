@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -39,6 +40,7 @@ import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
+import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.slf4j.Logger;
@@ -87,7 +89,7 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
     public ConnInstance buildConnInstanceOverride(
             final ConnInstanceTO connInstance,
             final Collection<ConnConfProperty> confOverride,
-            final Collection<ConnectorCapability> capabilitiesOverride) {
+            final Optional<Collection<ConnectorCapability>> capabilitiesOverride) {
 
         synchronized (this) {
             if (entityFactory == null) {
@@ -131,9 +133,14 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
         override.setConf(conf);
 
         // replace capabilities
-        if (capabilitiesOverride != null) {
+        capabilitiesOverride.ifPresent(capabilities -> {
             override.getCapabilities().clear();
-            override.getCapabilities().addAll(capabilitiesOverride);
+            override.getCapabilities().addAll(capabilities);
+        });
+
+        if (connInstance.getPoolConf() != null) {
+            override.setPoolConf(
+                    ConnPoolConfUtils.getConnPoolConf(connInstance.getPoolConf(), entityFactory.newConnPoolConf()));
         }
 
         return override;
@@ -152,7 +159,7 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
         ConnInstance connInstance = buildConnInstanceOverride(
                 connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
                 resource.getConfOverride(),
-                resource.isOverrideCapabilities() ? resource.getCapabilitiesOverride() : null);
+                resource.isOverrideCapabilities() ? Optional.of(resource.getCapabilitiesOverride()) : Optional.empty());
         Connector connector = createConnector(connInstance);
         LOG.debug("Connector to be registered: {}", connector);
 
