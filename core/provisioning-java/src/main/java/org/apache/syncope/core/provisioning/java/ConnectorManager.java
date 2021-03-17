@@ -40,6 +40,7 @@ import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
+import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.slf4j.Logger;
@@ -138,6 +139,11 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory, Sy
         if (capabilitiesOverride != null) {
             override.getCapabilities().clear();
             override.getCapabilities().addAll(capabilitiesOverride);
+        }
+
+        if (connInstance.getPoolConf() != null) {
+            override.setPoolConf(
+                    ConnPoolConfUtils.getConnPoolConf(connInstance.getPoolConf(), entityFactory.newConnPoolConf()));
         }
 
         return override;
