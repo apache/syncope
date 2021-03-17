@@ -36,7 +36,9 @@ before_install:
 install: true
 notifications:
   email:
-    - dev@syncope.apache.org
+    - ilgrosso@apache.org
+after_failure:
+  - cat fit/wa-reference/target/log/*
 stages:
   - build
   - validate
@@ -63,10 +65,10 @@ jobs:
       - export PATH="$JAVA_HOME/bin:$PATH"
       - eval $TestCommand
     - stage: test
-      name: "Unit Tests via JDK 16"
+      name: "Unit Tests via JDK 17"
       script:
-      - ~/install-jdk.sh --target "/home/travis/openjdk16" --workspace "/home/travis/.cache/install-jdk" --feature "16" --license "GPLv2+CE" --cacerts
-      - export JAVA_HOME=~/openjdk16
+      - ~/install-jdk.sh --target "/home/travis/openjdk17" --workspace "/home/travis/.cache/install-jdk" --feature "17" --license "GPLv2+CE" --cacerts
+      - export JAVA_HOME=~/openjdk17
       - export PATH="$JAVA_HOME/bin:$PATH"
       - eval $TestCommand
     - stage: test
@@ -126,5 +128,5 @@ jobs:
       script: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.sra.SAML2SRAITCase
     - stage: fit
       name: "WA: SSO Integration Tests: SAML2SP4UI / OIDC4UI"
-      script: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.ui.OIDC4UIITCase
+      script: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.ui.*ITCase
     #####################################################
