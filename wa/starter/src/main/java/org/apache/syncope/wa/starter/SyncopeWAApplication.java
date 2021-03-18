@@ -50,6 +50,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.event.EventListener;
@@ -57,9 +58,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.WebApplicationInitializer;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.SessionTrackingMode;
 
 import java.time.LocalDateTime;
@@ -84,7 +84,7 @@ import java.util.stream.Collectors;
     DataSourceTransactionManagerAutoConfiguration.class,
     RedisRepositoriesAutoConfiguration.class
 })
-@EnableConfigurationProperties(CasConfigurationProperties.class)
+@EnableConfigurationProperties({CasConfigurationProperties.class, ServerProperties.class})
 @EnableAsync
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableTransactionManagement(proxyTargetClass = true)
@@ -110,17 +110,6 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
         new CasConfigurationPropertiesValidator(event.getApplicationContext()).validate();
     }
 
-    @Override
-    public void onStartup(final ServletContext servletContext) throws ServletException {
-        Set<SessionTrackingMode> trackingModes = serverProperties.getServlet().getSession().getTrackingModes().
-            stream().
-            map(mode -> SessionTrackingMode.valueOf(mode.name())).
-            collect(Collectors.toSet());
-        servletContext.setSessionTrackingModes(trackingModes);
-        LOG.debug("Set session tracking modes to {}", trackingModes);
-        super.onStartup(servletContext);
-    }
-
     /**
      * Handle application ready event.
      *
@@ -130,6 +119,18 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
     public void handleApplicationReadyEvent(final ApplicationReadyEvent event) {
         validateConfiguration(event);
         scheduleJobToRefreshContext();
+    }
+
+    @Bean
+    public WebApplicationInitializer syncopeWebApplicationInitializer() {
+        return servletContext -> {
+            Set<SessionTrackingMode> trackingModes = serverProperties.getServlet().getSession().getTrackingModes().
+                stream().
+                map(mode -> SessionTrackingMode.valueOf(mode.name())).
+                collect(Collectors.toSet());
+            servletContext.setSessionTrackingModes(trackingModes);
+            LOG.debug("Set session tracking modes to {}", trackingModes);
+        };
     }
 
     private void scheduleJobToRefreshContext() {
