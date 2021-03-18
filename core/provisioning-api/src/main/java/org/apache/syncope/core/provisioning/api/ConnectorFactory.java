@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api;
 
 import java.util.Collection;
+import java.util.Optional;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
@@ -43,7 +44,7 @@ public interface ConnectorFactory {
     ConnInstance buildConnInstanceOverride(
             ConnInstanceTO connInstance,
             Collection<ConnConfProperty> confOverride,
-            Collection<ConnectorCapability> capabilitiesOverride);
+            Optional<Collection<ConnectorCapability>> capabilitiesOverride);
 
     /**
      * Create connector from given connector instance.

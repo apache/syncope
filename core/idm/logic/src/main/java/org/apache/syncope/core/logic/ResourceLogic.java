@@ -444,7 +444,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 connFactory.buildConnInstanceOverride(
                         connInstanceDataBinder.getConnInstanceTO(connInstance),
                         resourceTO.getConfOverride(),
-                        resourceTO.isOverrideCapabilities() ? resourceTO.getCapabilitiesOverride() : null)).
+                        resourceTO.isOverrideCapabilities()
+                        ? Optional.of(resourceTO.getCapabilitiesOverride()) : Optional.empty())).
                 test();
     }
 

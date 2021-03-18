@@ -126,5 +126,5 @@ jobs:
       script: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.sra.SAML2SRAITCase
     - stage: fit
       name: "WA: SSO Integration Tests: SAML2SP4UI / OIDC4UI"
-      script: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.ui.OIDC4UIITCase
+      script: mkdir -p fit/core-reference/target/test-classes && cp fit/core-reference/src/test/resources/saml.keystore.jks fit/core-reference/target/test-classes && mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.ui.*ITCase
     #####################################################
