@@ -19,9 +19,13 @@
 package org.apache.syncope.wa.starter;
 
 import java.util.UUID;
+
+import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
@@ -35,6 +39,7 @@ import org.springframework.test.context.ContextConfiguration;
         "cas.sso.allow-missing-service-parameter=true"
 })
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
+@EnableConfigurationProperties(ServerProperties.class)
 public abstract class AbstractTest {
 
     @LocalServerPort
