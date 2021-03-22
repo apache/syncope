@@ -63,10 +63,10 @@ jobs:
       - export PATH="$JAVA_HOME/bin:$PATH"
       - eval $TestCommand
     - stage: test
-      name: "Unit Tests via JDK 17"
+      name: "Unit Tests via JDK 16"
       script:
-      - ~/install-jdk.sh --target "/home/travis/openjdk17" --workspace "/home/travis/.cache/install-jdk" --feature "17" --license "GPLv2+CE" --cacerts
-      - export JAVA_HOME=~/openjdk17
+      - ~/install-jdk.sh --target "/home/travis/openjdk16" --workspace "/home/travis/.cache/install-jdk" --feature "16" --license "GPLv2+CE" --cacerts
+      - export JAVA_HOME=~/openjdk16
       - export PATH="$JAVA_HOME/bin:$PATH"
       - eval $TestCommand
     - stage: test
