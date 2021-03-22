@@ -33,7 +33,7 @@ jobs:
       fail-fast: false
       matrix:
         language: ['java']
-        java: [ '11', '14', '16' ]
+        java: [ '11', '14', '17-ea' ]
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
@@ -51,4 +51,4 @@ jobs:
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
     - name: Verify
-      run: mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+      run: mvn -f fit/core-reference/pom.xml verify -Dit.test=RESTITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
