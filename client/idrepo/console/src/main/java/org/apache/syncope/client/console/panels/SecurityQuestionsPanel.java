@@ -32,7 +32,6 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel.SecurityQuestionsProvider;
 import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
@@ -68,16 +67,13 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
             }
         }.disableCheckBoxes());
 
-        modal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                modal.show(false);
-                target.add(container);
-            }
+        modal.addSubmitButton();
+        modal.size(Modal.Size.Large);
+        modal.setWindowClosedCallback(target -> {
+            modal.show(false);
+            target.add(container);
         });
+        setFooterVisibility(true);
 
         this.addNewItemPanelBuilder(
                 new AbstractModalPanelBuilder<SecurityQuestionTO>(new SecurityQuestionTO(), pageRef) {
@@ -92,20 +88,9 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
             }
         }, true);
 
-        setFooterVisibility(true);
-        modal.addSubmitButton();
-        modal.size(Modal.Size.Large);
         initResultTable();
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.SECURITY_QUESTION_CREATE);
-    }
-
-    private SecurityQuestionsPanel(
-            final String id,
-            final Builder<SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionRestClient> builder) {
-
-        super(id, builder);
-        setOutputMarkupId(true);
     }
 
     @Override

@@ -3038,7 +3038,7 @@ under the License.
       </activation>
 
       <properties>
-        <argLine>-Xms512m -Xmx1024m -Xss256k -Dnet.bytebuddy.experimental=true</argLine>
+        <argLine>-Xms512m -Xmx1024m -Xss256k -Dnet.bytebuddy.experimental=true --add-opens java.base/java.net=ALL-UNNAMED</argLine>
       </properties>
 
       <build>

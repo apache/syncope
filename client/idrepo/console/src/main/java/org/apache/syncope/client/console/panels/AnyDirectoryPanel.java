@@ -38,9 +38,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.syncope.client.console.wizards.any.StatusPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
@@ -114,19 +112,6 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         setWindowClosedReloadCallback(utilityModal);
 
         modal.size(Modal.Size.Large);
-        // change close callback in order to update header after model update
-        modal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                if (actionTogglePanel.isVisibleInHierarchy() && modal.getContent() instanceof ResultPage) {
-                    actionTogglePanel.updateHeader(target, ResultPage.class.cast(modal.getContent()).getItem());
-                }
-                modal.show(false);
-            }
-        });
 
         altDefaultModal.size(Modal.Size.Large);
 
