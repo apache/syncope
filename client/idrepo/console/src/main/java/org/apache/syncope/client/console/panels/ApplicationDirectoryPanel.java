@@ -85,11 +85,11 @@ public class ApplicationDirectoryPanel extends
 
         modal.size(Modal.Size.Default);
         modal.addSubmitButton();
-        setFooterVisibility(true);
         modal.setWindowClosedCallback(target -> {
             updateResultTable(target);
             modal.show(false);
         });
+        setFooterVisibility(true);
 
         privilegeModal.size(Modal.Size.Large);
         privilegeModal.setWindowClosedCallback(target -> {

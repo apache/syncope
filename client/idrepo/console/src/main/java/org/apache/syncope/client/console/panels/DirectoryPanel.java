@@ -31,11 +31,11 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -167,27 +167,25 @@ public abstract class DirectoryPanel<
 
         rows = PreferenceManager.getPaginatorRows(getRequest(), paginatorRowsKey());
 
-        setWindowClosedReloadCallback(modal);
-        setWindowClosedReloadCallback(altDefaultModal);
-        setWindowClosedReloadCallback(displayAttributeModal);
-
-        displayAttributeModal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                final EventDataWrapper data = new EventDataWrapper();
-                data.setTarget(target);
-                data.setRows(rows);
-
-                send(DirectoryPanel.this, Broadcast.EXACT, data);
-
-                modal.show(false);
+        modal.setWindowClosedCallback(target -> {
+            if (actionTogglePanel.isVisibleInHierarchy() && modal.getContent() instanceof WizardModalPanel) {
+                actionTogglePanel.updateHeader(target, WizardModalPanel.class.cast(modal.getContent()).getItem());
             }
+            modal.show(false);
         });
 
+        setWindowClosedReloadCallback(altDefaultModal);
         altDefaultModal.size(Modal.Size.Default);
+
+        displayAttributeModal.setWindowClosedCallback(target -> {
+            EventDataWrapper data = new EventDataWrapper();
+            data.setTarget(target);
+            data.setRows(rows);
+
+            send(DirectoryPanel.this, Broadcast.EXACT, data);
+
+            modal.show(false);
+        });
         displayAttributeModal.size(Modal.Size.Default);
         displayAttributeModal.addSubmitButton();
     }

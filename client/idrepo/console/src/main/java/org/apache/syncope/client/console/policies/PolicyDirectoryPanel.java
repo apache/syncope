@@ -35,7 +35,6 @@ import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -94,20 +93,13 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
         setWindowClosedReloadCallback(policySpecModal);
         addOuterObject(policySpecModal);
 
-        modal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487129L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                updateResultTable(target);
-                modal.show(false);
-            }
-        });
-
-        setFooterVisibility(true);
         modal.addSubmitButton();
         modal.size(Modal.Size.Large);
+        modal.setWindowClosedCallback(target -> {
+            updateResultTable(target);
+            modal.show(false);
+        });
+        setFooterVisibility(true);
 
         disableCheckBoxes();
     }

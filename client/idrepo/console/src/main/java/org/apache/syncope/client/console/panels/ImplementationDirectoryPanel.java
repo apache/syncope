@@ -31,7 +31,6 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ImplementationDirectoryPanel.ImplementationProvider;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -70,16 +69,10 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
 
         modal.size(Modal.Size.Large);
         modal.addSubmitButton();
-        modal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                implementation.setEngine(null);
-                updateResultTable(target);
-                modal.show(false);
-            }
+        modal.setWindowClosedCallback(target -> {
+            implementation.setEngine(null);
+            updateResultTable(target);
+            modal.show(false);
         });
         setFooterVisibility(true);
 
