@@ -44,7 +44,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -71,16 +70,10 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
 
         modal.size(Modal.Size.Large);
         modal.addSubmitButton();
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                implementation.setEngine(null);
-                updateResultTable(target);
-                modal.show(false);
-            }
+        modal.setWindowClosedCallback(target -> {
+            implementation.setEngine(null);
+            updateResultTable(target);
+            modal.show(false);
         });
         setFooterVisibility(true);
 

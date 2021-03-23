@@ -68,7 +68,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -138,19 +137,6 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         setWindowClosedReloadCallback(utilityModal);
 
         modal.size(Modal.Size.Large);
-        // change close callback in order to update header after model update
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                if (actionTogglePanel.isVisibleInHierarchy() && modal.getContent() instanceof ResultPage) {
-                    actionTogglePanel.updateHeader(target, ResultPage.class.cast(modal.getContent()).getItem());
-                }
-                modal.show(false);
-            }
-        });
 
         altDefaultModal.size(Modal.Size.Large);
 

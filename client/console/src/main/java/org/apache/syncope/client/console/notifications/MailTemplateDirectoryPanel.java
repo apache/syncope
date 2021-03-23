@@ -54,7 +54,6 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.PropertyModel;
 
 public class MailTemplateDirectoryPanel
@@ -70,18 +69,11 @@ public class MailTemplateDirectoryPanel
 
         modal.size(Modal.Size.Small);
         modal.addSubmitButton();
-        setFooterVisibility(true);
-
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                updateResultTable(target);
-                modal.show(false);
-            }
+        modal.setWindowClosedCallback(target -> {
+            updateResultTable(target);
+            modal.show(false);
         });
+        setFooterVisibility(true);
 
         addOuterObject(utilityModal);
         setWindowClosedReloadCallback(utilityModal);

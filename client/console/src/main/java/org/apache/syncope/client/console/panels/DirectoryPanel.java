@@ -171,27 +171,25 @@ public abstract class DirectoryPanel<
 
         rows = prefMan.getPaginatorRows(getRequest(), paginatorRowsKey());
 
-        setWindowClosedReloadCallback(modal);
-        setWindowClosedReloadCallback(altDefaultModal);
-        setWindowClosedReloadCallback(displayAttributeModal);
-
-        displayAttributeModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                final EventDataWrapper data = new EventDataWrapper();
-                data.setTarget(target);
-                data.setRows(rows);
-
-                send(DirectoryPanel.this, Broadcast.EXACT, data);
-
-                modal.show(false);
+        modal.setWindowClosedCallback(target -> {
+            if (actionTogglePanel.isVisibleInHierarchy() && modal.getContent() instanceof WizardModalPanel) {
+                actionTogglePanel.updateHeader(target, WizardModalPanel.class.cast(modal.getContent()).getItem());
             }
+            modal.show(false);
         });
 
+        setWindowClosedReloadCallback(altDefaultModal);
         altDefaultModal.size(Modal.Size.Medium);
+
+        displayAttributeModal.setWindowClosedCallback(target -> {
+            EventDataWrapper data = new EventDataWrapper();
+            data.setTarget(target);
+            data.setRows(rows);
+
+            send(DirectoryPanel.this, Broadcast.EXACT, data);
+
+            modal.show(false);
+        });
         displayAttributeModal.size(Modal.Size.Medium);
         displayAttributeModal.addSubmitButton();
     }
