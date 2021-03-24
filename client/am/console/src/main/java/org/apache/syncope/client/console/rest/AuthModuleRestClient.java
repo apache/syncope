@@ -29,4 +29,20 @@ public class AuthModuleRestClient extends BaseRestClient {
     public static List<AuthModuleTO> list() {
         return getService(AuthModuleService.class).list();
     }
+
+    public static void create(final AuthModuleTO authModuleTO) {
+        getService(AuthModuleService.class).create(authModuleTO);
+    }
+
+    public static AuthModuleTO read(final String key) {
+        return getService(AuthModuleService.class).read(key);
+    }
+
+    public static void update(final AuthModuleTO authModuleTO) {
+        getService(AuthModuleService.class).update(authModuleTO);
+    }
+
+    public static void delete(final String key) {
+        getService(AuthModuleService.class).delete(key);
+    }
 }

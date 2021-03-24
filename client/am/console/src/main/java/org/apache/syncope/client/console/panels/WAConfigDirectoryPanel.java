@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.client.console.panels.DirectoryPanel.LOG;
-
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,13 +37,11 @@ import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.apache.syncope.common.keymaster.client.api.ServiceOps;
-import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -56,15 +52,11 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class WAConfigDirectoryPanel
         extends DirectoryPanel<Attr, Attr, WAConfigProvider, WAConfigRestClient> {
 
-    private static final long serialVersionUID = 1L;
-
-    @SpringBean
-    private ServiceOps serviceOps;
+    private static final long serialVersionUID = 1538796157345L;
 
     public WAConfigDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, new Builder<Attr, Attr, WAConfigRestClient>(new WAConfigRestClient(), pageRef) {
@@ -89,31 +81,9 @@ public class WAConfigDirectoryPanel
                 return new WAConfigModalPanel(modal, newModelObject(), mode, pageRef);
             }
         }, true);
+
         modal.size(Modal.Size.Default);
         initResultTable();
-
-        utilityAjaxLink = new AjaxLink<Attr>("utility") {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                try {
-                    WAConfigRestClient.push();
-                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                    target.add(container);
-                } catch (Exception e) {
-                    LOG.error("While pushing to WA", e);
-                    SyncopeConsoleSession.get().onException(e);
-                }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-            }
-        };
-        initialFragment.addOrReplace(utilityAjaxLink);
-        utilityIcon.add(new AttributeModifier("class", "fa fa-fast-forward"));
-        utilityAjaxLink.add(utilityIcon);
-        utilityAjaxLink.setEnabled(!serviceOps.list(NetworkService.Type.WA).isEmpty());
-        utilityAjaxLink.setVisible(utilityAjaxLink.isEnabled());
     }
 
     @Override
@@ -128,7 +98,7 @@ public class WAConfigDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return List.of(ActionLink.ActionType.DELETE);
+        return List.of();
     }
 
     @Override
@@ -158,7 +128,7 @@ public class WAConfigDirectoryPanel
 
     @Override
     public ActionsPanel<Attr> getActions(final IModel<Attr> model) {
-        final ActionsPanel<Attr> panel = super.getActions(model);
+        ActionsPanel<Attr> panel = super.getActions(model);
 
         panel.add(new ActionLink<Attr>() {
 
@@ -167,12 +137,11 @@ public class WAConfigDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final Attr ignore) {
                 target.add(modal);
-                // modal.addSubmitButton();
                 modal.header(new StringResourceModel("any.edit"));
                 modal.setContent(new WAConfigModalPanel(modal, model.getObject(), AjaxWizard.Mode.EDIT, pageRef));
                 modal.show(true);
             }
-        }, ActionLink.ActionType.EDIT, null);
+        }, ActionLink.ActionType.EDIT, AMEntitlement.WA_CONFIG_SET);
 
         panel.add(new ActionLink<Attr>() {
 
@@ -191,7 +160,7 @@ public class WAConfigDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, null, true);
+        }, ActionLink.ActionType.DELETE, AMEntitlement.WA_CONFIG_DELETE, true);
 
         return panel;
     }

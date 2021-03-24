@@ -24,7 +24,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.Attributable;
@@ -71,7 +70,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         this.title = title;
         field.add(new PopoverBehavior(
                 Model.<String>of(),
-            Optional.ofNullable(title).map(Model::of).orElseGet(Model::<String>of),
+                Optional.ofNullable(title).map(Model::of).orElseGet(Model::<String>of),
                 new PopoverConfig().withHtml(html).withHoverTrigger().withPlacement(
                         index.getObject() != null && index.getObject() == 0
                         ? TooltipConfig.Placement.bottom

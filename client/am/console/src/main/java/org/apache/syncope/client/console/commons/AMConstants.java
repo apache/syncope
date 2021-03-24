@@ -24,6 +24,8 @@ public final class AMConstants {
 
     public static final String PREF_WACONFIG_PAGINATOR_ROWS = "waconfig.paginator.rows";
 
+    public static final String PREF_AUTHMODULE_PAGINATOR_ROWS = "authmodule.paginator.rows";
+
     private AMConstants() {
         // private constructor for static utility class
     }

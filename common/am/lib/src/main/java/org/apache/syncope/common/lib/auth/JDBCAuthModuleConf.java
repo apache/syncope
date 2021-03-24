@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib.auth;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JDBCAuthModuleConf extends AbstractAuthModuleConf {
+public class JDBCAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = 8383233437907219385L;
 

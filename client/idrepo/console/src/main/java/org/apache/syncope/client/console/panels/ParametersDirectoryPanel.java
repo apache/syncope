@@ -105,7 +105,7 @@ public class ParametersDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return List.of(ActionLink.ActionType.DELETE);
+        return List.of();
     }
 
     @Override

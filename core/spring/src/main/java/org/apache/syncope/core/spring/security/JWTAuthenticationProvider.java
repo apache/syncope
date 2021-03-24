@@ -42,8 +42,8 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         JWTClaimsSet claims = jwtAuthentication.getClaims();
         long referenceTime = System.currentTimeMillis();
 
-        Date expiryTime = claims.getExpirationTime();
-        if (expiryTime != null && expiryTime.getTime() < referenceTime) {
+        Date expirationTime = claims.getExpirationTime();
+        if (expirationTime != null && expirationTime.getTime() < referenceTime) {
             dataAccessor.removeExpired(claims.getJWTID());
             throw new CredentialsExpiredException("JWT is expired");
         }

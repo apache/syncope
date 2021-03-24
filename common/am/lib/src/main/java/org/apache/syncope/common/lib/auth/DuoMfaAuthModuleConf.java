@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-public class DuoMfaAuthModuleConf extends AbstractAuthModuleConf {
+public class DuoMfaAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -2883257599439312426L;
 

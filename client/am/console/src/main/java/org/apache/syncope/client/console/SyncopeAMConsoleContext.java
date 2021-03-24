@@ -22,11 +22,20 @@ import org.apache.syncope.client.console.commons.AMPolicyTabProvider;
 import org.apache.syncope.client.console.commons.AMRealmPolicyProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.RealmPolicyProvider;
+import org.apache.syncope.client.console.init.AMClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SyncopeAMConsoleContext {
+
+    @Bean
+    public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
+        AMClassPathScanImplementationLookup lookup = new AMClassPathScanImplementationLookup();
+        lookup.load();
+        return lookup;
+    }
 
     @Bean
     public RealmPolicyProvider realmPolicyProvider() {

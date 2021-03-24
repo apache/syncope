@@ -22,11 +22,18 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.console.panels.SRARouteDirectoryPanel;
+import org.apache.syncope.client.console.rest.SRARouteRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.AMEntitlement;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -48,6 +55,26 @@ public class SRA extends BasePage {
         super(parameters);
 
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
+        body.setOutputMarkupId(true);
+
+        AjaxLink<?> push = new AjaxLink<>("push") {
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                try {
+                    SRARouteRestClient.push();
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(body);
+                } catch (Exception e) {
+                    LOG.error("While pushing to SRA", e);
+                    SyncopeConsoleSession.get().onException(e);
+                }
+                ((BasePage) getPageReference().getPage()).getNotificationPanel().refresh(target);
+            }
+        };
+        push.setEnabled(!serviceOps.list(NetworkService.Type.SRA).isEmpty()
+                && SyncopeConsoleSession.get().owns(AMEntitlement.SRA_ROUTE_PUSH, SyncopeConstants.ROOT_REALM));
+        body.add(push);
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);

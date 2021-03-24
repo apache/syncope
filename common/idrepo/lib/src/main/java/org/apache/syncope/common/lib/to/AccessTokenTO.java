@@ -57,8 +57,8 @@ public class AccessTokenTO implements EntityTO {
         return Optional.ofNullable(expirationTime).map(time -> new Date(time.getTime())).orElse(null);
     }
 
-    public void setExpirationTime(final Date expiryTime) {
-        this.expirationTime = Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
+    public void setExpirationTime(final Date expirationTime) {
+        this.expirationTime = Optional.ofNullable(expirationTime).map(time -> new Date(time.getTime())).orElse(null);
     }
 
     public String getOwner() {

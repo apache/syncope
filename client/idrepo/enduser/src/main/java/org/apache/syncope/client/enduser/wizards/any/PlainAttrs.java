@@ -117,7 +117,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         add(new ListView<MembershipTO>("membershipsPlainSchemas", membershipTOs) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1749643897846L;
 
             @Override
             protected void populateItem(final ListItem<MembershipTO> item) {

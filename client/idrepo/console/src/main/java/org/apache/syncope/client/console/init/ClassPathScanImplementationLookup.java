@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
@@ -63,7 +64,7 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 
 public class ClassPathScanImplementationLookup {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClassPathScanImplementationLookup.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ClassPathScanImplementationLookup.class);
 
     private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope";
 
@@ -94,23 +95,13 @@ public class ClassPathScanImplementationLookup {
         });
     }
 
-    private List<Class<? extends BasePage>> pages;
+    private Map<String, List<Class<?>>> classes;
 
-    private List<Class<? extends AbstractBinaryPreviewer>> previewers;
-
-    private List<Class<? extends UserFormFinalizer>> userFormFinalizers;
+    private List<Class<? extends BasePage>> idRepoPages;
 
     private List<Class<? extends BasePage>> idmPages;
 
     private List<Class<? extends BasePage>> amPages;
-
-    private List<Class<? extends BaseExtPage>> extPages;
-
-    private List<Class<? extends BaseExtWidget>> extWidgets;
-
-    private List<Class<? extends ExtAlertWidget<?>>> extAlertWidgets;
-
-    private List<Class<? extends BaseSSOLoginFormPanel>> ssoLoginFormPanels;
 
     private Map<String, Class<? extends ReportletConf>> reportletConfs;
 
@@ -122,8 +113,6 @@ public class ClassPathScanImplementationLookup {
 
     private Map<String, Class<? extends PushCorrelationRuleConf>> pushCorrelationRuleConfs;
 
-    private List<Class<? extends AbstractResource>> resources;
-
     /**
      * This method can be overridden by subclasses to customize classpath scan.
      *
@@ -133,25 +122,9 @@ public class ClassPathScanImplementationLookup {
         return DEFAULT_BASE_PACKAGE;
     }
 
-    @SuppressWarnings("unchecked")
-    public void load() {
-        pages = new ArrayList<>();
-        previewers = new ArrayList<>();
-        userFormFinalizers = new ArrayList<>();
-        idmPages = new ArrayList<>();
-        amPages = new ArrayList<>();
-        extPages = new ArrayList<>();
-        extWidgets = new ArrayList<>();
-        extAlertWidgets = new ArrayList<>();
-        ssoLoginFormPanels = new ArrayList<>();
-        reportletConfs = new HashMap<>();
-        accountRuleConfs = new HashMap<>();
-        passwordRuleConfs = new HashMap<>();
-        pullCorrelationRuleConfs = new HashMap<>();
-        pushCorrelationRuleConfs = new HashMap<>();
-        resources = new ArrayList<>();
-
+    protected ClassPathScanningCandidateComponentProvider scanner() {
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+
         scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractBinaryPreviewer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(UserFormFinalizer.class));
@@ -166,31 +139,59 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(PushCorrelationRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractResource.class));
 
-        scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
+        return scanner;
+    }
+
+    protected void addClass(final String category, final Class<?> clazz) {
+        List<Class<?>> clazzes = classes.get(category);
+        if (clazzes == null) {
+            clazzes = new ArrayList<>();
+            classes.put(category, clazzes);
+        }
+        clazzes.add(clazz);
+    }
+
+    protected void additional(final Class<?> clazz) {
+        // nothing to do
+    }
+
+    @SuppressWarnings("unchecked")
+    public void load() {
+        classes = new HashMap<>();
+        idRepoPages = new ArrayList<>();
+        idmPages = new ArrayList<>();
+        amPages = new ArrayList<>();
+        reportletConfs = new HashMap<>();
+        accountRuleConfs = new HashMap<>();
+        passwordRuleConfs = new HashMap<>();
+        pullCorrelationRuleConfs = new HashMap<>();
+        pushCorrelationRuleConfs = new HashMap<>();
+
+        scanner().findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         Objects.requireNonNull(bd.getBeanClassName()), ClassUtils.getDefaultClassLoader());
                 if (!Modifier.isAbstract(clazz.getModifiers())) {
                     if (BaseExtPage.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(ExtPage.class)) {
-                            extPages.add((Class<? extends BaseExtPage>) clazz);
+                            addClass(BaseExtPage.class.getName(), clazz);
                         } else {
                             LOG.error("Could not find annotation {} in {}, ignoring",
                                     ExtPage.class.getName(), clazz.getName());
                         }
                     } else if (BaseExtWidget.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(ExtWidget.class)) {
-                            extWidgets.add((Class<? extends BaseExtWidget>) clazz);
+                            addClass(BaseExtWidget.class.getName(), clazz);
                         } else {
                             LOG.error("Could not find annotation {} in {}, ignoring",
                                     ExtWidget.class.getName(), clazz.getName());
                         }
                     } else if (ExtAlertWidget.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(ExtWidget.class)) {
-                            extAlertWidgets.add((Class<? extends ExtAlertWidget<?>>) clazz);
+                            addClass(ExtAlertWidget.class.getName(), clazz);
                         } else {
                             LOG.error("Could not find annotation {} in {}, ignoring",
-                                    ExtWidget.class.getName(), clazz.getName());
+                                    ExtAlertWidget.class.getName(), clazz.getName());
                         }
                     } else if (BasePage.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(IdMPage.class)) {
@@ -198,14 +199,14 @@ public class ClassPathScanImplementationLookup {
                         } else if (clazz.isAnnotationPresent(AMPage.class)) {
                             amPages.add((Class<? extends BasePage>) clazz);
                         } else {
-                            pages.add((Class<? extends BasePage>) clazz);
+                            idRepoPages.add((Class<? extends BasePage>) clazz);
                         }
                     } else if (AbstractBinaryPreviewer.class.isAssignableFrom(clazz)) {
-                        previewers.add((Class<? extends AbstractBinaryPreviewer>) clazz);
+                        addClass(AbstractBinaryPreviewer.class.getName(), clazz);
                     } else if (UserFormFinalizer.class.isAssignableFrom(clazz)) {
-                        userFormFinalizers.add((Class<? extends UserFormFinalizer>) clazz);
+                        addClass(UserFormFinalizer.class.getName(), clazz);
                     } else if (BaseSSOLoginFormPanel.class.isAssignableFrom(clazz)) {
-                        ssoLoginFormPanels.add((Class<? extends BaseSSOLoginFormPanel>) clazz);
+                        addClass(BaseSSOLoginFormPanel.class.getName(), clazz);
                     } else if (ReportletConf.class.isAssignableFrom(clazz)) {
                         reportletConfs.put(clazz.getName(), (Class<? extends ReportletConf>) clazz);
                     } else if (AccountRuleConf.class.isAssignableFrom(clazz)) {
@@ -218,21 +219,21 @@ public class ClassPathScanImplementationLookup {
                         pushCorrelationRuleConfs.put(clazz.getName(), (Class<? extends PushCorrelationRuleConf>) clazz);
                     } else if (AbstractResource.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(Resource.class)) {
-                            resources.add((Class<? extends AbstractResource>) clazz);
+                            addClass(AbstractResource.class.getName(), clazz);
                         } else {
                             LOG.error("Could not find annotation {} in {}, ignoring",
                                     Resource.class.getName(), clazz.getName());
                         }
+                    } else {
+                        additional(clazz);
                     }
                 }
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
             }
         });
-        pages = Collections.unmodifiableList(pages);
 
-        previewers = Collections.unmodifiableList(previewers);
-        userFormFinalizers = Collections.unmodifiableList(userFormFinalizers);
+        idRepoPages = Collections.unmodifiableList(idRepoPages);
 
         idmPages.sort(Comparator.comparing(o -> o.getAnnotation(IdMPage.class).priority()));
         idmPages = Collections.unmodifiableList(idmPages);
@@ -240,16 +241,22 @@ public class ClassPathScanImplementationLookup {
         amPages.sort(Comparator.comparing(o -> o.getAnnotation(AMPage.class).priority()));
         amPages = Collections.unmodifiableList(amPages);
 
-        extPages.sort(Comparator.comparing(o -> o.getAnnotation(ExtPage.class).priority()));
-        extPages = Collections.unmodifiableList(extPages);
+        if (classes.containsKey(BaseExtPage.class.getName())) {
+            classes.get(BaseExtPage.class.getName()).
+                    sort(Comparator.comparing(o -> o.getAnnotation(ExtPage.class).priority()));
+        }
 
-        extWidgets.sort(Comparator.comparing(o -> o.getAnnotation(ExtWidget.class).priority()));
-        extWidgets = Collections.unmodifiableList(extWidgets);
+        if (classes.containsKey(BaseExtWidget.class.getName())) {
+            classes.get(BaseExtWidget.class.getName()).
+                    sort(Comparator.comparing(o -> o.getAnnotation(ExtWidget.class).priority()));
+        }
 
-        extAlertWidgets.sort(Comparator.comparing(o -> o.getAnnotation(ExtWidget.class).priority()));
-        extAlertWidgets = Collections.unmodifiableList(extAlertWidgets);
+        if (classes.containsKey(ExtAlertWidget.class.getName())) {
+            classes.get(ExtAlertWidget.class.getName()).
+                    sort(Comparator.comparing(o -> o.getAnnotation(ExtWidget.class).priority()));
+        }
 
-        ssoLoginFormPanels = Collections.unmodifiableList(ssoLoginFormPanels);
+        classes.forEach((category, clazzes) -> LOG.debug("{} found: {}", category, clazzes));
 
         reportletConfs = Collections.unmodifiableMap(reportletConfs);
         accountRuleConfs = Collections.unmodifiableMap(accountRuleConfs);
@@ -257,52 +264,15 @@ public class ClassPathScanImplementationLookup {
         pullCorrelationRuleConfs = Collections.unmodifiableMap(pullCorrelationRuleConfs);
         pushCorrelationRuleConfs = Collections.unmodifiableMap(pushCorrelationRuleConfs);
 
-        resources = Collections.unmodifiableList(resources);
-
-        LOG.debug("Binary previewers found: {}", previewers);
-        LOG.debug("User Form finalizers found {}", userFormFinalizers);
-        LOG.debug("Extension pages found: {}", extPages);
-        LOG.debug("Extension widgets found: {}", extWidgets);
-        LOG.debug("Extension alert widgets found: {}", extAlertWidgets);
-        LOG.debug("SSO Login pages found: {}", ssoLoginFormPanels);
         LOG.debug("Reportlet configurations found: {}", reportletConfs);
         LOG.debug("Account Rule configurations found: {}", accountRuleConfs);
         LOG.debug("Password Rule configurations found: {}", passwordRuleConfs);
         LOG.debug("Pull Correlation Rule configurations found: {}", pullCorrelationRuleConfs);
         LOG.debug("Push Correlation Rule configurations found: {}", pushCorrelationRuleConfs);
-        LOG.debug("Wicket Resources found: {}", resources);
     }
 
-    public Class<? extends AbstractBinaryPreviewer> getPreviewerClass(final String mimeType) {
-        LOG.debug("Searching for previewer class for MIME type: {}", mimeType);
-        Class<? extends AbstractBinaryPreviewer> previewer = null;
-        for (Class<? extends AbstractBinaryPreviewer> candidate : previewers) {
-            LOG.debug("Evaluating previewer class {} for MIME type {}", candidate.getName(), mimeType);
-            if (candidate.isAnnotationPresent(BinaryPreview.class)
-                    && ArrayUtils.contains(candidate.getAnnotation(BinaryPreview.class).mimeTypes(), mimeType)) {
-                LOG.debug("Found existing previewer for MIME type {}: {}", mimeType, candidate.getName());
-                previewer = candidate;
-            }
-        }
-        return previewer;
-    }
-
-    public List<Class<? extends UserFormFinalizer>> getUserFormFinalizerClasses(final AjaxWizard.Mode mode) {
-        List<Class<? extends UserFormFinalizer>> classes = new ArrayList<>();
-
-        userFormFinalizers.forEach(candidate -> {
-            if (candidate.isAnnotationPresent(UserFormFinalize.class)
-                    && candidate.getAnnotation(UserFormFinalize.class).mode() == mode) {
-
-                classes.add(candidate);
-            }
-        });
-
-        return classes;
-    }
-
-    public List<Class<? extends BasePage>> getPageClasses() {
-        return pages;
+    public List<Class<? extends BasePage>> getIdRepoPageClasses() {
+        return idRepoPages;
     }
 
     public List<Class<? extends BasePage>> getIdMPageClasses() {
@@ -313,20 +283,42 @@ public class ClassPathScanImplementationLookup {
         return amPages;
     }
 
-    public List<Class<? extends BaseExtPage>> getExtPageClasses() {
-        return extPages;
+    @SuppressWarnings("unchecked")
+    public <T> List<Class<? extends T>> getClasses(final Class<T> reference) {
+        return classes.getOrDefault(reference.getName(), List.of()).stream().
+                map(clazz -> (Class<? extends T>) clazz).
+                collect(Collectors.toList());
     }
 
-    public List<Class<? extends BaseExtWidget>> getExtWidgetClasses() {
-        return extWidgets;
+    public Class<? extends AbstractBinaryPreviewer> getPreviewerClass(final String mimeType) {
+        LOG.debug("Searching for previewer class for MIME type: {}", mimeType);
+
+        Class<? extends AbstractBinaryPreviewer> previewer = null;
+        for (Class<? extends AbstractBinaryPreviewer> candidate : getClasses(AbstractBinaryPreviewer.class)) {
+            LOG.debug("Evaluating previewer class {} for MIME type {}", candidate.getName(), mimeType);
+            if (candidate.isAnnotationPresent(BinaryPreview.class)
+                    && ArrayUtils.contains(candidate.getAnnotation(BinaryPreview.class).mimeTypes(), mimeType)) {
+                LOG.debug("Found existing previewer for MIME type {}: {}", mimeType, candidate.getName());
+                previewer = candidate;
+            }
+        }
+        return previewer;
     }
 
+    @SuppressWarnings("unchecked")
     public List<Class<? extends ExtAlertWidget<?>>> getExtAlertWidgetClasses() {
-        return extAlertWidgets;
+        return classes.getOrDefault(ExtAlertWidget.class.getName(), List.of()).stream().
+                map(clazz -> (Class<? extends ExtAlertWidget<?>>) clazz).
+                collect(Collectors.toList());
     }
 
-    public List<Class<? extends BaseSSOLoginFormPanel>> getSSOLoginFormPanels() {
-        return ssoLoginFormPanels;
+    @SuppressWarnings("unchecked")
+    public List<Class<? extends UserFormFinalizer>> getUserFormFinalizerClasses(final AjaxWizard.Mode mode) {
+        return classes.getOrDefault(UserFormFinalizer.class.getName(), List.of()).stream().
+                filter(candidate -> candidate.isAnnotationPresent(UserFormFinalize.class)
+                && candidate.getAnnotation(UserFormFinalize.class).mode() == mode).
+                map(clazz -> (Class<? extends UserFormFinalizer>) clazz).
+                collect(Collectors.toList());
     }
 
     public Map<String, Class<? extends ReportletConf>> getReportletConfs() {
@@ -347,9 +339,5 @@ public class ClassPathScanImplementationLookup {
 
     public Map<String, Class<? extends PushCorrelationRuleConf>> getPushCorrelationRuleConfs() {
         return pushCorrelationRuleConfs;
-    }
-
-    public List<Class<? extends AbstractResource>> getResources() {
-        return resources;
     }
 }

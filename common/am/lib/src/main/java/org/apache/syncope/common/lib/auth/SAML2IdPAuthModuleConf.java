@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 
-public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
+public class SAML2IdPAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -471527731042579422L;
 

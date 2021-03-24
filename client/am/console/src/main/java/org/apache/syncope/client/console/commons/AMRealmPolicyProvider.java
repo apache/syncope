@@ -36,7 +36,7 @@ import org.apache.wicket.model.ResourceModel;
 
 public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1671878489700L;
 
     private final IModel<Map<String, String>> accessPolicies = new LoadableDetachableModel<Map<String, String>>() {
 

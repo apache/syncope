@@ -31,7 +31,7 @@ import org.apache.wicket.extensions.wizard.WizardModel;
 
 public class WAConfigModalPanel extends AbstractModalPanel<Attr> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1690738212977L;
 
     private static ConfParam toConfParam(final Attr attr) {
         ConfParam param = new ConfParam();

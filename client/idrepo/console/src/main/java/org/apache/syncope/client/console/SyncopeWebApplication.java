@@ -251,7 +251,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
         getSecuritySettings().setAuthorizationStrategy(new MetaDataRoleAuthorizationStrategy(this));
 
-        lookup.getPageClasses().
+        lookup.getIdRepoPageClasses().
                 forEach(cls -> MetaDataRoleAuthorizationStrategy.authorize(cls, Constants.ROLE_AUTHENTICATED));
 
         getMarkupSettings().setStripWicketTags(true);
@@ -321,7 +321,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         }
         Args.notNull(reconciliationReportKey, "<reconciliationReportKey>");
 
-        for (Class<? extends AbstractResource> resource : lookup.getResources()) {
+        for (Class<? extends AbstractResource> resource : lookup.getClasses(AbstractResource.class)) {
             Resource annotation = resource.getAnnotation(Resource.class);
             try {
                 AbstractResource instance = resource.getDeclaredConstructor().newInstance();
