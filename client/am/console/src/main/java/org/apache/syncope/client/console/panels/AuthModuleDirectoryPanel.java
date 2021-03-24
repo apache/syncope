@@ -142,7 +142,7 @@ public class AuthModuleDirectoryPanel
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
-                    LOG.error("While deleting {}", model.getObject(), e);
+                    LOG.error("While deleting {}", model.getObject().getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -152,7 +152,7 @@ public class AuthModuleDirectoryPanel
         return panel;
     }
 
-    protected final class AuthModuleProvider extends DirectoryDataProvider<AuthModuleTO> {
+    protected static final class AuthModuleProvider extends DirectoryDataProvider<AuthModuleTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 

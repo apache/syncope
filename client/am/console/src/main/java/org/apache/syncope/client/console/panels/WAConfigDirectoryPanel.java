@@ -165,7 +165,7 @@ public class WAConfigDirectoryPanel
         return panel;
     }
 
-    protected final class WAConfigProvider extends DirectoryDataProvider<Attr> {
+    protected static final class WAConfigProvider extends DirectoryDataProvider<Attr> {
 
         private static final long serialVersionUID = -185944053385660794L;
 

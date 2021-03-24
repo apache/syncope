@@ -31,7 +31,6 @@ import org.apache.syncope.client.enduser.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.Attr;
@@ -56,7 +55,6 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
     public <T extends AnyTO> VirAttrs(
             final AnyWrapper<T> modelObject,
-            final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
             final Map<String, CustomizationOption> whichVirAttrs) {
 

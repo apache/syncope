@@ -79,4 +79,13 @@ public class ConfParam implements Serializable {
     public boolean isInstance(final Class<?> clazz) {
         return !values.isEmpty() && clazz.isInstance(values.get(0));
     }
+
+    @Override
+    public String toString() {
+        return "ConfParam{"
+                + "schema=" + schema
+                + ", values=" + values
+                + ", multivalue=" + multivalue
+                + '}';
+    }
 }
