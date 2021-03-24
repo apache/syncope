@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.auth;
 import java.util.List;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.wa.ImpersonatedAccount;
 import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -46,4 +47,8 @@ public interface AuthProfile extends Entity {
     WebAuthnAccount getWebAuthnAccount();
 
     void setWebAuthnAccount(WebAuthnAccount accounts);
+
+    List<ImpersonatedAccount> getImpersonatedAccounts();
+
+    void setImpersonatedAccounts(List<ImpersonatedAccount> accounts);
 }

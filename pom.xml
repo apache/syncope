@@ -1727,7 +1727,16 @@ under the License.
         <artifactId>cas-server-webapp-config</artifactId>
         <version>${cas.version}</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-surrogate-webflow</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-surrogate-api</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.jasig.cas.client</groupId>
         <artifactId>cas-client-core</artifactId>
