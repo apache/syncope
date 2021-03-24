@@ -155,7 +155,7 @@ public class WAConfigDirectoryPanel
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
-                    LOG.error("While deleting {}", model.getObject(), e);
+                    LOG.error("While deleting {}", model.getObject().getSchema(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
