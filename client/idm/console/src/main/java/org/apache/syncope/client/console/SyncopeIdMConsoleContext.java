@@ -76,7 +76,7 @@ public class SyncopeIdMConsoleContext {
     }
 
     @Bean
-    public PolicyTabProvider policyTabProvider() {
+    public PolicyTabProvider idmPolicyTabProvider() {
         return new IdMPolicyTabProvider();
     }
 }

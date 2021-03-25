@@ -18,13 +18,17 @@
  */
 package org.apache.syncope.common.lib.policy;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 
-@Schema(allOf = { PolicyTO.class })
+@Schema(allOf = { PolicyTO.class },
+        subTypes = { PullPolicyTO.class, PushPolicyTO.class },
+        discriminatorProperty = "_class")
 public abstract class ProvisioningPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = -3786048942148269602L;
@@ -32,6 +36,14 @@ public abstract class ProvisioningPolicyTO extends PolicyTO {
     private ConflictResolutionAction conflictResolutionAction;
 
     private final Map<String, String> correlationRules = new HashMap<>();
+
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.policy.ProvisioningPolicyTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
     public ConflictResolutionAction getConflictResolutionAction() {
         return Optional.ofNullable(conflictResolutionAction).orElse(ConflictResolutionAction.IGNORE);

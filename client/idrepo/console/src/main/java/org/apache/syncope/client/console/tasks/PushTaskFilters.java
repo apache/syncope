@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
@@ -27,7 +26,6 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -60,7 +58,7 @@ public class PushTaskFilters extends WizardStep {
             @Override
             protected void populateItem(final ListItem<AnyTypeTO> item) {
                 final String key = item.getModelObject().getKey();
-                item.add(new Accordion("filters", Collections.<ITab>singletonList(
+                item.add(new Accordion("filters", List.of(
                         new AbstractTab(new StringResourceModel(
                                 "filters", this, new Model<>(item.getModelObject()))) {
 

@@ -79,7 +79,7 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
         form = new Form<>("templatesForm");
         addInnerObject(form);
 
-        final FieldPanel<String> type = new AjaxDropDownChoicePanel<>("type", "type", typeModel, false).
+        FieldPanel<String> type = new AjaxDropDownChoicePanel<>("type", "type", typeModel, false).
                 setChoices(anyTypes).
                 setStyleSheet("form-control").
                 setRequired(true);

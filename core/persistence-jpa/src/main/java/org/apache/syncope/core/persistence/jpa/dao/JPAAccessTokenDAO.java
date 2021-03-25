@@ -78,15 +78,15 @@ public class JPAAccessTokenDAO extends AbstractDAO<AccessToken> implements Acces
     private static String toOrderByStatement(final List<OrderByClause> orderByClauses) {
         StringBuilder statement = new StringBuilder();
 
-        for (OrderByClause clause : orderByClauses) {
+        orderByClauses.forEach(clause -> {
             String field = clause.getField().trim();
             if (ReflectionUtils.findField(JPAAccessToken.class, field) != null) {
                 statement.append("e.").append(field).append(' ').append(clause.getDirection().name());
             }
-        }
+        });
 
         if (statement.length() == 0) {
-            statement.append("ORDER BY e.expiryTime DESC");
+            statement.append(" ORDER BY e.expirationTime DESC");
         } else {
             statement.insert(0, "ORDER BY ");
         }

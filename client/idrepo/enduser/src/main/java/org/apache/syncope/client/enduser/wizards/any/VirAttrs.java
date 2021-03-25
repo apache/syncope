@@ -20,7 +20,6 @@ package org.apache.syncope.client.enduser.wizards.any;
 
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ import org.apache.syncope.client.enduser.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.Attr;
@@ -41,7 +39,6 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -56,23 +53,16 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private final AjaxWizard.Mode mode;
-
-    private final AnyWrapper<?> modelObject;
-
     public <T extends AnyTO> VirAttrs(
             final AnyWrapper<T> modelObject,
-            final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
             final Map<String, CustomizationOption> whichVirAttrs) {
 
         super(modelObject, anyTypeClasses, whichVirAttrs);
-        this.mode = mode;
-        this.modelObject = modelObject;
 
         setTitleModel(new ResourceModel("attributes.virtual"));
 
-        add(new Accordion("virSchemas", Collections.<ITab>singletonList(new AbstractTab(
+        add(new Accordion("virSchemas", List.of(new AbstractTab(
                 new ResourceModel("attributes.accordion", "Virtual Attributes")) {
 
             private static final long serialVersionUID = 1037272333056449378L;
@@ -89,22 +79,21 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
             @Override
             protected void populateItem(final ListItem<MembershipTO> item) {
-                final MembershipTO membershipTO = item.getModelObject();
-                item.add(new Accordion("membershipVirSchemas",
-                        Collections.<ITab>singletonList(new AbstractTab(new StringResourceModel(
-                                "attributes.membership.accordion", VirAttrs.this, Model.of(membershipTO))) {
+                MembershipTO membTO = item.getModelObject();
+                item.add(new Accordion("membershipVirSchemas", List.of(new AbstractTab(
+                        new StringResourceModel("attributes.membership.accordion", VirAttrs.this, Model.of(membTO))) {
 
-                            private static final long serialVersionUID = 1037272333056449378L;
+                    private static final long serialVersionUID = 1037272333056449378L;
 
-                            @Override
-                            public WebMarkupContainer getPanel(final String panelId) {
-                                return new VirAttrs.VirSchemas(
-                                        panelId,
-                                        membershipTO.getGroupName(),
-                                        membershipSchemas.get(membershipTO.getGroupKey()),
-                                        new ListModel<>(getAttrsFromTO(membershipTO)));
-                            }
-                        }), Model.of(-1)).setOutputMarkupId(true));
+                    @Override
+                    public WebMarkupContainer getPanel(final String panelId) {
+                        return new VirAttrs.VirSchemas(
+                                panelId,
+                                membTO.getGroupName(),
+                                membershipSchemas.get(membTO.getGroupKey()),
+                                new ListModel<>(getAttrsFromTO(membTO)));
+                    }
+                }), Model.of(-1)).setOutputMarkupId(true));
             }
         });
     }

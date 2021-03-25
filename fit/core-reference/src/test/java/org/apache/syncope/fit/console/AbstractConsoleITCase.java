@@ -25,8 +25,11 @@ import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.sett
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
 import java.util.List;
 import java.util.Locale;
+import org.apache.syncope.client.console.SyncopeAMConsoleContext;
 import org.apache.syncope.client.console.SyncopeIdMConsoleContext;
 import org.apache.syncope.client.console.SyncopeWebApplication;
+import org.apache.syncope.client.console.commons.IdRepoPolicyTabProvider;
+import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
@@ -100,6 +103,11 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
         public UserFormFinalizerUtils userFormFinalizerUtils() {
             return new UserFormFinalizerUtils();
         }
+
+        @Bean
+        public PolicyTabProvider idRepoPolicyTabProvider() {
+            return new IdRepoPolicyTabProvider();
+        }
     }
 
     @BeforeAll
@@ -109,6 +117,7 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
         AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
         ctx.register(SyncopeConsoleWebApplicationTestConfig.class);
         ctx.register(SyncopeWebApplication.class);
+        ctx.register(SyncopeAMConsoleContext.class);
         ctx.register(SyncopeIdMConsoleContext.class);
         ctx.refresh();
 

@@ -84,7 +84,6 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
                 jexlTransformers,
                 new ListModel<ItemTO>(provision.getItems()),
                 resourceTO.getConnector() != null,
-                false,
                 MappingPurpose.BOTH);
 
         setOutputMarkupId(true);

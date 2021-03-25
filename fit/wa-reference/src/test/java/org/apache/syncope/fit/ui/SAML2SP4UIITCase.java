@@ -168,7 +168,8 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
         // 2. click on the SAML 2.0 IdP
-        get = new HttpGet(baseURL + SAML2SP4UIConstants.URL_CONTEXT + "/login?idp=http%3A//localhost%3A9080/saml");
+        get = new HttpGet(baseURL + SAML2SP4UIConstants.URL_CONTEXT 
+                + "/login?idp=http%3A//localhost%3A9080/syncope-wa/saml");
         response = httpclient.execute(get, context);
 
         // 2a. post SAML request

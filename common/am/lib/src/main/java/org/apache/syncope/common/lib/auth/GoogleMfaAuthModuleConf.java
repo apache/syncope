@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-public class GoogleMfaAuthModuleConf extends AbstractAuthModuleConf {
+public class GoogleMfaAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -7883257599139312426L;
 

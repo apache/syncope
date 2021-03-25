@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +29,6 @@ import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Ac
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -63,7 +61,7 @@ public class DynamicMemberships extends WizardStep {
         // ------------------------
         // uDynMembershipCond
         // ------------------------
-        add(new Accordion("uDynMembershipCond", Collections.<ITab>singletonList(
+        add(new Accordion("uDynMembershipCond", List.of(
                 new AbstractTab(new ResourceModel("uDynMembershipCond", "Dynamic USER Membership Conditions")) {
 
             private static final long serialVersionUID = 1037272333056449378L;
@@ -86,7 +84,7 @@ public class DynamicMemberships extends WizardStep {
             @Override
             protected void populateItem(final ListItem<AnyTypeTO> item) {
                 final String key = item.getModelObject().getKey();
-                item.add(new Accordion("aDynMembershipCond", Collections.<ITab>singletonList(
+                item.add(new Accordion("aDynMembershipCond", List.of(
                         new AbstractTab(new StringResourceModel(
                                 "aDynMembershipCond", this, new Model<AnyTypeTO>(item.getModelObject()))) {
 

@@ -22,7 +22,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
@@ -261,7 +260,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>singletonList(ActionLink.ActionType.DELETE);
+        return List.of(ActionLink.ActionType.DELETE);
     }
 
     public abstract static class Builder

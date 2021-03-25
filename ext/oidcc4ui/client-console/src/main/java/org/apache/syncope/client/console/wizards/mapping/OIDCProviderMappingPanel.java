@@ -25,7 +25,6 @@ import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -46,8 +45,7 @@ public class OIDCProviderMappingPanel extends AbstractMappingPanel {
         super(id,
                 mapItemTransformers,
                 jexlTransformers,
-                new ListModel<ItemTO>(opTO.getItems()),
-                true,
+                new ListModel<>(opTO.getItems()),
                 true,
                 MappingPurpose.NONE);
 
@@ -55,9 +53,14 @@ public class OIDCProviderMappingPanel extends AbstractMappingPanel {
     }
 
     @Override
+    protected boolean hidePurpose() {
+        return true;
+    }
+
+    @Override
     protected void onBeforeRender() {
         super.onBeforeRender();
-        purposeLabel.setVisible(false);
+        intAttrNameInfo.setVisible(false);
     }
 
     @Override

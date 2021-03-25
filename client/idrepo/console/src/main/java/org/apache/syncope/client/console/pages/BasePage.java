@@ -468,7 +468,7 @@ public class BasePage extends BaseWebPage {
         };
         body.add(extAlertWidgets);
 
-        List<Class<? extends BaseExtPage>> extPageClasses = lookup.getExtPageClasses();
+        List<Class<? extends BaseExtPage>> extPageClasses = lookup.getClasses(BaseExtPage.class);
 
         WebMarkupContainer extensionsLI = new WebMarkupContainer(getLIContainerId("extensions"));
         extensionsLI.setOutputMarkupPlaceholderTag(true);

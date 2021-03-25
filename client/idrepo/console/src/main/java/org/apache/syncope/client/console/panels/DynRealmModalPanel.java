@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -38,7 +37,6 @@ import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -90,7 +88,7 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
             @Override
             protected void populateItem(final ListItem<AnyTypeTO> item) {
                 final String key = item.getModelObject().getKey();
-                item.add(new Accordion("dynMembershipCond", Collections.<ITab>singletonList(
+                item.add(new Accordion("dynMembershipCond", List.of(
                         new AbstractTab(Model.of(key + " Dynamic Condition")) {
 
                     private static final long serialVersionUID = 1037272333056449378L;

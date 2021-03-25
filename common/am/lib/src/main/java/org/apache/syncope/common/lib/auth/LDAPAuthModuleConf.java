@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib.auth;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LDAPAuthModuleConf extends AbstractAuthModuleConf {
+public class LDAPAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -471527731042579422L;
 

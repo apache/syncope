@@ -43,7 +43,7 @@ public class PullPolicyDirectoryPanel extends PolicyDirectoryPanel<PullPolicyTO>
     public PullPolicyDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, PolicyType.PULL, pageRef);
 
-        final PullPolicyTO defaultItem = new PullPolicyTO();
+        PullPolicyTO defaultItem = new PullPolicyTO();
 
         this.addNewItemPanelBuilder(
                 new PolicyModalPanelBuilder<>(PolicyType.PULL, defaultItem, modal, pageRef), true);
