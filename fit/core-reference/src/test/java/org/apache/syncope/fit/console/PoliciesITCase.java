@@ -750,13 +750,12 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
 
         // set new account policy
-        TESTER.assertLabel(
-                "body:content:body:outerObjectsRepeater:0:outer:form:content:form:view:details:container:"
-                + "accountPolicy:field-label", "Account Policy");
+        TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:form:view:details:container:"
+                + "policies:1:field-label", "Account Policy");
 
         FormTester formTester = TESTER.newFormTester(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:form");
-        formTester.select("view:details:container:accountPolicy:dropDownChoiceField", 0);
+        formTester.select("view:details:container:policies:1:dropDownChoiceField", 0);
         formTester.submit("buttons:finish");
 
         assertSuccessMessage();
