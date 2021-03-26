@@ -63,7 +63,7 @@ public final class AnyLayoutUtils {
         }
     }
 
-    public static String defaultConsoleLayoutInfoIfEmpty(final String content, final List<String> anyTypes) {
+    public static String defaultConsoleLayoutInfoIfEmpty(final String content) {
         String result;
 
         if (StringUtils.isBlank(content)) {

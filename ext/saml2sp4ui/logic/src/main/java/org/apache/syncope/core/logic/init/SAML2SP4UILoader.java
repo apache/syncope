@@ -32,6 +32,8 @@ import org.apache.syncope.core.logic.saml2.NoOpLogoutHandler;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileUrlResource;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -39,6 +41,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SAML2SP4UILoader implements SyncopeCoreLoader {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SAML2SP4UILoader.class);
 
     private static final String SAML2SP4UI_LOGIC_PROPERTIES = "saml2sp4ui-logic.properties";
 
@@ -91,7 +95,11 @@ public class SAML2SP4UILoader implements SyncopeCoreLoader {
         cfg.setAuthnRequestSigned(true);
         cfg.setSpLogoutRequestSigned(true);
 
-        cfg.setAcceptedSkew(Integer.valueOf(props.getProperty("saml2.sp4ui.skew")));
+        try {
+            cfg.setAcceptedSkew(Integer.valueOf(props.getProperty("saml2.sp4ui.skew")));
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid value provided for 'saml2.sp4ui.skew': {}", props.getProperty("saml2.sp4ui.skew"), e);
+        }
 
         cfg.setLogoutHandler(new NoOpLogoutHandler());
 

@@ -194,9 +194,16 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
         useGZIPCompression = BooleanUtils.toBoolean(props.getProperty("useGZIPCompression"));
         Args.notNull(useGZIPCompression, "<useGZIPCompression>");
-        maxUploadFileSizeMB = props.getProperty("maxUploadFileSizeMB") == null
-                ? null
-                : Integer.valueOf(props.getProperty("maxUploadFileSizeMB"));
+
+        try {
+            maxUploadFileSizeMB = props.getProperty("maxUploadFileSizeMB") == null
+                    ? null
+                    : Integer.valueOf(props.getProperty("maxUploadFileSizeMB"));
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid value provided for 'maxUploadFileSizeMB': {}",
+                    props.getProperty("maxUploadFileSizeMB"));
+            maxUploadFileSizeMB = null;
+        }
 
         try {
             maxWaitTime = Integer.valueOf(props.getProperty("maxWaitTimeOnApplyChanges", "30"));

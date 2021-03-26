@@ -141,7 +141,7 @@ public abstract class ReportDirectoryPanel
                 Component panel;
                 try {
                     JobTO jobTO = ReportRestClient.getJob(rowModel.getObject().getKey());
-                    panel = new JobActionPanel(componentId, jobTO, false, ReportDirectoryPanel.this, pageRef);
+                    panel = new JobActionPanel(componentId, jobTO, false, ReportDirectoryPanel.this);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
                             String.format("%s,%s",
                                     IdRepoEntitlement.REPORT_EXECUTE,

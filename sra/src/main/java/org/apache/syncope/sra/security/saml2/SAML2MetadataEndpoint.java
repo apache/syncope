@@ -28,7 +28,6 @@ import org.pac4j.saml.exceptions.SAMLException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -63,7 +62,7 @@ public class SAML2MetadataEndpoint {
 
     @GetMapping(produces = { MediaType.APPLICATION_XML_VALUE })
     @ResponseBody
-    public Mono<ResponseEntity<String>> metadata(final ServerHttpRequest request) {
+    public Mono<ResponseEntity<String>> metadata() {
         return Mono.just(ResponseEntity.ok().
                 header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE).
                 body(metadata));

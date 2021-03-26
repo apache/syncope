@@ -37,7 +37,6 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -73,8 +72,8 @@ public class UserDetails extends WizardStep {
     public UserDetails(
             final UserWrapper wrapper,
             final boolean templateMode,
-            final boolean showPasswordManagement,
-            final PageReference pageRef) {
+            final boolean showPasswordManagement) {
+
         super();
 
         userTO = wrapper.getInnerObject();

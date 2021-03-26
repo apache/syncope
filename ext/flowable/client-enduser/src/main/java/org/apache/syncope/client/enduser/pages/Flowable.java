@@ -174,41 +174,38 @@ public class Flowable extends BaseExtPage {
                             .add(new Label("executionId", userRequest.getExecutionId()))
                             .add(new Label("startTime", userRequest.getStartTime()))
                     : new Fragment("fragContainer", "formProperties", UserRequestDetails.this)
-                            .add(new Form<>("userRequestWrapForm")
-                                    .add(new UserRequestFormPanel(
-                                            "userRequestFormPanel",
-                                            getPageReference(),
-                                            formTO,
-                                            false) {
+                            .add(new Form<>("userRequestWrapForm").add(new UserRequestFormPanel(
+                                    "userRequestFormPanel",
+                                    formTO,
+                                    false) {
 
-                                        private static final long serialVersionUID = 3617895525072546591L;
+                                private static final long serialVersionUID = 3617895525072546591L;
 
-                                        @Override
-                                        protected void viewDetails(final AjaxRequestTarget target) {
-                                            // do nothing
-                                        }
-                                    })
-                                    .add(new AjaxButton("submit") {
+                                @Override
+                                protected void viewDetails(final AjaxRequestTarget target) {
+                                    // do nothing
+                                }
+                            }).add(new AjaxButton("submit") {
 
-                                        private static final long serialVersionUID = 4284361595033427185L;
+                                private static final long serialVersionUID = 4284361595033427185L;
 
-                                        @Override
-                                        protected void onSubmit(final AjaxRequestTarget target) {
-                                            try {
-                                                UserRequestRestClient.claimForm(formTO.getTaskId());
-                                                UserRequestRestClient.submitForm(formTO);
-                                                target.add(container);
-                                            } catch (SyncopeClientException sce) {
-                                                LOG.error("Unable to submit user request form for BPMN process [{}]",
-                                                        formTO.getBpmnProcess(), sce);
-                                                SyncopeEnduserSession.get().error(StringUtils.isBlank(sce.getMessage())
-                                                        ? sce.getClass().getName()
-                                                        : sce.getMessage());
-                                                notificationPanel.refresh(target);
-                                            }
-                                        }
+                                @Override
+                                protected void onSubmit(final AjaxRequestTarget target) {
+                                    try {
+                                        UserRequestRestClient.claimForm(formTO.getTaskId());
+                                        UserRequestRestClient.submitForm(formTO);
+                                        target.add(container);
+                                    } catch (SyncopeClientException sce) {
+                                        LOG.error("Unable to submit user request form for BPMN process [{}]",
+                                                formTO.getBpmnProcess(), sce);
+                                        SyncopeEnduserSession.get().error(StringUtils.isBlank(sce.getMessage())
+                                                ? sce.getClass().getName()
+                                                : sce.getMessage());
+                                        notificationPanel.refresh(target);
+                                    }
+                                }
 
-                                    }.setOutputMarkupId(true))));
+                            }.setOutputMarkupId(true))));
 
             add(new AjaxLink<Void>("delete") {
 
@@ -256,5 +253,4 @@ public class Flowable extends BaseExtPage {
             return Model.of(ur);
         }
     }
-
 }
