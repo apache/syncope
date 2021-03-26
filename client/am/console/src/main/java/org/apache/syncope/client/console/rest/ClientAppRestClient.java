@@ -21,50 +21,47 @@ package org.apache.syncope.client.console.rest;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.syncope.common.lib.policy.PolicyTO;
-import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.rest.api.service.PolicyService;
+import org.apache.syncope.common.lib.to.ClientAppTO;
+import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.rest.api.service.ClientAppService;
 
-/**
- * Console client for invoking Rest Policy services.
- */
-public class PolicyRestClient extends BaseRestClient {
+public class ClientAppRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    private static final Comparator<PolicyTO> COMPARATOR = Comparator.comparing(PolicyTO::getDescription);
+    private static final Comparator<ClientAppTO> COMPARATOR = Comparator.comparing(ClientAppTO::getName);
 
-    public static <T extends PolicyTO> T read(final PolicyType type, final String key) {
+    public static <T extends ClientAppTO> T read(final ClientAppType type, final String key) {
         T policy = null;
         try {
-            policy = getService(PolicyService.class).read(type, key);
+            policy = getService(ClientAppService.class).read(type, key);
         } catch (Exception e) {
-            LOG.warn("No policy found for type {} and key {}", type, key, e);
+            LOG.warn("No client app found for type {} and key {}", type, key, e);
         }
         return policy;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends PolicyTO> List<T> list(final PolicyType type) {
+    public static <T extends ClientAppTO> List<T> list(final ClientAppType type) {
         try {
-            return getService(PolicyService.class).<T>list(type).stream().
+            return getService(ClientAppService.class).<T>list(type).stream().
                     sorted(COMPARATOR).
                     collect(Collectors.toList());
         } catch (Exception ignore) {
-            LOG.debug("No policy found", ignore);
+            LOG.debug("No client app found", ignore);
             return List.of();
         }
     }
 
-    public static <T extends PolicyTO> void create(final PolicyType type, final T policy) {
-        getService(PolicyService.class).create(type, policy);
+    public static <T extends ClientAppTO> void create(final ClientAppType type, final T policy) {
+        getService(ClientAppService.class).create(type, policy);
     }
 
-    public static <T extends PolicyTO> void update(final PolicyType type, final T policy) {
-        getService(PolicyService.class).update(type, policy);
+    public static <T extends ClientAppTO> void update(final ClientAppType type, final T policy) {
+        getService(ClientAppService.class).update(type, policy);
     }
 
-    public static void delete(final PolicyType type, final String key) {
-        getService(PolicyService.class).delete(type, key);
+    public static void delete(final ClientAppType type, final String key) {
+        getService(ClientAppService.class).delete(type, key);
     }
 }

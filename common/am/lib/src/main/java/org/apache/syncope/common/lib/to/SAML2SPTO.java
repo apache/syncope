@@ -19,11 +19,12 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.types.XmlSecAlgorithms;
+import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 
 import java.util.ArrayList;
@@ -56,21 +57,21 @@ public class SAML2SPTO extends ClientAppTO {
 
     private String nameIdQualifier;
 
-    private String assertionAudiences;
+    private final List<String> assertionAudiences = new ArrayList<>();
 
     private String serviceProviderNameIdQualifier;
 
-    private List<XmlSecAlgorithms> signingSignatureAlgorithms = new ArrayList<>();
+    private final List<XmlSecAlgorithm> signingSignatureAlgorithms = new ArrayList<>();
 
-    private List<XmlSecAlgorithms> signingSignatureReferenceDigestMethods = new ArrayList<>();
+    private final List<XmlSecAlgorithm> signingSignatureReferenceDigestMethods = new ArrayList<>();
 
-    private List<XmlSecAlgorithms> encryptionDataAlgorithms = new ArrayList<>();
+    private final List<XmlSecAlgorithm> encryptionDataAlgorithms = new ArrayList<>();
 
-    private List<XmlSecAlgorithms> encryptionKeyAlgorithms = new ArrayList<>();
-    
-    private List<XmlSecAlgorithms> signingSignatureBlackListedAlgorithms = new ArrayList<>();
+    private final List<XmlSecAlgorithm> encryptionKeyAlgorithms = new ArrayList<>();
 
-    private List<XmlSecAlgorithms> encryptionBlackListedAlgorithms = new ArrayList<>();
+    private final List<XmlSecAlgorithm> signingSignatureBlackListedAlgorithms = new ArrayList<>();
+
+    private final List<XmlSecAlgorithm> encryptionBlackListedAlgorithms = new ArrayList<>();
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
@@ -168,12 +169,10 @@ public class SAML2SPTO extends ClientAppTO {
         this.nameIdQualifier = nameIdQualifier;
     }
 
-    public String getAssertionAudiences() {
+    @JacksonXmlElementWrapper(localName = "assertionAudiences")
+    @JacksonXmlProperty(localName = "assertionAudience")
+    public List<String> getAssertionAudiences() {
         return assertionAudiences;
-    }
-
-    public void setAssertionAudiences(final String assertionAudiences) {
-        this.assertionAudiences = assertionAudiences;
     }
 
     public String getServiceProviderNameIdQualifier() {
@@ -184,52 +183,40 @@ public class SAML2SPTO extends ClientAppTO {
         this.serviceProviderNameIdQualifier = serviceProviderNameIdQualifier;
     }
 
-    public List<XmlSecAlgorithms> getSigningSignatureAlgorithms() {
+    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
+    @JacksonXmlProperty(localName = "supportedGrantType")
+    public List<XmlSecAlgorithm> getSigningSignatureAlgorithms() {
         return signingSignatureAlgorithms;
     }
 
-    public List<XmlSecAlgorithms> getSigningSignatureReferenceDigestMethods() {
+    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
+    @JacksonXmlProperty(localName = "supportedGrantType")
+    public List<XmlSecAlgorithm> getSigningSignatureReferenceDigestMethods() {
         return signingSignatureReferenceDigestMethods;
     }
 
-    public List<XmlSecAlgorithms> getEncryptionDataAlgorithms() {
+    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
+    @JacksonXmlProperty(localName = "supportedGrantType")
+    public List<XmlSecAlgorithm> getEncryptionDataAlgorithms() {
         return encryptionDataAlgorithms;
     }
 
-    public List<XmlSecAlgorithms> getEncryptionKeyAlgorithms() {
+    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
+    @JacksonXmlProperty(localName = "supportedGrantType")
+    public List<XmlSecAlgorithm> getEncryptionKeyAlgorithms() {
         return encryptionKeyAlgorithms;
     }
 
-    public void setSigningSignatureAlgorithms(final List<XmlSecAlgorithms> signingSignatureAlgorithms) {
-        this.signingSignatureAlgorithms = signingSignatureAlgorithms;
-    }
-
-    public void setSigningSignatureReferenceDigestMethods(final List<XmlSecAlgorithms> algs) {
-        this.signingSignatureReferenceDigestMethods = algs;
-    }
-
-    public void setEncryptionDataAlgorithms(final List<XmlSecAlgorithms> encryptionDataAlgorithms) {
-        this.encryptionDataAlgorithms = encryptionDataAlgorithms;
-    }
-
-    public void setEncryptionKeyAlgorithms(final List<XmlSecAlgorithms> encryptionKeyAlgorithms) {
-        this.encryptionKeyAlgorithms = encryptionKeyAlgorithms;
-    }
-
-    public List<XmlSecAlgorithms> getSigningSignatureBlackListedAlgorithms() {
+    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
+    @JacksonXmlProperty(localName = "supportedGrantType")
+    public List<XmlSecAlgorithm> getSigningSignatureBlackListedAlgorithms() {
         return signingSignatureBlackListedAlgorithms;
     }
 
-    public void setSigningSignatureBlackListedAlgorithms(final List<XmlSecAlgorithms> algs) {
-        this.signingSignatureBlackListedAlgorithms = algs;
-    }
-
-    public List<XmlSecAlgorithms> getEncryptionBlackListedAlgorithms() {
+    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
+    @JacksonXmlProperty(localName = "supportedGrantType")
+    public List<XmlSecAlgorithm> getEncryptionBlackListedAlgorithms() {
         return encryptionBlackListedAlgorithms;
-    }
-
-    public void setEncryptionBlackListedAlgorithms(final List<XmlSecAlgorithms> algs) {
-        this.encryptionBlackListedAlgorithms = algs;
     }
 
     @Override

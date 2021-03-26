@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.policies;
+package org.apache.syncope.client.console.clientapps;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
@@ -25,24 +25,22 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.commons.IdRepoConstants;
+import org.apache.syncope.client.console.commons.AMConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
-import org.apache.syncope.client.console.rest.PolicyRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
+import org.apache.syncope.client.console.rest.ClientAppRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.policy.PolicyTO;
-import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.common.lib.to.ClientAppTO;
+import org.apache.syncope.common.lib.types.AMEntitlement;
+import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -53,44 +51,16 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
-/**
- * Policies page.
- *
- * @param <T> policy type.
- */
-public abstract class PolicyDirectoryPanel<T extends PolicyTO>
-        extends DirectoryPanel<T, T, DirectoryDataProvider<T>, PolicyRestClient> {
+public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
+        extends DirectoryPanel<T, T, DirectoryDataProvider<T>, ClientAppRestClient> {
 
-    private static final long serialVersionUID = 4984337552918213290L;
+    private static final long serialVersionUID = 1L;
 
-    protected final BaseModal<T> ruleCompositionModal = new BaseModal<T>(Constants.OUTER) {
+    private final ClientAppType type;
 
-        private static final long serialVersionUID = 389935548143327858L;
-
-        @Override
-        protected void onConfigure() {
-            super.onConfigure();
-            setFooterVisible(false);
-        }
-    };
-
-    protected final BaseModal<T> policySpecModal = new BaseModal<>(Constants.OUTER);
-
-    private final PolicyType type;
-
-    public PolicyDirectoryPanel(final String id, final PolicyType type, final PageReference pageRef) {
+    public ClientAppDirectoryPanel(final String id, final ClientAppType type, final PageReference pageRef) {
         super(id, pageRef, true);
         this.type = type;
-        this.restClient = new PolicyRestClient();
-
-        ruleCompositionModal.size(Modal.Size.Large);
-        setWindowClosedReloadCallback(ruleCompositionModal);
-        addOuterObject(ruleCompositionModal);
-
-        policySpecModal.size(Modal.Size.Large);
-        policySpecModal.addSubmitButton();
-        setWindowClosedReloadCallback(policySpecModal);
-        addOuterObject(policySpecModal);
 
         modal.addSubmitButton();
         modal.size(Modal.Size.Large);
@@ -105,24 +75,21 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
     @Override
     protected List<IColumn<T, String>> getColumns() {
-        final List<IColumn<T, String>> columns = new ArrayList<>();
+        List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(
-                new StringResourceModel("description", this), "description", "description"));
-        if (type != PolicyType.ACCESS && type != PolicyType.ATTR_RELEASE && type != PolicyType.AUTH) {
-            columns.add(new CollectionPropertyColumn<>(
-                    new StringResourceModel("usedByResources", this), "usedByResources"));
-        }
-        if (type != PolicyType.PULL && type != PolicyType.PUSH) {
-            columns.add(new CollectionPropertyColumn<>(
-                    new StringResourceModel("usedByRealms", this), "usedByRealms"));
-        }
+                new StringResourceModel("name", this), "name", "name"));
+        columns.add(new PropertyColumn<>(
+                new StringResourceModel("clientAppId", this), "clientAppId", "clientAppId"));
 
         addCustomColumnFields(columns);
 
         return columns;
+    }
+
+    protected void addCustomColumnFields(final List<IColumn<T, String>> columns) {
     }
 
     @Override
@@ -134,54 +101,47 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
-                send(PolicyDirectoryPanel.this, Broadcast.EXACT,
+            public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
+                send(ClientAppDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                PolicyRestClient.read(type, model.getObject().getKey()), target));
+                                ClientAppRestClient.read(type, model.getObject().getKey()), target));
             }
-        }, ActionLink.ActionType.EDIT, IdRepoEntitlement.POLICY_UPDATE);
+        }, ActionLink.ActionType.EDIT, AMEntitlement.CLIENTAPP_UPDATE);
 
         panel.add(new ActionLink<T>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
-                final PolicyTO clone = SerializationUtils.clone(model.getObject());
+            public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
+                ClientAppTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
-                send(PolicyDirectoryPanel.this, Broadcast.EXACT,
+                clone.setClientAppId(null);
+                send(ClientAppDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(clone, target));
             }
-        }, ActionLink.ActionType.CLONE, IdRepoEntitlement.POLICY_CREATE);
-
-        addCustomActions(panel, model);
+        }, ActionLink.ActionType.CLONE, AMEntitlement.CLIENTAPP_CREATE);
 
         panel.add(new ActionLink<T>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
-                T policyTO = model.getObject();
+            public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
+                T clientAppTO = model.getObject();
                 try {
-                    PolicyRestClient.delete(type, policyTO.getKey());
+                    ClientAppRestClient.delete(type, clientAppTO.getKey());
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
-                    LOG.error("While deleting {}", policyTO.getKey(), e);
+                    LOG.error("While deleting {}", clientAppTO.getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.POLICY_DELETE, true);
+        }, ActionLink.ActionType.DELETE, AMEntitlement.CLIENTAPP_DELETE, true);
 
         return panel;
-    }
-
-    protected void addCustomColumnFields(final List<IColumn<T, String>> columns) {
-    }
-
-    protected void addCustomActions(final ActionsPanel<T> panel, final IModel<T> model) {
     }
 
     @Override
@@ -190,38 +150,38 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
     }
 
     @Override
-    protected PolicyDataProvider dataProvider() {
-        return new PolicyDataProvider(rows);
+    protected ClientAppDataProvider dataProvider() {
+        return new ClientAppDataProvider(rows);
     }
 
     @Override
     protected String paginatorRowsKey() {
-        return IdRepoConstants.PREF_POLICY_PAGINATOR_ROWS;
+        return AMConstants.PREF_CLIENTAPP_PAGINATOR_ROWS;
     }
 
-    protected class PolicyDataProvider extends DirectoryDataProvider<T> {
+    private class ClientAppDataProvider extends DirectoryDataProvider<T> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
         private final SortableDataProviderComparator<T> comparator;
 
-        public PolicyDataProvider(final int paginatorRows) {
+        ClientAppDataProvider(final int paginatorRows) {
             super(paginatorRows);
 
-            setSort("description", SortOrder.ASCENDING);
+            setSort("name", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
-            List<T> list = PolicyRestClient.list(type);
+            List<T> list = ClientAppRestClient.list(type);
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return PolicyRestClient.list(type).size();
+            return ClientAppRestClient.list(type).size();
         }
 
         @Override

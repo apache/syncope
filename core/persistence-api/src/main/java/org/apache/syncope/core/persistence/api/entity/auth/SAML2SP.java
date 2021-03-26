@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.api.entity.auth;
 
-import org.apache.syncope.common.lib.types.XmlSecAlgorithms;
-import org.apache.syncope.common.lib.types.SAML2SPNameId;
-
 import java.util.List;
+import java.util.Set;
+import org.apache.syncope.common.lib.types.SAML2SPNameId;
+import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 
 public interface SAML2SP extends ClientApp {
 
@@ -69,35 +69,21 @@ public interface SAML2SP extends ClientApp {
 
     String getNameIdQualifier();
 
-    void setAssertionAudiences(String location);
-
-    String getAssertionAudiences();
+    Set<String> getAssertionAudiences();
 
     void setServiceProviderNameIdQualifier(String location);
 
     String getServiceProviderNameIdQualifier();
 
-    List<XmlSecAlgorithms> getSigningSignatureAlgorithms();
+    List<XmlSecAlgorithm> getSigningSignatureAlgorithms();
 
-    List<XmlSecAlgorithms> getSigningSignatureReferenceDigestMethods();
+    List<XmlSecAlgorithm> getSigningSignatureReferenceDigestMethods();
 
-    List<XmlSecAlgorithms> getEncryptionDataAlgorithms();
+    List<XmlSecAlgorithm> getEncryptionDataAlgorithms();
 
-    List<XmlSecAlgorithms> getEncryptionKeyAlgorithms();
+    List<XmlSecAlgorithm> getEncryptionKeyAlgorithms();
 
-    void setSigningSignatureAlgorithms(List<XmlSecAlgorithms> algorithms);
+    List<XmlSecAlgorithm> getSigningSignatureBlackListedAlgorithms();
 
-    void setSigningSignatureReferenceDigestMethods(List<XmlSecAlgorithms> methods);
-
-    void setEncryptionDataAlgorithms(List<XmlSecAlgorithms> algorithms);
-
-    void setEncryptionKeyAlgorithms(List<XmlSecAlgorithms> algorithms);
-
-    List<XmlSecAlgorithms> getSigningSignatureBlackListedAlgorithms();
-
-    List<XmlSecAlgorithms> getEncryptionBlackListedAlgorithms();
-
-    void setSigningSignatureBlackListedAlgorithms(List<XmlSecAlgorithms> algorithms);
-
-    void setEncryptionBlackListedAlgorithms(List<XmlSecAlgorithms> algorithms);
+    List<XmlSecAlgorithm> getEncryptionBlackListedAlgorithms();
 }

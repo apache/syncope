@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.OIDCRPTO;
+import org.apache.syncope.common.lib.types.OIDCGrantType;
+import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;
@@ -75,8 +77,10 @@ public class OIDCRPTOMapper implements ClientAppMapper {
             service.setIdTokenSigningAlg("none");
         }
         service.setJwtAccessToken(true);
-        service.setSupportedGrantTypes(new HashSet<>(rp.getSupportedGrantTypes()));
-        service.setSupportedResponseTypes(new HashSet<>(rp.getSupportedResponseTypes()));
+        service.setSupportedGrantTypes(rp.getSupportedGrantTypes().stream().
+                map(OIDCGrantType::name).collect(Collectors.toCollection(HashSet::new)));
+        service.setSupportedResponseTypes(rp.getSupportedResponseTypes().stream().
+                map(OIDCResponseType::getExternalForm).collect(Collectors.toCollection(HashSet::new)));
         if (rp.getSubjectType() != null) {
             service.setSubjectType(rp.getSubjectType().name());
         }

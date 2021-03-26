@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -27,10 +31,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
-import org.apache.syncope.common.lib.types.XmlSecAlgorithms;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 
 @Entity
 @Table(name = JPASAML2SP.TABLE)
@@ -65,52 +66,57 @@ public class JPASAML2SP extends AbstractClientApp implements SAML2SP {
 
     private String nameIdQualifier;
 
-    private String assertionAudiences;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "assertionAudience")
+    @CollectionTable(name = "SAML2SP_AssertionAudiences",
+            joinColumns =
+            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
+    private Set<String> assertionAudiences = new HashSet<>();
 
     @Column(name = "spNameIdQualifier")
     private String serviceProviderNameIdQualifier;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column
+    @Column(name = "signingSignatureAlgorithm")
     @CollectionTable(name = "SAML2SP_SigningSignatureAlgs",
-        joinColumns =
-        @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<XmlSecAlgorithms> signingSignatureAlgorithms = new ArrayList<>();
+            joinColumns =
+            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
+    private List<XmlSecAlgorithm> signingSignatureAlgorithms = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column
+    @Column(name = "signingSignatureReferenceDigestMethod")
     @CollectionTable(name = "SAML2SP_SigningSignatureRefDigestAlgs",
-        joinColumns =
-        @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<XmlSecAlgorithms> signingSignatureReferenceDigestMethods = new ArrayList<>();
+            joinColumns =
+            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
+    private List<XmlSecAlgorithm> signingSignatureReferenceDigestMethods = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column
+    @Column(name = "encryptionDataAlgorithm")
     @CollectionTable(name = "SAML2SP_EncryptionDataAlgs",
-        joinColumns =
-        @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<XmlSecAlgorithms> encryptionDataAlgorithms = new ArrayList<>();
+            joinColumns =
+            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
+    private List<XmlSecAlgorithm> encryptionDataAlgorithms = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column
+    @Column(name = "encryptionKeyAlgorithm")
     @CollectionTable(name = "SAML2SP_EncryptionKeyAlgs",
-        joinColumns =
-        @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<XmlSecAlgorithms> encryptionKeyAlgorithms = new ArrayList<>();
+            joinColumns =
+            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
+    private List<XmlSecAlgorithm> encryptionKeyAlgorithms = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column
+    @Column(name = "signingSignatureBlackListedAlgorithm")
     @CollectionTable(name = "SAML2SP_BlacklistedSigningAlgs",
-        joinColumns =
-        @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<XmlSecAlgorithms> signingSignatureBlackListedAlgorithms = new ArrayList<>();
+            joinColumns =
+            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
+    private List<XmlSecAlgorithm> signingSignatureBlackListedAlgorithms = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column
+    @Column(name = "encryptionBlackListedAlgorithm")
     @CollectionTable(name = "SAML2SP_BlacklistedEncryptionAlgs",
-        joinColumns =
-        @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<XmlSecAlgorithms> encryptionBlackListedAlgorithms = new ArrayList<>();
+            joinColumns =
+            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
+    private List<XmlSecAlgorithm> encryptionBlackListedAlgorithms = new ArrayList<>();
 
     @Override
     public String getEntityId() {
@@ -223,13 +229,8 @@ public class JPASAML2SP extends AbstractClientApp implements SAML2SP {
     }
 
     @Override
-    public String getAssertionAudiences() {
+    public Set<String> getAssertionAudiences() {
         return assertionAudiences;
-    }
-
-    @Override
-    public void setAssertionAudiences(final String assertionAudiences) {
-        this.assertionAudiences = assertionAudiences;
     }
 
     @Override
@@ -243,62 +244,32 @@ public class JPASAML2SP extends AbstractClientApp implements SAML2SP {
     }
 
     @Override
-    public List<XmlSecAlgorithms> getSigningSignatureAlgorithms() {
+    public List<XmlSecAlgorithm> getSigningSignatureAlgorithms() {
         return signingSignatureAlgorithms;
     }
 
     @Override
-    public void setSigningSignatureAlgorithms(final List<XmlSecAlgorithms> signingSignatureAlgorithms) {
-        this.signingSignatureAlgorithms = signingSignatureAlgorithms;
-    }
-
-    @Override
-    public List<XmlSecAlgorithms> getSigningSignatureReferenceDigestMethods() {
+    public List<XmlSecAlgorithm> getSigningSignatureReferenceDigestMethods() {
         return signingSignatureReferenceDigestMethods;
     }
 
     @Override
-    public void setSigningSignatureReferenceDigestMethods(final List<XmlSecAlgorithms> algorithms) {
-        this.signingSignatureReferenceDigestMethods = algorithms;
-    }
-
-    @Override
-    public List<XmlSecAlgorithms> getEncryptionDataAlgorithms() {
+    public List<XmlSecAlgorithm> getEncryptionDataAlgorithms() {
         return encryptionDataAlgorithms;
     }
 
     @Override
-    public void setEncryptionDataAlgorithms(final List<XmlSecAlgorithms> algorithms) {
-        this.encryptionDataAlgorithms = algorithms;
-    }
-
-    @Override
-    public List<XmlSecAlgorithms> getEncryptionKeyAlgorithms() {
+    public List<XmlSecAlgorithm> getEncryptionKeyAlgorithms() {
         return encryptionKeyAlgorithms;
     }
 
     @Override
-    public void setEncryptionKeyAlgorithms(final List<XmlSecAlgorithms> algorithms) {
-        this.encryptionKeyAlgorithms = algorithms;
-    }
-
-    @Override
-    public List<XmlSecAlgorithms> getSigningSignatureBlackListedAlgorithms() {
+    public List<XmlSecAlgorithm> getSigningSignatureBlackListedAlgorithms() {
         return signingSignatureBlackListedAlgorithms;
     }
 
     @Override
-    public void setSigningSignatureBlackListedAlgorithms(final List<XmlSecAlgorithms> algorithms) {
-        this.signingSignatureBlackListedAlgorithms = algorithms;
-    }
-
-    @Override
-    public List<XmlSecAlgorithms> getEncryptionBlackListedAlgorithms() {
+    public List<XmlSecAlgorithm> getEncryptionBlackListedAlgorithms() {
         return encryptionBlackListedAlgorithms;
-    }
-
-    @Override
-    public void setEncryptionBlackListedAlgorithms(final List<XmlSecAlgorithms> algorithms) {
-        this.encryptionBlackListedAlgorithms = algorithms;
     }
 }

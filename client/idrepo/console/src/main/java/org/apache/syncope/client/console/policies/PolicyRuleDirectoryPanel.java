@@ -162,10 +162,10 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
             public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
                 RuleConf rule = model.getObject().getConf();
                 try {
-                    T actual = PolicyRestClient.getPolicy(type, policy);
+                    T actual = PolicyRestClient.read(type, policy);
                     if (actual instanceof ComposablePolicy) {
                         ((ComposablePolicy) actual).getRules().remove(model.getObject().getImplementationKey());
-                        PolicyRestClient.updatePolicy(type, actual);
+                        PolicyRestClient.update(type, actual);
 
                         SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         customActionOnFinishCallback(target);
@@ -251,7 +251,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
         @Override
         public Iterator<PolicyRuleWrapper> iterator(final long first, final long count) {
-            final T actual = PolicyRestClient.getPolicy(type, policy);
+            final T actual = PolicyRestClient.read(type, policy);
 
             List<PolicyRuleWrapper> rules = actual instanceof ComposablePolicy
                     ? getPolicyRuleWrappers((ComposablePolicy) actual)
@@ -263,7 +263,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
         @Override
         public long size() {
-            final T actual = PolicyRestClient.getPolicy(type, policy);
+            final T actual = PolicyRestClient.read(type, policy);
             return actual instanceof ComposablePolicy
                     ? getPolicyRuleWrappers((ComposablePolicy) actual).size()
                     : 0;
