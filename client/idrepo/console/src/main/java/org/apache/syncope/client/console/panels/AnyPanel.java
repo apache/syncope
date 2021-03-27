@@ -236,7 +236,7 @@ public class AnyPanel extends Panel implements ModalPanel {
         accordion.setOutputMarkupId(true);
         add(accordion.setEnabled(enableSearch).setVisible(enableSearch));
 
-        directoryPanel = createDirectoryPanel(anyTypeTO, realmTO, anyLayout, enableSearch, directoryPanelSupplier);
+        directoryPanel = createDirectoryPanel(anyTypeTO, realmTO, anyLayout, directoryPanelSupplier);
         add(directoryPanel);
         // ------------------------
     }
@@ -245,7 +245,6 @@ public class AnyPanel extends Panel implements ModalPanel {
             final AnyTypeTO anyTypeTO,
             final RealmTO realmTO,
             final AnyLayout anyLayout,
-            final boolean enableSearch,
             final DirectoryPanelSupplier directoryPanelSupplier) {
 
         return directoryPanelSupplier.supply(DIRECTORY_PANEL_ID, anyTypeTO, realmTO, anyLayout, pageRef);

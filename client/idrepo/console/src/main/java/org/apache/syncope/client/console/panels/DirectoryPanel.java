@@ -165,7 +165,7 @@ public abstract class DirectoryPanel<
         container.setOutputMarkupId(true);
         addInnerObject(container);
 
-        rows = PreferenceManager.getPaginatorRows(getRequest(), paginatorRowsKey());
+        rows = PreferenceManager.getPaginatorRows(paginatorRowsKey());
 
         modal.setWindowClosedCallback(target -> {
             if (actionTogglePanel.isVisibleInHierarchy() && modal.getContent() instanceof WizardModalPanel) {

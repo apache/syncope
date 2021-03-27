@@ -77,7 +77,7 @@ public abstract class ReportDirectoryPanel
 
     private final ReportStartAtTogglePanel startAt;
 
-    protected ReportDirectoryPanel(final MultilevelPanel multiLevelPanelRef, final PageReference pageRef) {
+    protected ReportDirectoryPanel(final PageReference pageRef) {
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, true);
         this.restClient = new ReportRestClient();
 
