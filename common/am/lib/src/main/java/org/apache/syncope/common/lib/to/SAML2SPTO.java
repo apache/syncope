@@ -183,38 +183,38 @@ public class SAML2SPTO extends ClientAppTO {
         this.serviceProviderNameIdQualifier = serviceProviderNameIdQualifier;
     }
 
-    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
-    @JacksonXmlProperty(localName = "supportedGrantType")
+    @JacksonXmlElementWrapper(localName = "signingSignatureAlgorithms")
+    @JacksonXmlProperty(localName = "signingSignatureAlgorithm")
     public List<XmlSecAlgorithm> getSigningSignatureAlgorithms() {
         return signingSignatureAlgorithms;
     }
 
-    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
-    @JacksonXmlProperty(localName = "supportedGrantType")
+    @JacksonXmlElementWrapper(localName = "signingSignatureReferenceDigestMethods")
+    @JacksonXmlProperty(localName = "signingSignatureReferenceDigestMethod")
     public List<XmlSecAlgorithm> getSigningSignatureReferenceDigestMethods() {
         return signingSignatureReferenceDigestMethods;
     }
 
-    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
-    @JacksonXmlProperty(localName = "supportedGrantType")
+    @JacksonXmlElementWrapper(localName = "encryptionDataAlgorithms")
+    @JacksonXmlProperty(localName = "encryptionDataAlgorithm")
     public List<XmlSecAlgorithm> getEncryptionDataAlgorithms() {
         return encryptionDataAlgorithms;
     }
 
-    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
-    @JacksonXmlProperty(localName = "supportedGrantType")
+    @JacksonXmlElementWrapper(localName = "encryptionKeyAlgorithms")
+    @JacksonXmlProperty(localName = "encryptionKeyAlgorithm")
     public List<XmlSecAlgorithm> getEncryptionKeyAlgorithms() {
         return encryptionKeyAlgorithms;
     }
 
-    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
-    @JacksonXmlProperty(localName = "supportedGrantType")
+    @JacksonXmlElementWrapper(localName = "signingSignatureBlackListedAlgorithms")
+    @JacksonXmlProperty(localName = "signingSignatureBlackListedAlgorithm")
     public List<XmlSecAlgorithm> getSigningSignatureBlackListedAlgorithms() {
         return signingSignatureBlackListedAlgorithms;
     }
 
-    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
-    @JacksonXmlProperty(localName = "supportedGrantType")
+    @JacksonXmlElementWrapper(localName = "encryptionBlackListedAlgorithms")
+    @JacksonXmlProperty(localName = "encryptionBlackListedAlgorithm")
     public List<XmlSecAlgorithm> getEncryptionBlackListedAlgorithms() {
         return encryptionBlackListedAlgorithms;
     }
