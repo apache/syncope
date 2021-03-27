@@ -137,7 +137,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                CSVPushSpec spec = csvPushSpec(type, panel, pSchemaNames, dSchemaNames);
+                CSVPushSpec spec = csvPushSpec(type, pSchemaNames, dSchemaNames);
                 AnyQuery query = csvAnyQuery(realm, fiql, rows, panel.getDataProvider());
 
                 target.add(modal.setContent(new CSVPushWizardBuilder(spec, query, csvDownloadBehavior, pageRef).
@@ -176,7 +176,6 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
 
     protected CSVPushSpec csvPushSpec(
             final String type,
-            final AnyDirectoryPanel<?, ?> panel,
             final List<String> pSchemaNames,
             final List<String> dSchemaNames) {
 
