@@ -21,7 +21,6 @@ package org.apache.syncope.client.ui.commons.resources.saml2sp4ui;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
-import org.apache.syncope.common.lib.saml2.SAML2Request;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIService;
 import org.apache.wicket.Session;
 
@@ -38,8 +37,6 @@ public class LoginResource extends AbstractSAML2SP4UIResource {
                 getParameterValue(SAML2SP4UIConstants.PARAM_IDP).toString();
 
         SAML2SP4UIService service = BaseSession.class.cast(Session.get()).getAnonymousService(SAML2SP4UIService.class);
-        SAML2Request loginRequest =
-                service.createLoginRequest(spEntityID(attributes), SAML2SP4UIConstants.URL_CONTEXT, idp);
-        return send(attributes, loginRequest);
+        return send(service.createLoginRequest(spEntityID(attributes), SAML2SP4UIConstants.URL_CONTEXT, idp));
     }
 }

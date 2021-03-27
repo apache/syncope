@@ -123,9 +123,7 @@ public class SRARouteWizardBuilder extends BaseAjaxWizardBuilder<SRARouteTO> {
             type.addRequiredLabel().setEnabled(true);
             add(type);
 
-            AjaxCheckBoxPanel logout =
-                    new AjaxCheckBoxPanel("logout", "logout", new PropertyModel<>(route, "logout"));
-            add(logout);
+            add(new AjaxCheckBoxPanel("logout", "logout", new PropertyModel<>(route, "logout")));
 
             AjaxTextFieldPanel postLogout = new AjaxTextFieldPanel("postLogout", "postLogout", new IModel<String>() {
 
@@ -148,9 +146,7 @@ public class SRARouteWizardBuilder extends BaseAjaxWizardBuilder<SRARouteTO> {
             postLogout.getField().add(new UrlValidator(new String[] { "http", "https" }));
             add(postLogout);
 
-            AjaxCheckBoxPanel csrf =
-                    new AjaxCheckBoxPanel("csrf", "csrf", new PropertyModel<>(route, "csrf"));
-            add(csrf);
+            add(new AjaxCheckBoxPanel("csrf", "csrf", new PropertyModel<>(route, "csrf")));
 
             add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
                     "order", "order", Integer.class, new PropertyModel<>(route, "order")).
@@ -158,21 +154,21 @@ public class SRARouteWizardBuilder extends BaseAjaxWizardBuilder<SRARouteTO> {
         }
     }
 
-    public static class Predicates extends WizardStep {
+    private static class Predicates extends WizardStep {
 
         private static final long serialVersionUID = 5934389493874714599L;
 
-        public Predicates(final SRARouteTO route) {
+        Predicates(final SRARouteTO route) {
             super(new ResourceModel("predicates"), Model.of());
             add(new SRARoutePredicatePanel("predicates", new ListModel<>(route.getPredicates())));
         }
     }
 
-    public static class Filters extends WizardStep {
+    private static class Filters extends WizardStep {
 
         private static final long serialVersionUID = -6552124285142294023L;
 
-        public Filters(final SRARouteTO route) {
+        Filters(final SRARouteTO route) {
             super(new ResourceModel("filters"), Model.of());
             add(new SRARouteFilterPanel("filters", new ListModel<>(route.getFilters())));
         }

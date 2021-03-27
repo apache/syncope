@@ -27,7 +27,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.AbstractSingleSelectChoice;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -44,7 +44,7 @@ public class IdRepoRealmPolicyProvider implements RealmPolicyProvider {
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.getPolicies(PolicyType.ACCOUNT).stream().
+            return PolicyRestClient.list(PolicyType.ACCOUNT).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
@@ -55,7 +55,7 @@ public class IdRepoRealmPolicyProvider implements RealmPolicyProvider {
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.getPolicies(PolicyType.PASSWORD).stream().
+            return PolicyRestClient.list(PolicyType.PASSWORD).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
@@ -69,7 +69,7 @@ public class IdRepoRealmPolicyProvider implements RealmPolicyProvider {
                 false);
         accountPolicy.setChoiceRenderer(new PolicyRenderer(accountPolicies));
         accountPolicy.setChoices(new ArrayList<>(accountPolicies.getObject().keySet()));
-        ((DropDownChoice<?>) accountPolicy.getField()).setNullValid(true);
+        ((AbstractSingleSelectChoice<?>) accountPolicy.getField()).setNullValid(true);
         view.add(accountPolicy);
 
         AjaxDropDownChoicePanel<String> passwordPolicy = new AjaxDropDownChoicePanel<>(
@@ -79,7 +79,7 @@ public class IdRepoRealmPolicyProvider implements RealmPolicyProvider {
                 false);
         passwordPolicy.setChoiceRenderer(new PolicyRenderer(passwordPolicies));
         passwordPolicy.setChoices(new ArrayList<>(passwordPolicies.getObject().keySet()));
-        ((DropDownChoice<?>) passwordPolicy.getField()).setNullValid(true);
+        ((AbstractSingleSelectChoice<?>) passwordPolicy.getField()).setNullValid(true);
         view.add(passwordPolicy);
     }
 }

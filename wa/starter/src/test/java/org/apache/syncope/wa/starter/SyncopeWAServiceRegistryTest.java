@@ -34,6 +34,8 @@ import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyCriteriaConf;
 import org.apache.syncope.common.lib.to.OIDCRPTO;
 import org.apache.syncope.common.lib.to.SAML2SPTO;
+import org.apache.syncope.common.lib.types.OIDCGrantType;
+import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.wa.WAClientApp;
@@ -67,8 +69,8 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         oidcrpTO.setClientSecret("secret");
         oidcrpTO.getRedirectUris().addAll(List.of("uri1", "uri2"));
         oidcrpTO.setSubjectType(OIDCSubjectType.PUBLIC);
-        oidcrpTO.getSupportedGrantTypes().add("something");
-        oidcrpTO.getSupportedResponseTypes().add("something");
+        oidcrpTO.getSupportedGrantTypes().add(OIDCGrantType.password);
+        oidcrpTO.getSupportedResponseTypes().add(OIDCResponseType.CODE);
 
         return oidcrpTO;
     }

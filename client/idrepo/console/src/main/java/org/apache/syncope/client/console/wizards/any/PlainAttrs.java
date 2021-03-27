@@ -194,7 +194,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 final Map<String, PlainSchemaTO> schemas,
                 final IModel<List<Attr>> attrTOs) {
 
-            super(id, schemas, attrTOs);
+            super(id);
 
             add(new ListView<Attr>("schemas", attrTOs) {
 
@@ -218,7 +218,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 final Map<String, PlainSchemaTO> schemas,
                 final IModel<Attributable> attributableTO) {
 
-            super(id, schemas, attributableTO);
+            super(id);
 
             add(new ListView<Attr>("schemas", new ListModel<Attr>(attributableTO.getObject().
                     getPlainAttrs().stream().sorted(attrComparator).collect(Collectors.toList()))) {

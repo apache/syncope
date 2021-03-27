@@ -79,10 +79,10 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     public <T extends ClientAppTO> T getClientAppTO(final ClientApp clientApp) {
         if (clientApp instanceof SAML2SP) {
             return (T) getSAMLClientAppTO((SAML2SP) clientApp);
-        } 
+        }
         if (clientApp instanceof OIDCRP) {
             return (T) getOIDCClientAppTO((OIDCRP) clientApp);
-        } 
+        }
         if (clientApp instanceof CASSP) {
             return (T) getCASClientAppTO((CASSP) clientApp);
         }
@@ -115,16 +115,29 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setRequiredNameIdFormat(clientAppTO.getRequiredNameIdFormat());
         clientApp.setSkewAllowance(clientAppTO.getSkewAllowance());
         clientApp.setNameIdQualifier(clientAppTO.getNameIdQualifier());
-        clientApp.setAssertionAudiences(clientAppTO.getAssertionAudiences());
+        clientApp.getAssertionAudiences().clear();
+        clientApp.getAssertionAudiences().addAll(clientAppTO.getAssertionAudiences());
         clientApp.setServiceProviderNameIdQualifier(clientAppTO.getServiceProviderNameIdQualifier());
 
-        clientApp.setSigningSignatureAlgorithms(clientAppTO.getSigningSignatureAlgorithms());
-        clientApp.setSigningSignatureReferenceDigestMethods(clientAppTO.getSigningSignatureReferenceDigestMethods());
-        clientApp.setEncryptionKeyAlgorithms(clientAppTO.getEncryptionKeyAlgorithms());
-        clientApp.setEncryptionDataAlgorithms(clientAppTO.getEncryptionDataAlgorithms());
+        clientApp.getSigningSignatureAlgorithms().clear();
+        clientApp.getSigningSignatureAlgorithms().addAll(
+                clientAppTO.getSigningSignatureAlgorithms());
+        clientApp.getSigningSignatureReferenceDigestMethods().clear();
+        clientApp.getSigningSignatureReferenceDigestMethods().addAll(
+                clientAppTO.getSigningSignatureReferenceDigestMethods());
+        clientApp.getEncryptionKeyAlgorithms().clear();
+        clientApp.getEncryptionKeyAlgorithms().addAll(
+                clientAppTO.getEncryptionKeyAlgorithms());
+        clientApp.getEncryptionDataAlgorithms().clear();
+        clientApp.getEncryptionDataAlgorithms().addAll(
+                clientAppTO.getEncryptionDataAlgorithms());
 
-        clientApp.setSigningSignatureBlackListedAlgorithms(clientAppTO.getSigningSignatureBlackListedAlgorithms());
-        clientApp.setEncryptionBlackListedAlgorithms(clientAppTO.getEncryptionBlackListedAlgorithms());
+        clientApp.getSigningSignatureBlackListedAlgorithms().clear();
+        clientApp.getSigningSignatureBlackListedAlgorithms().
+                addAll(clientAppTO.getSigningSignatureBlackListedAlgorithms());
+        clientApp.getEncryptionBlackListedAlgorithms().clear();
+        clientApp.getEncryptionBlackListedAlgorithms().addAll(
+                clientAppTO.getEncryptionBlackListedAlgorithms());
     }
 
     private static SAML2SPTO getSAMLClientAppTO(final SAML2SP clientApp) {
@@ -142,16 +155,22 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setRequiredNameIdFormat(clientApp.getRequiredNameIdFormat());
         clientAppTO.setSkewAllowance(clientApp.getSkewAllowance());
         clientAppTO.setNameIdQualifier(clientApp.getNameIdQualifier());
-        clientAppTO.setAssertionAudiences(clientApp.getAssertionAudiences());
+        clientAppTO.getAssertionAudiences().addAll(clientApp.getAssertionAudiences());
         clientAppTO.setServiceProviderNameIdQualifier(clientApp.getServiceProviderNameIdQualifier());
 
-        clientAppTO.setSigningSignatureAlgorithms(clientApp.getSigningSignatureAlgorithms());
-        clientAppTO.setSigningSignatureReferenceDigestMethods(clientApp.getSigningSignatureReferenceDigestMethods());
-        clientAppTO.setEncryptionKeyAlgorithms(clientApp.getEncryptionKeyAlgorithms());
-        clientAppTO.setEncryptionDataAlgorithms(clientApp.getEncryptionDataAlgorithms());
+        clientAppTO.getSigningSignatureAlgorithms().addAll(
+                clientApp.getSigningSignatureAlgorithms());
+        clientAppTO.getSigningSignatureReferenceDigestMethods().addAll(
+                clientApp.getSigningSignatureReferenceDigestMethods());
+        clientAppTO.getEncryptionKeyAlgorithms().addAll(
+                clientApp.getEncryptionKeyAlgorithms());
+        clientAppTO.getEncryptionDataAlgorithms().addAll(
+                clientApp.getEncryptionDataAlgorithms());
 
-        clientAppTO.setSigningSignatureBlackListedAlgorithms(clientApp.getSigningSignatureBlackListedAlgorithms());
-        clientAppTO.setEncryptionBlackListedAlgorithms(clientApp.getEncryptionBlackListedAlgorithms());
+        clientAppTO.getSigningSignatureBlackListedAlgorithms().addAll(
+                clientApp.getSigningSignatureBlackListedAlgorithms());
+        clientAppTO.getEncryptionBlackListedAlgorithms().addAll(
+                clientApp.getEncryptionBlackListedAlgorithms());
 
         return clientAppTO;
     }
@@ -169,8 +188,11 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setClientId(clientAppTO.getClientId());
         clientApp.setSignIdToken(clientAppTO.isSignIdToken());
         clientApp.setSubjectType(clientAppTO.getSubjectType());
+        clientApp.getRedirectUris().clear();
         clientApp.getRedirectUris().addAll(clientAppTO.getRedirectUris());
+        clientApp.getSupportedGrantTypes().clear();
         clientApp.getSupportedGrantTypes().addAll(clientAppTO.getSupportedGrantTypes());
+        clientApp.getSupportedResponseTypes().clear();
         clientApp.getSupportedResponseTypes().addAll(clientAppTO.getSupportedResponseTypes());
 
         clientApp.setLogoutUri(clientAppTO.getLogoutUri());
@@ -213,11 +235,11 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setTheme(clientApp.getTheme());
 
         clientAppTO.setAuthPolicy(clientApp.getAuthPolicy() == null
-            ? null : clientApp.getAuthPolicy().getKey());
+                ? null : clientApp.getAuthPolicy().getKey());
         clientAppTO.setAccessPolicy(clientApp.getAccessPolicy() == null
-            ? null : clientApp.getAccessPolicy().getKey());
+                ? null : clientApp.getAccessPolicy().getKey());
         clientAppTO.setAttrReleasePolicy(clientApp.getAttrReleasePolicy() == null
-            ? null : clientApp.getAttrReleasePolicy().getKey());
+                ? null : clientApp.getAttrReleasePolicy().getKey());
     }
 
     private void doUpdateCommon(final ClientApp clientApp, final ClientAppTO clientAppTO) {
@@ -235,7 +257,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
             } else {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
                 sce.getElements().add("Expected " + AuthPolicy.class.getSimpleName()
-                    + ", found " + policy.getClass().getSimpleName());
+                        + ", found " + policy.getClass().getSimpleName());
                 throw sce;
             }
         }
@@ -249,7 +271,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
             } else {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
                 sce.getElements().add("Expected " + AccessPolicy.class.getSimpleName()
-                    + ", found " + policy.getClass().getSimpleName());
+                        + ", found " + policy.getClass().getSimpleName());
                 throw sce;
             }
         }
@@ -263,7 +285,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
             } else {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
                 sce.getElements().add("Expected " + AttrReleasePolicy.class.getSimpleName()
-                    + ", found " + policy.getClass().getSimpleName());
+                        + ", found " + policy.getClass().getSimpleName());
                 throw sce;
             }
         }

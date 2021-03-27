@@ -27,7 +27,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.AbstractSingleSelectChoice;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -44,7 +44,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.getPolicies(PolicyType.ACCESS).stream().
+            return PolicyRestClient.list(PolicyType.ACCESS).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
@@ -55,7 +55,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.getPolicies(PolicyType.ATTR_RELEASE).stream().
+            return PolicyRestClient.list(PolicyType.ATTR_RELEASE).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
@@ -66,7 +66,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.getPolicies(PolicyType.AUTH).stream().
+            return PolicyRestClient.list(PolicyType.AUTH).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
         }
     };
@@ -82,7 +82,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
                 false);
         accessPolicy.setChoiceRenderer(new PolicyRenderer(accessPolicies));
         accessPolicy.setChoices(new ArrayList<>(accessPolicies.getObject().keySet()));
-        ((DropDownChoice<?>) accessPolicy.getField()).setNullValid(true);
+        ((AbstractSingleSelectChoice<?>) accessPolicy.getField()).setNullValid(true);
         view.add(accessPolicy);
 
         AjaxDropDownChoicePanel<String> attrReleasePolicy = new AjaxDropDownChoicePanel<>(
@@ -92,7 +92,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
                 false);
         attrReleasePolicy.setChoiceRenderer(new PolicyRenderer(attrReleasePolicies));
         attrReleasePolicy.setChoices(new ArrayList<>(attrReleasePolicies.getObject().keySet()));
-        ((DropDownChoice<?>) attrReleasePolicy.getField()).setNullValid(true);
+        ((AbstractSingleSelectChoice<?>) attrReleasePolicy.getField()).setNullValid(true);
         view.add(attrReleasePolicy);
 
         AjaxDropDownChoicePanel<String> authPolicy = new AjaxDropDownChoicePanel<>(
@@ -102,7 +102,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
                 false);
         authPolicy.setChoiceRenderer(new PolicyRenderer(authPolicies));
         authPolicy.setChoices(new ArrayList<>(authPolicies.getObject().keySet()));
-        ((DropDownChoice<?>) authPolicy.getField()).setNullValid(true);
+        ((AbstractSingleSelectChoice<?>) authPolicy.getField()).setNullValid(true);
         view.add(authPolicy);
     }
 }

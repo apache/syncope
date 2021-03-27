@@ -91,6 +91,8 @@ import org.apache.syncope.common.lib.to.OIDCRPTO;
 import org.apache.syncope.common.lib.to.SAML2SPTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.OIDCGrantType;
+import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -785,8 +787,8 @@ public abstract class AbstractITCase {
         oidcrpTO.setClientId("clientId_" + getUUIDString());
         oidcrpTO.setClientSecret("secret");
         oidcrpTO.setSubjectType(OIDCSubjectType.PUBLIC);
-        oidcrpTO.getSupportedGrantTypes().add("something");
-        oidcrpTO.getSupportedResponseTypes().add("something");
+        oidcrpTO.getSupportedGrantTypes().add(OIDCGrantType.authorization_code);
+        oidcrpTO.getSupportedResponseTypes().add(OIDCResponseType.CODE);
 
         oidcrpTO.setAuthPolicy(authPolicyTO.getKey());
         oidcrpTO.setAccessPolicy(accessPolicyTO.getKey());
@@ -852,12 +854,12 @@ public abstract class AbstractITCase {
 
         AllowedAttrReleasePolicyConf conf = new AllowedAttrReleasePolicyConf();
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
-        
+
         AllowedAttrReleasePolicyConf.ConsentPolicy consentPolicy = conf.new ConsentPolicy();
         consentPolicy.setStatus(Boolean.TRUE);
         consentPolicy.getIncludeOnlyAttrs().addAll(Set.of("cn"));
         conf.setConsentPolicy(consentPolicy);
-        
+
         policy.setConf(conf);
 
         return policy;

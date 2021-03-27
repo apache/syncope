@@ -47,7 +47,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.apache.syncope.client.ui.commons.wizards.any.EntityWrapper;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.SchemaTO;
@@ -76,8 +75,6 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
     protected final Comparator<Attr> attrComparator = new AttrComparator();
 
-    protected final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
-
     protected final AnyTO anyTO;
 
     protected AnyTO previousObject;
@@ -98,8 +95,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             final AnyTO anyTO,
             final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
-            final List<String> whichAttrs,
-            final EntityWrapper<?> modelObject) {
+            final List<String> whichAttrs) {
 
         super();
         this.anyTypeClasses = anyTypeClasses;
@@ -390,11 +386,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
         private static final long serialVersionUID = 8315035592714180404L;
 
-        public PlainSchemas(
-                final String id,
-                final Map<String, PlainSchemaTO> schemas,
-                final IModel<T> attrs) {
-
+        public PlainSchemas(final String id) {
             super(id);
         }
 

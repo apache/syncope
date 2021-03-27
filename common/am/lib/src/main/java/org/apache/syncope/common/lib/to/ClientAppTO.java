@@ -29,8 +29,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class", "key", "description" })
-@Schema(subTypes = { OIDCRPTO.class, SAML2SPTO.class }, discriminatorProperty = "_class")
-public abstract class ClientAppTO implements EntityTO {
+@Schema(subTypes = { OIDCRPTO.class, SAML2SPTO.class, CASSPTO.class }, discriminatorProperty = "_class")
+public abstract class ClientAppTO implements NamedEntityTO {
 
     private static final long serialVersionUID = 6577639976115661357L;
 
@@ -104,10 +104,12 @@ public abstract class ClientAppTO implements EntityTO {
         this.key = key;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(final String name) {
         this.name = name;
     }

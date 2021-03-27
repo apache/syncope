@@ -118,7 +118,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
-            @SuppressWarnings({ "unchecked", "rawtypes" })
+            @SuppressWarnings({"unchecked", "rawtypes"})
             @Override
             protected void populateItem(final ListItem<String> item) {
                 final String fieldName = item.getModelObject();
@@ -231,7 +231,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
         }.setReuseItems(true).setOutputMarkupId(true));
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static FieldPanel buildSinglePanel(
             final Serializable bean, final Class<?> type, final String fieldName, final String id) {
 

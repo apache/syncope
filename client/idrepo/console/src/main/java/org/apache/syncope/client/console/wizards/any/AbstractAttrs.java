@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
@@ -61,7 +62,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
             final List<String> anyTypeClasses,
             final List<String> whichAttrs) {
 
-        super(modelObject.getInnerObject(), mode, anyTypeClasses, whichAttrs, null);
+        super(modelObject.getInnerObject(), mode, anyTypeClasses, whichAttrs);
 
         this.memberships = new ListModel<>(List.of());
 
@@ -76,7 +77,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
         try {
             ((List<MembershipTO>) PropertyResolver.getPropertyField("memberships", anyTO).get(anyTO)).forEach(memb -> {
                 setSchemas(memb.getGroupKey(),
-                        anyTypeClassRestClient.list(getMembershipAuxClasses(memb, anyTO.getType())).
+                        AnyTypeClassRestClient.list(getMembershipAuxClasses(memb, anyTO.getType())).
                                 stream().map(EntityTO::getKey).collect(Collectors.toList()));
                 setAttrs(memb);
 
