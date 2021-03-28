@@ -76,19 +76,4 @@ jobs:
     - stage: fit
       name: "Integration Tests: Tomcat / H2 / JSON + Zookeeper"
       script: mvn -f fit/core-reference/pom.xml -P zookeeper-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-    - stage: fit
-      name: "WA: SRA Integration Tests: CAS client"
-      script: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.sra.CASSRAITCase
-    - stage: fit
-      name: "WA: SRA Integration Tests: OAuth 2.0"
-      script: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.sra.OAUTH2SRAITCase
-    - stage: fit
-      name: "WA: SRA Integration Tests:OIDC 1.0"
-      script: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.sra.OIDCSRAITCase
-    - stage: fit
-      name: "WA: SRA Integration Tests:  SAML 2.0"
-      script: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.sra.SAML2SRAITCase
-    - stage: fit
-      name: "WA: SSO Integration Tests: SAML2SP4UI / OIDC4UI"
-      script: mkdir -p fit/core-reference/target/test-classes && cp fit/core-reference/src/test/resources/saml.keystore.jks fit/core-reference/target/test-classes && mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.ui.*ITCase
     #####################################################
