@@ -26,7 +26,7 @@ on:
     - cron: '0 13 * * 4'
 
 jobs:
-  maven:
+  crosschecks:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -50,5 +50,43 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
+    - name: Validate
+      run: mvn -T 1C checkstyle:check ianal:verify-legal-files modernizer:modernizer apache-rat:check
+    - name: Test
+      run: mvn -T 1C clean test '-Dinvoker.streamLogs=true' '-Dmodernizer.skip=true' '-Dianal.skip=true' '-Drat.skip=true' '-Dcheckstyle.skip=true' '-Dsass.skip=true'
     - name: Verify
       run: mvn -f fit/core-reference/pom.xml verify '-Dit.test=RESTITCase' '-Dinvoker.streamLogs=true' '-Dmodernizer.skip=true' '-Dianal.skip=true' '-Drat.skip=true' '-Dcheckstyle.skip=true' '-Djacoco.skip=true'
+
+  fit:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['java']
+        java: [ '11' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Setup Java JDK
+      uses: actions/setup-java@v1.4.3
+      with:
+        java-version: 11
+    - uses: actions/cache@v2.1.1
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    - name: Build
+      run: mvn -U -T 1C -P 'skipTests,all'
+    - name: 'Tomcat / H2 / JSON'
+      run: mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - name: 'Tomcat / H2 / XML'
+      run: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/xml -Dit.test=org.apache.syncope.fit.core.*ITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - name: 'Tomcat / H2 / YAML'
+      run: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/yaml -Dit.test=org.apache.syncope.fit.core.*ITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - name: 'Wildfly / H2 / JSON'
+      run: mvn -f fit/core-reference/pom.xml -P wildfly-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - name: 'Payara / H2 / JSON'
+      run: mvn -f fit/core-reference/pom.xml -P payara-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true

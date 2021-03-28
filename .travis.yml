@@ -29,10 +29,6 @@ git:
 env:
   global:
   - MAVEN_OPTS="-Xmx4096M -Xss128M -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -noverify"
-  - jaxrsContentType=application/json
-  - TestCommand="mvn -U -T 1C clean test -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true"
-before_install:
-- wget https://github.com/sormuras/bach/raw/master/install-jdk.sh -O ~/install-jdk.sh && chmod +x ~/install-jdk.sh
 install: true
 notifications:
   email:
@@ -40,7 +36,6 @@ notifications:
 stages:
   - build
   - validate
-  - test
   - fit
 jobs:
   include:
@@ -52,45 +47,6 @@ jobs:
       name: "Checkstyle, Legal Files, Modernizer and Release Audit Tool (RAT) Analysis"
       script: mvn -T 1C checkstyle:check ianal:verify-legal-files modernizer:modernizer apache-rat:check
       ######################################################
-    - stage: test
-      name: "Unit Tests via JDK 11"
-      script: eval $TestCommand
-    - stage: test
-      name: "Unit Tests via JDK 14"
-      script: 
-      - ~/install-jdk.sh --target "/home/travis/openjdk14" --workspace "/home/travis/.cache/install-jdk" --feature "14" --license "GPLv2+CE" --cacerts
-      - export JAVA_HOME=~/openjdk14
-      - export PATH="$JAVA_HOME/bin:$PATH"
-      - eval $TestCommand
-    - stage: test
-      name: "Unit Tests via JDK 16"
-      script:
-      - ~/install-jdk.sh --target "/home/travis/openjdk16" --workspace "/home/travis/.cache/install-jdk" --feature "16" --license "GPLv2+CE" --cacerts
-      - export JAVA_HOME=~/openjdk16
-      - export PATH="$JAVA_HOME/bin:$PATH"
-      - eval $TestCommand
-    - stage: test
-      name: "Persistence Unit Tests via JDK 11: PostgreSQL (JSONB)"
-      script: mvn -f core/persistence-jpa-json/pom.xml -P postgres -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true
-    - stage: test
-      name: "Persistence Unit Tests via JDK 11: MySQL (JSON)"
-      script: mvn -f core/persistence-jpa-json/pom.xml -P mysql -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true
-      ######################################################
-    - stage: fit
-      name: "Integration Tests: Tomcat / H2 / JSON"
-      script: mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-    - stage: fit
-      name: "Integration Tests: Tomcat / H2 / XML"
-      script: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/xml -Dit.test=org.apache.syncope.fit.core.*ITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-    - stage: fit
-      name: "Integration Tests: Tomcat / H2 / YAML"
-      script: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/yaml -Dit.test=org.apache.syncope.fit.core.*ITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-    - stage: fit
-      name: "Integration Tests: Wildfly / H2 / JSON"
-      script: mvn -f fit/core-reference/pom.xml -P wildfly-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
-    - stage: fit
-      name: "Integration Tests: Payara / H2 / JSON"
-      script: mvn -f fit/core-reference/pom.xml -P payara-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
     - stage: fit
       name: "Integration Tests: Tomcat / PostgreSQL / JSON"
       script: mvn -f fit/core-reference/pom.xml -P postgres-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
