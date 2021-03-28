@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.wicket.request.Request;
 import org.apache.wicket.util.cookies.CookieDefaults;
 import org.apache.wicket.util.cookies.CookieUtils;
 import org.slf4j.Logger;
@@ -88,7 +87,7 @@ public final class PreferenceManager implements Serializable {
         return writer.toString();
     }
 
-    public static String get(final Request request, final String key) {
+    public static String get(final String key) {
         String result = null;
 
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
@@ -100,10 +99,10 @@ public final class PreferenceManager implements Serializable {
         return result;
     }
 
-    public static Integer getPaginatorRows(final Request request, final String key) {
+    public static Integer getPaginatorRows(final String key) {
         Integer result = getPaginatorChoices().get(0);
 
-        String value = get(request, key);
+        String value = get(key);
         if (value != null) {
             result = NumberUtils.toInt(value, 10);
         }
@@ -111,10 +110,10 @@ public final class PreferenceManager implements Serializable {
         return result;
     }
 
-    public static List<String> getList(final Request request, final String key) {
+    public static List<String> getList(final String key) {
         final List<String> result = new ArrayList<>();
 
-        final String compound = get(request, key);
+        final String compound = get(key);
 
         if (StringUtils.isNotBlank(compound)) {
             String[] items = compound.split(";");

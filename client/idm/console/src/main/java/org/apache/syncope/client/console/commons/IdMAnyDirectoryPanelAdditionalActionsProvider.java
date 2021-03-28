@@ -137,7 +137,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                CSVPushSpec spec = csvPushSpec(type, panel, pSchemaNames, dSchemaNames);
+                CSVPushSpec spec = csvPushSpec(type, pSchemaNames, dSchemaNames);
                 AnyQuery query = csvAnyQuery(realm, fiql, rows, panel.getDataProvider());
 
                 target.add(modal.setContent(new CSVPushWizardBuilder(spec, query, csvDownloadBehavior, pageRef).
@@ -176,19 +176,18 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
 
     protected CSVPushSpec csvPushSpec(
             final String type,
-            final AnyDirectoryPanel<?, ?> panel,
             final List<String> pSchemaNames,
             final List<String> dSchemaNames) {
 
         CSVPushSpec spec = new CSVPushSpec.Builder(type).build();
-        spec.setFields(PreferenceManager.getList(panel.getRequest(),
+        spec.setFields(PreferenceManager.getList(
                 DisplayAttributesModalPanel.getPrefDetailView(type)).
                 stream().filter(name -> !Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)).
                 collect(Collectors.toList()));
         spec.setPlainAttrs(PreferenceManager.getList(
-                panel.getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
+                DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
                 stream().filter(name -> pSchemaNames.contains(name)).collect(Collectors.toList()));
-        spec.setDerAttrs(PreferenceManager.getList(panel.getRequest(),
+        spec.setDerAttrs(PreferenceManager.getList(
                 DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
                 stream().filter(name -> dSchemaNames.contains(name)).collect(Collectors.toList()));
         return spec;

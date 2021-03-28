@@ -361,7 +361,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
     }
 
     protected WizardMgtPanel<T> addNotificationPanel(final NotificationPanel notificationPanel) {
-        this.notificationPanel = ((BasePage) pageRef.getPage()).getNotificationPanel();
+        this.notificationPanel = notificationPanel;
         return this;
     }
 

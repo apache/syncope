@@ -37,9 +37,9 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
     private static final Logger LOG = LoggerFactory.getLogger(SCIMConfGeneralPanel.class);
 
     public SCIMConfGeneralPanel(final String id, final SCIMConf scimConf) {
-        super(id, scimConf);
+        super(id);
 
-        final SCIMGeneralConf scimGeneralConf = scimConf.getGeneralConf();
+        SCIMGeneralConf scimGeneralConf = scimConf.getGeneralConf();
 
         AjaxDateTimeFieldPanel creationDatePanel =
                 new AjaxDateTimeFieldPanel("creationDate", "creationDate", new Model<Date>() {
