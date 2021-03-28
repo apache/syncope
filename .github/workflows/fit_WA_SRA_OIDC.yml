@@ -26,7 +26,7 @@ on:
     - cron: '0 13 * * 4'
 
 jobs:
-  fit_Payara:
+  fit_WA_SRA_OIDC:
     runs-on: ubuntu-latest
 
     strategy:
