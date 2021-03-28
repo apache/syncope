@@ -35,8 +35,8 @@ notifications:
     - dev@syncope.apache.org
 stages:
   - build
-  - test
   - validate
+  - test
   - fit
 jobs:
   include:
