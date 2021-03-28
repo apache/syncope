@@ -35,6 +35,7 @@ notifications:
     - dev@syncope.apache.org
 stages:
   - build
+  - test
   - validate
   - fit
 jobs:
@@ -46,6 +47,13 @@ jobs:
     - stage: validate
       name: "Checkstyle, Legal Files, Modernizer and Release Audit Tool (RAT) Analysis"
       script: mvn -T 1C checkstyle:check ianal:verify-legal-files modernizer:modernizer apache-rat:check
+      ######################################################
+    - stage: test
+      name: "Persistence Unit Tests: PostgreSQL (JSONB)"
+      script: mvn -f core/persistence-jpa-json/pom.xml -P postgres -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true
+    - stage: test
+      name: "Persistence Unit Tests: MySQL (JSON)"
+      script: mvn -f core/persistence-jpa-json/pom.xml -P mysql -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Dsass.skip=true
       ######################################################
     - stage: fit
       name: "Integration Tests: Tomcat / PostgreSQL / JSON"
