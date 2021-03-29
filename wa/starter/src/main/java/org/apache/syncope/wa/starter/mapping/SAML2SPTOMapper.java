@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.SAML2SPTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.services.RegisteredService;
@@ -55,7 +56,9 @@ public class SAML2SPTOMapper implements ClientAppMapper {
         service.setRequiredNameIdFormat(sp.getRequiredNameIdFormat().getNameId());
         service.setSkewAllowance(sp.getSkewAllowance() == null ? 0 : sp.getSkewAllowance());
         service.setNameIdQualifier(sp.getNameIdQualifier());
-        service.setAssertionAudiences(sp.getAssertionAudiences());
+        if (!sp.getAssertionAudiences().isEmpty()) {
+            service.setAssertionAudiences(sp.getAssertionAudiences().stream().collect(Collectors.joining(",")));
+        }
         service.setServiceProviderNameIdQualifier(sp.getServiceProviderNameIdQualifier());
 
         if (authenticationPolicy != null) {

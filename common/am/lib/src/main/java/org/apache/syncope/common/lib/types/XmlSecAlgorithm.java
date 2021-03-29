@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.types;
 
-public enum XmlSecAlgorithms {
+public enum XmlSecAlgorithm {
 
     /**
      * Triple DES EDE (192 bit key) in CBC mode
@@ -157,7 +157,7 @@ public enum XmlSecAlgorithms {
 
     private final String algorithm;
 
-    XmlSecAlgorithms(final String uri) {
+    XmlSecAlgorithm(final String uri) {
         this.algorithm = uri;
     }
 

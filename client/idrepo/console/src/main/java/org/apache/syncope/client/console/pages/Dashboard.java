@@ -79,7 +79,7 @@ public class Dashboard extends BasePage {
             }
         });
 
-        List<Class<? extends BaseExtWidget>> extWidgetClasses = lookup.getExtWidgetClasses();
+        List<Class<? extends BaseExtWidget>> extWidgetClasses = lookup.getClasses(BaseExtWidget.class);
         if (!extWidgetClasses.isEmpty()) {
             tabs.add(new AbstractTab(new ResourceModel("extensions")) {
 

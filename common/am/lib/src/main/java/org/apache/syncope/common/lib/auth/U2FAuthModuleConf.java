@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-public class U2FAuthModuleConf extends AbstractAuthModuleConf {
+public class U2FAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -1235771400318503131L;
 

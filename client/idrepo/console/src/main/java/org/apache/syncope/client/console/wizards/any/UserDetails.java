@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.util.List;
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
-import java.util.Collections;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
@@ -79,9 +79,9 @@ public class UserDetails extends Details<UserTO> {
         // ------------------------
         // Password
         // ------------------------
-        final Model<Integer> model = Model.of(-1);
+        Model<Integer> model = Model.of(-1);
 
-        final Accordion accordion = new Accordion("accordionPanel", Collections.<ITab>singletonList(
+        Accordion accordion = new Accordion("accordionPanel", List.of(
                 new AbstractTab(new ResourceModel("password.change", "Change password")) {
 
             private static final long serialVersionUID = 1037272333056449378L;

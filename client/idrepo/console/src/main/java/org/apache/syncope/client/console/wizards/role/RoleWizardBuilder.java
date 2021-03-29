@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wizards.role;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +39,6 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -113,7 +111,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
             // ------------------------
             // dynMembershipCond
             // ------------------------
-            add(new Accordion("dynMembershipCond", Collections.<ITab>singletonList(
+            add(new Accordion("dynMembershipCond", List.of(
                     new AbstractTab(new ResourceModel("dynMembershipCond", "Dynamic USER Membership Conditions")) {
 
                 private static final long serialVersionUID = 1037272333056449378L;

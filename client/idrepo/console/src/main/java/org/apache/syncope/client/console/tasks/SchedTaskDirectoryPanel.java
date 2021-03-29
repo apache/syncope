@@ -204,7 +204,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 Component panel;
                 try {
                     JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
-                    panel = new JobActionPanel(componentId, jobTO, false, SchedTaskDirectoryPanel.this, pageRef);
+                    panel = new JobActionPanel(componentId, jobTO, false, SchedTaskDirectoryPanel.this);
                     MetaDataRoleAuthorizationStrategy.authorize(
                             panel, WebPage.ENABLE,
                             String.format("%s,%s", IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));

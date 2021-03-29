@@ -18,10 +18,8 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -34,20 +32,20 @@ public class PolicyRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    private static final PolicyComparator COMPARATOR = new PolicyComparator();
+    private static final Comparator<PolicyTO> COMPARATOR = Comparator.comparing(PolicyTO::getDescription);
 
-    public static <T extends PolicyTO> T getPolicy(final PolicyType type, final String key) {
+    public static <T extends PolicyTO> T read(final PolicyType type, final String key) {
         T policy = null;
         try {
             policy = getService(PolicyService.class).read(type, key);
         } catch (Exception e) {
-            LOG.warn("No policy found for id {}", key, e);
+            LOG.warn("No policy found for type {} and key {}", type, key, e);
         }
         return policy;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends PolicyTO> List<T> getPolicies(final PolicyType type) {
+    public static <T extends PolicyTO> List<T> list(final PolicyType type) {
         try {
             return getService(PolicyService.class).<T>list(type).stream().
                     sorted(COMPARATOR).
@@ -58,27 +56,15 @@ public class PolicyRestClient extends BaseRestClient {
         }
     }
 
-    public static <T extends PolicyTO> void createPolicy(final PolicyType type, final T policy) {
+    public static <T extends PolicyTO> void create(final PolicyType type, final T policy) {
         getService(PolicyService.class).create(type, policy);
     }
 
-    public static <T extends PolicyTO> void updatePolicy(final PolicyType type, final T policy) {
+    public static <T extends PolicyTO> void update(final PolicyType type, final T policy) {
         getService(PolicyService.class).update(type, policy);
     }
 
     public static void delete(final PolicyType type, final String key) {
         getService(PolicyService.class).delete(type, key);
-    }
-
-    private static class PolicyComparator implements Comparator<PolicyTO>, Serializable {
-
-        private static final long serialVersionUID = -4921433085213223115L;
-
-        @Override
-        public int compare(final PolicyTO left, final PolicyTO right) {
-            return Optional.ofNullable(left).map(to -> Optional.ofNullable(right)
-                .map(policyTO -> to.getDescription().compareTo(policyTO.getDescription())).orElse(1)).orElse(-1);
-        }
-
     }
 }

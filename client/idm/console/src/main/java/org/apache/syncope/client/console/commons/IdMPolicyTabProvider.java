@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.policies.PullPolicyDirectoryPanel;
 import org.apache.syncope.client.console.policies.PushPolicyDirectoryPanel;
@@ -27,13 +28,18 @@ import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 
-public class IdMPolicyTabProvider extends IdRepoPolicyTabProvider {
+public class IdMPolicyTabProvider implements PolicyTabProvider {
 
     private static final long serialVersionUID = 2822554006571803418L;
 
     @Override
+    public int getOrder() {
+        return 300;
+    }
+
+    @Override
     public List<ITab> buildTabList(final PageReference pageRef) {
-        List<ITab> tabs = super.buildTabList(pageRef);
+        List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new AbstractTab(new ResourceModel("policy.pull")) {
 

@@ -43,7 +43,7 @@ public class PushPolicyDirectoryPanel extends PolicyDirectoryPanel<PushPolicyTO>
     public PushPolicyDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, PolicyType.PUSH, pageRef);
 
-        final PushPolicyTO defaultItem = new PushPolicyTO();
+        PushPolicyTO defaultItem = new PushPolicyTO();
 
         this.addNewItemPanelBuilder(
                 new PolicyModalPanelBuilder<>(PolicyType.PUSH, defaultItem, modal, pageRef), true);

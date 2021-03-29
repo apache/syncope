@@ -70,7 +70,7 @@ public abstract class LogoutResource extends AbstractSAML2SP4UIResource {
 
                     Session.get().invalidate();
 
-                    return send(attributes, logoutRequest);
+                    return send(logoutRequest);
                 } else {
                     // process REDIRECT binding logout response
                     return doLogout(buildResponse(attributes, samlResponse, relayState));

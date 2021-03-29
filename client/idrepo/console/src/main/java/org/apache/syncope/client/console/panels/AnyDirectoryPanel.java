@@ -134,18 +134,18 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME));
 
         List<IColumn<A, String>> prefcolumns = new ArrayList<>();
-        PreferenceManager.getList(getRequest(), DisplayAttributesModalPanel.getPrefDetailView(type)).stream().
+        PreferenceManager.getList(DisplayAttributesModalPanel.getPrefDetailView(type)).stream().
                 filter(name -> !Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)).
                 forEach(name -> addPropertyColumn(
                 name,
                 ReflectionUtils.findField(DisplayAttributesModalPanel.getTOClass(type), name),
                 prefcolumns));
 
-        PreferenceManager.getList(getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).stream().
+        PreferenceManager.getList(DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).stream().
                 filter(name -> pSchemaNames.contains(name)).
                 forEach(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.PLAIN)));
 
-        PreferenceManager.getList(getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type)).stream().
+        PreferenceManager.getList(DisplayAttributesModalPanel.getPrefDerivedAttributeView(type)).stream().
                 filter(name -> (dSchemaNames.contains(name))).
                 forEach(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.DERIVED)));
 

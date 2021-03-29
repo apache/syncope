@@ -144,7 +144,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
                 Component panel;
                 try {
                     JobTO jobTO = TaskRestClient.getJob(rowModel.getObject().getKey());
-                    panel = new JobActionPanel(componentId, jobTO, false, ProvisioningTaskDirectoryPanel.this, pageRef);
+                    panel = new JobActionPanel(componentId, jobTO, false, ProvisioningTaskDirectoryPanel.this);
                     MetaDataRoleAuthorizationStrategy.authorize(
                             panel, WebPage.ENABLE,
                             String.format("%s,%s", IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));

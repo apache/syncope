@@ -36,7 +36,6 @@ import org.apache.syncope.common.lib.to.UserRequestFormProperty;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.UserRequestFormPropertyValue;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -55,12 +54,11 @@ public abstract class UserRequestFormPanel extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(UserRequestFormPanel.class);
 
-    public UserRequestFormPanel(final String id, final PageReference pageRef, final UserRequestForm form) {
-        this(id, pageRef, form, true);
+    public UserRequestFormPanel(final String id, final UserRequestForm form) {
+        this(id, form, true);
     }
 
-    public UserRequestFormPanel(final String id, final PageReference pageRef, final UserRequestForm form,
-            final boolean showDetails) {
+    public UserRequestFormPanel(final String id, final UserRequestForm form, final boolean showDetails) {
         super(id);
 
         IModel<List<UserRequestFormProperty>> formProps = new LoadableDetachableModel<List<UserRequestFormProperty>>() {

@@ -77,8 +77,7 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
         super(userTO,
                 AjaxWizard.Mode.EDIT,
                 AnyTypeRestClient.read(userTO.getType()).getClasses(),
-                whichPlainAttrs,
-                modelObject);
+                whichPlainAttrs);
 
         this.linkedAccountTO = modelObject.getInnerObject();
         this.fixedAttrs.addAll(this.linkedAccountTO.getPlainAttrs().stream().
@@ -239,7 +238,7 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
                 final Map<String, PlainSchemaTO> schemas,
                 final IModel<List<Attr>> attrTOs) {
 
-            super(id, schemas, attrTOs);
+            super(id);
 
             add(new ListView<Attr>("schemas", attrTOs) {
 

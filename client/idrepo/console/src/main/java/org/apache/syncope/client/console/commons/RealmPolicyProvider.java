@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.auth;
+package org.apache.syncope.client.console.commons;
 
-import org.apache.syncope.common.lib.BaseBean;
+import java.io.Serializable;
+import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.wicket.markup.repeater.RepeatingView;
 
-public abstract class AbstractAuthModuleConf implements BaseBean, AuthModuleConf {
+public interface RealmPolicyProvider extends Serializable {
 
-    private static final long serialVersionUID = 4153200197344709778L;
-
+    void add(RealmTO realmTO, RepeatingView view);
 }

@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.client.enduser.wizards.any;
 
+import java.util.ArrayList;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +57,6 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -106,7 +104,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         setTitleModel(new ResourceModel("attributes.plain"));
 
-        add(new Accordion("plainSchemas", Collections.<ITab>singletonList(new AbstractTab(
+        add(new Accordion("plainSchemas", List.of(new AbstractTab(
                 new ResourceModel("attributes.accordion", "Plain Attributes")) {
 
             private static final long serialVersionUID = 1037272333056449378L;
@@ -119,12 +117,12 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         add(new ListView<MembershipTO>("membershipsPlainSchemas", membershipTOs) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1749643897846L;
 
             @Override
             protected void populateItem(final ListItem<MembershipTO> item) {
                 final MembershipTO membershipTO = item.getModelObject();
-                item.add(new Accordion("membershipPlainSchemas", Collections.<ITab>singletonList(new AbstractTab(
+                item.add(new Accordion("membershipPlainSchemas", List.of(new AbstractTab(
                         new StringResourceModel(
                                 "attributes.membership.accordion",
                                 PlainAttrs.this,

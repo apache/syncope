@@ -40,10 +40,8 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -73,28 +71,6 @@ public class SRARouteDirectoryPanel
 
         addNewItemPanelBuilder(new SRARouteWizardBuilder(new SRARouteTO(), pageRef), true);
         initResultTable();
-
-        utilityAjaxLink = new AjaxLink<SRARouteTO>("utility") {
-
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                try {
-                    SRARouteRestClient.push();
-                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                    target.add(container);
-                } catch (Exception e) {
-                    LOG.error("While pushing to SRA", e);
-                    SyncopeConsoleSession.get().onException(e);
-                }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-            }
-        };
-        initialFragment.addOrReplace(utilityAjaxLink);
-        utilityAjaxLink.add(utilityIcon);
-        utilityIcon.add(new AttributeModifier("class", "fa fa-fast-forward"));
-        enableUtilityButton();
     }
 
     @Override

@@ -25,12 +25,12 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import org.apache.syncope.common.lib.types.OIDCGrantType;
+import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
 
@@ -53,30 +53,32 @@ public class JPAOIDCRP extends AbstractClientApp implements OIDCRP {
     private OIDCSubjectType subjectType;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column
+    @Column(name = "redirectUri")
     @CollectionTable(name = "OIDCRP_RedirectUris",
             joinColumns =
             @JoinColumn(name = "client_id", referencedColumnName = "id"))
-    private List<String> redirectUris = new ArrayList<>();
+    private Set<String> redirectUris = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column
+    @Enumerated(EnumType.STRING)
+    @Column(name = "supportedGrantType")
     @CollectionTable(name = "OIDCRP_SupportedGrantTypes",
             joinColumns =
             @JoinColumn(name = "client_id", referencedColumnName = "id"))
-    private Set<String> supportedGrantTypes = new HashSet<>();
+    private Set<OIDCGrantType> supportedGrantTypes = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
     @Column(name = "supportedResponseType")
     @CollectionTable(name = "OIDCRP_SupportedResponseTypes",
             joinColumns =
             @JoinColumn(name = "client_id", referencedColumnName = "id"))
-    private Set<String> supportedResponseTypes = new HashSet<>();
+    private Set<OIDCResponseType> supportedResponseTypes = new HashSet<>();
 
     private String logoutUri;
 
     @Override
-    public List<String> getRedirectUris() {
+    public Set<String> getRedirectUris() {
         return redirectUris;
     }
 
@@ -121,12 +123,12 @@ public class JPAOIDCRP extends AbstractClientApp implements OIDCRP {
     }
 
     @Override
-    public Set<String> getSupportedGrantTypes() {
+    public Set<OIDCGrantType> getSupportedGrantTypes() {
         return supportedGrantTypes;
     }
 
     @Override
-    public Set<String> getSupportedResponseTypes() {
+    public Set<OIDCResponseType> getSupportedResponseTypes() {
         return supportedResponseTypes;
     }
 

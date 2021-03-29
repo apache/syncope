@@ -22,6 +22,12 @@ public final class AMConstants {
 
     public static final String PREF_GATEWAYROUTE_PAGINATOR_ROWS = "gatewayroute.paginator.rows";
 
+    public static final String PREF_WACONFIG_PAGINATOR_ROWS = "waconfig.paginator.rows";
+
+    public static final String PREF_AUTHMODULE_PAGINATOR_ROWS = "authmodule.paginator.rows";
+
+    public static final String PREF_CLIENTAPP_PAGINATOR_ROWS = "clientapp.paginator.rows";
+
     private AMConstants() {
         // private constructor for static utility class
     }

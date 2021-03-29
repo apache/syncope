@@ -354,7 +354,7 @@ public class JobWidget extends BaseWidget {
                         final IModel<JobTO> rowModel) {
 
                     JobTO jobTO = rowModel.getObject();
-                    JobActionPanel panel = new JobActionPanel(componentId, jobTO, true, JobWidget.this, pageRef);
+                    JobActionPanel panel = new JobActionPanel(componentId, jobTO, true, JobWidget.this);
 
                     String roles;
                     switch (jobTO.getType()) {

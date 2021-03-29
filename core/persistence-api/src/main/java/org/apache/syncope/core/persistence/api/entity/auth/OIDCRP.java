@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.entity.auth;
 
-import java.util.List;
 import java.util.Set;
+import org.apache.syncope.common.lib.types.OIDCGrantType;
+import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 
 public interface OIDCRP extends ClientApp {
@@ -32,11 +33,11 @@ public interface OIDCRP extends ClientApp {
 
     String getClientSecret();
 
-    List<String> getRedirectUris();
+    Set<String> getRedirectUris();
 
-    Set<String> getSupportedGrantTypes();
+    Set<OIDCGrantType> getSupportedGrantTypes();
 
-    Set<String> getSupportedResponseTypes();
+    Set<OIDCResponseType> getSupportedResponseTypes();
 
     boolean isSignIdToken();
 

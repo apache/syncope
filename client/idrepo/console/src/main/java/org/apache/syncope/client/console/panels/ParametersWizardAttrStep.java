@@ -29,6 +29,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPa
 import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -48,7 +49,10 @@ public class ParametersWizardAttrStep extends WizardStep {
 
     private final AjaxTextFieldPanel schema;
 
-    public ParametersWizardAttrStep(final ParametersWizardPanel.ParametersForm modelObject) {
+    public ParametersWizardAttrStep(
+            final AjaxWizard.Mode mode,
+            final ParametersWizardPanel.ParametersForm modelObject) {
+
         this.setOutputMarkupId(true);
 
         WebMarkupContainer content = new WebMarkupContainer("content");
@@ -58,10 +62,10 @@ public class ParametersWizardAttrStep extends WizardStep {
         schema = new AjaxTextFieldPanel(
                 "schema", getString("schema"), new PropertyModel<>(modelObject.getParam(), "schema"));
         schema.setRequired(true);
+        schema.setReadOnly(mode != AjaxWizard.Mode.CREATE);
         content.add(schema);
 
-        LoadableDetachableModel<List<PlainSchemaTO>> loadableDetachableModel =
-                new LoadableDetachableModel<List<PlainSchemaTO>>() {
+        LoadableDetachableModel<List<PlainSchemaTO>> schemas = new LoadableDetachableModel<List<PlainSchemaTO>>() {
 
             private static final long serialVersionUID = 7172461137064525667L;
 
@@ -71,23 +75,21 @@ public class ParametersWizardAttrStep extends WizardStep {
             }
         };
 
-        ListView<PlainSchemaTO> listView = new ListView<PlainSchemaTO>("attrs", loadableDetachableModel) {
+        ListView<PlainSchemaTO> attrs = new ListView<PlainSchemaTO>("attrs", schemas) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
             protected void populateItem(final ListItem<PlainSchemaTO> item) {
-                final Panel panel = getFieldPanel("panel", modelObject.getParam(), item.getModelObject());
-                item.add(panel);
+                item.add(getFieldPanel("panel", modelObject.getParam(), item.getModelObject()));
             }
         };
-
-        content.add(listView);
+        content.add(attrs);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private Panel getFieldPanel(final String id, final ConfParam param, final PlainSchemaTO plainSchemaTO) {
-        final String valueHeaderName = getString("values");
+        String valueHeaderName = getString("values");
 
         final FieldPanel panel;
         switch (plainSchemaTO.getType()) {

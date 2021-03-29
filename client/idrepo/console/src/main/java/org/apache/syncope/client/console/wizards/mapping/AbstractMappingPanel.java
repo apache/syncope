@@ -58,9 +58,15 @@ public abstract class AbstractMappingPanel extends Panel {
      */
     protected final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
+    protected final Label connObjectKeyLabel;
+
     protected final Label passwordLabel;
 
     protected final Label purposeLabel;
+
+    protected final Label intAttrNameInfo;
+
+    protected final WebMarkupContainer mandatoryHeader;
 
     /**
      * Add mapping button.
@@ -83,7 +89,6 @@ public abstract class AbstractMappingPanel extends Panel {
             final JEXLTransformersTogglePanel jexlTransformers,
             final IModel<List<ItemTO>> model,
             final boolean addMappingBtnVisible,
-            final boolean hidePurpose,
             final MappingPurpose defaultPurpose) {
 
         super(id);
@@ -93,14 +98,22 @@ public abstract class AbstractMappingPanel extends Panel {
         mappingContainer.setOutputMarkupId(true);
         add(mappingContainer);
 
+        mappingContainer.add(new Label("itemTransformersLabel", Model.of()).setVisible(itemTransformers != null));
+
+        mappingContainer.add(new Label("jexlTransformersLabel", Model.of()).setVisible(jexlTransformers != null));
+
+        connObjectKeyLabel = new Label("connObjectKeyLabel", new ResourceModel("connObjectKey"));
+        mappingContainer.add(connObjectKeyLabel);
+
         passwordLabel = new Label("passwordLabel", new ResourceModel("password"));
         mappingContainer.add(passwordLabel);
 
         purposeLabel = new Label("purposeLabel", new ResourceModel("purpose"));
         mappingContainer.add(purposeLabel);
 
-        mappingContainer.add(new Label("intAttrNameInfo", Model.of()).add(new PopoverBehavior(
-                Model.<String>of(),
+        intAttrNameInfo = new Label("intAttrNameInfo", Model.of());
+        intAttrNameInfo.add(new PopoverBehavior(
+                Model.of(),
                 Model.of(getString("intAttrNameInfo.help")
                         + "<code>groups[groupName].attribute</code>, "
                         + "<code>users[userName].attribute</code>, "
@@ -116,9 +129,13 @@ public abstract class AbstractMappingPanel extends Panel {
             protected String createRelAttribute() {
                 return "intAttrNameInfo";
             }
-        }));
+        });
+        mappingContainer.add(intAttrNameInfo);
 
-        mappingContainer.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.bottom));
+        mandatoryHeader = new WebMarkupContainer("mandatoryHeader");
+        mandatoryHeader.setOutputMarkupId(true);
+        mandatoryHeader.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.bottom));
+        mappingContainer.add(mandatoryHeader);
 
         model.getObject().sort((left, right) -> {
             int compared;
@@ -141,17 +158,17 @@ public abstract class AbstractMappingPanel extends Panel {
             } else if (left.getPurpose() != MappingPurpose.BOTH && right.getPurpose() == MappingPurpose.BOTH) {
                 compared = 1;
             } else if (left.getPurpose() == MappingPurpose.PROPAGATION
-                && (right.getPurpose() == MappingPurpose.PULL
-                || right.getPurpose() == MappingPurpose.NONE)) {
+                    && (right.getPurpose() == MappingPurpose.PULL
+                    || right.getPurpose() == MappingPurpose.NONE)) {
                 compared = -1;
             } else if (left.getPurpose() == MappingPurpose.PULL
-                && right.getPurpose() == MappingPurpose.PROPAGATION) {
+                    && right.getPurpose() == MappingPurpose.PROPAGATION) {
                 compared = 1;
             } else if (left.getPurpose() == MappingPurpose.PULL
-                && right.getPurpose() == MappingPurpose.NONE) {
+                    && right.getPurpose() == MappingPurpose.NONE) {
                 compared = -1;
             } else if (left.getPurpose() == MappingPurpose.NONE
-                && right.getPurpose() != MappingPurpose.NONE) {
+                    && right.getPurpose() != MappingPurpose.NONE) {
                 compared = 1;
             } else {
                 compared = left.getIntAttrName().compareTo(right.getIntAttrName());
@@ -201,15 +218,24 @@ public abstract class AbstractMappingPanel extends Panel {
                 //--------------------------------
                 // JEXL transformers
                 // -------------------------------
-                item.add(new JEXLTransformerWidget(
-                        "jexlTransformers", itemTO, jexlTransformers).setRenderBodyOnly(true));
+                if (jexlTransformers == null) {
+                    item.add(new Label("jexlTransformers").setVisible(false));
+                } else {
+                    item.add(new JEXLTransformerWidget(
+                            "jexlTransformers", itemTO, jexlTransformers).setRenderBodyOnly(true));
+                }
                 // -------------------------------
 
                 //--------------------------------
                 // Mapping item transformers
                 // -------------------------------
-                item.add(new ItemTransformerWidget(
-                        "itemTransformers", itemTO, itemTransformers).setRenderBodyOnly(true));
+                if (itemTransformers == null) {
+                    item.add(new Label("itemTransformers").setVisible(false));
+
+                } else {
+                    item.add(new ItemTransformerWidget(
+                            "itemTransformers", itemTO, itemTransformers).setRenderBodyOnly(true));
+                }
                 // -------------------------------
 
                 //--------------------------------
@@ -337,9 +363,11 @@ public abstract class AbstractMappingPanel extends Panel {
                     itemTO.setPassword(false);
                 }
 
-                if (hidePurpose) {
-                    purpose.setVisible(false);
-                }
+                purpose.setVisible(!hidePurpose());
+
+                mandatory.setVisible(!hideMandatory());
+
+                connObjectKey.setVisible(!hideConnObjectKey());
             }
         };
 
@@ -359,11 +387,32 @@ public abstract class AbstractMappingPanel extends Panel {
         addMappingBtn.setDefaultFormProcessing(false);
         addMappingBtn.setEnabled(addMappingBtnVisible);
         mappingContainer.add(addMappingBtn);
+    }
 
+    @Override
+    protected void onBeforeRender() {
+        super.onBeforeRender();
+
+        passwordLabel.setVisible(!hidePassword());
+        purposeLabel.setVisible(!hidePurpose());
+        mandatoryHeader.setVisible(!hideMandatory());
+        connObjectKeyLabel.setVisible(!hideConnObjectKey());
     }
 
     protected boolean hidePassword() {
         return true;
+    }
+
+    protected boolean hidePurpose() {
+        return false;
+    }
+
+    protected boolean hideMandatory() {
+        return false;
+    }
+
+    protected boolean hideConnObjectKey() {
+        return false;
     }
 
     protected abstract IModel<List<String>> getExtAttrNames();
@@ -374,13 +423,6 @@ public abstract class AbstractMappingPanel extends Panel {
      * @param toBeUpdated drop down choice to be updated.
      */
     protected abstract void setAttrNames(AjaxTextFieldPanel toBeUpdated);
-
-    @Override
-    protected void onBeforeRender() {
-        super.onBeforeRender();
-        passwordLabel.setVisible(false);
-        purposeLabel.setVisible(true);
-    }
 
     /**
      * Enable/Disable connObjectKey checkbox.

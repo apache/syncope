@@ -20,9 +20,9 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.UserRequestRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.SubmitableModalPanel;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.to.UserRequestForm;
@@ -48,7 +48,7 @@ public class UserRequestFormModal extends Panel implements SubmitableModalPanel,
         this.pageRef = pageRef;
 
         MultilevelPanel mlp = new MultilevelPanel("userRequestForm");
-        mlp.setFirstLevel(new UserRequestFormPanel(MultilevelPanel.FIRST_LEVEL_ID, pageRef, formTO) {
+        mlp.setFirstLevel(new UserRequestFormPanel(MultilevelPanel.FIRST_LEVEL_ID, formTO) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
@@ -70,7 +70,7 @@ public class UserRequestFormModal extends Panel implements SubmitableModalPanel,
 
     @Override
     public void onError(final AjaxRequestTarget target) {
-        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+        ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     @Override

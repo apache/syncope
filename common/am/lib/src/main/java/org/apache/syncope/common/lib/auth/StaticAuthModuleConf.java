@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib.auth;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StaticAuthModuleConf extends AbstractAuthModuleConf {
+public class StaticAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -7775771400318503131L;
 

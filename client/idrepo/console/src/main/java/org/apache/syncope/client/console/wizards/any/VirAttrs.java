@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wizards.any;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +41,6 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -57,8 +55,6 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private final AjaxWizard.Mode mode;
-
     private final AnyWrapper<?> modelObject;
 
     public <T extends AnyTO> VirAttrs(
@@ -68,12 +64,11 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
             final List<String> whichVirAttrs) {
 
         super(modelObject, mode, anyTypeClasses, whichVirAttrs);
-        this.mode = mode;
         this.modelObject = modelObject;
 
         setTitleModel(new ResourceModel("attributes.virtual"));
 
-        add(new Accordion("virSchemas", Collections.<ITab>singletonList(new AbstractTab(
+        add(new Accordion("virSchemas", List.of(new AbstractTab(
                 new ResourceModel("attributes.accordion", "Virtual Attributes")) {
 
             private static final long serialVersionUID = 1037272333056449378L;
@@ -90,21 +85,20 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
             @Override
             protected void populateItem(final ListItem<MembershipTO> item) {
-                final MembershipTO membershipTO = item.getModelObject();
-                item.add(new Accordion("membershipVirSchemas",
-                        Collections.<ITab>singletonList(new AbstractTab(new StringResourceModel(
-                                "attributes.membership.accordion", VirAttrs.this, Model.of(membershipTO))) {
+                MembershipTO membTO = item.getModelObject();
+                item.add(new Accordion("membershipVirSchemas", List.of(new AbstractTab(
+                        new StringResourceModel("attributes.membership.accordion", VirAttrs.this, Model.of(membTO))) {
 
-                            private static final long serialVersionUID = 1037272333056449378L;
+                    private static final long serialVersionUID = 1037272333056449378L;
 
-                            @Override
-                            public WebMarkupContainer getPanel(final String panelId) {
-                                return new VirAttrs.VirSchemas(
-                                        panelId,
-                                        membershipSchemas.get(membershipTO.getGroupKey()),
-                                        new ListModel<>(getAttrsFromTO(membershipTO)));
-                            }
-                        }), Model.of(-1)).setOutputMarkupId(true));
+                    @Override
+                    public WebMarkupContainer getPanel(final String panelId) {
+                        return new VirAttrs.VirSchemas(
+                                panelId,
+                                membershipSchemas.get(membTO.getGroupKey()),
+                                new ListModel<>(getAttrsFromTO(membTO)));
+                    }
+                }), Model.of(-1)).setOutputMarkupId(true));
             }
         });
     }

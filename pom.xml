@@ -433,7 +433,7 @@ under the License.
 
     <slf4j.version>2.0.0-alpha1</slf4j.version>
 
-    <elasticsearch.version>7.11.2</elasticsearch.version>
+    <elasticsearch.version>7.12.0</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -474,6 +474,7 @@ under the License.
     <chartjs.version>1.0.2</chartjs.version>
 
     <wicket.version>9.2.0</wicket.version>
+    <wicketstuff.version>9.2.0</wicketstuff.version>
     <wicket-jqueryui.version>9.2.1</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.3</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
@@ -1766,6 +1767,11 @@ under the License.
         <groupId>org.apache.wicket</groupId>
         <artifactId>wicket-native-websocket-javax</artifactId>
         <version>${wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.wicketstuff</groupId>
+        <artifactId>wicketstuff-editable-grid</artifactId>
+        <version>${wicketstuff.version}</version>
       </dependency>
       <dependency>
         <groupId>com.googlecode.wicket-jquery-ui</groupId>

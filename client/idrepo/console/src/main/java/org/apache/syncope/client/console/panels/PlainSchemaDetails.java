@@ -316,7 +316,12 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             final AjaxTextFieldPanel secretKey, final AjaxDropDownChoicePanel<CipherAlgorithm> cipherAlgorithm,
             final WebMarkupContainer binaryParams, final AjaxTextFieldPanel mimeType) {
 
-        int typeOrdinal = Integer.parseInt(type.getField().getValue());
+        int typeOrdinal = -1;
+        try {
+            typeOrdinal = Integer.parseInt(type.getField().getValue());
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid value found: {}", type.getField().getValue(), e);
+        }
         if (AttrSchemaType.Long.ordinal() == typeOrdinal
                 || AttrSchemaType.Double.ordinal() == typeOrdinal
                 || AttrSchemaType.Date.ordinal() == typeOrdinal) {

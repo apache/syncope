@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
-import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -34,9 +33,7 @@ public class SCIMConfTabPanel extends Panel implements ModalPanel {
 
     protected final List<String> plainSchemaNames = getPlainSchemas();
 
-    public SCIMConfTabPanel(
-            final String id,
-            final SCIMConf scimConf) {
+    public SCIMConfTabPanel(final String id) {
         super(id);
     }
 

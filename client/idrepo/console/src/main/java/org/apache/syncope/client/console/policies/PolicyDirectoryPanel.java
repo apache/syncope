@@ -72,16 +72,15 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
             super.onConfigure();
             setFooterVisible(false);
         }
-
     };
 
     protected final BaseModal<T> policySpecModal = new BaseModal<>(Constants.OUTER);
 
     private final PolicyType type;
 
-    public PolicyDirectoryPanel(final String id, final PolicyType policyType, final PageReference pageRef) {
+    public PolicyDirectoryPanel(final String id, final PolicyType type, final PageReference pageRef) {
         super(id, pageRef, true);
-        this.type = policyType;
+        this.type = type;
         this.restClient = new PolicyRestClient();
 
         ruleCompositionModal.size(Modal.Size.Large);
@@ -112,8 +111,10 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("description", this), "description", "description"));
-        columns.add(new CollectionPropertyColumn<>(
-                new StringResourceModel("usedByResources", this), "usedByResources"));
+        if (type != PolicyType.ACCESS && type != PolicyType.ATTR_RELEASE && type != PolicyType.AUTH) {
+            columns.add(new CollectionPropertyColumn<>(
+                    new StringResourceModel("usedByResources", this), "usedByResources"));
+        }
         if (type != PolicyType.PULL && type != PolicyType.PUSH) {
             columns.add(new CollectionPropertyColumn<>(
                     new StringResourceModel("usedByRealms", this), "usedByRealms"));
@@ -136,7 +137,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
             public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
                 send(PolicyDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                PolicyRestClient.getPolicy(type, model.getObject().getKey()), target));
+                                PolicyRestClient.read(type, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.POLICY_UPDATE);
 
@@ -161,7 +162,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
             @Override
             public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
-                final T policyTO = model.getObject();
+                T policyTO = model.getObject();
                 try {
                     PolicyRestClient.delete(type, policyTO.getKey());
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
@@ -213,14 +214,14 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
-            List<T> list = PolicyRestClient.getPolicies(type);
+            List<T> list = PolicyRestClient.list(type);
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return PolicyRestClient.getPolicies(type).size();
+            return PolicyRestClient.list(type).size();
         }
 
         @Override

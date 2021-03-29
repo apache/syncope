@@ -41,7 +41,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
     @Test
     public void read() {
         TESTER.assertLabel(
-                "body:content:body:container:content:tabbedPanel:panel:container:accountPolicy:field-label",
+                "body:content:body:container:content:tabbedPanel:panel:container:policies:1:field-label",
                 "Account Policy");
     }
 
@@ -83,7 +83,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertLabel(
-                "body:content:body:container:content:tabbedPanel:panel:container:accountPolicy:field-label",
+                "body:content:body:container:content:tabbedPanel:panel:container:policies:1:field-label",
                 "Account Policy");
 
         TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/");

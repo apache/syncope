@@ -37,9 +37,9 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
     private static final Logger LOG = LoggerFactory.getLogger(SCIMConfGeneralPanel.class);
 
     public SCIMConfGeneralPanel(final String id, final SCIMConf scimConf) {
-        super(id, scimConf);
+        super(id);
 
-        final SCIMGeneralConf scimGeneralConf = scimConf.getGeneralConf();
+        SCIMGeneralConf scimGeneralConf = scimConf.getGeneralConf();
 
         AjaxDateTimeFieldPanel creationDatePanel =
                 new AjaxDateTimeFieldPanel("creationDate", "creationDate", new Model<Date>() {
@@ -55,7 +55,6 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
                     public void setObject(final Date object) {
                         scimGeneralConf.setCreationDate(object);
                     }
-
                 }, FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN));
         creationDatePanel.setEnabled(false);
 
@@ -73,7 +72,6 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
                     public void setObject(final Date object) {
                         scimGeneralConf.setLastChangeDate(object);
                     }
-
                 }, FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN));
         lastChangeDatePanel.setEnabled(false);
 
@@ -90,9 +88,12 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
 
                     @Override
                     public void setObject(final String object) {
-                        scimGeneralConf.setBulkMaxOperations(Integer.parseInt(object));
+                        try {
+                            scimGeneralConf.setBulkMaxOperations(Integer.parseInt(object));
+                        } catch (NumberFormatException e) {
+                            LOG.error("Invalid value provided for 'bulkMaxOperations': {}", object, e);
+                        }
                     }
-
                 });
         bulkMaxOperationsPanel.setChoices(plainSchemaNames);
 
@@ -109,9 +110,12 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
 
                     @Override
                     public void setObject(final String object) {
-                        scimGeneralConf.setBulkMaxPayloadSize(Integer.parseInt(object));
+                        try {
+                            scimGeneralConf.setBulkMaxPayloadSize(Integer.parseInt(object));
+                        } catch (NumberFormatException e) {
+                            LOG.error("Invalid value provided for 'bulkMaxPayloadSize': {}", object, e);
+                        }
                     }
-
                 });
         bulkMaxMaxPayloadSizePanel.setChoices(plainSchemaNames);
 
@@ -137,23 +141,21 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
                 });
         filterMaxResultsPanel.setChoices(plainSchemaNames);
 
-        AjaxTextFieldPanel eTagValuePanel =
-                new AjaxTextFieldPanel("eTagValue", "eTagValue",
-                        new PropertyModel<String>("eTagValue", "eTagValue") {
+        AjaxTextFieldPanel eTagValuePanel = new AjaxTextFieldPanel("eTagValue", "eTagValue",
+                new PropertyModel<String>("eTagValue", "eTagValue") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimGeneralConf.getETagValue();
-                    }
+            @Override
+            public String getObject() {
+                return scimGeneralConf.getETagValue();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-
-                    }
-
-                });
+            @Override
+            public void setObject(final String object) {
+                // nothing to do
+            }
+        });
         eTagValuePanel.setEnabled(false);
 
         add(creationDatePanel);
@@ -163,5 +165,4 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
         add(filterMaxResultsPanel);
         add(eTagValuePanel);
     }
-
 }

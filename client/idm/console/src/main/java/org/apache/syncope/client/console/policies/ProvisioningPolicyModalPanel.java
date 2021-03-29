@@ -159,7 +159,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                     }
                 }
             });
-            PolicyRestClient.updatePolicy(getItem() instanceof PullPolicyTO
+            PolicyRestClient.update(getItem() instanceof PullPolicyTO
                     ? PolicyType.PULL : PolicyType.PUSH, getItem());
 
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));

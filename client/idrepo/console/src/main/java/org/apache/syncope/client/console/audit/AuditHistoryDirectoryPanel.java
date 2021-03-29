@@ -133,12 +133,7 @@ public abstract class AuditHistoryDirectoryPanel<T extends Serializable> extends
 
                 mlp.next(
                         new StringResourceModel("audit.diff.view", AuditHistoryDirectoryPanel.this).getObject(),
-                        new AuditHistoryDetails<T>(
-                                mlp,
-                                modelObject,
-                                entity,
-                                auditRestoreEntitlement,
-                                pageRef) {
+                        new AuditHistoryDetails<T>(mlp, modelObject, entity, auditRestoreEntitlement) {
 
                     private static final long serialVersionUID = -5311898419151367494L;
 

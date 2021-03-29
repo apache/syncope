@@ -72,7 +72,15 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
             @Override
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
-                if (Integer.parseInt(getDefaultModelObject().toString()) > 0) {
+
+                boolean warning = false;
+                try {
+                    warning = Integer.parseInt(getDefaultModelObject().toString()) > 0;
+                } catch (Exception e) {
+                    LOG.error("Invalid value found: {}", getDefaultModelObject(), e);
+                }
+
+                if (warning) {
                     tag.put("class", "badge badge-warning navbar-badge");
                 } else {
                     tag.put("class", "badge badge-success navbar-badge");

@@ -19,14 +19,15 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.types.OIDCGrantType;
+import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 
 @Schema(allOf = { ClientAppTO.class })
@@ -44,9 +45,9 @@ public class OIDCRPTO extends ClientAppTO {
 
     private final List<String> redirectUris = new ArrayList<>();
 
-    private final Set<String> supportedGrantTypes = new HashSet<>();
+    private final List<OIDCGrantType> supportedGrantTypes = new ArrayList<>();
 
-    private final Set<String> supportedResponseTypes = new HashSet<>();
+    private final List<OIDCResponseType> supportedResponseTypes = new ArrayList<>();
 
     private String logoutUri;
 
@@ -74,15 +75,21 @@ public class OIDCRPTO extends ClientAppTO {
         this.clientSecret = clientSecret;
     }
 
+    @JacksonXmlElementWrapper(localName = "redirectUris")
+    @JacksonXmlProperty(localName = "redirectUri")
     public List<String> getRedirectUris() {
         return redirectUris;
     }
 
-    public Set<String> getSupportedGrantTypes() {
+    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
+    @JacksonXmlProperty(localName = "supportedGrantType")
+    public List<OIDCGrantType> getSupportedGrantTypes() {
         return supportedGrantTypes;
     }
 
-    public Set<String> getSupportedResponseTypes() {
+    @JacksonXmlElementWrapper(localName = "supportedResponseTypes")
+    @JacksonXmlProperty(localName = "supportedResponseType")
+    public List<OIDCResponseType> getSupportedResponseTypes() {
         return supportedResponseTypes;
     }
 
