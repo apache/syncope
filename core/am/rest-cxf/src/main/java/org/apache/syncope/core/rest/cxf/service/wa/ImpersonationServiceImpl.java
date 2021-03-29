@@ -44,12 +44,9 @@ public class ImpersonationServiceImpl extends AbstractServiceImpl implements Imp
     }
 
     @Override
-    public Response find(final String owner,
-                         final String id,
-                         final String application) {
-        return logic.find(owner, id, application)
-            ? Response.ok().build()
-            : Response.status(Response.Status.FORBIDDEN).build();
+    public ImpersonationAccount find(final String owner,
+                         final String id) {
+        return logic.find(owner, id);
     }
 
     @Override

@@ -55,9 +55,8 @@ public interface ImpersonationService extends JAXRSService {
     @Path("authz/{owner}")
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Response find(@NotNull @PathParam("owner") String owner,
-                  @NotNull @QueryParam("id") String id,
-                  @QueryParam("application") String application);
+    ImpersonationAccount find(@NotNull @PathParam("owner") String owner,
+                              @NotNull @QueryParam("id") String id);
 
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })

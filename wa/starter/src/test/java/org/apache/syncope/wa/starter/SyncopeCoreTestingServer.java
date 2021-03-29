@@ -23,8 +23,10 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.WAClientApp;
@@ -96,12 +98,16 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
 
         @Override
-        public Response find(final String owner,
-                             final String id,
-                             final String application) {
-            boolean authorized = accounts.containsKey(owner)
-                && accounts.get(owner).stream().anyMatch(acct -> acct.getId().equalsIgnoreCase(id));
-            return authorized ? Response.ok().build() : Response.status(Response.Status.UNAUTHORIZED).build();
+        public ImpersonationAccount find(final String owner, final String id) {
+            SyncopeClientException exception = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            if (accounts.containsKey(owner)) {
+                return accounts.get(owner).
+                    stream().
+                    filter(acct -> acct.getId().equalsIgnoreCase(id)).
+                    findFirst().
+                    orElseThrow(() -> exception);
+            }
+            throw exception;
         }
 
         @Override

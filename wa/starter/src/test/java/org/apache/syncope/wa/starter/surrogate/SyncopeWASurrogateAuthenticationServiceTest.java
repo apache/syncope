@@ -33,14 +33,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.core.Response;
 
-import java.security.AccessControlException;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class SyncopeWASurrogateAuthenticationServiceTest extends AbstractTest {
     @Autowired
@@ -67,12 +64,7 @@ public class SyncopeWASurrogateAuthenticationServiceTest extends AbstractTest {
         assertFalse(surrogateService.getEligibleAccountsForSurrogateToProxy(account.getOwner()).isEmpty());
 
         Principal principal = PrincipalFactoryUtils.newPrincipalFactory().createPrincipal(account.getOwner());
-        try {
-            surrogateService.canAuthenticateAs("unknown", principal, Optional.empty());
-            fail("Found fail to authorize unknown");
-        } catch (Exception e) {
-            assertEquals(e.getClass(), AccessControlException.class);
-        }
+        assertFalse(surrogateService.canAuthenticateAs("unknown", principal, Optional.empty()));
         assertTrue(surrogateService.canAuthenticateAs(account.getId(), principal, Optional.empty()));
     }
 }

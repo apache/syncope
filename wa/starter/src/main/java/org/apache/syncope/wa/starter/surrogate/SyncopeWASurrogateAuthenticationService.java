@@ -23,14 +23,13 @@ import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-
-import javax.ws.rs.core.Response;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -48,10 +47,17 @@ public class SyncopeWASurrogateAuthenticationService implements SurrogateAuthent
     @Override
     public boolean canAuthenticateAs(final String surrogate, final Principal principal,
                                      final Optional<Service> service) {
-        LOG.debug("Checking impersonation attempt by {} for {}", principal, surrogate);
-        Response response = getImpersonationService().find(principal.getId(), surrogate,
-            service.map(Service::getId).orElse(null));
-        return response != null && HttpStatus.valueOf(response.getStatus()).is2xxSuccessful();
+        try {
+            LOG.debug("Checking impersonation attempt by {} for {}", principal, surrogate);
+            return getImpersonationService().find(principal.getId(), surrogate) != null;
+        } catch (final SyncopeClientException e) {
+            if (e.getType() == ClientExceptionType.InvalidRequest) {
+                LOG.info("Could not authorize account {} for owner {}", surrogate, principal.getId());
+            } else {
+                LOG.error(e.getMessage(), e);
+            }
+        }
+        return false;
     }
 
     @Override

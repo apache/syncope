@@ -26,8 +26,6 @@ import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.core.Response;
 
-import static javax.ws.rs.core.Response.Status.OK;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -44,7 +42,7 @@ public class ImpersonationITCase extends AbstractITCase {
         assertNotNull(key);
 
         assertFalse(impersonationService.findByOwner(account.getOwner()).isEmpty());
-        response = impersonationService.find(account.getOwner(), account.getId(), null);
-        assertEquals(OK.getStatusCode(), response.getStatusInfo().getStatusCode());
+        account = impersonationService.find(account.getOwner(), account.getId());
+        assertNotNull(account);
     }
 }

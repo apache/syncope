@@ -19,13 +19,14 @@
 
 package org.apache.syncope.core.logic.wa;
 
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.AMEntitlement;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.core.logic.AbstractAuthProfileLogic;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
-import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -47,22 +48,23 @@ public class ImpersonationLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + AMEntitlement.IMPERSONATION_READ_ACCOUNT + "')"
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public Boolean find(final String owner,
-                        final String id,
-                        final String application) {
+    public ImpersonationAccount find(final String owner, final String id) {
         return authProfileDAO.findByOwner(owner)
-            .map(profile -> profile.getImpersonationAccounts()
-                .stream()
-                .anyMatch(acct -> acct.getId().equalsIgnoreCase(id)))
-            .stream().findFirst().orElse(Boolean.FALSE);
+            .map(AuthProfile::getImpersonationAccounts)
+            .stream()
+            .flatMap(List::stream)
+            .filter(acct -> acct.getId().equalsIgnoreCase(id))
+            .findFirst()
+            .orElseThrow(() -> {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+                sce.getElements().add(owner + " is not authorized to impersonate " + id);
+                throw sce;
+            });
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.IMPERSONATION_CREATE_ACCOUNT + "')"
         + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public String create(final ImpersonationAccount account) {
-        if (account.getKey() == null) {
-            account.setKey(SecureRandomUtils.generateRandomUUID().toString());
-        }
         AuthProfile profile = authProfileDAO.findByOwner(account.getOwner()).orElseGet(() -> {
             AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
             authProfile.setOwner(account.getOwner());
