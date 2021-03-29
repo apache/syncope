@@ -31,7 +31,7 @@ public class ImpersonatedAccount implements BaseBean {
 
     private String id;
 
-    private String impersonator;
+    private String owner;
 
     private String key;
 
@@ -52,12 +52,12 @@ public class ImpersonatedAccount implements BaseBean {
         this.id = id;
     }
 
-    public String getImpersonator() {
-        return impersonator;
+    public String getOwner() {
+        return owner;
     }
 
-    public void setImpersonator(final String impersonator) {
-        this.impersonator = impersonator;
+    public void setOwner(final String owner) {
+        this.owner = owner;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class ImpersonatedAccount implements BaseBean {
             .appendSuper(super.hashCode())
             .append(key)
             .append(id)
-            .append(impersonator)
+            .append(owner)
             .toHashCode();
     }
 
@@ -86,7 +86,7 @@ public class ImpersonatedAccount implements BaseBean {
             .appendSuper(super.equals(obj))
             .append(this.key, rhs.key)
             .append(this.id, rhs.id)
-            .append(this.impersonator, rhs.impersonator)
+            .append(this.owner, rhs.owner)
             .isEquals();
     }
 
@@ -95,7 +95,7 @@ public class ImpersonatedAccount implements BaseBean {
         return new ToStringBuilder(this)
             .append("key", key)
             .append("id", id)
-            .append("impersonator", impersonator)
+            .append("impersonator", owner)
             .toString();
     }
 
@@ -113,8 +113,8 @@ public class ImpersonatedAccount implements BaseBean {
             return this;
         }
 
-        public ImpersonatedAccount.Builder impersonator(final String id) {
-            instance.setImpersonator(id);
+        public ImpersonatedAccount.Builder owner(final String owner) {
+            instance.setOwner(owner);
             return this;
         }
 

@@ -20,6 +20,7 @@
 package org.apache.syncope.core.rest.cxf.service.wa;
 
 import org.apache.syncope.common.lib.wa.ImpersonatedAccount;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.core.logic.wa.ImpersonationLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.Response;
 
+import java.net.URI;
 import java.util.List;
 
 @Service
@@ -37,21 +39,25 @@ public class ImpersonationServiceImpl extends AbstractServiceImpl implements Imp
     private ImpersonationLogic logic;
 
     @Override
-    public List<ImpersonatedAccount> getImpersonatedAccountsFor(final String impersonator) {
-        return logic.getImpersonatedAccountsFor(impersonator);
+    public List<ImpersonatedAccount> findByOwner(final String owner) {
+        return logic.getImpersonatedAccountsFor(owner);
     }
 
     @Override
-    public Response isImpersonationAttemptAuthorizedFor(final String impersonator,
-                                                        final String impersonatee,
-                                                        final String application) {
-        return logic.isImpersonationAttemptAuthorizedFor(impersonator, impersonatee, application)
+    public Response find(final String owner,
+                         final String id,
+                         final String application) {
+        return logic.isImpersonationAttemptAuthorizedFor(owner, id, application)
             ? Response.ok().build()
             : Response.status(Response.Status.FORBIDDEN).build();
     }
 
     @Override
-    public void authorize(final ImpersonatedAccount account) {
-        logic.authorize(account);
+    public Response create(final ImpersonatedAccount account) {
+        String key = logic.create(account);
+        URI location = uriInfo.getAbsolutePathBuilder().path(key).build();
+        return Response.created(location).
+            header(RESTHeaders.RESOURCE_KEY, key).
+            build();
     }
 }

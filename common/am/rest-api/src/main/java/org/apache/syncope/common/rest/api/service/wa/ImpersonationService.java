@@ -28,6 +28,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -48,19 +49,21 @@ import java.util.List;
 @Path("wa/impersonation")
 public interface ImpersonationService extends JAXRSService {
     @GET
+    @Path("accounts/{owner}")
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    List<ImpersonatedAccount> getImpersonatedAccountsFor(@NotNull @PathParam("impersonator") String impersonator);
+    List<ImpersonatedAccount> findByOwner(@NotNull @PathParam("owner") String owner);
 
     @GET
+    @Path("authz/{owner}")
     @Consumes({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML})
-    Response isImpersonationAttemptAuthorizedFor(@NotNull @QueryParam("impersonator") String impersonator,
-                                                 @NotNull @QueryParam("impersonatee") String impersonatee,
-                                                 @QueryParam("application") String application);
+    Response find(@NotNull @PathParam("owner") String owner,
+                  @NotNull @QueryParam("id") String id,
+                  @QueryParam("application") String application);
 
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void authorize(@NotNull ImpersonatedAccount account);
+    Response create(@NotNull ImpersonatedAccount account);
 }

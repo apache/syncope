@@ -49,14 +49,14 @@ public class SyncopeWASurrogateAuthenticationService implements SurrogateAuthent
     public boolean canAuthenticateAs(final String surrogate, final Principal principal,
                                      final Optional<Service> service) {
         LOG.debug("Checking impersonation attempt by {} for {}", principal, surrogate);
-        Response response = getImpersonationService().isImpersonationAttemptAuthorizedFor(principal.getId(), surrogate,
+        Response response = getImpersonationService().find(principal.getId(), surrogate,
             service.map(Service::getId).orElse(null));
         return response != null && HttpStatus.valueOf(response.getStatus()).is2xxSuccessful();
     }
 
     @Override
     public Collection<String> getEligibleAccountsForSurrogateToProxy(final String username) {
-        return getImpersonationService().getImpersonatedAccountsFor(username).
+        return getImpersonationService().findByOwner(username).
             stream().
             map(ImpersonatedAccount::getId).
             collect(Collectors.toList());
