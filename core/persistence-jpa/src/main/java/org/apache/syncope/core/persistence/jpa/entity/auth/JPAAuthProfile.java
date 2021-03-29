@@ -28,7 +28,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
-import org.apache.syncope.common.lib.wa.ImpersonatedAccount;
+import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
@@ -112,15 +112,15 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     }
 
     @Override
-    public List<ImpersonatedAccount> getImpersonatedAccounts() {
+    public List<ImpersonationAccount> getImpersonationAccounts() {
         return impersonatedAccounts == null
             ? new ArrayList<>(0)
-            : POJOHelper.deserialize(impersonatedAccounts, new TypeReference<List<ImpersonatedAccount>>() {
+            : POJOHelper.deserialize(impersonatedAccounts, new TypeReference<List<ImpersonationAccount>>() {
         });
     }
 
     @Override
-    public void setImpersonatedAccounts(final List<ImpersonatedAccount> accounts) {
+    public void setImpersonationAccounts(final List<ImpersonationAccount> accounts) {
         this.impersonatedAccounts = POJOHelper.serialize(accounts);
     }
 

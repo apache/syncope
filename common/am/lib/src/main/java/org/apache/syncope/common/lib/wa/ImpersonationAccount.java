@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.BaseBean;
 
 import javax.ws.rs.PathParam;
 
-public class ImpersonatedAccount implements BaseBean {
+public class ImpersonationAccount implements BaseBean {
 
     private static final long serialVersionUID = 2285073386484048953L;
 
@@ -81,7 +81,7 @@ public class ImpersonatedAccount implements BaseBean {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        ImpersonatedAccount rhs = (ImpersonatedAccount) obj;
+        ImpersonationAccount rhs = (ImpersonationAccount) obj;
         return new EqualsBuilder()
             .appendSuper(super.equals(obj))
             .append(this.key, rhs.key)
@@ -101,24 +101,24 @@ public class ImpersonatedAccount implements BaseBean {
 
     public static class Builder {
 
-        private final ImpersonatedAccount instance = new ImpersonatedAccount();
+        private final ImpersonationAccount instance = new ImpersonationAccount();
 
-        public ImpersonatedAccount.Builder key(final String key) {
+        public ImpersonationAccount.Builder key(final String key) {
             instance.setKey(key);
             return this;
         }
 
-        public ImpersonatedAccount.Builder id(final String id) {
+        public ImpersonationAccount.Builder id(final String id) {
             instance.setId(id);
             return this;
         }
 
-        public ImpersonatedAccount.Builder owner(final String owner) {
+        public ImpersonationAccount.Builder owner(final String owner) {
             instance.setOwner(owner);
             return this;
         }
 
-        public ImpersonatedAccount build() {
+        public ImpersonationAccount build() {
             return instance;
         }
     }

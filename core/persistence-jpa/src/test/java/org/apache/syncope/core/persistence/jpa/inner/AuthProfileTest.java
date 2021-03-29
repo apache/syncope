@@ -30,7 +30,7 @@ import java.util.stream.IntStream;
 
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
-import org.apache.syncope.common.lib.wa.ImpersonatedAccount;
+import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
@@ -173,18 +173,16 @@ public class AuthProfileTest extends AbstractTest {
         result = Optional.ofNullable(authProfileDAO.find(authProfile.getKey()));
         assertTrue(result.isPresent());
 
-        List<ImpersonatedAccount> accounts = IntStream.range(1, 10).
-            mapToObj(i -> {
-            return new ImpersonatedAccount.Builder()
+        List<ImpersonationAccount> accounts = IntStream.range(1, 10).
+            mapToObj(i -> new ImpersonationAccount.Builder()
                 .owner("impersonator")
                 .id("impersonatee" + i)
-                .build();
-            }).
+                .build()).
             collect(Collectors.toList());
 
-        authProfile.setImpersonatedAccounts(accounts);
+        authProfile.setImpersonationAccounts(accounts);
         authProfile = authProfileDAO.save(authProfile);
-        assertEquals(accounts.size(), authProfile.getImpersonatedAccounts().size());
+        assertEquals(accounts.size(), authProfile.getImpersonationAccounts().size());
     }
 
     private AuthProfile createAuthProfileWithToken(final String owner, final Integer otp) {

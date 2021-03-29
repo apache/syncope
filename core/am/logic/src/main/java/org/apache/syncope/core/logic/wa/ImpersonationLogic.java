@@ -21,7 +21,7 @@ package org.apache.syncope.core.logic.wa;
 
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.common.lib.wa.ImpersonatedAccount;
+import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.core.logic.AbstractAuthProfileLogic;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -37,31 +38,28 @@ public class ImpersonationLogic extends AbstractAuthProfileLogic {
 
     @Autowired
     private EntityFactory entityFactory;
-    
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public List<ImpersonatedAccount> getImpersonatedAccountsFor(final String impersonator) {
-        AuthProfile profile = authProfileDAO.find(impersonator);
-        if (profile != null) {
-            return profile.getImpersonatedAccounts();
-        }
-        return List.of();
+
+    @PreAuthorize("hasRole('" + AMEntitlement.IMPERSONATION_READ_ACCOUNT + "')"
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public List<ImpersonationAccount> findByOwner(final String owner) {
+        return authProfileDAO.findByOwner(owner).map(AuthProfile::getImpersonationAccounts).orElse(List.of());
     }
 
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public boolean isImpersonationAttemptAuthorizedFor(final String impersonator,
-                                                       final String impersonatee,
-                                                       final String application) {
-        AuthProfile profile = authProfileDAO.find(impersonator);
-        if (profile != null) {
-            return profile.getImpersonatedAccounts()
+    @PreAuthorize("hasRole('" + AMEntitlement.IMPERSONATION_READ_ACCOUNT + "')"
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public Boolean find(final String owner,
+                        final String id,
+                        final String application) {
+        return authProfileDAO.findByOwner(owner)
+            .map(profile -> profile.getImpersonationAccounts()
                 .stream()
-                .anyMatch(acct -> acct.getId().equalsIgnoreCase(impersonatee));
-        }
-        return false;
+                .anyMatch(acct -> acct.getId().equalsIgnoreCase(id)))
+            .stream().findFirst().orElse(Boolean.FALSE);
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.IMPERSONATION_AUTHORIZED_ACCOUNT_CREATE + "')")
-    public String create(final ImpersonatedAccount account) {
+    @PreAuthorize("hasRole('" + AMEntitlement.IMPERSONATION_CREATE_ACCOUNT + "')"
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public String create(final ImpersonationAccount account) {
         if (account.getKey() == null) {
             account.setKey(SecureRandomUtils.generateRandomUUID().toString());
         }
@@ -71,10 +69,12 @@ public class ImpersonationLogic extends AbstractAuthProfileLogic {
             return authProfile;
         });
 
-        if (profile.getImpersonatedAccounts()
+        if (profile.getImpersonationAccounts()
             .stream()
             .noneMatch(acct -> acct.getId().equalsIgnoreCase(account.getId()))) {
-            profile.getImpersonatedAccounts().add(account);
+            final List<ImpersonationAccount> accounts = new ArrayList<>(profile.getImpersonationAccounts());
+            accounts.add(account);
+            profile.setImpersonationAccounts(accounts);
         }
         return authProfileDAO.save(profile).getKey();
     }

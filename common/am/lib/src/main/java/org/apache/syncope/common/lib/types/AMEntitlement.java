@@ -128,7 +128,9 @@ public final class AMEntitlement {
 
     public static final String WEBAUTHN_LIST_DEVICE = "WEBAUTHN_LIST_DEVICE";
 
-    public static final String IMPERSONATION_AUTHORIZED_ACCOUNT_CREATE = "IMPERSONATION_AUTHORIZED_ACCOUNT_CREATE";
+    public static final String IMPERSONATION_CREATE_ACCOUNT = "IMPERSONATION_CREATE_ACCOUNT";
+
+    public static final String IMPERSONATION_READ_ACCOUNT = "IMPERSONATION_READ_ACCOUNT";
 
     private static final Set<String> VALUES;
 

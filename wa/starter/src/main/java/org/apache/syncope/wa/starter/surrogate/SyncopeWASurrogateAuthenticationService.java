@@ -23,7 +23,7 @@ import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 
-import org.apache.syncope.common.lib.wa.ImpersonatedAccount;
+import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.slf4j.Logger;
@@ -58,7 +58,7 @@ public class SyncopeWASurrogateAuthenticationService implements SurrogateAuthent
     public Collection<String> getEligibleAccountsForSurrogateToProxy(final String username) {
         return getImpersonationService().findByOwner(username).
             stream().
-            map(ImpersonatedAccount::getId).
+            map(ImpersonationAccount::getId).
             collect(Collectors.toList());
     }
 

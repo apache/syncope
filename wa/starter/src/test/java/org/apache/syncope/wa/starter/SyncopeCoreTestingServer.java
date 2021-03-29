@@ -26,7 +26,7 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
-import org.apache.syncope.common.lib.wa.ImpersonatedAccount;
+import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
@@ -88,10 +88,10 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
     }
 
     public static class StubImpersonationService implements ImpersonationService {
-        private final Map<String, List<ImpersonatedAccount>> accounts = new HashMap<>();
+        private final Map<String, List<ImpersonationAccount>> accounts = new HashMap<>();
 
         @Override
-        public List<ImpersonatedAccount> findByOwner(final String owner) {
+        public List<ImpersonationAccount> findByOwner(final String owner) {
             return accounts.containsKey(owner) ? accounts.get(owner) : List.of();
         }
 
@@ -105,7 +105,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
 
         @Override
-        public Response create(final ImpersonatedAccount account) {
+        public Response create(final ImpersonationAccount account) {
             try {
                 if (account.getKey() == null) {
                     account.setKey(UUID.randomUUID().toString());
@@ -116,7 +116,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                     noneMatch(acct -> acct.getId().equalsIgnoreCase(account.getOwner()))) {
                     accounts.get(account.getOwner()).add(account);
                 } else {
-                    List<ImpersonatedAccount> list = new ArrayList<>();
+                    List<ImpersonationAccount> list = new ArrayList<>();
                     list.add(account);
                     accounts.put(account.getOwner(), list);
                 }

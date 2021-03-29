@@ -23,7 +23,7 @@ import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.PrincipalFactoryUtils;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 
-import org.apache.syncope.common.lib.wa.ImpersonatedAccount;
+import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
@@ -51,7 +51,7 @@ public class SyncopeWASurrogateAuthenticationServiceTest extends AbstractTest {
 
     @Test
     public void verifyImpersonation() {
-        ImpersonatedAccount account = new ImpersonatedAccount.Builder().
+        ImpersonationAccount account = new ImpersonationAccount.Builder().
             owner("syncope-principal").
             id("impersonatee").
             build();

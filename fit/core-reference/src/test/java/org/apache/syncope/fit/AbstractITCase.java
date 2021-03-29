@@ -145,6 +145,7 @@ import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreService;
 import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
+import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
@@ -348,6 +349,8 @@ public abstract class AbstractITCase {
 
     protected static WebAuthnRegistrationService webAuthnRegistrationService;
 
+    protected static ImpersonationService impersonationService;
+    
     @BeforeAll
     public static void securitySetup() {
         try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/security.properties")) {
@@ -429,6 +432,7 @@ public abstract class AbstractITCase {
         u2FRegistrationService = adminClient.getService(U2FRegistrationService.class);
         waConfigService = adminClient.getService(WAConfigService.class);
         webAuthnRegistrationService = adminClient.getService(WebAuthnRegistrationService.class);
+        impersonationService = adminClient.getService(ImpersonationService.class);
     }
 
     @Autowired

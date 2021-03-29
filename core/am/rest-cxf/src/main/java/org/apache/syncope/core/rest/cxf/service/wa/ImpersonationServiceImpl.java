@@ -19,7 +19,7 @@
 
 package org.apache.syncope.core.rest.cxf.service.wa;
 
-import org.apache.syncope.common.lib.wa.ImpersonatedAccount;
+import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.core.logic.wa.ImpersonationLogic;
@@ -39,21 +39,21 @@ public class ImpersonationServiceImpl extends AbstractServiceImpl implements Imp
     private ImpersonationLogic logic;
 
     @Override
-    public List<ImpersonatedAccount> findByOwner(final String owner) {
-        return logic.getImpersonatedAccountsFor(owner);
+    public List<ImpersonationAccount> findByOwner(final String owner) {
+        return logic.findByOwner(owner);
     }
 
     @Override
     public Response find(final String owner,
                          final String id,
                          final String application) {
-        return logic.isImpersonationAttemptAuthorizedFor(owner, id, application)
+        return logic.find(owner, id, application)
             ? Response.ok().build()
             : Response.status(Response.Status.FORBIDDEN).build();
     }
 
     @Override
-    public Response create(final ImpersonatedAccount account) {
+    public Response create(final ImpersonationAccount account) {
         String key = logic.create(account);
         URI location = uriInfo.getAbsolutePathBuilder().path(key).build();
         return Response.created(location).
