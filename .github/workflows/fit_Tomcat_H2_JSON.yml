@@ -26,15 +26,14 @@ on:
     - cron: '0 13 * * 4'
 
 jobs:
-  maven:
-    runs-on: ${{ matrix.os }}
+  fit_Tomcat_H2_JSON:
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
         language: ['java']
-        java: [ '11', '14', '16' ]
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        java: [ '11' ]
 
     steps:
     - name: Checkout repository
@@ -42,7 +41,7 @@ jobs:
     - name: Setup Java JDK
       uses: actions/setup-java@v1.4.3
       with:
-        java-version: ${{ matrix.java }}
+        java-version: 11
     - uses: actions/cache@v2.1.1
       with:
         path: ~/.m2
@@ -50,5 +49,5 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
-    - name: Verify
-      run: mvn -f fit/core-reference/pom.xml verify '-Dit.test=RESTITCase' '-Dinvoker.streamLogs=true' '-Dmodernizer.skip=true' '-Dianal.skip=true' '-Drat.skip=true' '-Dcheckstyle.skip=true' '-Djacoco.skip=true'
+    - name: 'Tomcat / H2 / JSON'
+      run: mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
