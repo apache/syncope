@@ -58,7 +58,7 @@ public class ClientAppPropertyWizardBuilder extends BaseAjaxWizardBuilder<Attr> 
         return wizardModel;
     }
 
-    private class AttrStep extends WizardStep {
+    private static class AttrStep extends WizardStep {
 
         private static final long serialVersionUID = 1L;
 
