@@ -429,7 +429,7 @@ under the License.
 
     <flowable.version>6.6.0</flowable.version>
 
-    <camel.version>3.8.0</camel.version>
+    <camel.version>3.9.0</camel.version>
 
     <slf4j.version>2.0.0-alpha1</slf4j.version>
 
@@ -1161,7 +1161,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>1.25</version>
+        <version>1.26</version>
       </dependency>
 
       <dependency>
@@ -1279,7 +1279,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.6.2</version>
+        <version>1.6.3</version>
         <exclusions>
           <exclusion>
             <groupId>junit</groupId>
@@ -2421,7 +2421,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.41</version>
+              <version>8.41.1</version>
             </dependency>
           </dependencies>
           <configuration>
