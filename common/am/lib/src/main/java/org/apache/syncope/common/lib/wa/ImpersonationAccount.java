@@ -23,13 +23,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
-import javax.ws.rs.PathParam;
-
 public class ImpersonationAccount implements BaseBean {
 
     private static final long serialVersionUID = 2285073386484048953L;
-
-    private String id;
 
     private String owner;
 
@@ -39,17 +35,8 @@ public class ImpersonationAccount implements BaseBean {
         return key;
     }
 
-    @PathParam("key")
     public void setKey(final String key) {
         this.key = key;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(final String id) {
-        this.id = id;
     }
 
     public String getOwner() {
@@ -65,7 +52,6 @@ public class ImpersonationAccount implements BaseBean {
         return new HashCodeBuilder()
             .appendSuper(super.hashCode())
             .append(key)
-            .append(id)
             .append(owner)
             .toHashCode();
     }
@@ -85,7 +71,6 @@ public class ImpersonationAccount implements BaseBean {
         return new EqualsBuilder()
             .appendSuper(super.equals(obj))
             .append(this.key, rhs.key)
-            .append(this.id, rhs.id)
             .append(this.owner, rhs.owner)
             .isEquals();
     }
@@ -94,8 +79,7 @@ public class ImpersonationAccount implements BaseBean {
     public String toString() {
         return new ToStringBuilder(this)
             .append("key", key)
-            .append("id", id)
-            .append("impersonator", owner)
+            .append("owner", owner)
             .toString();
     }
 
@@ -105,11 +89,6 @@ public class ImpersonationAccount implements BaseBean {
 
         public ImpersonationAccount.Builder key(final String key) {
             instance.setKey(key);
-            return this;
-        }
-
-        public ImpersonationAccount.Builder id(final String id) {
-            instance.setId(id);
             return this;
         }
 

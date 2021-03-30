@@ -53,10 +53,10 @@ public class ImpersonationLogic extends AbstractAuthProfileLogic {
             .map(AuthProfile::getImpersonationAccounts)
             .stream()
             .flatMap(List::stream)
-            .filter(acct -> acct.getId().equalsIgnoreCase(id))
+            .filter(acct -> acct.getKey().equalsIgnoreCase(id))
             .findFirst()
             .orElseThrow(() -> {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
                 sce.getElements().add(owner + " is not authorized to impersonate " + id);
                 throw sce;
             });
@@ -73,11 +73,36 @@ public class ImpersonationLogic extends AbstractAuthProfileLogic {
 
         if (profile.getImpersonationAccounts()
             .stream()
-            .noneMatch(acct -> acct.getId().equalsIgnoreCase(account.getId()))) {
+            .noneMatch(acct -> acct.getKey().equalsIgnoreCase(account.getKey()))) {
             final List<ImpersonationAccount> accounts = new ArrayList<>(profile.getImpersonationAccounts());
             accounts.add(account);
             profile.setImpersonationAccounts(accounts);
         }
         return authProfileDAO.save(profile).getKey();
+    }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.IMPERSONATION_UPDATE_ACCOUNT + "') "
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public void update(final ImpersonationAccount account) {
+        authProfileDAO.findByOwner(account.getOwner()).ifPresent(profile -> {
+            List<ImpersonationAccount> accounts = profile.getImpersonationAccounts();
+            if (accounts.removeIf(acct -> acct.getKey().equals(account.getKey()))) {
+                accounts.add(account);
+                profile.setImpersonationAccounts(accounts);
+                authProfileDAO.save(profile);
+            }
+        });
+    }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.IMPERSONATION_DELETE_ACCOUNT + "') "
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public void delete(final ImpersonationAccount account) {
+        authProfileDAO.findByOwner(account.getOwner()).ifPresent(profile -> {
+            List<ImpersonationAccount> accounts = profile.getImpersonationAccounts();
+            if (accounts.removeIf(acct -> acct.getKey().equalsIgnoreCase(account.getKey()))) {
+                profile.setImpersonationAccounts(accounts);
+                authProfileDAO.save(profile);
+            }
+        });
     }
 }

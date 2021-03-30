@@ -24,7 +24,6 @@ import org.apereo.cas.authentication.principal.PrincipalFactoryUtils;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.AbstractTest;
@@ -50,7 +49,7 @@ public class SyncopeWASurrogateAuthenticationServiceTest extends AbstractTest {
     public void verifyImpersonation() {
         ImpersonationAccount account = new ImpersonationAccount.Builder().
             owner("syncope-principal").
-            id("impersonatee").
+            key("impersonatee").
             build();
 
         ImpersonationService impersonationService = wARestClient.
@@ -58,13 +57,13 @@ public class SyncopeWASurrogateAuthenticationServiceTest extends AbstractTest {
             getService(ImpersonationService.class);
 
         Response response = impersonationService.create(account);
-        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
-        assertNotNull(key);
+        assertNotNull(response);
 
         assertFalse(surrogateService.getEligibleAccountsForSurrogateToProxy(account.getOwner()).isEmpty());
 
         Principal principal = PrincipalFactoryUtils.newPrincipalFactory().createPrincipal(account.getOwner());
         assertFalse(surrogateService.canAuthenticateAs("unknown", principal, Optional.empty()));
-        assertTrue(surrogateService.canAuthenticateAs(account.getId(), principal, Optional.empty()));
+        assertTrue(surrogateService.canAuthenticateAs(account.getKey(), principal, Optional.empty()));
+
     }
 }

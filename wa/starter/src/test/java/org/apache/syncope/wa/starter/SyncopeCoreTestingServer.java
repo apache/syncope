@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 
@@ -99,11 +100,11 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
 
         @Override
         public ImpersonationAccount find(final String owner, final String id) {
-            SyncopeClientException exception = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            SyncopeClientException exception = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
             if (accounts.containsKey(owner)) {
                 return accounts.get(owner).
                     stream().
-                    filter(acct -> acct.getId().equalsIgnoreCase(id)).
+                    filter(acct -> acct.getKey().equalsIgnoreCase(id)).
                     findFirst().
                     orElseThrow(() -> exception);
             }
@@ -113,13 +114,10 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public Response create(final ImpersonationAccount account) {
             try {
-                if (account.getKey() == null) {
-                    account.setKey(UUID.randomUUID().toString());
-                }
                 if (accounts.containsKey(account.getOwner())
                     && accounts.get(account.getOwner()).
                     stream().
-                    noneMatch(acct -> acct.getId().equalsIgnoreCase(account.getOwner()))) {
+                    noneMatch(acct -> acct.getKey().equalsIgnoreCase(account.getOwner()))) {
                     accounts.get(account.getOwner()).add(account);
                 } else {
                     List<ImpersonationAccount> list = new ArrayList<>();
@@ -131,6 +129,22 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                     build();
             } catch (final Exception e) {
                 throw new IllegalStateException(e);
+            }
+        }
+
+        @Override
+        public Response delete(final ImpersonationAccount account) {
+            if (accounts.containsKey(account.getOwner())) {
+                accounts.get(account.getOwner()).removeIf(acct -> acct.getKey().equalsIgnoreCase(account.getKey()));
+            }
+            return Response.noContent().build();
+        }
+
+        @Override
+        public void update(final ImpersonationAccount account) {
+            List<ImpersonationAccount> impersonatedAccounts = accounts.get(account.getOwner());
+            if (impersonatedAccounts.removeIf(acct -> acct.getKey().equals(account.getKey()))) {
+                impersonatedAccounts.add(account);
             }
         }
     }

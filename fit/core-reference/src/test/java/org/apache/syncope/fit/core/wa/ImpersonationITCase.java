@@ -19,8 +19,9 @@
 
 package org.apache.syncope.fit.core.wa;
 
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
@@ -28,21 +29,36 @@ import javax.ws.rs.core.Response;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ImpersonationITCase extends AbstractITCase {
     @Test
     public void createAndFind() {
         ImpersonationAccount account = new ImpersonationAccount.Builder()
             .owner(getUUIDString())
-            .id(getUUIDString())
+            .key(getUUIDString())
             .build();
 
         Response response = impersonationService.create(account);
-        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
-        assertNotNull(key);
+        assertNotNull(response);
 
         assertFalse(impersonationService.findByOwner(account.getOwner()).isEmpty());
-        account = impersonationService.find(account.getOwner(), account.getId());
+        account = impersonationService.find(account.getOwner(), account.getKey());
         assertNotNull(account);
+
+        impersonationService.update(account);
+        account = impersonationService.find(account.getOwner(), account.getKey());
+        assertNotNull(account);
+
+        response = impersonationService.delete(account);
+        assertNotNull(response);
+        
+        try {
+            impersonationService.find(account.getOwner(), account.getKey());
+            fail("Should not happen");
+        } catch (final SyncopeClientException e) {
+           assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
+        }
     }
 }

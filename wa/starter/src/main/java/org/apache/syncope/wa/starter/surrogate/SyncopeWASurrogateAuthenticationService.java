@@ -23,8 +23,6 @@ import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
@@ -50,12 +48,8 @@ public class SyncopeWASurrogateAuthenticationService implements SurrogateAuthent
         try {
             LOG.debug("Checking impersonation attempt by {} for {}", principal, surrogate);
             return getImpersonationService().find(principal.getId(), surrogate) != null;
-        } catch (final SyncopeClientException e) {
-            if (e.getType() == ClientExceptionType.InvalidRequest) {
-                LOG.info("Could not authorize account {} for owner {}", surrogate, principal.getId());
-            } else {
-                LOG.error(e.getMessage(), e);
-            }
+        } catch (final Exception e) {
+            LOG.info("Could not authorize account {} for owner {}", surrogate, principal.getId());
         }
         return false;
     }
@@ -64,7 +58,7 @@ public class SyncopeWASurrogateAuthenticationService implements SurrogateAuthent
     public Collection<String> getEligibleAccountsForSurrogateToProxy(final String username) {
         return getImpersonationService().findByOwner(username).
             stream().
-            map(ImpersonationAccount::getId).
+            map(ImpersonationAccount::getKey).
             collect(Collectors.toList());
     }
 

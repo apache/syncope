@@ -176,7 +176,7 @@ public class AuthProfileTest extends AbstractTest {
         List<ImpersonationAccount> accounts = IntStream.range(1, 10).
             mapToObj(i -> new ImpersonationAccount.Builder()
                 .owner("impersonator")
-                .id("impersonatee" + i)
+                .key("impersonatee" + i)
                 .build()).
             collect(Collectors.toList());
 

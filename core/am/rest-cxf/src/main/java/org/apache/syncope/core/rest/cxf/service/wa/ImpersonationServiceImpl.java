@@ -20,7 +20,6 @@
 package org.apache.syncope.core.rest.cxf.service.wa;
 
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.core.logic.wa.ImpersonationLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
@@ -51,10 +50,19 @@ public class ImpersonationServiceImpl extends AbstractServiceImpl implements Imp
 
     @Override
     public Response create(final ImpersonationAccount account) {
-        String key = logic.create(account);
-        URI location = uriInfo.getAbsolutePathBuilder().path(key).build();
-        return Response.created(location).
-            header(RESTHeaders.RESOURCE_KEY, key).
-            build();
+        logic.create(account);
+        URI location = uriInfo.getAbsolutePathBuilder().build();
+        return Response.created(location).build();
+    }
+
+    @Override
+    public Response delete(final ImpersonationAccount account) {
+        logic.delete(account);
+        return Response.noContent().build();
+    }
+
+    @Override
+    public void update(final ImpersonationAccount account) {
+        logic.update(account);
     }
 }
