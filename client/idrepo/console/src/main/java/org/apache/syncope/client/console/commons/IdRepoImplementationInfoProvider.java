@@ -25,6 +25,9 @@ import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
+import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -60,15 +63,18 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
         } else if (viewMode == ViewMode.JSON_BODY) {
             switch (implementation.getType()) {
                 case IdRepoImplementationType.REPORTLET:
-                    classes = new ArrayList<>(lookup.getReportletConfs().keySet());
+                    classes = lookup.getClasses(ReportletConf.class).stream().
+                            map(Class::getName).collect(Collectors.toList());
                     break;
 
                 case IdRepoImplementationType.ACCOUNT_RULE:
-                    classes = new ArrayList<>(lookup.getAccountRuleConfs().keySet());
+                    classes = lookup.getClasses(AccountRuleConf.class).stream().
+                            map(Class::getName).collect(Collectors.toList());
                     break;
 
                 case IdRepoImplementationType.PASSWORD_RULE:
-                    classes = new ArrayList<>(lookup.getPasswordRuleConfs().keySet());
+                    classes = lookup.getClasses(PasswordRuleConf.class).stream().
+                            map(Class::getName).collect(Collectors.toList());
                     break;
 
                 default:
@@ -129,15 +135,18 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
         Class<?> clazz = null;
         switch (implementationType) {
             case IdRepoImplementationType.REPORTLET:
-                clazz = lookup.getReportletConfs().get(name);
+                clazz = lookup.getClasses(ReportletConf.class).stream().
+                        filter(c -> c.getName().equals(name)).findFirst().orElse(null);
                 break;
 
             case IdRepoImplementationType.ACCOUNT_RULE:
-                clazz = lookup.getAccountRuleConfs().get(name);
+                clazz = lookup.getClasses(AccountRuleConf.class).stream().
+                        filter(c -> c.getName().equals(name)).findFirst().orElse(null);
                 break;
 
             case IdRepoImplementationType.PASSWORD_RULE:
-                clazz = lookup.getPasswordRuleConfs().get(name);
+                clazz = lookup.getClasses(PasswordRuleConf.class).stream().
+                        filter(c -> c.getName().equals(name)).findFirst().orElse(null);
                 break;
 
             default:

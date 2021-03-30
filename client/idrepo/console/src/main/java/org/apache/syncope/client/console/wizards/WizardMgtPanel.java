@@ -95,7 +95,6 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
             super.onConfigure();
             setFooterVisible(footerVisibility);
         }
-
     };
 
     protected WizardMgtPanel(final String id) {
@@ -160,7 +159,6 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
             protected void populateItem(final ListItem<Component> item) {
                 item.add(item.getModelObject());
             }
-
         });
     }
 

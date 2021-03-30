@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.AuthModuleRestClient;
 import org.apache.syncope.client.console.wizards.mapping.AuthModuleMappingPanel;
@@ -44,12 +44,11 @@ import org.springframework.util.ClassUtils;
 
 public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO> {
 
+    private static final long serialVersionUID = 1L;
+
     private final LoadableDetachableModel<List<String>> authModuleConfs;
 
-    public AuthModuleWizardBuilder(
-            final ClassPathScanImplementationLookup lookup,
-            final AuthModuleTO defaultItem,
-            final PageReference pageRef) {
+    public AuthModuleWizardBuilder(final AuthModuleTO defaultItem, final PageReference pageRef) {
 
         super(defaultItem, pageRef);
 
@@ -59,7 +58,7 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
 
             @Override
             protected List<String> load() {
-                return lookup.getClasses(AuthModuleConf.class).stream().
+                return SyncopeWebApplication.get().getLookup().getClasses(AuthModuleConf.class).stream().
                         map(Class::getName).sorted().collect(Collectors.toList());
             }
         };

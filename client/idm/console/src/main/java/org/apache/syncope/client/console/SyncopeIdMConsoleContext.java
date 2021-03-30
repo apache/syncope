@@ -36,9 +36,16 @@ import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
+import org.apache.syncope.client.console.init.ClassPathScanImplementationContributor;
+import org.apache.syncope.client.console.init.IdMClassPathScanImplementationContributor;
 
 @Configuration
 public class SyncopeIdMConsoleContext {
+
+    @Bean
+    public ClassPathScanImplementationContributor idmClassPathScanImplementationContributor() {
+        return new IdMClassPathScanImplementationContributor();
+    }
 
     @Bean
     public ExternalResourceProvider resourceProvider() {

@@ -90,6 +90,6 @@ public class RegisteredServiceMapper {
             }
         }
 
-        return clientAppMapper.build(clientApp, authPolicy, accessStrategy, attributeReleasePolicy);
+        return clientAppMapper.map(clientApp, authPolicy, accessStrategy, attributeReleasePolicy);
     }
 }

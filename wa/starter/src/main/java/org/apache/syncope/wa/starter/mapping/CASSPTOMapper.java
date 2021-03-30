@@ -27,10 +27,10 @@ import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 
 @ClientAppMapFor(clientAppClass = CASSPTO.class)
-public class CASSPTOMapper implements ClientAppMapper {
+public class CASSPTOMapper extends AbstractClientAppMapper {
 
     @Override
-    public RegisteredService build(
+    public RegisteredService map(
             final WAClientApp clientApp,
             final RegisteredServiceAuthenticationPolicy authenticationPolicy,
             final RegisteredServiceAccessStrategy accessStrategy,
@@ -39,21 +39,10 @@ public class CASSPTOMapper implements ClientAppMapper {
         CASSPTO cas = CASSPTO.class.cast(clientApp.getClientAppTO());
 
         RegexRegisteredService service = new RegexRegisteredService();
-
         service.setServiceId(cas.getServiceId());
-        service.setId(cas.getClientAppId());
-        service.setName(cas.getName());
-        service.setDescription(cas.getDescription());
+        setCommon(service, cas);
 
-        if (authenticationPolicy != null) {
-            service.setAuthenticationPolicy(authenticationPolicy);
-        }
-        if (accessStrategy != null) {
-            service.setAccessStrategy(accessStrategy);
-        }
-        if (attributeReleasePolicy != null) {
-            service.setAttributeReleasePolicy(attributeReleasePolicy);
-        }
+        setPolicies(service, authenticationPolicy, accessStrategy, attributeReleasePolicy);
 
         return service;
     }

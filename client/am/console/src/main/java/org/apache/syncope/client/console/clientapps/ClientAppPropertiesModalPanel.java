@@ -16,20 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.client.console.clientapps;
 
-public enum OIDCResponseType {
-    CODE("code"),
-    TOKEN("token"),
-    ID_TOKEN_TOKEN("id_token token");
+import org.apache.syncope.client.console.panels.AbstractModalPanel;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.common.lib.to.ClientAppTO;
+import org.apache.wicket.PageReference;
 
-    private final String externalForm;
+public class ClientAppPropertiesModalPanel<T extends ClientAppTO> extends AbstractModalPanel<T> {
 
-    OIDCResponseType(final String external) {
-        this.externalForm = external;
-    }
+    private static final long serialVersionUID = 1L;
 
-    public String getExternalForm() {
-        return externalForm;
+    public ClientAppPropertiesModalPanel(
+            final BaseModal<T> modal,
+            final ClientAppPropertiesDirectoryPanel<T> directoryPanel,
+            final PageReference pageRef) {
+
+        super(modal, pageRef);
+        add(directoryPanel);
     }
 }

@@ -148,7 +148,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     new PropertyModel<>(clientAppTO, "clientAppId")).setRequired(true));
 
             fields.add(new AjaxTextFieldPanel(
-                    "field", "description", new PropertyModel<>(clientAppTO, "description"), false).setRequired(true));
+                    "field", "description", new PropertyModel<>(clientAppTO, "description"), false));
 
             AjaxDropDownChoicePanel<String> accessPolicy = new AjaxDropDownChoicePanel<>(
                     "field", "accessPolicy", new PropertyModel<>(clientAppTO, "accessPolicy"), false);
@@ -168,11 +168,11 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     "field", "authPolicy", new PropertyModel<>(clientAppTO, "authPolicy"), false);
             authPolicy.setChoiceRenderer(new PolicyRenderer(authPolicies));
             authPolicy.setChoices(new ArrayList<>(authPolicies.getObject().keySet()));
+            authPolicy.setRequired(true);
             ((AbstractSingleSelectChoice<?>) authPolicy.getField()).setNullValid(true);
             fields.add(authPolicy);
 
-            fields.add(new AjaxTextFieldPanel(
-                    "field", "theme", new PropertyModel<>(clientAppTO, "theme"), false).setRequired(true));
+            fields.add(new AjaxTextFieldPanel("field", "theme", new PropertyModel<>(clientAppTO, "theme"), false));
 
             switch (type) {
                 case CASSP:

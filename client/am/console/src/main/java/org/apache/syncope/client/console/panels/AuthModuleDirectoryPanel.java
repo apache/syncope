@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AMConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AuthModuleDirectoryPanel.AuthModuleProvider;
 import org.apache.syncope.client.console.rest.AuthModuleRestClient;
@@ -53,20 +52,18 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class AuthModuleDirectoryPanel
         extends DirectoryPanel<AuthModuleTO, AuthModuleTO, AuthModuleProvider, AuthModuleRestClient> {
 
-    @SpringBean
-    private ClassPathScanImplementationLookup lookup;
+    private static final long serialVersionUID = 1L;
 
     public AuthModuleDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, pageRef);
 
         disableCheckBoxes();
 
-        this.addNewItemPanelBuilder(new AuthModuleWizardBuilder(lookup, new AuthModuleTO(), pageRef), true);
+        this.addNewItemPanelBuilder(new AuthModuleWizardBuilder(new AuthModuleTO(), pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, AMEntitlement.AUTH_MODULE_CREATE);
 

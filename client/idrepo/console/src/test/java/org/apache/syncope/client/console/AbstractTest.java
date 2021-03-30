@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.Client;
@@ -123,7 +124,7 @@ public abstract class AbstractTest {
 
         @Bean
         public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
-            ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
+            ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup(Set.of());
             lookup.load();
             return lookup;
         }

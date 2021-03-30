@@ -102,7 +102,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     }
 
     private void doUpdate(final SAML2SP clientApp, final SAML2SPTO clientAppTO) {
-        doUpdateCommon(clientApp, clientAppTO);
+        copyToEntity(clientApp, clientAppTO);
 
         clientApp.setEntityId(clientAppTO.getEntityId());
         clientApp.setMetadataLocation(clientAppTO.getMetadataLocation());
@@ -140,9 +140,29 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
                 clientAppTO.getEncryptionBlackListedAlgorithms());
     }
 
+    private static void copyToTO(final ClientApp clientApp, final ClientAppTO clientAppTO) {
+        clientAppTO.setName(clientApp.getName());
+        clientAppTO.setKey(clientApp.getKey());
+        clientAppTO.setDescription(clientApp.getDescription());
+        clientAppTO.setClientAppId(clientApp.getClientAppId());
+        clientAppTO.setTheme(clientApp.getTheme());
+
+        if (clientApp.getAuthPolicy() != null) {
+            clientAppTO.setAuthPolicy(clientApp.getAuthPolicy().getKey());
+        }
+        if (clientApp.getAccessPolicy() != null) {
+            clientAppTO.setAccessPolicy(clientApp.getAccessPolicy().getKey());
+        }
+        if (clientApp.getAttrReleasePolicy() != null) {
+            clientAppTO.setAttrReleasePolicy(clientApp.getAttrReleasePolicy().getKey());
+        }
+
+        clientAppTO.getProperties().addAll(clientApp.getProperties());
+    }
+
     private static SAML2SPTO getSAMLClientAppTO(final SAML2SP clientApp) {
         SAML2SPTO clientAppTO = new SAML2SPTO();
-        updateCommonClientAppTO(clientApp, clientAppTO);
+        copyToTO(clientApp, clientAppTO);
 
         clientAppTO.setEntityId(clientApp.getEntityId());
         clientAppTO.setMetadataLocation(clientApp.getMetadataLocation());
@@ -182,7 +202,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     }
 
     private void doUpdate(final OIDCRP clientApp, final OIDCRPTO clientAppTO) {
-        doUpdateCommon(clientApp, clientAppTO);
+        copyToEntity(clientApp, clientAppTO);
 
         clientApp.setClientSecret(clientAppTO.getClientSecret());
         clientApp.setClientId(clientAppTO.getClientId());
@@ -200,7 +220,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
     private static OIDCRPTO getOIDCClientAppTO(final OIDCRP clientApp) {
         OIDCRPTO clientAppTO = new OIDCRPTO();
-        updateCommonClientAppTO(clientApp, clientAppTO);
+        copyToTO(clientApp, clientAppTO);
 
         clientAppTO.setClientId(clientApp.getClientId());
         clientAppTO.setClientSecret(clientApp.getClientSecret());
@@ -215,34 +235,19 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     }
 
     private void doUpdate(final CASSP clientApp, final CASSPTO clientAppTO) {
-        doUpdateCommon(clientApp, clientAppTO);
+        copyToEntity(clientApp, clientAppTO);
 
         clientApp.setServiceId(clientAppTO.getServiceId());
     }
 
     private static CASSPTO getCASClientAppTO(final CASSP clientApp) {
         CASSPTO clientAppTO = new CASSPTO();
-        updateCommonClientAppTO(clientApp, clientAppTO);
+        copyToTO(clientApp, clientAppTO);
         clientAppTO.setServiceId(clientApp.getServiceId());
         return clientAppTO;
     }
 
-    private static void updateCommonClientAppTO(final ClientApp clientApp, final ClientAppTO clientAppTO) {
-        clientAppTO.setName(clientApp.getName());
-        clientAppTO.setKey(clientApp.getKey());
-        clientAppTO.setDescription(clientApp.getDescription());
-        clientAppTO.setClientAppId(clientApp.getClientAppId());
-        clientAppTO.setTheme(clientApp.getTheme());
-
-        clientAppTO.setAuthPolicy(clientApp.getAuthPolicy() == null
-                ? null : clientApp.getAuthPolicy().getKey());
-        clientAppTO.setAccessPolicy(clientApp.getAccessPolicy() == null
-                ? null : clientApp.getAccessPolicy().getKey());
-        clientAppTO.setAttrReleasePolicy(clientApp.getAttrReleasePolicy() == null
-                ? null : clientApp.getAttrReleasePolicy().getKey());
-    }
-
-    private void doUpdateCommon(final ClientApp clientApp, final ClientAppTO clientAppTO) {
+    private void copyToEntity(final ClientApp clientApp, final ClientAppTO clientAppTO) {
         clientApp.setName(clientAppTO.getName());
         clientApp.setClientAppId(clientAppTO.getClientAppId());
         clientApp.setDescription(clientAppTO.getDescription());
@@ -289,5 +294,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
                 throw sce;
             }
         }
+
+        clientApp.setProperties(clientAppTO.getProperties());
     }
 }

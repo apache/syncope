@@ -25,11 +25,11 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.console.annotations.IdMPage;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
-import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
@@ -66,16 +66,12 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class BasePage extends BaseWebPage {
 
     private static final long serialVersionUID = 1571997737305598502L;
 
     protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
-
-    @SpringBean
-    protected ClassPathScanImplementationLookup lookup;
 
     public BasePage() {
         this(null);
@@ -155,7 +151,7 @@ public class BasePage extends BaseWebPage {
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.REPORT_LIST);
         liContainer.add(link);
 
-        List<Class<? extends BasePage>> idmPageClasses = lookup.getIdMPageClasses();
+        List<Class<? extends BasePage>> idmPageClasses = SyncopeWebApplication.get().getLookup().getIdMPageClasses();
         ListView<Class<? extends BasePage>> idmPages = new ListView<Class<? extends BasePage>>(
                 "idmPages", idmPageClasses) {
 
@@ -195,7 +191,7 @@ public class BasePage extends BaseWebPage {
         idmPages.setOutputMarkupId(true);
         body.add(idmPages);
 
-        List<Class<? extends BasePage>> amPageClasses = lookup.getAMPageClasses();
+        List<Class<? extends BasePage>> amPageClasses = SyncopeWebApplication.get().getLookup().getAMPageClasses();
         ListView<Class<? extends BasePage>> amPages = new ListView<Class<? extends BasePage>>(
                 "amPages", amPageClasses) {
 
@@ -445,7 +441,8 @@ public class BasePage extends BaseWebPage {
         }
 
         // Extensions
-        List<Class<? extends ExtAlertWidget<?>>> extAlertWidgetClasses = lookup.getExtAlertWidgetClasses();
+        List<Class<? extends ExtAlertWidget<?>>> extAlertWidgetClasses =
+                SyncopeWebApplication.get().getLookup().getExtAlertWidgetClasses();
         ListView<Class<? extends ExtAlertWidget<?>>> extAlertWidgets = new ListView<Class<? extends ExtAlertWidget<?>>>(
                 "extAlertWidgets", extAlertWidgetClasses) {
 
@@ -468,7 +465,8 @@ public class BasePage extends BaseWebPage {
         };
         body.add(extAlertWidgets);
 
-        List<Class<? extends BaseExtPage>> extPageClasses = lookup.getClasses(BaseExtPage.class);
+        List<Class<? extends BaseExtPage>> extPageClasses =
+                SyncopeWebApplication.get().getLookup().getClasses(BaseExtPage.class);
 
         WebMarkupContainer extensionsLI = new WebMarkupContainer(getLIContainerId("extensions"));
         extensionsLI.setOutputMarkupPlaceholderTag(true);

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.pages;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.DashboardAccessTokensPanel;
 import org.apache.syncope.client.console.panels.DashboardControlPanel;
 import org.apache.syncope.client.console.panels.DashboardExtensionsPanel;
@@ -79,7 +80,8 @@ public class Dashboard extends BasePage {
             }
         });
 
-        List<Class<? extends BaseExtWidget>> extWidgetClasses = lookup.getClasses(BaseExtWidget.class);
+        List<Class<? extends BaseExtWidget>> extWidgetClasses =
+                SyncopeWebApplication.get().getLookup().getClasses(BaseExtWidget.class);
         if (!extWidgetClasses.isEmpty()) {
             tabs.add(new AbstractTab(new ResourceModel("extensions")) {
 

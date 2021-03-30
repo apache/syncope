@@ -21,11 +21,15 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.Attr;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class", "key", "description" })
@@ -53,6 +57,8 @@ public abstract class ClientAppTO implements NamedEntityTO {
     private String attrReleasePolicy;
 
     private String theme;
+
+    private final List<Attr> properties = new ArrayList<>();
 
     @Schema(name = "_class", required = true)
     public abstract String getDiscriminator();
@@ -130,6 +136,12 @@ public abstract class ClientAppTO implements NamedEntityTO {
         this.description = description;
     }
 
+    @JacksonXmlElementWrapper(localName = "properties")
+    @JacksonXmlProperty(localName = "property")
+    public List<Attr> getProperties() {
+        return properties;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
@@ -142,6 +154,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(accessPolicy)
                 .append(attrReleasePolicy)
                 .append(theme)
+                .append(properties)
                 .toHashCode();
     }
 
@@ -167,6 +180,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(this.accessPolicy, rhs.accessPolicy)
                 .append(this.attrReleasePolicy, rhs.attrReleasePolicy)
                 .append(this.theme, rhs.theme)
+                .append(this.properties, rhs.properties)
                 .isEquals();
     }
 }

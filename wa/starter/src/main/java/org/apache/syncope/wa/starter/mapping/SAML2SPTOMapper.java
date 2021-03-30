@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.SAML2SPTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
@@ -28,23 +29,20 @@ import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 
 @ClientAppMapFor(clientAppClass = SAML2SPTO.class)
-public class SAML2SPTOMapper implements ClientAppMapper {
+public class SAML2SPTOMapper extends AbstractClientAppMapper {
 
     @Override
-    public RegisteredService build(
+    public RegisteredService map(
             final WAClientApp clientApp,
             final RegisteredServiceAuthenticationPolicy authenticationPolicy,
             final RegisteredServiceAccessStrategy accessStrategy,
             final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy) {
 
         SAML2SPTO sp = SAML2SPTO.class.cast(clientApp.getClientAppTO());
-
         SamlRegisteredService service = new SamlRegisteredService();
+        setCommon(service, sp);
 
         service.setServiceId(sp.getEntityId());
-        service.setId(sp.getClientAppId());
-        service.setName(sp.getName());
-        service.setDescription(sp.getDescription());
 
         service.setMetadataLocation(sp.getMetadataLocation());
         service.setMetadataSignatureLocation(sp.getMetadataSignatureLocation());
@@ -54,22 +52,14 @@ public class SAML2SPTOMapper implements ClientAppMapper {
         service.setEncryptAssertions(sp.isEncryptAssertions());
         service.setRequiredAuthenticationContextClass(sp.getRequiredAuthenticationContextClass());
         service.setRequiredNameIdFormat(sp.getRequiredNameIdFormat().getNameId());
-        service.setSkewAllowance(sp.getSkewAllowance() == null ? 0 : sp.getSkewAllowance());
+        service.setSkewAllowance(Optional.ofNullable(sp.getSkewAllowance()).orElse(0));
         service.setNameIdQualifier(sp.getNameIdQualifier());
         if (!sp.getAssertionAudiences().isEmpty()) {
             service.setAssertionAudiences(sp.getAssertionAudiences().stream().collect(Collectors.joining(",")));
         }
         service.setServiceProviderNameIdQualifier(sp.getServiceProviderNameIdQualifier());
 
-        if (authenticationPolicy != null) {
-            service.setAuthenticationPolicy(authenticationPolicy);
-        }
-        if (accessStrategy != null) {
-            service.setAccessStrategy(accessStrategy);
-        }
-        if (attributeReleasePolicy != null) {
-            service.setAttributeReleasePolicy(attributeReleasePolicy);
-        }
+        setPolicies(service, authenticationPolicy, accessStrategy, attributeReleasePolicy);
 
         return service;
     }
