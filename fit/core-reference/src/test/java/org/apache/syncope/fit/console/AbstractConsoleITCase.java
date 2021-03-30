@@ -25,6 +25,7 @@ import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.sett
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import org.apache.syncope.client.console.SyncopeAMConsoleContext;
 import org.apache.syncope.client.console.SyncopeIdMConsoleContext;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -82,7 +83,7 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
 
         @Bean
         public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
-            ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
+            ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup(Set.of());
             lookup.load();
             return lookup;
         }

@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.entity.auth;
 
+import java.util.List;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
@@ -57,4 +59,8 @@ public interface ClientApp extends Entity {
     void setTheme(String name);
 
     String getTheme();
+
+    List<Attr> getProperties();
+
+    void setProperties(List<Attr> properties);
 }

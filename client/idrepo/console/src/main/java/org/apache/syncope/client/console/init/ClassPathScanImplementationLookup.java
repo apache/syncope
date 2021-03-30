@@ -46,8 +46,6 @@ import org.apache.syncope.client.console.widgets.BaseExtWidget;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
-import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -95,6 +93,17 @@ public class ClassPathScanImplementationLookup {
         });
     }
 
+    /**
+     * This method can be overridden by subclasses to customize classpath scan.
+     *
+     * @return basePackage for classpath scanning
+     */
+    protected static String getBasePackage() {
+        return DEFAULT_BASE_PACKAGE;
+    }
+
+    private final Collection<ClassPathScanImplementationContributor> contributors;
+
     private Map<String, List<Class<?>>> classes;
 
     private List<Class<? extends BasePage>> idRepoPages;
@@ -103,23 +112,8 @@ public class ClassPathScanImplementationLookup {
 
     private List<Class<? extends BasePage>> amPages;
 
-    private Map<String, Class<? extends ReportletConf>> reportletConfs;
-
-    private Map<String, Class<? extends AccountRuleConf>> accountRuleConfs;
-
-    private Map<String, Class<? extends PasswordRuleConf>> passwordRuleConfs;
-
-    private Map<String, Class<? extends PullCorrelationRuleConf>> pullCorrelationRuleConfs;
-
-    private Map<String, Class<? extends PushCorrelationRuleConf>> pushCorrelationRuleConfs;
-
-    /**
-     * This method can be overridden by subclasses to customize classpath scan.
-     *
-     * @return basePackage for classpath scanning
-     */
-    protected static String getBasePackage() {
-        return DEFAULT_BASE_PACKAGE;
+    public ClassPathScanImplementationLookup(final Collection<ClassPathScanImplementationContributor> contributors) {
+        this.contributors = contributors;
     }
 
     protected ClassPathScanningCandidateComponentProvider scanner() {
@@ -135,9 +129,9 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(ReportletConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AccountRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRuleConf.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(PullCorrelationRuleConf.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(PushCorrelationRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractResource.class));
+
+        contributors.forEach(contributor -> contributor.extend(scanner));
 
         return scanner;
     }
@@ -151,21 +145,12 @@ public class ClassPathScanImplementationLookup {
         clazzes.add(clazz);
     }
 
-    protected void additional(final Class<?> clazz) {
-        // nothing to do
-    }
-
     @SuppressWarnings("unchecked")
     public void load() {
         classes = new HashMap<>();
         idRepoPages = new ArrayList<>();
         idmPages = new ArrayList<>();
         amPages = new ArrayList<>();
-        reportletConfs = new HashMap<>();
-        accountRuleConfs = new HashMap<>();
-        passwordRuleConfs = new HashMap<>();
-        pullCorrelationRuleConfs = new HashMap<>();
-        pushCorrelationRuleConfs = new HashMap<>();
 
         scanner().findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
@@ -208,15 +193,11 @@ public class ClassPathScanImplementationLookup {
                     } else if (BaseSSOLoginFormPanel.class.isAssignableFrom(clazz)) {
                         addClass(BaseSSOLoginFormPanel.class.getName(), clazz);
                     } else if (ReportletConf.class.isAssignableFrom(clazz)) {
-                        reportletConfs.put(clazz.getName(), (Class<? extends ReportletConf>) clazz);
+                        addClass(ReportletConf.class.getName(), clazz);
                     } else if (AccountRuleConf.class.isAssignableFrom(clazz)) {
-                        accountRuleConfs.put(clazz.getName(), (Class<? extends AccountRuleConf>) clazz);
+                        addClass(AccountRuleConf.class.getName(), clazz);
                     } else if (PasswordRuleConf.class.isAssignableFrom(clazz)) {
-                        passwordRuleConfs.put(clazz.getName(), (Class<? extends PasswordRuleConf>) clazz);
-                    } else if (PullCorrelationRuleConf.class.isAssignableFrom(clazz)) {
-                        pullCorrelationRuleConfs.put(clazz.getName(), (Class<? extends PullCorrelationRuleConf>) clazz);
-                    } else if (PushCorrelationRuleConf.class.isAssignableFrom(clazz)) {
-                        pushCorrelationRuleConfs.put(clazz.getName(), (Class<? extends PushCorrelationRuleConf>) clazz);
+                        addClass(PasswordRuleConf.class.getName(), clazz);
                     } else if (AbstractResource.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(Resource.class)) {
                             addClass(AbstractResource.class.getName(), clazz);
@@ -225,7 +206,8 @@ public class ClassPathScanImplementationLookup {
                                     Resource.class.getName(), clazz.getName());
                         }
                     } else {
-                        additional(clazz);
+                        contributors.forEach(contributor -> contributor.getLabel(clazz).
+                                ifPresent(label -> addClass(label, clazz)));
                     }
                 }
             } catch (Throwable t) {
@@ -257,18 +239,6 @@ public class ClassPathScanImplementationLookup {
         }
 
         classes.forEach((category, clazzes) -> LOG.debug("{} found: {}", category, clazzes));
-
-        reportletConfs = Collections.unmodifiableMap(reportletConfs);
-        accountRuleConfs = Collections.unmodifiableMap(accountRuleConfs);
-        passwordRuleConfs = Collections.unmodifiableMap(passwordRuleConfs);
-        pullCorrelationRuleConfs = Collections.unmodifiableMap(pullCorrelationRuleConfs);
-        pushCorrelationRuleConfs = Collections.unmodifiableMap(pushCorrelationRuleConfs);
-
-        LOG.debug("Reportlet configurations found: {}", reportletConfs);
-        LOG.debug("Account Rule configurations found: {}", accountRuleConfs);
-        LOG.debug("Password Rule configurations found: {}", passwordRuleConfs);
-        LOG.debug("Pull Correlation Rule configurations found: {}", pullCorrelationRuleConfs);
-        LOG.debug("Push Correlation Rule configurations found: {}", pushCorrelationRuleConfs);
     }
 
     public List<Class<? extends BasePage>> getIdRepoPageClasses() {
@@ -319,25 +289,5 @@ public class ClassPathScanImplementationLookup {
                 && candidate.getAnnotation(UserFormFinalize.class).mode() == mode).
                 map(clazz -> (Class<? extends UserFormFinalizer>) clazz).
                 collect(Collectors.toList());
-    }
-
-    public Map<String, Class<? extends ReportletConf>> getReportletConfs() {
-        return reportletConfs;
-    }
-
-    public Map<String, Class<? extends AccountRuleConf>> getAccountRuleConfs() {
-        return accountRuleConfs;
-    }
-
-    public Map<String, Class<? extends PasswordRuleConf>> getPasswordRuleConfs() {
-        return passwordRuleConfs;
-    }
-
-    public Map<String, Class<? extends PullCorrelationRuleConf>> getPullCorrelationRuleConfs() {
-        return pullCorrelationRuleConfs;
-    }
-
-    public Map<String, Class<? extends PushCorrelationRuleConf>> getPushCorrelationRuleConfs() {
-        return pushCorrelationRuleConfs;
     }
 }

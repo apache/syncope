@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.ClientAppRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -49,6 +50,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
 public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
@@ -57,6 +59,8 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
     private static final long serialVersionUID = 1L;
 
     private final ClientAppType type;
+
+    protected final BaseModal<T> propertiesModal;
 
     public ClientAppDirectoryPanel(final String id, final ClientAppType type, final PageReference pageRef) {
         super(id, pageRef, true);
@@ -69,6 +73,20 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
             modal.show(false);
         });
         setFooterVisibility(true);
+
+        propertiesModal = new BaseModal<>(Constants.OUTER) {
+
+            private static final long serialVersionUID = 389935548143327858L;
+
+            @Override
+            protected void onConfigure() {
+                super.onConfigure();
+                setFooterVisible(false);
+            }
+        };
+        propertiesModal.size(Modal.Size.Large);
+        propertiesModal.setWindowClosedCallback(target -> propertiesModal.show(false));
+        addOuterObject(propertiesModal);
 
         disableCheckBoxes();
     }
@@ -107,6 +125,22 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
                                 ClientAppRestClient.read(type, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.CLIENTAPP_UPDATE);
+
+        panel.add(new ActionLink<T>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
+                model.setObject(ClientAppRestClient.read(type, model.getObject().getKey()));
+                target.add(propertiesModal.setContent(new ClientAppPropertiesModalPanel<>(
+                        propertiesModal,
+                        new ClientAppPropertiesDirectoryPanel<>("properties", propertiesModal, type, model, pageRef),
+                        pageRef)));
+                propertiesModal.header(new Model<>(getString("properties.title", new Model<>(model.getObject()))));
+                propertiesModal.show(true);
+            }
+        }, ActionLink.ActionType.TYPE_EXTENSIONS, AMEntitlement.CLIENTAPP_UPDATE);
 
         panel.add(new ActionLink<T>() {
 

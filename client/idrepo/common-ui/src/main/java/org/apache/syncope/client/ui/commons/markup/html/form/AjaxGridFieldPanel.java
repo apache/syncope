@@ -37,6 +37,8 @@ import org.wicketstuff.egrid.provider.EditableListDataProvider;
 
 public class AjaxGridFieldPanel<K, V, S> extends Panel {
 
+    private static final long serialVersionUID = 1L;
+
     public AjaxGridFieldPanel(final String id, final String name, final IModel<Map<K, V>> model) {
         super(id, model);
 
@@ -73,7 +75,7 @@ public class AjaxGridFieldPanel<K, V, S> extends Panel {
         });
     }
 
-    public AjaxGridFieldPanel hideLabel() {
+    public AjaxGridFieldPanel<K, V, S> hideLabel() {
         Component label = get(AbstractFieldPanel.LABEL);
         if (label != null) {
             label.setVisible(false);

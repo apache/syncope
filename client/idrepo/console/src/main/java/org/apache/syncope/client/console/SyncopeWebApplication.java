@@ -371,6 +371,10 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
                 : Dashboard.class;
     }
 
+    public ClassPathScanImplementationLookup getLookup() {
+        return lookup;
+    }
+
     public Class<? extends BasePage> getPageClass(final String key) {
         return pageClasses.get(key);
     }

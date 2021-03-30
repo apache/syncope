@@ -38,6 +38,7 @@ import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.commons.RealmPolicyProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
+import org.apache.syncope.client.console.init.ClassPathScanImplementationContributor;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.wizards.any.UserFormFinalizerUtils;
@@ -45,6 +46,7 @@ import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -52,12 +54,16 @@ import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConf
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
     HttpMessageConvertersAutoConfiguration.class })
 public class SyncopeConsoleApplication extends SpringBootServletInitializer {
+
+    @Autowired
+    private ApplicationContext ctx;
 
     public static void main(final String[] args) {
         SpringApplication.run(SyncopeConsoleApplication.class, args);
@@ -87,7 +93,8 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
     @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")
     @Bean
     public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
-        ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
+        ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup(
+                ctx.getBeansOfType(ClassPathScanImplementationContributor.class).values());
         lookup.load();
         return lookup;
     }

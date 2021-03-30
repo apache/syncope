@@ -29,7 +29,6 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ParametersDirectoryPanel.ParametersProvider;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -37,6 +36,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.wicket.AttributeModifier;
@@ -166,7 +166,7 @@ public class ParametersDirectoryPanel
                     LOG.error("While deleting {}", model.getObject(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionLink.ActionType.DELETE, null, true);
 

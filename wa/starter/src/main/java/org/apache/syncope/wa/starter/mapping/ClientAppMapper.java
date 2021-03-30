@@ -27,7 +27,7 @@ import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 @FunctionalInterface
 public interface ClientAppMapper {
 
-    RegisteredService build(
+    RegisteredService map(
             WAClientApp clientApp,
             RegisteredServiceAuthenticationPolicy authPolicy,
             RegisteredServiceAccessStrategy accessStrategy,

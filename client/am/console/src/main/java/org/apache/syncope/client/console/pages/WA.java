@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.panels.WAConfigDirectoryPanel;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -71,7 +72,7 @@ public class WA extends BasePage {
                     LOG.error("While pushing to WA", e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) getPageReference().getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) getPageReference().getPage()).getNotificationPanel().refresh(target);
             }
         };
         push.setEnabled(!serviceOps.list(NetworkService.Type.WA).isEmpty()

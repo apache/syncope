@@ -20,9 +20,9 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.ui.commons.panels.SubmitableModalPanel;
 import java.io.Serializable;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -72,12 +72,12 @@ public class AbstractModalPanel<T extends Serializable> extends Panel
 
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
-        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+        ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     @Override
     public void onError(final AjaxRequestTarget target) {
-        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+        ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     @Override

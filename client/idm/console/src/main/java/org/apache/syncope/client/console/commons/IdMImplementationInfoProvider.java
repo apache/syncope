@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
+import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
@@ -47,13 +49,13 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
         if (viewMode == ViewMode.JSON_BODY) {
             switch (implementation.getType()) {
                 case IdMImplementationType.PULL_CORRELATION_RULE:
-                    classes = lookup.getPullCorrelationRuleConfs().keySet().stream().
-                            collect(Collectors.toList());
+                    classes = lookup.getClasses(PullCorrelationRuleConf.class).stream().
+                            map(Class::getName).collect(Collectors.toList());
                     break;
 
                 case IdMImplementationType.PUSH_CORRELATION_RULE:
-                    classes = lookup.getPushCorrelationRuleConfs().keySet().stream().
-                            collect(Collectors.toList());
+                    classes = lookup.getClasses(PushCorrelationRuleConf.class).stream().
+                            map(Class::getName).collect(Collectors.toList());
                     break;
 
                 default:
@@ -111,11 +113,13 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
         Class<?> clazz;
         switch (implementationType) {
             case IdMImplementationType.PULL_CORRELATION_RULE:
-                clazz = lookup.getPullCorrelationRuleConfs().get(name);
+                clazz = lookup.getClasses(PullCorrelationRuleConf.class).stream().
+                        filter(c -> c.getName().equals(name)).findFirst().orElse(null);
                 break;
 
             case IdMImplementationType.PUSH_CORRELATION_RULE:
-                clazz = lookup.getPushCorrelationRuleConfs().get(name);
+                clazz = lookup.getClasses(PushCorrelationRuleConf.class).stream().
+                        filter(c -> c.getName().equals(name)).findFirst().orElse(null);
                 break;
 
             default:

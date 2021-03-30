@@ -47,28 +47,26 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 @ClientAppMapFor(clientAppClass = OIDCRPTO.class)
-public class OIDCRPTOMapper implements ClientAppMapper {
+public class OIDCRPTOMapper extends AbstractClientAppMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(OIDCRPTOMapper.class);
 
     private static final String CUSTOM_SCOPE = "syncope";
 
     @Override
-    public RegisteredService build(
+    public RegisteredService map(
             final WAClientApp clientApp,
             final RegisteredServiceAuthenticationPolicy authenticationPolicy,
             final RegisteredServiceAccessStrategy accessStrategy,
             final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy) {
 
         OIDCRPTO rp = OIDCRPTO.class.cast(clientApp.getClientAppTO());
-
         OidcRegisteredService service = new OidcRegisteredService();
+        setCommon(service, rp);
+
         service.setServiceId(Stream.concat(rp.getRedirectUris().stream(), Stream.of(rp.getLogoutUri())).
                 filter(Objects::nonNull).
                 collect(Collectors.joining("|")));
-        service.setId(rp.getClientAppId());
-        service.setName(rp.getName());
-        service.setDescription(rp.getDescription());
         service.setRedirectUrl(service.getServiceId());
         service.setClientId(rp.getClientId());
         service.setClientSecret(rp.getClientSecret());
@@ -86,12 +84,7 @@ public class OIDCRPTOMapper implements ClientAppMapper {
         }
         service.setLogoutUrl(rp.getLogoutUri());
 
-        if (authenticationPolicy != null) {
-            service.setAuthenticationPolicy(authenticationPolicy);
-        }
-        if (accessStrategy != null) {
-            service.setAccessStrategy(accessStrategy);
-        }
+        setPolicies(service, authenticationPolicy, accessStrategy, attributeReleasePolicy);
         if (attributeReleasePolicy != null) {
             ChainingAttributeReleasePolicy chain = new ChainingAttributeReleasePolicy();
             if (attributeReleasePolicy instanceof ReturnMappedAttributeReleasePolicy) {

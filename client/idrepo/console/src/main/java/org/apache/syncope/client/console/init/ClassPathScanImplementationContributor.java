@@ -16,20 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.client.console.init;
 
-public enum OIDCResponseType {
-    CODE("code"),
-    TOKEN("token"),
-    ID_TOKEN_TOKEN("id_token token");
+import java.util.Optional;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 
-    private final String externalForm;
+public interface ClassPathScanImplementationContributor {
 
-    OIDCResponseType(final String external) {
-        this.externalForm = external;
-    }
+    void extend(ClassPathScanningCandidateComponentProvider scanner);
 
-    public String getExternalForm() {
-        return externalForm;
-    }
+    Optional<String> getLabel(Class<?> clazz);
 }

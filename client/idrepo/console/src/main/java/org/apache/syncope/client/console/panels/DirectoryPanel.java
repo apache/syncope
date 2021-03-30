@@ -349,7 +349,7 @@ public abstract class DirectoryPanel<
     }
 
     protected ActionsPanel<T> getActions(final IModel<T> model) {
-        return model == null ? new ActionsPanel<>("actions", new Model<>()) : new ActionsPanel<>("actions", model);
+        return new ActionsPanel<>("actions", model == null ? new Model<>() : model);
     }
 
     protected ActionLinksTogglePanel<T> actionTogglePanel() {

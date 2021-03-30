@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
@@ -29,9 +32,12 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAuthPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccessPolicy;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @MappedSuperclass
 public class AbstractClientApp extends AbstractGeneratedKeyEntity implements ClientApp {
@@ -61,6 +67,9 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAAttrReleasePolicy attrReleasePolicy;
+
+    @Lob
+    private String properties;
 
     @Override
     public Long getClientAppId() {
@@ -144,5 +153,18 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     @Override
     public void setTheme(final String theme) {
         this.theme = theme;
+    }
+
+    @Override
+    public List<Attr> getProperties() {
+        return properties == null
+                ? new ArrayList<>(0)
+                : POJOHelper.deserialize(properties, new TypeReference<List<Attr>>() {
+                });
+    }
+
+    @Override
+    public void setProperties(final List<Attr> properties) {
+        this.properties = POJOHelper.serialize(properties);
     }
 }
