@@ -53,7 +53,6 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.servlet.XForwardedRequestWrapperFactory;
-import org.apache.wicket.protocol.ws.WebSocketAwareCsrfPreventionRequestCycleListener;
 import org.apache.wicket.protocol.ws.api.WebSocketResponse;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
@@ -74,6 +73,7 @@ import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.wicket.protocol.ws.WebSocketAwareResourceIsolationRequestCycleListener;
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -306,7 +306,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         }
 
         if (BooleanUtils.toBoolean(props.getProperty("csrf"))) {
-            getRequestCycleListeners().add(new WebSocketAwareCsrfPreventionRequestCycleListener());
+            getRequestCycleListeners().add(new WebSocketAwareResourceIsolationRequestCycleListener());
         }
         getRequestCycleListeners().add(new IRequestCycleListener() {
 
