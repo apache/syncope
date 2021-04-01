@@ -40,19 +40,11 @@ public class AbstractModalPanel<T extends Serializable> extends Panel
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractModalPanel.class);
 
+    private static final HeaderItem META = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
+
     protected final BaseModal<T> modal;
 
-    protected static final String CANCEL = "cancel";
-
-    protected static final String SUBMIT = "submit";
-
-    protected static final String APPLY = "apply";
-
-    protected static final String FORM = "form";
-
     protected final PageReference pageRef;
-
-    protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
     public AbstractModalPanel(final BaseModal<T> modal, final PageReference pageRef) {
         this(BaseModal.getContentId(), modal, pageRef);
@@ -67,7 +59,7 @@ public class AbstractModalPanel<T extends Serializable> extends Panel
     @Override
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
-        response.render(new PriorityHeaderItem(meta));
+        response.render(new PriorityHeaderItem(META));
     }
 
     @Override

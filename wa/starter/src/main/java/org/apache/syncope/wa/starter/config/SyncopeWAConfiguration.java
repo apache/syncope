@@ -35,7 +35,7 @@ import org.apache.syncope.wa.starter.audit.SyncopeWAAuditTrailManager;
 import org.apache.syncope.wa.starter.gauth.SyncopeWAGoogleMfaAuthCredentialRepository;
 import org.apache.syncope.wa.starter.mapping.AccessMapFor;
 import org.apache.syncope.wa.starter.mapping.AccessMapper;
-import org.apache.syncope.wa.starter.mapping.AllowedAttrReleaseMapper;
+import org.apache.syncope.wa.starter.mapping.DefaultAttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.AuthMapFor;
@@ -132,7 +132,7 @@ public class SyncopeWAConfiguration {
 
     @Bean
     public AttrReleaseMapper allowedAttrReleaseMapper() {
-        return new AllowedAttrReleaseMapper();
+        return new DefaultAttrReleaseMapper();
     }
 
     @Bean

@@ -217,6 +217,8 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             AccessPolicyTO accessPolicyTO = AccessPolicyTO.class.cast(policyTO);
 
             accessPolicy.setDescription(accessPolicyTO.getKey());
+            accessPolicy.setEnabled(accessPolicyTO.isEnabled());
+            accessPolicy.setSsoEnabled(accessPolicyTO.isSsoEnabled());
             accessPolicy.setConf(accessPolicyTO.getConf());
         } else if (policyTO instanceof AttrReleasePolicyTO) {
             if (result == null) {
@@ -295,16 +297,22 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                     put(rule.getAnyType().getKey(), rule.getImplementation().getKey()));
         } else if (policy instanceof AuthPolicy) {
             AuthPolicyTO authPolicyTO = new AuthPolicyTO();
-            authPolicyTO.setConf(((AuthPolicy) policy).getConf());
             policyTO = (T) authPolicyTO;
+
+            authPolicyTO.setConf(((AuthPolicy) policy).getConf());
         } else if (policy instanceof AccessPolicy) {
+            AccessPolicy accessPolicy = AccessPolicy.class.cast(policy);
             AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
-            accessPolicyTO.setConf(((AccessPolicy) policy).getConf());
             policyTO = (T) accessPolicyTO;
+
+            accessPolicyTO.setEnabled(accessPolicy.isEnabled());
+            accessPolicyTO.setSsoEnabled(accessPolicy.isSsoEnabled());
+            accessPolicyTO.setConf(((AccessPolicy) policy).getConf());
         } else if (policy instanceof AttrReleasePolicy) {
             AttrReleasePolicyTO attrReleasePolicyTO = new AttrReleasePolicyTO();
-            attrReleasePolicyTO.setConf(((AttrReleasePolicy) policy).getConf());
             policyTO = (T) attrReleasePolicyTO;
+
+            attrReleasePolicyTO.setConf(((AttrReleasePolicy) policy).getConf());
         }
 
         if (policyTO != null) {

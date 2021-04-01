@@ -140,14 +140,20 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                     break;
 
                 case ACCESS:
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field",
+                            "enabled",
+                            new PropertyModel<>(policyTO, "enabled"),
+                            false));
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field",
+                            "ssoEnabled",
+                            new PropertyModel<>(policyTO, "ssoEnabled"),
+                            false));
                     break;
 
                 case ATTR_RELEASE:
-                    break;
-
                 case AUTH:
-                    break;
-
                 default:
             }
 

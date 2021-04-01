@@ -76,7 +76,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
     protected final BaseModal<T> policySpecModal = new BaseModal<>(Constants.OUTER);
 
-    private final PolicyType type;
+    protected final PolicyType type;
 
     public PolicyDirectoryPanel(final String id, final PolicyType type, final PageReference pageRef) {
         super(id, pageRef, true);

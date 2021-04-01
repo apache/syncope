@@ -32,7 +32,6 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
 /**
@@ -76,7 +75,7 @@ public class AccountPolicyDirectoryPanel extends PolicyDirectoryPanel<AccountPol
                         ruleCompositionModal, model.getObject().getKey(), PolicyType.ACCOUNT, pageRef)));
 
                 ruleCompositionModal.header(new StringResourceModel(
-                        "policy.rules", AccountPolicyDirectoryPanel.this, Model.of(model.getObject())));
+                        "policy.rules", AccountPolicyDirectoryPanel.this, model));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
                         ruleCompositionModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
@@ -85,5 +84,4 @@ public class AccountPolicyDirectoryPanel extends PolicyDirectoryPanel<AccountPol
             }
         }, ActionLink.ActionType.COMPOSE, IdRepoEntitlement.POLICY_UPDATE);
     }
-
 }

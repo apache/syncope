@@ -36,6 +36,7 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
@@ -88,7 +89,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                             LOG.error("While creating or updating {}", modelObject, e);
                             SyncopeConsoleSession.get().onException(e);
                         }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                        ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 };
             }

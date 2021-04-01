@@ -23,15 +23,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
-import org.apache.syncope.common.lib.policy.DefaultAuthPolicyCriteriaConf;
 import org.apache.syncope.common.lib.to.OIDCRPTO;
 import org.apache.syncope.common.lib.to.SAML2SPTO;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
@@ -95,28 +94,24 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
             final WAClientApp waClientApp) {
 
         DefaultAuthPolicyConf authPolicyConf = new DefaultAuthPolicyConf();
-        DefaultAuthPolicyCriteriaConf criteria = new DefaultAuthPolicyCriteriaConf();
-        criteria.setAll(true);
-        authPolicyConf.setCriteria(criteria);
+        authPolicyConf.setTryAll(true);
         authPolicyConf.getAuthModules().add("TestAuthModule");
 
         waClientApp.setAuthPolicyConf(authPolicyConf);
 
         if (withReleaseAttributes) {
-            Map<String, Object> releaseAttrs;
-            releaseAttrs = new HashMap<>();
-            releaseAttrs.put("uid", "username");
-            releaseAttrs.put("cn", "fullname");
-            waClientApp.getReleaseAttrs().putAll(releaseAttrs);
+            waClientApp.getReleaseAttrs().putAll(Map.of("uid", "username", "cn", "fullname"));
         }
 
+        AccessPolicyTO accessPolicy = new AccessPolicyTO();
+        accessPolicy.setEnabled(true);
         DefaultAccessPolicyConf accessPolicyConf = new DefaultAccessPolicyConf();
-        accessPolicyConf.setEnabled(true);
-        accessPolicyConf.addRequiredAttr("cn", Set.of("admin", "Admin", "TheAdmin"));
-        waClientApp.setAccessPolicyConf(accessPolicyConf);
+        accessPolicyConf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
+        accessPolicy.setConf(accessPolicyConf);
+        waClientApp.setAccessPolicy(accessPolicy);
 
         if (withAttrReleasePolicy) {
-            AllowedAttrReleasePolicyConf attrReleasePolicyConf = new AllowedAttrReleasePolicyConf();
+            DefaultAttrReleasePolicyConf attrReleasePolicyConf = new DefaultAttrReleasePolicyConf();
             attrReleasePolicyConf.getAllowedAttrs().add("cn");
             waClientApp.setAttrReleasePolicyConf(attrReleasePolicyConf);
         }

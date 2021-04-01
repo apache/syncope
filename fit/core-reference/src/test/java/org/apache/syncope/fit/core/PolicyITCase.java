@@ -29,7 +29,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
-import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
@@ -55,6 +55,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 
@@ -251,8 +252,9 @@ public class PolicyITCase extends AbstractITCase {
         assertNotNull(newAccessPolicyTO);
 
         DefaultAccessPolicyConf accessPolicyConf = (DefaultAccessPolicyConf) newAccessPolicyTO.getConf();
-        accessPolicyConf.addRequiredAttr("ou", Set.of("test"));
-        accessPolicyConf.addRequiredAttr("cn", Set.of("admin", "Admin"));
+        accessPolicyConf.getRequiredAttrs().add(new Attr.Builder("ou").value("test").build());
+        accessPolicyConf.getRequiredAttrs().removeIf(attr -> "cn".equals(attr.getSchema()));
+        accessPolicyConf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin").build());
 
         // update new authentication policy
         policyService.update(PolicyType.ACCESS, newAccessPolicyTO);
@@ -261,8 +263,8 @@ public class PolicyITCase extends AbstractITCase {
 
         accessPolicyConf = (DefaultAccessPolicyConf) newAccessPolicyTO.getConf();
         assertEquals(2, accessPolicyConf.getRequiredAttrs().size());
-        assertNotNull(accessPolicyConf.getRequiredAttrs().get("cn"));
-        assertNotNull(accessPolicyConf.getRequiredAttrs().get("ou"));
+        assertTrue(accessPolicyConf.getRequiredAttrs().stream().anyMatch(attr -> "cn".equals(attr.getSchema())));
+        assertTrue(accessPolicyConf.getRequiredAttrs().stream().anyMatch(attr -> "ou".equals(attr.getSchema())));
     }
 
     @Test
@@ -270,7 +272,7 @@ public class PolicyITCase extends AbstractITCase {
         AttrReleasePolicyTO newPolicyTO = createPolicy(PolicyType.ATTR_RELEASE, buildAttrReleasePolicyTO());
         assertNotNull(newPolicyTO);
 
-        AllowedAttrReleasePolicyConf policyConf = (AllowedAttrReleasePolicyConf) newPolicyTO.getConf();
+        DefaultAttrReleasePolicyConf policyConf = (DefaultAttrReleasePolicyConf) newPolicyTO.getConf();
         policyConf.getAllowedAttrs().add("postalCode");
 
         // update new policy
@@ -278,12 +280,12 @@ public class PolicyITCase extends AbstractITCase {
         newPolicyTO = policyService.read(PolicyType.ATTR_RELEASE, newPolicyTO.getKey());
         assertNotNull(newPolicyTO);
 
-        policyConf = (AllowedAttrReleasePolicyConf) newPolicyTO.getConf();
+        policyConf = (DefaultAttrReleasePolicyConf) newPolicyTO.getConf();
         assertEquals(3, policyConf.getAllowedAttrs().size());
         assertTrue(policyConf.getAllowedAttrs().contains("cn"));
         assertTrue(policyConf.getAllowedAttrs().contains("postalCode"));
         assertTrue(policyConf.getAllowedAttrs().contains("givenName"));
-        assertTrue(policyConf.getConsentPolicy().getIncludeOnlyAttrs().contains("cn"));
+        assertTrue(policyConf.getIncludeOnlyAttrs().contains("cn"));
     }
 
     @Test

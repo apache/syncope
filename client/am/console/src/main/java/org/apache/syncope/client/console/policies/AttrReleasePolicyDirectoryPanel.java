@@ -18,11 +18,18 @@
  */
 package org.apache.syncope.client.console.policies;
 
+import org.apache.syncope.client.console.rest.PolicyRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
 public class AttrReleasePolicyDirectoryPanel extends PolicyDirectoryPanel<AttrReleasePolicyTO> {
 
@@ -38,5 +45,28 @@ public class AttrReleasePolicyDirectoryPanel extends PolicyDirectoryPanel<AttrRe
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.POLICY_CREATE);
 
         initResultTable();
+    }
+
+    @Override
+    protected void addCustomActions(
+            final ActionsPanel<AttrReleasePolicyTO> panel,
+            final IModel<AttrReleasePolicyTO> model) {
+
+        panel.add(new ActionLink<AttrReleasePolicyTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AttrReleasePolicyTO ignore) {
+                model.setObject(PolicyRestClient.read(type, model.getObject().getKey()));
+                if (model.getObject().getConf() == null) {
+                    model.getObject().setConf(new DefaultAttrReleasePolicyConf());
+                }
+                target.add(policySpecModal.setContent(
+                        new AttrReleasePolicyModalPanel(policySpecModal, model, pageRef)));
+                policySpecModal.header(new Model<>(getString("attrReleasePolicyConf.title", model)));
+                policySpecModal.show(true);
+            }
+        }, ActionLink.ActionType.TYPE_EXTENSIONS, IdRepoEntitlement.POLICY_UPDATE);
     }
 }

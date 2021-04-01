@@ -25,12 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
-import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
-import org.apache.syncope.common.lib.policy.DefaultAuthPolicyCriteriaConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
@@ -191,7 +190,7 @@ public class PolicyTest extends AbstractTest {
         accessPolicy.setDescription("AttrReleasePolicyAllowEverything");
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
-        conf.addRequiredAttr("cn", Set.of("syncope"));
+        conf.getRequiredAttrs().add(new Attr.Builder("cn").value("syncope").build());
         accessPolicy.setConf(conf);
 
         accessPolicy = policyDAO.save(accessPolicy);
@@ -208,9 +207,7 @@ public class PolicyTest extends AbstractTest {
 
         DefaultAuthPolicyConf authPolicyConf = new DefaultAuthPolicyConf();
         authPolicyConf.getAuthModules().addAll(List.of("LdapAuthentication1", "DatabaseAuthentication2"));
-        DefaultAuthPolicyCriteriaConf criteria = new DefaultAuthPolicyCriteriaConf();
-        criteria.setAll(true);
-        authPolicyConf.setCriteria(criteria);
+        authPolicyConf.setTryAll(true);
         authPolicy.setConf(authPolicyConf);
 
         authPolicy = policyDAO.save(authPolicy);
@@ -225,21 +222,18 @@ public class PolicyTest extends AbstractTest {
         AttrReleasePolicy attrReleasePolicy = entityFactory.newEntity(AttrReleasePolicy.class);
         attrReleasePolicy.setDescription("AttrReleasePolicyAllowEverything");
 
-        AllowedAttrReleasePolicyConf attrReleasePolicyConf = new AllowedAttrReleasePolicyConf();
-        attrReleasePolicyConf.getAllowedAttrs().addAll(List.of("*"));
-
-        AllowedAttrReleasePolicyConf.ConsentPolicy consentPolicy = attrReleasePolicyConf.new ConsentPolicy();
-        consentPolicy.setStatus(Boolean.TRUE);
-        consentPolicy.getIncludeOnlyAttrs().addAll(Set.of("cn"));
-        attrReleasePolicyConf.setConsentPolicy(consentPolicy);
+        DefaultAttrReleasePolicyConf attrReleasePolicyConf = new DefaultAttrReleasePolicyConf();
+        attrReleasePolicyConf.getAllowedAttrs().add("*");
+        attrReleasePolicyConf.setStatus(Boolean.TRUE);
+        attrReleasePolicyConf.getIncludeOnlyAttrs().add("cn");
         attrReleasePolicy.setConf(attrReleasePolicyConf);
 
         attrReleasePolicy = policyDAO.save(attrReleasePolicy);
 
         assertNotNull(attrReleasePolicy);
         assertNotNull(attrReleasePolicy.getKey());
-        assertNotNull(((AllowedAttrReleasePolicyConf) attrReleasePolicy.getConf()).getAllowedAttrs());
-        assertNotNull(((AllowedAttrReleasePolicyConf) attrReleasePolicy.getConf()).getConsentPolicy());
+        assertNotNull(((DefaultAttrReleasePolicyConf) attrReleasePolicy.getConf()).getAllowedAttrs());
+        assertNotNull(((DefaultAttrReleasePolicyConf) attrReleasePolicy.getConf()).getStatus());
 
         afterCount = policyDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);

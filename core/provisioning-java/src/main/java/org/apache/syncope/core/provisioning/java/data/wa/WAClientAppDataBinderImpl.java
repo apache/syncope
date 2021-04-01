@@ -25,6 +25,7 @@ import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
+import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,9 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
 
     @Autowired
     private ClientAppDataBinder clientAppDataBinder;
+
+    @Autowired
+    private PolicyDataBinder policyDataBinder;
 
     @Autowired
     private AuthModuleDAO authModuleDAO;
@@ -56,19 +60,6 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
                 authPolicyConf = clientApp.getRealm().getAuthPolicy().getConf();
                 waClientApp.setAuthPolicyConf(clientApp.getRealm().getAuthPolicy().getConf());
             }
-
-            if (clientApp.getAccessPolicy() != null) {
-                waClientApp.setAccessPolicyConf(clientApp.getAccessPolicy().getConf());
-            } else if (clientApp.getRealm() != null && clientApp.getRealm().getAccessPolicy() != null) {
-                waClientApp.setAccessPolicyConf(clientApp.getRealm().getAccessPolicy().getConf());
-            }
-
-            if (clientApp.getAttrReleasePolicy() != null) {
-                waClientApp.setAttrReleasePolicyConf(clientApp.getAttrReleasePolicy().getConf());
-            } else if (clientApp.getRealm() != null && clientApp.getRealm().getAttrReleasePolicy() != null) {
-                waClientApp.setAttrReleasePolicyConf(clientApp.getRealm().getAttrReleasePolicy().getConf());
-            }
-
             if (authPolicyConf instanceof DefaultAuthPolicyConf) {
                 ((DefaultAuthPolicyConf) authPolicyConf).getAuthModules().forEach(key -> {
                     AuthModule authModule = authModuleDAO.find(key);
@@ -81,6 +72,19 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
                     }
                 });
             }
+
+            if (clientApp.getAccessPolicy() != null) {
+                waClientApp.setAccessPolicy(policyDataBinder.getPolicyTO(clientApp.getAccessPolicy()));
+            } else if (clientApp.getRealm() != null && clientApp.getRealm().getAccessPolicy() != null) {
+                waClientApp.setAccessPolicy(policyDataBinder.getPolicyTO(clientApp.getRealm().getAccessPolicy()));
+            }
+
+            if (clientApp.getAttrReleasePolicy() != null) {
+                waClientApp.setAttrReleasePolicyConf(clientApp.getAttrReleasePolicy().getConf());
+            } else if (clientApp.getRealm() != null && clientApp.getRealm().getAttrReleasePolicy() != null) {
+                waClientApp.setAttrReleasePolicyConf(clientApp.getRealm().getAttrReleasePolicy().getConf());
+            }
+
             if (waClientApp.getReleaseAttrs().isEmpty()) {
                 if (clientApp.getAttrReleasePolicy() != null) {
                     waClientApp.setAttrReleasePolicyConf(clientApp.getAttrReleasePolicy().getConf());

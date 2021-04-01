@@ -61,7 +61,7 @@ public class RegisteredServiceMapper {
             LOG.warn("Unable to locate ClientAppMapper using key {}", key);
             return null;
         }
-        
+
         RegisteredServiceAuthenticationPolicy authPolicy = null;
         if (clientApp.getAuthPolicyConf() != null) {
             AuthMapper authMapper =
@@ -71,11 +71,11 @@ public class RegisteredServiceMapper {
         }
 
         RegisteredServiceAccessStrategy accessStrategy = null;
-        if (clientApp.getAccessPolicyConf() != null) {
+        if (clientApp.getAccessPolicy() != null) {
             AccessMapper accessPolicyConfMapper =
-                    accessPolicyConfMappers.get(clientApp.getAccessPolicyConf().getClass().getName());
+                    accessPolicyConfMappers.get(clientApp.getAccessPolicy().getClass().getName());
             accessStrategy = Optional.ofNullable(accessPolicyConfMapper).
-                    map(mapper -> mapper.build(clientApp.getAccessPolicyConf())).orElse(null);
+                    map(mapper -> mapper.build(clientApp.getAccessPolicy())).orElse(null);
         }
 
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy = null;

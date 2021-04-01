@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.policy;
+package org.apache.syncope.client.console.panels;
 
-public abstract class AbstractAuthPolicyConf implements AuthPolicyConf {
+import java.io.Serializable;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.wicket.PageReference;
 
-    private static final long serialVersionUID = 9185127128182430142L;
+public class ModalDirectoryPanel<T extends Serializable> extends AbstractModalPanel<T> {
 
-    private AuthPolicyCriteriaConf criteria;
+    private static final long serialVersionUID = 1L;
 
-    @Override
-    public AuthPolicyCriteriaConf getCriteria() {
-        return criteria;
-    }
+    public ModalDirectoryPanel(
+            final BaseModal<T> modal, final DirectoryPanel<?, ?, ?, ?> directoryPanel, final PageReference pageRef) {
 
-    public void setCriteria(final AuthPolicyCriteriaConf criteria) {
-        this.criteria = criteria;
+        super(modal, pageRef);
+        add(directoryPanel);
     }
 }
