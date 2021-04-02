@@ -18,15 +18,29 @@
  */
 package org.apache.syncope.common.lib.policy;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultAuthPolicyConf extends AbstractAuthPolicyConf implements AuthPolicyConf {
+public class DefaultAuthPolicyConf implements AuthPolicyConf {
 
     private static final long serialVersionUID = -2969836600059025380L;
 
+    private boolean tryAll;
+
     private final List<String> authModules = new ArrayList<>();
 
+    public boolean isTryAll() {
+        return tryAll;
+    }
+
+    public void setTryAll(final boolean tryAll) {
+        this.tryAll = tryAll;
+    }
+
+    @JacksonXmlElementWrapper(localName = "authModules")
+    @JacksonXmlProperty(localName = "authModule")
     public List<String> getAuthModules() {
         return authModules;
     }

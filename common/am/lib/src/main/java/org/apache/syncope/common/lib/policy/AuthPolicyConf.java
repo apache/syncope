@@ -21,15 +21,6 @@ package org.apache.syncope.common.lib.policy;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.syncope.common.lib.BaseBean;
 
-@FunctionalInterface
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 public interface AuthPolicyConf extends BaseBean {
-
-    /**
-     * Gets the policy criteria linked to this policy
-     * to establish criteria for success.
-     *
-     * @return the criteria
-     */
-    AuthPolicyCriteriaConf getCriteria();
 }

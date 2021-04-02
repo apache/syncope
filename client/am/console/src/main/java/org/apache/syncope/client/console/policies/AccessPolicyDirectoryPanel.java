@@ -18,11 +18,23 @@
  */
 package org.apache.syncope.client.console.policies;
 
+import java.util.List;
+import org.apache.syncope.client.console.panels.ModalDirectoryPanel;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 
 public class AccessPolicyDirectoryPanel extends PolicyDirectoryPanel<AccessPolicyTO> {
 
@@ -38,5 +50,35 @@ public class AccessPolicyDirectoryPanel extends PolicyDirectoryPanel<AccessPolic
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.POLICY_CREATE);
 
         initResultTable();
+    }
+
+    @Override
+    protected void addCustomColumnFields(final List<IColumn<AccessPolicyTO, String>> columns) {
+        columns.add(new BooleanPropertyColumn<>(
+                new StringResourceModel("enabled", this), "enabled", "enabled"));
+        columns.add(new BooleanPropertyColumn<>(
+                new StringResourceModel("ssoEnabled", this), "ssoEnabled", "ssoEnabled"));
+    }
+
+    @Override
+    protected void addCustomActions(final ActionsPanel<AccessPolicyTO> panel, final IModel<AccessPolicyTO> model) {
+        panel.add(new ActionLink<AccessPolicyTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AccessPolicyTO ignore) {
+                model.setObject(PolicyRestClient.read(type, model.getObject().getKey()));
+                if (model.getObject().getConf() == null) {
+                    model.getObject().setConf(new DefaultAccessPolicyConf());
+                }
+                target.add(ruleCompositionModal.setContent(new ModalDirectoryPanel<>(
+                        ruleCompositionModal,
+                        new AccessPolicyRequiredAttrsDirectoryPanel("panel", ruleCompositionModal, model, pageRef),
+                        pageRef)));
+                ruleCompositionModal.header(new Model<>(getString("requiredAttrs.title", model)));
+                ruleCompositionModal.show(true);
+            }
+        }, ActionLink.ActionType.TYPE_EXTENSIONS, IdRepoEntitlement.POLICY_UPDATE);
     }
 }

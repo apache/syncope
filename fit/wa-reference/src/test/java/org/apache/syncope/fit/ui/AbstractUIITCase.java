@@ -42,7 +42,7 @@ public abstract class AbstractUIITCase extends AbstractITCase {
 
         return policyService.list(PolicyType.AUTH).stream().
                 map(AuthPolicyTO.class::cast).
-                filter(policy -> description.equals(policy.getDescription())
+                filter(policy -> description.equals(policy.getName())
                 && policy.getConf() instanceof DefaultAuthPolicyConf
                 && ((DefaultAuthPolicyConf) policy.getConf()).getAuthModules().contains(syncopeAuthModule)
                 && ((DefaultAuthPolicyConf) policy.getConf()).getAuthModules().contains(ldapAuthModule)).
@@ -53,7 +53,7 @@ public abstract class AbstractUIITCase extends AbstractITCase {
                     policyConf.getAuthModules().add(ldapAuthModule);
 
                     AuthPolicyTO policy = new AuthPolicyTO();
-                    policy.setDescription(description);
+                    policy.setName(description);
                     policy.setConf(policyConf);
 
                     Response response = policyService.create(PolicyType.AUTH, policy);

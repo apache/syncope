@@ -19,9 +19,9 @@
 package org.apache.syncope.core.persistence.jpa.inner;
 
 import java.util.List;
-import java.util.Set;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
-import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
@@ -37,15 +37,12 @@ public class AbstractClientAppTest extends AbstractTest {
 
     protected AttrReleasePolicy buildAndSaveAttrRelPolicy() {
         AttrReleasePolicy attrRelPolicy = entityFactory.newEntity(AttrReleasePolicy.class);
-        attrRelPolicy.setDescription("AttrRelPolicyTest");
+        attrRelPolicy.setName("AttrRelPolicyTest");
 
-        AllowedAttrReleasePolicyConf conf = new AllowedAttrReleasePolicyConf();
+        DefaultAttrReleasePolicyConf conf = new DefaultAttrReleasePolicyConf();
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
-
-        AllowedAttrReleasePolicyConf.ConsentPolicy consentPolicy = conf.new ConsentPolicy();
-        consentPolicy.setStatus(Boolean.TRUE);
-        consentPolicy.getIncludeOnlyAttrs().addAll(Set.of("cn"));
-        conf.setConsentPolicy(consentPolicy);
+        conf.setStatus(Boolean.TRUE);
+        conf.getIncludeOnlyAttrs().add("cn");
 
         attrRelPolicy.setConf(conf);
 
@@ -55,12 +52,12 @@ public class AbstractClientAppTest extends AbstractTest {
 
     protected AccessPolicy buildAndSaveAccessPolicy() {
         AccessPolicy accessPolicy = entityFactory.newEntity(AccessPolicy.class);
-        accessPolicy.setDescription("AccessPolicyTest");
+        accessPolicy.setName("AccessPolicyTest");
+        accessPolicy.setEnabled(true);
+        accessPolicy.setSsoEnabled(false);
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
-        conf.setEnabled(true);
-        conf.addRequiredAttr("attribute1", Set.of("value1", "value2"));
-        conf.setSsoEnabled(false);
+        conf.getRequiredAttrs().add(new Attr.Builder("attribute1").values("value1", "value2").build());
         accessPolicy.setConf(conf);
 
         return policyDAO.save(accessPolicy);
@@ -68,7 +65,7 @@ public class AbstractClientAppTest extends AbstractTest {
 
     protected AuthPolicy buildAndSaveAuthPolicy() {
         AuthPolicy authPolicy = entityFactory.newEntity(AuthPolicy.class);
-        authPolicy.setDescription("AuthPolicyTest");
+        authPolicy.setName("AuthPolicyTest");
 
         DefaultAuthPolicyConf conf = new DefaultAuthPolicyConf();
         conf.getAuthModules().addAll(List.of("LdapAuthentication1", "DatabaseAuthentication2"));

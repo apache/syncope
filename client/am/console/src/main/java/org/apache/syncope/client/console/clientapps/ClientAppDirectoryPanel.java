@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AMConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
+import org.apache.syncope.client.console.panels.ModalDirectoryPanel;
 import org.apache.syncope.client.console.rest.ClientAppRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -98,7 +99,8 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
         columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(
-                new StringResourceModel("name", this), "name", "name"));
+                new StringResourceModel(Constants.NAME_FIELD_NAME, this),
+                Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("clientAppId", this), "clientAppId", "clientAppId"));
 
@@ -133,11 +135,11 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
                 model.setObject(ClientAppRestClient.read(type, model.getObject().getKey()));
-                target.add(propertiesModal.setContent(new ClientAppPropertiesModalPanel<>(
+                target.add(propertiesModal.setContent(new ModalDirectoryPanel<>(
                         propertiesModal,
-                        new ClientAppPropertiesDirectoryPanel<>("properties", propertiesModal, type, model, pageRef),
+                        new ClientAppPropertiesDirectoryPanel<>("panel", propertiesModal, type, model, pageRef),
                         pageRef)));
-                propertiesModal.header(new Model<>(getString("properties.title", new Model<>(model.getObject()))));
+                propertiesModal.header(new Model<>(getString("properties.title", model)));
                 propertiesModal.show(true);
             }
         }, ActionLink.ActionType.TYPE_EXTENSIONS, AMEntitlement.CLIENTAPP_UPDATE);
@@ -193,7 +195,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
         return AMConstants.PREF_CLIENTAPP_PAGINATOR_ROWS;
     }
 
-    private class ClientAppDataProvider extends DirectoryDataProvider<T> {
+    protected class ClientAppDataProvider extends DirectoryDataProvider<T> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
@@ -202,7 +204,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
         ClientAppDataProvider(final int paginatorRows) {
             super(paginatorRows);
 
-            setSort("name", SortOrder.ASCENDING);
+            setSort(Constants.NAME_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

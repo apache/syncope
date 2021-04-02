@@ -19,9 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.entity.policy;
 
 import java.util.Optional;
+import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -34,8 +36,34 @@ public class JPAAccessPolicy extends AbstractPolicy implements AccessPolicy {
 
     public static final String TABLE = "AccessPolicy";
 
+    @Basic
+    private Boolean enabled = true;
+
+    @Basic
+    private Boolean ssoEnabled = true;
+
     @Lob
     private String jsonConf;
+
+    @Override
+    public boolean isEnabled() {
+        return BooleanUtils.isNotFalse(enabled);
+    }
+
+    @Override
+    public void setEnabled(final boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    @Override
+    public boolean isSsoEnabled() {
+        return BooleanUtils.isNotFalse(ssoEnabled);
+    }
+
+    @Override
+    public void setSsoEnabled(final boolean ssoEnabled) {
+        this.ssoEnabled = ssoEnabled;
+    }
 
     @Override
     public AccessPolicyConf getConf() {

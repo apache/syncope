@@ -45,7 +45,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ACCESS).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
@@ -56,7 +56,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ATTR_RELEASE).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
@@ -67,7 +67,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.AUTH).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 

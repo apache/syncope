@@ -92,7 +92,8 @@ public class AuthModuleDirectoryPanel
         columns.add(new PropertyColumn<>(
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this),
                 Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
-        columns.add(new PropertyColumn<>(new ResourceModel("description"), "description", "description"));
+        columns.add(new PropertyColumn<>(new ResourceModel(Constants.DESCRIPTION_FIELD_NAME),
+                Constants.DESCRIPTION_FIELD_NAME, Constants.DESCRIPTION_FIELD_NAME));
         columns.add(new PropertyColumn<AuthModuleTO, String>(new ResourceModel("type"), "conf") {
 
             private static final long serialVersionUID = -1822504503325964706L;

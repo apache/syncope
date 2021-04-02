@@ -207,7 +207,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
 
         return policyService.list(PolicyType.AUTH).stream().
                 map(AuthPolicyTO.class::cast).
-                filter(policy -> description.equals(policy.getDescription())
+                filter(policy -> description.equals(policy.getName())
                 && policy.getConf() instanceof DefaultAuthPolicyConf
                 && ((DefaultAuthPolicyConf) policy.getConf()).getAuthModules().contains(authModule)).
                 findFirst().
@@ -216,7 +216,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
                     policyConf.getAuthModules().add(authModule);
 
                     AuthPolicyTO policy = new AuthPolicyTO();
-                    policy.setDescription(description);
+                    policy.setName(description);
                     policy.setConf(policyConf);
 
                     Response response = policyService.create(PolicyType.AUTH, policy);

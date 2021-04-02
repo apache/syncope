@@ -35,6 +35,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -134,7 +135,7 @@ public class JPAProvision extends AbstractGeneratedKeyEntity implements Provisio
     @Override
     public SyncToken getSyncToken() {
         return Optional.ofNullable(serializedSyncToken)
-            .map(syncToken -> POJOHelper.deserialize(syncToken, SyncToken.class)).orElse(null);
+                .map(syncToken -> POJOHelper.deserialize(syncToken, SyncToken.class)).orElse(null);
     }
 
     @Override
@@ -149,7 +150,7 @@ public class JPAProvision extends AbstractGeneratedKeyEntity implements Provisio
 
     @Override
     public boolean isIgnoreCaseMatch() {
-        return ignoreCaseMatch;
+        return BooleanUtils.isNotFalse(ignoreCaseMatch);
     }
 
     @Override

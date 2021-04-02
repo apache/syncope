@@ -16,41 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.clientapps;
+package org.apache.syncope.client.console.policies;
 
 import java.io.Serializable;
-import org.apache.syncope.client.console.rest.ClientAppRestClient;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wizards.AttrWizardBuilder;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.to.ClientAppTO;
-import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 
-public class ClientAppPropertyWizardBuilder extends AttrWizardBuilder {
+public class AccessPolicyRequiredAttrsWizardBuilder extends AttrWizardBuilder {
 
     private static final long serialVersionUID = 1L;
 
-    private final ClientAppType type;
+    private final AccessPolicyTO accessPolicy;
 
-    private final ClientAppTO clientApp;
-
-    public ClientAppPropertyWizardBuilder(
-            final ClientAppType type,
-            final ClientAppTO clientApp,
+    public AccessPolicyRequiredAttrsWizardBuilder(
+            final AccessPolicyTO accessPolicy,
             final Attr attr,
             final PageReference pageRef) {
 
         super(attr, pageRef);
-        this.type = type;
-        this.clientApp = clientApp;
+        this.accessPolicy = accessPolicy;
     }
 
     @Override
     protected Serializable onApplyInternal(final Attr modelObject) {
-        clientApp.getProperties().removeIf(p -> modelObject.getSchema().equals(p.getSchema()));
-        clientApp.getProperties().add(modelObject);
+        accessPolicy.getConf().getRequiredAttrs().removeIf(p -> modelObject.getSchema().equals(p.getSchema()));
+        accessPolicy.getConf().getRequiredAttrs().add(modelObject);
 
-        ClientAppRestClient.update(type, clientApp);
+        PolicyRestClient.update(PolicyType.ACCESS, accessPolicy);
 
         return null;
     }

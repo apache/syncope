@@ -29,7 +29,6 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
@@ -38,6 +37,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -76,7 +76,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
     protected final BaseModal<T> policySpecModal = new BaseModal<>(Constants.OUTER);
 
-    private final PolicyType type;
+    protected final PolicyType type;
 
     public PolicyDirectoryPanel(final String id, final PolicyType type, final PageReference pageRef) {
         super(id, pageRef, true);
@@ -105,12 +105,13 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
     @Override
     protected List<IColumn<T, String>> getColumns() {
-        final List<IColumn<T, String>> columns = new ArrayList<>();
+        List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(
-                new StringResourceModel("description", this), "description", "description"));
+                new StringResourceModel(Constants.NAME_FIELD_NAME, this),
+                Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
         if (type != PolicyType.ACCESS && type != PolicyType.ATTR_RELEASE && type != PolicyType.AUTH) {
             columns.add(new CollectionPropertyColumn<>(
                     new StringResourceModel("usedByResources", this), "usedByResources"));
@@ -127,7 +128,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
     @Override
     public ActionsPanel<T> getActions(final IModel<T> model) {
-        final ActionsPanel<T> panel = super.getActions(model);
+        ActionsPanel<T> panel = super.getActions(model);
 
         panel.add(new ActionLink<T>() {
 
@@ -171,7 +172,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
                     LOG.error("While deleting {}", policyTO.getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionLink.ActionType.DELETE, IdRepoEntitlement.POLICY_DELETE, true);
 
@@ -208,7 +209,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
         public PolicyDataProvider(final int paginatorRows) {
             super(paginatorRows);
 
-            setSort("description", SortOrder.ASCENDING);
+            setSort(Constants.NAME_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

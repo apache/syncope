@@ -93,8 +93,8 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
             List<Component> fields = new ArrayList<>();
 
-            fields.add(new AjaxTextFieldPanel("field", "description",
-                    new PropertyModel<>(policyTO, "description"), false).setRequired(true));
+            fields.add(new AjaxTextFieldPanel("field", Constants.NAME_FIELD_NAME,
+                    new PropertyModel<>(policyTO, Constants.NAME_FIELD_NAME), false).setRequired(true));
 
             switch (type) {
                 case ACCOUNT:
@@ -140,14 +140,20 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                     break;
 
                 case ACCESS:
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field",
+                            "enabled",
+                            new PropertyModel<>(policyTO, "enabled"),
+                            false));
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field",
+                            "ssoEnabled",
+                            new PropertyModel<>(policyTO, "ssoEnabled"),
+                            false));
                     break;
 
                 case ATTR_RELEASE:
-                    break;
-
                 case AUTH:
-                    break;
-
                 default:
             }
 

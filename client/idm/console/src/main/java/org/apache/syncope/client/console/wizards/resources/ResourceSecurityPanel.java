@@ -46,7 +46,7 @@ public class ResourceSecurityPanel extends WizardStep {
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.PASSWORD).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
@@ -57,7 +57,7 @@ public class ResourceSecurityPanel extends WizardStep {
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ACCOUNT).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
@@ -68,7 +68,7 @@ public class ResourceSecurityPanel extends WizardStep {
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.PULL).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
@@ -79,7 +79,7 @@ public class ResourceSecurityPanel extends WizardStep {
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.PUSH).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 

@@ -152,7 +152,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
 
         columns.add(new PropertyColumn<>(
-                new StringResourceModel("name", this), "name", "name"));
+                new StringResourceModel(Constants.NAME_FIELD_NAME, this),
+                Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
 
         columns.add(new PropertyColumn<T, String>(
                 new StringResourceModel("jobDelegate", this), "jobDelegate", "jobDelegate") {
@@ -348,7 +349,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         public SchedTasksProvider(final Class<T> reference, final TaskType taskType, final int paginatorRows) {
             super(paginatorRows, taskType);
-            setSort("name", SortOrder.ASCENDING);
+            setSort(Constants.NAME_FIELD_NAME, SortOrder.ASCENDING);
             this.reference = reference;
         }
 

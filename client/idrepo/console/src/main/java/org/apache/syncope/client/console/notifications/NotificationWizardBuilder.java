@@ -394,7 +394,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
                 .map(anyTypeTO -> anyTypeTO.getClasses().toArray(new String[] {})).orElseGet(() -> new String[0]);
 
         List<String> result = new ArrayList<>();
-        result.add("username");
+        result.add(Constants.USERNAME_FIELD_NAME);
 
         result.addAll(SchemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, null, anyTypeClasses).
                 stream().map(EntityTO::getKey).collect(Collectors.toList()));

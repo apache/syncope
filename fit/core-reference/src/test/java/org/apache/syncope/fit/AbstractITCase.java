@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -71,7 +70,7 @@ import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
-import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
@@ -770,13 +769,13 @@ public abstract class AbstractITCase {
     protected static OIDCRPTO buildOIDCRP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
-        authPolicyTO.setDescription("Authentication Policy");
+        authPolicyTO.setName("Authentication Policy");
         authPolicyTO = createPolicy(PolicyType.AUTH, authPolicyTO);
         assertNotNull(authPolicyTO);
 
         AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
         accessPolicyTO.setKey("AccessPolicyTest_" + getUUIDString());
-        accessPolicyTO.setDescription("Access policy");
+        accessPolicyTO.setName("Access policy");
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 
@@ -799,13 +798,13 @@ public abstract class AbstractITCase {
     protected static SAML2SPTO buildSAML2SP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
-        authPolicyTO.setDescription("Authentication Policy");
+        authPolicyTO.setName("Authentication Policy");
         authPolicyTO = createPolicy(PolicyType.AUTH, authPolicyTO);
         assertNotNull(authPolicyTO);
 
         AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
         accessPolicyTO.setKey("AccessPolicyTest_" + getUUIDString());
-        accessPolicyTO.setDescription("Access policy");
+        accessPolicyTO.setName("Access policy");
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 
@@ -839,7 +838,7 @@ public abstract class AbstractITCase {
 
     protected static AuthPolicyTO buildAuthPolicyTO(final String authModuleKey) {
         AuthPolicyTO policy = new AuthPolicyTO();
-        policy.setDescription("Test Authentication policy");
+        policy.setName("Test Authentication policy");
 
         DefaultAuthPolicyConf conf = new DefaultAuthPolicyConf();
         conf.getAuthModules().add(authModuleKey);
@@ -850,15 +849,12 @@ public abstract class AbstractITCase {
 
     protected static AttrReleasePolicyTO buildAttrReleasePolicyTO() {
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
-        policy.setDescription("Test Attribute Release policy");
+        policy.setName("Test Attribute Release policy");
 
-        AllowedAttrReleasePolicyConf conf = new AllowedAttrReleasePolicyConf();
+        DefaultAttrReleasePolicyConf conf = new DefaultAttrReleasePolicyConf();
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
-
-        AllowedAttrReleasePolicyConf.ConsentPolicy consentPolicy = conf.new ConsentPolicy();
-        consentPolicy.setStatus(Boolean.TRUE);
-        consentPolicy.getIncludeOnlyAttrs().addAll(Set.of("cn"));
-        conf.setConsentPolicy(consentPolicy);
+        conf.setStatus(Boolean.TRUE);
+        conf.getIncludeOnlyAttrs().add("cn");
 
         policy.setConf(conf);
 
@@ -867,11 +863,11 @@ public abstract class AbstractITCase {
 
     protected static AccessPolicyTO buildAccessPolicyTO() {
         AccessPolicyTO policy = new AccessPolicyTO();
-        policy.setDescription("Test Access policy");
+        policy.setName("Test Access policy");
+        policy.setEnabled(true);
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
-        conf.setEnabled(true);
-        conf.addRequiredAttr("cn", Set.of("admin", "Admin", "TheAdmin"));
+        conf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
         policy.setConf(conf);
 
         return policy;

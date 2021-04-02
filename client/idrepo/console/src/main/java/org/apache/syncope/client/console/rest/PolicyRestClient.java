@@ -32,7 +32,7 @@ public class PolicyRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    private static final Comparator<PolicyTO> COMPARATOR = Comparator.comparing(PolicyTO::getDescription);
+    private static final Comparator<PolicyTO> COMPARATOR = Comparator.comparing(PolicyTO::getName);
 
     public static <T extends PolicyTO> T read(final PolicyType type, final String key) {
         T policy = null;

@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib.wa;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.common.lib.BaseBean;
-import org.apache.syncope.common.lib.policy.AccessPolicyConf;
+import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AuthPolicyConf;
 import org.apache.syncope.common.lib.to.ClientAppTO;
@@ -32,7 +32,7 @@ public class WAClientApp implements BaseBean {
 
     private ClientAppTO clientAppTO;
 
-    private AccessPolicyConf accessPolicyConf;
+    private AccessPolicyTO accessPolicy;
 
     private AuthPolicyConf authPolicyConf;
 
@@ -48,12 +48,12 @@ public class WAClientApp implements BaseBean {
         this.clientAppTO = clientAppTO;
     }
 
-    public AccessPolicyConf getAccessPolicyConf() {
-        return accessPolicyConf;
+    public AccessPolicyTO getAccessPolicy() {
+        return accessPolicy;
     }
 
-    public void setAccessPolicyConf(final AccessPolicyConf accessPolicyConf) {
-        this.accessPolicyConf = accessPolicyConf;
+    public void setAccessPolicy(final AccessPolicyTO accessPolicy) {
+        this.accessPolicy = accessPolicy;
     }
 
     public AuthPolicyConf getAuthPolicyConf() {

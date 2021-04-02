@@ -144,7 +144,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
                     return reportlet.getConf();
                 }
             };
-            add(new BeanPanel<>("bean", bean, reportlet.getSCondWrapper(), "name", "reportlet").
+            add(new BeanPanel<>("bean", bean, reportlet.getSCondWrapper(), Constants.NAME_FIELD_NAME, "reportlet").
                     setRenderBodyOnly(true));
         }
     }

@@ -34,15 +34,15 @@ public abstract class AbstractPolicy extends AbstractGeneratedKeyEntity implemen
     private static final long serialVersionUID = -5844833125843247458L;
 
     @NotNull
-    private String description;
+    private String name;
 
     @Override
-    public String getDescription() {
-        return description;
+    public String getName() {
+        return name;
     }
 
     @Override
-    public void setDescription(final String description) {
-        this.description = description;
+    public void setName(final String name) {
+        this.name = name;
     }
 }

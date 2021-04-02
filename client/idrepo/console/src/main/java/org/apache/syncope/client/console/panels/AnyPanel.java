@@ -310,7 +310,7 @@ public class AnyPanel extends Panel implements ModalPanel {
             case USER:
                 clause.setComparator(SearchClause.Comparator.EQUALS);
                 clause.setType(SearchClause.Type.ATTRIBUTE);
-                clause.setProperty("username");
+                clause.setProperty(Constants.USERNAME_FIELD_NAME);
 
                 panel = new UserSearchPanel.Builder(
                         new ListModel<>(clauses)).required(true).enableSearch().build(id);
@@ -319,7 +319,7 @@ public class AnyPanel extends Panel implements ModalPanel {
             case GROUP:
                 clause.setComparator(SearchClause.Comparator.EQUALS);
                 clause.setType(SearchClause.Type.ATTRIBUTE);
-                clause.setProperty("name");
+                clause.setProperty(Constants.NAME_FIELD_NAME);
 
                 panel = new GroupSearchPanel.Builder(
                         new ListModel<>(clauses)).required(true).enableSearch().build(id);
@@ -328,7 +328,7 @@ public class AnyPanel extends Panel implements ModalPanel {
             case ANY_OBJECT:
                 clause.setComparator(SearchClause.Comparator.EQUALS);
                 clause.setType(SearchClause.Type.ATTRIBUTE);
-                clause.setProperty("name");
+                clause.setProperty(Constants.NAME_FIELD_NAME);
 
                 panel = new AnyObjectSearchPanel.Builder(anyTypeTO.getKey(),
                         new ListModel<>(clauses)).required(true).enableSearch().build(id);

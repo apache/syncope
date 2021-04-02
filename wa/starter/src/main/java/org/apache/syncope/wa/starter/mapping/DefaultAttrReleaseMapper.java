@@ -18,21 +18,21 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
-import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
+import java.util.HashSet;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
-import org.apereo.cas.services.RegisteredServiceConsentPolicy;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.apereo.cas.services.consent.DefaultRegisteredServiceConsentPolicy;
 import org.apereo.cas.util.model.TriStateBoolean;
 
-@AttrReleaseMapFor(attrReleasePolicyConfClass = AllowedAttrReleasePolicyConf.class)
-public class AllowedAttrReleaseMapper implements AttrReleaseMapper {
+@AttrReleaseMapFor(attrReleasePolicyConfClass = DefaultAttrReleasePolicyConf.class)
+public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
 
     @Override
     public RegisteredServiceAttributeReleasePolicy build(final AttrReleasePolicyConf conf) {
-        AllowedAttrReleasePolicyConf aarpc = (AllowedAttrReleasePolicyConf) conf;
+        DefaultAttrReleasePolicyConf aarpc = (DefaultAttrReleasePolicyConf) conf;
 
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy;
         if (aarpc.getAllowedAttrs().isEmpty()) {
@@ -42,13 +42,12 @@ public class AllowedAttrReleaseMapper implements AttrReleaseMapper {
             ((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).
                     setAllowedAttributes((aarpc.getAllowedAttrs()));
 
-            if (aarpc.getConsentPolicy() != null) {
-                RegisteredServiceConsentPolicy consentPolicy =
-                        new DefaultRegisteredServiceConsentPolicy(aarpc.getConsentPolicy().getExcludedAttrs(),
-                                aarpc.getConsentPolicy().getIncludeOnlyAttrs());
-                ((DefaultRegisteredServiceConsentPolicy) consentPolicy).setStatus(
-                        aarpc.getConsentPolicy().getStatus() == null ? TriStateBoolean.UNDEFINED
-                        : TriStateBoolean.fromBoolean(aarpc.getConsentPolicy().getStatus()));
+            if (!aarpc.getExcludedAttrs().isEmpty() || !aarpc.getIncludeOnlyAttrs().isEmpty()) {
+                DefaultRegisteredServiceConsentPolicy consentPolicy = new DefaultRegisteredServiceConsentPolicy(
+                        new HashSet<>(aarpc.getExcludedAttrs()), new HashSet<>(aarpc.getIncludeOnlyAttrs()));
+                consentPolicy.setStatus(
+                        aarpc.getStatus() == null ? TriStateBoolean.UNDEFINED
+                        : TriStateBoolean.fromBoolean(aarpc.getStatus()));
                 ((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).setConsentPolicy(consentPolicy);
             }
         }

@@ -97,7 +97,8 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
             add(key);
 
             AjaxTextFieldPanel description = new AjaxTextFieldPanel(
-                    "description", getString("description"), new PropertyModel<>(authModule, "description"));
+                    Constants.DESCRIPTION_FIELD_NAME, getString(Constants.DESCRIPTION_FIELD_NAME),
+                    new PropertyModel<>(authModule, Constants.DESCRIPTION_FIELD_NAME));
             add(description);
 
             AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>("conf", getString("type"), isNew

@@ -35,12 +35,12 @@ public class TestPasswordPolicy implements PasswordPolicy {
     }
 
     @Override
-    public String getDescription() {
+    public String getName() {
         return "";
     }
 
     @Override
-    public void setDescription(String description) {
+    public void setName(String description) {
         // nothing to do
     }
 

@@ -24,6 +24,7 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmPolicyProvider;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
@@ -96,7 +97,8 @@ public class RealmDetails extends Panel {
         container.add(generics.setVisible(unwrapped));
 
         FieldPanel<String> name = new AjaxTextFieldPanel(
-                "name", "name", new PropertyModel<>(realmTO, "name"), false);
+                Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME,
+                new PropertyModel<>(realmTO, Constants.NAME_FIELD_NAME), false);
         name.addRequiredLabel();
         generics.add(name);
 

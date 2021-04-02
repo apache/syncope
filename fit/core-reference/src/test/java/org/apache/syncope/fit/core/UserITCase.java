@@ -937,7 +937,7 @@ public class UserITCase extends AbstractITCase {
         implementationTO.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         AccountPolicyTO accountPolicy = new AccountPolicyTO();
-        accountPolicy.setDescription("Account Policy with custom rules");
+        accountPolicy.setName("Account Policy with custom rules");
         accountPolicy.getRules().add(implementationTO.getKey());
         accountPolicy = createPolicy(PolicyType.ACCOUNT, accountPolicy);
         assertNotNull(accountPolicy);
@@ -951,7 +951,7 @@ public class UserITCase extends AbstractITCase {
         implementationTO.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         PasswordPolicyTO passwordPolicy = new PasswordPolicyTO();
-        passwordPolicy.setDescription("Password Policy with custom rules");
+        passwordPolicy.setName("Password Policy with custom rules");
         passwordPolicy.getRules().add(implementationTO.getKey());
         passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
@@ -1347,7 +1347,7 @@ public class UserITCase extends AbstractITCase {
         rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         PasswordPolicyTO pwdPolicy = new PasswordPolicyTO();
-        pwdPolicy.setDescription("Have I Been Pwned?");
+        pwdPolicy.setName("Have I Been Pwned?");
         pwdPolicy.getRules().add(rule.getKey());
         pwdPolicy = createPolicy(PolicyType.PASSWORD, pwdPolicy);
         assertNotNull(pwdPolicy.getKey());
