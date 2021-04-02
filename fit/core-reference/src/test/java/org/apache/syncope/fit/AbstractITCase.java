@@ -769,13 +769,13 @@ public abstract class AbstractITCase {
     protected static OIDCRPTO buildOIDCRP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
-        authPolicyTO.setDescription("Authentication Policy");
+        authPolicyTO.setName("Authentication Policy");
         authPolicyTO = createPolicy(PolicyType.AUTH, authPolicyTO);
         assertNotNull(authPolicyTO);
 
         AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
         accessPolicyTO.setKey("AccessPolicyTest_" + getUUIDString());
-        accessPolicyTO.setDescription("Access policy");
+        accessPolicyTO.setName("Access policy");
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 
@@ -798,13 +798,13 @@ public abstract class AbstractITCase {
     protected static SAML2SPTO buildSAML2SP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
-        authPolicyTO.setDescription("Authentication Policy");
+        authPolicyTO.setName("Authentication Policy");
         authPolicyTO = createPolicy(PolicyType.AUTH, authPolicyTO);
         assertNotNull(authPolicyTO);
 
         AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
         accessPolicyTO.setKey("AccessPolicyTest_" + getUUIDString());
-        accessPolicyTO.setDescription("Access policy");
+        accessPolicyTO.setName("Access policy");
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 
@@ -838,7 +838,7 @@ public abstract class AbstractITCase {
 
     protected static AuthPolicyTO buildAuthPolicyTO(final String authModuleKey) {
         AuthPolicyTO policy = new AuthPolicyTO();
-        policy.setDescription("Test Authentication policy");
+        policy.setName("Test Authentication policy");
 
         DefaultAuthPolicyConf conf = new DefaultAuthPolicyConf();
         conf.getAuthModules().add(authModuleKey);
@@ -849,7 +849,7 @@ public abstract class AbstractITCase {
 
     protected static AttrReleasePolicyTO buildAttrReleasePolicyTO() {
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
-        policy.setDescription("Test Attribute Release policy");
+        policy.setName("Test Attribute Release policy");
 
         DefaultAttrReleasePolicyConf conf = new DefaultAttrReleasePolicyConf();
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
@@ -863,7 +863,7 @@ public abstract class AbstractITCase {
 
     protected static AccessPolicyTO buildAccessPolicyTO() {
         AccessPolicyTO policy = new AccessPolicyTO();
-        policy.setDescription("Test Access policy");
+        policy.setName("Test Access policy");
         policy.setEnabled(true);
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();

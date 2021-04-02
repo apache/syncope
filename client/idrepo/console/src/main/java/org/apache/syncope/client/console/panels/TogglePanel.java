@@ -28,10 +28,7 @@ import org.apache.syncope.client.console.policies.PolicyRuleWrapper;
 import org.apache.syncope.client.console.reports.ReportletWrapper;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
-import org.apache.syncope.client.console.wizards.any.GroupWrapper;
-import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -154,7 +151,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
 
     protected void setHeader(final AjaxRequestTarget target, final String header) {
         this.header.setDefaultModelObject(Optional.ofNullable(header).map(s -> s.length() >= 40
-            ? (s.substring(0, 30) + " ... ") : s).orElse(StringUtils.EMPTY));
+                ? (s.substring(0, 30) + " ... ") : s).orElse(StringUtils.EMPTY));
         target.add(this.header);
     }
 
@@ -169,13 +166,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
             key = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         } else if (modelObject instanceof EntityTO) {
             key = ((EntityTO) modelObject).getKey();
-        } else if (modelObject instanceof UserWrapper) {
-            key = ((UserWrapper) modelObject).getInnerObject().getKey();
-        } else if (modelObject instanceof GroupWrapper) {
-            key = ((GroupWrapper) modelObject).getInnerObject().getKey();
-        } else if (modelObject instanceof AnyWrapper
-                && AnyWrapper.class.cast(modelObject).getInnerObject() instanceof AnyObjectTO) {
-            key = ((AnyObjectTO) ((AnyWrapper) modelObject).getInnerObject()).getKey();
+        } else if (modelObject instanceof AnyWrapper) {
+            key = ((AnyWrapper<?>) modelObject).getInnerObject().getKey();
         } else if (modelObject instanceof Attr) {
             key = ((Attr) modelObject).getSchema();
         } else if (modelObject instanceof ConfParam) {

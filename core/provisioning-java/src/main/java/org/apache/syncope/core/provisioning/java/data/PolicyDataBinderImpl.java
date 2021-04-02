@@ -206,7 +206,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             AuthPolicy authPolicy = AuthPolicy.class.cast(result);
             AuthPolicyTO authPolicyTO = AuthPolicyTO.class.cast(policyTO);
 
-            authPolicy.setDescription(authPolicyTO.getKey());
+            authPolicy.setName(authPolicyTO.getKey());
             authPolicy.setConf(authPolicyTO.getConf());
         } else if (policyTO instanceof AccessPolicyTO) {
             if (result == null) {
@@ -216,7 +216,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             AccessPolicy accessPolicy = AccessPolicy.class.cast(result);
             AccessPolicyTO accessPolicyTO = AccessPolicyTO.class.cast(policyTO);
 
-            accessPolicy.setDescription(accessPolicyTO.getKey());
+            accessPolicy.setName(accessPolicyTO.getKey());
             accessPolicy.setEnabled(accessPolicyTO.isEnabled());
             accessPolicy.setSsoEnabled(accessPolicyTO.isSsoEnabled());
             accessPolicy.setConf(accessPolicyTO.getConf());
@@ -228,12 +228,12 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             AttrReleasePolicy attrReleasePolicy = AttrReleasePolicy.class.cast(result);
             AttrReleasePolicyTO attrReleasePolicyTO = AttrReleasePolicyTO.class.cast(policyTO);
 
-            attrReleasePolicy.setDescription(attrReleasePolicyTO.getKey());
+            attrReleasePolicy.setName(attrReleasePolicyTO.getKey());
             attrReleasePolicy.setConf(attrReleasePolicyTO.getConf());
         }
 
         if (result != null) {
-            result.setDescription(policyTO.getDescription());
+            result.setName(policyTO.getName());
         }
 
         return result;
@@ -317,7 +317,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
         if (policyTO != null) {
             policyTO.setKey(policy.getKey());
-            policyTO.setDescription(policy.getDescription());
+            policyTO.setName(policy.getName());
 
             if (!(policy instanceof AuthPolicy)
                     && !(policy instanceof AccessPolicy)

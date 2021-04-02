@@ -73,14 +73,15 @@ public class PrivilegeWizardBuilder extends BaseAjaxWizardBuilder<PrivilegeTO> {
                     : new StringResourceModel("privilege.edit", Model.of(privilege)));
 
             AjaxTextFieldPanel key = new AjaxTextFieldPanel(
-                    Constants.KEY_FIELD_NAME,
-                    Constants.KEY_FIELD_NAME, new PropertyModel<>(privilege, Constants.KEY_FIELD_NAME), false);
+                    Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME,
+                    new PropertyModel<>(privilege, Constants.KEY_FIELD_NAME), false);
             key.setReadOnly(privilege.getKey() != null);
             key.setRequired(true);
             add(key);
 
             AjaxTextFieldPanel description = new AjaxTextFieldPanel(
-                    "description", "description", new PropertyModel<>(privilege, "description"), false);
+                    Constants.DESCRIPTION_FIELD_NAME, Constants.DESCRIPTION_FIELD_NAME,
+                    new PropertyModel<>(privilege, Constants.DESCRIPTION_FIELD_NAME), false);
             description.setRequired(false);
             add(description);
         }

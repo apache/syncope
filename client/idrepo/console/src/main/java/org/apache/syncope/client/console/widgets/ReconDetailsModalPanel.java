@@ -110,7 +110,8 @@ public class ReconDetailsModalPanel extends AbstractModalPanel<Any> {
         protected List<IColumn<Misaligned, String>> getColumns() {
             List<IColumn<Misaligned, String>> columns = new ArrayList<>();
 
-            columns.add(new PropertyColumn<>(new ResourceModel(Constants.KEY_FIELD_NAME), "name", "name"));
+            columns.add(new PropertyColumn<>(new ResourceModel(Constants.KEY_FIELD_NAME),
+                    Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
 
             columns.add(new AbstractColumn<Misaligned, String>(Model.of(Constants.SYNCOPE)) {
 
@@ -154,7 +155,7 @@ public class ReconDetailsModalPanel extends AbstractModalPanel<Any> {
 
         private DetailsProvider() {
             super(ROWS);
-            setSort("name", SortOrder.ASCENDING);
+            setSort(Constants.NAME_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

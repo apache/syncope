@@ -175,7 +175,7 @@ public class RealmITCase extends AbstractITCase {
         rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         AccountPolicyTO policy = new AccountPolicyTO();
-        policy.setDescription("deletingAccountPolicy");
+        policy.setName("deletingAccountPolicy");
         policy.getRules().add(rule.getKey());
 
         policy = createPolicy(PolicyType.ACCOUNT, policy);
@@ -217,7 +217,7 @@ public class RealmITCase extends AbstractITCase {
         ruleConf.getAuthModules().addAll(List.of("LdapAuthentication1"));
 
         AuthPolicyTO policy = new AuthPolicyTO();
-        policy.setDescription("Test Authentication policy");
+        policy.setName("Test Authentication policy");
         policy.setConf(ruleConf);
         policy = createPolicy(PolicyType.AUTH, policy);
         assertNotNull(policy);
@@ -258,7 +258,7 @@ public class RealmITCase extends AbstractITCase {
         conf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
 
         AccessPolicyTO policy = new AccessPolicyTO();
-        policy.setDescription("Test Access policy");
+        policy.setName("Test Access policy");
         policy.setConf(conf);
         policy = createPolicy(PolicyType.ACCESS, policy);
         assertNotNull(policy);
@@ -300,7 +300,7 @@ public class RealmITCase extends AbstractITCase {
         conf.getIncludeOnlyAttrs().add("cn");
 
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
-        policy.setDescription("Test Attribute Release policy");
+        policy.setName("Test Attribute Release policy");
         policy.setConf(conf);
         policy = createPolicy(PolicyType.ATTR_RELEASE, policy);
         assertNotNull(policy);

@@ -57,15 +57,15 @@ public class LinkedAccountCredentialsPanel extends WizardStep {
 
         linkedAccountTO = modelObject.getInnerObject();
 
-        boolean isUsernameManagementEnabled = whichCredentials.contains("username");
+        boolean isUsernameManagementEnabled = whichCredentials.contains(Constants.USERNAME_FIELD_NAME);
         AjaxTextFieldPanel usernameField = new AjaxTextFieldPanel(
-                "username",
-                "username",
-                new PropertyModel<>(linkedAccountTO, "username"));
+                Constants.USERNAME_FIELD_NAME,
+                Constants.USERNAME_FIELD_NAME,
+                new PropertyModel<>(linkedAccountTO, Constants.USERNAME_FIELD_NAME));
         FieldPanel.class.cast(usernameField).setReadOnly(StringUtils.isBlank(linkedAccountTO.getUsername()));
         LinkedAccountPlainAttrProperty usernameProperty = new LinkedAccountPlainAttrProperty();
         usernameProperty.setOverridable(StringUtils.isNotBlank(linkedAccountTO.getUsername()));
-        usernameProperty.setSchema("username");
+        usernameProperty.setSchema(Constants.USERNAME_FIELD_NAME);
         usernameProperty.getValues().add(linkedAccountTO.getUsername());
         usernameField.showExternAction(
                 checkboxToggle(usernameProperty, usernameField).setEnabled(isUsernameManagementEnabled));
@@ -117,14 +117,14 @@ public class LinkedAccountCredentialsPanel extends WizardStep {
                         if (model.getObject()) {
                             if (property.getSchema().equals("password")) {
                                 linkedAccountTO.setPassword(passwordValue);
-                            } else if (property.getSchema().equals("username")) {
+                            } else if (property.getSchema().equals(Constants.USERNAME_FIELD_NAME)) {
                                 linkedAccountTO.setUsername(usernameValue);
                             }
                         } else {
                             if (property.getSchema().equals("password")) {
                                 passwordValue = linkedAccountTO.getPassword();
                                 linkedAccountTO.setPassword(null);
-                            } else if (property.getSchema().equals("username")) {
+                            } else if (property.getSchema().equals(Constants.USERNAME_FIELD_NAME)) {
                                 usernameValue = linkedAccountTO.getUsername();
                                 linkedAccountTO.setUsername(null);
                             }

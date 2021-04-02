@@ -146,7 +146,7 @@ public class PolicyTest extends AbstractTest {
     public void create() {
         PullPolicy policy = entityFactory.newEntity(PullPolicy.class);
         policy.setConflictResolutionAction(ConflictResolutionAction.IGNORE);
-        policy.setDescription("Pull policy");
+        policy.setName("Pull policy");
 
         final String pullURuleName = "net.tirasa.pull.correlation.TirasaURule";
         final String pullGRuleName = "net.tirasa.pull.correlation.TirasaGRule";
@@ -187,7 +187,7 @@ public class PolicyTest extends AbstractTest {
 
         int beforeCount = policyDAO.findAll().size();
         AccessPolicy accessPolicy = entityFactory.newEntity(AccessPolicy.class);
-        accessPolicy.setDescription("AttrReleasePolicyAllowEverything");
+        accessPolicy.setName("AttrReleasePolicyAllowEverything");
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
         conf.getRequiredAttrs().add(new Attr.Builder("cn").value("syncope").build());
@@ -203,7 +203,7 @@ public class PolicyTest extends AbstractTest {
 
         beforeCount = policyDAO.findAll().size();
         AuthPolicy authPolicy = entityFactory.newEntity(AuthPolicy.class);
-        authPolicy.setDescription("AuthPolicyTest");
+        authPolicy.setName("AuthPolicyTest");
 
         DefaultAuthPolicyConf authPolicyConf = new DefaultAuthPolicyConf();
         authPolicyConf.getAuthModules().addAll(List.of("LdapAuthentication1", "DatabaseAuthentication2"));
@@ -220,7 +220,7 @@ public class PolicyTest extends AbstractTest {
 
         beforeCount = policyDAO.findAll().size();
         AttrReleasePolicy attrReleasePolicy = entityFactory.newEntity(AttrReleasePolicy.class);
-        attrReleasePolicy.setDescription("AttrReleasePolicyAllowEverything");
+        attrReleasePolicy.setName("AttrReleasePolicyAllowEverything");
 
         DefaultAttrReleasePolicyConf attrReleasePolicyConf = new DefaultAttrReleasePolicyConf();
         attrReleasePolicyConf.getAllowedAttrs().add("*");

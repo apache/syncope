@@ -23,6 +23,7 @@ import java.net.URI;
 import java.util.List;
 import org.apache.syncope.client.console.rest.SRARouteRestClient;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
@@ -71,7 +72,8 @@ public class SRARouteWizardBuilder extends BaseAjaxWizardBuilder<SRARouteTO> {
 
         public Profile(final SRARouteTO route) {
             add(new AjaxTextFieldPanel(
-                    "name", "name", new PropertyModel<>(route, "name"), false).
+                    Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME,
+                    new PropertyModel<>(route, Constants.NAME_FIELD_NAME), false).
                     addRequiredLabel().setEnabled(true));
 
             AjaxTextFieldPanel target = new AjaxTextFieldPanel("target", "target", new IModel<String>() {

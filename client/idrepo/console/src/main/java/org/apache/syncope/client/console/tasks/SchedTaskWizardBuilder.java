@@ -122,14 +122,17 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                 getImplementationInfoProvider().getPushActions();
 
         public Profile(final SchedTaskTO taskTO) {
-            AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name", new PropertyModel<>(taskTO, "name"),
+            AjaxTextFieldPanel name = new AjaxTextFieldPanel(
+                    Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME,
+                    new PropertyModel<>(taskTO, Constants.NAME_FIELD_NAME),
                     false);
             name.addRequiredLabel();
             name.setEnabled(true);
             add(name);
 
             AjaxTextFieldPanel description = new AjaxTextFieldPanel(
-                    "description", "description", new PropertyModel<>(taskTO, "description"), false);
+                    Constants.DESCRIPTION_FIELD_NAME, Constants.DESCRIPTION_FIELD_NAME,
+                    new PropertyModel<>(taskTO, Constants.DESCRIPTION_FIELD_NAME), false);
             description.setEnabled(true);
             add(description);
 

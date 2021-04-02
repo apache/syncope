@@ -415,7 +415,7 @@ public class LinkedAccountITCase extends AbstractITCase {
             assertNotNull(rule);
 
             PullPolicyTO policy = new PullPolicyTO();
-            policy.setDescription("Linked Account sample Pull policy");
+            policy.setName("Linked Account sample Pull policy");
             policy.getCorrelationRules().put(AnyTypeKind.USER.name(), rule.getKey());
             Response response = policyService.create(PolicyType.PULL, policy);
             policy = policyService.read(PolicyType.PULL, response.getHeaderString(RESTHeaders.RESOURCE_KEY));

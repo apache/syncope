@@ -27,7 +27,6 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AMConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SRARouteDirectoryPanel.SRARouteProvider;
 import org.apache.syncope.client.console.rest.SRARouteRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
@@ -36,6 +35,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SRARouteTO;
@@ -77,8 +77,11 @@ public class SRARouteDirectoryPanel
     protected List<IColumn<SRARouteTO, String>> getColumns() {
         List<IColumn<SRARouteTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<>(new StringResourceModel("key", this), "key"));
-        columns.add(new PropertyColumn<>(new StringResourceModel("name", this), "name", "name"));
+        columns.add(new KeyPropertyColumn<>(
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
+        columns.add(new PropertyColumn<>(
+                new StringResourceModel(Constants.NAME_FIELD_NAME, this),
+                Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
         columns.add(new PropertyColumn<>(new StringResourceModel("target", this), "target", "target"));
         columns.add(new PropertyColumn<>(new StringResourceModel("type", this), "type", "type"));
         columns.add(new BooleanPropertyColumn<>(new StringResourceModel("logout", this), "logout", "logout"));
@@ -132,7 +135,7 @@ public class SRARouteDirectoryPanel
                     LOG.error("While deleting {}", route.getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionLink.ActionType.DELETE, AMEntitlement.SRA_ROUTE_DELETE, true);
 
@@ -162,7 +165,7 @@ public class SRARouteDirectoryPanel
 
         public SRARouteProvider(final int paginatorRows) {
             super(paginatorRows);
-            setSort("name", SortOrder.ASCENDING);
+            setSort(Constants.NAME_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

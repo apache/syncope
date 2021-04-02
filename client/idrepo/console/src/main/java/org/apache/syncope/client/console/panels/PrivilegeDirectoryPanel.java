@@ -27,12 +27,12 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -85,7 +85,8 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
 
         columns.add(new PropertyColumn<>(
                 new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
-        columns.add(new PropertyColumn<>(new ResourceModel("description"), "description", "description"));
+        columns.add(new PropertyColumn<>(new ResourceModel(Constants.DESCRIPTION_FIELD_NAME),
+                Constants.DESCRIPTION_FIELD_NAME, Constants.DESCRIPTION_FIELD_NAME));
 
         return columns;
     }
@@ -121,7 +122,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
                     LOG.error("While deleting {}", model.getObject().getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionLink.ActionType.DELETE, IdRepoEntitlement.APPLICATION_UPDATE, true);
 
@@ -152,7 +153,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
         public PrivilegeDataProvider(final int paginatorRows) {
             super(paginatorRows);
 
-            setSort("description", SortOrder.ASCENDING);
+            setSort(Constants.DESCRIPTION_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

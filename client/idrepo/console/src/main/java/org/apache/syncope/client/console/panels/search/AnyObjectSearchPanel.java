@@ -89,7 +89,7 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
                         null,
                         1,
                         Constants.MAX_GROUP_LIST_SIZE,
-                        new SortParam<>("name", true),
+                        new SortParam<>(Constants.NAME_FIELD_NAME, true),
                         null).stream().map(GroupTO::getName).collect(Collectors.toList());
             }
         };

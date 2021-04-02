@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.rest.GroupRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroups;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroupsModel;
@@ -104,7 +105,7 @@ public class Groups extends AbstractGroups {
                             : GroupRestClient.searchAssignableGroups(
                                     anyTO.getRealm(),
                                     SyncopeClient.getGroupSearchConditionBuilder().
-                                            isAssignable().and().is("name").equalTo(filter).query(),
+                                            isAssignable().and().is(Constants.NAME_FIELD_NAME).equalTo(filter).query(),
                                     1, MAX_GROUP_LIST_CARDINALITY)).stream()
                             .map(input -> new MembershipTO.Builder(input.getKey())
                             .groupName(input.getName()).build()).collect(Collectors.toList());

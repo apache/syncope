@@ -1221,7 +1221,7 @@ public class UserIssuesITCase extends AbstractITCase {
         rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         PasswordPolicyTO passwordPolicy = new PasswordPolicyTO();
-        passwordPolicy.setDescription("Password Policy for SYNCOPE-626");
+        passwordPolicy.setName("Password Policy for SYNCOPE-626");
         passwordPolicy.getRules().add(rule.getKey());
 
         passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);

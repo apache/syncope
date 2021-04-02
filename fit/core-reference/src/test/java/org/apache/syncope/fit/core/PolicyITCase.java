@@ -83,7 +83,7 @@ public class PolicyITCase extends AbstractITCase {
 
         PullPolicyTO policy = new PullPolicyTO();
         policy.getCorrelationRules().put(AnyTypeKind.USER.name(), corrRule.getKey());
-        policy.setDescription("Pull policy");
+        policy.setName("Pull policy");
 
         return policy;
     }
@@ -110,7 +110,7 @@ public class PolicyITCase extends AbstractITCase {
 
         PushPolicyTO policy = new PushPolicyTO();
         policy.getCorrelationRules().put(AnyTypeKind.USER.name(), corrRule.getKey());
-        policy.setDescription("Push policy");
+        policy.setName("Push policy");
 
         return policy;
     }
@@ -189,11 +189,11 @@ public class PolicyITCase extends AbstractITCase {
         AuthPolicyTO authPolicyTO = createPolicy(PolicyType.AUTH,
                 buildAuthPolicyTO("LdapAuthentication1"));
         assertNotNull(authPolicyTO);
-        assertEquals("Test Authentication policy", authPolicyTO.getDescription());
+        assertEquals("Test Authentication policy", authPolicyTO.getName());
 
         AccessPolicyTO accessPolicyTO = createPolicy(PolicyType.ACCESS, buildAccessPolicyTO());
         assertNotNull(accessPolicyTO);
-        assertEquals("Test Access policy", accessPolicyTO.getDescription());
+        assertEquals("Test Access policy", accessPolicyTO.getName());
     }
 
     @Test
@@ -201,7 +201,7 @@ public class PolicyITCase extends AbstractITCase {
         PasswordPolicyTO globalPolicy = policyService.read(PolicyType.PASSWORD, "ce93fcda-dc3a-4369-a7b0-a6108c261c85");
 
         PasswordPolicyTO policy = SerializationUtils.clone(globalPolicy);
-        policy.setDescription("A simple password policy");
+        policy.setName("A simple password policy");
 
         // create a new password policy using the former as a template
         policy = createPolicy(PolicyType.PASSWORD, policy);
@@ -350,7 +350,7 @@ public class PolicyITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE553() {
         AccountPolicyTO policy = new AccountPolicyTO();
-        policy.setDescription("SYNCOPE553");
+        policy.setName("SYNCOPE553");
 
         DefaultAccountRuleConf ruleConf = new DefaultAccountRuleConf();
         ruleConf.setMinLength(3);
@@ -373,7 +373,7 @@ public class PolicyITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE682() {
         AccountPolicyTO policy = new AccountPolicyTO();
-        policy.setDescription("SYNCOPE682");
+        policy.setName("SYNCOPE682");
         policy.getPassthroughResources().add(RESOURCE_NAME_LDAP);
 
         DefaultAccountRuleConf ruleConf = new DefaultAccountRuleConf();

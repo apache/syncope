@@ -99,7 +99,8 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
         columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(
-                new StringResourceModel("name", this), "name", "name"));
+                new StringResourceModel(Constants.NAME_FIELD_NAME, this),
+                Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("clientAppId", this), "clientAppId", "clientAppId"));
 
@@ -194,7 +195,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
         return AMConstants.PREF_CLIENTAPP_PAGINATOR_ROWS;
     }
 
-    private class ClientAppDataProvider extends DirectoryDataProvider<T> {
+    protected class ClientAppDataProvider extends DirectoryDataProvider<T> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
@@ -203,7 +204,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
         ClientAppDataProvider(final int paginatorRows) {
             super(paginatorRows);
 
-            setSort("name", SortOrder.ASCENDING);
+            setSort(Constants.NAME_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

@@ -77,7 +77,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ACCESS).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
@@ -88,7 +88,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ATTR_RELEASE).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
@@ -99,7 +99,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.AUTH).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
@@ -135,7 +135,8 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
             List<Component> fields = new ArrayList<>();
 
             AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                    "field", "name", new PropertyModel<>(clientAppTO, "name"), false);
+                    "field", Constants.NAME_FIELD_NAME,
+                    new PropertyModel<>(clientAppTO, Constants.NAME_FIELD_NAME), false);
             fields.add(name.setRequired(true));
 
             if (clientAppTO.getClientAppId() == null) {
@@ -148,7 +149,8 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     new PropertyModel<>(clientAppTO, "clientAppId")).setRequired(true));
 
             fields.add(new AjaxTextFieldPanel(
-                    "field", "description", new PropertyModel<>(clientAppTO, "description"), false));
+                    "field", Constants.DESCRIPTION_FIELD_NAME,
+                    new PropertyModel<>(clientAppTO, Constants.DESCRIPTION_FIELD_NAME), false));
 
             AjaxDropDownChoicePanel<String> accessPolicy = new AjaxDropDownChoicePanel<>(
                     "field", "accessPolicy", new PropertyModel<>(clientAppTO, "accessPolicy"), false);

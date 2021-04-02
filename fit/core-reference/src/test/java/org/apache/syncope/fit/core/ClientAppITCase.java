@@ -67,7 +67,7 @@ public class ClientAppITCase extends AbstractITCase {
 
         AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
         accessPolicyTO.setKey("NewAccessPolicyTest_" + getUUIDString());
-        accessPolicyTO.setDescription("New Access policy");
+        accessPolicyTO.setName("New Access policy");
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 
@@ -141,7 +141,7 @@ public class ClientAppITCase extends AbstractITCase {
 
         AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
         accessPolicyTO.setKey("NewAccessPolicyTest_" + getUUIDString());
-        accessPolicyTO.setDescription("New Access policy");
+        accessPolicyTO.setName("New Access policy");
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 
@@ -189,13 +189,13 @@ public class ClientAppITCase extends AbstractITCase {
     private static CASSPTO buildCASSP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
-        authPolicyTO.setDescription("Authentication Policy");
+        authPolicyTO.setName("Authentication Policy");
         authPolicyTO = createPolicy(PolicyType.AUTH, authPolicyTO);
         assertNotNull(authPolicyTO);
 
         AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
         accessPolicyTO.setKey("AccessPolicyTest_" + getUUIDString());
-        accessPolicyTO.setDescription("Access policy");
+        accessPolicyTO.setName("Access policy");
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 

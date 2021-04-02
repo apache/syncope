@@ -45,7 +45,7 @@ public class IdRepoRealmPolicyProvider implements RealmPolicyProvider {
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ACCOUNT).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
@@ -56,7 +56,7 @@ public class IdRepoRealmPolicyProvider implements RealmPolicyProvider {
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.PASSWORD).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 

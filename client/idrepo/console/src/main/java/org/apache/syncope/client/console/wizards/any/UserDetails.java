@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wizards.any;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -60,7 +61,8 @@ public class UserDetails extends Details<UserTO> {
         // ------------------------
         // Username
         // ------------------------
-        username = new AjaxTextFieldPanel("username", "username", new PropertyModel<>(userTO, "username"), false);
+        username = new AjaxTextFieldPanel(Constants.USERNAME_FIELD_NAME, Constants.USERNAME_FIELD_NAME,
+                new PropertyModel<>(userTO, Constants.USERNAME_FIELD_NAME), false);
 
         if (wrapper.getPreviousUserTO() != null && StringUtils.compare(
                 wrapper.getPreviousUserTO().getUsername(), wrapper.getInnerObject().getUsername()) != 0) {

@@ -97,9 +97,10 @@ public class ResourceStatusDirectoryPanel
 
     @Override
     protected List<IColumn<StatusBean, String>> getColumns() {
-        final List<IColumn<StatusBean, String>> columns = new ArrayList<>();
+        List<IColumn<StatusBean, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<>(new StringResourceModel("name", this), "name", "name"));
+        columns.add(new PropertyColumn<>(new StringResourceModel(Constants.NAME_FIELD_NAME, this),
+                Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
 
         return columns;
     }
@@ -234,7 +235,8 @@ public class ResourceStatusDirectoryPanel
         private final AbstractAnyRestClient<? extends AnyTO> restClient;
 
         public ResourceStatusDataProvider(final int paginatorRows) {
-            super(paginatorRows, AnyTypeKind.USER.name().equals(type) ? "username" : "name");
+            super(paginatorRows, AnyTypeKind.USER.name().equals(type)
+                    ? Constants.USERNAME_FIELD_NAME : Constants.NAME_FIELD_NAME);
 
             if (StringUtils.isEmpty(type)) {
                 fiql = null;

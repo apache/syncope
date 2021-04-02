@@ -231,7 +231,8 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
             @Override
             protected void populateItem(final ListItem<String> item) {
-                item.add(new Label("name", new ResourceModel(item.getModelObject(), item.getModelObject())));
+                item.add(new Label(Constants.NAME_FIELD_NAME,
+                        new ResourceModel(item.getModelObject(), item.getModelObject())));
             }
         };
     }

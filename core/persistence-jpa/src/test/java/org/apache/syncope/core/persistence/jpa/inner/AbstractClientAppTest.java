@@ -37,7 +37,7 @@ public class AbstractClientAppTest extends AbstractTest {
 
     protected AttrReleasePolicy buildAndSaveAttrRelPolicy() {
         AttrReleasePolicy attrRelPolicy = entityFactory.newEntity(AttrReleasePolicy.class);
-        attrRelPolicy.setDescription("AttrRelPolicyTest");
+        attrRelPolicy.setName("AttrRelPolicyTest");
 
         DefaultAttrReleasePolicyConf conf = new DefaultAttrReleasePolicyConf();
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
@@ -52,7 +52,7 @@ public class AbstractClientAppTest extends AbstractTest {
 
     protected AccessPolicy buildAndSaveAccessPolicy() {
         AccessPolicy accessPolicy = entityFactory.newEntity(AccessPolicy.class);
-        accessPolicy.setDescription("AccessPolicyTest");
+        accessPolicy.setName("AccessPolicyTest");
         accessPolicy.setEnabled(true);
         accessPolicy.setSsoEnabled(false);
 
@@ -65,7 +65,7 @@ public class AbstractClientAppTest extends AbstractTest {
 
     protected AuthPolicy buildAndSaveAuthPolicy() {
         AuthPolicy authPolicy = entityFactory.newEntity(AuthPolicy.class);
-        authPolicy.setDescription("AuthPolicyTest");
+        authPolicy.setName("AuthPolicyTest");
 
         DefaultAuthPolicyConf conf = new DefaultAuthPolicyConf();
         conf.getAuthModules().addAll(List.of("LdapAuthentication1", "DatabaseAuthentication2"));

@@ -34,7 +34,7 @@ public abstract class SerializationTest {
     @Test
     public void accessPolicyConf() throws IOException {
         AccessPolicyTO policy = new AccessPolicyTO();
-        policy.setDescription("Test Access policy");
+        policy.setName("Test Access policy");
         policy.setEnabled(true);
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();

@@ -92,7 +92,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
         } else if (modelObject instanceof ConfParam) {
             header = ((ConfParam) modelObject).getSchema();
         } else if (modelObject instanceof PolicyTO) {
-            header = ((PolicyTO) modelObject).getDescription();
+            header = ((PolicyTO) modelObject).getName();
         } else if (modelObject instanceof SecurityQuestionTO) {
             header = ((SecurityQuestionTO) modelObject).getContent();
         } else if (modelObject instanceof AccessTokenTO) {
