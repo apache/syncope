@@ -53,9 +53,11 @@ import org.apache.syncope.wa.starter.pac4j.saml.SyncopeWASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
 import org.apache.syncope.wa.starter.services.SyncopeWAServiceRegistry;
+import org.apache.syncope.wa.starter.surrogate.SyncopeWASurrogateAuthenticationService;
 import org.apache.syncope.wa.starter.u2f.SyncopeWAU2FDeviceRepository;
 import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRepository;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
+import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
 import org.apereo.cas.oidc.jwks.OidcJsonWebKeystoreGeneratorService;
@@ -303,6 +305,12 @@ public class SyncopeWAConfiguration {
         return new SyncopeWAU2FDeviceRepository(requestStorage, restClient, expirationDate);
     }
 
+    @Bean
+    @Autowired
+    public SurrogateAuthenticationService surrogateAuthenticationService(final WARestClient restClient) {
+        return new SyncopeWASurrogateAuthenticationService(restClient);
+    }
+    
     @Bean
     public KeymasterStart keymasterStart() {
         return new KeymasterStart(NetworkService.Type.WA);

@@ -25,8 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
@@ -154,6 +158,31 @@ public class AuthProfileTest extends AbstractTest {
         authProfile.setGoogleMfaAuthAccounts(googleMfaAuthAccounts);
         authProfile = authProfileDAO.save(authProfile);
         assertEquals(secret, authProfile.getGoogleMfaAuthAccounts().get(0).getSecretKey());
+    }
+
+    @Test
+    public void impersonationAccounts() {
+        String id = SecureRandomUtils.generateRandomUUID().toString();
+
+        createAuthProfileWithAccount(id);
+
+        Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
+        assertTrue(result.isPresent());
+
+        AuthProfile authProfile = result.get();
+        result = Optional.ofNullable(authProfileDAO.find(authProfile.getKey()));
+        assertTrue(result.isPresent());
+
+        List<ImpersonationAccount> accounts = IntStream.range(1, 10).
+            mapToObj(i -> new ImpersonationAccount.Builder()
+                .owner("impersonator")
+                .key("impersonatee" + i)
+                .build()).
+            collect(Collectors.toList());
+
+        authProfile.setImpersonationAccounts(accounts);
+        authProfile = authProfileDAO.save(authProfile);
+        assertEquals(accounts.size(), authProfile.getImpersonationAccounts().size());
     }
 
     private AuthProfile createAuthProfileWithToken(final String owner, final Integer otp) {
