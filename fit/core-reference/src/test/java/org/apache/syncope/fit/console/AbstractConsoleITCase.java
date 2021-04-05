@@ -39,7 +39,7 @@ import org.apache.syncope.client.console.wizards.any.UserFormFinalizerUtils;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
-import org.apache.syncope.common.keymaster.client.zookeper.ZookeeperKeymasterClientContext;
+import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.fit.ui.AbstractUITCase;
 import org.apache.wicket.util.tester.FormTester;

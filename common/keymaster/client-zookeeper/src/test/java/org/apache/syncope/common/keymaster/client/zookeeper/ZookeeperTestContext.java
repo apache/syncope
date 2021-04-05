@@ -16,14 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.keymaster.client.zookeper;
+package org.apache.syncope.common.keymaster.client.zookeeper;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-public class ZookeeperDomainOpsTest extends ZookeeperDomainOpsITCase {
+@Configuration
+public class ZookeeperTestContext {
 
-    @BeforeAll
-    public static void setUp() throws Exception {
-        ZookeeperTestServer.start();
+    @Bean
+    public ZookeeperTestContentLoader zookeeperTestContentLoader() {
+        return new ZookeeperTestContentLoader();
+    }
+
+    @Bean
+    public DomainWatcher loggingDomainWatcher() {
+        return new LoggingDomainWatcher();
     }
 }

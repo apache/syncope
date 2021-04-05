@@ -16,7 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.keymaster.client.zookeper;
+package org.apache.syncope.common.keymaster.client.zookeeper;
+
+import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

@@ -16,14 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.keymaster.client.zookeper;
+package org.apache.syncope.common.keymaster.client.zookeeper;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ZookeeperServiceOpsTest extends ZookeeperServiceOpsITCase {
+public class LoggingDomainWatcher implements DomainWatcher {
 
-    @BeforeAll
-    public static void setUp() throws Exception {
-        ZookeeperTestServer.start();
+    private static final Logger LOG = LoggerFactory.getLogger(LoggingDomainWatcher.class);
+
+    @Override
+    public void added(final Domain domain) {
+        LOG.info("Domain {} added", domain);
+    }
+
+    @Override
+    public void removed(final String domain) {
+        LOG.info("Domain {} removed", domain);
     }
 }
