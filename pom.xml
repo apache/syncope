@@ -406,7 +406,7 @@ under the License.
 
     <cxf.version>3.4.3</cxf.version>
     <bouncycastle.version>1.68</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.7</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.8</nimbus-jose-jwt.version>
 
     <jackson.version>2.12.2</jackson.version>
 
@@ -486,7 +486,7 @@ under the License.
     <antlr4.version>4.9.2</antlr4.version>
 
     <curator.version>5.1.0</curator.version>
-    <zookeeper.version>3.6.2</zookeeper.version>
+    <zookeeper.version>3.7.0</zookeeper.version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
@@ -2442,7 +2442,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.34.1</version>
+          <version>0.35.0</version>
         </plugin>
 
         <plugin>

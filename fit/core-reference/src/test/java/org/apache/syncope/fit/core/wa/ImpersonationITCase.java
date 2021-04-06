@@ -51,7 +51,7 @@ public class ImpersonationITCase extends AbstractITCase {
         account = impersonationService.find(account.getOwner(), account.getKey());
         assertNotNull(account);
 
-        response = impersonationService.delete(account);
+        response = impersonationService.delete(account.getOwner(), account.getKey());
         assertNotNull(response);
         
         try {

@@ -38,7 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 
@@ -133,9 +132,9 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
 
         @Override
-        public Response delete(final ImpersonationAccount account) {
-            if (accounts.containsKey(account.getOwner())) {
-                accounts.get(account.getOwner()).removeIf(acct -> acct.getKey().equalsIgnoreCase(account.getKey()));
+        public Response delete(final String owner, final String id) {
+            if (accounts.containsKey(owner)) {
+                accounts.get(owner).removeIf(acct -> acct.getKey().equalsIgnoreCase(id));
             }
             return Response.noContent().build();
         }
