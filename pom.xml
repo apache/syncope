@@ -395,7 +395,7 @@ under the License.
     <connid.version>1.5.0.2</connid.version>
     <connid.soap.version>1.4.3</connid.soap.version>
     <connid.rest.version>1.0.5</connid.rest.version>
-    <connid.database.version>2.2.6</connid.database.version>
+    <connid.database.version>2.2.7</connid.database.version>
     <connid.csvdir.version>0.8.8</connid.csvdir.version>
     <connid.ldap.version>1.5.4</connid.ldap.version>
     <connid.ad.version>1.3.6</connid.ad.version>
@@ -513,7 +513,7 @@ under the License.
 
     <tomcat.version>9.0.44</tomcat.version>
     <wildfly.version>21.0.1.Final</wildfly.version>
-    <payara.version>5.2021.1</payara.version>
+    <payara.version>5.2021.2</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
     <docker.postgresql.version>13</docker.postgresql.version>
