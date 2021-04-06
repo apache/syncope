@@ -56,8 +56,8 @@ public class ImpersonationServiceImpl extends AbstractServiceImpl implements Imp
     }
 
     @Override
-    public Response delete(final ImpersonationAccount account) {
-        logic.delete(account);
+    public Response delete(final String owner, final String id) {
+        logic.delete(logic.find(owner, id));
         return Response.noContent().build();
     }
 

@@ -68,9 +68,10 @@ public interface ImpersonationService extends JAXRSService {
     Response create(@NotNull ImpersonationAccount account);
 
     @DELETE
+    @Path("accounts/{owner}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response delete(@NotNull ImpersonationAccount account);
+    Response delete(@NotNull @PathParam("owner") String owner, @NotNull @QueryParam("id") String id);
 
     @ApiResponses(
         @ApiResponse(responseCode = "204", description = "Operation was successful"))
