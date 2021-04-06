@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.keymaster.client.zookeeper;
 
-import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -97,6 +95,7 @@ public class ZookeeperDomainOpsITCase {
 
     @Test
     public void createMaster() {
-        assertThrows(KeymasterException.class, () -> domainOps.create(new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build()));
+        assertThrows(KeymasterException.class, () -> domainOps.create(
+                new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build()));
     }
 }
