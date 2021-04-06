@@ -1545,6 +1545,12 @@ under the License.
         <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-saml</artifactId>
         <version>${cas.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-xmlsec-api</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apereo.cas</groupId>

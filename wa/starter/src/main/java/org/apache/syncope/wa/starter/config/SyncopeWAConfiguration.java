@@ -217,15 +217,8 @@ public class SyncopeWAConfiguration {
 
     @Autowired
     @Bean
-    public SamlIdPMetadataGenerator samlIdPMetadataGenerator(final WARestClient restClient) {
-        SamlIdPMetadataGeneratorConfigurationContext context =
-                SamlIdPMetadataGeneratorConfigurationContext.builder().
-                        samlIdPMetadataLocator(samlIdPMetadataLocator(restClient)).
-                        samlIdPCertificateAndKeyWriter(samlSelfSignedCertificateWriter.getObject()).
-                        applicationContext(ctx).
-                        casProperties(casProperties).
-                        metadataCipherExecutor(CipherExecutor.noOpOfStringToString()).
-                        build();
+    public SamlIdPMetadataGenerator samlIdPMetadataGenerator(final WARestClient restClient,
+                                                             final SamlIdPMetadataGeneratorConfigurationContext context) {
         return new RestfulSamlIdPMetadataGenerator(context, restClient);
     }
 
