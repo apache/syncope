@@ -29,7 +29,7 @@ abstract class SAML2EntityWizardBuilder<T extends SAML2EntityTO> extends BaseAja
 
     private static final long serialVersionUID = 1L;
 
-    public SAML2EntityWizardBuilder(final T defaultItem, PageReference pageRef) {
+    protected SAML2EntityWizardBuilder(final T defaultItem, final PageReference pageRef) {
         super(defaultItem, pageRef);
     }
 

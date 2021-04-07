@@ -68,7 +68,7 @@ public class SAML2SPEntityWizardBuilder extends SAML2EntityWizardBuilder<SAML2SP
 
         private static final long serialVersionUID = -3043839139187792810L;
 
-        Profile(final SAML2SPEntityTO entity, boolean isNew) {
+        Profile(final SAML2SPEntityTO entity, final boolean isNew) {
             AjaxTextFieldPanel key = new AjaxTextFieldPanel(
                     Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME,
                     new PropertyModel<>(entity, Constants.KEY_FIELD_NAME));
