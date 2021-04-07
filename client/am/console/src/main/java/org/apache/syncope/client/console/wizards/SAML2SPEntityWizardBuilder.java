@@ -78,7 +78,7 @@ public class SAML2SPEntityWizardBuilder extends SAML2EntityWizardBuilder<SAML2SP
         }
     }
 
-    protected static class BinaryPem extends Pem {
+    protected class BinaryPem extends Pem {
 
         private static final long serialVersionUID = 1L;
 

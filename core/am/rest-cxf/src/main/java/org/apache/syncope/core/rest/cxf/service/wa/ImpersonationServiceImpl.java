@@ -43,7 +43,7 @@ public class ImpersonationServiceImpl extends AbstractServiceImpl implements Imp
     }
 
     @Override
-    public void delete(final String owner, final ImpersonationAccount account) {
-        logic.delete(owner, account);
+    public void delete(final String owner, final String impersonated) {
+        logic.delete(owner, impersonated);
     }
 }

@@ -93,7 +93,7 @@ public class SAML2IdPEntityWizardBuilder extends SAML2EntityWizardBuilder<SAML2I
         return wizardModel;
     }
 
-    protected static class TextPem extends Pem {
+    protected class TextPem extends Pem {
 
         private static final long serialVersionUID = 1L;
 

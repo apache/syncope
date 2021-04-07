@@ -111,10 +111,9 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
 
         @Override
-        public void delete(final String owner, final ImpersonationAccount account) {
+        public void delete(final String owner, final String impersonated) {
             if (accounts.containsKey(owner)) {
-                accounts.get(owner).
-                        removeIf(acct -> acct.getImpersonated().equalsIgnoreCase(account.getImpersonated()));
+                accounts.get(owner).removeIf(acct -> acct.getImpersonated().equalsIgnoreCase(impersonated));
             }
         }
     }

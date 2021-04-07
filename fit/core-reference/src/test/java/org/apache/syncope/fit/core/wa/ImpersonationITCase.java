@@ -35,7 +35,7 @@ public class ImpersonationITCase extends AbstractITCase {
 
         assertTrue(impersonationService.read(owner).contains(account));
 
-        impersonationService.delete(owner, account);
+        impersonationService.delete(owner, account.getImpersonated());
 
         assertTrue(impersonationService.read(owner).isEmpty());
     }

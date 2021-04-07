@@ -55,8 +55,8 @@ public interface ImpersonationService extends JAXRSService {
     void create(@NotNull @PathParam("owner") String owner, @NotNull ImpersonationAccount account);
 
     @DELETE
-    @Path("{owner}")
+    @Path("{owner}/{impersonated}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void delete(@NotNull @PathParam("owner") String owner, @NotNull ImpersonationAccount account);
+    void delete(@NotNull @PathParam("owner") String owner, @NotNull @PathParam("impersonated") String impersonated);
 }

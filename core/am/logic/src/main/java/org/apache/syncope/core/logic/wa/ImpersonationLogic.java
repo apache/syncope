@@ -66,10 +66,10 @@ public class ImpersonationLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + AMEntitlement.IMPERSONATION_DELETE_ACCOUNT + "') "
             + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void delete(final String owner, final ImpersonationAccount account) {
+    public void delete(final String owner, final String impersonated) {
         authProfileDAO.findByOwner(owner).ifPresent(profile -> {
             List<ImpersonationAccount> accounts = profile.getImpersonationAccounts();
-            if (accounts.removeIf(acct -> acct.getImpersonated().equalsIgnoreCase(account.getImpersonated()))) {
+            if (accounts.removeIf(acct -> acct.getImpersonated().equalsIgnoreCase(impersonated))) {
                 profile.setImpersonationAccounts(accounts);
                 authProfileDAO.save(profile);
             }
