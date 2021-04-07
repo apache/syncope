@@ -67,7 +67,6 @@ public class OIDCRPTOMapper extends AbstractClientAppMapper {
         service.setServiceId(Stream.concat(rp.getRedirectUris().stream(), Stream.of(rp.getLogoutUri())).
                 filter(Objects::nonNull).
                 collect(Collectors.joining("|")));
-        service.setRedirectUrl(service.getServiceId());
         service.setClientId(rp.getClientId());
         service.setClientSecret(rp.getClientSecret());
         service.setSignIdToken(rp.isSignIdToken());

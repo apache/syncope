@@ -451,7 +451,7 @@ under the License.
 
     <pac4j.version>5.0.0</pac4j.version>
 
-    <cas.version>6.4.0-RC3</cas.version>
+    <cas.version>6.4.0-SNAPSHOT</cas.version>
     <cas-client.version>3.6.2</cas-client.version>
 
     <h2.version>1.4.200</h2.version>
@@ -1549,6 +1549,10 @@ under the License.
           <exclusion>
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-xmlsec-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
