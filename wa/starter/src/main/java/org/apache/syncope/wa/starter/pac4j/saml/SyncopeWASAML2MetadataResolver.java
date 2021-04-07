@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.wa.starter.pac4j.saml;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
-import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
-import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
+import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.opensaml.saml.metadata.resolver.impl.AbstractReloadingMetadataResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 
 public class SyncopeWASAML2MetadataResolver extends AbstractReloadingMetadataResolver {
 
@@ -49,9 +49,9 @@ public class SyncopeWASAML2MetadataResolver extends AbstractReloadingMetadataRes
     @Override
     protected byte[] fetchMetadata() throws ResolverException {
         try {
-            SAML2SPMetadataTO metadataTO = restClient.getSyncopeClient().
-                    getService(SAML2SPMetadataService.class).readFor(saml2Client.getName());
-            return metadataTO.getMetadata().getBytes(StandardCharsets.UTF_8);
+            SAML2SPEntityTO metadataTO = restClient.getSyncopeClient().
+                    getService(SAML2SPEntityService.class).get(saml2Client.getName());
+            return Base64.getDecoder().decode(metadataTO.getMetadata());
         } catch (final Exception e) {
             final String message = "Unable to fetch SP metadata for " + saml2Client.getName();
             LOG.error(message, e);

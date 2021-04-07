@@ -34,6 +34,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -99,7 +100,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
 
     @Override
     protected ActionsPanel<Domain> getActions(final IModel<Domain> model) {
-        final ActionsPanel<Domain> panel = super.getActions(model);
+        ActionsPanel<Domain> panel = super.getActions(model);
 
         panel.add(new ActionLink<Domain>() {
 
@@ -142,7 +143,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
                     LOG.error("While deleting {}", domain.getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionLink.ActionType.DELETE, IdRepoEntitlement.KEYMASTER, true);
 

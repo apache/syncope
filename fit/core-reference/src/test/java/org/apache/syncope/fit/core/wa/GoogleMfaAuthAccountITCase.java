@@ -48,7 +48,7 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
 
     @BeforeEach
     public void setup() {
-        googleMfaAuthAccountService.delete();
+        googleMfaAuthAccountService.deleteAll();
     }
 
     @Test
@@ -66,18 +66,18 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
         assertFalse(list.getResult().isEmpty());
         assertEquals(1, list.getTotalCount());
 
-        PagedResult<GoogleMfaAuthAccount> read = googleMfaAuthAccountService.readFor(owner);
+        PagedResult<GoogleMfaAuthAccount> read = googleMfaAuthAccountService.read(owner);
         assertEquals(1, read.getTotalCount());
         assertFalse(read.getResult().isEmpty());
     }
 
     @Test
-    public void deleteFor() {
+    public void delete() {
         String owner = UUID.randomUUID().toString();
         GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
         googleMfaAuthAccountService.create(owner, acct);
-        googleMfaAuthAccountService.deleteFor(owner);
-        assertThrows(SyncopeClientException.class, () -> googleMfaAuthAccountService.readFor(owner));
+        googleMfaAuthAccountService.delete(owner);
+        assertThrows(SyncopeClientException.class, () -> googleMfaAuthAccountService.read(owner));
     }
 
     @Test
@@ -90,8 +90,8 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
         acct.setScratchCodes(List.of(9, 8, 7, 6, 5));
         googleMfaAuthAccountService.update(owner, acct);
         assertEquals(1, googleMfaAuthAccountService.list().getTotalCount());
-        acct = googleMfaAuthAccountService.readFor(owner).getResult().get(0);
+        acct = googleMfaAuthAccountService.read(owner).getResult().get(0);
         assertEquals(acct.getSecretKey(), acct.getSecretKey());
-        googleMfaAuthAccountService.delete(acct.getKey());
+        googleMfaAuthAccountService.delete(owner);
     }
 }

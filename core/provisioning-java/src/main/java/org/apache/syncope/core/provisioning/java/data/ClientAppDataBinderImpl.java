@@ -19,17 +19,14 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.CASSPTO;
+import org.apache.syncope.common.lib.to.CASSPClientAppTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
-import org.apache.syncope.common.lib.to.OIDCRPTO;
-import org.apache.syncope.common.lib.to.SAML2SPTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
@@ -37,6 +34,9 @@ import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
 @Component
 public class ClientAppDataBinderImpl implements ClientAppDataBinder {
@@ -50,12 +50,12 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends ClientApp> T create(final ClientAppTO clientAppTO) {
-        if (clientAppTO instanceof SAML2SPTO) {
-            return (T) doCreate((SAML2SPTO) clientAppTO);
-        } else if (clientAppTO instanceof OIDCRPTO) {
-            return (T) doCreate((OIDCRPTO) clientAppTO);
-        } else if (clientAppTO instanceof CASSPTO) {
-            return (T) doCreate((CASSPTO) clientAppTO);
+        if (clientAppTO instanceof SAML2SPClientAppTO) {
+            return (T) doCreate((SAML2SPClientAppTO) clientAppTO);
+        } else if (clientAppTO instanceof OIDCRPClientAppTO) {
+            return (T) doCreate((OIDCRPClientAppTO) clientAppTO);
+        } else if (clientAppTO instanceof CASSPClientAppTO) {
+            return (T) doCreate((CASSPClientAppTO) clientAppTO);
         } else {
             throw new IllegalArgumentException("Unsupported client app: " + clientAppTO.getClass().getName());
         }
@@ -63,12 +63,12 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
     @Override
     public <T extends ClientApp> void update(final T clientApp, final ClientAppTO clientAppTO) {
-        if (clientAppTO instanceof SAML2SPTO) {
-            doUpdate((SAML2SP) clientApp, (SAML2SPTO) clientAppTO);
-        } else if (clientAppTO instanceof OIDCRPTO) {
-            doUpdate((OIDCRP) clientApp, (OIDCRPTO) clientAppTO);
-        } else if (clientAppTO instanceof CASSPTO) {
-            doUpdate((CASSP) clientApp, (CASSPTO) clientAppTO);
+        if (clientAppTO instanceof SAML2SPClientAppTO) {
+            doUpdate((SAML2SPClientApp) clientApp, (SAML2SPClientAppTO) clientAppTO);
+        } else if (clientAppTO instanceof OIDCRPClientAppTO) {
+            doUpdate((OIDCRPClientApp) clientApp, (OIDCRPClientAppTO) clientAppTO);
+        } else if (clientAppTO instanceof CASSPClientAppTO) {
+            doUpdate((CASSPClientApp) clientApp, (CASSPClientAppTO) clientAppTO);
         } else {
             throw new IllegalArgumentException("Unsupported client app: " + clientAppTO.getClass().getName());
         }
@@ -77,31 +77,31 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends ClientAppTO> T getClientAppTO(final ClientApp clientApp) {
-        if (clientApp instanceof SAML2SP) {
-            return (T) getSAMLClientAppTO((SAML2SP) clientApp);
+        if (clientApp instanceof SAML2SPClientApp) {
+            return (T) getSAMLClientAppTO((SAML2SPClientApp) clientApp);
         }
-        if (clientApp instanceof OIDCRP) {
-            return (T) getOIDCClientAppTO((OIDCRP) clientApp);
+        if (clientApp instanceof OIDCRPClientApp) {
+            return (T) getOIDCClientAppTO((OIDCRPClientApp) clientApp);
         }
-        if (clientApp instanceof CASSP) {
-            return (T) getCASClientAppTO((CASSP) clientApp);
+        if (clientApp instanceof CASSPClientApp) {
+            return (T) getCASClientAppTO((CASSPClientApp) clientApp);
         }
         throw new IllegalArgumentException("Unsupported client app: " + clientApp.getClass().getName());
     }
 
-    private SAML2SP doCreate(final SAML2SPTO clientAppTO) {
-        SAML2SP saml2sp = entityFactory.newEntity(SAML2SP.class);
+    private SAML2SPClientApp doCreate(final SAML2SPClientAppTO clientAppTO) {
+        SAML2SPClientApp saml2sp = entityFactory.newEntity(SAML2SPClientApp.class);
         update(saml2sp, clientAppTO);
         return saml2sp;
     }
 
-    private CASSP doCreate(final CASSPTO clientAppTO) {
-        CASSP saml2sp = entityFactory.newEntity(CASSP.class);
+    private CASSPClientApp doCreate(final CASSPClientAppTO clientAppTO) {
+        CASSPClientApp saml2sp = entityFactory.newEntity(CASSPClientApp.class);
         update(saml2sp, clientAppTO);
         return saml2sp;
     }
 
-    private void doUpdate(final SAML2SP clientApp, final SAML2SPTO clientAppTO) {
+    private void doUpdate(final SAML2SPClientApp clientApp, final SAML2SPClientAppTO clientAppTO) {
         copyToEntity(clientApp, clientAppTO);
 
         clientApp.setEntityId(clientAppTO.getEntityId());
@@ -160,8 +160,8 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.getProperties().addAll(clientApp.getProperties());
     }
 
-    private static SAML2SPTO getSAMLClientAppTO(final SAML2SP clientApp) {
-        SAML2SPTO clientAppTO = new SAML2SPTO();
+    private static SAML2SPClientAppTO getSAMLClientAppTO(final SAML2SPClientApp clientApp) {
+        SAML2SPClientAppTO clientAppTO = new SAML2SPClientAppTO();
         copyToTO(clientApp, clientAppTO);
 
         clientAppTO.setEntityId(clientApp.getEntityId());
@@ -195,13 +195,13 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         return clientAppTO;
     }
 
-    private OIDCRP doCreate(final OIDCRPTO clientAppTO) {
-        OIDCRP oidcrp = entityFactory.newEntity(OIDCRP.class);
+    private OIDCRPClientApp doCreate(final OIDCRPClientAppTO clientAppTO) {
+        OIDCRPClientApp oidcrp = entityFactory.newEntity(OIDCRPClientApp.class);
         update(oidcrp, clientAppTO);
         return oidcrp;
     }
 
-    private void doUpdate(final OIDCRP clientApp, final OIDCRPTO clientAppTO) {
+    private void doUpdate(final OIDCRPClientApp clientApp, final OIDCRPClientAppTO clientAppTO) {
         copyToEntity(clientApp, clientAppTO);
 
         clientApp.setClientSecret(clientAppTO.getClientSecret());
@@ -218,8 +218,8 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setLogoutUri(clientAppTO.getLogoutUri());
     }
 
-    private static OIDCRPTO getOIDCClientAppTO(final OIDCRP clientApp) {
-        OIDCRPTO clientAppTO = new OIDCRPTO();
+    private static OIDCRPClientAppTO getOIDCClientAppTO(final OIDCRPClientApp clientApp) {
+        OIDCRPClientAppTO clientAppTO = new OIDCRPClientAppTO();
         copyToTO(clientApp, clientAppTO);
 
         clientAppTO.setClientId(clientApp.getClientId());
@@ -234,14 +234,14 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         return clientAppTO;
     }
 
-    private void doUpdate(final CASSP clientApp, final CASSPTO clientAppTO) {
+    private void doUpdate(final CASSPClientApp clientApp, final CASSPClientAppTO clientAppTO) {
         copyToEntity(clientApp, clientAppTO);
 
         clientApp.setServiceId(clientAppTO.getServiceId());
     }
 
-    private static CASSPTO getCASClientAppTO(final CASSP clientApp) {
-        CASSPTO clientAppTO = new CASSPTO();
+    private static CASSPClientAppTO getCASClientAppTO(final CASSPClientApp clientApp) {
+        CASSPClientAppTO clientAppTO = new CASSPClientAppTO();
         copyToTO(clientApp, clientAppTO);
         clientAppTO.setServiceId(clientApp.getServiceId());
         return clientAppTO;

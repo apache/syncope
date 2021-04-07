@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.clientapps;
 
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.OIDCRPTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.wicket.AttributeModifier;
@@ -35,14 +35,14 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class OIDCRPDirectoryPanel extends ClientAppDirectoryPanel<OIDCRPTO> {
+public class OIDCRPDirectoryPanel extends ClientAppDirectoryPanel<OIDCRPClientAppTO> {
 
     private static final long serialVersionUID = 1L;
 
     public OIDCRPDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, ClientAppType.OIDCRP, pageRef);
 
-        OIDCRPTO defaultItem = new OIDCRPTO();
+        OIDCRPClientAppTO defaultItem = new OIDCRPClientAppTO();
 
         this.addNewItemPanelBuilder(
                 new ClientAppModalPanelBuilder<>(ClientAppType.OIDCRP, defaultItem, modal, pageRef), true);
@@ -52,17 +52,17 @@ public class OIDCRPDirectoryPanel extends ClientAppDirectoryPanel<OIDCRPTO> {
     }
 
     @Override
-    protected void addCustomColumnFields(final List<IColumn<OIDCRPTO, String>> columns) {
+    protected void addCustomColumnFields(final List<IColumn<OIDCRPClientAppTO, String>> columns) {
         columns.add(new PropertyColumn<>(new StringResourceModel("clientId", this), "clientId", "clientId"));
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("redirectUris", this), "redirectUris", "redirectUris"));
-        columns.add(new AbstractColumn<OIDCRPTO, String>(new StringResourceModel("logout")) {
+        columns.add(new AbstractColumn<OIDCRPClientAppTO, String>(new StringResourceModel("logout")) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<OIDCRPTO>> item,
+                    final Item<ICellPopulator<OIDCRPClientAppTO>> item,
                     final String componentId,
-                    final IModel<OIDCRPTO> rowModel) {
+                    final IModel<OIDCRPClientAppTO> rowModel) {
 
                 item.add(new Label(componentId, StringUtils.EMPTY));
                 if (StringUtils.isNotBlank(rowModel.getObject().getLogoutUri())) {

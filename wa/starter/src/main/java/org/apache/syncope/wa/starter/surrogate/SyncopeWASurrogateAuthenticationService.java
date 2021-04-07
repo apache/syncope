@@ -16,24 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.wa.starter.surrogate;
-
-import org.apereo.cas.authentication.principal.Principal;
-import org.apereo.cas.authentication.principal.Service;
-import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
-
-import org.apache.syncope.common.lib.wa.ImpersonationAccount;
-import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
-import org.apache.syncope.wa.bootstrap.WARestClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.wa.ImpersonationAccount;
+import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
+import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apereo.cas.authentication.principal.Principal;
+import org.apereo.cas.authentication.principal.Service;
+import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SyncopeWASurrogateAuthenticationService implements SurrogateAuthenticationService {
+
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASurrogateAuthenticationService.class);
 
     private final WARestClient waRestClient;
@@ -43,11 +41,13 @@ public class SyncopeWASurrogateAuthenticationService implements SurrogateAuthent
     }
 
     @Override
-    public boolean canAuthenticateAs(final String surrogate, final Principal principal,
-                                     final Optional<Service> service) {
+    public boolean canAuthenticateAs(
+            final String surrogate, final Principal principal, final Optional<Service> service) {
+
         try {
             LOG.debug("Checking impersonation attempt by {} for {}", principal, surrogate);
-            return getImpersonationService().find(principal.getId(), surrogate) != null;
+            return getImpersonationService().read(principal.getId()).stream().
+                    anyMatch(acct -> surrogate.equals(acct.getImpersonated()));
         } catch (final Exception e) {
             LOG.info("Could not authorize account {} for owner {}", surrogate, principal.getId());
         }
@@ -56,10 +56,10 @@ public class SyncopeWASurrogateAuthenticationService implements SurrogateAuthent
 
     @Override
     public Collection<String> getEligibleAccountsForSurrogateToProxy(final String username) {
-        return getImpersonationService().findByOwner(username).
-            stream().
-            map(ImpersonationAccount::getKey).
-            collect(Collectors.toList());
+        return getImpersonationService().read(username).
+                stream().
+                map(ImpersonationAccount::getImpersonated).
+                collect(Collectors.toList());
     }
 
     private ImpersonationService getImpersonationService() {

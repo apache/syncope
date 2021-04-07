@@ -23,11 +23,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.authentication.OneTimeTokenAccount;
@@ -73,9 +71,8 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
     @Override
     public OneTimeTokenAccount get(final long id) {
         try {
-            GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
-                    getService(GoogleMfaAuthAccountService.class);
-            GoogleMfaAuthAccount account = googleService.read(id);
+            GoogleMfaAuthAccount account =
+                    waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).read(id);
             if (account != null) {
                 return mapGoogleMfaAuthAccount(account);
             }
@@ -92,9 +89,8 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
     @Override
     public OneTimeTokenAccount get(final String username, final long id) {
         try {
-            GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
-                    getService(GoogleMfaAuthAccountService.class);
-            googleService.readFor(username).getResult().stream().
+            waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).read(username).
+                    getResult().stream().
                     filter(account -> account.getId() == id).
                     map(SyncopeWAGoogleMfaAuthCredentialRepository::mapGoogleMfaAuthAccount).
                     collect(Collectors.toList());
@@ -111,9 +107,8 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
     @Override
     public Collection<? extends OneTimeTokenAccount> get(final String username) {
         try {
-            GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
-                    getService(GoogleMfaAuthAccountService.class);
-            googleService.readFor(username).getResult().stream().
+            waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).read(username).
+                    getResult().stream().
                     map(SyncopeWAGoogleMfaAuthCredentialRepository::mapGoogleMfaAuthAccount).
                     collect(Collectors.toList());
         } catch (final SyncopeClientException e) {
@@ -128,17 +123,14 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
 
     @Override
     public Collection<? extends OneTimeTokenAccount> load() {
-        GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthAccountService.class);
-        return googleService.list().getResult().stream().
+        return waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).list().
+                getResult().stream().
                 map(SyncopeWAGoogleMfaAuthCredentialRepository::mapGoogleMfaAuthAccount).
                 collect(Collectors.toList());
     }
 
     @Override
     public OneTimeTokenAccount save(final OneTimeTokenAccount tokenAccount) {
-        GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthAccountService.class);
         GoogleMfaAuthAccount account = new GoogleMfaAuthAccount.Builder()
                 .registrationDate(new Date())
                 .scratchCodes(tokenAccount.getScratchCodes())
@@ -147,46 +139,37 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
                 .name(tokenAccount.getName())
                 .id(tokenAccount.getId())
                 .build();
-        Response response = googleService.create(tokenAccount.getUsername(), account);
-        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
-        account.setKey(key);
+        waRestClient.getSyncopeClient().
+                getService(GoogleMfaAuthAccountService.class).create(tokenAccount.getUsername(), account);
         return mapGoogleMfaAuthAccount(account);
     }
 
     @Override
     public OneTimeTokenAccount update(final OneTimeTokenAccount tokenAccount) {
-        GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthAccountService.class);
         GoogleMfaAuthAccount acct = mapGoogleMfaAuthAccount(tokenAccount);
-        googleService.update(tokenAccount.getUsername(), acct);
+        waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).
+                update(tokenAccount.getUsername(), acct);
         return tokenAccount;
     }
 
     @Override
     public void deleteAll() {
-        GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthAccountService.class);
-        googleService.delete();
+        waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).deleteAll();
     }
 
     @Override
     public void delete(final String username) {
-        GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthAccountService.class);
-        googleService.deleteFor(username);
+        waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).delete(username);
     }
 
     @Override
     public long count() {
-        GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthAccountService.class);
-        return googleService.list().getTotalCount();
+        return waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).list().getTotalCount();
     }
 
     @Override
     public long count(final String username) {
-        GoogleMfaAuthAccountService googleService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthAccountService.class);
-        return googleService.readFor(username).getTotalCount();
+        return waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).
+                read(username).getTotalCount();
     }
 }

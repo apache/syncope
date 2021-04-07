@@ -37,11 +37,11 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.PreviewUtils;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.ui.commons.markup.html.form.BaseBinaryFieldPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -123,7 +123,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
             public void renderHead(final IHeaderResponse response) {
                 if (previewer == null) {
                     FileinputJsReference.INSTANCE.renderHead(response);
-                    final JQuery fileinputJS = $(fileUpload).chain(new IFunction() {
+                    JQuery fileinputJS = $(fileUpload).chain(new IFunction() {
 
                         private static final long serialVersionUID = -2285418135375523652L;
 
@@ -200,7 +200,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
                         SyncopeConsoleSession.get().error(getString("tooLargeFile").
                                 replace("${maxUploadSizeB}", String.valueOf(maxUploadSize.bytes())).
                                 replace("${maxUploadSizeMB}", String.valueOf(maxUploadSize.bytes() / 1000000L)));
-                        ((BasePage) getPageReference().getPage()).getNotificationPanel().refresh(target);
+                        ((BaseWebPage) getPageReference().getPage()).getNotificationPanel().refresh(target);
                     } else {
                         byte[] uploadedBytes = uploaded.getBytes();
                         String uploadedEncoded = Base64.getEncoder().encodeToString(uploadedBytes);
@@ -257,7 +257,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
     }
 
     private void changePreviewer(final Component panelPreview) {
-        final Fragment fragment = new Fragment("panelPreview", "previewFragment", container);
+        Fragment fragment = new Fragment("panelPreview", "previewFragment", container);
         fragment.add(panelPreview);
         container.addOrReplace(fragment);
         uploadForm.addOrReplace(container);

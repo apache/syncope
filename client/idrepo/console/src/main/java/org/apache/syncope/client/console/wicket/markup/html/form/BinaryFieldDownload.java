@@ -60,7 +60,7 @@ public abstract class BinaryFieldDownload extends AbstractAjaxBehavior {
     public void initiate(final AjaxRequestTarget target) {
         String url = getCallbackUrl().toString();
         if (addAntiCache) {
-            url = url + (url.contains("?") ? "&" : "?");
+            url += (url.contains("?") ? "&" : "?");
             url = url + "antiCache=" + System.currentTimeMillis();
         }
         target.appendJavaScript("setTimeout(\"window.location.href='" + url + "'\", 100);");

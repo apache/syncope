@@ -40,10 +40,13 @@ under the License.
       </p>
     </section>
     
-    <section name="AppVeyor">
+    <section name="GitHub Actions">
       <p>
-        <a href="https://ci.appveyor.com/project/ApacheSoftwareFoundation/syncope">
-          <img src="https://ci.appveyor.com/api/projects/status/k3moao48iilrq2pw?svg=true"/>
+        <a href="https://github.com/apache/syncope/actions/workflows/crosschecks.yml">
+          <img src="https://github.com/apache/syncope/actions/workflows/crosschecks.yml/badge.svg" style="max-width:100%;">
+        </a>
+        <a href="https://github.com/apache/syncope/actions/workflows/codeql-analysis.yml">
+          <img src="https://github.com/apache/syncope/actions/workflows/codeql-analysis.yml/badge.svg" style="max-width:100%;">
         </a>
       </p>
     </section>

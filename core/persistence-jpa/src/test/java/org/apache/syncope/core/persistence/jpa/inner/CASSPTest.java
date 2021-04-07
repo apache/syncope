@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.inner;
 
 import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.junit.jupiter.api.Test;
@@ -32,6 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
+
 @Transactional("Master")
 public class CASSPTest extends AbstractClientAppTest {
 
@@ -42,7 +43,7 @@ public class CASSPTest extends AbstractClientAppTest {
     public void find() {
         int beforeCount = casspDAO.findAll().size();
 
-        CASSP rp = entityFactory.newEntity(CASSP.class);
+        CASSPClientApp rp = entityFactory.newEntity(CASSPClientApp.class);
         rp.setName("CAS");
         rp.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         rp.setDescription("This is a sample CAS RP");

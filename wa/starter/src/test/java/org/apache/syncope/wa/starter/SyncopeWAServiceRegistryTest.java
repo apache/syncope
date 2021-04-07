@@ -31,8 +31,8 @@ import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
-import org.apache.syncope.common.lib.to.OIDCRPTO;
-import org.apache.syncope.common.lib.to.SAML2SPTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
@@ -59,8 +59,8 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
     @Autowired
     private ServicesManager servicesManager;
 
-    private static OIDCRPTO buildOIDCRP() {
-        OIDCRPTO oidcrpTO = new OIDCRPTO();
+    private static OIDCRPClientAppTO buildOIDCRP() {
+        OIDCRPClientAppTO oidcrpTO = new OIDCRPClientAppTO();
         oidcrpTO.setName("ExampleRP_" + getUUIDString());
         oidcrpTO.setClientAppId(RandomUtils.nextLong());
         oidcrpTO.setDescription("Example OIDC RP application");
@@ -74,8 +74,8 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         return oidcrpTO;
     }
 
-    protected SAML2SPTO buildSAML2SP() {
-        SAML2SPTO saml2spto = new SAML2SPTO();
+    protected SAML2SPClientAppTO buildSAML2SP() {
+        SAML2SPClientAppTO saml2spto = new SAML2SPClientAppTO();
         saml2spto.setName("ExampleSAML2SP_" + getUUIDString());
         saml2spto.setClientAppId(RandomUtils.nextLong());
         saml2spto.setDescription("Example SAML 2.0 service provider");
@@ -149,7 +149,7 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         assertNotNull(found);
         assertTrue(found instanceof OidcRegisteredService);
         OidcRegisteredService oidc = OidcRegisteredService.class.cast(found);
-        OIDCRPTO oidcrpto = OIDCRPTO.class.cast(waClientApp.getClientAppTO());
+        OIDCRPClientAppTO oidcrpto = OIDCRPClientAppTO.class.cast(waClientApp.getClientAppTO());
         assertEquals("uri1|uri2", oidc.getServiceId());
         assertEquals(oidcrpto.getClientId(), oidc.getClientId());
         assertEquals(oidcrpto.getClientSecret(), oidc.getClientSecret());
@@ -174,7 +174,7 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         found = servicesManager.findServiceBy(clientAppId);
         assertTrue(found instanceof SamlRegisteredService);
         SamlRegisteredService saml = SamlRegisteredService.class.cast(found);
-        SAML2SPTO samlspto = SAML2SPTO.class.cast(waClientApp.getClientAppTO());
+        SAML2SPClientAppTO samlspto = SAML2SPClientAppTO.class.cast(waClientApp.getClientAppTO());
         assertEquals(samlspto.getMetadataLocation(), saml.getMetadataLocation());
         assertEquals(samlspto.getEntityId(), saml.getServiceId());
         assertTrue(saml.getAuthenticationPolicy().getRequiredAuthenticationHandlers().contains("TestAuthModule"));

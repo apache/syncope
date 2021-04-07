@@ -50,7 +50,7 @@ public interface OIDCJWKSService extends JAXRSService {
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    OIDCJWKSTO get();
+    OIDCJWKSTO read();
 
     @ApiResponses({
         @ApiResponse(responseCode = "201",

@@ -406,7 +406,7 @@ under the License.
 
     <cxf.version>3.4.3</cxf.version>
     <bouncycastle.version>1.68</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.8</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.8.1</nimbus-jose-jwt.version>
 
     <jackson.version>2.12.2</jackson.version>
 
@@ -475,8 +475,8 @@ under the License.
 
     <wicket.version>9.3.0</wicket.version>
     <wicketstuff.version>9.3.0</wicketstuff.version>
-    <wicket-jqueryui.version>9.2.1</wicket-jqueryui.version>
-    <wicket-bootstrap.version>5.0.3</wicket-bootstrap.version>
+    <wicket-jqueryui.version>9.3.1</wicket-jqueryui.version>
+    <wicket-bootstrap.version>5.0.4</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
 
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
@@ -511,7 +511,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.44</tomcat.version>
+    <tomcat.version>9.0.45</tomcat.version>
     <wildfly.version>21.0.1.Final</wildfly.version>
     <payara.version>5.2021.2</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>

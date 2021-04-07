@@ -57,7 +57,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.syncope.common.lib.to.OIDCRPTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -86,12 +86,12 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
             final String clientId,
             final String clientSecret) {
 
-        OIDCRPTO clientApp = clientAppService.list(ClientAppType.OIDCRP).stream().
+        OIDCRPClientAppTO clientApp = clientAppService.list(ClientAppType.OIDCRP).stream().
                 filter(app -> appName.equals(app.getName())).
-                map(OIDCRPTO.class::cast).
+                map(OIDCRPClientAppTO.class::cast).
                 findFirst().
                 orElseGet(() -> {
-                    OIDCRPTO app = new OIDCRPTO();
+                    OIDCRPClientAppTO app = new OIDCRPClientAppTO();
                     app.setName(appName);
                     app.setClientAppId(clientAppId);
                     app.setClientId(clientId);

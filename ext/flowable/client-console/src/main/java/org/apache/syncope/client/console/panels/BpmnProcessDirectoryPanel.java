@@ -46,6 +46,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ImageModalPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BpmnProcess;
@@ -206,7 +207,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
                             } catch (SyncopeClientException e) {
                                 SyncopeConsoleSession.get().onException(e);
                             }
-                            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                            ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                         }
                     }
                 });

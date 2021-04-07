@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.core.rest.cxf.service.wa;
 
-import java.net.URI;
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthAccountLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
@@ -37,27 +34,18 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
     private GoogleMfaAuthAccountLogic logic;
 
     @Override
-    public void deleteFor(final String owner) {
+    public void delete(final String owner) {
         logic.deleteFor(owner);
     }
 
     @Override
-    public void delete(final String key) {
-        logic.delete(key);
-    }
-
-    @Override
-    public void delete() {
+    public void deleteAll() {
         logic.deleteAll();
     }
 
     @Override
-    public Response create(final String owner, final GoogleMfaAuthAccount acct) {
-        String key = logic.create(owner, acct);
-        URI location = uriInfo.getAbsolutePathBuilder().path(key).build();
-        return Response.created(location).
-                header(RESTHeaders.RESOURCE_KEY, key).
-                build();
+    public void create(final String owner, final GoogleMfaAuthAccount acct) {
+        logic.create(owner, acct);
     }
 
     @Override
@@ -75,13 +63,8 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl impleme
     }
 
     @Override
-    public PagedResult<GoogleMfaAuthAccount> readFor(final String owner) {
-        return build(logic.readFor(owner));
-    }
-
-    @Override
-    public GoogleMfaAuthAccount read(final String key) {
-        return logic.read(key);
+    public PagedResult<GoogleMfaAuthAccount> read(final String owner) {
+        return build(logic.read(owner));
     }
 
     @Override

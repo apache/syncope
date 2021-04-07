@@ -16,20 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.rest.cxf.service.wa;
 
+import java.util.List;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.core.logic.wa.ImpersonationLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.ws.rs.core.Response;
-
-import java.net.URI;
-import java.util.List;
 
 @Service
 public class ImpersonationServiceImpl extends AbstractServiceImpl implements ImpersonationService {
@@ -38,31 +33,17 @@ public class ImpersonationServiceImpl extends AbstractServiceImpl implements Imp
     private ImpersonationLogic logic;
 
     @Override
-    public List<ImpersonationAccount> findByOwner(final String owner) {
-        return logic.findByOwner(owner);
+    public List<ImpersonationAccount> read(final String owner) {
+        return logic.read(owner);
     }
 
     @Override
-    public ImpersonationAccount find(final String owner,
-                         final String id) {
-        return logic.find(owner, id);
+    public void create(final String owner, final ImpersonationAccount account) {
+        logic.create(owner, account);
     }
 
     @Override
-    public Response create(final ImpersonationAccount account) {
-        logic.create(account);
-        URI location = uriInfo.getAbsolutePathBuilder().build();
-        return Response.created(location).build();
-    }
-
-    @Override
-    public Response delete(final String owner, final String id) {
-        logic.delete(logic.find(owner, id));
-        return Response.noContent().build();
-    }
-
-    @Override
-    public void update(final ImpersonationAccount account) {
-        logic.update(account);
+    public void delete(final String owner, final ImpersonationAccount account) {
+        logic.delete(owner, account);
     }
 }

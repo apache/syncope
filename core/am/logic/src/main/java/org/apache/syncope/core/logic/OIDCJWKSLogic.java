@@ -46,7 +46,7 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
     @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_READ + "') "
             + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
-    public OIDCJWKSTO get() {
+    public OIDCJWKSTO read() {
         return Optional.ofNullable(dao.get()).
                 map(binder::get).
                 orElseThrow(() -> new NotFoundException("OIDC JWKS not found"));
