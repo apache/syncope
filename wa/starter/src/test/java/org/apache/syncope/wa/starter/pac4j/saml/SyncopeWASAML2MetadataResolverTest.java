@@ -26,7 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
@@ -47,8 +47,8 @@ public class SyncopeWASAML2MetadataResolverTest extends BaseSyncopeWASAML2Client
 
         SAML2SPEntityTO metadataTO = new SAML2SPEntityTO.Builder()
                 .key("Syncope")
-                .metadata(IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(),
-                        StandardCharsets.UTF_8))
+                .metadata(Base64.getEncoder().encodeToString(
+                        IOUtils.toByteArray(new ClassPathResource("sp-metadata.xml").getInputStream())))
                 .build();
 
         SAML2SPEntityService saml2SPMetadataService = mock(SAML2SPEntityService.class);
