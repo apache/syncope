@@ -2,6 +2,25 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.1.9
+================================================================================
+
+** Bug
+    * [SYNCOPE-1606] - Syncope returns an exception when doing two sequential operations for the same user from the toggle panel
+    * [SYNCOPE-1607] - Console Page preferences not working
+    * [SYNCOPE-1613] - startAt date is set to start field for SCHEDULED, PULL and PUSH TaskTOs
+    * [SYNCOPE-1616] - CSV and single push / pull concurrency issues
+    * [SYNCOPE-1619] - SearchPanel should display the input field based on the type of the selected property
+    * [SYNCOPE-1620] - JWT validation requires exp and nbf claims
+    * [SYNCOPE-1622] - ConnId Connectors not pooled with Resource override
+
+** Improvement
+    * [SYNCOPE-1608] - Allow wildcard group membership search
+    * [SYNCOPE-1609] - Reduce the number of table joins into PostgreSQL JSONB persistence implementation
+    * [SYNCOPE-1610] - Set Reconciliation to work with Pull and Push Correlation Rules if available
+    * [SYNCOPE-1611] - Caffeine Cache for Virtual Attribute Cache
+    * [SYNCOPE-1624] - Toggle panel improvements
+
 Release Notes - Syncope - Version 2.1.8
 ================================================================================
 
