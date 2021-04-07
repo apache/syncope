@@ -93,12 +93,12 @@ public class SAML2IdPEntityWizardBuilder extends SAML2EntityWizardBuilder<SAML2I
         return wizardModel;
     }
 
-    protected class TextPem extends Pem {
+    protected static class TextPem extends Pem {
 
         private static final long serialVersionUID = 1L;
 
         public TextPem(final SAML2IdPEntityTO entity, final String property, final PageReference pageRef) {
-            super(entity, property, pageRef);
+            super(property);
 
             add(new TextEditorPanel(null, new PropertyModel<>(entity, property), false, pageRef));
         }

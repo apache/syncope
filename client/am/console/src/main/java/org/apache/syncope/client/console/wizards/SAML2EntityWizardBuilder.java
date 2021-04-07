@@ -53,7 +53,7 @@ abstract class SAML2EntityWizardBuilder<T extends SAML2EntityTO> extends BaseAja
 
         protected final String property;
 
-        Pem(final T entity, final String property, final PageReference pageRef) {
+        Pem(final String property) {
             this.property = property;
         }
 

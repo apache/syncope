@@ -78,12 +78,12 @@ public class SAML2SPEntityWizardBuilder extends SAML2EntityWizardBuilder<SAML2SP
         }
     }
 
-    protected class BinaryPem extends Pem {
+    protected static class BinaryPem extends Pem {
 
         private static final long serialVersionUID = 1L;
 
         public BinaryPem(final SAML2SPEntityTO entity, final String property, final PageReference pageRef) {
-            super(entity, property, pageRef);
+            super(property);
 
             add(new BinaryFieldPanel(
                     "content",
