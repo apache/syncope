@@ -46,6 +46,10 @@ jobs:
       uses: actions/setup-java@v1.4.3
       with:
         java-version: 11
+    - name: Setup Maven
+      uses: stCarolas/setup-maven@v4
+      with:
+        maven-version: 3.6.3
     - uses: actions/cache@v2.1.1
       with:
         path: ~/.m2
