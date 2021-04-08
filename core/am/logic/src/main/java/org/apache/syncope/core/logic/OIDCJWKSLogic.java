@@ -46,9 +46,9 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
     @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_READ + "') "
             + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
-    public OIDCJWKSTO read() {
+    public OIDCJWKSTO get() {
         return Optional.ofNullable(dao.get()).
-                map(binder::get).
+                map(binder::getOIDCJWKSTO).
                 orElseThrow(() -> new NotFoundException("OIDC JWKS not found"));
     }
 
@@ -57,7 +57,7 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
     public OIDCJWKSTO generate(final int size, final JWSAlgorithm algorithm) {
         OIDCJWKS jwks = dao.get();
         if (jwks == null) {
-            return binder.get(dao.save(binder.create(size, algorithm)));
+            return binder.getOIDCJWKSTO(dao.save(binder.create(size, algorithm)));
         }
         throw new DuplicateException("OIDC JWKS already set");
     }
@@ -74,6 +74,6 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
         if (jwks == null) {
             throw new UnresolvedReferenceException();
         }
-        return binder.get(jwks);
+        return binder.getOIDCJWKSTO(jwks);
     }
 }

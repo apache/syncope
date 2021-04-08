@@ -32,7 +32,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-@ExtPage(label = "OpenID Connect 1.0 C4UI", icon = "fab fa-openid", 
+@ExtPage(label = "OIDC 1.0 C4UI", icon = "fab fa-openid", 
         listEntitlement = OIDC4UIEntitlement.OP_READ, priority = 300)
 public class OIDCC4UI extends BaseExtPage {
 

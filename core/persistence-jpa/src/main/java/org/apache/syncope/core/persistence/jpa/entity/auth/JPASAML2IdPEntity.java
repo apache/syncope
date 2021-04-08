@@ -34,7 +34,7 @@ public class JPASAML2IdPEntity extends AbstractProvidedKeyEntity implements SAML
 
     private static final long serialVersionUID = 57352617217394093L;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     @Lob
     private byte[] metadata;
 

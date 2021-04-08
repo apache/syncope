@@ -16,37 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.cxf.service;
+package org.apache.syncope.client.console.rest;
 
-import java.net.URI;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.JWSAlgorithm;
-import org.apache.syncope.core.logic.OIDCJWKSLogic;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 
-@Service
-public class OIDCJWKSServiceImpl extends AbstractServiceImpl implements OIDCJWKSService {
+public class OIDCJWKSRestClient extends BaseRestClient {
 
-    @Autowired
-    private OIDCJWKSLogic logic;
+    private static final long serialVersionUID = -1392090291817187902L;
 
-    @Override
-    public OIDCJWKSTO get() {
-        return logic.get();
+    public static AtomicReference<OIDCJWKSTO> get() {
+        AtomicReference<OIDCJWKSTO> result = new AtomicReference<>();
+        try {
+            result.set(getService(OIDCJWKSService.class).get());
+        } catch (Exception e) {
+            LOG.debug("While getting OIDC JKS", e);
+        }
+        return result;
     }
 
-    @Override
-    public Response generate(final int size, final JWSAlgorithm algorithm) {
-        OIDCJWKSTO jwks = logic.generate(size, algorithm);
-        URI location = uriInfo.getAbsolutePathBuilder().build();
-        return Response.created(location).entity(jwks).build();
+    public static OIDCJWKSTO generate() {
+        Response response = getService(OIDCJWKSService.class).generate(2048, JWSAlgorithm.RS256);
+        return response.readEntity(OIDCJWKSTO.class);
     }
 
-    @Override
-    public void delete() {
-        logic.delete();
+    public static void delete() {
+        getService(OIDCJWKSService.class).delete();
     }
 }
