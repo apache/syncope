@@ -53,7 +53,7 @@ public class JPASAML2SP4UIIdP extends AbstractGeneratedKeyEntity implements SAML
 
     private static final long serialVersionUID = -392372595500355552L;
 
-    public static final String TABLE = "SAML2IdP";
+    public static final String TABLE = "SAML2SP4UIIdP";
 
     @Column(unique = true, nullable = false)
     private String entityID;

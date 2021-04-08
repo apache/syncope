@@ -20,7 +20,6 @@ package org.apache.syncope.common.lib.wa;
 
 import java.util.Date;
 import java.util.Optional;
-import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -44,11 +43,6 @@ public class U2FDevice implements BaseBean {
             return this;
         }
 
-        public U2FDevice.Builder key(final String key) {
-            instance.setKey(key);
-            return this;
-        }
-
         public U2FDevice.Builder id(final long id) {
             instance.setId(id);
             return this;
@@ -61,20 +55,9 @@ public class U2FDevice implements BaseBean {
 
     private long id;
 
-    private String key;
-
     private String record;
 
     private Date issueDate;
-
-    public String getKey() {
-        return key;
-    }
-
-    @PathParam("key")
-    public void setKey(final String key) {
-        this.key = key;
-    }
 
     public String getRecord() {
         return record;
@@ -106,7 +89,6 @@ public class U2FDevice implements BaseBean {
     public int hashCode() {
         return new HashCodeBuilder()
                 .appendSuper(super.hashCode())
-                .append(key)
                 .append(record)
                 .append(id)
                 .append(issueDate)
@@ -127,7 +109,6 @@ public class U2FDevice implements BaseBean {
         U2FDevice rhs = (U2FDevice) obj;
         return new EqualsBuilder()
                 .appendSuper(super.equals(obj))
-                .append(this.key, rhs.key)
                 .append(this.record, rhs.record)
                 .append(this.id, rhs.id)
                 .append(this.issueDate, rhs.issueDate)
@@ -137,7 +118,6 @@ public class U2FDevice implements BaseBean {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("key", key)
                 .append("record", record)
                 .append("id", id)
                 .append("issueDate", issueDate)

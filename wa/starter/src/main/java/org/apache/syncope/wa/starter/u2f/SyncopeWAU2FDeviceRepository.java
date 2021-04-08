@@ -26,8 +26,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.wa.U2FDevice;
@@ -106,9 +104,8 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
                 record(registration.getRecord()).
                 id(registration.getId()).
                 build();
-        Response response = getU2FService().create(registration.getUsername(), record);
-        return parseRegistrationRecord(registration.getUsername(), response.readEntity(new GenericType<U2FDevice>() {
-        }));
+        getU2FService().create(registration.getUsername(), record);
+        return parseRegistrationRecord(registration.getUsername(), record);
     }
 
     @Override

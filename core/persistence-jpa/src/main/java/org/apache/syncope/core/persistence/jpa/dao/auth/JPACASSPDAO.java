@@ -19,9 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.dao.auth;
 
 import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPACASSP;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPACASSPClientApp;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,22 +28,23 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 
 @Repository
-public class JPACASSPDAO extends AbstractDAO<CASSP> implements CASSPDAO {
+public class JPACASSPDAO extends AbstractDAO<CASSPClientApp> implements CASSPDAO {
 
     @Override
-    public CASSP find(final String key) {
-        return entityManager().find(JPACASSP.class, key);
+    public CASSPClientApp find(final String key) {
+        return entityManager().find(JPACASSPClientApp.class, key);
     }
 
-    private CASSP find(final String column, final Object value) {
-        TypedQuery<CASSP> query = entityManager().createQuery(
-                "SELECT e FROM " + JPACASSP.class.getSimpleName() + " e WHERE e." + column + "=:value",
-            CASSP.class);
+    private CASSPClientApp find(final String column, final Object value) {
+        TypedQuery<CASSPClientApp> query = entityManager().createQuery(
+                "SELECT e FROM " + JPACASSPClientApp.class.getSimpleName() + " e WHERE e." + column + "=:value",
+                CASSPClientApp.class);
         query.setParameter("value", value);
 
-        CASSP result = null;
+        CASSPClientApp result = null;
         try {
             result = query.getSingleResult();
         } catch (final NoResultException e) {
@@ -55,32 +55,32 @@ public class JPACASSPDAO extends AbstractDAO<CASSP> implements CASSPDAO {
     }
 
     @Override
-    public CASSP findByClientAppId(final Long clientAppId) {
+    public CASSPClientApp findByClientAppId(final Long clientAppId) {
         return find("clientAppId", clientAppId);
     }
 
     @Override
-    public CASSP findByName(final String name) {
+    public CASSPClientApp findByName(final String name) {
         return find("name", name);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<CASSP> findAll() {
-        TypedQuery<CASSP> query = entityManager().createQuery(
-                "SELECT e FROM " + JPACASSP.class.getSimpleName() + " e", CASSP.class);
+    public List<CASSPClientApp> findAll() {
+        TypedQuery<CASSPClientApp> query = entityManager().createQuery(
+                "SELECT e FROM " + JPACASSPClientApp.class.getSimpleName() + " e", CASSPClientApp.class);
 
         return query.getResultList();
     }
 
     @Override
-    public CASSP save(final CASSP clientApp) {
+    public CASSPClientApp save(final CASSPClientApp clientApp) {
         return entityManager().merge(clientApp);
     }
 
     @Override
     public void delete(final String key) {
-        CASSP rpTO = find(key);
+        CASSPClientApp rpTO = find(key);
         if (rpTO == null) {
             return;
         }
@@ -89,7 +89,7 @@ public class JPACASSPDAO extends AbstractDAO<CASSP> implements CASSPDAO {
     }
 
     @Override
-    public void delete(final CASSP clientApp) {
+    public void delete(final CASSPClientApp clientApp) {
         entityManager().remove(clientApp);
     }
 }

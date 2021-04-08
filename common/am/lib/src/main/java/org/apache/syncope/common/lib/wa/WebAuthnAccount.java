@@ -36,11 +36,6 @@ public class WebAuthnAccount implements BaseBean {
 
         private final WebAuthnAccount instance = new WebAuthnAccount();
 
-        public WebAuthnAccount.Builder key(final String key) {
-            instance.setKey(key);
-            return this;
-        }
-
         public WebAuthnAccount.Builder credential(final WebAuthnDeviceCredential credential) {
             instance.getCredentials().add(credential);
             return this;
@@ -61,17 +56,7 @@ public class WebAuthnAccount implements BaseBean {
         }
     }
 
-    private String key;
-
     private final List<WebAuthnDeviceCredential> credentials = new ArrayList<>();
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(final String key) {
-        this.key = key;
-    }
 
     @JacksonXmlElementWrapper(localName = "credentials")
     @JacksonXmlProperty(localName = "credential")
@@ -83,7 +68,6 @@ public class WebAuthnAccount implements BaseBean {
     public int hashCode() {
         return new HashCodeBuilder()
                 .appendSuper(super.hashCode())
-                .append(key)
                 .append(credentials)
                 .toHashCode();
     }
@@ -102,7 +86,6 @@ public class WebAuthnAccount implements BaseBean {
         WebAuthnAccount rhs = (WebAuthnAccount) obj;
         return new EqualsBuilder()
                 .appendSuper(super.equals(obj))
-                .append(this.key, rhs.key)
                 .append(this.credentials, rhs.credentials)
                 .isEquals();
     }
@@ -110,8 +93,7 @@ public class WebAuthnAccount implements BaseBean {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("key", key)
-                .append("records", credentials)
+                .append("credentials", credentials)
                 .toString();
     }
 }

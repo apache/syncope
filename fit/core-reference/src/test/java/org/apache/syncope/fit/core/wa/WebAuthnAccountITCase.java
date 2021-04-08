@@ -59,7 +59,7 @@ public class WebAuthnAccountITCase extends AbstractITCase {
         WebAuthnAccount acct = createWebAuthnRegisteredAccount();
         webAuthnRegistrationService.create(owner, acct);
         assertFalse(webAuthnRegistrationService.list().isEmpty());
-        assertNotNull(webAuthnRegistrationService.readFor(owner));
+        assertNotNull(webAuthnRegistrationService.read(owner));
     }
 
     @Test
@@ -67,8 +67,8 @@ public class WebAuthnAccountITCase extends AbstractITCase {
         String owner = UUID.randomUUID().toString();
         WebAuthnAccount acct = createWebAuthnRegisteredAccount();
         webAuthnRegistrationService.create(owner, acct);
-        assertNotNull(webAuthnRegistrationService.delete(owner));
-        assertThrows(SyncopeClientException.class, () -> webAuthnRegistrationService.readFor(owner));
+        webAuthnRegistrationService.delete(owner);
+        assertThrows(SyncopeClientException.class, () -> webAuthnRegistrationService.read(owner));
     }
 
     @Test
@@ -76,8 +76,8 @@ public class WebAuthnAccountITCase extends AbstractITCase {
         String owner = UUID.randomUUID().toString();
         WebAuthnAccount acct = createWebAuthnRegisteredAccount();
         webAuthnRegistrationService.create(owner, acct);
-        assertNotNull(webAuthnRegistrationService.delete(owner, acct.getCredentials().get(0).getIdentifier()));
-        acct = webAuthnRegistrationService.readFor(owner);
+        webAuthnRegistrationService.delete(owner, acct.getCredentials().get(0).getIdentifier());
+        acct = webAuthnRegistrationService.read(owner);
         assertTrue(acct.getCredentials().isEmpty());
     }
 

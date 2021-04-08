@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
 import javax.ws.rs.QueryParam;
-import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public class U2FDeviceQuery extends AbstractQuery {
 
@@ -34,11 +33,6 @@ public class U2FDeviceQuery extends AbstractQuery {
         @Override
         protected U2FDeviceQuery newInstance() {
             return new U2FDeviceQuery();
-        }
-
-        public U2FDeviceQuery.Builder entityKey(final String entityKey) {
-            getInstance().setEntityKey(entityKey);
-            return this;
         }
 
         public U2FDeviceQuery.Builder owner(final String owner) {
@@ -59,23 +53,9 @@ public class U2FDeviceQuery extends AbstractQuery {
 
     private Long id;
 
-    private String entityKey;
-
     private Date expirationDate;
 
     private String owner;
-
-    @Parameter(name = JAXRSService.PARAM_ENTITY_KEY, in = ParameterIn.QUERY,
-            schema =
-            @Schema(implementation = String.class, example = "50592942-73ec-44c4-a377-e859524245e4"))
-    public String getEntityKey() {
-        return entityKey;
-    }
-
-    @QueryParam(JAXRSService.PARAM_ENTITY_KEY)
-    public void setEntityKey(final String entityKey) {
-        this.entityKey = entityKey;
-    }
 
     @Parameter(name = "id", in = ParameterIn.QUERY, schema =
             @Schema(implementation = Long.class))

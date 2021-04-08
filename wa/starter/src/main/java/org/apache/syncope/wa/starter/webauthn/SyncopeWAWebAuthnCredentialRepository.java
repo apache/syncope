@@ -91,7 +91,7 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
                     })).
                     collect(Collectors.toList());
 
-            WebAuthnAccount account = getService().readFor(username);
+            WebAuthnAccount account = getService().read(username);
             if (account != null) {
                 account.getCredentials().addAll(credentials);
                 getService().update(username, account);
@@ -107,7 +107,7 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
     @Override
     public Collection<CredentialRegistration> getRegistrationsByUsername(final String username) {
         try {
-            return getService().readFor(username).getCredentials().stream().
+            return getService().read(username).getCredentials().stream().
                     map(Unchecked.function(record -> {
                         String json = getCipherExecutor().decode(record.getJson());
                         return WebAuthnUtils.getObjectMapper()

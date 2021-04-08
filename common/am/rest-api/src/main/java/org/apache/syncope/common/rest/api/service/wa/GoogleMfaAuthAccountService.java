@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.common.rest.api.service.wa;
 
-import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,7 +31,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -51,35 +46,23 @@ public interface GoogleMfaAuthAccountService extends JAXRSService {
     @DELETE
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("accts/owners/{owner}")
-    void deleteFor(@NotNull @PathParam("owner") String owner);
-
-    @DELETE
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("accts/{key}")
-    void delete(@NotNull @PathParam("key") String key);
+    @Path("accts/{owner}")
+    void delete(@NotNull @PathParam("owner") String owner);
 
     @DELETE
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Path("accts")
-    void delete();
+    void deleteAll();
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "201",
-                description = "GoogleMfaAuthAccount successfully created", headers = {
-                    @Header(name = RESTHeaders.RESOURCE_KEY, schema =
-                            @Schema(type = "string"),
-                            description = "UUID generated for the entity created") }) })
     @POST
-    @Path("accts/owners/{owner}")
+    @Path("accts/{owner}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response create(@NotNull @PathParam("owner") String owner, @NotNull GoogleMfaAuthAccount acct);
+    void create(@NotNull @PathParam("owner") String owner, @NotNull GoogleMfaAuthAccount acct);
 
     @PUT
-    @Path("accts/owners/{owner}")
+    @Path("accts/{owner}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void update(@NotNull @PathParam("owner") String owner, @NotNull GoogleMfaAuthAccount acct);
@@ -87,14 +70,8 @@ public interface GoogleMfaAuthAccountService extends JAXRSService {
     @GET
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("accts/owners/{owner}")
-    PagedResult<GoogleMfaAuthAccount> readFor(@NotNull @PathParam("owner") String owner);
-
-    @GET
-    @Path("accts/{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    GoogleMfaAuthAccount read(@NotNull @PathParam("key") String key);
+    @Path("accts/{owner}")
+    PagedResult<GoogleMfaAuthAccount> read(@NotNull @PathParam("owner") String owner);
 
     @GET
     @Path("accts/id/{id}")
@@ -103,8 +80,8 @@ public interface GoogleMfaAuthAccountService extends JAXRSService {
     GoogleMfaAuthAccount read(@NotNull @PathParam("id") long id);
 
     @GET
+    @Path("accts")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("accts")
     PagedResult<GoogleMfaAuthAccount> list();
 }

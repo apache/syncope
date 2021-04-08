@@ -73,7 +73,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
         try {
             GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
                     getService(GoogleMfaAuthTokenService.class);
-            GoogleMfaAuthToken tokenTO = tokenService.readFor(username, otp);
+            GoogleMfaAuthToken tokenTO = tokenService.read(username, otp);
             GoogleAuthenticatorToken token = new GoogleAuthenticatorToken(tokenTO.getOtp(), username);
             LocalDateTime dateTime = tokenTO.getIssueDate().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
             token.setIssuedDateTime(dateTime);
@@ -95,7 +95,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
     public void remove(final String username) {
         GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
                 getService(GoogleMfaAuthTokenService.class);
-        tokenService.deleteFor(username);
+        tokenService.delete(username);
     }
 
     @Override
@@ -109,14 +109,14 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
     public void removeAll() {
         GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
                 getService(GoogleMfaAuthTokenService.class);
-        tokenService.delete(null);
+        tokenService.delete((Date) null);
     }
 
     @Override
     public long count(final String username) {
         GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
                 getService(GoogleMfaAuthTokenService.class);
-        return tokenService.readFor(username).getTotalCount();
+        return tokenService.read(username).getTotalCount();
     }
 
     @Override

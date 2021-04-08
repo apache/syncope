@@ -49,8 +49,8 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     }
 
     @Override
-    public void deleteFor(final String owner) {
-        logic.deleteFor(owner);
+    public void delete(final String owner) {
+        logic.delete(owner);
     }
 
     @Override
@@ -64,8 +64,8 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     }
 
     @Override
-    public GoogleMfaAuthToken readFor(final String owner, final int otp) {
-        return logic.readFor(owner, otp);
+    public GoogleMfaAuthToken read(final String owner, final int otp) {
+        return logic.read(owner, otp);
     }
 
     private PagedResult<GoogleMfaAuthToken> build(final List<GoogleMfaAuthToken> read) {
@@ -78,13 +78,8 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     }
 
     @Override
-    public PagedResult<GoogleMfaAuthToken> readFor(final String owner) {
-        return build(logic.readFor(owner));
-    }
-
-    @Override
-    public GoogleMfaAuthToken read(final String key) {
-        return logic.read(key);
+    public PagedResult<GoogleMfaAuthToken> read(final String owner) {
+        return build(logic.read(owner));
     }
 
     @Override

@@ -20,8 +20,6 @@ package org.apache.syncope.fit.core.wa;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
@@ -29,9 +27,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.wa.U2FDevice;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.U2FDeviceQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,9 +62,7 @@ public class U2FRegistrationITCase extends AbstractITCase {
     public void count() {
         String owner = UUID.randomUUID().toString();
         U2FDevice device = createDeviceRegistration();
-        Response response = u2FRegistrationService.create(owner, device);
-        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
-        assertNotNull(u2FRegistrationService.read(key));
+        u2FRegistrationService.create(owner, device);
 
         List<U2FDevice> devices = u2FRegistrationService.search(
                 new U2FDeviceQuery.Builder().owner(owner).expirationDate(
@@ -85,12 +79,12 @@ public class U2FRegistrationITCase extends AbstractITCase {
     @Test
     public void delete() {
         U2FDevice device = createDeviceRegistration();
-        Response response = u2FRegistrationService.create(UUID.randomUUID().toString(), device);
-        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
-        assertNotNull(u2FRegistrationService.read(key));
+        String owner = UUID.randomUUID().toString();
+        u2FRegistrationService.create(owner, device);
 
-        u2FRegistrationService.delete(new U2FDeviceQuery.Builder().entityKey(key).build());
-        assertNull(u2FRegistrationService.read(key));
+        u2FRegistrationService.delete(new U2FDeviceQuery.Builder().owner(owner).build());
+        assertTrue(u2FRegistrationService.search(
+                new U2FDeviceQuery.Builder().owner(owner).build()).getResult().isEmpty());
 
         Date date = Date.from(LocalDate.now().plusDays(1)
                 .atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -99,20 +93,5 @@ public class U2FRegistrationITCase extends AbstractITCase {
 
         assertTrue(u2FRegistrationService.search(
                 new U2FDeviceQuery.Builder().expirationDate(date).build()).getResult().isEmpty());
-    }
-
-    @Test
-    public void update() {
-        U2FDevice device = createDeviceRegistration();
-        Response response = u2FRegistrationService.create(UUID.randomUUID().toString(), device);
-        String key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
-        device = u2FRegistrationService.read(key);
-        assertNotNull(device);
-
-        device.setRecord("newRecord");
-        u2FRegistrationService.update(device);
-
-        device = u2FRegistrationService.read(key);
-        assertEquals("newRecord", device.getRecord());
     }
 }

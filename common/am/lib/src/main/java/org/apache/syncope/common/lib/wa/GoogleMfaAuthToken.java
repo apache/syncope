@@ -43,29 +43,14 @@ public class GoogleMfaAuthToken implements BaseBean {
             return this;
         }
 
-        public GoogleMfaAuthToken.Builder key(final String key) {
-            instance.setKey(key);
-            return this;
-        }
-
         public GoogleMfaAuthToken build() {
             return instance;
         }
     }
 
-    private String key;
-
     private int otp;
 
     private Date issueDate;
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(final String key) {
-        this.key = key;
-    }
 
     public int getOtp() {
         return otp;
@@ -89,7 +74,6 @@ public class GoogleMfaAuthToken implements BaseBean {
     public int hashCode() {
         return new HashCodeBuilder()
                 .appendSuper(super.hashCode())
-                .append(key)
                 .append(otp)
                 .append(issueDate)
                 .toHashCode();
@@ -109,7 +93,6 @@ public class GoogleMfaAuthToken implements BaseBean {
         GoogleMfaAuthToken rhs = (GoogleMfaAuthToken) obj;
         return new EqualsBuilder()
                 .appendSuper(super.equals(obj))
-                .append(this.key, rhs.key)
                 .append(this.otp, rhs.otp)
                 .append(this.issueDate, rhs.issueDate)
                 .isEquals();
@@ -118,7 +101,6 @@ public class GoogleMfaAuthToken implements BaseBean {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("key", key)
                 .append("token", otp)
                 .append("issueDate", issueDate)
                 .toString();

@@ -72,7 +72,7 @@ under the License.
   <AuthModule id="DefaultOIDCAuthModule"
               description="OIDC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","discoveryUri":"https://accounts.google.com/.well-known/openid-configuration", "id":"client-id", "secret": "client-secret" }'/>
   <AuthModule id="DefaultSAML2IdPAuthModule"
-              description="SAML2 IdP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","keystorePassword":"p@$$word","privateKeyPassword":"p@$$word","identityProviderMetadataPath":"classpath:/idp-metadata.xml", "serviceProviderEntityId":"syncope:apache:org"}'/>
+              description="SAML2 IdP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","keystorePassword":"p@$$word","privateKeyPassword":"p@$$word","identityProviderMetadataPath":"http://localhost:9080/syncope-wa/idp/metadata", "serviceProviderEntityId":"syncope:apache:org"}'/>
   <AuthModule id="DefaultJaasAuthModule"
               description="Jaas auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JaasAuthModuleConf","realm":"SYNCOPE","kerberosRealmSystemProperty":"sample-value", "loginConfigType": "JavaLoginConfig", "loginConfigurationFile": "file:/etc/jaas/login.conf"}'/>
   <AuthModule id="DefaultStaticAuthModule"

@@ -22,27 +22,27 @@ import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCRP;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCRPClientApp;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
 @Repository
-public class JPAOIDCRPDAO extends AbstractDAO<OIDCRP> implements OIDCRPDAO {
+public class JPAOIDCRPDAO extends AbstractDAO<OIDCRPClientApp> implements OIDCRPDAO {
 
     @Override
-    public OIDCRP find(final String key) {
-        return entityManager().find(JPAOIDCRP.class, key);
+    public OIDCRPClientApp find(final String key) {
+        return entityManager().find(JPAOIDCRPClientApp.class, key);
     }
 
-    private OIDCRP find(final String column, final Object value) {
-        TypedQuery<OIDCRP> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAOIDCRP.class.getSimpleName() + " e WHERE e." + column + "=:value",
-                OIDCRP.class);
+    private OIDCRPClientApp find(final String column, final Object value) {
+        TypedQuery<OIDCRPClientApp> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAOIDCRPClientApp.class.getSimpleName() + " e WHERE e." + column + "=:value",
+                OIDCRPClientApp.class);
         query.setParameter("value", value);
 
-        OIDCRP result = null;
+        OIDCRPClientApp result = null;
         try {
             result = query.getSingleResult();
         } catch (final NoResultException e) {
@@ -53,37 +53,37 @@ public class JPAOIDCRPDAO extends AbstractDAO<OIDCRP> implements OIDCRPDAO {
     }
 
     @Override
-    public OIDCRP findByClientAppId(final Long clientAppId) {
+    public OIDCRPClientApp findByClientAppId(final Long clientAppId) {
         return find("clientAppId", clientAppId);
     }
 
     @Override
-    public OIDCRP findByName(final String name) {
+    public OIDCRPClientApp findByName(final String name) {
         return find("name", name);
     }
 
     @Override
-    public OIDCRP findByClientId(final String clientId) {
+    public OIDCRPClientApp findByClientId(final String clientId) {
         return find("clientId", clientId);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<OIDCRP> findAll() {
-        TypedQuery<OIDCRP> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAOIDCRP.class.getSimpleName() + " e", OIDCRP.class);
+    public List<OIDCRPClientApp> findAll() {
+        TypedQuery<OIDCRPClientApp> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAOIDCRPClientApp.class.getSimpleName() + " e", OIDCRPClientApp.class);
 
         return query.getResultList();
     }
 
     @Override
-    public OIDCRP save(final OIDCRP clientApp) {
+    public OIDCRPClientApp save(final OIDCRPClientApp clientApp) {
         return entityManager().merge(clientApp);
     }
 
     @Override
     public void delete(final String key) {
-        OIDCRP rpTO = find(key);
+        OIDCRPClientApp rpTO = find(key);
         if (rpTO == null) {
             return;
         }
@@ -93,7 +93,7 @@ public class JPAOIDCRPDAO extends AbstractDAO<OIDCRP> implements OIDCRPDAO {
 
     @Override
     public void deleteByClientId(final String clientId) {
-        OIDCRP rpTO = findByClientId(clientId);
+        OIDCRPClientApp rpTO = findByClientId(clientId);
         if (rpTO == null) {
             return;
         }
@@ -101,7 +101,7 @@ public class JPAOIDCRPDAO extends AbstractDAO<OIDCRP> implements OIDCRPDAO {
     }
 
     @Override
-    public void delete(final OIDCRP clientApp) {
+    public void delete(final OIDCRPClientApp clientApp) {
         entityManager().remove(clientApp);
     }
 }

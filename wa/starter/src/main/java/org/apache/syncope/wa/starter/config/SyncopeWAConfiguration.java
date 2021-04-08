@@ -40,14 +40,14 @@ import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.AuthMapFor;
 import org.apache.syncope.wa.starter.mapping.AuthMapper;
-import org.apache.syncope.wa.starter.mapping.CASSPTOMapper;
+import org.apache.syncope.wa.starter.mapping.CASSPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapFor;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAccessMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAuthMapper;
-import org.apache.syncope.wa.starter.mapping.OIDCRPTOMapper;
+import org.apache.syncope.wa.starter.mapping.OIDCRPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
-import org.apache.syncope.wa.starter.mapping.SAML2SPTOMapper;
+import org.apache.syncope.wa.starter.mapping.SAML2SPClientAppTOMapper;
 import org.apache.syncope.wa.starter.oidc.SyncopeWAOIDCJWKSGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.SyncopeWASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
@@ -132,34 +132,40 @@ public class SyncopeWAConfiguration {
                         new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"));
     }
 
+    @ConditionalOnMissingBean(name = "accessMapper")
     @Bean
-    public AttrReleaseMapper allowedAttrReleaseMapper() {
-        return new DefaultAttrReleaseMapper();
-    }
-
-    @Bean
-    public ClientAppMapper casSPTOMapper() {
-        return new CASSPTOMapper();
-    }
-
-    @Bean
-    public AccessMapper defaultAccessMapper() {
+    public AccessMapper accessMapper() {
         return new DefaultAccessMapper();
     }
 
+    @ConditionalOnMissingBean(name = "attrReleaseMapper")
     @Bean
-    public AuthMapper defaultAuthMapper() {
+    public AttrReleaseMapper attrReleaseMapper() {
+        return new DefaultAttrReleaseMapper();
+    }
+
+    @ConditionalOnMissingBean(name = "authMapper")
+    @Bean
+    public AuthMapper authMapper() {
         return new DefaultAuthMapper();
     }
 
+    @ConditionalOnMissingBean(name = "casSPClientAppTOMapper")
     @Bean
-    public ClientAppMapper oidcRPTOMapper() {
-        return new OIDCRPTOMapper();
+    public ClientAppMapper casSPClientAppTOMapper() {
+        return new CASSPClientAppTOMapper();
     }
 
+    @ConditionalOnMissingBean(name = "oidcRPClientAppTOMapper")
     @Bean
-    public ClientAppMapper saml2SPTOMapper() {
-        return new SAML2SPTOMapper();
+    public ClientAppMapper oidcRPClientAppTOMapper() {
+        return new OIDCRPClientAppTOMapper();
+    }
+
+    @ConditionalOnMissingBean(name = "saml2SPClientAppTOMapper")
+    @Bean
+    public ClientAppMapper saml2SPClientAppTOMapper() {
+        return new SAML2SPClientAppTOMapper();
     }
 
     @ConditionalOnMissingBean
@@ -233,7 +239,7 @@ public class SyncopeWAConfiguration {
     @Bean
     public SamlIdPMetadataLocator samlIdPMetadataLocator(final WARestClient restClient) {
         return new RestfulSamlIdPMetadataLocator(CipherExecutor.noOpOfStringToString(),
-            Caffeine.newBuilder().build(), restClient);
+                Caffeine.newBuilder().build(), restClient);
     }
 
     @Autowired
@@ -310,7 +316,7 @@ public class SyncopeWAConfiguration {
     public SurrogateAuthenticationService surrogateAuthenticationService(final WARestClient restClient) {
         return new SyncopeWASurrogateAuthenticationService(restClient);
     }
-    
+
     @Bean
     public KeymasterStart keymasterStart() {
         return new KeymasterStart(NetworkService.Type.WA);

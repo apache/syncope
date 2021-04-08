@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AMConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AuthModuleDirectoryPanel.AuthModuleProvider;
 import org.apache.syncope.client.console.rest.AuthModuleRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -35,6 +34,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AuthModuleWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
@@ -143,7 +143,7 @@ public class AuthModuleDirectoryPanel
                     LOG.error("While deleting {}", model.getObject().getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionLink.ActionType.DELETE, AMEntitlement.AUTH_MODULE_DELETE, true);
 

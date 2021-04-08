@@ -49,7 +49,7 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
 
     @BeforeEach
     public void setup() {
-        googleMfaAuthTokenService.delete(null);
+        googleMfaAuthTokenService.delete((Date) null);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
         GoogleMfaAuthToken token = createGoogleMfaAuthToken();
         googleMfaAuthTokenService.store(owner, token);
         assertEquals(1, googleMfaAuthTokenService.list().getTotalCount());
-        assertEquals(1, googleMfaAuthTokenService.readFor(owner).getTotalCount());
+        assertEquals(1, googleMfaAuthTokenService.read(owner).getTotalCount());
     }
 
     @Test
@@ -87,16 +87,16 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
         GoogleMfaAuthToken token = createGoogleMfaAuthToken();
         googleMfaAuthTokenService.store(owner, token);
         googleMfaAuthTokenService.delete(token.getOtp());
-        assertTrue(googleMfaAuthTokenService.readFor(owner).getResult().isEmpty());
+        assertTrue(googleMfaAuthTokenService.read(owner).getResult().isEmpty());
     }
 
     @Test
-    public void deleteByOwner() {
+    public void delete() {
         String owner = UUID.randomUUID().toString();
         GoogleMfaAuthToken token = createGoogleMfaAuthToken();
         googleMfaAuthTokenService.store(owner, token);
-        googleMfaAuthTokenService.deleteFor(owner);
-        assertTrue(googleMfaAuthTokenService.readFor(owner).getResult().isEmpty());
+        googleMfaAuthTokenService.delete(owner);
+        assertTrue(googleMfaAuthTokenService.read(owner).getResult().isEmpty());
     }
 
     @Test
@@ -105,7 +105,7 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
         GoogleMfaAuthToken token = createGoogleMfaAuthToken();
         googleMfaAuthTokenService.store(owner, token);
         googleMfaAuthTokenService.delete(owner, token.getOtp());
-        assertTrue(googleMfaAuthTokenService.readFor(owner).getResult().isEmpty());
+        assertTrue(googleMfaAuthTokenService.read(owner).getResult().isEmpty());
     }
 
     @Test
@@ -114,7 +114,7 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
         Date dateTime = Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneId.systemDefault()).toInstant());
         createGoogleMfaAuthToken();
         googleMfaAuthTokenService.delete(dateTime);
-        assertTrue(googleMfaAuthTokenService.readFor(owner).getResult().isEmpty());
-        assertEquals(0, googleMfaAuthTokenService.readFor(owner).getTotalCount());
+        assertTrue(googleMfaAuthTokenService.read(owner).getResult().isEmpty());
+        assertEquals(0, googleMfaAuthTokenService.read(owner).getTotalCount());
     }
 }
