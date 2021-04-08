@@ -16,9 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.markup.html.form.preview;
+package org.apache.syncope.client.ui.commons.markup.html.form.preview;
 
-import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +33,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.util.io.IOUtils;
 
 @BinaryPreview(mimeTypes = { "application/json", "application/xml" })
-public class BinaryTextPreviewer extends AbstractBinaryPreviewer {
+public class BinaryTextPreviewer extends BinaryPreviewer {
 
     private static final long serialVersionUID = 3808379310090668773L;
 

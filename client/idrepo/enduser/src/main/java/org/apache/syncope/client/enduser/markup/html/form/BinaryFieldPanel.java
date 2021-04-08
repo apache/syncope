@@ -29,6 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Locale;
+import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +40,7 @@ import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.BaseBinaryFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
+import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.Component;
@@ -83,7 +84,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
 
     private final AjaxDownload fileDownload;
 
-    private final AbstractBinaryPreviewer previewer;
+    private final BinaryPreviewer previewer;
 
     private final IndicatingAjaxLink<Void> resetLink;
 
@@ -279,16 +280,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         String modelObj = model.getObject();
 
         if (StringUtils.isNotBlank(modelObj)) {
-            final Component panelPreview;
-            if (previewer == null) {
-                panelPreview = PreviewUtils.getDefaultPreviewer(mimeType);
-            } else {
-                panelPreview = previewer.preview(modelObj);
-            }
-
-            if (panelPreview != null) {
-                changePreviewer(panelPreview);
-            }
+            Optional.ofNullable(previewer.preview(modelObj)).ifPresent(this::changePreviewer);
         }
 
         downloadLink.setEnabled(StringUtils.isNotBlank(modelObj));

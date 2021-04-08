@@ -20,33 +20,35 @@ package org.apache.syncope.client.console.commons;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
+import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.DefaultPreviewer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ClassUtils;
 
 public class PreviewUtils {
 
+    protected static final Logger LOG = LoggerFactory.getLogger(PreviewUtils.class);
+
     @Autowired
     private ClassPathScanImplementationLookup lookup;
 
-    public static AbstractBinaryPreviewer getDefaultPreviewer(final String mimeType) {
-        return new DefaultPreviewer("previewer", mimeType);
-    }
-
-    public AbstractBinaryPreviewer getPreviewer(final String mimeType) {
+    public BinaryPreviewer getPreviewer(final String mimeType) {
         if (StringUtils.isBlank(mimeType)) {
-            return null;
+            return new DefaultPreviewer("previewer", mimeType);
         }
 
-        Class<? extends AbstractBinaryPreviewer> previewer = lookup.getPreviewerClass(mimeType);
+        Class<? extends BinaryPreviewer> previewer = lookup.getPreviewerClass(mimeType);
         try {
             return previewer == null
-                    ? null
+                    ? new DefaultPreviewer("previewer", mimeType)
                     : ClassUtils.getConstructorIfAvailable(previewer, String.class, String.class).
                             newInstance(new Object[] { "previewer", mimeType });
         } catch (Exception e) {
-            return null;
+            LOG.error("While getting BinaryPreviewer for {}", mimeType, e);
+
+            return new DefaultPreviewer("previewer", mimeType);
         }
     }
 }

@@ -16,9 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.markup.html.form.preview;
+package org.apache.syncope.client.ui.commons.markup.html.form.preview;
 
-import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.image.resource.ThumbnailImageResource;
@@ -27,7 +26,7 @@ import org.apache.wicket.request.resource.DynamicImageResource;
 import org.apache.wicket.request.resource.IResource;
 
 @BinaryPreview(mimeTypes = { "image/jpeg", "image/png", "image/gif", "image/bmp", "image/x-png", "image/vnd.wap.wbmp" })
-public class BinaryImagePreviewer extends AbstractBinaryPreviewer {
+public class BinaryImagePreviewer extends BinaryPreviewer {
 
     private static final long serialVersionUID = 3338812359368457349L;
 

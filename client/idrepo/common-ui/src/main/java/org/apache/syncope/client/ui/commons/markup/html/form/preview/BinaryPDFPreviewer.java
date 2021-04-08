@@ -16,9 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.markup.html.form.preview;
+package org.apache.syncope.client.ui.commons.markup.html.form.preview;
 
-import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -27,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.time.Instant;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.cos.COSObject;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.DefaultResourceCache;
@@ -43,7 +43,7 @@ import org.apache.wicket.request.resource.DynamicImageResource;
 import org.apache.wicket.request.resource.IResource;
 
 @BinaryPreview(mimeTypes = { "application/pdf" })
-public class BinaryPDFPreviewer extends AbstractBinaryPreviewer {
+public class BinaryPDFPreviewer extends BinaryPreviewer {
 
     private static final long serialVersionUID = -6606409541566687016L;
 
@@ -64,7 +64,7 @@ public class BinaryPDFPreviewer extends AbstractBinaryPreviewer {
         firstPage = null;
 
         try (InputStream bais = new ByteArrayInputStream(uploadedBytes);
-                PDDocument document = PDDocument.load(bais, MemoryUsageSetting.setupTempFileOnly())) {
+                PDDocument document = Loader.loadPDF(bais, MemoryUsageSetting.setupTempFileOnly())) {
 
             document.setResourceCache(new DefaultResourceCache() {
 

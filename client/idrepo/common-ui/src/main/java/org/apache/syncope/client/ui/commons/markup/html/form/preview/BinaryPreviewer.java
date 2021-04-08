@@ -24,15 +24,15 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractBinaryPreviewer extends Panel {
+public abstract class BinaryPreviewer extends Panel {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractBinaryPreviewer.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(BinaryPreviewer.class);
 
     private static final long serialVersionUID = -2482706463911903025L;
 
     protected final String mimeType;
 
-    public AbstractBinaryPreviewer(final String id, final String mimeType) {
+    public BinaryPreviewer(final String id, final String mimeType) {
         super(id);
         this.mimeType = mimeType;
     }

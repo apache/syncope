@@ -16,9 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.markup.html.form.preview;
+package org.apache.syncope.client.ui.commons.markup.html.form.preview;
 
-import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -32,7 +31,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 
 @BinaryPreview(mimeTypes = { "application/x-x509-ca-cert", "application/x-x509-user-cert", "application/pkix-cert" })
-public class BinaryCertPreviewer extends AbstractBinaryPreviewer {
+public class BinaryCertPreviewer extends BinaryPreviewer {
 
     private static final long serialVersionUID = -5843835939538055110L;
 
