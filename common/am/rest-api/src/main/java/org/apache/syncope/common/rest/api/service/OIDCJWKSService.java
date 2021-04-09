@@ -50,14 +50,11 @@ public interface OIDCJWKSService extends JAXRSService {
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    OIDCJWKSTO read();
+    OIDCJWKSTO get();
 
     @ApiResponses({
         @ApiResponse(responseCode = "201",
                 description = "JWKS successfully created", headers = {
-                    @Header(name = RESTHeaders.RESOURCE_KEY, schema =
-                            @Schema(type = "string"),
-                            description = "UUID generated for the entity created"),
                     @Header(name = HttpHeaders.LOCATION, schema =
                             @Schema(type = "string"),
                             description = "URL of the entity created") }),
