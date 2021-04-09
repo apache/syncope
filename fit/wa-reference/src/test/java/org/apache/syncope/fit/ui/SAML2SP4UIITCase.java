@@ -20,6 +20,7 @@ package org.apache.syncope.fit.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -54,6 +55,7 @@ import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class SAML2SP4UIITCase extends AbstractUIITCase {
 
@@ -154,6 +156,20 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         cas.add(item);
 
         saml2sp4UIIdPService.update(cas);
+    }
+
+    @Test
+    public void fetchSpMetadata() throws Exception {
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            HttpClientContext context = HttpClientContext.create();
+            context.setCookieStore(new BasicCookieStore());
+
+            HttpGet get = new HttpGet(WA_ADDRESS + "/sp/metadata");
+            CloseableHttpResponse response = httpclient.execute(get, context);
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            String responseBody = EntityUtils.toString(response.getEntity());
+            assertNotNull(responseBody);
+        }
     }
 
     @Override
