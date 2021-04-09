@@ -224,7 +224,7 @@ public class SyncopeWAConfiguration {
     @Autowired
     @Bean
     public SamlIdPMetadataGenerator samlIdPMetadataGenerator(final WARestClient restClient,
-                                                             final SamlIdPMetadataGeneratorConfigurationContext context) {
+                                                         final SamlIdPMetadataGeneratorConfigurationContext context) {
         return new RestfulSamlIdPMetadataGenerator(context, restClient);
     }
 
