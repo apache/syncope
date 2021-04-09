@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
@@ -174,11 +173,8 @@ public class AuthProfileTest extends AbstractTest {
         assertTrue(result.isPresent());
 
         List<ImpersonationAccount> accounts = IntStream.range(1, 10).
-            mapToObj(i -> new ImpersonationAccount.Builder()
-                .owner("impersonator")
-                .key("impersonatee" + i)
-                .build()).
-            collect(Collectors.toList());
+                mapToObj(i -> new ImpersonationAccount.Builder().impersonated("impersonatee" + i).build()).
+                collect(Collectors.toList());
 
         authProfile.setImpersonationAccounts(accounts);
         authProfile = authProfileDAO.save(authProfile);

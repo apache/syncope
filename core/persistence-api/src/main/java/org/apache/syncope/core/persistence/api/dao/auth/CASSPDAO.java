@@ -19,23 +19,23 @@
 package org.apache.syncope.core.persistence.api.dao.auth;
 
 import org.apache.syncope.core.persistence.api.dao.DAO;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 
-public interface CASSPDAO extends DAO<CASSP> {
+public interface CASSPDAO extends DAO<CASSPClientApp> {
 
-    CASSP find(String key);
+    CASSPClientApp find(String key);
 
-    CASSP findByClientAppId(Long clientAppId);
+    CASSPClientApp findByClientAppId(Long clientAppId);
 
-    CASSP findByName(String name);
+    CASSPClientApp findByName(String name);
 
-    List<CASSP> findAll();
+    List<CASSPClientApp> findAll();
 
-    CASSP save(CASSP clientApp);
+    CASSPClientApp save(CASSPClientApp clientApp);
 
     void delete(String key);
 
-    void delete(CASSP clientApp);
+    void delete(CASSPClientApp clientApp);
 }

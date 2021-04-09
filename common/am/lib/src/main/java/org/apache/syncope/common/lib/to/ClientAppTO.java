@@ -33,7 +33,8 @@ import org.apache.syncope.common.lib.Attr;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class", "key", "description" })
-@Schema(subTypes = { OIDCRPTO.class, SAML2SPTO.class, CASSPTO.class }, discriminatorProperty = "_class")
+@Schema(subTypes = { OIDCRPClientAppTO.class, SAML2SPClientAppTO.class, CASSPClientAppTO.class }, 
+        discriminatorProperty = "_class")
 public abstract class ClientAppTO implements NamedEntityTO {
 
     private static final long serialVersionUID = 6577639976115661357L;

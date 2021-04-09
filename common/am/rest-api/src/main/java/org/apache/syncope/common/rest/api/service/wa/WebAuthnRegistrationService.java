@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.common.rest.api.service.wa;
 
-import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,7 +32,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
@@ -54,43 +49,31 @@ public interface WebAuthnRegistrationService extends JAXRSService {
     List<WebAuthnAccount> list();
 
     @GET
-    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    WebAuthnAccount read(@NotNull @PathParam("key") String key);
-
-    @GET
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("owners/{owner}")
-    WebAuthnAccount readFor(@NotNull @PathParam("owner") String owner);
+    @Path("{owner}")
+    WebAuthnAccount read(@NotNull @PathParam("owner") String owner);
 
     @DELETE
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("owners/{owner}")
-    Response delete(@NotNull @PathParam("owner") String owner);
+    @Path("{owner}")
+    void delete(@NotNull @PathParam("owner") String owner);
 
     @DELETE
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("owners/{owner}/{credentialId}")
-    Response delete(@NotNull @PathParam("owner") String owner, @NotNull @PathParam("credentialId") String credentialId);
+    @Path("{owner}/{credentialId}")
+    void delete(@NotNull @PathParam("owner") String owner, @NotNull @PathParam("credentialId") String credentialId);
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "201",
-                description = "WebAuthn successfully created", headers = {
-                    @Header(name = RESTHeaders.RESOURCE_KEY, schema =
-                            @Schema(type = "string"),
-                            description = "UUID generated for the entity created") }) })
     @POST
-    @Path("owners/{owner}")
+    @Path("{owner}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response create(@NotNull @PathParam("owner") String owner, @NotNull WebAuthnAccount account);
+    void create(@NotNull @PathParam("owner") String owner, @NotNull WebAuthnAccount account);
 
     @PUT
-    @Path("owners/{owner}")
+    @Path("{owner}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void update(@NotNull @PathParam("owner") String owner, @NotNull WebAuthnAccount account);

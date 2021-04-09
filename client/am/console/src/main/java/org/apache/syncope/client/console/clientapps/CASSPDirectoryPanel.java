@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.clientapps;
 
 import java.util.List;
-import org.apache.syncope.common.lib.to.CASSPTO;
+import org.apache.syncope.common.lib.to.CASSPClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.wicket.PageReference;
@@ -28,14 +28,14 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.StringResourceModel;
 
-public class CASSPDirectoryPanel extends ClientAppDirectoryPanel<CASSPTO> {
+public class CASSPDirectoryPanel extends ClientAppDirectoryPanel<CASSPClientAppTO> {
 
     private static final long serialVersionUID = 1L;
 
     public CASSPDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, ClientAppType.CASSP, pageRef);
 
-        CASSPTO defaultItem = new CASSPTO();
+        CASSPClientAppTO defaultItem = new CASSPClientAppTO();
 
         this.addNewItemPanelBuilder(
                 new ClientAppModalPanelBuilder<>(ClientAppType.CASSP, defaultItem, modal, pageRef), true);
@@ -45,7 +45,7 @@ public class CASSPDirectoryPanel extends ClientAppDirectoryPanel<CASSPTO> {
     }
 
     @Override
-    protected void addCustomColumnFields(final List<IColumn<CASSPTO, String>> columns) {
+    protected void addCustomColumnFields(final List<IColumn<CASSPClientAppTO, String>> columns) {
         columns.add(new PropertyColumn<>(new StringResourceModel("serviceId", this), "serviceId", "serviceId"));
     }
 }

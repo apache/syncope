@@ -86,8 +86,8 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
-import org.apache.syncope.common.lib.to.OIDCRPTO;
-import org.apache.syncope.common.lib.to.SAML2SPTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
@@ -136,12 +136,13 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
-import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataService;
+import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIService;
-import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreService;
-import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
+import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
@@ -156,8 +157,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
-import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 
 @SpringJUnitConfig({ CoreITContext.class, SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
 public abstract class AbstractITCase {
@@ -233,8 +232,6 @@ public abstract class AbstractITCase {
     protected static final String RESOURCE_LDAP_ADMIN_PWD = "secret";
 
     protected static final String PRINTER = "PRINTER";
-
-    protected static final String OWNER = "Syncope";
 
     protected static final int MAX_WAIT_SECONDS = 50;
 
@@ -334,11 +331,9 @@ public abstract class AbstractITCase {
 
     protected static AuthProfileService authProfileService;
 
-    protected static SAML2SPMetadataService saml2SPMetadataService;
+    protected static SAML2SPEntityService saml2SPEntityService;
 
-    protected static SAML2SPKeystoreService saml2SPKeystoreService;
-
-    protected static SAML2IdPMetadataService saml2IdPMetadataService;
+    protected static SAML2IdPEntityService saml2IdPEntityService;
 
     protected static OIDCJWKSService oidcJWKSService;
 
@@ -349,7 +344,7 @@ public abstract class AbstractITCase {
     protected static WebAuthnRegistrationService webAuthnRegistrationService;
 
     protected static ImpersonationService impersonationService;
-    
+
     @BeforeAll
     public static void securitySetup() {
         try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/security.properties")) {
@@ -421,9 +416,8 @@ public abstract class AbstractITCase {
         scimConfService = adminClient.getService(SCIMConfService.class);
         clientAppService = adminClient.getService(ClientAppService.class);
         authModuleService = adminClient.getService(AuthModuleService.class);
-        saml2SPMetadataService = adminClient.getService(SAML2SPMetadataService.class);
-        saml2IdPMetadataService = adminClient.getService(SAML2IdPMetadataService.class);
-        saml2SPKeystoreService = adminClient.getService(SAML2SPKeystoreService.class);
+        saml2SPEntityService = adminClient.getService(SAML2SPEntityService.class);
+        saml2IdPEntityService = adminClient.getService(SAML2IdPEntityService.class);
         googleMfaAuthTokenService = adminClient.getService(GoogleMfaAuthTokenService.class);
         googleMfaAuthAccountService = adminClient.getService(GoogleMfaAuthAccountService.class);
         authProfileService = adminClient.getService(AuthProfileService.class);
@@ -770,7 +764,7 @@ public abstract class AbstractITCase {
         return object.get();
     }
 
-    protected static OIDCRPTO buildOIDCRP() {
+    protected static OIDCRPClientAppTO buildOIDCRP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
         authPolicyTO.setName("Authentication Policy");
@@ -783,7 +777,7 @@ public abstract class AbstractITCase {
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 
-        OIDCRPTO oidcrpTO = new OIDCRPTO();
+        OIDCRPClientAppTO oidcrpTO = new OIDCRPClientAppTO();
         oidcrpTO.setName("ExampleRP_" + getUUIDString());
         oidcrpTO.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         oidcrpTO.setDescription("Example OIDC RP application");
@@ -799,7 +793,7 @@ public abstract class AbstractITCase {
         return oidcrpTO;
     }
 
-    protected static SAML2SPTO buildSAML2SP() {
+    protected static SAML2SPClientAppTO buildSAML2SP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
         authPolicyTO.setName("Authentication Policy");
@@ -812,7 +806,7 @@ public abstract class AbstractITCase {
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 
-        SAML2SPTO saml2spto = new SAML2SPTO();
+        SAML2SPClientAppTO saml2spto = new SAML2SPClientAppTO();
         saml2spto.setName("ExampleSAML2SP_" + getUUIDString());
         saml2spto.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         saml2spto.setDescription("Example SAML 2.0 service provider");

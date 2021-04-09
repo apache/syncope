@@ -47,7 +47,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
-import org.apache.syncope.common.lib.to.OIDCRPTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -56,12 +56,12 @@ import org.junit.jupiter.api.BeforeAll;
 public class OIDC4UIITCase extends AbstractUIITCase {
 
     private static void clientAppSetup(final String appName, final String baseAddress, final long appId) {
-        OIDCRPTO clientApp = clientAppService.list(ClientAppType.OIDCRP).stream().
+        OIDCRPClientAppTO clientApp = clientAppService.list(ClientAppType.OIDCRP).stream().
                 filter(app -> appName.equals(app.getName())).
-                map(OIDCRPTO.class::cast).
+                map(OIDCRPClientAppTO.class::cast).
                 findFirst().
                 orElseGet(() -> {
-                    OIDCRPTO app = new OIDCRPTO();
+                    OIDCRPClientAppTO app = new OIDCRPClientAppTO();
                     app.setName(appName);
                     app.setClientAppId(appId);
                     app.setClientId(appName);

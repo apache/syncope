@@ -18,14 +18,23 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.console.panels.AuthModuleDirectoryPanel;
 import org.apache.syncope.client.console.clientapps.ClientApps;
+import org.apache.syncope.client.console.panels.SAML2;
 import org.apache.syncope.client.console.panels.WAConfigDirectoryPanel;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -51,8 +60,12 @@ public class WA extends BasePage {
 
     private static final long serialVersionUID = 9200112197134882164L;
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     @SpringBean
     private ServiceOps serviceOps;
+
+    private String waPrefix = "";
 
     public WA(final PageParameters parameters) {
         super(parameters);
@@ -85,6 +98,36 @@ public class WA extends BasePage {
         content.add(tabbedPanel);
 
         body.add(content);
+
+        if (!serviceOps.list(NetworkService.Type.WA).isEmpty()) {
+            String actuatorEndpoint = serviceOps.list(NetworkService.Type.WA).get(0).getAddress() + "/actuator/env";
+            try {
+                Response response = WebClient.create(
+                        actuatorEndpoint,
+                        SyncopeWebApplication.get().getAnonymousUser(),
+                        SyncopeWebApplication.get().getAnonymousKey(),
+                        null).
+                        accept(MediaType.APPLICATION_JSON_TYPE).get();
+                if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                    JsonNode env = MAPPER.readTree((InputStream) response.getEntity());
+                    if (env.has("propertySources")) {
+                        for (JsonNode propertySource : env.get("propertySources")) {
+                            if (propertySource.has("properties")) {
+                                JsonNode properties = propertySource.get("properties");
+                                if (properties.has("cas.server.prefix")) {
+                                    JsonNode prefix = properties.get("cas.server.prefix");
+                                    if (prefix.has("value")) {
+                                        waPrefix = StringUtils.removeEnd(prefix.get("value").asText(), "/");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                LOG.error("While contacting {}", actuatorEndpoint, e);
+            }
+        }
     }
 
     private List<ITab> buildTabList() {
@@ -114,17 +157,17 @@ public class WA extends BasePage {
             });
         }
 
-        tabs.add(new AbstractTab(Model.of("SAML 2.0 IdP")) {
+        tabs.add(new AbstractTab(Model.of("SAML 2.0")) {
 
             private static final long serialVersionUID = 5211692813425391144L;
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new AjaxTextFieldPanel(panelId, panelId, Model.of(""));
+                return new SAML2(panelId, waPrefix, getPageReference());
             }
         });
 
-        tabs.add(new AbstractTab(Model.of("OIDC 1.0 Provider")) {
+        tabs.add(new AbstractTab(Model.of("OIDC 1.0")) {
 
             private static final long serialVersionUID = 5211692813425391144L;
 

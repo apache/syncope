@@ -59,7 +59,7 @@ public class SyncopeWAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGen
         OIDCJWKSService service = waRestClient.getSyncopeClient().getService(OIDCJWKSService.class);
         OIDCJWKSTO jwksTO = null;
         try {
-            jwksTO = service.get();
+            jwksTO = service.read();
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 try {

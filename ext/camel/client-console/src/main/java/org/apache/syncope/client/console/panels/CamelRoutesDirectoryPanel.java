@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.CamelRoutesDirectoryPanel.CamelRoutesProvider;
 import org.apache.syncope.client.console.rest.CamelRoutesRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -35,6 +34,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CamelEntitlement;
@@ -132,7 +132,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
                             LOG.error("While creating or updating CamelRouteTO", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                        ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
 
                 });

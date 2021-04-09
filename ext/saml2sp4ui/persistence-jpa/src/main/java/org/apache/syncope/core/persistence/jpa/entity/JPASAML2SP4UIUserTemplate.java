@@ -33,7 +33,7 @@ public class JPASAML2SP4UIUserTemplate extends AbstractAnyTemplate implements SA
 
     private static final long serialVersionUID = -4575039890434426856L;
 
-    public static final String TABLE = "SAML2UserTemplate";
+    public static final String TABLE = "SAML2SP4UIUserTemplate";
 
     @ManyToOne
     private JPASAML2SP4UIIdP idp;

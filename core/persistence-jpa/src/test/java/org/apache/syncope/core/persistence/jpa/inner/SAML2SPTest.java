@@ -27,12 +27,12 @@ import java.util.UUID;
 import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 
 @Transactional("Master")
 public class SAML2SPTest extends AbstractClientAppTest {
@@ -43,7 +43,7 @@ public class SAML2SPTest extends AbstractClientAppTest {
     @Test
     public void find() {
         int beforeCount = saml2spDAO.findAll().size();
-        SAML2SP sp = entityFactory.newEntity(SAML2SP.class);
+        SAML2SPClientApp sp = entityFactory.newEntity(SAML2SPClientApp.class);
         sp.setName("SAML2");
         sp.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         sp.setDescription("This is a sample SAML2 SP");

@@ -29,14 +29,14 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
 import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
 @Component
 public class WAClientAppLogic {
@@ -85,21 +85,21 @@ public class WAClientAppLogic {
 
         switch (type) {
             case OIDCRP:
-                OIDCRP oidcrp = oidcrpDAO.findByClientAppId(clientAppId);
+                OIDCRPClientApp oidcrp = oidcrpDAO.findByClientAppId(clientAppId);
                 if (oidcrp != null) {
                     clientApp = binder.getWAClientApp(oidcrp);
                 }
                 break;
 
             case SAML2SP:
-                SAML2SP saml2sp = saml2spDAO.findByClientAppId(clientAppId);
+                SAML2SPClientApp saml2sp = saml2spDAO.findByClientAppId(clientAppId);
                 if (saml2sp != null) {
                     clientApp = binder.getWAClientApp(saml2sp);
                 }
                 break;
 
             case CASSP:
-                CASSP cassp = casspDAO.findByClientAppId(clientAppId);
+                CASSPClientApp cassp = casspDAO.findByClientAppId(clientAppId);
                 if (cassp != null) {
                     clientApp = binder.getWAClientApp(cassp);
                 }
@@ -135,21 +135,21 @@ public class WAClientAppLogic {
 
         switch (type) {
             case OIDCRP:
-                OIDCRP oidcrp = oidcrpDAO.findByName(name);
+                OIDCRPClientApp oidcrp = oidcrpDAO.findByName(name);
                 if (oidcrp != null) {
                     clientApp = binder.getWAClientApp(oidcrp);
                 }
                 break;
 
             case SAML2SP:
-                SAML2SP saml2sp = saml2spDAO.findByName(name);
+                SAML2SPClientApp saml2sp = saml2spDAO.findByName(name);
                 if (saml2sp != null) {
                     clientApp = binder.getWAClientApp(saml2sp);
                 }
                 break;
 
             case CASSP:
-                CASSP cassp = casspDAO.findByName(name);
+                CASSPClientApp cassp = casspDAO.findByName(name);
                 if (cassp != null) {
                     clientApp = binder.getWAClientApp(cassp);
                 }

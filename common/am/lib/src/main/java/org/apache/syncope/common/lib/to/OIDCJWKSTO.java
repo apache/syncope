@@ -26,6 +26,25 @@ public class OIDCJWKSTO implements EntityTO {
 
     private static final long serialVersionUID = 1285073386484048953L;
 
+    public static class Builder {
+
+        private final OIDCJWKSTO instance = new OIDCJWKSTO();
+
+        public OIDCJWKSTO.Builder json(final String json) {
+            instance.setJson(json);
+            return this;
+        }
+
+        public OIDCJWKSTO.Builder key(final String key) {
+            instance.setKey(key);
+            return this;
+        }
+
+        public OIDCJWKSTO build() {
+            return instance;
+        }
+    }
+
     private String key;
 
     private String json;
@@ -82,24 +101,5 @@ public class OIDCJWKSTO implements EntityTO {
                 .append("key", key)
                 .append("json", json)
                 .toString();
-    }
-
-    public static class Builder {
-
-        private final OIDCJWKSTO instance = new OIDCJWKSTO();
-
-        public OIDCJWKSTO.Builder json(final String json) {
-            instance.setJson(json);
-            return this;
-        }
-
-        public OIDCJWKSTO.Builder key(final String key) {
-            instance.setKey(key);
-            return this;
-        }
-
-        public OIDCJWKSTO build() {
-            return instance;
-        }
     }
 }

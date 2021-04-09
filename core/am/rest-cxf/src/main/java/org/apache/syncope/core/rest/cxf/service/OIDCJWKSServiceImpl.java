@@ -35,8 +35,8 @@ public class OIDCJWKSServiceImpl extends AbstractServiceImpl implements OIDCJWKS
     private OIDCJWKSLogic logic;
 
     @Override
-    public OIDCJWKSTO get() {
-        return logic.get();
+    public OIDCJWKSTO read() {
+        return logic.read();
     }
 
     @Override

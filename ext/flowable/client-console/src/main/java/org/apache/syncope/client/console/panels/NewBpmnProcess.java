@@ -19,13 +19,13 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.IOUtils;
-import org.apache.pdfbox.util.Charsets;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -60,7 +60,7 @@ public class NewBpmnProcess extends TogglePanel<Serializable> {
                     BpmnProcessRestClient.setDefinition(MediaType.APPLICATION_XML_TYPE, key.getModelObject(),
                             IOUtils.toString(
                                     NewBpmnProcess.class.getResourceAsStream("empty.bpmn20.xml"),
-                                    Charsets.UTF_8.name()).replaceAll("%KEY%", key.getModelObject()));
+                                    StandardCharsets.UTF_8).replaceAll("%KEY%", key.getModelObject()));
 
                     key.getModel().setObject(null);
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
@@ -70,12 +70,12 @@ public class NewBpmnProcess extends TogglePanel<Serializable> {
                     LOG.error("While creating new BPMN process", e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target) {
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         });
     }

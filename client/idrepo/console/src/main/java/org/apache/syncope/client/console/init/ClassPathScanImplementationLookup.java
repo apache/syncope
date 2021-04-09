@@ -41,7 +41,7 @@ import org.apache.syncope.client.console.annotations.IdMPage;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
+import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
 import org.apache.syncope.client.console.widgets.BaseExtWidget;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
@@ -120,7 +120,7 @@ public class ClassPathScanImplementationLookup {
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
 
         scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(AbstractBinaryPreviewer.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(BinaryPreviewer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(UserFormFinalizer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtWidget.class));
@@ -186,8 +186,8 @@ public class ClassPathScanImplementationLookup {
                         } else {
                             idRepoPages.add((Class<? extends BasePage>) clazz);
                         }
-                    } else if (AbstractBinaryPreviewer.class.isAssignableFrom(clazz)) {
-                        addClass(AbstractBinaryPreviewer.class.getName(), clazz);
+                    } else if (BinaryPreviewer.class.isAssignableFrom(clazz)) {
+                        addClass(BinaryPreviewer.class.getName(), clazz);
                     } else if (UserFormFinalizer.class.isAssignableFrom(clazz)) {
                         addClass(UserFormFinalizer.class.getName(), clazz);
                     } else if (BaseSSOLoginFormPanel.class.isAssignableFrom(clazz)) {
@@ -260,11 +260,11 @@ public class ClassPathScanImplementationLookup {
                 collect(Collectors.toList());
     }
 
-    public Class<? extends AbstractBinaryPreviewer> getPreviewerClass(final String mimeType) {
+    public Class<? extends BinaryPreviewer> getPreviewerClass(final String mimeType) {
         LOG.debug("Searching for previewer class for MIME type: {}", mimeType);
 
-        Class<? extends AbstractBinaryPreviewer> previewer = null;
-        for (Class<? extends AbstractBinaryPreviewer> candidate : getClasses(AbstractBinaryPreviewer.class)) {
+        Class<? extends BinaryPreviewer> previewer = null;
+        for (Class<? extends BinaryPreviewer> candidate : getClasses(BinaryPreviewer.class)) {
             LOG.debug("Evaluating previewer class {} for MIME type {}", candidate.getName(), mimeType);
             if (candidate.isAnnotationPresent(BinaryPreview.class)
                     && ArrayUtils.contains(candidate.getAnnotation(BinaryPreview.class).mimeTypes(), mimeType)) {

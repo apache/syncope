@@ -49,7 +49,7 @@ import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
-import org.apache.syncope.common.lib.to.SAML2SPTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -58,12 +58,12 @@ import org.junit.jupiter.api.BeforeAll;
 public class SAML2SP4UIITCase extends AbstractUIITCase {
 
     private static void clientAppSetup(final String appName, final String entityId, final long appId) {
-        SAML2SPTO clientApp = clientAppService.list(ClientAppType.SAML2SP).stream().
+        SAML2SPClientAppTO clientApp = clientAppService.list(ClientAppType.SAML2SP).stream().
                 filter(app -> appName.equals(app.getName())).
-                map(SAML2SPTO.class::cast).
+                map(SAML2SPClientAppTO.class::cast).
                 findFirst().
                 orElseGet(() -> {
-                    SAML2SPTO app = new SAML2SPTO();
+                    SAML2SPClientAppTO app = new SAML2SPClientAppTO();
                     app.setName(appName);
                     app.setClientAppId(appId);
                     app.setEntityId(entityId);

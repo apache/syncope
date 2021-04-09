@@ -27,33 +27,35 @@ public class ImpersonationAccount implements BaseBean {
 
     private static final long serialVersionUID = 2285073386484048953L;
 
-    private String owner;
+    public static class Builder {
 
-    private String key;
+        private final ImpersonationAccount instance = new ImpersonationAccount();
 
-    public String getKey() {
-        return key;
+        public ImpersonationAccount.Builder impersonated(final String impersonated) {
+            instance.setImpersonated(impersonated);
+            return this;
+        }
+
+        public ImpersonationAccount build() {
+            return instance;
+        }
     }
 
-    public void setKey(final String key) {
-        this.key = key;
+    private String impersonated;
+
+    public String getImpersonated() {
+        return impersonated;
     }
 
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(final String owner) {
-        this.owner = owner;
+    public void setImpersonated(final String impersonated) {
+        this.impersonated = impersonated;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-            .appendSuper(super.hashCode())
-            .append(key)
-            .append(owner)
-            .toHashCode();
+                .append(impersonated)
+                .toHashCode();
     }
 
     @Override
@@ -69,36 +71,14 @@ public class ImpersonationAccount implements BaseBean {
         }
         ImpersonationAccount rhs = (ImpersonationAccount) obj;
         return new EqualsBuilder()
-            .appendSuper(super.equals(obj))
-            .append(this.key, rhs.key)
-            .append(this.owner, rhs.owner)
-            .isEquals();
+                .append(this.impersonated, rhs.impersonated)
+                .isEquals();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-            .append("key", key)
-            .append("owner", owner)
-            .toString();
-    }
-
-    public static class Builder {
-
-        private final ImpersonationAccount instance = new ImpersonationAccount();
-
-        public ImpersonationAccount.Builder key(final String key) {
-            instance.setKey(key);
-            return this;
-        }
-
-        public ImpersonationAccount.Builder owner(final String owner) {
-            instance.setOwner(owner);
-            return this;
-        }
-
-        public ImpersonationAccount build() {
-            return instance;
-        }
+                .append("key", impersonated)
+                .toString();
     }
 }

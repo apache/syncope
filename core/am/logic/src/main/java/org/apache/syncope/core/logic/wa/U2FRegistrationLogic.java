@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,11 +33,9 @@ import org.apache.syncope.core.logic.AbstractAuthProfileLogic;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
-import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
@@ -48,11 +45,7 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + AMEntitlement.U2F_CREATE_DEVICE + "') "
             + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public String create(final String owner, final U2FDevice device) {
-        if (device.getKey() == null) {
-            device.setKey(SecureRandomUtils.generateRandomUUID().toString());
-        }
-
+    public void create(final String owner, final U2FDevice device) {
         AuthProfile profile = authProfileDAO.findByOwner(owner).orElseGet(() -> {
             AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
             authProfile.setOwner(owner);
@@ -63,33 +56,16 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
         devices.add(device);
         profile.setU2FRegisteredDevices(devices);
         authProfileDAO.save(profile);
-        return device.getKey();
-    }
-
-    @PreAuthorize("hasRole('" + AMEntitlement.U2F_READ_DEVICE + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    @Transactional(readOnly = true)
-    public U2FDevice read(final String key) {
-        return authProfileDAO.findAll().
-                stream().
-                map(AuthProfile::getU2FRegisteredDevices).
-                filter(Objects::nonNull).
-                flatMap(List::stream).
-                filter(record -> record.getKey().equals(key)).
-                findFirst().
-                orElse(null);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.U2F_DELETE_DEVICE + "') "
             + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void delete(final String entityKey, final Long id, final Date expirationDate) {
+    public void delete(final Long id, final Date expirationDate) {
         List<AuthProfile> profiles = authProfileDAO.findAll();
         profiles.forEach(profile -> {
             List<U2FDevice> devices = profile.getU2FRegisteredDevices();
             if (devices != null) {
-                if (StringUtils.isNotBlank(entityKey)) {
-                    devices.removeIf(device -> device.getKey().equals(entityKey));
-                } else if (id != null) {
+                if (id != null) {
                     devices.removeIf(device -> device.getId() == id);
                 } else if (expirationDate != null) {
                     devices.removeIf(device -> device.getIssueDate().compareTo(expirationDate) < 0);
@@ -104,10 +80,12 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + AMEntitlement.U2F_SEARCH_DEVICES + "') "
             + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public Pair<Integer, List<U2FDevice>> search(final String entityKey, final Integer page,
+    public Pair<Integer, List<U2FDevice>> search(
+            final Integer page,
             final Integer itemsPerPage, final Long id,
             final Date expirationDate,
             final List<OrderByClause> orderByClauses) {
+
         List<Comparator<U2FDevice>> comparatorList = orderByClauses.
                 stream().
                 map(orderByClause -> {
@@ -115,10 +93,6 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
                     if (orderByClause.getField().equals("id")) {
                         comparator = (o1, o2) -> new CompareToBuilder().
                                 append(o1.getId(), o2.getId()).toComparison();
-                    }
-                    if (orderByClause.getField().equals("key")) {
-                        comparator = (o1, o2) -> new CompareToBuilder().
-                                append(o1.getKey(), o2.getKey()).toComparison();
                     }
                     if (orderByClause.getField().equals("issueDate")) {
                         comparator = (o1, o2) -> new CompareToBuilder().
@@ -146,9 +120,6 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
                 flatMap(List::stream).
                 filter(device -> {
                     EqualsBuilder builder = new EqualsBuilder();
-                    if (StringUtils.isNotBlank(entityKey)) {
-                        builder.append(entityKey, device.getKey());
-                    }
                     if (id != null) {
                         builder.append(id, (Long) device.getId());
                     }
@@ -175,18 +146,5 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
                 })
                 .collect(Collectors.toList());
         return Pair.of(devices.size(), result);
-    }
-
-    @PreAuthorize("hasRole('" + AMEntitlement.U2F_UPDATE_DEVICE + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void update(final U2FDevice device) {
-        authProfileDAO.findAll().forEach(profile -> {
-            List<U2FDevice> devices = profile.getU2FRegisteredDevices();
-            if (devices.removeIf(d -> d.getKey().equals(device.getKey()))) {
-                devices.add(device);
-                profile.setU2FRegisteredDevices(devices);
-                authProfileDAO.save(profile);
-            }
-        });
     }
 }

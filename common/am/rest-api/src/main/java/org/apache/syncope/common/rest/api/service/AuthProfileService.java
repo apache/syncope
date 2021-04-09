@@ -31,7 +31,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
-import org.apache.syncope.common.rest.api.RESTHeaders;                                                           
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for Auth profiles.

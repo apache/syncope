@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.clientapps;
 
 import java.util.List;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
-import org.apache.syncope.common.lib.to.SAML2SPTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.wicket.PageReference;
@@ -29,14 +29,14 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.StringResourceModel;
 
-public class SAML2SPDirectoryPanel extends ClientAppDirectoryPanel<SAML2SPTO> {
+public class SAML2SPDirectoryPanel extends ClientAppDirectoryPanel<SAML2SPClientAppTO> {
 
     private static final long serialVersionUID = 1L;
 
     public SAML2SPDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, ClientAppType.SAML2SP, pageRef);
 
-        SAML2SPTO defaultItem = new SAML2SPTO();
+        SAML2SPClientAppTO defaultItem = new SAML2SPClientAppTO();
 
         this.addNewItemPanelBuilder(
                 new ClientAppModalPanelBuilder<>(ClientAppType.SAML2SP, defaultItem, modal, pageRef), true);
@@ -46,7 +46,7 @@ public class SAML2SPDirectoryPanel extends ClientAppDirectoryPanel<SAML2SPTO> {
     }
 
     @Override
-    protected void addCustomColumnFields(final List<IColumn<SAML2SPTO, String>> columns) {
+    protected void addCustomColumnFields(final List<IColumn<SAML2SPClientAppTO, String>> columns) {
         columns.add(new PropertyColumn<>(new StringResourceModel("entityId", this), "entityId", "entityId"));
         columns.add(new BooleanPropertyColumn<>(
                 new StringResourceModel("signAssertions", this), "signAssertions", "signAssertions"));

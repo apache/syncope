@@ -19,9 +19,11 @@
 package org.apache.syncope.wa.starter.saml.idp.metadata;
 
 import com.github.benmanes.caffeine.cache.Cache;
+import com.github.scribejava.core.java8.Base64;
+import java.nio.charset.StandardCharsets;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.SAML2IdPMetadataTO;
+import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.support.saml.idp.metadata.locator.AbstractSamlIdPMetadataLocator;
@@ -31,7 +33,7 @@ import org.apereo.cas.util.crypto.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Optional;
-import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataService;
+import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 
 public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
 
@@ -53,15 +55,29 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
         try {
             LOG.info("Locating SAML2 IdP metadata document");
 
-            SAML2IdPMetadataTO saml2IdPMetadataTO = fetchFromCore(registeredService);
-            if (saml2IdPMetadataTO != null) {
+            SAML2IdPEntityTO entityTO = fetchFromCore(registeredService);
+            if (entityTO != null) {
                 SamlIdPMetadataDocument document = new SamlIdPMetadataDocument();
-                document.setMetadata(saml2IdPMetadataTO.getMetadata());
-                document.setEncryptionCertificate(saml2IdPMetadataTO.getEncryptionCertificate());
-                document.setEncryptionKey(saml2IdPMetadataTO.getEncryptionKey());
-                document.setSigningKey(saml2IdPMetadataTO.getSigningKey());
-                document.setSigningCertificate(saml2IdPMetadataTO.getSigningCertificate());
-                document.setAppliesTo(saml2IdPMetadataTO.getAppliesTo());
+                document.setAppliesTo(entityTO.getKey());
+                document.setMetadata(new String(Base64.getDecoder().decode(
+                        entityTO.getMetadata()), StandardCharsets.UTF_8));
+                if (entityTO.getSigningCertificate() != null) {
+                    document.setSigningCertificate(new String(Base64.getDecoder().decode(
+                            entityTO.getSigningCertificate()), StandardCharsets.UTF_8));
+                }
+                if (entityTO.getSigningKey() != null) {
+                    document.setSigningKey((new String(Base64.getDecoder().decode(
+                            entityTO.getSigningKey()), StandardCharsets.UTF_8)));
+                }
+                if (entityTO.getEncryptionCertificate() != null) {
+                    document.setEncryptionCertificate(new String(Base64.getDecoder().decode(
+                            entityTO.getEncryptionCertificate()), StandardCharsets.UTF_8));
+                }
+                if (entityTO.getEncryptionKey() != null) {
+                    document.setEncryptionKey((new String(Base64.getDecoder().decode(
+                            entityTO.getEncryptionKey()), StandardCharsets.UTF_8)));
+                }
+
                 if (document.isValid()) {
                     LOG.debug("Found SAML2 IdP metadata document: {}", document.getId());
                     return document;
@@ -81,17 +97,17 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
         return null;
     }
 
-    private SAML2IdPMetadataTO fetchFromCore(final Optional<SamlRegisteredService> registeredService) {
-        SAML2IdPMetadataTO result = null;
+    private SAML2IdPEntityTO fetchFromCore(final Optional<SamlRegisteredService> registeredService) {
+        SAML2IdPEntityTO result = null;
 
         String appliesToFor = registeredService.map(SamlRegisteredService::getName).
-                orElse(SAML2IdPMetadataService.DEFAULT_OWNER);
-        SAML2IdPMetadataService service = getSyncopeClient().getService(SAML2IdPMetadataService.class);
+                orElse(SAML2IdPEntityService.DEFAULT_OWNER);
+        SAML2IdPEntityService service = getSyncopeClient().getService(SAML2IdPEntityService.class);
         try {
-            result = service.readFor(appliesToFor);
+            result = service.get(appliesToFor);
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound && registeredService.isPresent()) {
-                result = service.readFor(SAML2IdPMetadataService.DEFAULT_OWNER);
+                result = service.get(SAML2IdPEntityService.DEFAULT_OWNER);
             } else {
                 throw e;
             }

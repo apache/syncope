@@ -58,13 +58,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPMetadata;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPKeystore;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPMetadata;
 import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
@@ -116,12 +110,11 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrVal
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthProfile;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPACASSP;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPACASSPClientApp;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCJWKS;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCRP;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SP;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPKeystore;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPMetadata;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCRPClientApp;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPClientApp;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPEntity;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAWAConfigEntry;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
@@ -167,8 +160,13 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModule;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModuleItem;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2IdPMetadata;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2IdPEntity;
 import org.apache.syncope.core.persistence.api.entity.SRARoute;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPEntity;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPEntity;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
 public class JPAEntityFactory implements EntityFactory {
 
@@ -331,18 +329,16 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAAccessPolicy();
         } else if (reference.equals(AttrReleasePolicy.class)) {
             result = (E) new JPAAttrReleasePolicy();
-        } else if (reference.equals(OIDCRP.class)) {
-            result = (E) new JPAOIDCRP();
-        } else if (reference.equals(CASSP.class)) {
-            result = (E) new JPACASSP();
-        } else if (reference.equals(SAML2SP.class)) {
-            result = (E) new JPASAML2SP();
-        } else if (reference.equals(SAML2IdPMetadata.class)) {
-            result = (E) new JPASAML2IdPMetadata();
-        } else if (reference.equals(SAML2SPMetadata.class)) {
-            result = (E) new JPASAML2SPMetadata();
-        } else if (reference.equals(SAML2SPKeystore.class)) {
-            result = (E) new JPASAML2SPKeystore();
+        } else if (reference.equals(OIDCRPClientApp.class)) {
+            result = (E) new JPAOIDCRPClientApp();
+        } else if (reference.equals(CASSPClientApp.class)) {
+            result = (E) new JPACASSPClientApp();
+        } else if (reference.equals(SAML2SPClientApp.class)) {
+            result = (E) new JPASAML2SPClientApp();
+        } else if (reference.equals(SAML2IdPEntity.class)) {
+            result = (E) new JPASAML2IdPEntity();
+        } else if (reference.equals(SAML2SPEntity.class)) {
+            result = (E) new JPASAML2SPEntity();
         } else if (reference.equals(AuthProfile.class)) {
             result = (E) new JPAAuthProfile();
         } else if (reference.equals(OIDCJWKS.class)) {

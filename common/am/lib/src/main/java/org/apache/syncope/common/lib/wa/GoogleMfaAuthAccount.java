@@ -65,17 +65,10 @@ public class GoogleMfaAuthAccount implements BaseBean {
             return this;
         }
 
-        public GoogleMfaAuthAccount.Builder key(final String key) {
-            instance.setKey(key);
-            return this;
-        }
-
         public GoogleMfaAuthAccount build() {
             return instance;
         }
     }
-
-    private String key;
 
     private String secretKey;
 
@@ -88,14 +81,6 @@ public class GoogleMfaAuthAccount implements BaseBean {
     private List<Integer> scratchCodes = new ArrayList<>(0);
 
     private Date registrationDate;
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(final String key) {
-        this.key = key;
-    }
 
     public String getName() {
         return name;
@@ -151,7 +136,6 @@ public class GoogleMfaAuthAccount implements BaseBean {
     public int hashCode() {
         return new HashCodeBuilder()
                 .appendSuper(super.hashCode())
-                .append(key)
                 .append(secretKey)
                 .append(name)
                 .append(id)
@@ -175,7 +159,6 @@ public class GoogleMfaAuthAccount implements BaseBean {
         GoogleMfaAuthAccount rhs = (GoogleMfaAuthAccount) obj;
         return new EqualsBuilder()
                 .appendSuper(super.equals(obj))
-                .append(this.key, rhs.key)
                 .append(this.secretKey, rhs.secretKey)
                 .append(this.name, rhs.name)
                 .append(this.id, rhs.id)
@@ -188,7 +171,6 @@ public class GoogleMfaAuthAccount implements BaseBean {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("key", key)
                 .append("name", name)
                 .append("secretKey", secretKey)
                 .append("id", id)

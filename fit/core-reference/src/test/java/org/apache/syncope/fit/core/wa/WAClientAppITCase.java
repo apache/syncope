@@ -34,8 +34,8 @@ import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apache.syncope.common.lib.to.OIDCRPTO;
-import org.apache.syncope.common.lib.to.SAML2SPTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.fit.AbstractITCase;
@@ -68,7 +68,7 @@ public class WAClientAppITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        OIDCRPTO oidcrpto = createClientApp(ClientAppType.OIDCRP, buildOIDCRP());
+        OIDCRPClientAppTO oidcrpto = createClientApp(ClientAppType.OIDCRP, buildOIDCRP());
         WAClientApp waClientApp = waClientAppService.read(oidcrpto.getClientAppId(), null);
         assertNotNull(waClientApp);
 
@@ -81,7 +81,7 @@ public class WAClientAppITCase extends AbstractITCase {
         waClientApp = waClientAppService.read(oidcrpto.getName(), ClientAppType.OIDCRP);
         assertNotNull(waClientApp);
 
-        SAML2SPTO samlspto = createClientApp(ClientAppType.SAML2SP, buildSAML2SP());
+        SAML2SPClientAppTO samlspto = createClientApp(ClientAppType.SAML2SP, buildSAML2SP());
         WAClientApp registeredSamlClientApp = waClientAppService.read(samlspto.getClientAppId(), null);
         assertNotNull(registeredSamlClientApp);
 
@@ -97,7 +97,7 @@ public class WAClientAppITCase extends AbstractITCase {
 
     @Test
     public void readWithPolicies() {
-        OIDCRPTO oidcrpto = buildOIDCRP();
+        OIDCRPClientAppTO oidcrpto = buildOIDCRP();
 
         AuthPolicyTO authPolicyTO = createPolicy(PolicyType.AUTH, buildAuthPolicyTO(AUTH_MODULE));
 
