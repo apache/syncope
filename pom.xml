@@ -62,7 +62,7 @@ under the License.
 
   <ciManagement>
     <system>Jenkins</system>
-    <url>https://builds.apache.org/view/S-Z/view/Syncope/</url>
+    <url>https://ci-builds.apache.org./job/Syncope/</url>
   </ciManagement>
 
   <distributionManagement>
