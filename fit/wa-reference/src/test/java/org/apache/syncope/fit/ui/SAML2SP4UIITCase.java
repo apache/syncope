@@ -20,7 +20,7 @@ package org.apache.syncope.fit.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -168,7 +168,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
             CloseableHttpResponse response = httpclient.execute(get, context);
             assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
             String responseBody = EntityUtils.toString(response.getEntity());
-            assertNotNull(responseBody);
+            assertFalse(responseBody.isEmpty());
         }
     }
 
