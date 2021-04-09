@@ -53,7 +53,7 @@ public class OIDCJWKSITCase extends AbstractITCase {
         try {
             oidcJWKSService.delete();
 
-            waOIDCJWKSService.read();
+            waOIDCJWKSService.get();
             fail("Should not locate an OIDC JWKS");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());

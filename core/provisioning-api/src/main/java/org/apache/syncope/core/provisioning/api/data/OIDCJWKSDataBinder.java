@@ -24,9 +24,7 @@ import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
 
 public interface OIDCJWKSDataBinder {
 
-    OIDCJWKSTO get(OIDCJWKS jwks);
+    OIDCJWKSTO getOIDCJWKSTO(OIDCJWKS jwks);
 
     OIDCJWKS create(int size, JWSAlgorithm algorithm);
-
-    OIDCJWKS update(OIDCJWKS jwks, OIDCJWKSTO jwksTO);
 }

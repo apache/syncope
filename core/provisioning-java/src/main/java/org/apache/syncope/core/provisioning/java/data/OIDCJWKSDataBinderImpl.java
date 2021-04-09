@@ -46,7 +46,7 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
     private EntityFactory entityFactory;
 
     @Override
-    public OIDCJWKSTO get(final OIDCJWKS jwks) {
+    public OIDCJWKSTO getOIDCJWKSTO(final OIDCJWKS jwks) {
         return new OIDCJWKSTO.Builder().json(jwks.getJson()).key(jwks.getKey()).build();
     }
 
@@ -68,11 +68,5 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
             sce.getElements().add(e.getMessage());
             throw sce;
         }
-    }
-
-    @Override
-    public OIDCJWKS update(final OIDCJWKS jwks, final OIDCJWKSTO jwksTO) {
-        jwks.setJson(jwksTO.getJson());
-        return jwks;
     }
 }
