@@ -469,7 +469,7 @@ under the License.
     <bootstrap.version>3.4.1</bootstrap.version>
     <bootstrap-select.version>1.12.4</bootstrap-select.version>
     <bootstrap-fileinput.version>4.4.8</bootstrap-fileinput.version>
-    <bootbox.version>5.4.0</bootbox.version>
+    <bootbox.version>5.5.2</bootbox.version>
     <font-awesome.version>4.7.0</font-awesome.version>
     <font-awesome.filename>font-awesome.min.css</font-awesome.filename>
     <ionicons.version>2.0.1</ionicons.version>
