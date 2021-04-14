@@ -178,7 +178,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
 
         SRA = processBuilder.start();
 
-        await().atMost(60, TimeUnit.SECONDS).pollInterval(3, TimeUnit.SECONDS).until(() -> {
+        await().atMost(120, TimeUnit.SECONDS).pollInterval(3, TimeUnit.SECONDS).until(() -> {
             boolean connected = false;
             try (Socket socket = new Socket()) {
                 socket.connect(new InetSocketAddress("0.0.0.0", PORT));

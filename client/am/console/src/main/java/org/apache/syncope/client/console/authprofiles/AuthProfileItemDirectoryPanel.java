@@ -198,7 +198,11 @@ public abstract class AuthProfileItemDirectoryPanel<I extends BaseBean>
                             return Integer.class.cast(value);
                         }
                         if (value instanceof String) {
-                            return Integer.valueOf((String) value);
+                            try {
+                                return Integer.valueOf((String) value);
+                            } catch (NumberFormatException e) {
+                                LOG.error("Could not convert to Integer: {}", value, e);
+                            }
                         }
                         return null;
                     }).filter(Objects::nonNull).collect(Collectors.toList());
