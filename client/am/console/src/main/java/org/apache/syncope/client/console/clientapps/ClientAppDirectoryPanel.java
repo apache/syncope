@@ -114,7 +114,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
 
     @Override
     public ActionsPanel<T> getActions(final IModel<T> model) {
-        final ActionsPanel<T> panel = super.getActions(model);
+        ActionsPanel<T> panel = super.getActions(model);
 
         panel.add(new ActionLink<T>() {
 

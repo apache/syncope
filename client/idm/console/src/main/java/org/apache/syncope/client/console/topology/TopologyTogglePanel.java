@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ConnObjects;
 import org.apache.syncope.client.console.wizards.resources.ConnectorWizardBuilder;
 import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder;
@@ -40,12 +39,12 @@ import org.apache.syncope.client.console.tasks.PushTasks;
 import org.apache.syncope.client.console.tasks.SchedTasks;
 import org.apache.syncope.client.console.tasks.PullTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.resources.AbstractResourceWizardBuilder;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvision;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ItemTO;
@@ -127,15 +126,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     public void toggleWithContent(final AjaxRequestTarget target, final TopologyNode node) {
         setHeader(target, node.getDisplayName());
 
-        modal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                modal.show(false);
-                send(pageRef.getPage(), Broadcast.DEPTH, new UpdateEvent(node.getKey(), target));
-            }
+        modal.setWindowClosedCallback(t -> {
+            modal.show(false);
+            send(pageRef.getPage(), Broadcast.DEPTH, new UpdateEvent(node.getKey(), t));
         });
 
         switch (node.getKind()) {
@@ -194,7 +187,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     LOG.error("While reloading all connectors", e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
         fragment.add(reload);
@@ -273,7 +266,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     LOG.error("While deleting resource {}", node.getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(delete, RENDER, IdMEntitlement.CONNECTOR_DELETE);
@@ -369,7 +362,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                             LOG.error("While restoring connector {}", node.getKey(), e);
                             SyncopeConsoleSession.get().onException(e);
                         }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                        ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }));
 
@@ -409,7 +402,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     LOG.error("While deleting resource {}", node.getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(delete, RENDER, IdMEntitlement.RESOURCE_DELETE);
@@ -442,7 +435,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public String getAjaxIndicatorMarkupId() {
                 return Constants.VEIL_INDICATOR_MARKUP_ID;
             }
-
         };
         MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, IdMEntitlement.RESOURCE_READ);
         fragment.add(edit);
@@ -615,7 +607,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                             LOG.error("While restoring resource {}", node.getKey(), e);
                             SyncopeConsoleSession.get().onException(e);
                         }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                        ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }));
 
@@ -677,7 +669,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     LOG.error("While cloning resource {}", node.getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
 
         };

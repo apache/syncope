@@ -88,7 +88,6 @@ public class U2FDevice implements BaseBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .appendSuper(super.hashCode())
                 .append(record)
                 .append(id)
                 .append(issueDate)
@@ -106,12 +105,11 @@ public class U2FDevice implements BaseBean {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        U2FDevice rhs = (U2FDevice) obj;
+        U2FDevice other = (U2FDevice) obj;
         return new EqualsBuilder()
-                .appendSuper(super.equals(obj))
-                .append(this.record, rhs.record)
-                .append(this.id, rhs.id)
-                .append(this.issueDate, rhs.issueDate)
+                .append(this.record, other.record)
+                .append(this.id, other.id)
+                .append(this.issueDate, other.issueDate)
                 .isEquals();
     }
 

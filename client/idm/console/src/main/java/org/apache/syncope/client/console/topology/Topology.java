@@ -46,7 +46,6 @@ import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.WebMarkupContainerNoVeil;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -151,15 +150,7 @@ public class Topology extends BasePage {
     public Topology() {
         modal = new BaseModal<>("resource-modal");
         body.add(modal.size(Modal.Size.Large));
-        modal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                modal.show(false);
-            }
-        });
+        modal.setWindowClosedCallback(target -> modal.show(false));
 
         TopologyWebSocketBehavior websocket = new TopologyWebSocketBehavior();
         body.add(websocket);

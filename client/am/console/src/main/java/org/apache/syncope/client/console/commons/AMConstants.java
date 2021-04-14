@@ -34,7 +34,23 @@ public final class AMConstants {
             "accesspolicy.conf.requiredattrs.paginator.rows";
 
     public static final String PREF_SAML2_IDP_ENTITY_PAGINATOR_ROWS = "saml2idpentity.properties.paginator.rows";
+
     public static final String PREF_SAML2_SP_ENTITY_PAGINATOR_ROWS = "saml2spentity.properties.paginator.rows";
+
+    public static final String PREF_AUTHPROFILE_PAGINATOR_ROWS = "authprofile.paginator.rows";
+
+    public static final String PREF_AUTHPROFILE_IMPERSONATED_PAGINATOR_ROWS = "authprofile.impersonated.paginator.rows";
+
+    public static final String PREF_AUTHPROFILE_GOOGLEMFAAUTHTOKENS_PAGINATOR_ROWS =
+            "authprofile.googlemfaauthtokens.paginator.rows";
+
+    public static final String PREF_AUTHPROFILE_GOOGLEMFAAUTHACCOUNTS_PAGINATOR_ROWS =
+            "authprofile.googlemfaauthaccounts.paginator.rows";
+
+    public static final String PREF_AUTHPROFILE_U2FDEVICES_PAGINATOR_ROWS = "authprofile.u2fdevices.paginator.rows";
+
+    public static final String PREF_AUTHPROFILE_WEBAUTHNDEVICECREDENTIALS_PAGINATOR_ROWS =
+            "authprofile.webAuthnDeviceCredentials.paginator.rows";
 
     private AMConstants() {
         // private constructor for static utility class

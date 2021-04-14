@@ -40,7 +40,6 @@ import org.apache.syncope.client.console.pages.ModelerPopupPage;
 import org.apache.syncope.client.console.panels.BpmnProcessDirectoryPanel.BpmProcessDataProvider;
 import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ImageModalPanel;
@@ -88,9 +87,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
             private static final long serialVersionUID = 1633859795677053912L;
 
             @Override
-            protected WizardModel buildModelSteps(
-                    final BpmnProcess modelObject, final WizardModel wizardModel) {
-
+            protected WizardModel buildModelSteps(final BpmnProcess modelObject, final WizardModel wizardModel) {
                 return wizardModel;
             }
 
@@ -137,15 +134,9 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
         utility.size(Modal.Size.Large);
         AjaxSubmitLink xmlEditorSubmit = utility.addSubmitButton();
         MetaDataRoleAuthorizationStrategy.authorize(xmlEditorSubmit, RENDER, FlowableEntitlement.BPMN_PROCESS_SET);
-        utility.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                utility.show(false);
-                utility.close(target);
-            }
+        utility.setWindowClosedCallback(target -> {
+            utility.show(false);
+            utility.close(target);
         });
         initResultTable();
     }

@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.annotations.AMPage;
+import org.apache.syncope.client.console.authprofiles.AuthProfileDirectoryPanel;
 import org.apache.syncope.client.console.panels.AuthModuleDirectoryPanel;
 import org.apache.syncope.client.console.clientapps.ClientApps;
 import org.apache.syncope.client.console.panels.OIDC;
@@ -197,7 +198,7 @@ public class WA extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new AjaxTextFieldPanel(panelId, panelId, Model.of(""));
+                    return new AuthProfileDirectoryPanel(panelId, getPageReference());
                 }
             });
         }

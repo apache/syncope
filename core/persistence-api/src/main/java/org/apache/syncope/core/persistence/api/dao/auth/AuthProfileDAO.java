@@ -27,7 +27,9 @@ public interface AuthProfileDAO extends DAO<AuthProfile> {
 
     AuthProfile find(String key);
 
-    List<AuthProfile> findAll();
+    int count();
+
+    List<AuthProfile> findAll(int page, int itemsPerPage);
 
     Optional<AuthProfile> findByOwner(String owner);
 

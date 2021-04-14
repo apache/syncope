@@ -36,10 +36,11 @@ public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
         AuthProfileTO authProfileTO = new AuthProfileTO();
         authProfileTO.setKey(authProfile.getKey());
         authProfileTO.setOwner(authProfile.getOwner());
+        authProfileTO.getImpersonationAccounts().addAll(authProfile.getImpersonationAccounts());
         authProfileTO.getGoogleMfaAuthTokens().addAll(authProfile.getGoogleMfaAuthTokens());
         authProfileTO.getGoogleMfaAuthAccounts().addAll(authProfile.getGoogleMfaAuthAccounts());
         authProfileTO.getU2FRegisteredDevices().addAll(authProfile.getU2FRegisteredDevices());
-        authProfileTO.setWebAuthnAccount(authProfile.getWebAuthnAccount());
+        authProfileTO.getWebAuthnDeviceCredentials().addAll(authProfile.getWebAuthnDeviceCredentials());
         return authProfileTO;
     }
 
@@ -47,10 +48,16 @@ public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
     public AuthProfile create(final AuthProfileTO authProfileTO) {
         AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
         authProfile.setOwner(authProfileTO.getOwner());
+        return update(authProfile, authProfileTO);
+    }
+
+    @Override
+    public AuthProfile update(final AuthProfile authProfile, final AuthProfileTO authProfileTO) {
+        authProfile.setImpersonationAccounts(authProfileTO.getImpersonationAccounts());
         authProfile.setGoogleMfaAuthTokens(authProfileTO.getGoogleMfaAuthTokens());
         authProfile.setGoogleMfaAuthAccounts(authProfileTO.getGoogleMfaAuthAccounts());
         authProfile.setU2FRegisteredDevices(authProfileTO.getU2FRegisteredDevices());
-        authProfile.setWebAuthnAccount(authProfileTO.getWebAuthnAccount());
+        authProfile.setWebAuthnDeviceCredentials(authProfileTO.getWebAuthnDeviceCredentials());
         return authProfile;
     }
 }

@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic.wa;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.logic.AbstractAuthProfileLogic;
@@ -39,11 +38,10 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
     @Autowired
     private EntityFactory entityFactory;
 
-    @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_LIST_ACCOUNTS + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<GoogleMfaAuthAccount> list() {
-        return authProfileDAO.findAll().
+        return authProfileDAO.findAll(-1, -1).
                 stream().
                 map(AuthProfile::getGoogleMfaAuthAccounts).
                 filter(Objects::nonNull).
@@ -51,8 +49,7 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
                 collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_ACCOUNT + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void deleteFor(final String owner) {
         authProfileDAO.findByOwner(owner).ifPresent(profile -> {
             profile.setGoogleMfaAuthAccounts(List.of());
@@ -60,17 +57,15 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
         });
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_DELETE_ACCOUNT + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void deleteAll() {
-        authProfileDAO.findAll().forEach(profile -> {
+        authProfileDAO.findAll(-1, -1).forEach(profile -> {
             profile.setGoogleMfaAuthAccounts(List.of());
             authProfileDAO.save(profile);
         });
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_CREATE_ACCOUNT + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void create(final String owner, final GoogleMfaAuthAccount account) {
         AuthProfile profile = authProfileDAO.findByOwner(owner).orElseGet(() -> {
             AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
@@ -84,8 +79,7 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
         authProfileDAO.save(profile);
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_UPDATE_ACCOUNT + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void update(final String owner, final GoogleMfaAuthAccount account) {
         AuthProfile authProfile = authProfileDAO.findByOwner(owner).
                 orElseThrow(() -> new NotFoundException("Could not find account for Owner " + owner));
@@ -97,8 +91,7 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
         }
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_READ_ACCOUNT + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public List<GoogleMfaAuthAccount> read(final String owner) {
         return authProfileDAO.findByOwner(owner).
                 stream().
@@ -109,11 +102,10 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
                 orElseThrow(() -> new NotFoundException("Could not find account for Owner " + owner));
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.GOOGLE_MFA_READ_ACCOUNT + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public GoogleMfaAuthAccount read(final long id) {
-        return authProfileDAO.findAll().
+        return authProfileDAO.findAll(-1, -1).
                 stream().
                 map(AuthProfile::getGoogleMfaAuthAccounts).
                 filter(Objects::nonNull).

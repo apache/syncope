@@ -33,7 +33,9 @@ public class DatePropertyColumn<T> extends PropertyColumn<T, String> {
 
     private static final long serialVersionUID = 3527840552172947705L;
 
-    public DatePropertyColumn(final IModel<String> displayModel, final String sortProperty,
+    public DatePropertyColumn(
+            final IModel<String> displayModel,
+            final String sortProperty,
             final String propertyExpression) {
 
         super(displayModel, sortProperty, propertyExpression);

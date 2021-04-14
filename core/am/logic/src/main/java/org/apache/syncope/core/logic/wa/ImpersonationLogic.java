@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic.wa;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.core.logic.AbstractAuthProfileLogic;
@@ -37,15 +36,13 @@ public class ImpersonationLogic extends AbstractAuthProfileLogic {
     @Autowired
     private EntityFactory entityFactory;
 
-    @PreAuthorize("hasRole('" + AMEntitlement.IMPERSONATION_READ_ACCOUNT + "')"
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<ImpersonationAccount> read(final String owner) {
         return authProfileDAO.findByOwner(owner).map(AuthProfile::getImpersonationAccounts).orElse(List.of());
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.IMPERSONATION_CREATE_ACCOUNT + "')"
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void create(final String owner, final ImpersonationAccount account) {
         AuthProfile profile = authProfileDAO.findByOwner(owner).orElseGet(() -> {
             AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
@@ -64,8 +61,7 @@ public class ImpersonationLogic extends AbstractAuthProfileLogic {
         authProfileDAO.save(profile);
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.IMPERSONATION_DELETE_ACCOUNT + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final String owner, final String impersonated) {
         authProfileDAO.findByOwner(owner).ifPresent(profile -> {
             List<ImpersonationAccount> accounts = profile.getImpersonationAccounts();

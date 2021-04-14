@@ -36,7 +36,6 @@ import org.apache.syncope.client.console.panels.UserRequestsPanel.UserRequestSea
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -90,21 +89,15 @@ public class UserRequestFormDirectoryPanel
 
         addOuterObject(manageFormModal);
 
-        manageFormModal.setWindowClosedCallback(new WindowClosedCallback() {
+        manageFormModal.setWindowClosedCallback(target -> {
+            updateResultTable(target);
 
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                updateResultTable(target);
-
-                Serializable widget = SyncopeConsoleSession.get().getAttribute(UserRequestFormsWidget.class.getName());
-                if (widget instanceof UserRequestFormsWidget) {
-                    ((UserRequestFormsWidget) widget).refreshLatestAlerts(target);
-                }
-
-                manageFormModal.show(false);
+            Serializable widget = SyncopeConsoleSession.get().getAttribute(UserRequestFormsWidget.class.getName());
+            if (widget instanceof UserRequestFormsWidget) {
+                ((UserRequestFormsWidget) widget).refreshLatestAlerts(target);
             }
+
+            manageFormModal.show(false);
         });
 
         restClient = new UserRequestRestClient();

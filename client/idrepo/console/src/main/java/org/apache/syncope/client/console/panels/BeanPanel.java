@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
@@ -87,6 +86,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
             final IModel<T> bean,
             final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper,
             final String... excluded) {
+
         super(id, bean);
         setOutputMarkupId(true);
 
@@ -118,48 +118,44 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
-            @SuppressWarnings({"unchecked", "rawtypes"})
+            @SuppressWarnings({ "unchecked", "rawtypes" })
             @Override
             protected void populateItem(final ListItem<String> item) {
-                final String fieldName = item.getModelObject();
+                String fieldName = item.getModelObject();
 
                 item.add(new Label("fieldName", new ResourceModel(fieldName, fieldName)));
 
                 Field field = ReflectionUtils.findField(bean.getObject().getClass(), fieldName);
-
                 if (field == null) {
                     return;
                 }
 
-                final SearchCondition scondAnnot = field.getAnnotation(SearchCondition.class);
-                final Schema schemaAnnot = field.getAnnotation(Schema.class);
+                SearchCondition scondAnnot = field.getAnnotation(SearchCondition.class);
+                Schema schemaAnnot = field.getAnnotation(Schema.class);
 
                 BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean.getObject());
 
                 Panel panel;
 
                 if (scondAnnot != null) {
-                    final String fiql = (String) wrapper.getPropertyValue(fieldName);
+                    String fiql = (String) wrapper.getPropertyValue(fieldName);
 
-                    final List<SearchClause> clauses;
-                    if (StringUtils.isEmpty(fiql)) {
-                        clauses = new ArrayList<>();
-                    } else {
-                        clauses = SearchUtils.getSearchClauses(fiql);
-                    }
+                    List<SearchClause> clauses = SearchUtils.getSearchClauses(fiql);
 
-                    final AbstractFiqlSearchConditionBuilder<?, ?, ?> builder;
+                    AbstractFiqlSearchConditionBuilder<?, ?, ?> builder;
                     switch (scondAnnot.type()) {
                         case "USER":
                             panel = new UserSearchPanel.Builder(
                                     new ListModel<>(clauses)).required(false).build("value");
                             builder = SyncopeClient.getUserSearchConditionBuilder();
                             break;
+
                         case "GROUP":
                             panel = new GroupSearchPanel.Builder(
                                     new ListModel<>(clauses)).required(false).build("value");
                             builder = SyncopeClient.getGroupSearchConditionBuilder();
                             break;
+
                         default:
                             panel = new AnyObjectSearchPanel.Builder(
                                     scondAnnot.type(),
@@ -216,7 +212,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                                 new PropertyModel<>(bean.getObject(), fieldName)).build(
                                 "value",
                                 fieldName,
-                                buildSinglePanel(bean.getObject(), field.getType(), fieldName, "panel")).hideLabel();
+                                buildSinglePanel(bean.getObject(), listItemType, fieldName, "panel")).hideLabel();
                     }
                 } else if (Map.class.equals(field.getType())) {
                     panel = new AjaxGridFieldPanel(
@@ -227,11 +223,10 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
                 item.add(panel.setRenderBodyOnly(true));
             }
-
         }.setReuseItems(true).setOutputMarkupId(true));
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static FieldPanel buildSinglePanel(
             final Serializable bean, final Class<?> type, final String fieldName, final String id) {
 

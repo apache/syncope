@@ -30,7 +30,6 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
@@ -110,27 +109,15 @@ public class Realms extends BasePage {
         templateModal.size(Modal.Size.Large);
         content.add(templateModal);
 
-        modal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                target.add(realmChoicePanel.reloadRealmTree(target));
-                target.add(content);
-                modal.show(false);
-            }
+        modal.setWindowClosedCallback(target -> {
+            target.add(realmChoicePanel.reloadRealmTree(target));
+            target.add(content);
+            modal.show(false);
         });
 
-        templateModal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                target.add(content);
-                templateModal.show(false);
-            }
+        templateModal.setWindowClosedCallback(target -> {
+            target.add(content);
+            templateModal.show(false);
         });
 
         updateRealmContent(realmChoicePanel.getCurrentRealm(), parameters.get("selectedIndex").toInt(0));
