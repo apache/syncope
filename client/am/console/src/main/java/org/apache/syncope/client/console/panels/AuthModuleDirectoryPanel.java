@@ -88,7 +88,7 @@ public class AuthModuleDirectoryPanel
 
     @Override
     protected List<IColumn<AuthModuleTO, String>> getColumns() {
-        final List<IColumn<AuthModuleTO, String>> columns = new ArrayList<>();
+        List<IColumn<AuthModuleTO, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<>(
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this),
                 Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));

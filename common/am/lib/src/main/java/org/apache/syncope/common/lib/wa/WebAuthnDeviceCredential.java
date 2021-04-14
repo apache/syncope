@@ -69,7 +69,6 @@ public class WebAuthnDeviceCredential implements BaseBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .appendSuper(super.hashCode())
                 .append(json)
                 .append(identifier)
                 .toHashCode();
@@ -86,11 +85,10 @@ public class WebAuthnDeviceCredential implements BaseBean {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        WebAuthnDeviceCredential rhs = (WebAuthnDeviceCredential) obj;
+        WebAuthnDeviceCredential other = (WebAuthnDeviceCredential) obj;
         return new EqualsBuilder()
-                .appendSuper(super.equals(obj))
-                .append(this.json, rhs.json)
-                .append(this.identifier, rhs.identifier)
+                .append(this.json, other.json)
+                .append(this.identifier, other.identifier)
                 .isEquals();
     }
 

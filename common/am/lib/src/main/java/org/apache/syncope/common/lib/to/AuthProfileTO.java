@@ -28,8 +28,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.U2FDevice;
-import org.apache.syncope.common.lib.wa.WebAuthnAccount;
+import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 
 public class AuthProfileTO implements EntityTO {
 
@@ -94,8 +95,18 @@ public class AuthProfileTO implements EntityTO {
             return this;
         }
 
-        public AuthProfileTO.Builder webAuthnAccount(final WebAuthnAccount webAuthnAccount) {
-            instance.setWebAuthnAccount(webAuthnAccount);
+        public AuthProfileTO.Builder credential(final WebAuthnDeviceCredential credential) {
+            instance.getWebAuthnDeviceCredentials().add(credential);
+            return this;
+        }
+
+        public AuthProfileTO.Builder credentials(final WebAuthnDeviceCredential... credentials) {
+            instance.getWebAuthnDeviceCredentials().addAll(List.of(credentials));
+            return this;
+        }
+
+        public AuthProfileTO.Builder credentials(final Collection<WebAuthnDeviceCredential> credentials) {
+            instance.getWebAuthnDeviceCredentials().addAll(credentials);
             return this;
         }
 
@@ -108,13 +119,15 @@ public class AuthProfileTO implements EntityTO {
 
     private String owner;
 
+    private final List<ImpersonationAccount> impersonationAccounts = new ArrayList<>();
+
     private final List<GoogleMfaAuthToken> googleMfaAuthTokens = new ArrayList<>();
 
     private final List<GoogleMfaAuthAccount> googleMfaAuthAccounts = new ArrayList<>();
 
     private final List<U2FDevice> u2fRegisteredDevices = new ArrayList<>();
 
-    private WebAuthnAccount webAuthnAccount;
+    private final List<WebAuthnDeviceCredential> webAuthnDeviceCredentials = new ArrayList<>();
 
     @Override
     public String getKey() {
@@ -135,6 +148,12 @@ public class AuthProfileTO implements EntityTO {
         this.owner = owner;
     }
 
+    @JacksonXmlElementWrapper(localName = "impersonationAccounts")
+    @JacksonXmlProperty(localName = "impersonationAccount")
+    public List<ImpersonationAccount> getImpersonationAccounts() {
+        return impersonationAccounts;
+    }
+
     @JacksonXmlElementWrapper(localName = "googleMfaAuthTokens")
     @JacksonXmlProperty(localName = "googleMfaAuthToken")
     public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
@@ -153,12 +172,10 @@ public class AuthProfileTO implements EntityTO {
         return u2fRegisteredDevices;
     }
 
-    public WebAuthnAccount getWebAuthnAccount() {
-        return webAuthnAccount;
-    }
-
-    public void setWebAuthnAccount(final WebAuthnAccount webAuthnAccount) {
-        this.webAuthnAccount = webAuthnAccount;
+    @JacksonXmlElementWrapper(localName = "credentials")
+    @JacksonXmlProperty(localName = "credential")
+    public List<WebAuthnDeviceCredential> getWebAuthnDeviceCredentials() {
+        return webAuthnDeviceCredentials;
     }
 
     @Override
@@ -166,10 +183,11 @@ public class AuthProfileTO implements EntityTO {
         return new HashCodeBuilder().
                 append(key).
                 append(owner).
+                append(impersonationAccounts).
                 append(googleMfaAuthTokens).
                 append(googleMfaAuthAccounts).
                 append(u2fRegisteredDevices).
-                append(webAuthnAccount).
+                append(webAuthnDeviceCredentials).
                 build();
     }
 
@@ -188,10 +206,11 @@ public class AuthProfileTO implements EntityTO {
         return new EqualsBuilder().
                 append(key, other.key).
                 append(owner, other.owner).
+                append(impersonationAccounts, other.impersonationAccounts).
                 append(googleMfaAuthTokens, other.googleMfaAuthTokens).
                 append(googleMfaAuthAccounts, other.googleMfaAuthAccounts).
                 append(u2fRegisteredDevices, other.u2fRegisteredDevices).
-                append(webAuthnAccount, other.webAuthnAccount).
+                append(webAuthnDeviceCredentials, other.webAuthnDeviceCredentials).
                 build();
     }
 }

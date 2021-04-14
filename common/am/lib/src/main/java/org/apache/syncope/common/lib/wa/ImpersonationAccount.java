@@ -69,16 +69,16 @@ public class ImpersonationAccount implements BaseBean {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        ImpersonationAccount rhs = (ImpersonationAccount) obj;
+        ImpersonationAccount other = (ImpersonationAccount) obj;
         return new EqualsBuilder()
-                .append(this.impersonated, rhs.impersonated)
+                .append(this.impersonated, other.impersonated)
                 .isEquals();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("key", impersonated)
+                .append("impersonated", impersonated)
                 .toString();
     }
 }

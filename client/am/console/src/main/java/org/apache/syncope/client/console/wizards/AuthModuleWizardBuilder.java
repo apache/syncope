@@ -130,7 +130,7 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
         }
     }
 
-    public static class Configuration extends WizardStep {
+    private static class Configuration extends WizardStep {
 
         private static final long serialVersionUID = -785981096328637758L;
 

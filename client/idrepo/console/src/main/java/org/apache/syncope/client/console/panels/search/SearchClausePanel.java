@@ -906,6 +906,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 ((AjaxTextFieldPanel) value).setChoices(Arrays.asList("true", "false"));
 
                 break;
+
             case Date:
                 SimpleDateFormat df = DATE_FORMAT.get();
                 df.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
@@ -972,6 +973,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     });
                 }
                 break;
+
             case Long:
                 value = new AjaxSpinnerFieldPanel.Builder<Long>().enableOnChange().build(
                         "value",

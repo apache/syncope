@@ -21,11 +21,9 @@ package org.apache.syncope.fit.core.wa;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
@@ -68,7 +66,7 @@ public class WebAuthnAccountITCase extends AbstractITCase {
         WebAuthnAccount acct = createWebAuthnRegisteredAccount();
         webAuthnRegistrationService.create(owner, acct);
         webAuthnRegistrationService.delete(owner);
-        assertThrows(SyncopeClientException.class, () -> webAuthnRegistrationService.read(owner));
+        assertTrue(webAuthnRegistrationService.read(owner).getCredentials().isEmpty());
     }
 
     @Test

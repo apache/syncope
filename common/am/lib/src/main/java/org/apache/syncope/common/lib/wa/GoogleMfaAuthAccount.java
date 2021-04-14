@@ -135,7 +135,6 @@ public class GoogleMfaAuthAccount implements BaseBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .appendSuper(super.hashCode())
                 .append(secretKey)
                 .append(name)
                 .append(id)
@@ -156,15 +155,14 @@ public class GoogleMfaAuthAccount implements BaseBean {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        GoogleMfaAuthAccount rhs = (GoogleMfaAuthAccount) obj;
+        GoogleMfaAuthAccount other = (GoogleMfaAuthAccount) obj;
         return new EqualsBuilder()
-                .appendSuper(super.equals(obj))
-                .append(this.secretKey, rhs.secretKey)
-                .append(this.name, rhs.name)
-                .append(this.id, rhs.id)
-                .append(this.scratchCodes, rhs.scratchCodes)
-                .append(this.registrationDate, rhs.registrationDate)
-                .append(this.validationCode, rhs.validationCode)
+                .append(this.secretKey, other.secretKey)
+                .append(this.name, other.name)
+                .append(this.id, other.id)
+                .append(this.scratchCodes, other.scratchCodes)
+                .append(this.registrationDate, other.registrationDate)
+                .append(this.validationCode, other.validationCode)
                 .isEquals();
     }
 

@@ -46,9 +46,9 @@ public class MapOfListModel<T> extends PropertyModel<List<T>> {
             throw new IllegalArgumentException("Property expressions cannot start with a '.' character");
         }
 
-        final Map<String, List<T>> map = (Map<String, List<T>>) PropertyResolver.getValue(expression, target);
+        Map<String, List<T>> map = (Map<String, List<T>>) PropertyResolver.getValue(expression, target);
 
-        final List<T> res;
+        List<T> res;
         if (map.containsKey(key)) {
             res = map.get(key);
         } else {

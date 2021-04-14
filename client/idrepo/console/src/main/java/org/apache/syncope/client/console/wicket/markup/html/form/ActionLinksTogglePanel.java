@@ -47,7 +47,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.syncope.client.console.panels.ToggleableTarget;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.to.NamedEntityTO;
 
@@ -130,15 +129,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
 
         updateHeader(target, modelObject);
 
-        modal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                modal.show(false);
-            }
-        });
+        modal.setWindowClosedCallback(t -> modal.show(false));
 
         Fragment frag = new Fragment("actions", "actionsFragment", this);
         frag.setOutputMarkupId(true);

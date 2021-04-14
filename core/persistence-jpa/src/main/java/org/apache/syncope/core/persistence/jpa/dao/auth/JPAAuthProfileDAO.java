@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao.auth;
 
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
@@ -36,10 +37,25 @@ public class JPAAuthProfileDAO extends AbstractDAO<AuthProfile> implements AuthP
     }
 
     @Override
-    public List<AuthProfile> findAll() {
+    public int count() {
+        Query query = entityManager().createQuery(
+                "SELECT COUNT(e) FROM  " + JPAAuthProfile.class.getSimpleName() + " e");
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    @Override
+    public List<AuthProfile> findAll(final int page, final int itemsPerPage) {
         TypedQuery<AuthProfile> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAAuthProfile.class.getSimpleName() + " e ",
+                "SELECT e FROM " + JPAAuthProfile.class.getSimpleName() + " e ORDER BY e.owner ASC",
                 AuthProfile.class);
+
+        // page starts from 1, while setFirtResult() starts from 0
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+
+        if (itemsPerPage >= 0) {
+            query.setMaxResults(itemsPerPage);
+        }
+
         return query.getResultList();
     }
 

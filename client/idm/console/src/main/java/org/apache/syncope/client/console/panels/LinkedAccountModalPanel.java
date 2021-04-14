@@ -83,8 +83,6 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
 
     private UserRestClient userRestClient = new UserRestClient();
 
-    private AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
     private final List<LinkedAccountTO> linkedAccountTOs;
 
     @SuppressWarnings("unchecked")
@@ -93,7 +91,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
             final PageReference pageRef,
             final boolean recounciliationOnly) {
 
-        super(BaseModal.getContentId(), model);
+        super(BaseModal.CONTENT_ID, model);
 
         final MultilevelPanel mlp = new MultilevelPanel("mlpContainer");
         mlp.setOutputMarkupId(true);
@@ -104,7 +102,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
         add(actionTogglePanel);
 
         AnyLayout anyLayout = AnyLayoutUtils.fetch(
-                anyTypeRestClient.listAnyTypes().stream().map(EntityTO::getKey).collect(Collectors.toList()));
+                AnyTypeRestClient.listAnyTypes().stream().map(EntityTO::getKey).collect(Collectors.toList()));
         LinkedAccountFormLayoutInfo linkedAccountFormLayoutInfo =
                 anyLayout.getUser() instanceof IdMUserFormLayoutInfo
                 ? IdMUserFormLayoutInfo.class.cast(anyLayout.getUser()).getLinkedAccountFormLayoutInfo()

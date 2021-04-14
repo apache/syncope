@@ -30,7 +30,6 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
@@ -38,6 +37,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -161,7 +161,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                     LOG.error("While deleting {}", reportlet.getName(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionLink.ActionType.DELETE, IdRepoEntitlement.REPORT_UPDATE);
 
@@ -261,7 +261,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
         if (event.getPayload() instanceof ExitEvent) {
-            final AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
+            AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
             baseModal.show(false);
             baseModal.close(target);
         }

@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic.wa;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
@@ -39,68 +38,60 @@ public class WebAuthnRegistrationLogic extends AbstractAuthProfileLogic {
     @Autowired
     private EntityFactory entityFactory;
 
-    @PreAuthorize("hasRole('" + AMEntitlement.WEBAUTHN_LIST_DEVICE + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<WebAuthnAccount> list() {
-        return authProfileDAO.findAll().stream().
-                map(AuthProfile::getWebAuthnAccount).
+        return authProfileDAO.findAll(-1, -1).stream().
+                map(profile -> new WebAuthnAccount.Builder().
+                credentials(profile.getWebAuthnDeviceCredentials()).build()).
                 collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.WEBAUTHN_READ_DEVICE + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public WebAuthnAccount read(final String owner) {
-        return authProfileDAO.findByOwner(owner).
-                stream().
-                map(AuthProfile::getWebAuthnAccount).
+        return authProfileDAO.findByOwner(owner).stream().
                 findFirst().
+                map(profile -> new WebAuthnAccount.Builder().
+                credentials(profile.getWebAuthnDeviceCredentials()).build()).
                 orElseThrow(() -> new NotFoundException("Could not find account for Owner " + owner));
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.WEBAUTHN_DELETE_DEVICE + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final String owner) {
         authProfileDAO.findByOwner(owner).ifPresent(profile -> {
-            profile.setWebAuthnAccount(null);
+            profile.setWebAuthnDeviceCredentials(List.of());
             authProfileDAO.save(profile);
         });
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.WEBAUTHN_DELETE_DEVICE + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final String owner, final String credentialId) {
-        authProfileDAO.findByOwner(owner).
-                stream().
-                findFirst().
+        authProfileDAO.findByOwner(owner).stream().findFirst().
                 ifPresent(profile -> {
-                    WebAuthnAccount webAuthnAccount = profile.getWebAuthnAccount();
-                    List<WebAuthnDeviceCredential> accounts = webAuthnAccount.getCredentials();
-                    if (accounts.removeIf(acct -> acct.getIdentifier().equals(credentialId))) {
-                        profile.setWebAuthnAccount(webAuthnAccount);
+                    List<WebAuthnDeviceCredential> credentials = profile.getWebAuthnDeviceCredentials();
+                    if (credentials.removeIf(acct -> acct.getIdentifier().equals(credentialId))) {
+                        profile.setWebAuthnDeviceCredentials(credentials);
                         authProfileDAO.save(profile);
                     }
                 });
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.WEBAUTHN_CREATE_DEVICE + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void create(final String owner, final WebAuthnAccount account) {
         AuthProfile profile = authProfileDAO.findByOwner(owner).orElseGet(() -> {
             AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
             authProfile.setOwner(owner);
             return authProfile;
         });
-        profile.setWebAuthnAccount(account);
+        profile.setWebAuthnDeviceCredentials(account.getCredentials());
         authProfileDAO.save(profile);
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.WEBAUTHN_UPDATE_DEVICE + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void update(final String owner, final WebAuthnAccount account) {
         authProfileDAO.findByOwner(owner).ifPresent(profile -> {
-            profile.setWebAuthnAccount(account);
+            profile.setWebAuthnDeviceCredentials(account.getCredentials());
             authProfileDAO.save(profile);
         });
     }

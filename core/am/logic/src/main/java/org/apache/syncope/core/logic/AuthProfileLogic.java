@@ -19,7 +19,9 @@
 package org.apache.syncope.core.logic;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -36,35 +38,37 @@ public class AuthProfileLogic extends AbstractAuthProfileLogic {
         authProfileDAO.delete(key);
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_DELETE + "') ")
-    public void deleteByOwner(final String owner) {
-        authProfileDAO.findByOwner(owner).ifPresent(authProfileDAO::delete);
-    }
-
-    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_READ + "') ")
-    @Transactional(readOnly = true)
-    public AuthProfileTO readByOwner(final String owner) {
-        return authProfileDAO.findByOwner(owner).
-                map(binder::getAuthProfileTO).
-                orElseThrow(() -> new NotFoundException(owner + " not found"));
-    }
-
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_READ + "') ")
     @Transactional(readOnly = true)
     public AuthProfileTO read(final String key) {
-        AuthProfile authProfile = authProfileDAO.find(key);
-        if (authProfile == null) {
-            throw new NotFoundException(key + " not found");
-        }
-        return binder.getAuthProfileTO(authProfile);
+        return Optional.ofNullable(authProfileDAO.find(key)).
+                map(binder::getAuthProfileTO).
+                orElseThrow(() -> new NotFoundException(key + " not found"));
+    }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_CREATE + "') ")
+    public AuthProfileTO create(final AuthProfileTO authProfileTO) {
+        return binder.getAuthProfileTO(authProfileDAO.save(binder.create(authProfileTO)));
+    }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_UPDATE + "') ")
+    public void update(final AuthProfileTO authProfileTO) {
+        AuthProfile authProfile = Optional.ofNullable(authProfileDAO.find(authProfileTO.getKey())).
+                orElseThrow(() -> new NotFoundException(authProfileTO.getKey() + " not found"));
+        binder.update(authProfile, authProfileTO);
+        authProfileDAO.save(authProfile);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_LIST + "')")
     @Transactional(readOnly = true)
-    public List<AuthProfileTO> list() {
-        return authProfileDAO.findAll().
+    public Pair<Integer, List<AuthProfileTO>> list(final int page, final int size) {
+        int count = authProfileDAO.count();
+
+        List<AuthProfileTO> result = authProfileDAO.findAll(page, size).
                 stream().
                 map(binder::getAuthProfileTO).
                 collect(Collectors.toList());
+
+        return Pair.of(count, result);
     }
 }

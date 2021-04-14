@@ -20,7 +20,6 @@ package org.apache.syncope.fit.core.wa;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,10 +28,10 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,13 +71,13 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
         String owner = UUID.randomUUID().toString();
         GoogleMfaAuthToken token = createGoogleMfaAuthToken();
         googleMfaAuthTokenService.store(owner, token);
-        List<AuthProfileTO> results = authProfileService.list();
-        assertFalse(results.isEmpty());
-        AuthProfileTO profileTO = results.get(0);
-        assertNotNull(authProfileService.read(profileTO.getKey()));
-        assertNotNull(authProfileService.readByOwner(profileTO.getOwner()));
-        authProfileService.deleteByOwner(owner);
-        assertThrows(SyncopeClientException.class, () -> authProfileService.readByOwner(owner));
+        PagedResult<AuthProfileTO> results = authProfileService.list(1, 100);
+        assertFalse(results.getResult().isEmpty());
+        AuthProfileTO profileTO = results.getResult().stream().
+                filter(p -> owner.equals(p.getOwner())).findFirst().get();
+        assertEquals(profileTO, authProfileService.read(profileTO.getKey()));
+        authProfileService.delete(profileTO.getKey());
+        assertThrows(SyncopeClientException.class, () -> authProfileService.read(profileTO.getKey()));
     }
 
     @Test

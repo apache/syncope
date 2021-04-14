@@ -32,6 +32,7 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.springframework.util.CollectionUtils;
 
 public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<INNER>> {
 
@@ -64,8 +65,8 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
 
         view = new InnerView("view", name, model);
 
-        final List<INNER> obj = model.getObject();
-        if (obj == null || obj.isEmpty()) {
+        List<INNER> obj = model.getObject();
+        if (CollectionUtils.isEmpty(obj)) {
             form.addOrReplace(getNoDataFragment(model, name));
         } else {
             form.addOrReplace(getDataFragment());
@@ -79,20 +80,20 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
     }
 
     private Fragment getNoDataFragment(final IModel<List<INNER>> model, final String label) {
-        final Fragment fragment = new Fragment("content", "noDataFragment", AbstractMultiPanel.this);
+        Fragment fragment = new Fragment("content", "noDataFragment", AbstractMultiPanel.this);
         fragment.add(new Label("field-label", new ResourceModel(label, label)));
         fragment.add(getPlusFragment(model));
         return fragment;
     }
 
     private Fragment getDataFragment() {
-        final Fragment contentFragment = new Fragment("content", "dataFragment", AbstractMultiPanel.this);
+        Fragment contentFragment = new Fragment("content", "dataFragment", AbstractMultiPanel.this);
         contentFragment.add(view.setOutputMarkupId(true));
         return contentFragment;
     }
 
     private Fragment getPlusFragment(final IModel<List<INNER>> model) {
-        final IndicatorAjaxSubmitLink plus = new IndicatorAjaxSubmitLink("add") {
+        IndicatorAjaxSubmitLink plus = new IndicatorAjaxSubmitLink("add") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -117,7 +118,7 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
 
         };
 
-        final Fragment fragment = new Fragment("panelPlus", "fragmentPlus", AbstractMultiPanel.this);
+        Fragment fragment = new Fragment("panelPlus", "fragmentPlus", AbstractMultiPanel.this);
         fragment.addOrReplace(plus);
         fragment.setRenderBodyOnly(true);
 
@@ -154,12 +155,11 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
 
         @Override
         protected void populateItem(final ListItem<INNER> item) {
-
-            final Panel panel = getItemPanel(item);
+            Panel panel = getItemPanel(item);
 
             item.add(panel.setRenderBodyOnly(true));
 
-            final IndicatorAjaxSubmitLink minus = new IndicatorAjaxSubmitLink("drop") {
+            IndicatorAjaxSubmitLink minus = new IndicatorAjaxSubmitLink("drop") {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
@@ -184,12 +184,9 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
 
             item.add(minus);
 
-            final Fragment fragment;
-            if (item.getIndex() == model.getObject().size() - 1) {
-                fragment = getPlusFragment(model);
-            } else {
-                fragment = new Fragment("panelPlus", "emptyFragment", AbstractMultiPanel.this);
-            }
+            Fragment fragment = item.getIndex() == model.getObject().size() - 1
+                    ? getPlusFragment(model)
+                    : new Fragment("panelPlus", "emptyFragment", AbstractMultiPanel.this);
 
             item.add(fragment.setRenderBodyOnly(true));
         }

@@ -47,7 +47,7 @@ public class AbstractModalPanel<T extends Serializable> extends Panel
     protected final PageReference pageRef;
 
     public AbstractModalPanel(final BaseModal<T> modal, final PageReference pageRef) {
-        this(BaseModal.getContentId(), modal, pageRef);
+        this(BaseModal.CONTENT_ID, modal, pageRef);
     }
 
     public AbstractModalPanel(final String id, final BaseModal<T> modal, final PageReference pageRef) {

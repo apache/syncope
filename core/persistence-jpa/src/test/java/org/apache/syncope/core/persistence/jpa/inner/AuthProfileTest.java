@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.U2FDevice;
-import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
@@ -63,7 +62,7 @@ public class AuthProfileTest extends AbstractTest {
         Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
         assertTrue(result.isPresent());
 
-        assertFalse(authProfileDAO.findAll().isEmpty());
+        assertFalse(authProfileDAO.findAll(-1, -1).isEmpty());
 
         AuthProfile authProfile = result.get();
         result = Optional.ofNullable(authProfileDAO.find(authProfile.getKey()));
@@ -84,7 +83,7 @@ public class AuthProfileTest extends AbstractTest {
         Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
         assertTrue(result.isPresent());
 
-        assertFalse(authProfileDAO.findAll().isEmpty());
+        assertFalse(authProfileDAO.findAll(-1, -1).isEmpty());
 
         AuthProfile authProfile = result.get();
         result = Optional.ofNullable(authProfileDAO.find(authProfile.getKey()));
@@ -121,14 +120,14 @@ public class AuthProfileTest extends AbstractTest {
         Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
         assertTrue(result.isPresent());
 
-        assertFalse(authProfileDAO.findAll().isEmpty());
+        assertFalse(authProfileDAO.findAll(-1, -1).isEmpty());
 
         AuthProfile authProfile = result.get();
         result = Optional.ofNullable(authProfileDAO.find(authProfile.getKey()));
         assertTrue(result.isPresent());
 
         authProfile.setOwner("SyncopeCreate-NewU2F");
-        authProfile.setWebAuthnAccount(null);
+        authProfile.setWebAuthnDeviceCredentials(List.of());
         authProfileDAO.save(authProfile);
 
         assertFalse(authProfileDAO.findByOwner(id).isPresent());
@@ -143,7 +142,7 @@ public class AuthProfileTest extends AbstractTest {
         Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
         assertTrue(result.isPresent());
 
-        assertFalse(authProfileDAO.findAll().isEmpty());
+        assertFalse(authProfileDAO.findAll(-1, -1).isEmpty());
 
         AuthProfile authProfile = result.get();
         result = Optional.ofNullable(authProfileDAO.find(authProfile.getKey()));
@@ -206,8 +205,7 @@ public class AuthProfileTest extends AbstractTest {
 
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
         profile.setOwner(owner);
-        WebAuthnAccount account = new WebAuthnAccount.Builder().credentials(credentials).build();
-        profile.setWebAuthnAccount(account);
+        profile.setWebAuthnDeviceCredentials(credentials);
         return authProfileDAO.save(profile);
     }
 

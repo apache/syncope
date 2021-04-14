@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.U2FDevice;
-import org.apache.syncope.common.lib.wa.WebAuthnAccount;
+import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
 public interface AuthProfile extends Entity {
@@ -44,9 +44,9 @@ public interface AuthProfile extends Entity {
 
     void setGoogleMfaAuthAccounts(List<GoogleMfaAuthAccount> accounts);
 
-    WebAuthnAccount getWebAuthnAccount();
+    List<WebAuthnDeviceCredential> getWebAuthnDeviceCredentials();
 
-    void setWebAuthnAccount(WebAuthnAccount accounts);
+    void setWebAuthnDeviceCredentials(List<WebAuthnDeviceCredential> credentials);
 
     List<ImpersonationAccount> getImpersonationAccounts();
 
