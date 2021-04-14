@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -37,6 +38,8 @@ public class ConnInstanceTO implements EntityTO {
     private static final long serialVersionUID = 2707778645445168671L;
 
     private String key;
+
+    private boolean errored;
 
     private String adminRealm;
 
@@ -67,6 +70,15 @@ public class ConnInstanceTO implements EntityTO {
     @Override
     public void setKey(final String key) {
         this.key = key;
+    }
+
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    public boolean isErrored() {
+        return errored;
+    }
+
+    public void setErrored(final boolean errored) {
+        this.errored = errored;
     }
 
     public String getAdminRealm() {
@@ -176,6 +188,7 @@ public class ConnInstanceTO implements EntityTO {
         ConnInstanceTO other = (ConnInstanceTO) obj;
         return new EqualsBuilder().
                 append(key, other.key).
+                append(errored, other.errored).
                 append(adminRealm, other.adminRealm).
                 append(location, other.location).
                 append(connectorName, other.connectorName).
@@ -193,6 +206,7 @@ public class ConnInstanceTO implements EntityTO {
     public int hashCode() {
         return new HashCodeBuilder().
                 append(key).
+                append(errored).
                 append(adminRealm).
                 append(location).
                 append(connectorName).

@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -142,19 +141,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public List<ConnInstanceTO> list(final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
 
-        return connInstanceDAO.findAll().stream().
-                filter(Objects::nonNull).
-                map(connInstance -> {
-                    ConnInstanceTO result = null;
-                    try {
-                        result = binder.getConnInstanceTO(connInstance);
-                    } catch (NotFoundException e) {
-                        LOG.error("Connector '{}#{}' not found",
-                                connInstance.getBundleName(), connInstance.getVersion());
-                    }
-
-                    return result;
-                }).collect(Collectors.toList());
+        return connInstanceDAO.findAll().stream().map(binder::getConnInstanceTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")

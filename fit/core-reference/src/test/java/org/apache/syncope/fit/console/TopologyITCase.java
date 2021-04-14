@@ -160,10 +160,10 @@ public class TopologyITCase extends AbstractConsoleITCase {
 
     @Test
     public void createNewResurceAndProvisionRules() {
-        final String res = UUID.randomUUID().toString();
+        String res = UUID.randomUUID().toString();
 
         TESTER.executeAjaxEvent(
-                "body:conns:0:conns:0:conn", Constants.ON_CLICK);
+                "body:conns:0:conns:1:conn", Constants.ON_CLICK);
         TESTER.executeAjaxEvent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:create", Constants.ON_CLICK);
 
