@@ -65,6 +65,10 @@
   background-color:rgba(100,200,200,0.08);
 }
 
+.topology_conn_errored {
+  background-color:rgba(217,83,79,0.56);
+}
+
 .topology_res {
   background-color:rgba(250,230,0,0.09);
 }

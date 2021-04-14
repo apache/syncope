@@ -25,12 +25,8 @@ import org.apache.syncope.client.console.topology.TopologyNode.Kind;
 import org.apache.syncope.client.console.topology.TopologyTogglePanel.UpdateEvent;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -49,38 +45,42 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
     }
 
-    public TopologyNodePanel(final String id, final TopologyNode node) {
+    public TopologyNodePanel(final String id, final TopologyNode node, final boolean errored) {
         super(id);
         this.node = node;
 
-        final String resourceName = node.getDisplayName().length() > 14
-                ? node.getDisplayName().subSequence(0, 10) + "..."
-                : node.getDisplayName();
-
-        label = new Label("label", resourceName);
+        label = new Label("label", StringUtils.abbreviate(node.getDisplayName(), 10));
         label.setOutputMarkupId(true);
         add(label);
 
-        final String title;
-
+        String title;
         switch (node.getKind()) {
             case SYNCOPE:
                 title = "";
                 add(new AttributeAppender("class", "topology_root", " "));
                 break;
+
             case CONNECTOR_SERVER:
                 title = node.getDisplayName();
                 add(new AttributeAppender("class", "topology_cs", " "));
                 break;
+
             case FS_PATH:
                 title = node.getDisplayName();
                 add(new AttributeAppender("class", "topology_cs", " "));
                 break;
+
             case CONNECTOR:
                 title = (StringUtils.isBlank(node.getConnectionDisplayName())
                         ? "" : node.getConnectionDisplayName() + ":") + node.getDisplayName();
-                add(new AttributeAppender("class", "topology_conn", " "));
+                if (errored) {
+                    add(new AttributeAppender("class", "topology_conn_errored", " "));
+                } else {
+                    add(new AttributeAppender("class", "topology_conn", " "));
+                }
                 break;
+
+            case RESOURCE:
             default:
                 title = node.getDisplayName().length() > 14 ? node.getDisplayName() : "";
                 add(new AttributeAppender("class", "topology_res", " "));
@@ -94,21 +94,6 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
     }
 
     @Override
-    public final MarkupContainer add(final Component... childs) {
-        return super.add(childs);
-    }
-
-    @Override
-    public final Component add(final Behavior... behaviors) {
-        return super.add(behaviors);
-    }
-
-    @Override
-    public final Component setMarkupId(final String markupId) {
-        return super.setMarkupId(markupId);
-    }
-
-    @Override
     public String getAjaxIndicatorMarkupId() {
         return Constants.VEIL_INDICATOR_MARKUP_ID;
     }
@@ -116,26 +101,20 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
     @Override
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof UpdateEvent) {
-            final UpdateEvent updateEvent = UpdateEvent.class.cast(event.getPayload());
-            final String key = updateEvent.getKey();
-            final AjaxRequestTarget target = updateEvent.getTarget();
+            UpdateEvent updateEvent = UpdateEvent.class.cast(event.getPayload());
+            String key = updateEvent.getKey();
 
             if (node.getKind() == Kind.CONNECTOR && key.equalsIgnoreCase(node.getKey())) {
                 ConnInstanceTO conn = new ConnectorRestClient().read(key);
 
-                String displayName =
-                        // [SYNCOPE-1233]
-                        StringUtils.isBlank(conn.getDisplayName()) ? conn.getBundleName() : conn.getDisplayName();
+                // [SYNCOPE-1233]
+                String displayName = StringUtils.isBlank(conn.getDisplayName())
+                        ? conn.getBundleName() : conn.getDisplayName();
 
-                final String resourceName = displayName.length() > 14
-                        ? displayName.subSequence(0, 10) + "..."
-                        : displayName;
-
-                label.setDefaultModelObject(resourceName);
-                target.add(label);
+                label.setDefaultModelObject(StringUtils.abbreviate(displayName, 10));
+                updateEvent.getTarget().add(label);
                 node.setDisplayName(displayName);
             }
         }
     }
-
 }

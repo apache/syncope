@@ -52,7 +52,7 @@ public class ConnectorRestClient extends BaseRestClient {
     private static final long serialVersionUID = -6870366819966266617L;
 
     public List<ConnInstanceTO> getAllConnectors() {
-        List<ConnInstanceTO> connectors = Collections.<ConnInstanceTO>emptyList();
+        List<ConnInstanceTO> connectors = Collections.emptyList();
         try {
             connectors = getService(ConnectorService.class).list(SyncopeConsoleSession.get().getLocale().toString());
         } catch (Exception e) {

@@ -143,19 +143,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public List<ConnInstanceTO> list(final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
 
-        return connInstanceDAO.findAll().stream().
-                filter(connInstance -> connInstance != null).
-                map(connInstance -> {
-                    ConnInstanceTO result = null;
-                    try {
-                        result = binder.getConnInstanceTO(connInstance);
-                    } catch (NotFoundException e) {
-                        LOG.error("Connector '{}#{}' not found",
-                                connInstance.getBundleName(), connInstance.getVersion());
-                    }
-
-                    return result;
-                }).collect(Collectors.toList());
+        return connInstanceDAO.findAll().stream().map(binder::getConnInstanceTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")

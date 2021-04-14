@@ -237,7 +237,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public String getAjaxIndicatorMarkupId() {
                 return Constants.VEIL_INDICATOR_MARKUP_ID;
             }
-
         };
         fragment.add(create);
         MetaDataRoleAuthorizationStrategy.authorize(create, RENDER, StandardEntitlement.CONNECTOR_CREATE);
@@ -325,7 +324,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public String getAjaxIndicatorMarkupId() {
                 return Constants.VEIL_INDICATOR_MARKUP_ID;
             }
-
         };
         MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.CONNECTOR_READ);
         fragment.add(edit);
@@ -374,7 +372,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public String getAjaxIndicatorMarkupId() {
                 return Constants.VEIL_INDICATOR_MARKUP_ID;
             }
-
         };
         MetaDataRoleAuthorizationStrategy.authorize(history, RENDER,
                 String.format("%s,%s", StandardEntitlement.CONNECTOR_READ, StandardEntitlement.AUDIT_LIST));
@@ -457,7 +454,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public String getAjaxIndicatorMarkupId() {
                 return Constants.VEIL_INDICATOR_MARKUP_ID;
             }
-
         };
         MetaDataRoleAuthorizationStrategy.authorize(status, RENDER, StandardEntitlement.USER_UPDATE);
         fragment.add(status);
@@ -493,7 +489,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public String getAjaxIndicatorMarkupId() {
                 return Constants.VEIL_INDICATOR_MARKUP_ID;
             }
-
         };
         MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.RESOURCE_READ);
         fragment.add(provision);
@@ -515,7 +510,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public String getAjaxIndicatorMarkupId() {
                 return Constants.VEIL_INDICATOR_MARKUP_ID;
             }
-
         };
         MetaDataRoleAuthorizationStrategy.authorize(explore, RENDER, StandardEntitlement.RESOURCE_LIST_CONNOBJECT);
         fragment.add(explore);
@@ -538,7 +532,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public String getAjaxIndicatorMarkupId() {
                 return Constants.VEIL_INDICATOR_MARKUP_ID;
             }
-
         };
         MetaDataRoleAuthorizationStrategy.authorize(propagation, RENDER, StandardEntitlement.TASK_LIST);
         fragment.add(propagation);
@@ -558,7 +551,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public String getAjaxIndicatorMarkupId() {
                 return Constants.VEIL_INDICATOR_MARKUP_ID;
             }
-
         };
         MetaDataRoleAuthorizationStrategy.authorize(pull, RENDER, StandardEntitlement.TASK_LIST);
         fragment.add(pull);
@@ -578,7 +570,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public String getAjaxIndicatorMarkupId() {
                 return Constants.VEIL_INDICATOR_MARKUP_ID;
             }
-
         };
         MetaDataRoleAuthorizationStrategy.authorize(push, RENDER, StandardEntitlement.TASK_LIST);
         fragment.add(push);
@@ -627,7 +618,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public String getAjaxIndicatorMarkupId() {
                 return Constants.VEIL_INDICATOR_MARKUP_ID;
             }
-
         };
         MetaDataRoleAuthorizationStrategy.authorize(history, RENDER,
                 String.format("%s,%s", StandardEntitlement.RESOURCE_READ, StandardEntitlement.AUDIT_LIST));
@@ -716,6 +706,5 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         public String getKey() {
             return key;
         }
-
     }
 }

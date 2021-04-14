@@ -45,13 +45,13 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
     private static final long serialVersionUID = -1653665542635275551L;
 
-    private static final String CONNECTOR_TEST_TIMEOUT_PARAMETER = "connector.test.timeout";
-
-    private static final String RESOURCE_TEST_TIMEOUT_PARAMETER = "resource.test.timeout";
-
     private static final Logger LOG = LoggerFactory.getLogger(TopologyWebSocketBehavior.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    private static final String CONNECTOR_TEST_TIMEOUT_PARAMETER = "connector.test.timeout";
+
+    private static final String RESOURCE_TEST_TIMEOUT_PARAMETER = "resource.test.timeout";
 
     private static void timeoutHandlingConnectionChecker(
             final Checker checker,

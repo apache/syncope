@@ -635,6 +635,14 @@ under the License.
   <PushCorrelationRuleEntity id="24463935-32a0-4272-bc78-04d6d0adc69e" pushPolicy_id="fb6530e5-892d-4f47-a46b-180c5b6c5c83" 
                              anyType_id="USER" implementation_id="TestPushCorrelationRule"/>
   
+  <ConnInstance id="413bf072-678a-41d3-9d20-8c453b3a39d1" displayName="Errored"
+                adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                location="${connid.location}"
+                bundleName="net.tirasa.connid.bundles.missing"
+                connectorName="net.tirasa.connid.bundles.missing.MissingConnector"
+                version="none"
+                jsonConf='[]'/>
+
   <ConnInstance id="88a7a819-dab5-46b4-9b90-0b9769eabdb8" displayName="ConnInstance100"
                 adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="${connid.location}"
