@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -173,6 +174,11 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                         append("')");
             } else {
                 String key = key(schema.getType());
+
+                String value = Optional.ofNullable(attrValue.getDateValue()).
+                        map(v -> String.valueOf(v.getTime())).
+                        orElse(cond.getExpression());
+
                 boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
                         && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
 
@@ -187,7 +193,7 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                 appendOp(query, cond.getType(), not);
 
                 query.append(lower ? "LOWER(" : "").
-                        append("?").append(setParameter(parameters, cond.getExpression())).
+                        append("?").append(setParameter(parameters, value)).
                         append(lower ? ")" : "");
             }
         }

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -60,7 +59,6 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 
 public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
@@ -107,14 +105,9 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         } else {
             String key = key(schema.getType());
 
-            String value = cond.getExpression();
-            if (schema.getType() == AttrSchemaType.Date) {
-                try {
-                    value = String.valueOf(FormatUtils.parseDate(value).getTime());
-                } catch (ParseException e) {
-                    LOG.error("Could not parse {} as date", value, e);
-                }
-            }
+            String value = Optional.ofNullable(attrValue.getDateValue()).
+                    map(v -> String.valueOf(v.getTime())).
+                    orElse(cond.getExpression());
 
             boolean isStr = true;
             boolean lower;

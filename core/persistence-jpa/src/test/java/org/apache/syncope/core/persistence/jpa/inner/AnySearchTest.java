@@ -456,6 +456,36 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
+    public void searchByAnyCondDate() {
+        AnyCond creationDateCond = new AnyCond(AnyCond.Type.EQ);
+        creationDateCond.setSchema("creationDate");
+        creationDateCond.setExpression("2021-04-15 12:45:00");
+
+        SearchCond searchCondition = SearchCond.getLeaf(creationDateCond);
+        assertTrue(searchCondition.isValid());
+
+        List<AnyObject> anyObjects = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
+        assertNotNull(anyObjects);
+        assertEquals(1, anyObjects.size());
+        assertEquals("9e1d130c-d6a3-48b1-98b3-182477ed0688", anyObjects.iterator().next().getKey());
+    }
+
+    @Test
+    public void searchByAttrCondDate() {
+        AttrCond loginDateCond = new AttrCond(AnyCond.Type.LT);
+        loginDateCond.setSchema("loginDate");
+        loginDateCond.setExpression("2009-05-27");
+
+        SearchCond searchCondition = SearchCond.getLeaf(loginDateCond);
+        assertTrue(searchCondition.isValid());
+
+        List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", users.iterator().next().getKey());
+    }
+
+    @Test
     public void userOrderBy() {
         AnyCond usernameLeafCond = new AnyCond(AnyCond.Type.EQ);
         usernameLeafCond.setSchema("username");
