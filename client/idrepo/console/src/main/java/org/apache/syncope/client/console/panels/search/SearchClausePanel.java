@@ -22,7 +22,6 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.boot
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -81,8 +80,6 @@ import org.apache.wicket.model.PropertyModel;
 public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private static final long serialVersionUID = -527351923968737757L;
-
-    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = ThreadLocal.withInitial(SimpleDateFormat::new);
 
     protected static final AttributeModifier PREVENT_DEFAULT_RETURN = AttributeModifier.replace(
             "onkeydown",
@@ -516,8 +513,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 field.addOrReplace(value);
                 target.add(value);
             }
-        }
-        );
+        });
 
         AjaxDropDownChoicePanel<SearchClause.Type> type = new AjaxDropDownChoicePanel<>(
                 "type", "type", new PropertyModel<>(searchClause, "type"));
@@ -908,8 +904,10 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 break;
 
             case Date:
-                SimpleDateFormat df = DATE_FORMAT.get();
-                df.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
+                FastDateFormat fdf = FastDateFormat.getInstance(
+                        plainSchemaTO.getConversionPattern() == null
+                        ? SyncopeConstants.DEFAULT_DATE_PATTERN
+                        : plainSchemaTO.getConversionPattern());
 
                 value = new AjaxDateTimeFieldPanel(
                         "value",
@@ -922,7 +920,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     public Object getObject() {
                         String date = (String) super.getObject();
                         try {
-                            return date != null ? df.parse(date) : null;
+                            return date != null ? fdf.parse(date) : null;
                         } catch (ParseException ex) {
                             LOG.error("Date parse error {}", date, ex);
                         }
@@ -932,7 +930,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     @Override
                     public void setObject(final Object object) {
                         if (object instanceof Date) {
-                            String valueDate = df.format(object);
+                            String valueDate = fdf.format(object);
                             super.setObject(valueDate);
                         } else {
                             super.setObject(object);
