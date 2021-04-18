@@ -20,14 +20,23 @@ package org.apache.syncope.core.provisioning.api.utils;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 
 public final class RealmUtils {
 
     public static String getGroupOwnerRealm(final String realmPath, final String groupKey) {
         return realmPath + "@" + groupKey;
+    }
+
+    public static Optional<Pair<String, String>> parseGroupOwnerRealm(final String input) {
+        String[] split = input.split("@");
+        return split == null || split.length < 2
+                ? Optional.empty()
+                : Optional.of(Pair.of(split[0], split[1]));
     }
 
     public static boolean normalizingAddTo(final Set<String> realms, final String newRealm) {
@@ -51,7 +60,13 @@ public final class RealmUtils {
     public static Set<String> normalize(final Collection<String> realms) {
         Set<String> normalized = new HashSet<>();
         if (realms != null) {
-            realms.forEach(realm -> normalizingAddTo(normalized, realm));
+            realms.forEach(realm -> {
+                if (realm.indexOf('@') == -1) {
+                    normalizingAddTo(normalized, realm);
+                } else {
+                    normalized.add(realm);
+                }
+            });
         }
 
         return normalized;
@@ -69,7 +84,6 @@ public final class RealmUtils {
         public boolean test(final String realm) {
             return targets.stream().anyMatch(realm::startsWith);
         }
-
     }
 
     public static class DynRealmsPredicate implements Predicate<String> {

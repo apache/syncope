@@ -21,12 +21,10 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
@@ -44,7 +42,9 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -66,6 +66,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
+
+    @Autowired
+    protected UserDAO userDAO;
+
+    @Autowired
+    protected GroupDAO groupDAO;
 
     @Autowired
     protected AnySearchDAO searchDAO;
@@ -111,14 +117,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             final String realm,
             final boolean details) {
 
-        Set<String> adminRealms = RealmUtils.getEffective(
+        Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm);
 
         SearchCond effectiveCond = searchCond == null ? userDAO.getAllMatchingCond() : searchCond;
 
-        int count = searchDAO.count(adminRealms, effectiveCond, AnyTypeKind.USER);
+        int count = searchDAO.count(authRealms, effectiveCond, AnyTypeKind.USER);
 
-        List<User> matching = searchDAO.search(adminRealms, effectiveCond, page, size, orderBy, AnyTypeKind.USER);
+        List<User> matching = searchDAO.search(authRealms, effectiveCond, page, size, orderBy, AnyTypeKind.USER);
         List<UserTO> result = matching.stream().
                 map(user -> binder.returnUserTO(binder.getUserTO(user, details))).
                 collect(Collectors.toList());
@@ -153,10 +159,10 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         }
 
         if (!self) {
-            Set<String> effectiveRealms = RealmUtils.getEffective(
+            Set<String> authRealms = RealmUtils.getEffective(
                     AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_CREATE),
                     before.getLeft().getRealm());
-            securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
+            userDAO.securityChecks(authRealms, null, before.getLeft().getRealm());
         }
 
         Pair<String, List<PropagationStatus>> created =
@@ -196,30 +202,35 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             final UserPatch userPatch, final boolean self, final boolean nullPriorityAsync) {
 
         UserTO userTO = binder.getUserTO(userPatch.getKey());
-        Set<String> dynRealmsBefore = new HashSet<>(userTO.getDynRealms());
         Pair<UserPatch, List<LogicActions>> before = beforeUpdate(userPatch, userTO.getRealm());
 
-        boolean authDynRealms = false;
-        if (!self
-                && before.getLeft().getRealm() != null
-                && StringUtils.isNotBlank(before.getLeft().getRealm().getValue())) {
-
-            Set<String> effectiveRealms = RealmUtils.getEffective(
-                    AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                    before.getLeft().getRealm().getValue());
-            authDynRealms =
-                    securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
+        Set<String> authRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
+                userTO.getRealm());
+        if (!self) {
+            userDAO.securityChecks(
+                    authRealms,
+                    before.getLeft().getKey(),
+                    userTO.getRealm());
         }
 
-        Pair<UserPatch, List<PropagationStatus>> updated =
+        Pair<UserPatch, List<PropagationStatus>> after =
                 provisioningManager.update(before.getLeft(), nullPriorityAsync);
 
-        return afterUpdate(
-                binder.returnUserTO(binder.getUserTO(updated.getLeft().getKey())),
-                updated.getRight(),
-                before.getRight(),
-                authDynRealms,
-                dynRealmsBefore);
+        ProvisioningResult<UserTO> result = afterUpdate(
+                binder.returnUserTO(binder.getUserTO(after.getLeft().getKey())),
+                after.getRight(),
+                before.getRight());
+
+        if (!self) {
+            // check if user can still be managed by the caller
+            userDAO.securityChecks(
+                    authRealms,
+                    after.getLeft().getKey(),
+                    result.getEntity().getRealm());
+        }
+
+        return result;
     }
 
     protected Pair<String, List<PropagationStatus>> setStatusOnWfAdapter(
@@ -250,10 +261,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     public ProvisioningResult<UserTO> status(final StatusPatch statusPatch, final boolean nullPriorityAsync) {
         // security checks
         UserTO toUpdate = binder.getUserTO(statusPatch.getKey());
-        Set<String> effectiveRealms = RealmUtils.getEffective(
+
+        Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
                 toUpdate.getRealm());
-        securityChecks(effectiveRealms, toUpdate.getRealm(), toUpdate.getKey());
+        userDAO.securityChecks(
+                authRealms,
+                toUpdate.getKey(),
+                toUpdate.getRealm());
 
         // ensures the actual user key is effectively on the patch - as the binder.getUserTO(statusPatch.getKey())
         // call above works with username as well
@@ -263,9 +278,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         return afterUpdate(
                 binder.returnUserTO(binder.getUserTO(updated.getKey())),
                 updated.getRight(),
-                Collections.<LogicActions>emptyList(),
-                false,
-                Collections.<String>emptySet());
+                Collections.emptyList());
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "'))")
@@ -276,9 +289,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         return afterUpdate(
                 binder.returnUserTO(binder.getUserTO(updated.getKey())),
                 updated.getRight(),
-                Collections.<LogicActions>emptyList(),
-                false,
-                Collections.<String>emptySet());
+                Collections.emptyList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "')")
@@ -324,15 +335,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             + "and not(hasRole('" + StandardEntitlement.ANONYMOUS + "')) "
             + "and not(hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "'))")
     public ProvisioningResult<UserTO> selfDelete(final boolean nullPriorityAsync) {
-        UserTO userTO = binder.getAuthenticatedUserTO();
-        return doDelete(userTO, true, nullPriorityAsync);
+        return doDelete(binder.getAuthenticatedUserTO(), true, nullPriorityAsync);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_DELETE + "')")
     @Override
     public ProvisioningResult<UserTO> delete(final String key, final boolean nullPriorityAsync) {
-        UserTO userTO = binder.getUserTO(key);
-        return doDelete(userTO, false, nullPriorityAsync);
+        return doDelete(binder.getUserTO(key), false, nullPriorityAsync);
     }
 
     protected ProvisioningResult<UserTO> doDelete(
@@ -341,10 +350,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         Pair<UserTO, List<LogicActions>> before = beforeDelete(userTO);
 
         if (!self) {
-            Set<String> effectiveRealms = RealmUtils.getEffective(
+            Set<String> authRealms = RealmUtils.getEffective(
                     AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_DELETE),
                     before.getLeft().getRealm());
-            securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
+            userDAO.securityChecks(
+                    authRealms,
+                    before.getLeft().getKey(),
+                    before.getLeft().getRealm());
         }
 
         List<Group> ownedGroups = groupDAO.findOwnedByUser(before.getLeft().getKey());
@@ -368,20 +380,27 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         return afterDelete(binder.returnUserTO(deletedTO), statuses, before.getRight());
     }
 
+    protected void updateChecks(final String key) {
+        User user = userDAO.authFind(key);
+
+        Set<String> authRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
+                user.getRealm().getFullPath());
+        userDAO.securityChecks(
+                authRealms,
+                user.getKey(),
+                user.getRealm().getFullPath());
+    }
+
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
     @Override
     public UserTO unlink(final String key, final Collection<String> resources) {
-        // security checks
-        UserTO user = binder.getUserTO(key);
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                user.getRealm());
-        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+        updateChecks(key);
 
         UserPatch patch = new UserPatch();
         patch.setKey(key);
-        patch.getResources().addAll(resources.stream().map(resource
-                -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
+        patch.getResources().addAll(resources.stream().
+                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
                 collect(Collectors.toList()));
 
         return binder.returnUserTO(binder.getUserTO(provisioningManager.unlink(patch)));
@@ -390,17 +409,12 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
     @Override
     public UserTO link(final String key, final Collection<String> resources) {
-        // security checks
-        UserTO user = binder.getUserTO(key);
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                user.getRealm());
-        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+        updateChecks(key);
 
         UserPatch patch = new UserPatch();
         patch.setKey(key);
-        patch.getResources().addAll(resources.stream().map(resource
-                -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+        patch.getResources().addAll(resources.stream().
+                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
                 collect(Collectors.toList()));
 
         return binder.returnUserTO(binder.getUserTO(provisioningManager.link(patch)));
@@ -411,17 +425,12 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     public ProvisioningResult<UserTO> unassign(
             final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
-        // security checks
-        UserTO user = binder.getUserTO(key);
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                user.getRealm());
-        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+        updateChecks(key);
 
         UserPatch patch = new UserPatch();
         patch.setKey(key);
-        patch.getResources().addAll(resources.stream().map(resource
-                -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
+        patch.getResources().addAll(resources.stream().
+                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
                 collect(Collectors.toList()));
 
         return update(patch, nullPriorityAsync);
@@ -436,17 +445,12 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             final String password,
             final boolean nullPriorityAsync) {
 
-        // security checks
-        UserTO user = binder.getUserTO(key);
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                user.getRealm());
-        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+        updateChecks(key);
 
         UserPatch patch = new UserPatch();
         patch.setKey(key);
-        patch.getResources().addAll(resources.stream().map(resource
-                -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+        patch.getResources().addAll(resources.stream().
+                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
                 collect(Collectors.toList()));
 
         if (changepwd) {
@@ -462,12 +466,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     public ProvisioningResult<UserTO> deprovision(
             final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
-        // security checks
-        UserTO user = binder.getUserTO(key);
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                user.getRealm());
-        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+        updateChecks(key);
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
 
@@ -486,12 +485,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             final String password,
             final boolean nullPriorityAsync) {
 
-        // security checks
-        UserTO user = binder.getUserTO(key);
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                user.getRealm());
-        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+        updateChecks(key);
 
         List<PropagationStatus> statuses = provisioningManager.provision(key, changePwd, password, resources,
                 nullPriorityAsync);

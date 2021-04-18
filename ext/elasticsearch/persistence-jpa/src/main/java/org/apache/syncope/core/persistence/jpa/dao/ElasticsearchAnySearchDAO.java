@@ -78,29 +78,35 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
-    private static final QueryBuilder EMPTY_QUERY_BUILDER = new MatchNoneQueryBuilder();
+    protected static final QueryBuilder MATCH_NONE_QUERY_BUILDER = new MatchNoneQueryBuilder();
 
     @Autowired
-    private RestHighLevelClient client;
+    protected RestHighLevelClient client;
 
     @Autowired
-    private ElasticsearchUtils elasticsearchUtils;
+    protected ElasticsearchUtils elasticsearchUtils;
 
-    private Pair<DisMaxQueryBuilder, Set<String>> adminRealmsFilter(final Set<String> adminRealms) {
+    protected Triple<Optional<QueryBuilder>, Set<String>, Set<String>> getAdminRealmsFilter(
+            final Set<String> adminRealms) {
+
         DisMaxQueryBuilder builder = QueryBuilders.disMaxQuery();
 
         Set<String> dynRealmKeys = new HashSet<>();
+        Set<String> groupOwners = new HashSet<>();
+
         RealmUtils.normalize(adminRealms).forEach(realmPath -> {
-            if (realmPath.startsWith("/")) {
+            Optional<Pair<String, String>> goRealm = RealmUtils.parseGroupOwnerRealm(realmPath);
+            if (goRealm.isPresent()) {
+                groupOwners.add(goRealm.get().getRight());
+            } else if (realmPath.startsWith("/")) {
                 Realm realm = realmDAO.findByFullPath(realmPath);
                 if (realm == null) {
                     SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
                     noRealm.getElements().add("Invalid realm specified: " + realmPath);
                     throw noRealm;
                 } else {
-                    realmDAO.findDescendants(realm).forEach(descendant -> {
-                        builder.add(QueryBuilders.termQuery("realm", descendant.getFullPath()));
-                    });
+                    realmDAO.findDescendants(realm).forEach(
+                            descendant -> builder.add(QueryBuilders.termQuery("realm", descendant.getFullPath())));
                 }
             } else {
                 DynRealm dynRealm = dynRealmDAO.find(realmPath);
@@ -112,16 +118,14 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 }
             }
         });
-        if (!dynRealmKeys.isEmpty()) {
-            realmDAO.findAll().forEach(descendant -> {
-                builder.add(QueryBuilders.termQuery("realm", descendant.getFullPath()));
-            });
-        }
 
-        return Pair.of(builder, dynRealmKeys);
+        return Triple.of(
+                dynRealmKeys.isEmpty() && groupOwners.isEmpty() ? Optional.of(builder) : Optional.empty(),
+                dynRealmKeys,
+                groupOwners);
     }
 
-    private SearchRequest searchRequest(
+    protected SearchRequest searchRequest(
             final Set<String> adminRealms,
             final SearchCond cond,
             final AnyTypeKind kind,
@@ -129,16 +133,25 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final int size,
             final List<SortBuilder<?>> sortBuilders) {
 
-        Pair<DisMaxQueryBuilder, Set<String>> filter = adminRealmsFilter(adminRealms);
+        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter = getAdminRealmsFilter(adminRealms);
+        QueryBuilder queryBuilder;
+        if (SyncopeConstants.FULL_ADMIN_REALMS.equals(adminRealms)) {
+            queryBuilder = getQueryBuilder(cond, kind);
+        } else {
+            queryBuilder = getQueryBuilder(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight()), kind);
+
+            if (filter.getLeft().isPresent()) {
+                queryBuilder = QueryBuilders.boolQuery().
+                        must(filter.getLeft().get()).
+                        must(queryBuilder);
+            }
+        }
+
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().
-                query(SyncopeConstants.FULL_ADMIN_REALMS.equals(adminRealms)
-                        ? getQueryBuilder(cond, kind)
-                        : QueryBuilders.boolQuery().
-                                must(filter.getLeft()).
-                                must(getQueryBuilder(buildEffectiveCond(cond, filter.getRight()), kind))).
+                query(queryBuilder).
                 from(from).
                 size(size);
-        sortBuilders.forEach(sort -> sourceBuilder.sort(sort));
+        sortBuilders.forEach(sourceBuilder::sort);
 
         return new SearchRequest(elasticsearchUtils.getContextDomainName(kind)).
                 searchType(SearchType.QUERY_THEN_FETCH).
@@ -156,7 +169,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         }
     }
 
-    private List<SortBuilder<?>> sortBuilders(
+    protected List<SortBuilder<?>> sortBuilders(
             final AnyTypeKind kind,
             final List<OrderByClause> orderBy) {
 
@@ -217,7 +230,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 : buildResult(Stream.of(esResult).map(hit -> hit.getId()).collect(Collectors.toList()), kind);
     }
 
-    private QueryBuilder getQueryBuilder(final SearchCond cond, final AnyTypeKind kind) {
+    protected QueryBuilder getQueryBuilder(final SearchCond cond, final AnyTypeKind kind) {
         QueryBuilder builder = null;
 
         switch (cond.getType()) {
@@ -225,66 +238,66 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             case NOT_LEAF:
                 builder = cond.getLeaf(AnyTypeCond.class).
                         filter(leaf -> AnyTypeKind.ANY_OBJECT == kind).
-                        map(leaf -> getQueryBuilder(leaf)).
+                        map(this::getQueryBuilder).
                         orElse(null);
 
                 if (builder == null) {
                     builder = cond.getLeaf(RelationshipTypeCond.class).
                             filter(leaf -> AnyTypeKind.GROUP != kind).
-                            map(leaf -> getQueryBuilder(leaf)).
+                            map(this::getQueryBuilder).
                             orElse(null);
                 }
 
                 if (builder == null) {
                     builder = cond.getLeaf(RelationshipCond.class).
                             filter(leaf -> AnyTypeKind.GROUP != kind).
-                            map(leaf -> getQueryBuilder(leaf)).
+                            map(this::getQueryBuilder).
                             orElse(null);
                 }
 
                 if (builder == null) {
                     builder = cond.getLeaf(MembershipCond.class).
                             filter(leaf -> AnyTypeKind.GROUP != kind).
-                            map(leaf -> getQueryBuilder(leaf)).
+                            map(this::getQueryBuilder).
                             orElse(null);
                 }
 
                 if (builder == null) {
                     builder = cond.getLeaf(MemberCond.class).
                             filter(leaf -> AnyTypeKind.GROUP == kind).
-                            map(leaf -> getQueryBuilder(leaf)).
+                            map(this::getQueryBuilder).
                             orElse(null);
                 }
 
                 if (builder == null) {
                     builder = cond.getLeaf(AssignableCond.class).
-                            map(leaf -> getQueryBuilder(leaf)).
+                            map(this::getQueryBuilder).
                             orElse(null);
                 }
 
                 if (builder == null) {
                     builder = cond.getLeaf(RoleCond.class).
                             filter(leaf -> AnyTypeKind.USER == kind).
-                            map(leaf -> getQueryBuilder(leaf)).
+                            map(this::getQueryBuilder).
                             orElse(null);
                 }
 
                 if (builder == null) {
                     builder = cond.getLeaf(PrivilegeCond.class).
                             filter(leaf -> AnyTypeKind.USER == kind).
-                            map(leaf -> getQueryBuilder(leaf)).
+                            map(this::getQueryBuilder).
                             orElse(null);
                 }
 
                 if (builder == null) {
                     builder = cond.getLeaf(DynRealmCond.class).
-                            map(leaf -> getQueryBuilder(leaf)).
+                            map(this::getQueryBuilder).
                             orElse(null);
                 }
 
                 if (builder == null) {
                     builder = cond.getLeaf(ResourceCond.class).
-                            map(leaf -> getQueryBuilder(leaf)).
+                            map(this::getQueryBuilder).
                             orElse(null);
                 }
 
@@ -300,9 +313,11 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 }
 
                 if (builder == null) {
-                    builder = EMPTY_QUERY_BUILDER;
+                    builder = MATCH_NONE_QUERY_BUILDER;
                 }
-                builder = checkNot(builder, cond.getType() == SearchCond.Type.NOT_LEAF);
+                if (cond.getType() == SearchCond.Type.NOT_LEAF) {
+                    builder = QueryBuilders.boolQuery().mustNot(builder);
+                }
                 break;
 
             case AND:
@@ -323,37 +338,31 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         return builder;
     }
 
-    private QueryBuilder checkNot(final QueryBuilder builder, final boolean not) {
-        return not
-                ? QueryBuilders.boolQuery().mustNot(builder)
-                : builder;
-    }
-
-    private QueryBuilder getQueryBuilder(final AnyTypeCond cond) {
+    protected QueryBuilder getQueryBuilder(final AnyTypeCond cond) {
         return QueryBuilders.termQuery("anyType", cond.getAnyTypeKey());
     }
 
-    private QueryBuilder getQueryBuilder(final RelationshipTypeCond cond) {
+    protected QueryBuilder getQueryBuilder(final RelationshipTypeCond cond) {
         return QueryBuilders.termQuery("relationshipTypes", cond.getRelationshipTypeKey());
     }
 
-    private QueryBuilder getQueryBuilder(final RelationshipCond cond) {
+    protected QueryBuilder getQueryBuilder(final RelationshipCond cond) {
         String rightAnyObjectKey;
         try {
             rightAnyObjectKey = check(cond);
         } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY_BUILDER;
+            return MATCH_NONE_QUERY_BUILDER;
         }
 
         return QueryBuilders.termQuery("relationships", rightAnyObjectKey);
     }
 
-    private QueryBuilder getQueryBuilder(final MembershipCond cond) {
+    protected QueryBuilder getQueryBuilder(final MembershipCond cond) {
         List<String> groupKeys;
         try {
             groupKeys = check(cond);
         } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY_BUILDER;
+            return MATCH_NONE_QUERY_BUILDER;
         }
 
         if (groupKeys.size() == 1) {
@@ -365,12 +374,12 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         return builder;
     }
 
-    private QueryBuilder getQueryBuilder(final AssignableCond cond) {
+    protected QueryBuilder getQueryBuilder(final AssignableCond cond) {
         Realm realm;
         try {
             realm = check(cond);
         } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY_BUILDER;
+            return MATCH_NONE_QUERY_BUILDER;
         }
 
         DisMaxQueryBuilder builder = QueryBuilders.disMaxQuery();
@@ -388,34 +397,34 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         return builder;
     }
 
-    private QueryBuilder getQueryBuilder(final RoleCond cond) {
+    protected QueryBuilder getQueryBuilder(final RoleCond cond) {
         return QueryBuilders.termQuery("roles", cond.getRole());
     }
 
-    private QueryBuilder getQueryBuilder(final PrivilegeCond cond) {
+    protected QueryBuilder getQueryBuilder(final PrivilegeCond cond) {
         return QueryBuilders.termQuery("privileges", cond.getPrivilege());
     }
 
-    private QueryBuilder getQueryBuilder(final DynRealmCond cond) {
+    protected QueryBuilder getQueryBuilder(final DynRealmCond cond) {
         return QueryBuilders.termQuery("dynRealms", cond.getDynRealm());
     }
 
-    private QueryBuilder getQueryBuilder(final MemberCond cond) {
+    protected QueryBuilder getQueryBuilder(final MemberCond cond) {
         String memberKey;
         try {
             memberKey = check(cond);
         } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY_BUILDER;
+            return MATCH_NONE_QUERY_BUILDER;
         }
 
         return QueryBuilders.termQuery("members", memberKey);
     }
 
-    private QueryBuilder getQueryBuilder(final ResourceCond cond) {
+    protected QueryBuilder getQueryBuilder(final ResourceCond cond) {
         return QueryBuilders.termQuery("resources", cond.getResourceKey());
     }
 
-    private QueryBuilder fillAttrQuery(
+    protected QueryBuilder fillAttrQuery(
             final PlainSchema schema,
             final PlainAttrValue attrValue,
             final AttrCond cond) {
@@ -424,7 +433,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 ? attrValue.getDateValue().getTime()
                 : attrValue.getValue();
 
-        QueryBuilder builder = EMPTY_QUERY_BUILDER;
+        QueryBuilder builder = MATCH_NONE_QUERY_BUILDER;
 
         switch (cond.getType()) {
             case ISNOTNULL:
@@ -486,23 +495,23 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         return builder;
     }
 
-    private QueryBuilder getQueryBuilder(final AttrCond cond, final AnyTypeKind kind) {
+    protected QueryBuilder getQueryBuilder(final AttrCond cond, final AnyTypeKind kind) {
         Pair<PlainSchema, PlainAttrValue> checked;
         try {
             checked = check(cond, kind);
         } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY_BUILDER;
+            return MATCH_NONE_QUERY_BUILDER;
         }
 
         return fillAttrQuery(checked.getLeft(), checked.getRight(), cond);
     }
 
-    private QueryBuilder getQueryBuilder(final AnyCond cond, final AnyTypeKind kind) {
+    protected QueryBuilder getQueryBuilder(final AnyCond cond, final AnyTypeKind kind) {
         Triple<PlainSchema, PlainAttrValue, AnyCond> checked;
         try {
             checked = check(cond, kind);
         } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY_BUILDER;
+            return MATCH_NONE_QUERY_BUILDER;
         }
 
         return fillAttrQuery(checked.getLeft(), checked.getMiddle(), checked.getRight());

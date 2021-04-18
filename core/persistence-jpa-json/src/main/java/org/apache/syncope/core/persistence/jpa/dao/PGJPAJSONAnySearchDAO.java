@@ -20,24 +20,17 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.persistence.Query;
-import javax.persistence.TemporalType;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
@@ -54,14 +47,11 @@ import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 
-public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
+public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
     protected static final String ALWAYS_FALSE_ASSERTION = "1=2";
 
@@ -91,7 +81,19 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
         item.select = fieldName + " -> 0 AS " + fieldName;
         item.where = StringUtils.EMPTY;
-        item.orderBy = fieldName + " " + clause.getDirection().name();
+        item.orderBy = fieldName + ' ' + clause.getDirection().name();
+    }
+
+    @Override
+    protected void parseOrderByForField(
+            final SearchSupport svs,
+            final OrderBySupport.Item item,
+            final String fieldName,
+            final OrderByClause clause) {
+
+        item.select = svs.table().alias + '.' + fieldName;
+        item.where = StringUtils.EMPTY;
+        item.orderBy = svs.table().alias + '.' + fieldName + ' ' + clause.getDirection().name();
     }
 
     protected void fillAttrQuery(
@@ -108,7 +110,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         if (not && !(cond instanceof AnyCond)) {
             query.append("NOT (");
             fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
-            query.append(")");
+            query.append(')');
         } else if (not && cond.getType() == AttrCond.Type.ISNULL) {
             cond.setType(AttrCond.Type.ISNOTNULL);
             fillAttrQuery(anyUtils, query, attrValue, schema, cond, true, parameters, svs);
@@ -242,12 +244,12 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
         switch (cond.getType()) {
             case ISNOTNULL:
-                query.append(not ? " NOT " : " ").
+                query.append(not ? " NOT " : ' ').
                         append("jsonb_path_exists(").append(checked.getLeft().getKey()).append(",'$[*]')");
                 break;
 
             case ISNULL:
-                query.append(not ? " " : " NOT ").
+                query.append(not ? ' ' : " NOT ").
                         append("jsonb_path_exists(").append(checked.getLeft().getKey()).append(",'$[*]')");
                 break;
 
@@ -286,7 +288,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        StringBuilder query = new StringBuilder("(");
+        StringBuilder query = new StringBuilder().append('(');
 
         if (not) {
             query.append("id NOT IN (");
@@ -308,9 +310,9 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.dynrolemembership().name).append(" WHERE ").
                 append("role_id=?").append(setParameter(parameters, cond.getRole())).
-                append(")");
+                append(')');
 
-        query.append(")");
+        query.append(')');
 
         return query.toString();
     }
@@ -322,7 +324,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        StringBuilder query = new StringBuilder("(");
+        StringBuilder query = new StringBuilder().append('(');
 
         if (not) {
             query.append("id NOT IN (");
@@ -344,9 +346,9 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.dynpriv().name).append(" WHERE ").
                 append("privilege_id=?").append(setParameter(parameters, cond.getPrivilege())).
-                append(")");
+                append(')');
 
-        query.append(")");
+        query.append(')');
 
         return query.toString();
     }
@@ -369,7 +371,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.dynrealmmembership().name).append(" WHERE ").
                 append("dynRealm_id=?").append(setParameter(parameters, cond.getDynRealm())).
-                append(")");
+                append(')');
 
         return query.toString();
     }
@@ -419,7 +421,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             return ALWAYS_FALSE_ASSERTION;
         }
 
-        StringBuilder query = new StringBuilder("(");
+        StringBuilder query = new StringBuilder().append('(');
         if (cond.isFromGroup()) {
             realmDAO.findDescendants(realm).forEach(current -> query.append("realm_id=?").
                     append(setParameter(parameters, current.getKey())).append(" OR "));
@@ -431,7 +433,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             query.append("realm_id=?").append(setParameter(parameters, realmDAO.getRoot().getKey()));
         }
 
-        query.append(")");
+        query.append(')');
 
         return query.toString();
     }
@@ -450,7 +452,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             return ALWAYS_FALSE_ASSERTION;
         }
 
-        StringBuilder query = new StringBuilder("(");
+        StringBuilder query = new StringBuilder().append('(');
 
         if (not) {
             query.append("id NOT IN (");
@@ -472,9 +474,9 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         query.append("SELECT DISTINCT group_id AS any_id FROM ").
                 append(new SearchSupport(AnyTypeKind.ANY_OBJECT).membership().name).append(" WHERE ").
                 append("any_id=?").append(setParameter(parameters, memberKey)).
-                append(")");
+                append(')');
 
-        query.append(")");
+        query.append(')');
 
         return query.toString();
     }
@@ -486,7 +488,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        StringBuilder query = new StringBuilder("(");
+        StringBuilder query = new StringBuilder().append('(');
 
         if (not) {
             query.append("id NOT IN (");
@@ -502,7 +504,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                 append(" WHERE type=?").append(setParameter(parameters, cond.getRelationshipTypeKey())).
                 append(')');
 
-        query.append(")");
+        query.append(')');
 
         return query.toString();
     }
@@ -521,7 +523,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             return ALWAYS_FALSE_ASSERTION;
         }
 
-        StringBuilder query = new StringBuilder("(");
+        StringBuilder query = new StringBuilder().append('(');
 
         if (not) {
             query.append("id NOT IN (");
@@ -534,7 +536,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                 append("right_any_id=?").append(setParameter(parameters, rightAnyObjectKey)).
                 append(')');
 
-        query.append(")");
+        query.append(')');
 
         return query.toString();
     }
@@ -557,7 +559,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                 map(key -> "group_id=?" + setParameter(parameters, key)).
                 collect(Collectors.joining(" OR "));
 
-        StringBuilder query = new StringBuilder("(");
+        StringBuilder query = new StringBuilder().append('(');
 
         if (not) {
             query.append("id NOT IN (");
@@ -567,7 +569,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.membership().name).append(" WHERE ").
-                append("(").append(where).append(")").
+                append('(').append(where).append(')').
                 append(") ");
 
         if (not) {
@@ -578,10 +580,10 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.dyngroupmembership().name).append(" WHERE ").
-                append("(").append(where).append(")").
-                append(")");
+                append('(').append(where).append(')').
+                append(')');
 
-        query.append(")");
+        query.append(')');
 
         return query.toString();
     }
@@ -619,10 +621,14 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             final SearchSupport svs,
             final List<Object> parameters) {
 
+        if (realmKeys.isEmpty()) {
+            return "realm_id IS NOT NULL";
+        }
+
         String realmKeysArg = realmKeys.stream().
                 map(realmKey -> "?" + setParameter(parameters, realmKey)).
                 collect(Collectors.joining(","));
-        return "realm_id IN (" + realmKeysArg + ")";
+        return "realm_id IN (" + realmKeysArg + ')';
     }
 
     @Override
@@ -631,17 +637,15 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
         SearchSupport svs = buildSearchSupport(kind);
 
-        Pair<String, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
+        Triple<String, Set<String>, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
 
         Pair<StringBuilder, Set<String>> queryInfo =
-                getQuery(buildEffectiveCond(cond, filter.getRight()), parameters, svs);
+                getQuery(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight()), parameters, svs);
 
         StringBuilder queryString =
-                new StringBuilder("SELECT count(").append(svs.table().alias).append(".id").append(")");
+                new StringBuilder("SELECT count(").append(svs.table().alias).append(".id").append(')');
 
-        buildFrom(queryString, queryInfo, svs, null);
-
-        buildWhere(queryString, queryInfo, filter, svs, null);
+        buildFromAndWhere(queryString, queryInfo, filter.getLeft(), svs, null);
 
         Query countQuery = entityManager().createNativeQuery(queryString.toString());
         fillWithParameters(countQuery, parameters);
@@ -664,9 +668,9 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
             SearchSupport svs = buildSearchSupport(kind);
 
-            Pair<String, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
+            Triple<String, Set<String>, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
 
-            SearchCond effectiveCond = buildEffectiveCond(cond, filter.getRight());
+            SearchCond effectiveCond = buildEffectiveCond(cond, filter.getMiddle(), filter.getRight());
 
             // 1. get the query string from the search condition
             Pair<StringBuilder, Set<String>> queryInfo = getQuery(effectiveCond, parameters, svs);
@@ -675,11 +679,9 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             OrderBySupport obs = parseOrderBy(svs, orderBy);
 
             StringBuilder queryString = new StringBuilder("SELECT ").append(svs.table().alias).append(".id");
-            obs.items.forEach(item -> queryString.append(",").append(item.select));
+            obs.items.forEach(item -> queryString.append(',').append(item.select));
 
-            buildFrom(queryString, queryInfo, svs, obs);
-
-            buildWhere(queryString, queryInfo, filter, svs, obs);
+            buildFromAndWhere(queryString, queryInfo, filter.getLeft(), svs, obs);
 
             LOG.debug("Query: {}, parameters: {}", queryString, parameters);
 
@@ -711,119 +713,21 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         return Collections.emptyList();
     }
 
-    protected StringBuilder buildOrderBy(final OrderBySupport obs) {
-        StringBuilder orderBy = new StringBuilder();
+    @Override
+    protected void queryOp(
+            final StringBuilder query,
+            final String op,
+            final Pair<StringBuilder, Set<String>> leftInfo,
+            final Pair<StringBuilder, Set<String>> rightInfo) {
 
-        if (!obs.items.isEmpty()) {
-            obs.items.forEach(item -> orderBy.append(item.orderBy).append(','));
-
-            orderBy.insert(0, " ORDER BY ");
-            orderBy.deleteCharAt(orderBy.length() - 1);
-        }
-
-        return orderBy;
+        query.append('(').
+                append(leftInfo.getKey()).
+                append(' ').append(op).append(' ').
+                append(rightInfo.getKey()).
+                append(')');
     }
 
-    protected Pair<StringBuilder, Set<String>> getQuery(
-            final SearchCond cond, final List<Object> parameters, final SearchSupport svs) {
-
-        boolean not = cond.getType() == SearchCond.Type.NOT_LEAF;
-
-        StringBuilder query = new StringBuilder();
-        Set<String> involvedPlainAttrs = new HashSet<>();
-
-        switch (cond.getType()) {
-            case LEAF:
-            case NOT_LEAF:
-                cond.getLeaf(AnyTypeCond.class).
-                        filter(leaf -> AnyTypeKind.ANY_OBJECT == svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(RelationshipTypeCond.class).
-                        filter(leaf -> AnyTypeKind.GROUP != svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(RelationshipCond.class).
-                        filter(leaf -> AnyTypeKind.GROUP != svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(MembershipCond.class).
-                        filter(leaf -> AnyTypeKind.GROUP != svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(MemberCond.class).
-                        filter(leaf -> AnyTypeKind.GROUP == svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(AssignableCond.class).
-                        ifPresent(leaf -> query.append(getQuery(leaf, parameters, svs)));
-
-                cond.getLeaf(RoleCond.class).
-                        filter(leaf -> AnyTypeKind.USER == svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(PrivilegeCond.class).
-                        filter(leaf -> AnyTypeKind.USER == svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(DynRealmCond.class).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(ResourceCond.class).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                Optional<AnyCond> anyCond = cond.getLeaf(AnyCond.class);
-                if (anyCond.isPresent()) {
-                    query.append(getQuery(anyCond.get(), not, parameters, svs));
-                } else {
-                    cond.getLeaf(AttrCond.class).ifPresent(leaf -> {
-                        query.append(getQuery(leaf, not, parameters, svs));
-                        try {
-                            involvedPlainAttrs.add(check(leaf, svs.anyTypeKind).getLeft().getKey());
-                        } catch (IllegalArgumentException e) {
-                            // ignore
-                        }
-                    });
-                }
-
-                // allow for additional search conditions
-                getQueryForCustomConds(cond, parameters, svs, not, query);
-                break;
-
-            case AND:
-                Pair<StringBuilder, Set<String>> leftAndInfo = getQuery(cond.getLeft(), parameters, svs);
-                involvedPlainAttrs.addAll(leftAndInfo.getRight());
-
-                Pair<StringBuilder, Set<String>> rigthAndInfo = getQuery(cond.getRight(), parameters, svs);
-                involvedPlainAttrs.addAll(rigthAndInfo.getRight());
-
-                query.append("(").
-                        append(leftAndInfo.getKey()).
-                        append(" AND ").
-                        append(rigthAndInfo.getKey()).
-                        append(")");
-                break;
-
-            case OR:
-                Pair<StringBuilder, Set<String>> leftOrInfo = getQuery(cond.getLeft(), parameters, svs);
-                involvedPlainAttrs.addAll(leftOrInfo.getRight());
-
-                Pair<StringBuilder, Set<String>> rigthOrInfo = getQuery(cond.getRight(), parameters, svs);
-                involvedPlainAttrs.addAll(rigthOrInfo.getRight());
-
-                query.append("(").
-                        append(leftOrInfo.getKey()).
-                        append(" OR ").
-                        append(rigthOrInfo.getKey()).
-                        append(")");
-                break;
-
-            default:
-        }
-
-        return Pair.of(query, involvedPlainAttrs);
-    }
-
+    @Override
     protected void fillAttrQuery(
             final StringBuilder query,
             final PlainAttrValue attrValue,
@@ -837,7 +741,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         if (not && !(cond instanceof AnyCond)) {
             query.append("NOT (");
             fillAttrQuery(query, attrValue, schema, cond, false, parameters, svs);
-            query.append(")");
+            query.append(')');
         } else if (not && cond.getType() == AttrCond.Type.ISNULL) {
             cond.setType(AttrCond.Type.ISNOTNULL);
             fillAttrQuery(query, attrValue, schema, cond, true, parameters, svs);
@@ -847,7 +751,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
             String column = cond.getSchema();
             if ((schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) && lower) {
-                column = "LOWER (" + column + ")";
+                column = "LOWER (" + column + ')';
             }
 
             switch (cond.getType()) {
@@ -934,137 +838,27 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         }
     }
 
-    protected void fillWithParameters(final Query query, final List<Object> parameters) {
-        for (int i = 0; i < parameters.size(); i++) {
-            if (parameters.get(i) instanceof Date) {
-                query.setParameter(i + 1, (Date) parameters.get(i), TemporalType.TIMESTAMP);
-            } else if (parameters.get(i) instanceof Boolean) {
-                query.setParameter(i + 1, ((Boolean) parameters.get(i))
-                        ? 1
-                        : 0);
-            } else {
-                query.setParameter(i + 1, parameters.get(i));
-            }
-        }
-    }
-
-    protected OrderBySupport parseOrderBy(
-            final SearchSupport svs,
-            final List<OrderByClause> orderBy) {
-
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(svs.anyTypeKind);
-
-        OrderBySupport obs = new OrderBySupport();
-
-        Set<String> orderByUniquePlainSchemas = new HashSet<>();
-        Set<String> orderByNonUniquePlainSchemas = new HashSet<>();
-        orderBy.forEach(clause -> {
-            OrderBySupport.Item item = new OrderBySupport.Item();
-
-            parseOrderByForCustom(svs, clause, item, obs);
-
-            if (item.isEmpty()) {
-                if (anyUtils.getField(clause.getField()) == null) {
-                    PlainSchema schema = schemaDAO.find(clause.getField());
-                    if (schema != null) {
-                        if (schema.isUniqueConstraint()) {
-                            orderByUniquePlainSchemas.add(schema.getKey());
-                        } else {
-                            orderByNonUniquePlainSchemas.add(schema.getKey());
-                        }
-                        if (orderByUniquePlainSchemas.size() > 1 || orderByNonUniquePlainSchemas.size() > 1) {
-                            SyncopeClientException invalidSearch =
-                                    SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
-                            invalidSearch.getElements().add("Order by more than one attribute is not allowed; "
-                                    + "remove one from " + (orderByUniquePlainSchemas.size() > 1
-                                    ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas));
-                            throw invalidSearch;
-                        }
-                        parseOrderByForPlainSchema(svs, obs, item, clause, schema, clause.getField());
-                    }
-                } else {
-                    // Manage difference among external key attribute and internal JPA @Id
-                    String fieldName = "key".equals(clause.getField()) ? "id" : clause.getField();
-
-                    // Adjust field name to column name
-                    if (ArrayUtils.contains(RELATIONSHIP_FIELDS, fieldName)) {
-                        fieldName += "_id";
-                    }
-
-                    obs.views.add(svs.field());
-
-                    item.select = svs.table().alias + "." + fieldName;
-                    item.where = StringUtils.EMPTY;
-                    item.orderBy = svs.table().alias + "." + fieldName + " " + clause.getDirection().name();
-                }
-            }
-
-            if (item.isEmpty()) {
-                LOG.warn("Cannot build any valid clause from {}", clause);
-            } else {
-                obs.items.add(item);
-            }
-        });
-
-        return obs;
-    }
-
-    protected Pair<String, Set<String>> getAdminRealmsFilter(
-            final Set<String> adminRealms,
-            final SearchSupport svs,
-            final List<Object> parameters) {
-
-        Set<String> realmKeys = new HashSet<>();
-        Set<String> dynRealmKeys = new HashSet<>();
-        RealmUtils.normalize(adminRealms).forEach(realmPath -> {
-            if (realmPath.startsWith("/")) {
-                Realm realm = realmDAO.findByFullPath(realmPath);
-                if (realm == null) {
-                    SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-                    noRealm.getElements().add("Invalid realm specified: " + realmPath);
-                    throw noRealm;
-                } else {
-                    realmKeys.addAll(realmDAO.findDescendants(realm).stream().
-                            map(Entity::getKey).collect(Collectors.toSet()));
-                }
-            } else {
-                DynRealm dynRealm = dynRealmDAO.find(realmPath);
-                if (dynRealm == null) {
-                    LOG.warn("Ignoring invalid dynamic realm {}", realmPath);
-                } else {
-                    dynRealmKeys.add(dynRealm.getKey());
-                }
-            }
-        });
-        if (!dynRealmKeys.isEmpty()) {
-            realmKeys.addAll(realmDAO.findAll().stream().
-                    map(Entity::getKey).collect(Collectors.toSet()));
-        }
-
-        return Pair.of(buildAdminRealmsFilter(realmKeys, svs, parameters), dynRealmKeys);
-    }
-
-    protected void buildFrom(
-            final StringBuilder query,
+    protected void buildFromAndWhere(
+            final StringBuilder queryString,
             final Pair<StringBuilder, Set<String>> queryInfo,
+            final String realmsFilter,
             final SearchSupport svs,
             final OrderBySupport obs) {
 
-        query.append(" FROM ").append(svs.table().name).append(" ").append(svs.table().alias);
+        queryString.append(" FROM ").append(svs.table().name).append(' ').append(svs.table().alias);
 
         Set<String> schemas = queryInfo.getRight();
 
         if (obs != null) {
             obs.views.stream().
                     filter(view -> !svs.field().name.equals(view.name) && !svs.table().name.equals(view.name)).
-                    map(view -> view.name + " " + view.alias).
-                    forEach(view -> query.append(',').append(view));
+                    map(view -> view.name + ' ' + view.alias).
+                    forEach(view -> queryString.append(',').append(view));
 
-            Pattern pattern = Pattern.compile("(.*) -> 0 AS .*");
             obs.items.forEach(item -> {
-                Matcher matcher = pattern.matcher(item.select);
-                if (matcher.find()) {
-                    schemas.add(matcher.group(1));
+                String schema = StringUtils.substringBefore(item.orderBy, ' ');
+                if (StringUtils.isNotBlank(schema)) {
+                    schemas.add(schema);
                 }
             });
         }
@@ -1076,21 +870,13 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                 // just to be sure
                 LOG.warn("Ignoring invalid schema '{}'", schema);
             } else {
-                query.append(",").
+                queryString.append(',').
                         append("jsonb_path_query_array(plainattrs, '$[*] ? (@.schema==\"").
                         append(schema).append("\").").
                         append("\"").append(pschema.isUniqueConstraint() ? "uniqueValue" : "values").append("\"')").
                         append(" AS ").append(schema);
             }
         });
-    }
-
-    protected void buildWhere(
-            final StringBuilder query,
-            final Pair<StringBuilder, Set<String>> queryInfo,
-            final Pair<String, Set<String>> realms,
-            final SearchSupport svs,
-            final OrderBySupport obs) {
 
         StringBuilder where = new StringBuilder();
 
@@ -1098,14 +884,12 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             where.append(" WHERE ").append(queryInfo.getLeft());
         }
 
-        if (!realms.getLeft().isEmpty()) {
-            if (queryInfo.getLeft().length() == 0) {
-                where.append(" WHERE ");
-            } else {
-                where.append(" AND ");
-            }
-            where.append(realms.getLeft());
+        if (queryInfo.getLeft().length() == 0) {
+            where.append(" WHERE ");
+        } else {
+            where.append(" AND ");
         }
+        where.append(realmsFilter);
 
         if (obs != null) {
             String obsWhere = obs.views.stream().
@@ -1122,6 +906,6 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             }
         }
 
-        query.append(where);
+        queryString.append(where);
     }
 }

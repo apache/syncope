@@ -92,8 +92,21 @@ public class AuthDataAccessor {
             Collections.singleton(new SyncopeGrantedAuthority(StandardEntitlement.ANONYMOUS));
 
     protected static final String[] GROUP_OWNER_ENTITLEMENTS = new String[] {
-        StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE, StandardEntitlement.GROUP_DELETE
-    };
+        StandardEntitlement.USER_SEARCH,
+        StandardEntitlement.USER_READ,
+        StandardEntitlement.USER_CREATE,
+        StandardEntitlement.USER_UPDATE,
+        StandardEntitlement.USER_DELETE,
+        StandardEntitlement.ANYTYPECLASS_READ,
+        StandardEntitlement.ANYTYPE_LIST,
+        StandardEntitlement.ANYTYPECLASS_LIST,
+        StandardEntitlement.RELATIONSHIPTYPE_LIST,
+        StandardEntitlement.ANYTYPE_READ,
+        StandardEntitlement.REALM_LIST,
+        StandardEntitlement.GROUP_SEARCH,
+        StandardEntitlement.GROUP_READ,
+        StandardEntitlement.GROUP_UPDATE,
+        StandardEntitlement.GROUP_DELETE };
 
     @Resource(name = "adminUser")
     protected String adminUser;
@@ -318,11 +331,12 @@ public class AuthDataAccessor {
             // Give entitlements as assigned by roles (with static or dynamic realms, where applicable) - assigned
             // either statically and dynamically
             userDAO.findAllRoles(user).forEach(role -> role.getEntitlements().forEach(entitlement -> {
-                Set<String> realms = entForRealms.get(entitlement);
-                if (realms == null) {
-                    realms = new HashSet<>();
-                    entForRealms.put(entitlement, realms);
-                }
+                Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
+                    HashSet<String> r = new HashSet<>();
+                    entForRealms.put(entitlement, r);
+                    return r;
+                });
+
                 realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
                 if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
                     realms.addAll(role.getDynRealms().stream().map(DynRealm::getKey).collect(Collectors.toList()));
@@ -330,13 +344,13 @@ public class AuthDataAccessor {
             }));
 
             // Give group entitlements for owned groups
-            groupDAO.findOwnedByUser(user.getKey()).forEach((group) -> {
+            groupDAO.findOwnedByUser(user.getKey()).forEach(group -> {
                 for (String entitlement : GROUP_OWNER_ENTITLEMENTS) {
-                    Set<String> realms = entForRealms.get(entitlement);
-                    if (realms == null) {
-                        realms = new HashSet<>();
-                        entForRealms.put(entitlement, realms);
-                    }
+                    Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
+                        HashSet<String> r = new HashSet<>();
+                        entForRealms.put(entitlement, r);
+                        return r;
+                    });
 
                     realms.add(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
                 }

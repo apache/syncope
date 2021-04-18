@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
@@ -56,6 +57,7 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
+import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,23 +117,40 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
                 result -> ((Number) result[1]).intValue()));
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public void securityChecks(
+            final Set<String> authRealms,
+            final String key,
+            final String realm) {
+
+        // 1. check if AuthContextUtils.getUsername() is owner of at least one group of which anyObject is member
+        boolean authorized = authRealms.stream().map(RealmUtils::parseGroupOwnerRealm).filter(Optional::isPresent).
+                anyMatch(pair -> Optional.ofNullable(find(key)).
+                map(anyObject -> findAllGroupKeys(anyObject).contains(pair.get().getRight())).
+                orElse(false));
+
+        // 2. check if anyObject is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
+        if (!authorized) {
+            authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
+        }
+
+        // 3. check if anyObject is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
+        if (!authorized) {
+            authorized = authRealms.stream().anyMatch(realm::startsWith);
+        }
+
+        if (!authorized) {
+            throw new DelegatedAdministrationException(realm, AnyTypeKind.ANY_OBJECT.name(), key);
+        }
+    }
+
     @Override
     protected void securityChecks(final AnyObject anyObject) {
-        Map<String, Set<String>> authorizations = AuthContextUtils.getAuthorizations();
-        Set<String> authRealms = authorizations.containsKey(AnyEntitlement.READ.getFor(anyObject.getType().getKey()))
-                ? authorizations.get(AnyEntitlement.READ.getFor(anyObject.getType().getKey()))
-                : Collections.emptySet();
-        boolean authorized = authRealms.stream().
-                anyMatch(realm -> anyObject.getRealm().getFullPath().startsWith(realm));
-        if (!authorized) {
-            authorized = findDynRealms(anyObject.getKey()).stream().
-                    filter(dynRealm -> authRealms.contains(dynRealm)).
-                    count() > 0;
-        }
-        if (authRealms.isEmpty() || !authorized) {
-            throw new DelegatedAdministrationException(
-                    anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT.name(), anyObject.getKey());
-        }
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().
+                getOrDefault(AnyEntitlement.READ.getFor(anyObject.getType().getKey()), Collections.emptySet());
+
+        securityChecks(authRealms, anyObject.getKey(), anyObject.getRealm().getFullPath());
     }
 
     @Override

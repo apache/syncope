@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -40,6 +41,16 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
     List<A> findByKeys(List<String> keys);
 
     Date findLastChange(String key);
+
+    /**
+     * Checks if the calling user is authorized to access the Any object matching the provided key, under the given
+     * realm.
+     *
+     * @param authRealms realms for which the calling user owns entitlement(s) to check
+     * @param key any's key
+     * @param realm any's realm full path
+     */
+    void securityChecks(Set<String> authRealms, String key, String realm);
 
     A authFind(String key);
 
