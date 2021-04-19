@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import java.net.URI;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.core.logic.AuthProfileLogic;
@@ -25,6 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 @Service
 public class AuthProfileServiceImpl extends AbstractServiceImpl implements AuthProfileService {
@@ -38,22 +43,27 @@ public class AuthProfileServiceImpl extends AbstractServiceImpl implements AuthP
     }
 
     @Override
-    public void deleteByOwner(final String owner) {
-        logic.deleteByOwner(owner);
-    }
-
-    @Override
-    public AuthProfileTO readByOwner(final String owner) {
-        return logic.readByOwner(owner);
-    }
-
-    @Override
     public AuthProfileTO read(final String key) {
         return logic.read(key);
     }
 
     @Override
-    public List<AuthProfileTO> list() {
-        return logic.list();
+    public Response create(final AuthProfileTO authProfileTO) {
+        AuthProfileTO created = logic.create(authProfileTO);
+        URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
+        return Response.created(location).
+                header(RESTHeaders.RESOURCE_KEY, created.getKey()).
+                build();
+    }
+
+    @Override
+    public void update(final AuthProfileTO authProfileTO) {
+        logic.update(authProfileTO);
+    }
+
+    @Override
+    public PagedResult<AuthProfileTO> list(final int page, final int size) {
+        Pair<Integer, List<AuthProfileTO>> result = logic.list(page, size);
+        return buildPagedResult(result.getRight(), page, size, result.getLeft());
     }
 }

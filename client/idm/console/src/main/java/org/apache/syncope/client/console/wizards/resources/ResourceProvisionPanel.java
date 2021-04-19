@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
@@ -37,6 +36,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ItemTO;
@@ -84,7 +84,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
         wizard = new ProvisionWizardBuilder(resourceTO, adminRealm, pageRef);
 
-        final ListViewPanel.Builder<ResourceProvision> builder = new ListViewPanel.Builder<ResourceProvision>(
+        ListViewPanel.Builder<ResourceProvision> builder = new ListViewPanel.Builder<ResourceProvision>(
                 ResourceProvision.class, pageRef) {
 
             private static final long serialVersionUID = 4907732721283972943L;
@@ -94,12 +94,12 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     final ResourceProvision item, final List<ResourceProvision> list) {
 
                 return Optional.ofNullable(item)
-                    .map(resourceProvision -> list.stream()
+                        .map(resourceProvision -> list.stream()
                         .filter(in -> ((resourceProvision.getKey() == null && in.getKey() == null)
-                    || (in.getKey() != null && in.getKey().equals(resourceProvision.getKey())))
-                    && ((resourceProvision.getAnyType() == null && in.getAnyType() == null)
-                    || (in.getAnyType() != null && in.getAnyType().equals(resourceProvision.getAnyType())))).
-                    findAny().orElse(null)).orElse(null);
+                        || (in.getKey() != null && in.getKey().equals(resourceProvision.getKey())))
+                        && ((resourceProvision.getAnyType() == null && in.getAnyType() == null)
+                        || (in.getAnyType() != null && in.getAnyType().equals(resourceProvision.getAnyType())))).
+                        findAny().orElse(null)).orElse(null);
             }
 
             @Override
@@ -158,7 +158,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                 } catch (SyncopeClientException e) {
                     LOG.error("While contacting resource", e);
                     SyncopeConsoleSession.get().onException(e);
-                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 }
             }
         }, ActionLink.ActionType.MAPPING, IdMEntitlement.RESOURCE_READ).
@@ -176,7 +176,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                                     resourceTO.getKey(), provision.getAnyType(), e);
                             SyncopeConsoleSession.get().onException(e);
                         }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                        ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.SET_LATEST_SYNC_TOKEN, IdMEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ResourceProvision>() {
@@ -193,7 +193,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                                     resourceTO.getKey(), provision.getAnyType(), e);
                             SyncopeConsoleSession.get().onException(e);
                         }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                        ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.REMOVE_SYNC_TOKEN, IdMEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ResourceProvision>() {
@@ -291,7 +291,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             LOG.error("While creating or updating {}", resourceTO, e);
             SyncopeConsoleSession.get().onException(e);
         }
-        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+        ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     private void sortProvisions() {

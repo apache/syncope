@@ -50,6 +50,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -249,6 +250,8 @@ public abstract class AbstractITCase {
 
     protected static SyncopeClient adminClient;
 
+    protected static SyncopeClient anonymusClient;
+
     protected static SyncopeService syncopeService;
 
     protected static ApplicationService applicationService;
@@ -325,10 +328,6 @@ public abstract class AbstractITCase {
 
     protected static ClientAppService clientAppService;
 
-    protected static GoogleMfaAuthTokenService googleMfaAuthTokenService;
-
-    protected static GoogleMfaAuthAccountService googleMfaAuthAccountService;
-
     protected static AuthProfileService authProfileService;
 
     protected static SAML2SPEntityService saml2SPEntityService;
@@ -337,9 +336,13 @@ public abstract class AbstractITCase {
 
     protected static OIDCJWKSService oidcJWKSService;
 
-    protected static U2FRegistrationService u2FRegistrationService;
-
     protected static WAConfigService waConfigService;
+
+    protected static GoogleMfaAuthTokenService googleMfaAuthTokenService;
+
+    protected static GoogleMfaAuthAccountService googleMfaAuthAccountService;
+
+    protected static U2FRegistrationService u2fRegistrationService;
 
     protected static WebAuthnRegistrationService webAuthnRegistrationService;
 
@@ -418,14 +421,17 @@ public abstract class AbstractITCase {
         authModuleService = adminClient.getService(AuthModuleService.class);
         saml2SPEntityService = adminClient.getService(SAML2SPEntityService.class);
         saml2IdPEntityService = adminClient.getService(SAML2IdPEntityService.class);
-        googleMfaAuthTokenService = adminClient.getService(GoogleMfaAuthTokenService.class);
-        googleMfaAuthAccountService = adminClient.getService(GoogleMfaAuthAccountService.class);
         authProfileService = adminClient.getService(AuthProfileService.class);
         oidcJWKSService = adminClient.getService(OIDCJWKSService.class);
-        u2FRegistrationService = adminClient.getService(U2FRegistrationService.class);
         waConfigService = adminClient.getService(WAConfigService.class);
-        webAuthnRegistrationService = adminClient.getService(WebAuthnRegistrationService.class);
-        impersonationService = adminClient.getService(ImpersonationService.class);
+
+        anonymusClient = clientFactory.create(new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
+
+        googleMfaAuthTokenService = anonymusClient.getService(GoogleMfaAuthTokenService.class);
+        googleMfaAuthAccountService = anonymusClient.getService(GoogleMfaAuthAccountService.class);
+        u2fRegistrationService = anonymusClient.getService(U2FRegistrationService.class);
+        webAuthnRegistrationService = anonymusClient.getService(WebAuthnRegistrationService.class);
+        impersonationService = anonymusClient.getService(ImpersonationService.class);
     }
 
     @Autowired

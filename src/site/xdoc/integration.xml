@@ -28,7 +28,7 @@ under the License.
   <body>    
     <section name="Jenkins">
       <p>
-        <source><a href="https://builds.apache.org/view/S-Z/view/Syncope/">https://builds.apache.org/view/S-Z/view/Syncope/</a></source>
+        <source><a href="https://ci-builds.apache.org./job/Syncope/">https://ci-builds.apache.org./job/Syncope/</a></source>
       </p>
     </section>
 
@@ -57,9 +57,6 @@ under the License.
       </p>
       <p>
         <source><a href="https://ci.apache.org/builders/syncope-2_1_X-docs">https://ci.apache.org/builders/syncope-2_1_X-docs</a></source>
-      </p>
-      <p>
-        <source><a href="https://ci.apache.org/builders/syncope-2_0_X-docs">https://ci.apache.org/builders/syncope-2_0_X-docs</a></source>
       </p>
     </section>
   </body>

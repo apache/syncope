@@ -37,10 +37,10 @@ public class ClientAppServiceImpl extends AbstractServiceImpl implements ClientA
 
     @Override
     public Response create(final ClientAppType type, final ClientAppTO clientAppTO) {
-        ClientAppTO appTO = logic.create(type, clientAppTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(appTO.getKey()).build();
+        ClientAppTO created = logic.create(type, clientAppTO);
+        URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_KEY, appTO.getKey()).
+                header(RESTHeaders.RESOURCE_KEY, created.getKey()).
                 build();
     }
 

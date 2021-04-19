@@ -37,7 +37,9 @@ public class BooleanPropertyColumn<T> extends PropertyColumn<T, String> {
 
     private static final long serialVersionUID = 3527840552172947705L;
 
-    public BooleanPropertyColumn(final IModel<String> displayModel, final String sortProperty,
+    public BooleanPropertyColumn(
+            final IModel<String> displayModel,
+            final String sortProperty,
             final String propertyExpression) {
 
         super(displayModel, sortProperty, propertyExpression);

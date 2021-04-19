@@ -26,4 +26,6 @@ public interface AuthProfileDataBinder {
     AuthProfileTO getAuthProfileTO(AuthProfile authProfile);
 
     AuthProfile create(AuthProfileTO authProfileTO);
+
+    AuthProfile update(AuthProfile authProfile, AuthProfileTO authProfileTO);
 }

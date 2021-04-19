@@ -242,17 +242,12 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     entityId.addValidator(new UrlValidator());
                     fields.add(entityId.setRequired(true));
 
-                    AjaxTextFieldPanel metadataLocation = new AjaxTextFieldPanel(
-                            "field", "metadataLocation",
-                            new PropertyModel<>(clientAppTO, "metadataLocation"), false);
-                    metadataLocation.addValidator(new UrlValidator());
-                    fields.add(metadataLocation.setRequired(true));
+                    fields.add(new AjaxTextFieldPanel("field", "metadataLocation",
+                            new PropertyModel<>(clientAppTO, "metadataLocation"), false).setRequired(true));
 
-                    AjaxTextFieldPanel metadataSignatureLocation = new AjaxTextFieldPanel(
+                    fields.add(new AjaxTextFieldPanel(
                             "field", "metadataSignatureLocation",
-                            new PropertyModel<>(clientAppTO, "metadataSignatureLocation"), false);
-                    metadataSignatureLocation.addValidator(new UrlValidator());
-                    fields.add(metadataSignatureLocation);
+                            new PropertyModel<>(clientAppTO, "metadataSignatureLocation"), false));
 
                     fields.add(new AjaxCheckBoxPanel(
                             "field", "signAssertions", new PropertyModel<>(clientAppTO, "signAssertions")));

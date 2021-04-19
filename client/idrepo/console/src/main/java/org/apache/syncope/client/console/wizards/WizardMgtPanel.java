@@ -27,7 +27,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.wicket.Component;
@@ -47,6 +46,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.client.ui.commons.wizards.AbstractWizardMgtPanel;
@@ -170,15 +170,15 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
     @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof ExitEvent) {
-            final AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
+            AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
             // default behaviour: change it catching the event if needed
             modal.close(target);
         } else if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
-            final AjaxWizard.NewItemEvent<T> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
-            final Optional<AjaxRequestTarget> target = newItemEvent.getTarget();
-            final T item = newItemEvent.getItem();
+            AjaxWizard.NewItemEvent<T> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
+            Optional<AjaxRequestTarget> target = newItemEvent.getTarget();
+            T item = newItemEvent.getItem();
 
-            final boolean modalPanelAvailable = newItemEvent.getModalPanel() != null || newItemPanelBuilder != null;
+            boolean modalPanelAvailable = newItemEvent.getModalPanel() != null || newItemPanelBuilder != null;
 
             if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && modalPanelAvailable) {
                 WizardModalPanel<?> modalPanel;
@@ -198,7 +198,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                 }
 
                 if (wizardInModal) {
-                    final IModel<T> model = new CompoundPropertyModel<>(item);
+                    IModel<T> model = new CompoundPropertyModel<>(item);
                     modal.setFormModel(model);
 
                     target.ifPresent(t -> t.add(modal.setContent(modalPanel)));
@@ -209,7 +209,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                             new Model<>(modalPanel.getItem())));
                     modal.show(true);
                 } else {
-                    final Fragment fragment = new Fragment("content", "wizard", WizardMgtPanel.this);
+                    Fragment fragment = new Fragment("content", "wizard", WizardMgtPanel.this);
 
                     fragment.add(new Label("title", newItemEvent.getResourceModel() == null
                             ? Model.of(StringUtils.EMPTY) : newItemEvent.getResourceModel()));
@@ -234,7 +234,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 if (target.isPresent()) {
-                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
+                    ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
                 }
 
                 if (wizardInModal && showResultPage) {

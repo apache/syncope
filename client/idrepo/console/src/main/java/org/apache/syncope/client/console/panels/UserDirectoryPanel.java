@@ -33,7 +33,6 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.ChangePasswordModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -71,15 +70,9 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
     protected UserDirectoryPanel(final String id, final Builder builder, final boolean wizardInModal) {
         super(id, builder, wizardInModal);
 
-        altDefaultModal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                updateResultTable(target);
-                modal.show(false);
-            }
+        altDefaultModal.setWindowClosedCallback(target -> {
+            updateResultTable(target);
+            modal.show(false);
         });
     }
 

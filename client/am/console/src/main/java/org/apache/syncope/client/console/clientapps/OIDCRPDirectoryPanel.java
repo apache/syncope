@@ -20,18 +20,14 @@ package org.apache.syncope.client.console.clientapps;
 
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanConditionColumn;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.ClientAppType;
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -56,19 +52,11 @@ public class OIDCRPDirectoryPanel extends ClientAppDirectoryPanel<OIDCRPClientAp
         columns.add(new PropertyColumn<>(new StringResourceModel("clientId", this), "clientId", "clientId"));
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("redirectUris", this), "redirectUris", "redirectUris"));
-        columns.add(new AbstractColumn<OIDCRPClientAppTO, String>(new StringResourceModel("logout")) {
+        columns.add(new BooleanConditionColumn<OIDCRPClientAppTO>(new StringResourceModel("logout")) {
 
             @Override
-            public void populateItem(
-                    final Item<ICellPopulator<OIDCRPClientAppTO>> item,
-                    final String componentId,
-                    final IModel<OIDCRPClientAppTO> rowModel) {
-
-                item.add(new Label(componentId, StringUtils.EMPTY));
-                if (StringUtils.isNotBlank(rowModel.getObject().getLogoutUri())) {
-                    item.add(new AttributeModifier("class", "fa fa-check"));
-                    item.add(new AttributeModifier("style", "display: table-cell; text-align: center;"));
-                }
+            protected boolean isCondition(final IModel<OIDCRPClientAppTO> rowModel) {
+                return StringUtils.isNotBlank(rowModel.getObject().getLogoutUri());
             }
         });
     }

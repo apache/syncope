@@ -73,7 +73,6 @@ public class GoogleMfaAuthToken implements BaseBean {
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .appendSuper(super.hashCode())
                 .append(otp)
                 .append(issueDate)
                 .toHashCode();
@@ -90,11 +89,10 @@ public class GoogleMfaAuthToken implements BaseBean {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        GoogleMfaAuthToken rhs = (GoogleMfaAuthToken) obj;
+        GoogleMfaAuthToken other = (GoogleMfaAuthToken) obj;
         return new EqualsBuilder()
-                .appendSuper(super.equals(obj))
-                .append(this.otp, rhs.otp)
-                .append(this.issueDate, rhs.issueDate)
+                .append(this.otp, other.otp)
+                .append(this.issueDate, other.issueDate)
                 .isEquals();
     }
 

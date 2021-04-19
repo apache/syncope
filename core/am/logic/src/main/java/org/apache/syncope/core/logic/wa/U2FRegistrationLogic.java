@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.core.logic.AbstractAuthProfileLogic;
@@ -43,8 +42,7 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
     @Autowired
     private EntityFactory entityFactory;
 
-    @PreAuthorize("hasRole('" + AMEntitlement.U2F_CREATE_DEVICE + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void create(final String owner, final U2FDevice device) {
         AuthProfile profile = authProfileDAO.findByOwner(owner).orElseGet(() -> {
             AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
@@ -58,10 +56,9 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
         authProfileDAO.save(profile);
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.U2F_DELETE_DEVICE + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final Long id, final Date expirationDate) {
-        List<AuthProfile> profiles = authProfileDAO.findAll();
+        List<AuthProfile> profiles = authProfileDAO.findAll(-1, -1);
         profiles.forEach(profile -> {
             List<U2FDevice> devices = profile.getU2FRegisteredDevices();
             if (devices != null) {
@@ -78,8 +75,7 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
         });
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.U2F_SEARCH_DEVICES + "') "
-            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public Pair<Integer, List<U2FDevice>> search(
             final Integer page,
             final Integer itemsPerPage, final Long id,
@@ -113,7 +109,7 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
                 filter(Objects::nonNull).
                 collect(Collectors.toList());
 
-        List<U2FDevice> devices = authProfileDAO.findAll().
+        List<U2FDevice> devices = authProfileDAO.findAll(-1, -1).
                 stream().
                 map(AuthProfile::getU2FRegisteredDevices).
                 filter(Objects::nonNull).

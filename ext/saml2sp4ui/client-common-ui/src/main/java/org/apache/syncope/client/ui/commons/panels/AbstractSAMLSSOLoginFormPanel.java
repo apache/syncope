@@ -49,7 +49,7 @@ public abstract class AbstractSAMLSSOLoginFormPanel extends BaseSSOLoginFormPane
 
         List<SAML2SP4UIIdPTO> available = session.getAnonymousService(SAML2SP4UIIdPService.class).list();
 
-        final Model<SAML2SP4UIIdPTO> model = new Model<>();
+        Model<SAML2SP4UIIdPTO> model = new Model<>();
         AjaxDropDownChoicePanel<SAML2SP4UIIdPTO> idps =
                 new AjaxDropDownChoicePanel<>("idps", "SAML 2.0", model, false);
         idps.setChoices(available);

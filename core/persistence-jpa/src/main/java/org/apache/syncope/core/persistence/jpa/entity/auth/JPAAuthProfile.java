@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.U2FDevice;
-import org.apache.syncope.common.lib.wa.WebAuthnAccount;
+import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -44,23 +44,23 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
 
     private static final long serialVersionUID = 57352617217394093L;
 
-    @Lob
-    private String u2fRegisteredDevices;
-
-    @Lob
-    private String googleMfaAuthAccounts;
+    @Column(nullable = false)
+    private String owner;
 
     @Lob
     private String impersonatedAccounts;
 
     @Lob
+    private String googleMfaAuthAccounts;
+
+    @Lob
     private String googleMfaAuthTokens;
 
     @Lob
-    private String webAuthnAccount;
+    private String u2fRegisteredDevices;
 
-    @Column(nullable = false)
-    private String owner;
+    @Lob
+    private String webAuthnDeviceCredentials;
 
     @Override
     public String getOwner() {
@@ -114,9 +114,9 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public List<ImpersonationAccount> getImpersonationAccounts() {
         return impersonatedAccounts == null
-            ? new ArrayList<>(0)
-            : POJOHelper.deserialize(impersonatedAccounts, new TypeReference<List<ImpersonationAccount>>() {
-        });
+                ? new ArrayList<>(0)
+                : POJOHelper.deserialize(impersonatedAccounts, new TypeReference<List<ImpersonationAccount>>() {
+                });
     }
 
     @Override
@@ -125,15 +125,16 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     }
 
     @Override
-    public WebAuthnAccount getWebAuthnAccount() {
-        return webAuthnAccount == null
-                ? null
-                : POJOHelper.deserialize(webAuthnAccount, new TypeReference<WebAuthnAccount>() {
+    public List<WebAuthnDeviceCredential> getWebAuthnDeviceCredentials() {
+        return webAuthnDeviceCredentials == null
+                ? new ArrayList<>(0)
+                : POJOHelper.deserialize(webAuthnDeviceCredentials,
+                        new TypeReference<List<WebAuthnDeviceCredential>>() {
                 });
     }
 
     @Override
-    public void setWebAuthnAccount(final WebAuthnAccount accounts) {
-        this.webAuthnAccount = POJOHelper.serialize(accounts);
+    public void setWebAuthnDeviceCredentials(final List<WebAuthnDeviceCredential> credentials) {
+        this.webAuthnDeviceCredentials = POJOHelper.serialize(credentials);
     }
 }
