@@ -19,7 +19,6 @@
 package org.apache.syncope.wa.starter.saml.idp.metadata;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.scribejava.core.java8.Base64;
 import java.nio.charset.StandardCharsets;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -32,6 +31,8 @@ import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument
 import org.apereo.cas.util.crypto.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Base64;
 import java.util.Optional;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 
@@ -66,16 +67,16 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
                             entityTO.getSigningCertificate()), StandardCharsets.UTF_8));
                 }
                 if (entityTO.getSigningKey() != null) {
-                    document.setSigningKey((new String(Base64.getDecoder().decode(
-                            entityTO.getSigningKey()), StandardCharsets.UTF_8)));
+                    document.setSigningKey(new String(Base64.getDecoder().decode(
+                            entityTO.getSigningKey().getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8));
                 }
                 if (entityTO.getEncryptionCertificate() != null) {
                     document.setEncryptionCertificate(new String(Base64.getDecoder().decode(
                             entityTO.getEncryptionCertificate()), StandardCharsets.UTF_8));
                 }
                 if (entityTO.getEncryptionKey() != null) {
-                    document.setEncryptionKey((new String(Base64.getDecoder().decode(
-                            entityTO.getEncryptionKey()), StandardCharsets.UTF_8)));
+                    document.setEncryptionKey(new String(Base64.getDecoder().decode(
+                            entityTO.getEncryptionKey().getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8));
                 }
 
                 if (document.isValid()) {
