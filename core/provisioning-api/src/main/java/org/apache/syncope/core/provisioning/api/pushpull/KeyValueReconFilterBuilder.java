@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api.pushpull;
 
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 
@@ -34,7 +35,7 @@ public class KeyValueReconFilterBuilder implements ReconFilterBuilder {
     }
 
     @Override
-    public Filter build() {
+    public Filter build(final ObjectClass objectClass) {
         return FilterBuilder.equalTo(AttributeBuilder.build(key, value));
     }
 }

@@ -16,11 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
-import org.identityconnectors.framework.common.objects.filter.Filter;
-import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
+import org.identityconnectors.framework.common.objects.AttributeBuilder
+import org.identityconnectors.framework.common.objects.ObjectClass
+import org.identityconnectors.framework.common.objects.filter.Filter
+import org.identityconnectors.framework.common.objects.filter.FilterBuilder
+import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder
 import groovy.transform.CompileStatic
-import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 
 @CompileStatic
 class TestReconFilterBuilder implements ReconFilterBuilder {
@@ -28,8 +29,7 @@ class TestReconFilterBuilder implements ReconFilterBuilder {
   private static final Filter EQUALS = FilterBuilder.equalTo(AttributeBuilder.build("SURNAME", "Rossi"));
 
   @Override
-  Filter build() {
+  Filter build(ObjectClass objectClass) {
     return EQUALS;
   }
-
 }
