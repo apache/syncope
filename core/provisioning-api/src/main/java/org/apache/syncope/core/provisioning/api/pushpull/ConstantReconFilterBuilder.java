@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 
 public class ConstantReconFilterBuilder implements ReconFilterBuilder {
@@ -29,7 +30,7 @@ public class ConstantReconFilterBuilder implements ReconFilterBuilder {
     }
 
     @Override
-    public Filter build() {
+    public Filter build(final ObjectClass objectClass) {
         return filter;
     }
 }

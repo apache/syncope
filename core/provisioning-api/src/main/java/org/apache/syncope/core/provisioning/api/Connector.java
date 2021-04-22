@@ -130,8 +130,8 @@ public interface Connector {
         Filter filter = null;
         OperationOptions actualOptions = options;
         if (filterBuilder != null) {
-            filter = filterBuilder.build();
-            actualOptions = filterBuilder.build(actualOptions);
+            filter = filterBuilder.build(objectClass);
+            actualOptions = filterBuilder.build(objectClass, actualOptions);
         }
 
         search(objectClass, filter, new SearchResultsHandler() {
