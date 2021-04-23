@@ -83,10 +83,7 @@ public class LDAPPasswordPullActions implements PullActions {
     protected void parseEncodedPassword(final String password) {
         if (password != null && password.startsWith("{")) {
             int closingBracketIndex = password.indexOf('}');
-            String digest = password.substring(1, password.indexOf('}'));
-            if (digest != null) {
-                digest = digest.toUpperCase();
-            }
+            String digest = password.substring(1, closingBracketIndex).toUpperCase();
             try {
                 encodedPassword = password.substring(closingBracketIndex + 1);
                 cipher = CipherAlgorithm.valueOf(digest);
