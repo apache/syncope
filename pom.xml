@@ -481,7 +481,7 @@ under the License.
     
     <wicket.version>8.12.0</wicket.version>
     <wicket-jqueryui.version>8.12.0</wicket-jqueryui.version>
-    <wicket-bootstrap.version>2.0.14</wicket-bootstrap.version>
+    <wicket-bootstrap.version>2.0.15</wicket-bootstrap.version>
 
     <angular.version>1.7.5</angular.version>
     <angular-resource.version>1.7.0</angular-resource.version>
@@ -2084,7 +2084,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.41.1</version>
+              <version>8.42</version>
             </dependency>
           </dependencies>
           <configuration>
