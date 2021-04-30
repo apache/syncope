@@ -436,7 +436,7 @@ under the License.
     <apachedirapi.version>2.0.0</apachedirapi.version>
 
     <log4j.version>2.14.1</log4j.version>
-    <disruptor.version>3.4.3</disruptor.version>
+    <disruptor.version>3.4.4</disruptor.version>
 
     <commons-io.version>2.7</commons-io.version>
     <commons-email.version>1.5</commons-email.version>
@@ -2190,7 +2190,7 @@ under the License.
         <plugin>
           <groupId>org.sonarsource.scanner.maven</groupId>
           <artifactId>sonar-maven-plugin</artifactId>
-          <version>3.8.0.2131</version>
+          <version>3.9.0.2155</version>
         </plugin>
       </plugins>
     </pluginManagement>
