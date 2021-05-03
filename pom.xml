@@ -2171,6 +2171,17 @@ under the License.
         <enabled>false</enabled>
       </snapshots>
     </repository>
+    <!-- see https://jfrog.com/blog/into-the-sunset-bintray-jcenter-gocenter-and-chartcenter/ -->
+    <repository>
+      <id>uniconiam</id>
+      <url>https://dl.bintray.com/uniconiam/maven</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
 
   <pluginRepositories>
