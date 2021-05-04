@@ -20,7 +20,7 @@ package org.apache.syncope.common.lib.auth;
 
 import org.apache.syncope.common.lib.SyncopeConstants;
 
-public class SyncopeAuthModuleConf extends AbstractAuthModuleConf {
+public class SyncopeAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -3334329948161152222L;
 

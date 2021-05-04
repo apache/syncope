@@ -24,6 +24,7 @@ import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -52,7 +53,6 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.servlet.XForwardedRequestWrapperFactory;
-import org.apache.wicket.protocol.ws.WebSocketAwareCsrfPreventionRequestCycleListener;
 import org.apache.wicket.protocol.ws.api.WebSocketResponse;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
@@ -73,10 +73,12 @@ import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.wicket.protocol.ws.WebSocketAwareResourceIsolationRequestCycleListener;
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -140,7 +142,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     private ImplementationInfoProvider implementationInfoProvider;
 
     @Autowired
-    private PolicyTabProvider policyTabProvider;
+    private ApplicationContext ctx;
 
     private Map<String, Class<? extends BasePage>> pageClasses;
 
@@ -192,9 +194,16 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
         useGZIPCompression = BooleanUtils.toBoolean(props.getProperty("useGZIPCompression"));
         Args.notNull(useGZIPCompression, "<useGZIPCompression>");
-        maxUploadFileSizeMB = props.getProperty("maxUploadFileSizeMB") == null
-                ? null
-                : Integer.valueOf(props.getProperty("maxUploadFileSizeMB"));
+
+        try {
+            maxUploadFileSizeMB = props.getProperty("maxUploadFileSizeMB") == null
+                    ? null
+                    : Integer.valueOf(props.getProperty("maxUploadFileSizeMB"));
+        } catch (NumberFormatException e) {
+            LOG.error("Invalid value provided for 'maxUploadFileSizeMB': {}",
+                    props.getProperty("maxUploadFileSizeMB"));
+            maxUploadFileSizeMB = null;
+        }
 
         try {
             maxWaitTime = Integer.valueOf(props.getProperty("maxWaitTimeOnApplyChanges", "30"));
@@ -249,7 +258,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
         getSecuritySettings().setAuthorizationStrategy(new MetaDataRoleAuthorizationStrategy(this));
 
-        lookup.getPageClasses().
+        lookup.getIdRepoPageClasses().
                 forEach(cls -> MetaDataRoleAuthorizationStrategy.authorize(cls, Constants.ROLE_AUTHENTICATED));
 
         getMarkupSettings().setStripWicketTags(true);
@@ -297,7 +306,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         }
 
         if (BooleanUtils.toBoolean(props.getProperty("csrf"))) {
-            getRequestCycleListeners().add(new WebSocketAwareCsrfPreventionRequestCycleListener());
+            getRequestCycleListeners().add(new WebSocketAwareResourceIsolationRequestCycleListener());
         }
         getRequestCycleListeners().add(new IRequestCycleListener() {
 
@@ -319,7 +328,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         }
         Args.notNull(reconciliationReportKey, "<reconciliationReportKey>");
 
-        for (Class<? extends AbstractResource> resource : lookup.getResources()) {
+        for (Class<? extends AbstractResource> resource : lookup.getClasses(AbstractResource.class)) {
             Resource annotation = resource.getAnnotation(Resource.class);
             try {
                 AbstractResource instance = resource.getDeclaredConstructor().newInstance();
@@ -360,6 +369,10 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
                 && SyncopeConsoleSession.get().getSelfTO().isMustChangePassword()
                 ? MustChangePassword.class
                 : Dashboard.class;
+    }
+
+    public ClassPathScanImplementationLookup getLookup() {
+        return lookup;
     }
 
     public Class<? extends BasePage> getPageClass(final String key) {
@@ -436,7 +449,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return implementationInfoProvider;
     }
 
-    public PolicyTabProvider getPolicyTabProvider() {
-        return policyTabProvider;
+    public Collection<PolicyTabProvider> getPolicyTabProviders() {
+        return ctx.getBeansOfType(PolicyTabProvider.class).values();
     }
 }

@@ -22,27 +22,22 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.Date;
-import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import javax.ws.rs.PUT;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
-@Tag(name = "Google MFA Tokens")
+@Tag(name = "WA")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })
@@ -50,70 +45,50 @@ import org.apache.syncope.common.rest.api.service.JAXRSService;
 public interface GoogleMfaAuthTokenService extends JAXRSService {
 
     @DELETE
+    @Path("tokens")
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void delete(@QueryParam("expirationDate") Date expirationDate);
+
+    @DELETE
+    @Path("tokens/{owner}/{otp}")
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void delete(@NotNull @PathParam("owner") String owner, @NotNull @PathParam("otp") int otp);
+
+    @DELETE
+    @Path("tokens/{owner}")
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void delete(@NotNull @PathParam("owner") String owner);
+
+    @DELETE
+    @Path("tokens/otp/{otp}")
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void delete(@NotNull @PathParam("otp") int otp);
+
+    @PUT
+    @Path("tokens/{owner}")
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void store(@NotNull @PathParam("owner") String owner, @NotNull GoogleMfaAuthToken token);
+
+    @GET
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Path("tokens/{owner}/{otp}")
+    GoogleMfaAuthToken read(@NotNull @PathParam("owner") String owner, @NotNull @PathParam("otp") int otp);
+
+    @GET
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Path("tokens/{owner}")
+    PagedResult<GoogleMfaAuthToken> read(@NotNull @PathParam("owner") String owner);
+
+    @GET
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Path("tokens")
-    Response deleteTokensByDate(@NotNull @QueryParam("expirationDate") Date expirationDate);
-
-    @DELETE
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("tokens/${owner}/${token}")
-    Response deleteToken(@NotNull @PathParam("owner") String owner, @NotNull @PathParam("token") Integer token);
-
-    @DELETE
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("tokens/owners/${owner}")
-    Response deleteTokensFor(@NotNull @PathParam("owner") String owner);
-
-    @DELETE
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("tokens/${token}")
-    Response deleteToken(@NotNull @PathParam("token") Integer token);
-
-    @DELETE
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("tokens")
-    Response deleteTokens();
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "201",
-                description = "GoogleMfaAuthToken successfully created", headers = {
-                    @Header(name = RESTHeaders.RESOURCE_KEY, schema =
-                            @Schema(type = "string"),
-                            description = "UUID generated for the entity created") }) })
-    @POST
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("tokens")
-    Response save(@NotNull GoogleMfaAuthToken token);
-
-    @GET
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("tokens/${owner}/${token}")
-    GoogleMfaAuthToken findTokenFor(
-            @NotNull @PathParam("owner") String owner,
-            @NotNull @PathParam("token") Integer token);
-
-    @GET
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("tokens/owners/${owner}")
-    PagedResult<GoogleMfaAuthToken> findTokensFor(@NotNull @PathParam("owner") String owner);
-
-    @GET
-    @Path("tokens/{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    GoogleMfaAuthToken findTokenFor(@NotNull @PathParam("key") String key);
-
-    @GET
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("tokens/count")
-    PagedResult<GoogleMfaAuthToken> countTokens();
+    PagedResult<GoogleMfaAuthToken> list();
 }

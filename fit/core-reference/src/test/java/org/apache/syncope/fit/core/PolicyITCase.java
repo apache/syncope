@@ -29,7 +29,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
-import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
@@ -55,6 +55,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 
@@ -82,7 +83,7 @@ public class PolicyITCase extends AbstractITCase {
 
         PullPolicyTO policy = new PullPolicyTO();
         policy.getCorrelationRules().put(AnyTypeKind.USER.name(), corrRule.getKey());
-        policy.setDescription("Pull policy");
+        policy.setName("Pull policy");
 
         return policy;
     }
@@ -109,7 +110,7 @@ public class PolicyITCase extends AbstractITCase {
 
         PushPolicyTO policy = new PushPolicyTO();
         policy.getCorrelationRules().put(AnyTypeKind.USER.name(), corrRule.getKey());
-        policy.setDescription("Push policy");
+        policy.setName("Push policy");
 
         return policy;
     }
@@ -188,11 +189,11 @@ public class PolicyITCase extends AbstractITCase {
         AuthPolicyTO authPolicyTO = createPolicy(PolicyType.AUTH,
                 buildAuthPolicyTO("LdapAuthentication1"));
         assertNotNull(authPolicyTO);
-        assertEquals("Test Authentication policy", authPolicyTO.getDescription());
+        assertEquals("Test Authentication policy", authPolicyTO.getName());
 
         AccessPolicyTO accessPolicyTO = createPolicy(PolicyType.ACCESS, buildAccessPolicyTO());
         assertNotNull(accessPolicyTO);
-        assertEquals("Test Access policy", accessPolicyTO.getDescription());
+        assertEquals("Test Access policy", accessPolicyTO.getName());
     }
 
     @Test
@@ -200,7 +201,7 @@ public class PolicyITCase extends AbstractITCase {
         PasswordPolicyTO globalPolicy = policyService.read(PolicyType.PASSWORD, "ce93fcda-dc3a-4369-a7b0-a6108c261c85");
 
         PasswordPolicyTO policy = SerializationUtils.clone(globalPolicy);
-        policy.setDescription("A simple password policy");
+        policy.setName("A simple password policy");
 
         // create a new password policy using the former as a template
         policy = createPolicy(PolicyType.PASSWORD, policy);
@@ -251,8 +252,9 @@ public class PolicyITCase extends AbstractITCase {
         assertNotNull(newAccessPolicyTO);
 
         DefaultAccessPolicyConf accessPolicyConf = (DefaultAccessPolicyConf) newAccessPolicyTO.getConf();
-        accessPolicyConf.addRequiredAttr("ou", Set.of("test"));
-        accessPolicyConf.addRequiredAttr("cn", Set.of("admin", "Admin"));
+        accessPolicyConf.getRequiredAttrs().add(new Attr.Builder("ou").value("test").build());
+        accessPolicyConf.getRequiredAttrs().removeIf(attr -> "cn".equals(attr.getSchema()));
+        accessPolicyConf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin").build());
 
         // update new authentication policy
         policyService.update(PolicyType.ACCESS, newAccessPolicyTO);
@@ -261,8 +263,8 @@ public class PolicyITCase extends AbstractITCase {
 
         accessPolicyConf = (DefaultAccessPolicyConf) newAccessPolicyTO.getConf();
         assertEquals(2, accessPolicyConf.getRequiredAttrs().size());
-        assertNotNull(accessPolicyConf.getRequiredAttrs().get("cn"));
-        assertNotNull(accessPolicyConf.getRequiredAttrs().get("ou"));
+        assertTrue(accessPolicyConf.getRequiredAttrs().stream().anyMatch(attr -> "cn".equals(attr.getSchema())));
+        assertTrue(accessPolicyConf.getRequiredAttrs().stream().anyMatch(attr -> "ou".equals(attr.getSchema())));
     }
 
     @Test
@@ -270,7 +272,7 @@ public class PolicyITCase extends AbstractITCase {
         AttrReleasePolicyTO newPolicyTO = createPolicy(PolicyType.ATTR_RELEASE, buildAttrReleasePolicyTO());
         assertNotNull(newPolicyTO);
 
-        AllowedAttrReleasePolicyConf policyConf = (AllowedAttrReleasePolicyConf) newPolicyTO.getConf();
+        DefaultAttrReleasePolicyConf policyConf = (DefaultAttrReleasePolicyConf) newPolicyTO.getConf();
         policyConf.getAllowedAttrs().add("postalCode");
 
         // update new policy
@@ -278,12 +280,12 @@ public class PolicyITCase extends AbstractITCase {
         newPolicyTO = policyService.read(PolicyType.ATTR_RELEASE, newPolicyTO.getKey());
         assertNotNull(newPolicyTO);
 
-        policyConf = (AllowedAttrReleasePolicyConf) newPolicyTO.getConf();
+        policyConf = (DefaultAttrReleasePolicyConf) newPolicyTO.getConf();
         assertEquals(3, policyConf.getAllowedAttrs().size());
         assertTrue(policyConf.getAllowedAttrs().contains("cn"));
         assertTrue(policyConf.getAllowedAttrs().contains("postalCode"));
         assertTrue(policyConf.getAllowedAttrs().contains("givenName"));
-        assertTrue(policyConf.getConsentPolicy().getIncludeOnlyAttrs().contains("cn"));
+        assertTrue(policyConf.getIncludeOnlyAttrs().contains("cn"));
     }
 
     @Test
@@ -348,7 +350,7 @@ public class PolicyITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE553() {
         AccountPolicyTO policy = new AccountPolicyTO();
-        policy.setDescription("SYNCOPE553");
+        policy.setName("SYNCOPE553");
 
         DefaultAccountRuleConf ruleConf = new DefaultAccountRuleConf();
         ruleConf.setMinLength(3);
@@ -371,7 +373,7 @@ public class PolicyITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE682() {
         AccountPolicyTO policy = new AccountPolicyTO();
-        policy.setDescription("SYNCOPE682");
+        policy.setName("SYNCOPE682");
         policy.getPassthroughResources().add(RESOURCE_NAME_LDAP);
 
         DefaultAccountRuleConf ruleConf = new DefaultAccountRuleConf();

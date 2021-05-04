@@ -46,11 +46,9 @@ import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.WebMarkupContainerNoVeil;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.Component;
@@ -105,7 +103,7 @@ public class Topology extends BasePage {
             final Map<String, List<ConnInstanceTO>> res = new HashMap<>();
 
             ConnectorRestClient.getAllConnectors().forEach(conn -> {
-                final List<ConnInstanceTO> conns;
+                List<ConnInstanceTO> conns;
                 if (res.containsKey(conn.getLocation())) {
                     conns = res.get(conn.getLocation());
                 } else {
@@ -152,17 +150,9 @@ public class Topology extends BasePage {
     public Topology() {
         modal = new BaseModal<>("resource-modal");
         body.add(modal.size(Modal.Size.Large));
-        modal.setWindowClosedCallback(new WindowClosedCallback() {
+        modal.setWindowClosedCallback(target -> modal.show(false));
 
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                modal.show(false);
-            }
-        });
-
-        final TopologyWebSocketBehavior websocket = new TopologyWebSocketBehavior();
+        TopologyWebSocketBehavior websocket = new TopologyWebSocketBehavior();
         body.add(websocket);
 
         togglePanel = new TopologyTogglePanel("toggle", getPageReference());
@@ -171,7 +161,7 @@ public class Topology extends BasePage {
         // -----------------------------------------
         // Add Zoom panel
         // -----------------------------------------
-        final ActionsPanel<Serializable> zoomActionPanel = new ActionsPanel<>("zoom", null);
+        ActionsPanel<Serializable> zoomActionPanel = new ActionsPanel<>("zoom", null);
 
         zoomActionPanel.add(new ActionLink<Serializable>() {
 
@@ -203,25 +193,25 @@ public class Topology extends BasePage {
         syncopeTopologyNode.setX(origX);
         syncopeTopologyNode.setY(origY);
 
-        final URI uri = WebClient.client(BaseRestClient.getSyncopeService()).getBaseURI();
+        URI uri = WebClient.client(BaseRestClient.getSyncopeService()).getBaseURI();
         syncopeTopologyNode.setHost(uri.getHost());
         syncopeTopologyNode.setPort(uri.getPort());
 
-        body.add(topologyNodePanel(Constants.SYNCOPE, syncopeTopologyNode));
+        body.add(topologyNodePanel(Constants.SYNCOPE, syncopeTopologyNode, false));
 
-        final Map<Serializable, Map<Serializable, TopologyNode>> connections = new HashMap<>();
-        final Map<Serializable, TopologyNode> syncopeConnections = new HashMap<>();
+        Map<Serializable, Map<Serializable, TopologyNode>> connections = new HashMap<>();
+        Map<Serializable, TopologyNode> syncopeConnections = new HashMap<>();
         connections.put(syncopeTopologyNode.getKey(), syncopeConnections);
 
         // required to retrieve parent positions
-        final Map<String, TopologyNode> servers = new HashMap<>();
-        final Map<String, TopologyNode> connectors = new HashMap<>();
+        Map<String, TopologyNode> servers = new HashMap<>();
+        Map<String, TopologyNode> connectors = new HashMap<>();
         // -----------------------------------------
 
         // -----------------------------------------
         // Add Connector Servers
         // -----------------------------------------
-        final ListView<URI> connectorServers = new ListView<URI>("connectorServers", csModel.getObject().getLeft()) {
+        ListView<URI> connectorServers = new ListView<URI>("connectorServers", csModel.getObject().getLeft()) {
 
             private static final long serialVersionUID = 6978621871488360380L;
 
@@ -234,10 +224,10 @@ public class Topology extends BasePage {
                 int x = (int) Math.round(origX + kx * Math.cos(Math.PI + Math.PI * (item.getIndex() + 1) / size));
                 int y = (int) Math.round(origY + 100 * Math.sin(Math.PI + Math.PI * (item.getIndex() + 1) / size));
 
-                final URI location = item.getModelObject();
-                final String url = location.toASCIIString();
+                URI location = item.getModelObject();
+                String url = location.toASCIIString();
 
-                final TopologyNode topologynode = new TopologyNode(url, url, TopologyNode.Kind.CONNECTOR_SERVER);
+                TopologyNode topologynode = new TopologyNode(url, url, TopologyNode.Kind.CONNECTOR_SERVER);
 
                 topologynode.setHost(location.getHost());
                 topologynode.setPort(location.getPort());
@@ -246,7 +236,7 @@ public class Topology extends BasePage {
 
                 servers.put(String.class.cast(topologynode.getKey()), topologynode);
 
-                item.add(topologyNodePanel("cs", topologynode));
+                item.add(topologyNodePanel("cs", topologynode, false));
 
                 syncopeConnections.put(url, topologynode);
                 connections.put(url, new HashMap<>());
@@ -260,7 +250,7 @@ public class Topology extends BasePage {
         // -----------------------------------------
         // Add File Paths
         // -----------------------------------------
-        final ListView<URI> filePaths = new ListView<URI>("filePaths", csModel.getObject().getRight()) {
+        ListView<URI> filePaths = new ListView<URI>("filePaths", csModel.getObject().getRight()) {
 
             private static final long serialVersionUID = 6978621871488360380L;
 
@@ -273,10 +263,10 @@ public class Topology extends BasePage {
                 int x = (int) Math.round(origX + kx * Math.cos(Math.PI * (item.getIndex() + 1) / size));
                 int y = (int) Math.round(origY + 100 * Math.sin(Math.PI * (item.getIndex() + 1) / size));
 
-                final URI location = item.getModelObject();
-                final String url = location.toASCIIString();
+                URI location = item.getModelObject();
+                String url = location.toASCIIString();
 
-                final TopologyNode topologynode = new TopologyNode(url, url, TopologyNode.Kind.FS_PATH);
+                TopologyNode topologynode = new TopologyNode(url, url, TopologyNode.Kind.FS_PATH);
 
                 topologynode.setHost(location.getHost());
                 topologynode.setPort(location.getPort());
@@ -285,7 +275,7 @@ public class Topology extends BasePage {
 
                 servers.put(String.class.cast(topologynode.getKey()), topologynode);
 
-                item.add(topologyNodePanel("fp", topologynode));
+                item.add(topologyNodePanel("fp", topologynode, false));
 
                 syncopeConnections.put(url, topologynode);
                 connections.put(url, new HashMap<>());
@@ -299,43 +289,36 @@ public class Topology extends BasePage {
         // -----------------------------------------
         // Add Connector Intances
         // -----------------------------------------
-        final List<List<ConnInstanceTO>> allConns = new ArrayList<>(connModel.getObject().values());
-
-        final ListView<List<ConnInstanceTO>> conns = new ListView<List<ConnInstanceTO>>("conns", allConns) {
+        ListView<List<ConnInstanceTO>> conns =
+                new ListView<List<ConnInstanceTO>>("conns", new ArrayList<>(connModel.getObject().values())) {
 
             private static final long serialVersionUID = 697862187148836036L;
 
             @Override
             protected void populateItem(final ListItem<List<ConnInstanceTO>> item) {
+                int size = item.getModelObject().size() + 1;
 
-                final int size = item.getModelObject().size() + 1;
-
-                final ListView<ConnInstanceTO> conns = new ListView<ConnInstanceTO>("conns", item.getModelObject()) {
+                ListView<ConnInstanceTO> conns = new ListView<ConnInstanceTO>("conns", item.getModelObject()) {
 
                     private static final long serialVersionUID = 6978621871488360381L;
 
                     @Override
                     protected void populateItem(final ListItem<ConnInstanceTO> item) {
-                        final ConnInstanceTO conn = item.getModelObject();
+                        ConnInstanceTO conn = item.getModelObject();
 
-                        final TopologyNode topologynode = new TopologyNode(
+                        TopologyNode topologynode = new TopologyNode(
                                 conn.getKey(),
                                 StringUtils.isBlank(conn.getDisplayName()) // [SYNCOPE-1233]
                                 ? conn.getBundleName() : conn.getDisplayName(),
                                 TopologyNode.Kind.CONNECTOR);
 
                         // Define the parent note
-                        final TopologyNode parent = servers.get(conn.getLocation());
+                        TopologyNode parent = servers.get(conn.getLocation());
 
                         // Set the position
                         int kx = size >= 6 ? 800 : (130 * size);
 
-                        final double hpos;
-                        if (conn.getLocation().startsWith(CONNECTOR_SERVER_LOCATION_PREFIX)) {
-                            hpos = Math.PI;
-                        } else {
-                            hpos = 0.0;
-                        }
+                        double hpos = conn.getLocation().startsWith(CONNECTOR_SERVER_LOCATION_PREFIX) ? Math.PI : 0.0;
 
                         int x = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getX).orElse(origX))
                                 + kx * Math.cos(hpos + Math.PI * (item.getIndex() + 1) / size));
@@ -347,11 +330,10 @@ public class Topology extends BasePage {
                         topologynode.setY(y);
 
                         connectors.put(String.class.cast(topologynode.getKey()), topologynode);
-                        item.add(topologyNodePanel("conn", topologynode));
+                        item.add(topologyNodePanel("conn", topologynode, conn.isErrored()));
 
                         // Update connections
-                        final Map<Serializable, TopologyNode> remoteConnections;
-
+                        Map<Serializable, TopologyNode> remoteConnections;
                         if (connections.containsKey(conn.getLocation())) {
                             remoteConnections = connections.get(conn.getLocation());
                         } else {
@@ -374,18 +356,19 @@ public class Topology extends BasePage {
         // -----------------------------------------
         // Add Resources
         // -----------------------------------------
-        final Collection<String> adminConns = new HashSet<>();
+        Collection<String> adminConns = new HashSet<>();
         connModel.getObject().values().forEach(connInstances -> adminConns.addAll(
-                connInstances.stream().map(EntityTO::getKey).collect(Collectors.toList())));
+                connInstances.stream().map(ConnInstanceTO::getKey).collect(Collectors.toList())));
 
-        final Set<String> adminRes = new HashSet<>();
-        final List<String> connToBeProcessed = new ArrayList<>();
+        Set<String> adminRes = new HashSet<>();
+        List<String> connToBeProcessed = new ArrayList<>();
         resModel.getObject().stream().
-                filter((resourceTO) -> (adminConns.contains(resourceTO.getConnector()))).
-                forEachOrdered(resourceTO -> {
-                    final TopologyNode topologynode = new TopologyNode(
+                filter(resourceTO -> adminConns.contains(resourceTO.getConnector())).
+                forEach(resourceTO -> {
+                    TopologyNode topologynode = new TopologyNode(
                             resourceTO.getKey(), resourceTO.getKey(), TopologyNode.Kind.RESOURCE);
-                    final Map<Serializable, TopologyNode> remoteConnections;
+
+                    Map<Serializable, TopologyNode> remoteConnections;
                     if (connections.containsKey(resourceTO.getConnector())) {
                         remoteConnections = connections.get(resourceTO.getConnector());
                     } else {
@@ -401,15 +384,15 @@ public class Topology extends BasePage {
                     }
                 });
 
-        final ListView<String> resources = new ListView<String>("resources", connToBeProcessed) {
+        ListView<String> resources = new ListView<String>("resources", connToBeProcessed) {
 
             private static final long serialVersionUID = 697862187148836038L;
 
             @Override
             protected void populateItem(final ListItem<String> item) {
-                final String connectorKey = item.getModelObject();
+                String connectorKey = item.getModelObject();
 
-                final ListView<TopologyNode> innerListView = new ListView<TopologyNode>("resources",
+                ListView<TopologyNode> innerListView = new ListView<TopologyNode>("resources",
                         new ArrayList<>(connections.get(connectorKey).values())) {
 
                     private static final long serialVersionUID = -3447760771863754342L;
@@ -418,19 +401,14 @@ public class Topology extends BasePage {
 
                     @Override
                     protected void populateItem(final ListItem<TopologyNode> item) {
-                        final TopologyNode topologynode = item.getModelObject();
-                        final TopologyNode parent = connectors.get(connectorKey);
+                        TopologyNode topologynode = item.getModelObject();
+                        TopologyNode parent = connectors.get(connectorKey);
 
                         // Set position
                         int kx = size >= 16 ? 800 : (48 * size);
                         int ky = size < 4 ? 100 : size < 6 ? 350 : 750;
 
-                        final double hpos;
-                        if (parent == null || parent.getY() < syncopeTopologyNode.getY()) {
-                            hpos = Math.PI;
-                        } else {
-                            hpos = 0.0;
-                        }
+                        double hpos = (parent == null || parent.getY() < syncopeTopologyNode.getY()) ? Math.PI : 0.0;
 
                         int x = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getX).orElse(origX))
                                 + kx * Math.cos(hpos + Math.PI * (item.getIndex() + 1) / size));
@@ -440,7 +418,7 @@ public class Topology extends BasePage {
                         topologynode.setX(x);
                         topologynode.setY(y);
 
-                        item.add(topologyNodePanel("res", topologynode));
+                        item.add(topologyNodePanel("res", topologynode, false));
                     }
                 };
 
@@ -456,7 +434,7 @@ public class Topology extends BasePage {
         // -----------------------------------------
         // Create connections
         // -----------------------------------------
-        final WebMarkupContainer jsPlace = new WebMarkupContainerNoVeil("jsPlace");
+        WebMarkupContainer jsPlace = new WebMarkupContainerNoVeil("jsPlace");
         jsPlace.setOutputMarkupId(true);
         body.add(jsPlace);
 
@@ -514,7 +492,7 @@ public class Topology extends BasePage {
 
             @Override
             protected void populateItem(final ListItem<TopologyNode> item) {
-                item.add(topologyNodePanel("el", item.getModelObject()));
+                item.add(topologyNodePanel("el", item.getModelObject(), false));
             }
         };
         newlyCreated.setOutputMarkupId(true);
@@ -528,16 +506,16 @@ public class Topology extends BasePage {
 
         targets.forEach((key, value) -> value.forEach((label, node) -> list.add(
                 String.format("connect('%s','%s','%s');", key, label, node.getKind()))));
+
         return list;
     }
 
-    private TopologyNodePanel topologyNodePanel(final String id, final TopologyNode node) {
-
-        final TopologyNodePanel panel = new TopologyNodePanel(id, node);
+    private TopologyNodePanel topologyNodePanel(final String id, final TopologyNode node, final boolean errored) {
+        TopologyNodePanel panel = new TopologyNodePanel(id, node, errored);
         panel.setMarkupId(String.valueOf(node.getKey()));
         panel.setOutputMarkupId(true);
 
-        final List<Behavior> behaviors = new ArrayList<>();
+        List<Behavior> behaviors = new ArrayList<>();
 
         behaviors.add(new Behavior() {
 
@@ -580,9 +558,9 @@ public class Topology extends BasePage {
         super.onEvent(event);
 
         if (event.getPayload() instanceof CreateEvent) {
-            final CreateEvent resourceCreateEvent = CreateEvent.class.cast(event.getPayload());
+            CreateEvent resourceCreateEvent = CreateEvent.class.cast(event.getPayload());
 
-            final TopologyNode node = new TopologyNode(
+            TopologyNode node = new TopologyNode(
                     resourceCreateEvent.getKey(),
                     resourceCreateEvent.getDisplayName(),
                     resourceCreateEvent.getKind());

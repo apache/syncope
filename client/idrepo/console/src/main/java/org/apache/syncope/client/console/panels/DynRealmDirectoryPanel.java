@@ -31,7 +31,6 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DynRealmDirectoryPanel.DynRealmDataProvider;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.DynRealmWrapper;
@@ -66,17 +65,11 @@ public class DynRealmDirectoryPanel extends
 
         modal.size(Modal.Size.Large);
         modal.addSubmitButton();
-        setFooterVisibility(true);
-        modal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                updateResultTable(target);
-                modal.show(false);
-            }
+        modal.setWindowClosedCallback(target -> {
+            updateResultTable(target);
+            modal.show(false);
         });
+        setFooterVisibility(true);
 
         AjaxLink<Void> newDynRealmlLink = new AjaxLink<Void>("add") {
 

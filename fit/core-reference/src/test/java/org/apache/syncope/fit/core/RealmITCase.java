@@ -27,14 +27,14 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
-import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -175,7 +175,7 @@ public class RealmITCase extends AbstractITCase {
         rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         AccountPolicyTO policy = new AccountPolicyTO();
-        policy.setDescription("deletingAccountPolicy");
+        policy.setName("deletingAccountPolicy");
         policy.getRules().add(rule.getKey());
 
         policy = createPolicy(PolicyType.ACCOUNT, policy);
@@ -217,7 +217,7 @@ public class RealmITCase extends AbstractITCase {
         ruleConf.getAuthModules().addAll(List.of("LdapAuthentication1"));
 
         AuthPolicyTO policy = new AuthPolicyTO();
-        policy.setDescription("Test Authentication policy");
+        policy.setName("Test Authentication policy");
         policy.setConf(ruleConf);
         policy = createPolicy(PolicyType.AUTH, policy);
         assertNotNull(policy);
@@ -254,13 +254,12 @@ public class RealmITCase extends AbstractITCase {
     @Test
     public void deletingAccessPolicy() {
         // 1. create access policy
-        DefaultAccessPolicyConf ruleConf = new DefaultAccessPolicyConf();
-        ruleConf.setEnabled(true);
-        ruleConf.addRequiredAttr("cn", Set.of("admin", "Admin", "TheAdmin"));
+        DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
+        conf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
 
         AccessPolicyTO policy = new AccessPolicyTO();
-        policy.setDescription("Test Access policy");
-        policy.setConf(ruleConf);
+        policy.setName("Test Access policy");
+        policy.setConf(conf);
         policy = createPolicy(PolicyType.ACCESS, policy);
         assertNotNull(policy);
 
@@ -296,16 +295,13 @@ public class RealmITCase extends AbstractITCase {
     @Test
     public void deletingAttributeReleasePolicy() {
         // 1. create attribute release policy
-        AllowedAttrReleasePolicyConf ruleConf = new AllowedAttrReleasePolicyConf();
-        ruleConf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
-
-        AllowedAttrReleasePolicyConf.ConsentPolicy consentPolicy1 = ruleConf.new ConsentPolicy();
-        consentPolicy1.getIncludeOnlyAttrs().addAll(Set.of("cn"));
-        ruleConf.setConsentPolicy(consentPolicy1);
+        DefaultAttrReleasePolicyConf conf = new DefaultAttrReleasePolicyConf();
+        conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
+        conf.getIncludeOnlyAttrs().add("cn");
 
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
-        policy.setDescription("Test Attribute Release policy");
-        policy.setConf(ruleConf);
+        policy.setName("Test Attribute Release policy");
+        policy.setConf(conf);
         policy = createPolicy(PolicyType.ATTR_RELEASE, policy);
         assertNotNull(policy);
 

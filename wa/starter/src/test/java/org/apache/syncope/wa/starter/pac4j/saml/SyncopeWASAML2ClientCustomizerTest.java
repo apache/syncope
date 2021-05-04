@@ -16,59 +16,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.wa.starter.pac4j.saml;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.to.SAML2SPKeystoreTO;
-import org.apache.syncope.common.lib.to.SAML2SPMetadataTO;
-import org.apache.syncope.wa.bootstrap.WARestClient;
-import org.junit.jupiter.api.Test;
-import org.pac4j.saml.client.SAML2Client;
-import org.springframework.core.io.ClassPathResource;
-
-import javax.ws.rs.core.Response;
-
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.apache.syncope.common.rest.api.service.wa.WASAML2SPKeystoreService;
-import org.apache.syncope.common.rest.api.service.wa.WASAML2SPMetadataService;
+import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.IOUtils;
+import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
+import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.junit.jupiter.api.Test;
+import org.pac4j.saml.client.SAML2Client;
+import org.springframework.core.io.ClassPathResource;
+import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 
 public class SyncopeWASAML2ClientCustomizerTest extends BaseSyncopeWASAML2ClientTest {
 
     @Test
     public void customize() throws Exception {
-
-        SAML2SPKeystoreTO keystoreTO = new SAML2SPKeystoreTO.Builder()
-            .keystore(getKeystoreAsString())
-            .owner("CAS")
-            .build();
-        WASAML2SPKeystoreService saml2SPKeystoreService = mock(WASAML2SPKeystoreService.class);
-        when(saml2SPKeystoreService.getByOwner(anyString())).thenReturn(keystoreTO);
-        when(saml2SPKeystoreService.set(any())).thenReturn(Response.created(new URI("http://localhost:9081/syncop-wa")).build());
-
-        SAML2SPMetadataTO metadataTO = new SAML2SPMetadataTO.Builder()
-            .owner("Syncope")
-            .metadata(IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(), StandardCharsets.UTF_8))
-            .build();
-
-        WASAML2SPMetadataService saml2SPMetadataService = mock(WASAML2SPMetadataService.class);
-        when(saml2SPMetadataService.getByOwner(anyString())).thenReturn(metadataTO);
-        when(saml2SPMetadataService.set(any())).thenReturn(Response.created(new URI("http://localhost:9081/syncop-wa")).build());
+        SAML2SPEntityTO entityTO = new SAML2SPEntityTO.Builder()
+                .key("CAS")
+                .keystore(getKeystoreAsString())
+                .metadata(IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(),
+                        StandardCharsets.UTF_8))
+                .build();
+        SAML2SPEntityService service = mock(SAML2SPEntityService.class);
+        when(service.get(anyString())).thenReturn(entityTO);
+        doNothing().when(service).set(any(SAML2SPEntityTO.class));
 
         WARestClient restClient = mock(WARestClient.class);
 
         SyncopeClient syncopeClient = mock(SyncopeClient.class);
-        when(syncopeClient.getService(WASAML2SPKeystoreService.class)).thenReturn(saml2SPKeystoreService);
-        when(syncopeClient.getService(WASAML2SPMetadataService.class)).thenReturn(saml2SPMetadataService);
+        when(syncopeClient.getService(SAML2SPEntityService.class)).thenReturn(service);
         when(restClient.getSyncopeClient()).thenReturn(syncopeClient);
 
         SyncopeWASAML2ClientCustomizer customizer = new SyncopeWASAML2ClientCustomizer(restClient);

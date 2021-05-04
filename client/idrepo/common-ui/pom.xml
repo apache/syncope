@@ -59,6 +59,10 @@ under the License.
       <artifactId>wicket-auth-roles</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.wicketstuff</groupId>
+      <artifactId>wicketstuff-editable-grid</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-native-websocket-javax</artifactId>
     </dependency>
@@ -91,6 +95,11 @@ under the License.
       <artifactId>wicket-bootstrap-extensions</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+    </dependency>
+      
     <dependency>
       <groupId>org.apache.syncope.common.keymaster</groupId>
       <artifactId>syncope-common-keymaster-client-api</artifactId>

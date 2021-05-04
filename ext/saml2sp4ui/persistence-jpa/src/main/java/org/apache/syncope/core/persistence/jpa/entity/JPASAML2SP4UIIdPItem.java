@@ -40,9 +40,9 @@ import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 @Cacheable
 public class JPASAML2SP4UIIdPItem extends AbstractItem implements SAML2SP4UIIdPItem {
 
-    public static final String TABLE = "SAML2IdPItem";
-
     private static final long serialVersionUID = -597417734910639991L;
+
+    public static final String TABLE = "SAML2SP4UIIdPItem";
 
     @ManyToOne
     private JPASAML2SP4UIIdP idp;

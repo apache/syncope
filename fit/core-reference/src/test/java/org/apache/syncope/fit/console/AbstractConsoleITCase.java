@@ -25,8 +25,12 @@ import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.sett
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import org.apache.syncope.client.console.SyncopeAMConsoleContext;
 import org.apache.syncope.client.console.SyncopeIdMConsoleContext;
 import org.apache.syncope.client.console.SyncopeWebApplication;
+import org.apache.syncope.client.console.commons.IdRepoPolicyTabProvider;
+import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
@@ -35,7 +39,7 @@ import org.apache.syncope.client.console.wizards.any.UserFormFinalizerUtils;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
-import org.apache.syncope.common.keymaster.client.zookeper.ZookeeperKeymasterClientContext;
+import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.fit.ui.AbstractUITCase;
 import org.apache.wicket.util.tester.FormTester;
@@ -79,7 +83,7 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
 
         @Bean
         public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
-            ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
+            ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup(Set.of());
             lookup.load();
             return lookup;
         }
@@ -100,6 +104,11 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
         public UserFormFinalizerUtils userFormFinalizerUtils() {
             return new UserFormFinalizerUtils();
         }
+
+        @Bean
+        public PolicyTabProvider idRepoPolicyTabProvider() {
+            return new IdRepoPolicyTabProvider();
+        }
     }
 
     @BeforeAll
@@ -109,6 +118,7 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
         AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
         ctx.register(SyncopeConsoleWebApplicationTestConfig.class);
         ctx.register(SyncopeWebApplication.class);
+        ctx.register(SyncopeAMConsoleContext.class);
         ctx.register(SyncopeIdMConsoleContext.class);
         ctx.refresh();
 

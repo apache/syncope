@@ -76,11 +76,11 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
         // default sorting
         switch (type) {
             case "USER":
-                setSort("username", SortOrder.ASCENDING);
+                setSort(Constants.USERNAME_FIELD_NAME, SortOrder.ASCENDING);
                 break;
 
             case "GROUP":
-                setSort("name", SortOrder.ASCENDING);
+                setSort(Constants.NAME_FIELD_NAME, SortOrder.ASCENDING);
                 break;
 
             default:

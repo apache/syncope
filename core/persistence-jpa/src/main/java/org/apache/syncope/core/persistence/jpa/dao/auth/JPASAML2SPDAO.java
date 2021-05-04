@@ -19,30 +19,30 @@
 package org.apache.syncope.core.persistence.jpa.dao.auth;
 
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SP;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPClientApp;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 
 @Repository
-public class JPASAML2SPDAO extends AbstractDAO<SAML2SP> implements SAML2SPDAO {
+public class JPASAML2SPDAO extends AbstractDAO<SAML2SPClientApp> implements SAML2SPDAO {
 
     @Override
-    public SAML2SP find(final String key) {
-        return entityManager().find(JPASAML2SP.class, key);
+    public SAML2SPClientApp find(final String key) {
+        return entityManager().find(JPASAML2SPClientApp.class, key);
     }
 
-    private SAML2SP find(final String column, final Object value) {
-        TypedQuery<SAML2SP> query = entityManager().createQuery(
-                "SELECT e FROM " + JPASAML2SP.class.getSimpleName() + " e WHERE e." + column + "=:value",
-                SAML2SP.class);
+    private SAML2SPClientApp find(final String column, final Object value) {
+        TypedQuery<SAML2SPClientApp> query = entityManager().createQuery(
+                "SELECT e FROM " + JPASAML2SPClientApp.class.getSimpleName() + " e WHERE e." + column + "=:value",
+                SAML2SPClientApp.class);
         query.setParameter("value", value);
 
-        SAML2SP result = null;
+        SAML2SPClientApp result = null;
         try {
             result = query.getSingleResult();
         } catch (final NoResultException e) {
@@ -53,37 +53,37 @@ public class JPASAML2SPDAO extends AbstractDAO<SAML2SP> implements SAML2SPDAO {
     }
 
     @Override
-    public SAML2SP findByClientAppId(final Long clientAppId) {
+    public SAML2SPClientApp findByClientAppId(final Long clientAppId) {
         return find("clientAppId", clientAppId);
     }
 
     @Override
-    public SAML2SP findByName(final String name) {
+    public SAML2SPClientApp findByName(final String name) {
         return find("name", name);
     }
 
     @Override
-    public SAML2SP findByEntityId(final String entityId) {
+    public SAML2SPClientApp findByEntityId(final String entityId) {
         return find("entityId", entityId);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<SAML2SP> findAll() {
-        TypedQuery<SAML2SP> query = entityManager().createQuery(
-                "SELECT e FROM " + JPASAML2SP.class.getSimpleName() + " e", SAML2SP.class);
+    public List<SAML2SPClientApp> findAll() {
+        TypedQuery<SAML2SPClientApp> query = entityManager().createQuery(
+                "SELECT e FROM " + JPASAML2SPClientApp.class.getSimpleName() + " e", SAML2SPClientApp.class);
 
         return query.getResultList();
     }
 
     @Override
-    public SAML2SP save(final SAML2SP clientApp) {
+    public SAML2SPClientApp save(final SAML2SPClientApp clientApp) {
         return entityManager().merge(clientApp);
     }
 
     @Override
     public void delete(final String key) {
-        SAML2SP policy = find(key);
+        SAML2SPClientApp policy = find(key);
         if (policy == null) {
             return;
         }
@@ -93,7 +93,7 @@ public class JPASAML2SPDAO extends AbstractDAO<SAML2SP> implements SAML2SPDAO {
 
     @Override
     public void deleteByEntityId(final String entityId) {
-        SAML2SP app = findByEntityId(entityId);
+        SAML2SPClientApp app = findByEntityId(entityId);
         if (app == null) {
             return;
         }
@@ -101,7 +101,7 @@ public class JPASAML2SPDAO extends AbstractDAO<SAML2SP> implements SAML2SPDAO {
     }
 
     @Override
-    public void delete(final SAML2SP clientApp) {
+    public void delete(final SAML2SPClientApp clientApp) {
         entityManager().remove(clientApp);
     }
 }

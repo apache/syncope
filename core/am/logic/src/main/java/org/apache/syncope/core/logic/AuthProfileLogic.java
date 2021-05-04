@@ -16,92 +16,59 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.logic;
 
-import org.apache.commons.lang3.ArrayUtils;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
-import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class AuthProfileLogic extends AbstractTransactionalLogic<AuthProfileTO> {
-    @Autowired
-    private AuthProfileDAO authProfileDAO;
-
-    @Autowired
-    private AuthProfileDataBinder authProfileDataBinder;
+public class AuthProfileLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_DELETE + "') ")
-    public void deleteByKey(final String key) {
-        authProfileDAO.deleteByKey(key);
-    }
-
-    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_DELETE + "') ")
-    public void deleteByOwner(final String owner) {
-        authProfileDAO.deleteByOwner(owner);
+    public void delete(final String key) {
+        authProfileDAO.delete(key);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_READ + "') ")
-    public AuthProfileTO findByOwner(final String owner) {
-        AuthProfile authProfile = authProfileDAO.findByOwner(owner).orElse(null);
-        if (authProfile == null) {
-            throw new NotFoundException(owner + " not found");
-        }
-        return authProfileDataBinder.getAuthProfileTO(authProfile);
+    @Transactional(readOnly = true)
+    public AuthProfileTO read(final String key) {
+        return Optional.ofNullable(authProfileDAO.find(key)).
+                map(binder::getAuthProfileTO).
+                orElseThrow(() -> new NotFoundException(key + " not found"));
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_READ + "') ")
-    public AuthProfileTO findByKey(final String key) {
-        AuthProfile authProfile = authProfileDAO.findByKey(key).orElse(null);
-        if (authProfile == null) {
-            throw new NotFoundException(key + " not found");
-        }
-        return authProfileDataBinder.getAuthProfileTO(authProfile);
+    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_CREATE + "') ")
+    public AuthProfileTO create(final AuthProfileTO authProfileTO) {
+        return binder.getAuthProfileTO(authProfileDAO.save(binder.create(authProfileTO)));
+    }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_UPDATE + "') ")
+    public void update(final AuthProfileTO authProfileTO) {
+        AuthProfile authProfile = Optional.ofNullable(authProfileDAO.find(authProfileTO.getKey())).
+                orElseThrow(() -> new NotFoundException(authProfileTO.getKey() + " not found"));
+        binder.update(authProfile, authProfileTO);
+        authProfileDAO.save(authProfile);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_LIST + "')")
-    public List<AuthProfileTO> list() {
-        return authProfileDAO.findAll().
-            stream().
-            map(authProfileDataBinder::getAuthProfileTO).
-            collect(Collectors.toList());
-    }
+    @Transactional(readOnly = true)
+    public Pair<Integer, List<AuthProfileTO>> list(final int page, final int size) {
+        int count = authProfileDAO.count();
 
-    @Override
-    protected AuthProfileTO resolveReference(final Method method, final Object... args)
-        throws UnresolvedReferenceException {
-        String key = null;
+        List<AuthProfileTO> result = authProfileDAO.findAll(page, size).
+                stream().
+                map(binder::getAuthProfileTO).
+                collect(Collectors.toList());
 
-        if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof AuthProfileTO) {
-                    key = ((AuthProfileTO) args[i]).getKey();
-                }
-            }
-        }
-
-        if (key != null) {
-            try {
-                return findByKey(key);
-            } catch (Throwable ignore) {
-                LOG.debug("Unresolved reference", ignore);
-                throw new UnresolvedReferenceException(ignore);
-            }
-        }
-
-        throw new UnresolvedReferenceException();
+        return Pair.of(count, result);
     }
 }

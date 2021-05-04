@@ -168,19 +168,15 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
     }
 
     private BaseModal<T> setInternalContent(final Panel component) {
-        if (!component.getId().equals(getContentId())) {
+        if (!component.getId().equals(CONTENT_ID)) {
             throw new WicketRuntimeException("Modal content id is wrong. "
-                    + "Component ID: " + component.getId() + "; content ID: " + getContentId());
+                    + "Component ID: " + component.getId() + "; content ID: " + CONTENT_ID);
         }
 
         content.replaceWith(component);
         content = component;
 
         return this;
-    }
-
-    public static String getContentId() {
-        return CONTENT_ID;
     }
 
     public BaseModal<T> setWindowClosedCallback(final WindowClosedCallback callback) {
@@ -382,6 +378,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
      * {@link BaseModal#setWindowClosedCallback(BaseModal.WindowClosedCallback)}, no ajax
      * request will be fired.
      */
+    @FunctionalInterface
     public interface WindowClosedCallback extends IClusterable {
 
         /**

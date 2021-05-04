@@ -16,16 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.persistence.api.entity.auth;
 
-import org.apache.syncope.common.lib.types.GoogleMfaAuthAccount;
-import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
-import org.apache.syncope.common.lib.types.U2FRegisteredDevice;
-import org.apache.syncope.common.lib.types.WebAuthnAccount;
-import org.apache.syncope.core.persistence.api.entity.Entity;
-
 import java.util.List;
+import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
+import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.wa.ImpersonationAccount;
+import org.apache.syncope.common.lib.wa.U2FDevice;
+import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 
 public interface AuthProfile extends Entity {
 
@@ -37,21 +36,19 @@ public interface AuthProfile extends Entity {
 
     void setGoogleMfaAuthTokens(List<GoogleMfaAuthToken> tokens);
 
-    List<U2FRegisteredDevice> getU2FRegisteredDevices();
+    List<U2FDevice> getU2FRegisteredDevices();
 
-    void setU2FRegisteredDevices(List<U2FRegisteredDevice> records);
+    void setU2FRegisteredDevices(List<U2FDevice> records);
 
     List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts();
 
     void setGoogleMfaAuthAccounts(List<GoogleMfaAuthAccount> accounts);
 
-    WebAuthnAccount getWebAuthnAccount();
+    List<WebAuthnDeviceCredential> getWebAuthnDeviceCredentials();
 
-    void setWebAuthnAccount(WebAuthnAccount accounts);
+    void setWebAuthnDeviceCredentials(List<WebAuthnDeviceCredential> credentials);
 
-    void add(GoogleMfaAuthToken token);
+    List<ImpersonationAccount> getImpersonationAccounts();
 
-    void add(GoogleMfaAuthAccount account);
-
-    void add(U2FRegisteredDevice account);
+    void setImpersonationAccounts(List<ImpersonationAccount> accounts);
 }

@@ -21,25 +21,25 @@ package org.apache.syncope.core.persistence.api.dao.auth;
 import org.apache.syncope.core.persistence.api.dao.DAO;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
-public interface OIDCRPDAO extends DAO<OIDCRP> {
+public interface OIDCRPDAO extends DAO<OIDCRPClientApp> {
 
-    OIDCRP find(String key);
+    OIDCRPClientApp find(String key);
 
-    OIDCRP findByClientAppId(Long clientAppId);
+    OIDCRPClientApp findByClientAppId(Long clientAppId);
 
-    OIDCRP findByName(String name);
+    OIDCRPClientApp findByName(String name);
 
-    OIDCRP findByClientId(String clientId);
+    OIDCRPClientApp findByClientId(String clientId);
 
-    List<OIDCRP> findAll();
+    List<OIDCRPClientApp> findAll();
 
-    OIDCRP save(OIDCRP clientApp);
+    OIDCRPClientApp save(OIDCRPClientApp clientApp);
 
     void delete(String key);
 
     void deleteByClientId(String clientId);
 
-    void delete(OIDCRP clientApp);
+    void delete(OIDCRPClientApp clientApp);
 }

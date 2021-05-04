@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -59,12 +58,21 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 
 public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
     protected static final String ALWAYS_FALSE_ASSERTION = "1=2";
+
+    protected static final String POSTGRESQL_REGEX_CHARS = "!$()*+.:<=>?[\\]^{|}-";
+
+    protected static String escapeForLikeRegex(final String input) {
+        String output = input;
+        for (char toEscape : POSTGRESQL_REGEX_CHARS.toCharArray()) {
+            output = output.replace(String.valueOf(toEscape), "\\" + toEscape);
+        }
+        return output;
+    }
 
     @Override
     protected void parseOrderByForPlainSchema(
@@ -106,14 +114,9 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
         } else {
             String key = key(schema.getType());
 
-            String value = cond.getExpression();
-            if (schema.getType() == AttrSchemaType.Date) {
-                try {
-                    value = String.valueOf(FormatUtils.parseDate(value).getTime());
-                } catch (ParseException e) {
-                    LOG.error("Could not parse {} as date", value, e);
-                }
-            }
+            String value = Optional.ofNullable(attrValue.getDateValue()).
+                    map(v -> String.valueOf(v.getTime())).
+                    orElse(cond.getExpression());
 
             boolean isStr = true;
             boolean lower;
@@ -160,11 +163,11 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                     if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
                         query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
                                 append("(@.").append(key).append(" like_regex \"").
-                                append(value.replace("%", ".*")).
+                                append(escapeForLikeRegex(value).replace("%", ".*")).
                                 append("\"").
                                 append(lower ? " flag \"i\"" : "").append(")')");
                     } else {
-                        query.append(" 1=2");
+                        query.append(' ').append(ALWAYS_FALSE_ASSERTION);
                         LOG.error("LIKE is only compatible with string or enum schemas");
                     }
                     break;
@@ -174,7 +177,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                     query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
                             append("(@.").append(key);
                     if (isStr) {
-                        query.append(" like_regex \"").append(value.replace("'", "''")).append("\"");
+                        query.append(" like_regex \"").append(escapeForLikeRegex(value).replace("'", "''")).append('"');
                     } else {
                         query.append(" == ").append(value);
                     }
@@ -867,7 +870,7 @@ public class PGJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                             query.append('?').append(setParameter(parameters, cond.getExpression()));
                         }
                     } else {
-                        query.append(" 1=2");
+                        query.append(' ').append(ALWAYS_FALSE_ASSERTION);
                         LOG.error("LIKE is only compatible with string or enum schemas");
                     }
                     break;

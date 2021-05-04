@@ -70,11 +70,6 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.apache.pdfbox</groupId>
-      <artifactId>pdfbox</artifactId>
-    </dependency>
-      
-    <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>font-awesome</artifactId>
     </dependency>
@@ -181,8 +176,6 @@ under the License.
         <filtering>true</filtering>
         <excludes>
           <exclude>org/apache/syncope/**/*.properties</exclude>
-          <exclude>**/*.woff</exclude>
-          <exclude>**/*.woff2</exclude>
         </excludes>
       </resource>
       <resource>
@@ -190,8 +183,6 @@ under the License.
         <filtering>false</filtering>
         <includes>
           <include>org/apache/syncope/**/*.properties</include>
-          <include>**/*.woff</include>
-          <include>**/*.woff2</include>
         </includes>
       </resource>
 
@@ -260,6 +251,7 @@ under the License.
             <configuration>
               <jvmArguments>
                 -Dwicket.core.settings.general.configuration-type=development
+                -XX:HotswapAgent=fatjar
                 -Xdebug -Xrunjdwp:transport=dt_socket,address=8003,server=y,suspend=n
               </jvmArguments>
               <profiles>

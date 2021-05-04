@@ -23,17 +23,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
-import org.apache.syncope.common.lib.policy.DefaultAuthPolicyCriteriaConf;
-import org.apache.syncope.common.lib.to.client.OIDCRPTO;
-import org.apache.syncope.common.lib.to.client.SAML2SPTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
+import org.apache.syncope.common.lib.types.OIDCGrantType;
+import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.wa.WAClientApp;
@@ -58,8 +59,8 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
     @Autowired
     private ServicesManager servicesManager;
 
-    private static OIDCRPTO buildOIDCRP() {
-        OIDCRPTO oidcrpTO = new OIDCRPTO();
+    private static OIDCRPClientAppTO buildOIDCRP() {
+        OIDCRPClientAppTO oidcrpTO = new OIDCRPClientAppTO();
         oidcrpTO.setName("ExampleRP_" + getUUIDString());
         oidcrpTO.setClientAppId(RandomUtils.nextLong());
         oidcrpTO.setDescription("Example OIDC RP application");
@@ -67,14 +68,14 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         oidcrpTO.setClientSecret("secret");
         oidcrpTO.getRedirectUris().addAll(List.of("uri1", "uri2"));
         oidcrpTO.setSubjectType(OIDCSubjectType.PUBLIC);
-        oidcrpTO.getSupportedGrantTypes().add("something");
-        oidcrpTO.getSupportedResponseTypes().add("something");
+        oidcrpTO.getSupportedGrantTypes().add(OIDCGrantType.password);
+        oidcrpTO.getSupportedResponseTypes().add(OIDCResponseType.CODE);
 
         return oidcrpTO;
     }
 
-    protected SAML2SPTO buildSAML2SP() {
-        SAML2SPTO saml2spto = new SAML2SPTO();
+    protected SAML2SPClientAppTO buildSAML2SP() {
+        SAML2SPClientAppTO saml2spto = new SAML2SPClientAppTO();
         saml2spto.setName("ExampleSAML2SP_" + getUUIDString());
         saml2spto.setClientAppId(RandomUtils.nextLong());
         saml2spto.setDescription("Example SAML 2.0 service provider");
@@ -93,28 +94,24 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
             final WAClientApp waClientApp) {
 
         DefaultAuthPolicyConf authPolicyConf = new DefaultAuthPolicyConf();
-        DefaultAuthPolicyCriteriaConf criteria = new DefaultAuthPolicyCriteriaConf();
-        criteria.setAll(true);
-        authPolicyConf.setCriteria(criteria);
+        authPolicyConf.setTryAll(true);
         authPolicyConf.getAuthModules().add("TestAuthModule");
 
         waClientApp.setAuthPolicyConf(authPolicyConf);
 
         if (withReleaseAttributes) {
-            Map<String, Object> releaseAttrs;
-            releaseAttrs = new HashMap<>();
-            releaseAttrs.put("uid", "username");
-            releaseAttrs.put("cn", "fullname");
-            waClientApp.getReleaseAttrs().putAll(releaseAttrs);
+            waClientApp.getReleaseAttrs().putAll(Map.of("uid", "username", "cn", "fullname"));
         }
 
+        AccessPolicyTO accessPolicy = new AccessPolicyTO();
+        accessPolicy.setEnabled(true);
         DefaultAccessPolicyConf accessPolicyConf = new DefaultAccessPolicyConf();
-        accessPolicyConf.setEnabled(true);
-        accessPolicyConf.addRequiredAttr("cn", Set.of("admin", "Admin", "TheAdmin"));
-        waClientApp.setAccessPolicyConf(accessPolicyConf);
+        accessPolicyConf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
+        accessPolicy.setConf(accessPolicyConf);
+        waClientApp.setAccessPolicy(accessPolicy);
 
         if (withAttrReleasePolicy) {
-            AllowedAttrReleasePolicyConf attrReleasePolicyConf = new AllowedAttrReleasePolicyConf();
+            DefaultAttrReleasePolicyConf attrReleasePolicyConf = new DefaultAttrReleasePolicyConf();
             attrReleasePolicyConf.getAllowedAttrs().add("cn");
             waClientApp.setAttrReleasePolicyConf(attrReleasePolicyConf);
         }
@@ -152,7 +149,7 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         assertNotNull(found);
         assertTrue(found instanceof OidcRegisteredService);
         OidcRegisteredService oidc = OidcRegisteredService.class.cast(found);
-        OIDCRPTO oidcrpto = OIDCRPTO.class.cast(waClientApp.getClientAppTO());
+        OIDCRPClientAppTO oidcrpto = OIDCRPClientAppTO.class.cast(waClientApp.getClientAppTO());
         assertEquals("uri1|uri2", oidc.getServiceId());
         assertEquals(oidcrpto.getClientId(), oidc.getClientId());
         assertEquals(oidcrpto.getClientSecret(), oidc.getClientSecret());
@@ -177,7 +174,7 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         found = servicesManager.findServiceBy(clientAppId);
         assertTrue(found instanceof SamlRegisteredService);
         SamlRegisteredService saml = SamlRegisteredService.class.cast(found);
-        SAML2SPTO samlspto = SAML2SPTO.class.cast(waClientApp.getClientAppTO());
+        SAML2SPClientAppTO samlspto = SAML2SPClientAppTO.class.cast(waClientApp.getClientAppTO());
         assertEquals(samlspto.getMetadataLocation(), saml.getMetadataLocation());
         assertEquals(samlspto.getEntityId(), saml.getServiceId());
         assertTrue(saml.getAuthenticationPolicy().getRequiredAuthenticationHandlers().contains("TestAuthModule"));

@@ -21,25 +21,25 @@ package org.apache.syncope.core.persistence.api.dao.auth;
 import org.apache.syncope.core.persistence.api.dao.DAO;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 
-public interface SAML2SPDAO extends DAO<SAML2SP> {
+public interface SAML2SPDAO extends DAO<SAML2SPClientApp> {
 
-    SAML2SP find(String key);
+    SAML2SPClientApp find(String key);
 
-    SAML2SP findByClientAppId(Long clientAppId);
+    SAML2SPClientApp findByClientAppId(Long clientAppId);
 
-    SAML2SP findByName(String name);
+    SAML2SPClientApp findByName(String name);
 
-    SAML2SP findByEntityId(String clientId);
+    SAML2SPClientApp findByEntityId(String clientId);
 
-    List<SAML2SP> findAll();
+    List<SAML2SPClientApp> findAll();
 
-    SAML2SP save(SAML2SP clientApp);
+    SAML2SPClientApp save(SAML2SPClientApp clientApp);
 
     void delete(String key);
 
     void deleteByEntityId(String entityId);
 
-    void delete(SAML2SP clientApp);
+    void delete(SAML2SPClientApp clientApp);
 }

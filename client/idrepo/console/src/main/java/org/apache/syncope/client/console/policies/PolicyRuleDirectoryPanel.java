@@ -29,7 +29,6 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
@@ -37,6 +36,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -147,7 +147,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
                 PolicyRuleDirectoryPanel.this.getTogglePanel().close(target);
                 if (model.getObject().getConf() == null) {
                     SyncopeConsoleSession.get().info(getString("noConf"));
-                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 } else {
                     send(PolicyRuleDirectoryPanel.this, Broadcast.EXACT,
                             new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
@@ -162,10 +162,10 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
             public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
                 RuleConf rule = model.getObject().getConf();
                 try {
-                    T actual = PolicyRestClient.getPolicy(type, policy);
+                    T actual = PolicyRestClient.read(type, policy);
                     if (actual instanceof ComposablePolicy) {
                         ((ComposablePolicy) actual).getRules().remove(model.getObject().getImplementationKey());
-                        PolicyRestClient.updatePolicy(type, actual);
+                        PolicyRestClient.update(type, actual);
 
                         SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         customActionOnFinishCallback(target);
@@ -174,7 +174,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
                     LOG.error("While deleting {}", rule.getName(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionLink.ActionType.DELETE, IdRepoEntitlement.POLICY_DELETE, true);
 
@@ -251,7 +251,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
         @Override
         public Iterator<PolicyRuleWrapper> iterator(final long first, final long count) {
-            final T actual = PolicyRestClient.getPolicy(type, policy);
+            final T actual = PolicyRestClient.read(type, policy);
 
             List<PolicyRuleWrapper> rules = actual instanceof ComposablePolicy
                     ? getPolicyRuleWrappers((ComposablePolicy) actual)
@@ -263,7 +263,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
         @Override
         public long size() {
-            final T actual = PolicyRestClient.getPolicy(type, policy);
+            final T actual = PolicyRestClient.read(type, policy);
             return actual instanceof ComposablePolicy
                     ? getPolicyRuleWrappers((ComposablePolicy) actual).size()
                     : 0;
@@ -279,7 +279,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
         if (event.getPayload() instanceof ExitEvent) {
-            final AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
+            AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
             baseModal.show(false);
             baseModal.close(target);
         }

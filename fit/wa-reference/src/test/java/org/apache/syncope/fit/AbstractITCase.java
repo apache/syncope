@@ -41,16 +41,16 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
+import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
+import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
-import org.apache.syncope.common.rest.api.service.wa.WASAML2IdPMetadataService;
+import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.sra.AbstractSRAITCase;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
-import org.apache.syncope.common.rest.api.service.UserService;
-import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 
 public class AbstractITCase {
 
@@ -101,12 +101,12 @@ public class AbstractITCase {
 
     @BeforeAll
     public static void waitForWARefresh() {
-        WASAML2IdPMetadataService samlIdPMetadataService = adminClient.getService(WASAML2IdPMetadataService.class);
+        SAML2IdPEntityService samlIdPEntityService = adminClient.getService(SAML2IdPEntityService.class);
 
         await().atMost(50, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             boolean refreshed = false;
             try {
-                samlIdPMetadataService.getByOwner("Syncope");
+                samlIdPEntityService.get(SAML2IdPEntityService.DEFAULT_OWNER);
                 refreshed = true;
             } catch (Exception e) {
                 // ignore

@@ -45,7 +45,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.syncope.common.lib.to.client.CASSPTO;
+import org.apache.syncope.common.lib.to.CASSPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.junit.jupiter.api.BeforeAll;
@@ -63,12 +63,12 @@ public class CASSRAITCase extends AbstractSRAITCase {
     @BeforeAll
     public static void clientAppSetup() {
         String appName = CASSRAITCase.class.getName();
-        CASSPTO clientApp = clientAppService.list(ClientAppType.CASSP).stream().
+        CASSPClientAppTO clientApp = clientAppService.list(ClientAppType.CASSP).stream().
                 filter(app -> appName.equals(app.getName())).
-                map(CASSPTO.class::cast).
+                map(CASSPClientAppTO.class::cast).
                 findFirst().
                 orElseGet(() -> {
-                    CASSPTO app = new CASSPTO();
+                    CASSPClientAppTO app = new CASSPClientAppTO();
                     app.setName(appName);
                     app.setClientAppId(4L);
                     app.setServiceId("http://localhost:8080/.*");

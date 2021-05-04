@@ -34,7 +34,6 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
@@ -54,6 +53,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.wicket.model.PropertyModel;
 
@@ -70,18 +70,11 @@ public class MailTemplateDirectoryPanel
 
         modal.size(Modal.Size.Small);
         modal.addSubmitButton();
-        setFooterVisibility(true);
-
-        modal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                updateResultTable(target);
-                modal.show(false);
-            }
+        modal.setWindowClosedCallback(target -> {
+            updateResultTable(target);
+            modal.show(false);
         });
+        setFooterVisibility(true);
 
         addOuterObject(utilityModal);
         setWindowClosedReloadCallback(utilityModal);
@@ -259,7 +252,7 @@ public class MailTemplateDirectoryPanel
                     SyncopeConsoleSession.get().onException(e);
                 }
             }
-            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
 }

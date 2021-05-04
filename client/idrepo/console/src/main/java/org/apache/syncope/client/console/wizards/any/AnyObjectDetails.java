@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -37,7 +38,8 @@ public class AnyObjectDetails extends Details<AnyObjectTO> {
         super(wrapper, templateMode, includeStatusPanel, pageRef);
 
         AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                "name", "name", new PropertyModel<>(wrapper.getInnerObject(), "name"), false);
+                Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME,
+                new PropertyModel<>(wrapper.getInnerObject(), Constants.NAME_FIELD_NAME), false);
         if (templateMode) {
             name.enableJexlHelp();
         } else {

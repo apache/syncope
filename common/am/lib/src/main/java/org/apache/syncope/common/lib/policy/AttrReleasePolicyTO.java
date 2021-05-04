@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(allOf = { PolicyTO.class })
 public class AttrReleasePolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = -1432411162433533300L;

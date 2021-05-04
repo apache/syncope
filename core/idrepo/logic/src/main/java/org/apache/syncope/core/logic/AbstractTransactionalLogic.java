@@ -27,5 +27,5 @@ import org.springframework.transaction.annotation.Transactional;
  * @param <T> transfer object used for input / output
  */
 @Transactional(rollbackFor = { Throwable.class })
-abstract class AbstractTransactionalLogic<T extends EntityTO> extends AbstractLogic<T> {
+public abstract class AbstractTransactionalLogic<T extends EntityTO> extends AbstractLogic<T> {
 }

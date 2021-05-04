@@ -18,18 +18,18 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
-import org.apache.syncope.common.lib.to.client.CASSPTO;
-import org.apache.syncope.common.lib.to.client.ClientAppTO;
-import org.apache.syncope.common.lib.to.client.OIDCRPTO;
-import org.apache.syncope.common.lib.to.client.SAML2SPTO;
+import org.apache.syncope.common.lib.to.CASSPClientAppTO;
+import org.apache.syncope.common.lib.to.ClientAppTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtils;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
 import org.springframework.stereotype.Component;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
 @Component
 public class JPAClientAppUtilsFactory implements ClientAppUtilsFactory {
@@ -42,11 +42,11 @@ public class JPAClientAppUtilsFactory implements ClientAppUtilsFactory {
     @Override
     public ClientAppUtils getInstance(final ClientApp clientApp) {
         ClientAppType type;
-        if (clientApp instanceof SAML2SP) {
+        if (clientApp instanceof SAML2SPClientApp) {
             type = ClientAppType.SAML2SP;
-        } else if (clientApp instanceof CASSP) {
+        } else if (clientApp instanceof CASSPClientApp) {
             type = ClientAppType.CASSP;
-        } else if (clientApp instanceof OIDCRP) {
+        } else if (clientApp instanceof OIDCRPClientApp) {
             type = ClientAppType.OIDCRP;
         } else {
             throw new IllegalArgumentException("Invalid client app: " + clientApp);
@@ -58,11 +58,11 @@ public class JPAClientAppUtilsFactory implements ClientAppUtilsFactory {
     @Override
     public ClientAppUtils getInstance(final Class<? extends ClientAppTO> clientAppClass) {
         ClientAppType type;
-        if (clientAppClass == SAML2SPTO.class) {
+        if (clientAppClass == SAML2SPClientAppTO.class) {
             type = ClientAppType.SAML2SP;
-        } else if (clientAppClass == CASSPTO.class) {
+        } else if (clientAppClass == CASSPClientAppTO.class) {
             type = ClientAppType.CASSP;
-        } else if (clientAppClass == OIDCRPTO.class) {
+        } else if (clientAppClass == OIDCRPClientAppTO.class) {
             type = ClientAppType.OIDCRP;
         } else {
             throw new IllegalArgumentException("Invalid ClientAppTO app: " + clientAppClass.getName());

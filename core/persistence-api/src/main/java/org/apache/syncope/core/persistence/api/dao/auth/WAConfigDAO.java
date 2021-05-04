@@ -32,9 +32,4 @@ public interface WAConfigDAO extends DAO<WAConfigEntry> {
     WAConfigEntry save(WAConfigEntry configEntry);
 
     void delete(String key);
-
-    void delete(WAConfigEntry configEntry);
-
-    void deleteAll();
-
 }

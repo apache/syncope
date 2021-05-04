@@ -292,8 +292,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     }
 
     static void readProperties(final java.util.Properties p) {
-        String version = p.getProperty("version");
         // TODO read your settings according to their version
+        // String version = p.getProperty("version");
     }
 
     private void addMailTemplates() {

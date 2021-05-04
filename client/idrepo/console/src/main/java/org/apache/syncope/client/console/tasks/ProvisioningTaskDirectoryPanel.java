@@ -106,10 +106,12 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
 
         columns.add(new PropertyColumn<>(
-                new StringResourceModel("name", this), "name", "name"));
+                new StringResourceModel(Constants.NAME_FIELD_NAME, this),
+                Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
 
         columns.add(new PropertyColumn<>(
-                new StringResourceModel("description", this), "description", "description"));
+                new StringResourceModel(Constants.DESCRIPTION_FIELD_NAME, this),
+                Constants.DESCRIPTION_FIELD_NAME, Constants.DESCRIPTION_FIELD_NAME));
 
         if (reference == PullTaskTO.class) {
             columns.add(new PropertyColumn<>(
@@ -144,7 +146,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
                 Component panel;
                 try {
                     JobTO jobTO = TaskRestClient.getJob(rowModel.getObject().getKey());
-                    panel = new JobActionPanel(componentId, jobTO, false, ProvisioningTaskDirectoryPanel.this, pageRef);
+                    panel = new JobActionPanel(componentId, jobTO, false, ProvisioningTaskDirectoryPanel.this);
                     MetaDataRoleAuthorizationStrategy.authorize(
                             panel, WebPage.ENABLE,
                             String.format("%s,%s", IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));

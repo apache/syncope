@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -51,13 +50,14 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
-import org.apache.syncope.common.keymaster.client.zookeper.ZookeeperKeymasterClientContext;
+import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
@@ -71,7 +71,7 @@ import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
-import org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
@@ -86,11 +86,13 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
-import org.apache.syncope.common.lib.to.client.ClientAppTO;
-import org.apache.syncope.common.lib.to.client.OIDCRPTO;
-import org.apache.syncope.common.lib.to.client.SAML2SPTO;
+import org.apache.syncope.common.lib.to.ClientAppTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.OIDCGrantType;
+import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -135,14 +137,16 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
-import org.apache.syncope.common.rest.api.service.SAML2IdPMetadataService;
+import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIService;
-import org.apache.syncope.common.rest.api.service.SAML2SPKeystoreService;
-import org.apache.syncope.common.rest.api.service.SAML2SPMetadataService;
+import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
+import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
@@ -154,8 +158,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
-import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 
 @SpringJUnitConfig({ CoreITContext.class, SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
 public abstract class AbstractITCase {
@@ -232,8 +234,6 @@ public abstract class AbstractITCase {
 
     protected static final String PRINTER = "PRINTER";
 
-    protected static final String OWNER = "Syncope";
-
     protected static final int MAX_WAIT_SECONDS = 50;
 
     protected static String ANONYMOUS_UNAME;
@@ -249,6 +249,8 @@ public abstract class AbstractITCase {
     protected static SyncopeClientFactoryBean clientFactory;
 
     protected static SyncopeClient adminClient;
+
+    protected static SyncopeClient anonymusClient;
 
     protected static SyncopeService syncopeService;
 
@@ -326,25 +328,25 @@ public abstract class AbstractITCase {
 
     protected static ClientAppService clientAppService;
 
+    protected static AuthProfileService authProfileService;
+
+    protected static SAML2SPEntityService saml2SPEntityService;
+
+    protected static SAML2IdPEntityService saml2IdPEntityService;
+
+    protected static OIDCJWKSService oidcJWKSService;
+
+    protected static WAConfigService waConfigService;
+
     protected static GoogleMfaAuthTokenService googleMfaAuthTokenService;
 
     protected static GoogleMfaAuthAccountService googleMfaAuthAccountService;
 
-    protected static AuthProfileService authProfileService;
-
-    protected static SAML2SPMetadataService saml2SPMetadataService;
-
-    protected static SAML2SPKeystoreService saml2SPKeystoreService;
-
-    protected static SAML2IdPMetadataService saml2IdPMetadataService;
-
-    protected static OIDCJWKSService oidcJWKSService;
-
-    protected static U2FRegistrationService u2FRegistrationService;
-
-    protected static WAConfigService waConfigService;
+    protected static U2FRegistrationService u2fRegistrationService;
 
     protected static WebAuthnRegistrationService webAuthnRegistrationService;
+
+    protected static ImpersonationService impersonationService;
 
     @BeforeAll
     public static void securitySetup() {
@@ -417,16 +419,19 @@ public abstract class AbstractITCase {
         scimConfService = adminClient.getService(SCIMConfService.class);
         clientAppService = adminClient.getService(ClientAppService.class);
         authModuleService = adminClient.getService(AuthModuleService.class);
-        saml2SPMetadataService = adminClient.getService(SAML2SPMetadataService.class);
-        saml2IdPMetadataService = adminClient.getService(SAML2IdPMetadataService.class);
-        saml2SPKeystoreService = adminClient.getService(SAML2SPKeystoreService.class);
-        googleMfaAuthTokenService = adminClient.getService(GoogleMfaAuthTokenService.class);
-        googleMfaAuthAccountService = adminClient.getService(GoogleMfaAuthAccountService.class);
+        saml2SPEntityService = adminClient.getService(SAML2SPEntityService.class);
+        saml2IdPEntityService = adminClient.getService(SAML2IdPEntityService.class);
         authProfileService = adminClient.getService(AuthProfileService.class);
         oidcJWKSService = adminClient.getService(OIDCJWKSService.class);
-        u2FRegistrationService = adminClient.getService(U2FRegistrationService.class);
         waConfigService = adminClient.getService(WAConfigService.class);
-        webAuthnRegistrationService = adminClient.getService(WebAuthnRegistrationService.class);
+
+        anonymusClient = clientFactory.create(new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
+
+        googleMfaAuthTokenService = anonymusClient.getService(GoogleMfaAuthTokenService.class);
+        googleMfaAuthAccountService = anonymusClient.getService(GoogleMfaAuthAccountService.class);
+        u2fRegistrationService = anonymusClient.getService(U2FRegistrationService.class);
+        webAuthnRegistrationService = anonymusClient.getService(WebAuthnRegistrationService.class);
+        impersonationService = anonymusClient.getService(ImpersonationService.class);
     }
 
     @Autowired
@@ -765,28 +770,28 @@ public abstract class AbstractITCase {
         return object.get();
     }
 
-    protected static OIDCRPTO buildOIDCRP() {
+    protected static OIDCRPClientAppTO buildOIDCRP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
-        authPolicyTO.setDescription("Authentication Policy");
+        authPolicyTO.setName("Authentication Policy");
         authPolicyTO = createPolicy(PolicyType.AUTH, authPolicyTO);
         assertNotNull(authPolicyTO);
 
         AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
         accessPolicyTO.setKey("AccessPolicyTest_" + getUUIDString());
-        accessPolicyTO.setDescription("Access policy");
+        accessPolicyTO.setName("Access policy");
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 
-        OIDCRPTO oidcrpTO = new OIDCRPTO();
+        OIDCRPClientAppTO oidcrpTO = new OIDCRPClientAppTO();
         oidcrpTO.setName("ExampleRP_" + getUUIDString());
         oidcrpTO.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         oidcrpTO.setDescription("Example OIDC RP application");
         oidcrpTO.setClientId("clientId_" + getUUIDString());
         oidcrpTO.setClientSecret("secret");
         oidcrpTO.setSubjectType(OIDCSubjectType.PUBLIC);
-        oidcrpTO.getSupportedGrantTypes().add("something");
-        oidcrpTO.getSupportedResponseTypes().add("something");
+        oidcrpTO.getSupportedGrantTypes().add(OIDCGrantType.authorization_code);
+        oidcrpTO.getSupportedResponseTypes().add(OIDCResponseType.CODE);
 
         oidcrpTO.setAuthPolicy(authPolicyTO.getKey());
         oidcrpTO.setAccessPolicy(accessPolicyTO.getKey());
@@ -794,20 +799,20 @@ public abstract class AbstractITCase {
         return oidcrpTO;
     }
 
-    protected static SAML2SPTO buildSAML2SP() {
+    protected static SAML2SPClientAppTO buildSAML2SP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
-        authPolicyTO.setDescription("Authentication Policy");
+        authPolicyTO.setName("Authentication Policy");
         authPolicyTO = createPolicy(PolicyType.AUTH, authPolicyTO);
         assertNotNull(authPolicyTO);
 
         AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
         accessPolicyTO.setKey("AccessPolicyTest_" + getUUIDString());
-        accessPolicyTO.setDescription("Access policy");
+        accessPolicyTO.setName("Access policy");
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 
-        SAML2SPTO saml2spto = new SAML2SPTO();
+        SAML2SPClientAppTO saml2spto = new SAML2SPClientAppTO();
         saml2spto.setName("ExampleSAML2SP_" + getUUIDString());
         saml2spto.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         saml2spto.setDescription("Example SAML 2.0 service provider");
@@ -837,7 +842,7 @@ public abstract class AbstractITCase {
 
     protected static AuthPolicyTO buildAuthPolicyTO(final String authModuleKey) {
         AuthPolicyTO policy = new AuthPolicyTO();
-        policy.setDescription("Test Authentication policy");
+        policy.setName("Test Authentication policy");
 
         DefaultAuthPolicyConf conf = new DefaultAuthPolicyConf();
         conf.getAuthModules().add(authModuleKey);
@@ -848,16 +853,13 @@ public abstract class AbstractITCase {
 
     protected static AttrReleasePolicyTO buildAttrReleasePolicyTO() {
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
-        policy.setDescription("Test Attribute Release policy");
+        policy.setName("Test Attribute Release policy");
 
-        AllowedAttrReleasePolicyConf conf = new AllowedAttrReleasePolicyConf();
+        DefaultAttrReleasePolicyConf conf = new DefaultAttrReleasePolicyConf();
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
-        
-        AllowedAttrReleasePolicyConf.ConsentPolicy consentPolicy = conf.new ConsentPolicy();
-        consentPolicy.setStatus(Boolean.TRUE);
-        consentPolicy.getIncludeOnlyAttrs().addAll(Set.of("cn"));
-        conf.setConsentPolicy(consentPolicy);
-        
+        conf.setStatus(Boolean.TRUE);
+        conf.getIncludeOnlyAttrs().add("cn");
+
         policy.setConf(conf);
 
         return policy;
@@ -865,11 +867,11 @@ public abstract class AbstractITCase {
 
     protected static AccessPolicyTO buildAccessPolicyTO() {
         AccessPolicyTO policy = new AccessPolicyTO();
-        policy.setDescription("Test Access policy");
+        policy.setName("Test Access policy");
+        policy.setEnabled(true);
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
-        conf.setEnabled(true);
-        conf.addRequiredAttr("cn", Set.of("admin", "Admin", "TheAdmin"));
+        conf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
         policy.setConf(conf);
 
         return policy;

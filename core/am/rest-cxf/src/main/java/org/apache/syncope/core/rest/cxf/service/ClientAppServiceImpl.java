@@ -21,7 +21,7 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.client.ClientAppTO;
+import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
@@ -37,10 +37,10 @@ public class ClientAppServiceImpl extends AbstractServiceImpl implements ClientA
 
     @Override
     public Response create(final ClientAppType type, final ClientAppTO clientAppTO) {
-        ClientAppTO appTO = logic.create(type, clientAppTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(appTO.getKey()).build();
+        ClientAppTO created = logic.create(type, clientAppTO);
+        URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_KEY, appTO.getKey()).
+                header(RESTHeaders.RESOURCE_KEY, created.getKey()).
                 build();
     }
 

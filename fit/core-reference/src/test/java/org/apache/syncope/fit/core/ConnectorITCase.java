@@ -285,17 +285,27 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<ConnInstanceTO> connectorInstanceTOs = connectorService.list(null);
-        assertNotNull(connectorInstanceTOs);
-        assertFalse(connectorInstanceTOs.isEmpty());
-        connectorInstanceTOs.forEach(Assertions::assertNotNull);
+        List<ConnInstanceTO> connInstances = connectorService.list(null);
+        assertNotNull(connInstances);
+        assertFalse(connInstances.isEmpty());
+        connInstances.forEach(Assertions::assertNotNull);
     }
 
     @Test
     public void read() {
-        ConnInstanceTO connectorInstanceTO = connectorService.read(
+        ConnInstanceTO connInstance = connectorService.read(
                 "88a7a819-dab5-46b4-9b90-0b9769eabdb8", Locale.ENGLISH.getLanguage());
-        assertNotNull(connectorInstanceTO);
+        assertNotNull(connInstance);
+        assertFalse(connInstance.isErrored());
+        assertNotNull(connInstance.getLocation());
+        assertFalse(connInstance.getConf().isEmpty());
+
+        connInstance = connectorService.read(
+                "413bf072-678a-41d3-9d20-8c453b3a39d1", Locale.ENGLISH.getLanguage());
+        assertNotNull(connInstance);
+        assertTrue(connInstance.isErrored());
+        assertNotNull(connInstance.getLocation());
+        assertTrue(connInstance.getConf().isEmpty());
     }
 
     @Test
@@ -332,18 +342,18 @@ public class ConnectorITCase extends AbstractITCase {
     @Test
     public void checkSelectedLanguage() {
         // 1. Check Italian
-        List<ConnInstanceTO> connectorInstanceTOs = connectorService.list("it");
+        List<ConnInstanceTO> connInstances = connectorService.list("it");
 
-        for (ConnInstanceTO instance : connectorInstanceTOs) {
+        for (ConnInstanceTO instance : connInstances) {
             if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
                 assertEquals("Utente", instance.getConf("user").get().getSchema().getDisplayName());
             }
         }
 
         // 2. Check English (default)
-        connectorInstanceTOs = connectorService.list(null);
+        connInstances = connectorService.list(null);
 
-        for (ConnInstanceTO instance : connectorInstanceTOs) {
+        for (ConnInstanceTO instance : connInstances) {
             if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
                 assertEquals("User", instance.getConf("user").get().getSchema().getDisplayName());
             }
@@ -712,15 +722,15 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE605() {
-        ConnInstanceTO connectorInstanceTO = connectorService.read(
+        ConnInstanceTO connInstance = connectorService.read(
                 "fcf9f2b0-f7d6-42c9-84a6-61b28255a42b", Locale.ENGLISH.getLanguage());
-        assertTrue(connectorInstanceTO.getCapabilities().isEmpty());
+        assertTrue(connInstance.getCapabilities().isEmpty());
 
-        connectorInstanceTO.getCapabilities().add(ConnectorCapability.SEARCH);
-        connectorService.update(connectorInstanceTO);
+        connInstance.getCapabilities().add(ConnectorCapability.SEARCH);
+        connectorService.update(connInstance);
 
         ConnInstanceTO updatedCapabilities = connectorService.read(
-                connectorInstanceTO.getKey(), Locale.ENGLISH.getLanguage());
+                connInstance.getKey(), Locale.ENGLISH.getLanguage());
         assertNotNull(updatedCapabilities.getCapabilities());
         assertTrue(updatedCapabilities.getCapabilities().size() == 1);
     }

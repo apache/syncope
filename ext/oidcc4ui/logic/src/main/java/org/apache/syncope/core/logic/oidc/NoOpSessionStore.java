@@ -19,9 +19,11 @@
 package org.apache.syncope.core.logic.oidc;
 
 import java.util.Optional;
+
+import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 
-public final class NoOpSessionStore implements SessionStore<OIDC4UIContext> {
+public final class NoOpSessionStore implements SessionStore {
 
     public static final NoOpSessionStore INSTANCE = new NoOpSessionStore();
 
@@ -30,40 +32,37 @@ public final class NoOpSessionStore implements SessionStore<OIDC4UIContext> {
     }
 
     @Override
-    public String getOrCreateSessionId(final OIDC4UIContext context) {
-        return "<NO_KEY>";
-    }
-
-    @Override
-    public Optional<Object> get(final OIDC4UIContext context, final String key) {
+    public Optional<String> getSessionId(final WebContext webContext, final boolean b) {
         return Optional.empty();
     }
 
     @Override
-    public void set(final OIDC4UIContext context, final String key, final Object value) {
-        // nothing to do
+    public Optional<Object> get(final WebContext webContext, final String s) {
+        return Optional.empty();
     }
 
     @Override
-    public boolean destroySession(final OIDC4UIContext context) {
+    public void set(final WebContext webContext, final String s, final Object o) {
+
+    }
+
+    @Override
+    public boolean destroySession(final WebContext webContext) {
         return true;
     }
 
     @Override
-    public Optional<?> getTrackableSession(final OIDC4UIContext context) {
+    public Optional<Object> getTrackableSession(final WebContext webContext) {
         return Optional.empty();
     }
 
     @Override
-    public Optional<SessionStore<OIDC4UIContext>> buildFromTrackableSession(
-            final OIDC4UIContext context,
-            final Object trackableSession) {
-
+    public Optional<SessionStore> buildFromTrackableSession(final WebContext webContext, final Object o) {
         return Optional.empty();
     }
 
     @Override
-    public boolean renewSession(final OIDC4UIContext context) {
+    public boolean renewSession(final WebContext webContext) {
         return false;
     }
 }

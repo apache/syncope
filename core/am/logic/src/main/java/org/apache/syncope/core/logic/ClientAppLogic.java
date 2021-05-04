@@ -27,6 +27,9 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Resource;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
@@ -34,7 +37,7 @@ import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.client.ClientAppTO;
+import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -42,21 +45,17 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
 import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtils;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.core.HttpHeaders;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
 @Component
 public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
@@ -117,7 +116,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
     public <T extends ClientAppTO> T read(final ClientAppType type, final String key) {
         switch (type) {
             case OIDCRP:
-                OIDCRP oidcrp = oidcrpDAO.find(key);
+                OIDCRPClientApp oidcrp = oidcrpDAO.find(key);
                 if (oidcrp == null) {
                     throw new NotFoundException("Client app " + key + " not found");
                 }
@@ -126,7 +125,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
 
                 return binder.getClientAppTO(oidcrp);
             case CASSP:
-                CASSP cassp = casspDAO.find(key);
+                CASSPClientApp cassp = casspDAO.find(key);
                 if (cassp == null) {
                     throw new NotFoundException("Client app " + key + " not found");
                 }
@@ -136,7 +135,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                 return binder.getClientAppTO(cassp);
             case SAML2SP:
             default:
-                SAML2SP saml2sp = saml2spDAO.find(key);
+                SAML2SPClientApp saml2sp = saml2spDAO.find(key);
                 if (saml2sp == null) {
                     throw new NotFoundException("Client app " + key + " not found");
                 }
@@ -168,7 +167,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
 
         switch (type) {
             case OIDCRP:
-                OIDCRP oidcrp = oidcrpDAO.find(clientAppTO.getKey());
+                OIDCRPClientApp oidcrp = oidcrpDAO.find(clientAppTO.getKey());
                 if (oidcrp == null) {
                     throw new NotFoundException("Client app " + clientAppTO.getKey() + " not found");
                 }
@@ -176,7 +175,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                 oidcrpDAO.save(oidcrp);
                 break;
             case CASSP:
-                CASSP cassp = casspDAO.find(clientAppTO.getKey());
+                CASSPClientApp cassp = casspDAO.find(clientAppTO.getKey());
                 if (cassp == null) {
                     throw new NotFoundException("Client app " + clientAppTO.getKey() + " not found");
                 }
@@ -185,7 +184,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                 break;
             case SAML2SP:
             default:
-                SAML2SP saml2sp = saml2spDAO.find(clientAppTO.getKey());
+                SAML2SPClientApp saml2sp = saml2spDAO.find(clientAppTO.getKey());
                 if (saml2sp == null) {
                     throw new NotFoundException("Client app " + clientAppTO.getKey() + " not found");
                 }
@@ -198,14 +197,14 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
     public void delete(final ClientAppType type, final String key) {
         switch (type) {
             case OIDCRP:
-                OIDCRP oidcrp = oidcrpDAO.find(key);
+                OIDCRPClientApp oidcrp = oidcrpDAO.find(key);
                 if (oidcrp == null) {
                     throw new NotFoundException("Client app " + key + " not found");
                 }
                 oidcrpDAO.delete(oidcrp);
                 break;
             case CASSP:
-                CASSP cassp = casspDAO.find(key);
+                CASSPClientApp cassp = casspDAO.find(key);
                 if (cassp == null) {
                     throw new NotFoundException("Client app " + key + " not found");
                 }
@@ -213,7 +212,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                 break;
             case SAML2SP:
             default:
-                SAML2SP saml2sp = saml2spDAO.find(key);
+                SAML2SPClientApp saml2sp = saml2spDAO.find(key);
                 if (saml2sp == null) {
                     throw new NotFoundException("Client app " + key + " not found");
                 }
@@ -259,12 +258,12 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
         try {
             NetworkService wa = serviceOps.get(NetworkService.Type.WA);
             HttpClient.newBuilder().build().send(
-                HttpRequest.newBuilder(URI.create(
-                    StringUtils.appendIfMissing(wa.getAddress(), "/") + "actuator/registeredServices")).
-                    header(HttpHeaders.AUTHORIZATION,
-                        DefaultBasicAuthSupplier.getBasicAuthHeader(anonymousUser, anonymousKey)).
-                    GET().build(),
-                HttpResponse.BodyHandlers.discarding());
+                    HttpRequest.newBuilder(URI.create(
+                            StringUtils.appendIfMissing(wa.getAddress(), "/") + "actuator/registeredServices")).
+                            header(HttpHeaders.AUTHORIZATION,
+                                    DefaultBasicAuthSupplier.getBasicAuthHeader(anonymousUser, anonymousKey)).
+                            GET().build(),
+                    HttpResponse.BodyHandlers.discarding());
         } catch (KeymasterException e) {
             throw new NotFoundException("Could not find any WA instance", e);
         } catch (IOException | InterruptedException e) {

@@ -46,7 +46,7 @@ public abstract class AbstractSAML2SP4UIResource extends AbstractResource {
         return StringUtils.substringBefore(request.getRequestURL().toString(), SAML2SP4UIConstants.URL_CONTEXT);
     }
 
-    protected ResourceResponse send(final Attributes attributes, final SAML2Request request) {
+    protected ResourceResponse send(final SAML2Request request) {
         Session.get().setAttribute(SAML2SP4UIConstants.SAML2SP4UI_IDP_ENTITY_ID, request.getIdpEntityID());
 
         ResourceResponse response = new ResourceResponse();

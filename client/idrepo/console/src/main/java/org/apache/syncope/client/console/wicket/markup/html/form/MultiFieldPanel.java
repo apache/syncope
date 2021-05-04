@@ -86,7 +86,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
 
                 @Override
                 protected FieldPanel<? extends Serializable> getItemPanel(final ListItem<E> item) {
-                    final FieldPanel<? extends Serializable> fieldPanel = panelTemplate.clone();
+                    FieldPanel<? extends Serializable> fieldPanel = panelTemplate.clone();
                     fieldPanel.setIndex(item.getIndex());
                     fieldPanel.setNewModel(item);
                     fieldPanel.settingsDependingComponents();

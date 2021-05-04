@@ -29,7 +29,6 @@ import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -51,8 +50,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Multil
             final MultilevelPanel mlp,
             final AuditEntry selected,
             final EntityTO currentEntity,
-            final String auditRestoreEntitlement,
-            final PageReference pageRef) {
+            final String auditRestoreEntitlement) {
 
         super();
 

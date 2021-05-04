@@ -36,7 +36,6 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.OIDCProviderRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -102,20 +101,11 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
                 setFooterVisible(false);
             }
         };
-        templateModal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                templateModal.show(false);
-            }
-        });
+        templateModal.setWindowClosedCallback(target -> templateModal.show(false));
         templateModal.size(Modal.Size.Large);
         addOuterObject(templateModal);
 
         initResultTable();
-
     }
 
     @Override

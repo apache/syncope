@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.tasks.CrontabPanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -69,12 +70,13 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
 
         public Profile(final ReportTO reportTO) {
             AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                    "name", "name", new PropertyModel<>(reportTO, "name"), false);
+                    Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME,
+                    new PropertyModel<>(reportTO, Constants.NAME_FIELD_NAME), false);
             name.addRequiredLabel();
             name.setEnabled(true);
             add(name);
 
-            final AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<>(
+            AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<>(
                     "template", getString("template"),
                     new PropertyModel<>(reportTO, "template"));
             template.setChoices(restClient.listTemplates().stream().

@@ -21,35 +21,26 @@ package org.apache.syncope.wa.starter.mapping;
 import java.util.HashSet;
 import org.apache.syncope.common.lib.policy.AuthPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
-import org.apache.syncope.common.lib.policy.DefaultAuthPolicyCriteriaConf;
 import org.apereo.cas.services.AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria;
 import org.apereo.cas.services.DefaultRegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
-import org.springframework.stereotype.Component;
 
 @AuthMapFor(authPolicyConfClass = DefaultAuthPolicyConf.class)
-@Component
 public class DefaultAuthMapper implements AuthMapper {
 
     @Override
     public RegisteredServiceAuthenticationPolicy build(final AuthPolicyConf conf) {
         DefaultRegisteredServiceAuthenticationPolicy authPolicy = new DefaultRegisteredServiceAuthenticationPolicy();
 
-        if (conf.getCriteria() instanceof DefaultAuthPolicyCriteriaConf) {
-            DefaultAuthPolicyCriteriaConf policyCriteriaConf = (DefaultAuthPolicyCriteriaConf) conf.getCriteria();
-
-            AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria criteria =
-                    new AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria();
-            criteria.setTryAll(policyCriteriaConf.isAll());
-            authPolicy.setCriteria(criteria);
+        DefaultAuthPolicyConf policyConf = (DefaultAuthPolicyConf) conf;
+        if (!policyConf.getAuthModules().isEmpty()) {
+            authPolicy.setRequiredAuthenticationHandlers(new HashSet<>(policyConf.getAuthModules()));
         }
 
-        if (conf instanceof DefaultAuthPolicyConf) {
-            DefaultAuthPolicyConf policyConf = (DefaultAuthPolicyConf) conf;
-            if (!policyConf.getAuthModules().isEmpty()) {
-                authPolicy.setRequiredAuthenticationHandlers(new HashSet<>(policyConf.getAuthModules()));
-            }
-        }
+        AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria criteria =
+                new AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria();
+        criteria.setTryAll(policyConf.isTryAll());
+        authPolicy.setCriteria(criteria);
 
         return authPolicy;
     }

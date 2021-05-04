@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @param <T> transfer object used for input / output
  */
-abstract class AbstractLogic<T extends EntityTO> {
+public abstract class AbstractLogic<T extends EntityTO> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractLogic.class);
 

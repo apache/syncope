@@ -1,0 +1,62 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License
+name: "Cross Checks"
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [master]
+  schedule:
+    - cron: '0 13 * * 4'
+
+jobs:
+  crosschecks:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['java']
+        java: [ '11', '14', '17-ea' ]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Setup Java JDK
+      uses: actions/setup-java@v1.4.3
+      with:
+        java-version: ${{ matrix.java }}
+    - name: Setup Maven
+      uses: stCarolas/setup-maven@v4
+      with:
+        maven-version: 3.6.3
+    - uses: actions/cache@v2.1.1
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    - name: Build
+      run: mvn -U -T 1C -P 'skipTests,all'
+    - name: Validate
+      run: mvn -T 1C checkstyle:check ianal:verify-legal-files modernizer:modernizer apache-rat:check
+    - name: Test
+      run: mvn -T 1C clean test '-Dinvoker.streamLogs=true' '-Dmodernizer.skip=true' '-Dianal.skip=true' '-Drat.skip=true' '-Dcheckstyle.skip=true' '-Dsass.skip=true'
+    - name: Verify
+      run: mvn -f fit/core-reference/pom.xml verify '-Dit.test=RESTITCase' '-Dinvoker.streamLogs=true' '-Dmodernizer.skip=true' '-Dianal.skip=true' '-Drat.skip=true' '-Dcheckstyle.skip=true' '-Djacoco.skip=true'

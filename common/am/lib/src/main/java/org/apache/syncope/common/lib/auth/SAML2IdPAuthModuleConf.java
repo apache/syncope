@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 
-public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
+public class SAML2IdPAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -471527731042579422L;
 
@@ -67,14 +67,14 @@ public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
      * will accept assertions based on a previous authentication for one hour.
      * You can adjust this behavior by modifying this setting. The unit of time here is seconds.
      */
-    private int maximumAuthenticationLifetime = 3600;
+    private String maximumAuthenticationLifetime = "PT3600S";
 
     /**
      * Maximum skew in seconds between SP and IDP clocks.
      * This skew is added onto the {@code NotOnOrAfter} field in seconds
      * for the SAML response validation.
      */
-    private int acceptedSkew = 300;
+    private String acceptedSkew = "PT300S";
 
     /**
      * The entity id of the SP that is used in the SP metadata generation process.
@@ -224,19 +224,19 @@ public class SAML2IdPAuthModuleConf extends AbstractAuthModuleConf {
         this.identityProviderMetadataPath = identityProviderMetadataPath;
     }
 
-    public int getMaximumAuthenticationLifetime() {
+    public String getMaximumAuthenticationLifetime() {
         return maximumAuthenticationLifetime;
     }
 
-    public void setMaximumAuthenticationLifetime(final int maximumAuthenticationLifetime) {
+    public void setMaximumAuthenticationLifetime(final String maximumAuthenticationLifetime) {
         this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
     }
 
-    public int getAcceptedSkew() {
+    public String getAcceptedSkew() {
         return acceptedSkew;
     }
 
-    public void setAcceptedSkew(final int acceptedSkew) {
+    public void setAcceptedSkew(final String acceptedSkew) {
         this.acceptedSkew = acceptedSkew;
     }
 

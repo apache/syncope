@@ -55,7 +55,7 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
     private final SCIMUserConf scimUserConf;
 
     public SCIMConfUserPanel(final String id, final SCIMConf scimConf) {
-        super(id, scimConf);
+        super(id);
 
         if (scimConf.getUserConf() == null) {
             scimConf.setUserConf(new SCIMUserConf());

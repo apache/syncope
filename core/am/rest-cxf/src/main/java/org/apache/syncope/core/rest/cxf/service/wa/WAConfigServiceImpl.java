@@ -16,24 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.rest.cxf.service.wa;
 
+import java.util.List;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
-import org.apache.syncope.core.logic.WAConfigLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.ws.rs.core.Response;
-
-import java.net.URI;
-import java.util.List;
+import org.apache.syncope.core.logic.wa.WAConfigLogic;
 
 @Service
 public class WAConfigServiceImpl extends AbstractServiceImpl implements WAConfigService {
+
     @Autowired
     private WAConfigLogic logic;
 
@@ -43,28 +38,18 @@ public class WAConfigServiceImpl extends AbstractServiceImpl implements WAConfig
     }
 
     @Override
-    public Attr read(final String key) {
-        return logic.read(key);
+    public void delete(final String schema) {
+        logic.delete(schema);
     }
 
     @Override
-    public Response create(final Attr configTO) {
-        final Attr config = logic.create(configTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(config.getSchema()).build();
-        return Response.created(location).
-            header(RESTHeaders.RESOURCE_KEY, config.getSchema()).
-            entity(config).
-            build();
+    public Attr get(final String schema) {
+        return logic.get(schema);
     }
 
     @Override
-    public void update(final Attr configTO) {
-        logic.update(configTO);
-    }
-
-    @Override
-    public void delete(final String key) {
-        logic.delete(key);
+    public void set(final Attr value) {
+        logic.set(value);
     }
 
     @Override

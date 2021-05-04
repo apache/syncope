@@ -140,6 +140,13 @@ under the License.
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
+      <resource>
+        <directory>${basedir}/../../wa/starter/src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>wa.properties</include>
+        </includes>
+      </resource>
     </resources>
   </build>
 

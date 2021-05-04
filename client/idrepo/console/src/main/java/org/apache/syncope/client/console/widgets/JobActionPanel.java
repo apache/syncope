@@ -34,7 +34,6 @@ import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.basic.Label;
@@ -53,8 +52,7 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
             final String id,
             final JobTO jobTO,
             final boolean showNotRunning,
-            final Component container,
-            final PageReference pageRef) {
+            final Component container) {
 
         super(id, true);
         setOutputMarkupId(true);

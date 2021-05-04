@@ -112,12 +112,9 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
             }
         };
 
-        selectedDetails =
-                PreferenceManager.getList(getRequest(), DisplayAttributesModalPanel.getPrefDetailView(type));
-        selectedPlainSchemas =
-                PreferenceManager.getList(getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type));
-        selectedDerSchemas =
-                PreferenceManager.getList(getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type));
+        selectedDetails = PreferenceManager.getList(DisplayAttributesModalPanel.getPrefDetailView(type));
+        selectedPlainSchemas = PreferenceManager.getList(DisplayAttributesModalPanel.getPrefPlainAttributeView(type));
+        selectedDerSchemas = PreferenceManager.getList(DisplayAttributesModalPanel.getPrefDerivedAttributeView(type));
 
         // remove old schemas from selected lists
         selectedPlainSchemas.retainAll(pSchemaNames);

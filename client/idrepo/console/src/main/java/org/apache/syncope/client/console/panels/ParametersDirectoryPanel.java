@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +29,6 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ParametersDirectoryPanel.ParametersProvider;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -38,6 +36,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.wicket.AttributeModifier;
@@ -82,9 +81,7 @@ public class ParametersDirectoryPanel
             private static final long serialVersionUID = 1995192603527154740L;
 
             @Override
-            public WizardModalPanel<ConfParam> build(
-                    final String id, final int index, final AjaxWizard.Mode mode) {
-
+            public WizardModalPanel<ConfParam> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 return new ParametersModalPanel(modal, newModelObject(), confParamOps, mode, pageRef);
             }
         }, true);
@@ -108,7 +105,7 @@ public class ParametersDirectoryPanel
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.<ActionLink.ActionType>singletonList(ActionLink.ActionType.DELETE);
+        return List.of();
     }
 
     @Override
@@ -147,7 +144,6 @@ public class ParametersDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final ConfParam ignore) {
                 target.add(modal);
-                // modal.addSubmitButton();
                 modal.header(new StringResourceModel("any.edit"));
                 modal.setContent(new ParametersModalPanel(
                         modal, model.getObject(), confParamOps, AjaxWizard.Mode.EDIT, pageRef));
@@ -170,7 +166,7 @@ public class ParametersDirectoryPanel
                     LOG.error("While deleting {}", model.getObject(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionLink.ActionType.DELETE, null, true);
 

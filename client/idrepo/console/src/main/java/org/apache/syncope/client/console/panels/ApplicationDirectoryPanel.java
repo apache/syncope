@@ -29,18 +29,19 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ApplicationDirectoryPanel.ApplicationDataProvider;
 import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ApplicationTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PrivilegeTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -49,7 +50,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulato
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -85,11 +85,11 @@ public class ApplicationDirectoryPanel extends
 
         modal.size(Modal.Size.Default);
         modal.addSubmitButton();
-        setFooterVisibility(true);
         modal.setWindowClosedCallback(target -> {
             updateResultTable(target);
             modal.show(false);
         });
+        setFooterVisibility(true);
 
         privilegeModal.size(Modal.Size.Large);
         privilegeModal.setWindowClosedCallback(target -> {
@@ -110,7 +110,7 @@ public class ApplicationDirectoryPanel extends
                 target.add(modal);
             }
         };
-        ((WebMarkupContainer) get("container:content")).addOrReplace(newApplLink);
+        ((MarkupContainer) get("container:content")).addOrReplace(newApplLink);
         MetaDataRoleAuthorizationStrategy.authorize(newApplLink, RENDER, IdRepoEntitlement.APPLICATION_CREATE);
 
         initResultTable();
@@ -132,7 +132,8 @@ public class ApplicationDirectoryPanel extends
 
         columns.add(new PropertyColumn<>(
                 new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
-        columns.add(new PropertyColumn<>(new ResourceModel("description"), "description", "description"));
+        columns.add(new PropertyColumn<>(new ResourceModel(Constants.DESCRIPTION_FIELD_NAME),
+                Constants.DESCRIPTION_FIELD_NAME, Constants.DESCRIPTION_FIELD_NAME));
         columns.add(new AbstractColumn<ApplicationTO, String>(new ResourceModel("privileges")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
@@ -201,7 +202,7 @@ public class ApplicationDirectoryPanel extends
                     LOG.error("While deleting application {}", model.getObject().getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionLink.ActionType.DELETE, IdRepoEntitlement.APPLICATION_DELETE, true);
 

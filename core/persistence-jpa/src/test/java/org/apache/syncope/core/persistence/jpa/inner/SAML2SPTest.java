@@ -18,23 +18,21 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import org.apache.syncope.common.lib.XmlSecAlgorithms;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.util.UUID;
+import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 
 @Transactional("Master")
 public class SAML2SPTest extends AbstractClientAppTest {
@@ -45,7 +43,7 @@ public class SAML2SPTest extends AbstractClientAppTest {
     @Test
     public void find() {
         int beforeCount = saml2spDAO.findAll().size();
-        SAML2SP sp = entityFactory.newEntity(SAML2SP.class);
+        SAML2SPClientApp sp = entityFactory.newEntity(SAML2SPClientApp.class);
         sp.setName("SAML2");
         sp.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         sp.setDescription("This is a sample SAML2 SP");
@@ -54,10 +52,11 @@ public class SAML2SPTest extends AbstractClientAppTest {
         sp.setRequiredNameIdFormat(SAML2SPNameId.EMAIL_ADDRESS);
         sp.setEncryptionOptional(true);
         sp.setEncryptAssertions(true);
-        sp.setEncryptionDataAlgorithms(List.of(XmlSecAlgorithms.AES_128_GCM));
-        sp.setEncryptionKeyAlgorithms(List.of(XmlSecAlgorithms.RSA_OAEP_11));
-        sp.setSigningSignatureReferenceDigestMethods(List.of(XmlSecAlgorithms.SHA1));
-        sp.setSigningSignatureAlgorithms(List.of(XmlSecAlgorithms.SHA256, XmlSecAlgorithms.SHA512));
+        sp.getEncryptionDataAlgorithms().add(XmlSecAlgorithm.AES_128_GCM);
+        sp.getEncryptionKeyAlgorithms().add(XmlSecAlgorithm.RSA_OAEP_11);
+        sp.getSigningSignatureReferenceDigestMethods().add(XmlSecAlgorithm.SHA1);
+        sp.getSigningSignatureAlgorithms().add(XmlSecAlgorithm.SHA256);
+        sp.getSigningSignatureAlgorithms().add(XmlSecAlgorithm.SHA512);
 
         AccessPolicy accessPolicy = buildAndSaveAccessPolicy();
         sp.setAccessPolicy(accessPolicy);

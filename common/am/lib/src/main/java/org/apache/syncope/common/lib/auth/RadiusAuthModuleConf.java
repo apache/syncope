@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-public class RadiusAuthModuleConf extends AbstractAuthModuleConf {
+public class RadiusAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -2235771400318503131L;
 

@@ -77,7 +77,7 @@ public abstract class ReportDirectoryPanel
 
     private final ReportStartAtTogglePanel startAt;
 
-    protected ReportDirectoryPanel(final MultilevelPanel multiLevelPanelRef, final PageReference pageRef) {
+    protected ReportDirectoryPanel(final PageReference pageRef) {
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, true);
         this.restClient = new ReportRestClient();
 
@@ -108,7 +108,8 @@ public abstract class ReportDirectoryPanel
 
         columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
-        columns.add(new PropertyColumn<>(new StringResourceModel("name", this), "name", "name"));
+        columns.add(new PropertyColumn<>(new StringResourceModel(Constants.NAME_FIELD_NAME, this),
+                Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
 
         columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("lastExec", this), null, "lastExec"));
@@ -141,7 +142,7 @@ public abstract class ReportDirectoryPanel
                 Component panel;
                 try {
                     JobTO jobTO = ReportRestClient.getJob(rowModel.getObject().getKey());
-                    panel = new JobActionPanel(componentId, jobTO, false, ReportDirectoryPanel.this, pageRef);
+                    panel = new JobActionPanel(componentId, jobTO, false, ReportDirectoryPanel.this);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
                             String.format("%s,%s",
                                     IdRepoEntitlement.REPORT_EXECUTE,
@@ -288,7 +289,7 @@ public abstract class ReportDirectoryPanel
         public ReportDataProvider(final int paginatorRows) {
             super(paginatorRows);
 
-            setSort("name", SortOrder.ASCENDING);
+            setSort(Constants.NAME_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

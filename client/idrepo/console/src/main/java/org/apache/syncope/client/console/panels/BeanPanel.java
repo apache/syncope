@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
@@ -44,6 +43,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPa
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxGridFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.Schema;
 import org.apache.syncope.common.lib.report.SearchCondition;
@@ -86,6 +86,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
             final IModel<T> bean,
             final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper,
             final String... excluded) {
+
         super(id, bean);
         setOutputMarkupId(true);
 
@@ -120,45 +121,41 @@ public class BeanPanel<T extends Serializable> extends Panel {
             @SuppressWarnings({ "unchecked", "rawtypes" })
             @Override
             protected void populateItem(final ListItem<String> item) {
-                final String fieldName = item.getModelObject();
+                String fieldName = item.getModelObject();
 
                 item.add(new Label("fieldName", new ResourceModel(fieldName, fieldName)));
 
                 Field field = ReflectionUtils.findField(bean.getObject().getClass(), fieldName);
-
                 if (field == null) {
                     return;
                 }
 
-                final SearchCondition scondAnnot = field.getAnnotation(SearchCondition.class);
-                final Schema schemaAnnot = field.getAnnotation(Schema.class);
+                SearchCondition scondAnnot = field.getAnnotation(SearchCondition.class);
+                Schema schemaAnnot = field.getAnnotation(Schema.class);
 
                 BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean.getObject());
 
                 Panel panel;
 
                 if (scondAnnot != null) {
-                    final String fiql = (String) wrapper.getPropertyValue(fieldName);
+                    String fiql = (String) wrapper.getPropertyValue(fieldName);
 
-                    final List<SearchClause> clauses;
-                    if (StringUtils.isEmpty(fiql)) {
-                        clauses = new ArrayList<>();
-                    } else {
-                        clauses = SearchUtils.getSearchClauses(fiql);
-                    }
+                    List<SearchClause> clauses = SearchUtils.getSearchClauses(fiql);
 
-                    final AbstractFiqlSearchConditionBuilder<?, ?, ?> builder;
+                    AbstractFiqlSearchConditionBuilder<?, ?, ?> builder;
                     switch (scondAnnot.type()) {
                         case "USER":
                             panel = new UserSearchPanel.Builder(
                                     new ListModel<>(clauses)).required(false).build("value");
                             builder = SyncopeClient.getUserSearchConditionBuilder();
                             break;
+
                         case "GROUP":
                             panel = new GroupSearchPanel.Builder(
                                     new ListModel<>(clauses)).required(false).build("value");
                             builder = SyncopeClient.getGroupSearchConditionBuilder();
                             break;
+
                         default:
                             panel = new AnyObjectSearchPanel.Builder(
                                     scondAnnot.type(),
@@ -177,9 +174,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     }
 
                     if (listItemType.equals(String.class) && schemaAnnot != null) {
-                        SchemaRestClient schemaRestClient = new SchemaRestClient();
-
-                        final List<SchemaTO> choices = new ArrayList<>();
+                        List<SchemaTO> choices = new ArrayList<>();
 
                         for (SchemaType type : schemaAnnot.type()) {
                             switch (type) {
@@ -217,23 +212,27 @@ public class BeanPanel<T extends Serializable> extends Panel {
                                 new PropertyModel<>(bean.getObject(), fieldName)).build(
                                 "value",
                                 fieldName,
-                                buildSinglePanel(bean.getObject(), field.getType(), fieldName, "panel")).hideLabel();
+                                buildSinglePanel(bean.getObject(), listItemType, fieldName, "panel")).hideLabel();
                     }
+                } else if (Map.class.equals(field.getType())) {
+                    panel = new AjaxGridFieldPanel(
+                            "value", fieldName, new PropertyModel<>(bean, fieldName)).hideLabel();
                 } else {
                     panel = buildSinglePanel(bean.getObject(), field.getType(), fieldName, "value").hideLabel();
                 }
 
                 item.add(panel.setRenderBodyOnly(true));
             }
-
         }.setReuseItems(true).setOutputMarkupId(true));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private static FieldPanel buildSinglePanel(
-        final Serializable bean, final Class<?> type, final String fieldName, final String id) {
-        FieldPanel result = null;
-        PropertyModel model = new PropertyModel(bean, fieldName);
+            final Serializable bean, final Class<?> type, final String fieldName, final String id) {
+
+        PropertyModel model = new PropertyModel<>(bean, fieldName);
+
+        FieldPanel result;
         if (ClassUtils.isAssignable(Boolean.class, type)) {
             result = new AjaxCheckBoxPanel(id, fieldName, model);
         } else if (ClassUtils.isAssignable(Number.class, type)) {
@@ -243,12 +242,9 @@ public class BeanPanel<T extends Serializable> extends Panel {
             result = new AjaxDateTimeFieldPanel(id, fieldName, model,
                     FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN));
         } else if (type.isEnum()) {
-            result = new AjaxDropDownChoicePanel(id, fieldName, model).setChoices(
-                    List.of(type.getEnumConstants()));
-        }
-
-        // treat as String if nothing matched above
-        if (result == null) {
+            result = new AjaxDropDownChoicePanel(id, fieldName, model).setChoices(List.of(type.getEnumConstants()));
+        } else {
+            // treat as String if nothing matched above
             result = new AjaxTextFieldPanel(id, fieldName, model);
         }
 

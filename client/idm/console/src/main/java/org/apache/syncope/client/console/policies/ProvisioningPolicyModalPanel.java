@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
@@ -42,6 +41,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.policy.AbstractCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
@@ -159,7 +159,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                     }
                 }
             });
-            PolicyRestClient.updatePolicy(getItem() instanceof PullPolicyTO
+            PolicyRestClient.update(getItem() instanceof PullPolicyTO
                     ? PolicyType.PULL : PolicyType.PUSH, getItem());
 
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
@@ -168,7 +168,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
             LOG.error("While creating/updating policy", e);
             SyncopeConsoleSession.get().onException(e);
         }
-        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+        ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     protected class CorrelationRulePanel extends Panel {
@@ -199,15 +199,6 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                     new PropertyModel<Boolean>(correlationRule.getObject().getDefaultRuleConf(), "orSchemas") {
 
                 private static final long serialVersionUID = 807008909842554829L;
-
-                private boolean orSchemas() {
-                    AbstractCorrelationRuleConf conf = correlationRule.getObject().getDefaultRuleConf();
-                    return conf instanceof DefaultPullCorrelationRuleConf
-                            ? DefaultPullCorrelationRuleConf.class.cast(conf).isOrSchemas()
-                            : conf instanceof DefaultPushCorrelationRuleConf
-                                    ? DefaultPushCorrelationRuleConf.class.cast(conf).isOrSchemas()
-                                    : false;
-                }
 
                 @Override
                 public Boolean getObject() {
@@ -325,7 +316,8 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                             : AnyTypeKind.ANY_OBJECT).stream().map(EntityTO::getKey).
                             collect(Collectors.toList());
             choices.add(Constants.KEY_FIELD_NAME);
-            choices.add(rule.getAnyType().equals(AnyTypeKind.USER.name()) ? "username" : "name");
+            choices.add(rule.getAnyType().equals(AnyTypeKind.USER.name())
+                    ? Constants.USERNAME_FIELD_NAME : Constants.NAME_FIELD_NAME);
             Collections.sort(choices);
             return choices;
         }

@@ -47,7 +47,6 @@ import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
@@ -144,37 +143,13 @@ public class JobWidget extends BaseWidget {
         super(id);
         setOutputMarkupId(true);
         add(modal);
-        modal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                modal.show(false);
-            }
-        });
+        modal.setWindowClosedCallback(target -> modal.show(false));
 
         add(detailModal);
-        detailModal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                detailModal.show(false);
-            }
-        });
+        detailModal.setWindowClosedCallback(target -> detailModal.show(false));
 
         add(reportModal);
-        reportModal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                reportModal.show(false);
-            }
-        });
+        reportModal.setWindowClosedCallback(target -> reportModal.show(false));
 
         reportModal.size(Modal.Size.Large);
 
@@ -354,7 +329,7 @@ public class JobWidget extends BaseWidget {
                         final IModel<JobTO> rowModel) {
 
                     JobTO jobTO = rowModel.getObject();
-                    JobActionPanel panel = new JobActionPanel(componentId, jobTO, true, JobWidget.this, pageRef);
+                    JobActionPanel panel = new JobActionPanel(componentId, jobTO, true, JobWidget.this);
 
                     String roles;
                     switch (jobTO.getType()) {

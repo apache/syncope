@@ -32,27 +32,34 @@ import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.audit.SyncopeWAAuditTrailManager;
-import org.apache.syncope.wa.starter.gauth.credential.SyncopeWAGoogleMfaAuthCredentialRepository;
-import org.apache.syncope.wa.starter.gauth.token.SyncopeWAGoogleMfaAuthTokenRepository;
+import org.apache.syncope.wa.starter.gauth.SyncopeWAGoogleMfaAuthCredentialRepository;
 import org.apache.syncope.wa.starter.mapping.AccessMapFor;
 import org.apache.syncope.wa.starter.mapping.AccessMapper;
+import org.apache.syncope.wa.starter.mapping.DefaultAttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.AuthMapFor;
 import org.apache.syncope.wa.starter.mapping.AuthMapper;
+import org.apache.syncope.wa.starter.mapping.CASSPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapFor;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
+import org.apache.syncope.wa.starter.mapping.DefaultAccessMapper;
+import org.apache.syncope.wa.starter.mapping.DefaultAuthMapper;
+import org.apache.syncope.wa.starter.mapping.OIDCRPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
+import org.apache.syncope.wa.starter.mapping.SAML2SPClientAppTOMapper;
 import org.apache.syncope.wa.starter.oidc.SyncopeWAOIDCJWKSGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.SyncopeWASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
 import org.apache.syncope.wa.starter.services.SyncopeWAServiceRegistry;
+import org.apache.syncope.wa.starter.surrogate.SyncopeWASurrogateAuthenticationService;
 import org.apache.syncope.wa.starter.u2f.SyncopeWAU2FDeviceRepository;
 import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRepository;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
+import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorProperties;
+import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
 import org.apereo.cas.oidc.jwks.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
@@ -82,6 +89,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.wa.starter.events.SyncopeWAEventRepository;
+import org.apache.syncope.wa.starter.gauth.SyncopeWAGoogleMfaAuthTokenRepository;
 import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
 import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
@@ -122,6 +130,42 @@ public class SyncopeWAConfiguration {
                         new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("basic")).
                 schemaRequirement("Bearer",
                         new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"));
+    }
+
+    @ConditionalOnMissingBean(name = "accessMapper")
+    @Bean
+    public AccessMapper accessMapper() {
+        return new DefaultAccessMapper();
+    }
+
+    @ConditionalOnMissingBean(name = "attrReleaseMapper")
+    @Bean
+    public AttrReleaseMapper attrReleaseMapper() {
+        return new DefaultAttrReleaseMapper();
+    }
+
+    @ConditionalOnMissingBean(name = "authMapper")
+    @Bean
+    public AuthMapper authMapper() {
+        return new DefaultAuthMapper();
+    }
+
+    @ConditionalOnMissingBean(name = "casSPClientAppTOMapper")
+    @Bean
+    public ClientAppMapper casSPClientAppTOMapper() {
+        return new CASSPClientAppTOMapper();
+    }
+
+    @ConditionalOnMissingBean(name = "oidcRPClientAppTOMapper")
+    @Bean
+    public ClientAppMapper oidcRPClientAppTOMapper() {
+        return new OIDCRPClientAppTOMapper();
+    }
+
+    @ConditionalOnMissingBean(name = "saml2SPClientAppTOMapper")
+    @Bean
+    public ClientAppMapper saml2SPClientAppTOMapper() {
+        return new SAML2SPClientAppTOMapper();
     }
 
     @ConditionalOnMissingBean
@@ -179,22 +223,16 @@ public class SyncopeWAConfiguration {
 
     @Autowired
     @Bean
-    public SamlIdPMetadataGenerator samlIdPMetadataGenerator(final WARestClient restClient) {
-        SamlIdPMetadataGeneratorConfigurationContext context =
-                SamlIdPMetadataGeneratorConfigurationContext.builder().
-                        samlIdPMetadataLocator(samlIdPMetadataLocator(restClient)).
-                        samlIdPCertificateAndKeyWriter(samlSelfSignedCertificateWriter.getObject()).
-                        applicationContext(ctx).
-                        casProperties(casProperties).
-                        metadataCipherExecutor(CipherExecutor.noOpOfStringToString()).
-                        build();
+    public SamlIdPMetadataGenerator samlIdPMetadataGenerator(final WARestClient restClient,
+                                                         final SamlIdPMetadataGeneratorConfigurationContext context) {
         return new RestfulSamlIdPMetadataGenerator(context, restClient);
     }
 
     @Autowired
     @Bean
     public SamlIdPMetadataLocator samlIdPMetadataLocator(final WARestClient restClient) {
-        return new RestfulSamlIdPMetadataLocator(CipherExecutor.noOpOfStringToString(), restClient);
+        return new RestfulSamlIdPMetadataLocator(CipherExecutor.noOpOfStringToString(),
+                Caffeine.newBuilder().build(), restClient);
     }
 
     @Autowired
@@ -215,10 +253,9 @@ public class SyncopeWAConfiguration {
         return new SyncopeWAEventRepository(syncopeWAEventRepositoryFilter(), restClient);
     }
 
-
     @Autowired
     @Bean
-    public DelegatedClientFactoryCustomizer<Client<?>> delegatedClientCustomizer(final WARestClient restClient) {
+    public DelegatedClientFactoryCustomizer<Client> delegatedClientCustomizer(final WARestClient restClient) {
         return new SyncopeWASAML2ClientCustomizer(restClient);
     }
 
@@ -258,13 +295,19 @@ public class SyncopeWAConfiguration {
     @Autowired
     @RefreshScope
     public U2FDeviceRepository u2fDeviceRepository(final WARestClient restClient) {
-        U2FMultifactorProperties u2f = casProperties.getAuthn().getMfa().getU2f();
+        U2FMultifactorAuthenticationProperties u2f = casProperties.getAuthn().getMfa().getU2f();
         LocalDate expirationDate = LocalDate.now(ZoneId.systemDefault()).
                 minus(u2f.getExpireDevices(), DateTimeUtils.toChronoUnit(u2f.getExpireDevicesTimeUnit()));
         LoadingCache<String, String> requestStorage = Caffeine.newBuilder().
                 expireAfterWrite(u2f.getExpireRegistrations(), u2f.getExpireRegistrationsTimeUnit()).
                 build(key -> StringUtils.EMPTY);
         return new SyncopeWAU2FDeviceRepository(requestStorage, restClient, expirationDate);
+    }
+
+    @Bean
+    @Autowired
+    public SurrogateAuthenticationService surrogateAuthenticationService(final WARestClient restClient) {
+        return new SyncopeWASurrogateAuthenticationService(restClient);
     }
 
     @Bean

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels.search;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -85,7 +84,7 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected List<SearchClause.Type> load() {
-                return Collections.singletonList(SearchClause.Type.ATTRIBUTE);
+                return List.of(SearchClause.Type.ATTRIBUTE);
             }
         };
 
@@ -95,7 +94,7 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected Map<String, PlainSchemaTO> load() {
-                return Collections.emptyMap();
+                return Map.of();
             }
         };
 

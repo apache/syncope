@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-public class JaasAuthModuleConf extends AbstractAuthModuleConf {
+public class JaasAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -7775771400318503131L;
 

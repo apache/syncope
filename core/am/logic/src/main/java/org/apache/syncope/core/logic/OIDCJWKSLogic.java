@@ -19,6 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -42,32 +43,23 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
     @Autowired
     private OIDCJWKSDAO dao;
 
-    @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_READ + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_READ + "') "
+            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public OIDCJWKSTO get() {
-        OIDCJWKS jwks = dao.get();
-        if (jwks != null) {
-            return binder.get(jwks);
-        }
-        throw new NotFoundException("OIDC JWKS not found");
+        return Optional.ofNullable(dao.get()).
+                map(binder::getOIDCJWKSTO).
+                orElseThrow(() -> new NotFoundException("OIDC JWKS not found"));
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_CREATE + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public OIDCJWKSTO set(final int size, final JWSAlgorithm algorithm) {
+    @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_GENERATE + "') "
+            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public OIDCJWKSTO generate(final int size, final JWSAlgorithm algorithm) {
         OIDCJWKS jwks = dao.get();
         if (jwks == null) {
-            return binder.get(dao.save(binder.create(size, algorithm)));
+            return binder.getOIDCJWKSTO(dao.save(binder.create(size, algorithm)));
         }
         throw new DuplicateException("OIDC JWKS already set");
-    }
-
-    @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_UPDATE + "')")
-    public OIDCJWKSTO update(final OIDCJWKSTO jwksTO) {
-        OIDCJWKS jwks = dao.get();
-        if (jwks == null) {
-            throw new NotFoundException("OIDC JWKS not found");
-        }
-        return binder.get(dao.save(binder.update(jwks, jwksTO)));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_DELETE + "')")
@@ -82,6 +74,6 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
         if (jwks == null) {
             throw new UnresolvedReferenceException();
         }
-        return binder.get(jwks);
+        return binder.getOIDCJWKSTO(jwks);
     }
 }

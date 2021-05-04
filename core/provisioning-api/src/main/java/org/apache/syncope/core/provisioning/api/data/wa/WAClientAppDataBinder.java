@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api.data.wa;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 
+@FunctionalInterface
 public interface WAClientAppDataBinder {
 
     WAClientApp getWAClientApp(ClientApp clientApp);

@@ -22,7 +22,6 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.boot
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -82,8 +81,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private static final long serialVersionUID = -527351923968737757L;
 
-    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = ThreadLocal.withInitial(SimpleDateFormat::new);
-
     protected static final AttributeModifier PREVENT_DEFAULT_RETURN = AttributeModifier.replace(
             "onkeydown",
             Model.of("if (event.keyCode == 13) { event.preventDefault(); }"));
@@ -122,7 +119,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         }
 
         default void setFieldAccess(
-                FieldPanel value,
+                FieldPanel<String> value,
                 AjaxTextFieldPanel property,
                 LoadableDetachableModel<List<String>> properties) {
 
@@ -458,16 +455,16 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                             inputValue = "*" + inputValue;
                         }
                         if (!inputValue.endsWith("*")) {
-                            inputValue = inputValue + "*";
+                            inputValue += "*";
                         }
                         property.setChoices(groupRestClient.search(
                                 SyncopeConstants.ROOT_REALM,
                                 SyncopeClient.getGroupSearchConditionBuilder().
-                                        is("name").equalToIgnoreCase(inputValue).
+                                        is(Constants.NAME_FIELD_NAME).equalToIgnoreCase(inputValue).
                                         query(),
                                 1,
                                 Constants.MAX_GROUP_LIST_SIZE,
-                                new SortParam<>("name", true),
+                                new SortParam<>(Constants.NAME_FIELD_NAME, true),
                                 null).stream().map(GroupTO::getName).collect(Collectors.toList()));
                     }
                 }
@@ -516,8 +513,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 field.addOrReplace(value);
                 target.add(value);
             }
-        }
-        );
+        });
 
         AjaxDropDownChoicePanel<SearchClause.Type> type = new AjaxDropDownChoicePanel<>(
                 "type", "type", new PropertyModel<>(searchClause, "type"));
@@ -906,9 +902,12 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 ((AjaxTextFieldPanel) value).setChoices(Arrays.asList("true", "false"));
 
                 break;
+
             case Date:
-                SimpleDateFormat df = DATE_FORMAT.get();
-                df.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
+                FastDateFormat fdf = FastDateFormat.getInstance(
+                        plainSchemaTO.getConversionPattern() == null
+                        ? SyncopeConstants.DEFAULT_DATE_PATTERN
+                        : plainSchemaTO.getConversionPattern());
 
                 value = new AjaxDateTimeFieldPanel(
                         "value",
@@ -921,7 +920,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     public Object getObject() {
                         String date = (String) super.getObject();
                         try {
-                            return date != null ? df.parse(date) : null;
+                            return date != null ? fdf.parse(date) : null;
                         } catch (ParseException ex) {
                             LOG.error("Date parse error {}", date, ex);
                         }
@@ -931,7 +930,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     @Override
                     public void setObject(final Object object) {
                         if (object instanceof Date) {
-                            String valueDate = df.format(object);
+                            String valueDate = fdf.format(object);
                             super.setObject(valueDate);
                         } else {
                             super.setObject(object);
@@ -972,6 +971,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     });
                 }
                 break;
+
             case Long:
                 value = new AjaxSpinnerFieldPanel.Builder<Long>().enableOnChange().build(
                         "value",

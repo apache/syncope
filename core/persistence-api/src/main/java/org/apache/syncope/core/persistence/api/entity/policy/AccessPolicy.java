@@ -22,6 +22,14 @@ import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 
 public interface AccessPolicy extends Policy {
 
+    boolean isEnabled();
+
+    void setEnabled(boolean enabled);
+
+    boolean isSsoEnabled();
+
+    void setSsoEnabled(boolean ssoEnabled);
+
     AccessPolicyConf getConf();
 
     void setConf(AccessPolicyConf conf);

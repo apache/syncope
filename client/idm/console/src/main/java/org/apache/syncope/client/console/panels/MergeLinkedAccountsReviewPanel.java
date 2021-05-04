@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardModel;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -94,7 +95,8 @@ public class MergeLinkedAccountsReviewPanel extends WizardStep {
             columns.add(new PropertyColumn<>(
                     new ResourceModel("connObjectKeyValue"), "connObjectKeyValue", "connObjectKeyValue"));
             columns.add(new PropertyColumn<>(
-                    new ResourceModel("username"), "username", "username"));
+                    new ResourceModel(Constants.USERNAME_FIELD_NAME),
+                    Constants.USERNAME_FIELD_NAME, Constants.USERNAME_FIELD_NAME));
             columns.add(new BooleanPropertyColumn<>(
                     new ResourceModel("suspended"), "suspended", "suspended"));
             return columns;

@@ -23,14 +23,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.UUID;
+import org.apache.syncope.common.lib.types.OIDCGrantType;
+import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
 @Transactional("Master")
 public class OIDCRPTest extends AbstractClientAppTest {
@@ -42,15 +44,15 @@ public class OIDCRPTest extends AbstractClientAppTest {
     public void find() {
         int beforeCount = oidcrpDAO.findAll().size();
 
-        OIDCRP rp = entityFactory.newEntity(OIDCRP.class);
+        OIDCRPClientApp rp = entityFactory.newEntity(OIDCRPClientApp.class);
         rp.setName("OIDC");
         rp.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         rp.setDescription("This is a sample OIDC RP");
         rp.setClientId("clientid");
         rp.setClientSecret("secret");
         rp.setSubjectType(OIDCSubjectType.PUBLIC);
-        rp.getSupportedGrantTypes().add("something");
-        rp.getSupportedResponseTypes().add("something");
+        rp.getSupportedGrantTypes().add(OIDCGrantType.password);
+        rp.getSupportedResponseTypes().add(OIDCResponseType.CODE);
 
         AccessPolicy accessPolicy = buildAndSaveAccessPolicy();
         rp.setAccessPolicy(accessPolicy);
@@ -72,7 +74,7 @@ public class OIDCRPTest extends AbstractClientAppTest {
 
         rp = oidcrpDAO.findByName("OIDC");
         assertNotNull(rp);
-        
+
         rp = oidcrpDAO.findByClientAppId(rp.getClientAppId());
         assertNotNull(rp);
 

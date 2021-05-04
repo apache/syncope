@@ -28,9 +28,9 @@ public class PolicyValidator extends AbstractValidator<PolicyCheck, Policy> {
     public boolean isValid(final Policy policy, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (isHtml(policy.getDescription())) {
+        if (isHtml(policy.getName())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidName, policy.getDescription())).
+                    getTemplate(EntityViolationType.InvalidName, policy.getName())).
                     addPropertyNode("description").addConstraintViolation();
             return false;
         }

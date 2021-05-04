@@ -18,15 +18,12 @@
  */
 package org.apache.syncope.core.rest.cxf.service.wa;
 
-import java.net.URI;
 import java.util.Date;
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.types.GoogleMfaAuthToken;
-import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
-import org.apache.syncope.core.logic.GoogleMfaAuthTokenLogic;
+import org.apache.syncope.core.logic.wa.GoogleMfaAuthTokenLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,75 +35,55 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implement
     private GoogleMfaAuthTokenLogic logic;
 
     @Override
-    public Response deleteTokensByDate(final Date expirationDate) {
-        logic.delete(expirationDate);
-        return Response.noContent().build();
+    public void delete(final Date expirationDate) {
+        if (expirationDate == null) {
+            logic.deleteAll();
+        } else {
+            logic.delete(expirationDate);
+        }
     }
 
     @Override
-    public Response deleteToken(final String owner, final Integer otp) {
+    public void delete(final String owner, final int otp) {
         logic.delete(owner, otp);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response deleteTokensFor(final String owner) {
+    public void delete(final String owner) {
         logic.delete(owner);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response deleteToken(final Integer otp) {
+    public void delete(final int otp) {
         logic.delete(otp);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response deleteTokens() {
-        logic.deleteAll();
-        return Response.noContent().build();
+    public void store(final String owner, final GoogleMfaAuthToken token) {
+        logic.store(owner, token);
     }
 
     @Override
-    public Response save(final GoogleMfaAuthToken tokenTO) {
-        final GoogleMfaAuthToken token = logic.save(tokenTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(token.getKey()).build();
-        return Response.created(location).
-                header(RESTHeaders.RESOURCE_KEY, token.getKey()).
-                build();
-    }
-
-    @Override
-    public GoogleMfaAuthToken findTokenFor(final String owner, final Integer otp) {
+    public GoogleMfaAuthToken read(final String owner, final int otp) {
         return logic.read(owner, otp);
     }
 
-    @Override
-    public PagedResult<GoogleMfaAuthToken> findTokensFor(final String owner) {
-        List<GoogleMfaAuthToken> tokens = logic.findTokensFor(owner);
-
+    private PagedResult<GoogleMfaAuthToken> build(final List<GoogleMfaAuthToken> read) {
         PagedResult<GoogleMfaAuthToken> result = new PagedResult<>();
-        result.getResult().addAll(tokens);
-
         result.setPage(1);
-        result.setSize(result.getResult().size());
-        result.setTotalCount(result.getSize());
-
+        result.setSize(read.size());
+        result.setTotalCount(read.size());
+        result.getResult().addAll(read);
         return result;
     }
 
     @Override
-    public GoogleMfaAuthToken findTokenFor(final String key) {
-        return logic.read(key);
+    public PagedResult<GoogleMfaAuthToken> read(final String owner) {
+        return build(logic.read(owner));
     }
 
     @Override
-    public PagedResult<GoogleMfaAuthToken> countTokens() {
-        PagedResult<GoogleMfaAuthToken> result = new PagedResult<>();
-
-        result.setSize(logic.countAll());
-        result.setTotalCount(result.getSize());
-
-        return result;
+    public PagedResult<GoogleMfaAuthToken> list() {
+        return build(logic.list());
     }
 }

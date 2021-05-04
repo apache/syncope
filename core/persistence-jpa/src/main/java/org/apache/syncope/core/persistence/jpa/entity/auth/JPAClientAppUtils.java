@@ -19,11 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
 import org.apache.syncope.common.lib.types.ClientAppType;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSP;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtils;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SP;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
 public class JPAClientAppUtils implements ClientAppUtils {
 
@@ -42,12 +42,12 @@ public class JPAClientAppUtils implements ClientAppUtils {
     public Class<? extends ClientApp> clientAppClass() {
         switch (type) {
             case OIDCRP:
-                return OIDCRP.class;
+                return OIDCRPClientApp.class;
             case CASSP:
-                return CASSP.class;
+                return CASSPClientApp.class;
             case SAML2SP:
             default:
-                return SAML2SP.class;
+                return SAML2SPClientApp.class;
         }
     }
 }

@@ -135,7 +135,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
         private static final long serialVersionUID = -785981096328637758L;
 
         public Configuration(final ReportletWrapper reportlet) {
-            final LoadableDetachableModel<Serializable> bean = new LoadableDetachableModel<Serializable>() {
+            LoadableDetachableModel<Serializable> bean = new LoadableDetachableModel<Serializable>() {
 
                 private static final long serialVersionUID = 2092144708018739371L;
 
@@ -144,7 +144,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
                     return reportlet.getConf();
                 }
             };
-            add(new BeanPanel<>("bean", bean, reportlet.getSCondWrapper(), "name", "reportlet").
+            add(new BeanPanel<>("bean", bean, reportlet.getSCondWrapper(), Constants.NAME_FIELD_NAME, "reportlet").
                     setRenderBodyOnly(true));
         }
     }

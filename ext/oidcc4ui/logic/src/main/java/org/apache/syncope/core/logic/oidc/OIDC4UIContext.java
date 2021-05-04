@@ -25,18 +25,12 @@ import java.util.Set;
 import javax.ws.rs.HttpMethod;
 import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.context.session.SessionStore;
 
 public class OIDC4UIContext implements WebContext {
 
     @Override
     public String getRequestMethod() {
         return HttpMethod.GET;
-    }
-
-    @Override
-    public SessionStore<OIDC4UIContext> getSessionStore() {
-        return NoOpSessionStore.INSTANCE;
     }
 
     @Override
@@ -51,7 +45,7 @@ public class OIDC4UIContext implements WebContext {
 
     @Override
     public Optional<String> getRequestAttribute(final String name) {
-        throw new UnsupportedOperationException();
+        return Optional.empty();
     }
 
     @Override
@@ -66,7 +60,7 @@ public class OIDC4UIContext implements WebContext {
 
     @Override
     public String getRemoteAddr() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
@@ -75,8 +69,13 @@ public class OIDC4UIContext implements WebContext {
     }
 
     @Override
+    public Optional<String> getResponseHeader(final String s) {
+        return Optional.empty();
+    }
+
+    @Override
     public String getServerName() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
@@ -86,17 +85,17 @@ public class OIDC4UIContext implements WebContext {
 
     @Override
     public String getScheme() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
     public boolean isSecure() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     @Override
     public String getFullRequestURL() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
@@ -111,7 +110,7 @@ public class OIDC4UIContext implements WebContext {
 
     @Override
     public String getPath() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override

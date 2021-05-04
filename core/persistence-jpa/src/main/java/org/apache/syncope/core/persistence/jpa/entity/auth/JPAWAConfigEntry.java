@@ -18,38 +18,36 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
-import java.util.ArrayList;
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAWAConfigEntry.TABLE)
 public class JPAWAConfigEntry extends AbstractProvidedKeyEntity implements WAConfigEntry {
 
-    public static final String TABLE = "ConfigEntry";
+    public static final String TABLE = "WAConfigEntry";
 
     private static final long serialVersionUID = 6422422526695279794L;
 
-    @ElementCollection
-    @CollectionTable(name = TABLE + "Values", joinColumns =
-            @JoinColumn(name = "id"))
-    @Column(nullable = false)
-    private List<String> values = new ArrayList<>();
+    @Lob
+    private String waConfigValues;
 
     @Override
     public List<String> getValues() {
-        return values;
+        return waConfigValues == null
+                ? List.of()
+                : POJOHelper.deserialize(waConfigValues, new TypeReference<List<String>>() {
+                });
     }
 
     @Override
     public void setValues(final List<String> values) {
-        this.values = values;
+        this.waConfigValues = POJOHelper.serialize(values);
     }
 }

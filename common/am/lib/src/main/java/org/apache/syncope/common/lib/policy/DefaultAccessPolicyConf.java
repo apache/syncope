@@ -18,8 +18,22 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-public class DefaultAccessPolicyConf extends AbstractAccessPolicyConf implements AccessPolicyConf {
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.syncope.common.lib.Attr;
 
-    private static final long serialVersionUID = -1969836600059025380L;
+public class DefaultAccessPolicyConf implements AccessPolicyConf {
 
+    private static final long serialVersionUID = 1153200197344709778L;
+
+    private final List<Attr> requiredAttrs = new ArrayList<>();
+
+    @JacksonXmlElementWrapper(localName = "requiredAttrs")
+    @JacksonXmlProperty(localName = "requiredAttr")
+    @Override
+    public List<Attr> getRequiredAttrs() {
+        return requiredAttrs;
+    }
 }

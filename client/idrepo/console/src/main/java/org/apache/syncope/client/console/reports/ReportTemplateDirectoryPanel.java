@@ -51,9 +51,9 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.syncope.client.console.reports.ReportTemplateDirectoryPanel.ReportTemplateProvider;
 import org.apache.syncope.client.console.rest.ReportRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.WindowClosedCallback;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.wicket.model.PropertyModel;
@@ -71,18 +71,11 @@ public class ReportTemplateDirectoryPanel
 
         modal.size(Modal.Size.Small);
         modal.addSubmitButton();
-        setFooterVisibility(true);
-
-        modal.setWindowClosedCallback(new WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                updateResultTable(target);
-                modal.show(false);
-            }
+        modal.setWindowClosedCallback(target -> {
+            updateResultTable(target);
+            modal.show(false);
         });
+        setFooterVisibility(true);
 
         addOuterObject(utilityModal);
         setWindowClosedReloadCallback(utilityModal);
@@ -270,7 +263,7 @@ public class ReportTemplateDirectoryPanel
                     SyncopeConsoleSession.get().onException(e);
                 }
             }
-            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
 }

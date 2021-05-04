@@ -20,5 +20,5 @@ package org.apache.syncope.core.logic.oidc;
 
 import org.pac4j.core.logout.handler.LogoutHandler;
 
-public class NoOpLogoutHandler implements LogoutHandler<OIDC4UIContext> {
+public class NoOpLogoutHandler implements LogoutHandler {
 }

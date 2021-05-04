@@ -31,12 +31,13 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.PersistenceException;
 import java.util.UUID;
 import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRP;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
 @Transactional("Master")
 public class PolicyTest extends AbstractClientAppTest {
@@ -54,7 +55,7 @@ public class PolicyTest extends AbstractClientAppTest {
         AuthPolicy authPolicy = buildAndSaveAuthPolicy();
 
         // Create new client app and assign policy
-        OIDCRP rp = entityFactory.newEntity(OIDCRP.class);
+        OIDCRPClientApp rp = entityFactory.newEntity(OIDCRPClientApp.class);
         rp.setName("OIDC");
         rp.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         rp.setDescription("This is a sample OIDC RP");
@@ -82,7 +83,7 @@ public class PolicyTest extends AbstractClientAppTest {
         assertNotNull(realm);
 
         // Create new client app and assign policy
-        OIDCRP rp = entityFactory.newEntity(OIDCRP.class);
+        OIDCRPClientApp rp = entityFactory.newEntity(OIDCRPClientApp.class);
         rp.setName("OIDC");
         rp.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         rp.setDescription("This is a sample OIDC RP");

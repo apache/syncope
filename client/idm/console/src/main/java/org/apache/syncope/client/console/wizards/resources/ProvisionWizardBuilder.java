@@ -126,7 +126,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
 
         private static final long serialVersionUID = 3454904947720856253L;
 
-        Mapping(final ResourceProvision resourceProvision) {
+        Mapping() {
             setTitleModel(Model.of("Mapping"));
             setSummaryModel(Model.of(StringUtils.EMPTY));
         }
@@ -203,7 +203,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
         wizardModel.add(new ObjectType(resourceProvision));
         wizardModel.add(new AuxClasses(resourceProvision));
 
-        Mapping mapping = new Mapping(resourceProvision);
+        Mapping mapping = new Mapping();
         mapping.setOutputMarkupId(true);
 
         ItemTransformersTogglePanel itemTransformers = new ItemTransformersTogglePanel(mapping, pageRef);

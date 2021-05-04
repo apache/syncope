@@ -151,10 +151,10 @@ public class Groups extends AbstractGroups {
                                     ? groupsModel.getObject()
                                     : groupRestClient.search(
                                             anyTO.getRealm(),
-                                            SyncopeClient.getGroupSearchConditionBuilder().
-                                                    isAssignable().and("name").equalToIgnoreCase(filter).query(),
+                                            SyncopeClient.getGroupSearchConditionBuilder().isAssignable().
+                                                    and(Constants.NAME_FIELD_NAME).equalToIgnoreCase(filter).query(),
                                             1, Constants.MAX_GROUP_LIST_SIZE,
-                                            new SortParam<>("name", true),
+                                            new SortParam<>(Constants.NAME_FIELD_NAME, true),
                                             null)).stream().
                                     map(group -> new MembershipTO.Builder(group.getKey()).
                                     groupName(group.getName()).build()).
@@ -221,7 +221,7 @@ public class Groups extends AbstractGroups {
                     SyncopeClient.getGroupSearchConditionBuilder().isAssignable().query(),
                     1,
                     Constants.MAX_GROUP_LIST_SIZE,
-                    new SortParam<>("name", true),
+                    new SortParam<>(Constants.NAME_FIELD_NAME, true),
                     null);
         }
 
@@ -241,13 +241,13 @@ public class Groups extends AbstractGroups {
 
             int total = GroupableRelatableTO.class.cast(anyTO).getMemberships().size();
             int pages = (total / Constants.MAX_GROUP_LIST_SIZE) + 1;
-            SortParam<String> sort = new SortParam<>("name", true);
+            SortParam<String> sort = new SortParam<>(Constants.NAME_FIELD_NAME, true);
             for (int page = 1; page <= pages; page++) {
                 GroupFiqlSearchConditionBuilder builder = SyncopeClient.getGroupSearchConditionBuilder();
 
                 List<CompleteCondition> conditions = GroupableRelatableTO.class.cast(anyTO).getMemberships().
                         stream().
-                        skip(((long) page - 1L) * (long) Constants.MAX_GROUP_LIST_SIZE).
+                        skip((page - 1L) * Constants.MAX_GROUP_LIST_SIZE).
                         limit(Constants.MAX_GROUP_LIST_SIZE).
                         map(m -> builder.is(Constants.KEY_FIELD_NAME).equalTo(m.getGroupKey()).wrap()).
                         collect(Collectors.toList());
@@ -302,7 +302,7 @@ public class Groups extends AbstractGroups {
                         builder.or(conditions).query(),
                         -1,
                         -1,
-                        new SortParam<>("name", true),
+                        new SortParam<>(Constants.NAME_FIELD_NAME, true),
                         null).stream().map(GroupTO::getName).collect(Collectors.toList()));
             }
         }

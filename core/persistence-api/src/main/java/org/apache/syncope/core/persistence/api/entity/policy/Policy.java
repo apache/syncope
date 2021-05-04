@@ -22,7 +22,7 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 
 public interface Policy extends Entity {
 
-    String getDescription();
+    String getName();
 
-    void setDescription(String description);
+    void setName(String name);
 }

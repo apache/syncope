@@ -16,46 +16,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.wa.starter.webauthn;
-
-import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.util.crypto.CipherExecutor;
-import org.apereo.cas.webauthn.WebAuthnUtils;
-import org.apereo.cas.webauthn.storage.BaseWebAuthnCredentialRepository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.yubico.data.CredentialRegistration;
-
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.WebAuthnDeviceCredential;
-import org.apache.syncope.common.lib.types.WebAuthnAccount;
-import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
-import org.apache.syncope.wa.bootstrap.WARestClient;
-import org.jooq.lambda.Unchecked;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.wa.WebAuthnAccount;
+import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
+import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
+import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apereo.cas.util.crypto.CipherExecutor;
+import org.apereo.cas.webauthn.WebAuthnUtils;
+import org.apereo.cas.webauthn.storage.BaseWebAuthnCredentialRepository;
+import org.jooq.lambda.Unchecked;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentialRepository {
+
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAWebAuthnCredentialRepository.class);
 
     private final WARestClient waRestClient;
 
     public SyncopeWAWebAuthnCredentialRepository(final CasConfigurationProperties properties,
-                                                 final WARestClient waRestClient) {
+            final WARestClient waRestClient) {
         super(properties, CipherExecutor.noOpOfStringToString());
         this.waRestClient = waRestClient;
     }
 
     @Override
     public boolean removeRegistrationByUsername(final String username,
-                                                final CredentialRegistration credentialRegistration) {
+            final CredentialRegistration credentialRegistration) {
         String id = credentialRegistration.getCredential().getCredentialId().getHex();
         getService().delete(username, id);
         return true;
@@ -70,41 +67,37 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
     @Override
     protected Stream<CredentialRegistration> load() {
         return getService().list().
-            stream().
-            map(WebAuthnAccount::getRecords).
-            flatMap(Collection::stream).
-            map(Unchecked.function(record -> {
-                String json = getCipherExecutor().decode(record.getJson());
-                return WebAuthnUtils.getObjectMapper().readValue(json, new TypeReference<>() {
-                });
-            }));
+                stream().
+                map(WebAuthnAccount::getCredentials).
+                flatMap(Collection::stream).
+                map(Unchecked.function(record -> {
+                    String json = getCipherExecutor().decode(record.getJson());
+                    return WebAuthnUtils.getObjectMapper().readValue(json, new TypeReference<>() {
+                    });
+                }));
     }
 
     @Override
     protected void update(final String username, final Collection<CredentialRegistration> records) {
         try {
-            List<WebAuthnDeviceCredential> devices = records.stream().
-                map(Unchecked.function(record -> {
-                    String json = getCipherExecutor().encode(WebAuthnUtils.getObjectMapper().
-                        writeValueAsString(record));
-                    return new WebAuthnDeviceCredential.Builder().
-                        json(json).
-                        owner(username).
-                        identifier(record.getCredential().getCredentialId().getHex()).
-                        build();
-                })).
-                collect(Collectors.toList());
+            List<WebAuthnDeviceCredential> credentials = records.stream().
+                    map(Unchecked.function(record -> {
+                        String json = getCipherExecutor().encode(WebAuthnUtils.getObjectMapper().
+                                writeValueAsString(record));
+                        return new WebAuthnDeviceCredential.Builder().
+                                json(json).
+                                identifier(record.getCredential().getCredentialId().getHex()).
+                                build();
+                    })).
+                    collect(Collectors.toList());
 
-            WebAuthnAccount account = getService().findAccountFor(username);
+            WebAuthnAccount account = getService().read(username);
             if (account != null) {
-                account.setRecords(devices);
-                getService().update(account);
+                account.getCredentials().addAll(credentials);
+                getService().update(username, account);
             } else {
-                account = new WebAuthnAccount.Builder()
-                    .owner(username)
-                    .records(devices)
-                    .build();
-                getService().create(account);
+                account = new WebAuthnAccount.Builder().credentials(credentials).build();
+                getService().create(username, account);
             }
         } catch (final Exception e) {
             LOG.error(e.getMessage(), e);
@@ -114,17 +107,14 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
     @Override
     public Collection<CredentialRegistration> getRegistrationsByUsername(final String username) {
         try {
-            WebAuthnAccount account = getService().findAccountFor(username);
-            if (account != null) {
-
-                return account.getRecords().stream().
+            return getService().read(username).getCredentials().stream().
                     map(Unchecked.function(record -> {
                         String json = getCipherExecutor().decode(record.getJson());
                         return WebAuthnUtils.getObjectMapper()
-                            .readValue(json, new TypeReference<CredentialRegistration>() { });
+                                .readValue(json, new TypeReference<CredentialRegistration>() {
+                                });
                     })).
                     collect(Collectors.toList());
-            }
         } catch (final SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 LOG.info("Could not locate account for {}", username);

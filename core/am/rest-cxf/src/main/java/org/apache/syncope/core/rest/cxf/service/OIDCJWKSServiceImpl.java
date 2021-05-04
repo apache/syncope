@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import java.net.URI;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
+import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.core.logic.OIDCJWKSLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,8 +34,15 @@ public class OIDCJWKSServiceImpl extends AbstractServiceImpl implements OIDCJWKS
     private OIDCJWKSLogic logic;
 
     @Override
-    public void update(final OIDCJWKSTO jwksTO) {
-        logic.update(jwksTO);
+    public OIDCJWKSTO get() {
+        return logic.get();
+    }
+
+    @Override
+    public Response generate(final int size, final JWSAlgorithm algorithm) {
+        OIDCJWKSTO jwks = logic.generate(size, algorithm);
+        URI location = uriInfo.getAbsolutePathBuilder().build();
+        return Response.created(location).entity(jwks).build();
     }
 
     @Override

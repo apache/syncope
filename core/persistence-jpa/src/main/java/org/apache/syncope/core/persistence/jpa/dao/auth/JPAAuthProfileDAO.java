@@ -18,55 +18,56 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.auth;
 
+import java.util.List;
+import java.util.Optional;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthProfile;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
-
-import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class JPAAuthProfileDAO extends AbstractDAO<AuthProfile> implements AuthProfileDAO {
 
     @Override
-    @Transactional(readOnly = true)
-    public List<AuthProfile> findAll() {
+    public AuthProfile find(final String key) {
+        return entityManager().find(JPAAuthProfile.class, key);
+    }
+
+    @Override
+    public int count() {
+        Query query = entityManager().createQuery(
+                "SELECT COUNT(e) FROM  " + JPAAuthProfile.class.getSimpleName() + " e");
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    @Override
+    public List<AuthProfile> findAll(final int page, final int itemsPerPage) {
         TypedQuery<AuthProfile> query = entityManager().createQuery(
-            "SELECT e FROM " + JPAAuthProfile.class.getSimpleName() + " e ",
-            AuthProfile.class);
+                "SELECT e FROM " + JPAAuthProfile.class.getSimpleName() + " e ORDER BY e.owner ASC",
+                AuthProfile.class);
+
+        // page starts from 1, while setFirtResult() starts from 0
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+
+        if (itemsPerPage >= 0) {
+            query.setMaxResults(itemsPerPage);
+        }
+
         return query.getResultList();
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<AuthProfile> findByOwner(final String owner) {
-        try {
-            TypedQuery<AuthProfile> query = entityManager().createQuery(
+        TypedQuery<AuthProfile> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAAuthProfile.class.getSimpleName()
-                    + " e WHERE e.owner=:owner", AuthProfile.class);
-            query.setParameter("owner", owner);
-            return Optional.ofNullable(query.getSingleResult());
-        } catch (final NoResultException e) {
-            LOG.debug("No auth profile could be found for owner {}", owner);
-        }
-        return Optional.empty();
-    }
+                + " e WHERE e.owner=:owner", AuthProfile.class);
+        query.setParameter("owner", owner);
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<AuthProfile> findByKey(final String key) {
-        try {
-            return Optional.ofNullable(entityManager().find(JPAAuthProfile.class, key));
-        } catch (final NoResultException e) {
-            LOG.debug("No auth profile could be found for {}", key);
-        }
-        return Optional.empty();
+        List<AuthProfile> result = query.getResultList();
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     @Override
@@ -75,24 +76,16 @@ public class JPAAuthProfileDAO extends AbstractDAO<AuthProfile> implements AuthP
     }
 
     @Override
-    public void deleteByKey(final String key) {
-        findByKey(key).ifPresent(this::delete);
-    }
-
-    @Override
-    public void deleteByOwner(final String owner) {
-        findByOwner(owner).ifPresent(this::delete);
+    public void delete(final String key) {
+        AuthProfile authProfile = find(key);
+        if (authProfile == null) {
+            return;
+        }
+        delete(authProfile);
     }
 
     @Override
     public void delete(final AuthProfile authProfile) {
         entityManager().remove(authProfile);
-    }
-
-    @Override
-    public void deleteAll() {
-        entityManager().
-            createQuery("DELETE FROM " + JPAAuthProfile.class.getSimpleName()).
-            executeUpdate();
     }
 }

@@ -44,10 +44,8 @@ public class SCIMConfEnterpriseUserPanel extends SCIMConfTabPanel {
 
     private final SCIMEnterpriseUserConf scimEnterpriseUserConf;
 
-    public SCIMConfEnterpriseUserPanel(
-            final String id,
-            final SCIMConf scimConf) {
-        super(id, scimConf);
+    public SCIMConfEnterpriseUserPanel(final String id, final SCIMConf scimConf) {
+        super(id);
 
         if (scimConf.getEnterpriseUserConf() == null) {
             scimConf.setEnterpriseUserConf(new SCIMEnterpriseUserConf());
@@ -226,7 +224,7 @@ public class SCIMConfEnterpriseUserPanel extends SCIMConfTabPanel {
 
         panelList.add(managerKeyPanel);
         panelList.add(managerDisplaNamePanel);
-        
+
         add(new Label("managerLabel", Model.of("manager")));
 
         return new SCIMConfAccordionContainer(panelId, panelList);

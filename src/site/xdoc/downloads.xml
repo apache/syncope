@@ -275,17 +275,7 @@ under the License.
     </section>
     
     <section name="Verifying Releases">
-      <p>When downloading from a mirror please check the SHA512 checksums as well as verifying the OpenPGP compatible
-        signature available from the main Apache site.
-        The <a href="https://downloads.apache.org/syncope/KEYS">KEYS</a> file contains the public keys used for signing the
-        release. It is recommended that a web of trust is used to confirm the identity of these keys.</p>
-
-      <p>You can check the OpenPGP signature with GnuPG via:</p>
-      <source><![CDATA[gpg --import KEYS
-gpg --verify *syncope*.asc]]></source>
-      
-      <p>You can check the SHA512 checksum with:</p>
-      <source><![CDATA[sha512sum --check *syncope*.sha512]]></source>
+      <p>You can verify your download by following these <a href="http://www.apache.org/info/verification.html">procedures</a> and using these <a href="https://www.apache.org/dist/syncope/KEYS">KEYS</a>.</p>
     </section>
   </body>
 </document>

@@ -29,9 +29,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
-import org.apache.syncope.common.lib.to.client.CASSPTO;
-import org.apache.syncope.common.lib.to.client.OIDCRPTO;
-import org.apache.syncope.common.lib.to.client.SAML2SPTO;
+import org.apache.syncope.common.lib.to.CASSPClientAppTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.fit.AbstractITCase;
@@ -46,10 +46,10 @@ public class ClientAppITCase extends AbstractITCase {
 
     @Test
     public void readSAML2SP() {
-        SAML2SPTO samlSpTO = buildSAML2SP();
+        SAML2SPClientAppTO samlSpTO = buildSAML2SP();
         samlSpTO = createClientApp(ClientAppType.SAML2SP, samlSpTO);
 
-        SAML2SPTO found = clientAppService.read(ClientAppType.SAML2SP, samlSpTO.getKey());
+        SAML2SPClientAppTO found = clientAppService.read(ClientAppType.SAML2SP, samlSpTO.getKey());
         assertNotNull(found);
         assertFalse(StringUtils.isBlank(found.getEntityId()));
         assertFalse(StringUtils.isBlank(found.getMetadataLocation()));
@@ -62,12 +62,12 @@ public class ClientAppITCase extends AbstractITCase {
 
     @Test
     public void updateSAML2SP() {
-        SAML2SPTO samlSpTO = buildSAML2SP();
+        SAML2SPClientAppTO samlSpTO = buildSAML2SP();
         samlSpTO = createClientApp(ClientAppType.SAML2SP, samlSpTO);
 
         AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
         accessPolicyTO.setKey("NewAccessPolicyTest_" + getUUIDString());
-        accessPolicyTO.setDescription("New Access policy");
+        accessPolicyTO.setName("New Access policy");
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 
@@ -75,7 +75,7 @@ public class ClientAppITCase extends AbstractITCase {
         samlSpTO.setAccessPolicy(accessPolicyTO.getKey());
 
         clientAppService.update(ClientAppType.SAML2SP, samlSpTO);
-        SAML2SPTO updated = clientAppService.read(ClientAppType.SAML2SP, samlSpTO.getKey());
+        SAML2SPClientAppTO updated = clientAppService.read(ClientAppType.SAML2SP, samlSpTO.getKey());
 
         assertNotNull(updated);
         assertEquals("newEntityId", updated.getEntityId());
@@ -84,7 +84,7 @@ public class ClientAppITCase extends AbstractITCase {
 
     @Test
     public void deleteSAML2SP() {
-        SAML2SPTO samlSpTO = buildSAML2SP();
+        SAML2SPClientAppTO samlSpTO = buildSAML2SP();
         samlSpTO = createClientApp(ClientAppType.SAML2SP, samlSpTO);
 
         clientAppService.delete(ClientAppType.SAML2SP, samlSpTO.getKey());
@@ -109,10 +109,10 @@ public class ClientAppITCase extends AbstractITCase {
 
     @Test
     public void readOIDCRP() {
-        OIDCRPTO oidcrpTO = buildOIDCRP();
+        OIDCRPClientAppTO oidcrpTO = buildOIDCRP();
         oidcrpTO = createClientApp(ClientAppType.OIDCRP, oidcrpTO);
 
-        OIDCRPTO found = clientAppService.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
+        OIDCRPClientAppTO found = clientAppService.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
         assertNotNull(found);
         assertFalse(StringUtils.isBlank(found.getClientId()));
         assertFalse(StringUtils.isBlank(found.getClientSecret()));
@@ -125,9 +125,9 @@ public class ClientAppITCase extends AbstractITCase {
 
     @Test
     public void readCASSP() {
-        CASSPTO casspTO = buildCASSP();
+        CASSPClientAppTO casspTO = buildCASSP();
         casspTO = createClientApp(ClientAppType.CASSP, casspTO);
-        CASSPTO found = clientAppService.read(ClientAppType.CASSP, casspTO.getKey());
+        CASSPClientAppTO found = clientAppService.read(ClientAppType.CASSP, casspTO.getKey());
         assertNotNull(found);
         assertNotNull(found.getServiceId());
         assertNotNull(found.getAccessPolicy());
@@ -136,12 +136,12 @@ public class ClientAppITCase extends AbstractITCase {
 
     @Test
     public void updateOIDCRP() {
-        OIDCRPTO oidcrpTO = buildOIDCRP();
+        OIDCRPClientAppTO oidcrpTO = buildOIDCRP();
         oidcrpTO = createClientApp(ClientAppType.OIDCRP, oidcrpTO);
 
         AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
         accessPolicyTO.setKey("NewAccessPolicyTest_" + getUUIDString());
-        accessPolicyTO.setDescription("New Access policy");
+        accessPolicyTO.setName("New Access policy");
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 
@@ -149,7 +149,7 @@ public class ClientAppITCase extends AbstractITCase {
         oidcrpTO.setAccessPolicy(accessPolicyTO.getKey());
 
         clientAppService.update(ClientAppType.OIDCRP, oidcrpTO);
-        OIDCRPTO updated = clientAppService.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
+        OIDCRPClientAppTO updated = clientAppService.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
 
         assertNotNull(updated);
         assertEquals("newClientId", updated.getClientId());
@@ -158,7 +158,7 @@ public class ClientAppITCase extends AbstractITCase {
 
     @Test
     public void deleteOIDCRP() {
-        OIDCRPTO oidcrpTO = buildOIDCRP();
+        OIDCRPClientAppTO oidcrpTO = buildOIDCRP();
         oidcrpTO = createClientApp(ClientAppType.OIDCRP, oidcrpTO);
 
         clientAppService.delete(ClientAppType.OIDCRP, oidcrpTO.getKey());
@@ -173,7 +173,7 @@ public class ClientAppITCase extends AbstractITCase {
 
     @Test
     public void deleteCASSP() {
-        CASSPTO casspTO = buildCASSP();
+        CASSPClientAppTO casspTO = buildCASSP();
         casspTO = createClientApp(ClientAppType.CASSP, casspTO);
 
         clientAppService.delete(ClientAppType.CASSP, casspTO.getKey());
@@ -186,20 +186,20 @@ public class ClientAppITCase extends AbstractITCase {
         }
     }
 
-    private static CASSPTO buildCASSP() {
+    private static CASSPClientAppTO buildCASSP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
-        authPolicyTO.setDescription("Authentication Policy");
+        authPolicyTO.setName("Authentication Policy");
         authPolicyTO = createPolicy(PolicyType.AUTH, authPolicyTO);
         assertNotNull(authPolicyTO);
 
         AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
         accessPolicyTO.setKey("AccessPolicyTest_" + getUUIDString());
-        accessPolicyTO.setDescription("Access policy");
+        accessPolicyTO.setName("Access policy");
         accessPolicyTO = createPolicy(PolicyType.ACCESS, accessPolicyTO);
         assertNotNull(accessPolicyTO);
 
-        CASSPTO casspTO = new CASSPTO();
+        CASSPClientAppTO casspTO = new CASSPClientAppTO();
         casspTO.setName("ExampleRP_" + getUUIDString());
         casspTO.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         casspTO.setDescription("Example OIDC RP application");

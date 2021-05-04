@@ -58,7 +58,8 @@ public class ApplicationModalPanel extends AbstractModalPanel<ApplicationTO> {
         add(key);
 
         AjaxTextFieldPanel description = new AjaxTextFieldPanel(
-                "description", "description", new PropertyModel<>(application, "description"), false);
+                Constants.DESCRIPTION_FIELD_NAME, Constants.DESCRIPTION_FIELD_NAME,
+                new PropertyModel<>(application, Constants.DESCRIPTION_FIELD_NAME), false);
         description.setRequired(false);
         add(description);
     }

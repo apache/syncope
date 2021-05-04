@@ -22,7 +22,7 @@ import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.wicket.Component;
 
 @BinaryPreview(mimeTypes = {})
-public class DefaultPreviewer extends AbstractBinaryPreviewer {
+public class DefaultPreviewer extends BinaryPreviewer {
 
     private static final long serialVersionUID = 3338812359368457349L;
 

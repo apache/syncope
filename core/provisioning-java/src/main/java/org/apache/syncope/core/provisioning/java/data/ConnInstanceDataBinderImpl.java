@@ -43,11 +43,15 @@ import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.identityconnectors.framework.api.ConnectorInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConnInstanceDataBinder.class);
 
     @Autowired
     private ConnIdBundleManager connIdBundleManager;
@@ -210,8 +214,6 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
     @Override
     public ConnInstanceTO getConnInstanceTO(final ConnInstance connInstance) {
-        Pair<URI, ConnectorInfo> info = connIdBundleManager.getConnectorInfo(connInstance);
-
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setKey(connInstance.getKey());
         connInstanceTO.setBundleName(connInstance.getBundleName());
@@ -220,21 +222,35 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         connInstanceTO.setDisplayName(connInstance.getDisplayName());
         connInstanceTO.setConnRequestTimeout(connInstance.getConnRequestTimeout());
         connInstanceTO.setAdminRealm(connInstance.getAdminRealm().getFullPath());
-        connInstanceTO.setLocation(info.getLeft().toASCIIString());
         connInstanceTO.getCapabilities().addAll(connInstance.getCapabilities());
         connInstanceTO.getConf().addAll(connInstance.getConf());
-        // refresh stored properties in the given connInstance with direct information from underlying connector
-        ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(info.getRight());
-        properties.getPropertyNames().forEach(propName -> {
-            ConnConfPropSchema schema = build(properties.getProperty(propName));
 
-            Optional<ConnConfProperty> property = connInstanceTO.getConf(propName);
-            if (property.isEmpty()) {
-                property = Optional.of(new ConnConfProperty());
-                connInstanceTO.getConf().add(property.get());
-            }
-            property.get().setSchema(schema);
-        });
+        try {
+            Pair<URI, ConnectorInfo> info = connIdBundleManager.getConnectorInfo(connInstance);
+
+            connInstanceTO.setLocation(info.getLeft().toASCIIString());
+
+            // refresh stored properties in the given connInstance with direct information from underlying connector
+            ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(info.getRight());
+            properties.getPropertyNames().forEach(propName -> {
+                ConnConfPropSchema schema = build(properties.getProperty(propName));
+
+                Optional<ConnConfProperty> property = connInstanceTO.getConf(propName);
+                if (property.isEmpty()) {
+                    property = Optional.of(new ConnConfProperty());
+                    connInstanceTO.getConf().add(property.get());
+                }
+                property.get().setSchema(schema);
+            });
+        } catch (Exception e) {
+            LOG.error("Could not get ConnId information for {} / {}#{}#{}",
+                    connInstance.getLocation(), connInstance.getBundleName(), connInstance.getConnectorName(),
+                    connInstance.getVersion(), e);
+
+            connInstanceTO.setErrored(true);
+            connInstanceTO.setLocation(connInstance.getLocation());
+        }
+
         Collections.sort(connInstanceTO.getConf());
 
         // pool configuration

@@ -97,12 +97,6 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope.client.idm</groupId>
-      <artifactId>syncope-client-idm-lib</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.syncope.ext.self-keymaster</groupId>
       <artifactId>syncope-ext-self-keymaster-client</artifactId>
       <version>${project.version}</version>
@@ -110,7 +104,7 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apache.syncope.client.am</groupId>
-      <artifactId>syncope-client-am-lib</artifactId>
+      <artifactId>syncope-client-am-console</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -119,16 +113,6 @@ under the License.
       <artifactId>syncope-client-idm-console</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>cglib</groupId>
-          <artifactId>cglib</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.ow2.asm</groupId>
-          <artifactId>asm-util</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.syncope.client.idrepo</groupId>
@@ -352,7 +336,7 @@ under the License.
             <properties>
               <cargo.jvmargs>
                 -Dspring.profiles.active=embedded
-                -XX:+CMSClassUnloadingEnabled -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
+                -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
           </configuration>
           <deployables>
@@ -1629,7 +1613,7 @@ under the License.
                 <properties>
                   <cargo.glassfish.removeDefaultDatasource>false</cargo.glassfish.removeDefaultDatasource>
                   <cargo.jvmargs>-Dspring.profiles.active=embedded
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
+                    -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
               <deployables>
@@ -1717,7 +1701,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Djava.net.preferIPv4Stack=true -Dspring.profiles.active=wildfly,embedded
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
+                    -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1764,7 +1748,7 @@ under the License.
                   <cargo.jvmargs>
                     -Dspring.profiles.active=embedded
                     -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1796,7 +1780,7 @@ under the License.
                     -Dspring.profiles.active=embedded
                     -javaagent:${java.home}/lib/hotswap/hotswap-agent.jar=autoHotswap=true,disablePlugin=Spring,disablePlugin=Hibernate
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>

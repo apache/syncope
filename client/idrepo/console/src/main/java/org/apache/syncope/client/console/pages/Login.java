@@ -24,22 +24,18 @@ import java.util.List;
 import java.util.Locale;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authentication.IAuthenticationStrategy;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Login extends BaseLogin {
 
     private static final long serialVersionUID = 5889157642852559004L;
-
-    @SpringBean
-    private ClassPathScanImplementationLookup lookup;
 
     public Login(final PageParameters parameters) {
         super(parameters);
@@ -53,7 +49,7 @@ public class Login extends BaseLogin {
     @Override
     protected List<Panel> getSSOLoginFormPanels() {
         List<Panel> ssoLoginFormPanels = new ArrayList<>();
-        lookup.getSSOLoginFormPanels().forEach(ssoLoginFormPanel -> {
+        SyncopeWebApplication.get().getLookup().getClasses(BaseSSOLoginFormPanel.class).forEach(ssoLoginFormPanel -> {
             try {
                 ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class, BaseSession.class).newInstance(
                         "ssoLogin", SyncopeConsoleSession.get()));

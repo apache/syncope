@@ -46,7 +46,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.syncope.common.lib.to.client.SAML2SPTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -65,12 +65,12 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
     @BeforeAll
     public static void clientAppSetup() {
         String appName = SAML2SRAITCase.class.getName();
-        SAML2SPTO clientApp = clientAppService.list(ClientAppType.SAML2SP).stream().
+        SAML2SPClientAppTO clientApp = clientAppService.list(ClientAppType.SAML2SP).stream().
                 filter(app -> appName.equals(app.getName())).
-                map(SAML2SPTO.class::cast).
+                map(SAML2SPClientAppTO.class::cast).
                 findFirst().
                 orElseGet(() -> {
-                    SAML2SPTO app = new SAML2SPTO();
+                    SAML2SPClientAppTO app = new SAML2SPClientAppTO();
                     app.setName(appName);
                     app.setClientAppId(3L);
                     app.setEntityId(SRA_ADDRESS);

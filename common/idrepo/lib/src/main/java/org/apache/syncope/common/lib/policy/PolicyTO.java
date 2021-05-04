@@ -29,14 +29,12 @@ import java.util.List;
 import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.NamedEntityTO;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
-@JsonPropertyOrder(value = { "_class", "key", "description" })
-@Schema(
-        subTypes = { AccountPolicyTO.class, PasswordPolicyTO.class, PullPolicyTO.class },
-        discriminatorProperty = "_class")
-public abstract class PolicyTO implements EntityTO {
+@JsonPropertyOrder(value = { "_class", "key", "name" })
+@Schema(subTypes = { AccountPolicyTO.class, PasswordPolicyTO.class }, discriminatorProperty = "_class")
+public abstract class PolicyTO implements NamedEntityTO {
 
     private static final long serialVersionUID = -2903888572649721035L;
 
@@ -46,7 +44,7 @@ public abstract class PolicyTO implements EntityTO {
 
     private String key;
 
-    private String description;
+    private String name;
 
     private final List<String> usedByResources = new ArrayList<>();
 
@@ -72,12 +70,14 @@ public abstract class PolicyTO implements EntityTO {
     }
 
     @JsonProperty(required = true)
-    public String getDescription() {
-        return description;
+    @Override
+    public String getName() {
+        return name;
     }
 
-    public void setDescription(final String description) {
-        this.description = description;
+    @Override
+    public void setName(final String name) {
+        this.name = name;
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
@@ -109,7 +109,7 @@ public abstract class PolicyTO implements EntityTO {
         return new EqualsBuilder().
                 append(discriminator, policyTO.discriminator).
                 append(key, policyTO.key).
-                append(description, policyTO.description).
+                append(name, policyTO.name).
                 append(usedByResources, policyTO.usedByResources).
                 append(usedByRealms, policyTO.usedByRealms).
                 build();
@@ -120,7 +120,7 @@ public abstract class PolicyTO implements EntityTO {
         return new HashCodeBuilder().
                 append(discriminator).
                 append(key).
-                append(description).
+                append(name).
                 append(usedByResources).
                 append(usedByRealms).
                 build();

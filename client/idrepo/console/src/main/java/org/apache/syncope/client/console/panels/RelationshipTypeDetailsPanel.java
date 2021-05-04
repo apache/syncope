@@ -31,28 +31,27 @@ public class RelationshipTypeDetailsPanel extends Panel {
 
     private static final long serialVersionUID = -4962850669086306255L;
 
-    public RelationshipTypeDetailsPanel(
-            final String id,
-            final RelationshipTypeTO relationshipTypeTO) {
+    public RelationshipTypeDetailsPanel(final String id, final RelationshipTypeTO relationshipTypeTO) {
         super(id);
 
-        final WebMarkupContainer container = new WebMarkupContainer("container");
+        WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
 
-        final Form<RelationshipTypeTO> form = new Form<>("form");
+        Form<RelationshipTypeTO> form = new Form<>("form");
         form.setModel(new CompoundPropertyModel<>(relationshipTypeTO));
         container.add(form);
 
-        final AjaxTextFieldPanel key = new AjaxTextFieldPanel(
+        AjaxTextFieldPanel key = new AjaxTextFieldPanel(
                 Constants.KEY_FIELD_NAME, getString(Constants.KEY_FIELD_NAME),
                 new PropertyModel<>(relationshipTypeTO, Constants.KEY_FIELD_NAME));
         key.addRequiredLabel();
         key.setEnabled(key.getModelObject() == null || key.getModelObject().isEmpty());
         form.add(key);
 
-        final AjaxTextFieldPanel description = new AjaxTextFieldPanel("description",
-                getString("description"), new PropertyModel<>(relationshipTypeTO, "description"));
+        AjaxTextFieldPanel description = new AjaxTextFieldPanel(
+                Constants.DESCRIPTION_FIELD_NAME, getString(Constants.DESCRIPTION_FIELD_NAME),
+                new PropertyModel<>(relationshipTypeTO, Constants.DESCRIPTION_FIELD_NAME));
         description.addRequiredLabel();
         form.add(description);
     }

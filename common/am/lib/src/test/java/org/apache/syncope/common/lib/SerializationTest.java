@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.junit.jupiter.api.Test;
@@ -35,11 +34,11 @@ public abstract class SerializationTest {
     @Test
     public void accessPolicyConf() throws IOException {
         AccessPolicyTO policy = new AccessPolicyTO();
-        policy.setDescription("Test Access policy");
+        policy.setName("Test Access policy");
+        policy.setEnabled(true);
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
-        conf.setEnabled(true);
-        conf.addRequiredAttr("cn", Set.of("admin", "Admin", "TheAdmin"));
+        conf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
         policy.setConf(conf);
 
         StringWriter writer = new StringWriter();

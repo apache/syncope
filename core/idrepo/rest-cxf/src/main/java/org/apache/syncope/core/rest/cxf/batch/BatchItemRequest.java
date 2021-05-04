@@ -141,9 +141,17 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
 
     @Override
     public int getContentLength() {
-        return batchItem.getHeaders().containsKey(HttpHeaders.CONTENT_LENGTH)
-                ? Integer.valueOf(batchItem.getHeaders().get(HttpHeaders.CONTENT_LENGTH).get(0).toString())
-                : 0;
+        int contentLength = 0;
+        if (batchItem.getHeaders().containsKey(HttpHeaders.CONTENT_LENGTH)) {
+            try {
+                contentLength = Integer.valueOf(
+                        batchItem.getHeaders().get(HttpHeaders.CONTENT_LENGTH).get(0).toString());
+            } catch (NumberFormatException e) {
+                LOG.error("Invalid value found for {}: {}",
+                        HttpHeaders.CONTENT_LENGTH, batchItem.getHeaders().get(HttpHeaders.CONTENT_LENGTH), e);
+            }
+        }
+        return contentLength;
     }
 
     @Override

@@ -16,26 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.rest.cxf.service.wa;
 
-import org.apache.syncope.common.lib.types.WebAuthnAccount;
-import org.apache.syncope.common.rest.api.RESTHeaders;
+import java.util.List;
+import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
-import org.apache.syncope.core.logic.WebAuthnRegistrationServiceLogic;
+import org.apache.syncope.core.logic.wa.WebAuthnRegistrationLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.core.Response;
-
-import java.net.URI;
-import java.util.List;
-
 @Service
 public class WebAuthnRegistrationServiceImpl extends AbstractServiceImpl implements WebAuthnRegistrationService {
+
     @Autowired
-    private WebAuthnRegistrationServiceLogic logic;
+    private WebAuthnRegistrationLogic logic;
 
     @Override
     public List<WebAuthnAccount> list() {
@@ -43,39 +38,27 @@ public class WebAuthnRegistrationServiceImpl extends AbstractServiceImpl impleme
     }
 
     @Override
-    public WebAuthnAccount read(final String key) {
-        return logic.read(key);
+    public WebAuthnAccount read(final String owner) {
+        return logic.read(owner);
     }
 
     @Override
-    public WebAuthnAccount findAccountFor(final String owner) {
-        return logic.findAccountBy(owner);
-    }
-
-    @Override
-    public Response delete(final String owner) {
+    public void delete(final String owner) {
         logic.delete(owner);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response delete(final String owner, final String credentialId) {
+    public void delete(final String owner, final String credentialId) {
         logic.delete(owner, credentialId);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response create(final WebAuthnAccount account) {
-        final WebAuthnAccount token = logic.create(account);
-        URI location = uriInfo.getAbsolutePathBuilder().path(token.getKey()).build();
-        return Response.created(location).
-            header(RESTHeaders.RESOURCE_KEY, token.getKey()).
-            entity(token).
-            build();
+    public void create(final String owner, final WebAuthnAccount account) {
+        logic.create(owner, account);
     }
 
     @Override
-    public void update(final WebAuthnAccount account) {
-        logic.update(account);
+    public void update(final String owner, final WebAuthnAccount account) {
+        logic.update(owner, account);
     }
 }

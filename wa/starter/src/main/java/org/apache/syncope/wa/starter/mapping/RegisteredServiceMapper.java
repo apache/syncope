@@ -21,6 +21,9 @@ package org.apache.syncope.wa.starter.mapping;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
@@ -28,6 +31,8 @@ import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.ReturnMappedAttributeReleasePolicy;
 
 public class RegisteredServiceMapper {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RegisteredServiceMapper.class);
 
     protected final Map<String, AuthMapper> authPolicyConfMappers;
 
@@ -50,6 +55,13 @@ public class RegisteredServiceMapper {
     }
 
     public RegisteredService toRegisteredService(final WAClientApp clientApp) {
+        String key = clientApp.getClientAppTO().getClass().getName();
+        ClientAppMapper clientAppMapper = clientAppTOMappers.get(key);
+        if (clientAppMapper == null) {
+            LOG.warn("Unable to locate ClientAppMapper using key {}", key);
+            return null;
+        }
+
         RegisteredServiceAuthenticationPolicy authPolicy = null;
         if (clientApp.getAuthPolicyConf() != null) {
             AuthMapper authMapper =
@@ -59,11 +71,11 @@ public class RegisteredServiceMapper {
         }
 
         RegisteredServiceAccessStrategy accessStrategy = null;
-        if (clientApp.getAccessPolicyConf() != null) {
+        if (clientApp.getAccessPolicy() != null) {
             AccessMapper accessPolicyConfMapper =
-                    accessPolicyConfMappers.get(clientApp.getAccessPolicyConf().getClass().getName());
+                    accessPolicyConfMappers.get(clientApp.getAccessPolicy().getClass().getName());
             accessStrategy = Optional.ofNullable(accessPolicyConfMapper).
-                    map(mapper -> mapper.build(clientApp.getAccessPolicyConf())).orElse(null);
+                    map(mapper -> mapper.build(clientApp.getAccessPolicy())).orElse(null);
         }
 
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy = null;
@@ -78,10 +90,6 @@ public class RegisteredServiceMapper {
             }
         }
 
-        ClientAppMapper clientAppMapper = clientAppTOMappers.get(clientApp.getClientAppTO().getClass().getName());
-        if (clientAppMapper == null) {
-            return null;
-        }
-        return clientAppMapper.build(clientApp, authPolicy, accessStrategy, attributeReleasePolicy);
+        return clientAppMapper.map(clientApp, authPolicy, accessStrategy, attributeReleasePolicy);
     }
 }

@@ -167,16 +167,16 @@ public class RouteProvider {
                 filter = ctx.getBean(FallbackHeadersGatewayFilterFactory.class).
                         apply(c -> {
                             if (StringUtils.isNotBlank(fallbackHeadersArgs[0])) {
-                                c.setCauseExceptionMessageHeaderName(fallbackHeadersArgs[0].trim());
+                                c.setExecutionExceptionTypeHeaderName(fallbackHeadersArgs[0].trim());
                             }
                             if (StringUtils.isNotBlank(fallbackHeadersArgs[1])) {
                                 c.setExecutionExceptionMessageHeaderName(fallbackHeadersArgs[1].trim());
                             }
                             if (StringUtils.isNotBlank(fallbackHeadersArgs[2])) {
-                                c.setExecutionExceptionTypeHeaderName(fallbackHeadersArgs[2].trim());
+                                c.setRootCauseExceptionTypeHeaderName(fallbackHeadersArgs[2].trim());
                             }
                             if (StringUtils.isNotBlank(fallbackHeadersArgs[3])) {
-                                c.setRootCauseExceptionTypeHeaderName(fallbackHeadersArgs[3].trim());
+                                c.setRootCauseExceptionMessageHeaderName(fallbackHeadersArgs[3].trim());
                             }
                         });
                 break;

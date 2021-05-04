@@ -18,21 +18,21 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
-import org.apache.syncope.common.lib.policy.AccessPolicyConf;
+import java.util.HashSet;
+import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
-import org.springframework.stereotype.Component;
 
 @AccessMapFor(accessPolicyConfClass = DefaultAccessPolicyConf.class)
-@Component
 public class DefaultAccessMapper implements AccessMapper {
 
     @Override
-    public RegisteredServiceAccessStrategy build(final AccessPolicyConf conf) {
+    public RegisteredServiceAccessStrategy build(final AccessPolicyTO policy) {
         RegisteredServiceAccessStrategy accessStrategy =
-                new DefaultRegisteredServiceAccessStrategy(conf.isEnabled(), conf.isSsoEnabled());
-        accessStrategy.getRequiredAttributes().putAll(conf.getRequiredAttrs());
+                new DefaultRegisteredServiceAccessStrategy(policy.isEnabled(), policy.isSsoEnabled());
+        policy.getConf().getRequiredAttrs().forEach(
+                attr -> accessStrategy.getRequiredAttributes().put(attr.getSchema(), new HashSet<>(attr.getValues())));
         return accessStrategy;
     }
 }
