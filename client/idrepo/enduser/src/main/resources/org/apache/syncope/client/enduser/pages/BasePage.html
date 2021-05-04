@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!--
+
+    Copyright (C) 2020 Tirasa (info@tirasa.net)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org"  wicket:message="lang:lang">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+
+    <title>Apache Syncope Enduser</title>
+
+    <link rel="shortcut icon" href="img/favicon.png" type="image/png"/>
+
+    <link href="css/AdminLTE_plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="css/AdminLTE_skins/skin-red-light.css" rel="stylesheet" type="text/css"/>
+    <link href="css/syncopeEnduser.css" rel="stylesheet" type="text/css"/>
+
+    <!-- accessibility -->
+    <link href="css/accessibility.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="js/accessibility.js"></script>
+
+    <script type="text/javascript" src="webjars/bootbox/${bootbox.version}/bootbox.js"></script>
+    <script type="text/javascript" src="webjars/jQuery-slimScroll/${jquery-slimscroll.version}/jquery.slimscroll.min.js"></script>
+
+    <link href="webjars/font-awesome/${font-awesome.version}/css/${font-awesome.filename}" rel="stylesheet" type="text/css"/>
+    <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css"/>
+    <link href="css/fonts.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/syncopeEnduser.js"></script>
+  </head>
+  <body class="skin-red-light hold-transition sidebar-mini" wicket:id="body">
+
+    <div class="wrapper">
+      <span wicket:id="feedback"></span>
+      <header class="main-header">
+        <a href="#" class="logo logo-pos">
+          <span class="logo-mini"><img aria-label="Apache Syncope Enduser" alt="Apache Syncope Enduser" src="img/logo-mini.png"/></span>
+          <span class="logo-lg"><img aria-label="Apache Syncope Enduser" alt="Apache Syncope Enduser" src="img/logo.png"/></span>
+        </a>                
+
+        <nav class="navbar navbar-static-top" aria-label="primary">
+
+          <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button" wicket:id="collapse">
+            <span class="sr-only">Toggle navigation</span>
+          </a>
+
+          <div class="navbar-custom-menu">
+            <ul class="nav navbar-nav">
+
+              <li class="dropdown messages-menu">
+                <a href="#" wicket:id="logout">
+                  <i class="fa fa-sign-out" aria-hidden="true"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+
+      <aside wicket:id="sidebar" class="main-sidebar" aria-label="secondary">[SIDEBAR]</aside>
+
+      <div class="content-wrapper" wicket:id="contentWrapper" role="main">
+        <section class="content-header">
+          <h1><span wicket:id="pageTitle"/></h1>
+        </section>
+        <wicket:child/>
+      </div>
+
+      <footer class="main-footer" wicket:id="footer" role="contentinfo">
+        <strong>Copyright &copy; 2010&#45;<span id="spanYear"></span> 
+          <a href="http://www.apache.org/" target="_blank" rel="noopener noreferrer">The Apache Software Foundation</a>.</strong>
+        All rights reserved.
+      </footer>
+
+      <div class="control-sidebar-bg" style="position: fixed; height: auto;"></div>
+    </div>
+
+    <div id="veil">Loading...</div>
+
+    <script type="text/javascript">
+      $('#spanYear').html(new Date().getFullYear());
+
+      // global variable for IndicatingOnConfirmAjaxLink
+      var proceed = false;
+      // configure AdminLTE
+      $.AdminLTE.options['enableBSToppltip'] = false;
+    </script>
+  </body>
+</html>

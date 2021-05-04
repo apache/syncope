@@ -1,0 +1,14 @@
+{ 
+  "formClass": "org.apache.syncope.client.enduser.panels.UserFormPanel",
+  "auxClasses": true,
+  "groups": true,
+  "plainAttrs": true,
+  "derAttrs": true,
+  "virAttrs": true,
+  "resources": true,
+  "whichPlainAttrs": {},
+  "whichDerAttrs": {},
+  "whichVirAttrs": {},
+  "passwordManagement": true,
+  "detailsManagement": true
+}

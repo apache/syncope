@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!--
+
+    Copyright (C) 2020 Tirasa (info@tirasa.net)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
+    <section class="sidebar">
+      <div class="user-panel">
+        <div class="pull-left info"></div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li wicket:id="homeLI">
+          <a href="#" wicket:id="home">
+            <i class="fa fa-id-card"></i>
+            <span><wicket:message key="home"/></span>
+          </a>
+        </li>
+        <li wicket:id="profileLI" class="treeview">
+          <a href="#"><i class="fa fa fa-user"></i>
+            <span><wicket:message key="profile"/></span> 
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i></span>
+          </a>
+          <ul wicket:id="profileUL" class="treeview-menu">
+            <li wicket:id="edituserLI">
+              <a href="#" wicket:id="edituser">
+                <i class="fa fa-edit"></i><wicket:message key="edituser"/>
+              </a>
+            </li>
+            <li wicket:id="editchangepasswordLI">
+              <a href="#" wicket:id="editchangepassword">
+                <i class="fa fa-lock"></i><wicket:message key="editchangepassword"/>
+              </a>
+            </li>
+            <li wicket:id="editsecurityquestionLI">
+              <a href="#" wicket:id="editsecurityquestion">
+                <i class="fa fa-lock"></i><wicket:message key="editsecurityquestion"/>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li wicket:id="listItems">
+          <a href="#" 
+             wicket:id="extPageLILink"
+             tabindex="0">
+            <i wicket:id="extPageIcon"></i>
+            <span wicket:id="extPageLabel"/>
+          </a>
+        </li>
+      </ul>
+    </section>
+  </wicket:panel>
+</html>

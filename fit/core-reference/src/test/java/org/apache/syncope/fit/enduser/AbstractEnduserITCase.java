@@ -23,12 +23,9 @@ import com.giffing.wicket.spring.boot.context.extensions.boot.actuator.WicketEnd
 import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.WicketClassCandidatesHolder;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.syncope.client.enduser.SyncopeWebApplication;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.init.MIMETypesLoader;
@@ -36,13 +33,13 @@ import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.ui.AbstractUITCase;
 import org.apache.wicket.util.tester.FormTester;
@@ -52,6 +49,9 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public abstract class AbstractEnduserITCase extends AbstractUITCase {
 

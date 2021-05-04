@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<!--
+
+    Copyright (C) 2020 Tirasa (info@tirasa.net)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
+    <nav class="enduser_navbar navbar navbar-default">
+      <div class="container-fluid">
+
+        <div class="navbar-header">
+          <button type="button" 
+                  class="navbar-toggle" 
+                  data-toggle="collapse" 
+                  data-target="#navbarDetails"
+                  tabindex="0"
+                  aria-label="Toggle navigation bar"
+                  aria-expanded="true" 
+                  aria-controls="navbarDetails">
+
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+
+          <a href="#" wicket:id="logoIcon" class="navbar-brand">
+            <span class="logo-mini"
+                  aria-label="Enduser logo"
+                  tabindex="0">
+
+              <img alt="Brand" src="ui-commons/img/logo-mini.png"/>
+            </span>
+          </a>
+        </div>
+
+        <div id="navbarDetails" class="navbar-collapse collapse in" aria-expanded="true">
+          <ul class="nav navbar-nav">
+            <li wicket:id="detailsLI">
+              <a href="#"
+                 wicket:id="detailsLILink"
+                 aria-label="'Details' menu element"
+                 tabindex="0">
+
+                <span wicket:id="detailsLILabel" /> 
+                <span class="sr-only">(current)</span>
+              </a>
+            </li>
+            <li wicket:id="extensionsLI">
+              <ul wicket:id="extPages" class="subnav nav navbar-nav">
+                <li wicket:id="extPageLI">
+                  <a href="#" 
+                     wicket:id="extPageLILink"
+                     aria-label="'User requests' menu element"
+                     tabindex="0">
+
+                    <span wicket:id="extPageLabel" />
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+          <ul class="nav navbar-nav navbar-right" aria-expanded="true">
+            <li>
+              <a href="#"
+                 wicket:id="logout"
+                 aria-label="'Logout' menu element">
+
+                <div id="logout" class="btn-navbar-right">
+                  <i aria-label="Logout" tabindex="0" accesskey="H"
+                     class="fa fa-sign-out-alt">
+                  </i>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#"
+                 aria-label="'Accessibility' menu element">
+
+                <div id="change_contrast" class="btn-navbar-right">
+                  <i aria-label="Toggle high contrast colors mode" tabindex="0" accesskey="H"
+                     class="fa fa-adjust">
+                  </i>
+                </div>
+              </a>
+            </li>
+            <li>
+              <a href="#"
+                 aria-label="'Accessibility' menu element">
+
+                <div id="change_fontSize" class="btn-navbar-right">
+                  <i aria-label="Toggle font size increment" tabindex="0" accesskey="F"
+                     class="fa fa-font">
+                  </i>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </nav>
+  </wicket:panel>
+</html>
