@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.Role;
 
@@ -28,7 +29,10 @@ public class RoleValidator extends AbstractValidator<RoleCheck, Role> {
     public boolean isValid(final Role role, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (role.getKey() == null || !KEY_PATTERN.matcher(role.getKey()).matches()) {
+        if (role.getKey() == null
+                || (!SyncopeConstants.GROUP_OWNER_ROLE.equals(role.getKey())
+                && !KEY_PATTERN.matcher(role.getKey()).matches())) {
+
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidKey, role.getKey())).
                     addPropertyNode("key").addConstraintViolation();

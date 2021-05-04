@@ -109,3 +109,21 @@ or members of the owning Group) is that they are entitled to
 exception of removing members from the Group itself
 
 regardless of the Realm.
+
+The actual Entitlements are assigned through the predefined `GROUP_OWNER` Role:
+
+. `USER_SEARCH`
+. `USER_READ`
+. `USER_CREATE`
+. `USER_UPDATE`
+. `USER_DELETE`
+. `ANYTYPECLASS_READ`
+. `ANYTYPE_LIST`
+. `ANYTYPECLASS_LIST`
+. `RELATIONSHIPTYPE_LIST`
+. `ANYTYPE_READ`
+. `REALM_LIST`
+. `GROUP_SEARCH`
+. `GROUP_READ`
+. `GROUP_UPDATE`
+. `GROUP_DELETE`

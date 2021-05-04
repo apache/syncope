@@ -54,6 +54,8 @@ public final class SyncopeConstants {
 
     public static final String ROOT_LOGGER = "ROOT";
 
+    public static final String GROUP_OWNER_ROLE = "GROUP_OWNER";
+
     public static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
             + "@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
