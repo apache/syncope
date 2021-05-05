@@ -406,7 +406,7 @@ under the License.
 
     <cxf.version>3.4.3</cxf.version>
     <bouncycastle.version>1.68</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.9</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.9.2</nimbus-jose-jwt.version>
 
     <jackson.version>2.12.3</jackson.version>
 
@@ -513,7 +513,7 @@ under the License.
 
     <tomcat.version>9.0.45</tomcat.version>
     <wildfly.version>21.0.1.Final</wildfly.version>
-    <payara.version>5.2021.2</payara.version>
+    <payara.version>5.2021.3</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
     <docker.postgresql.version>13</docker.postgresql.version>
@@ -2490,7 +2490,7 @@ under the License.
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.6</version>
+          <version>0.8.7</version>
         </plugin>
 
         <plugin>
