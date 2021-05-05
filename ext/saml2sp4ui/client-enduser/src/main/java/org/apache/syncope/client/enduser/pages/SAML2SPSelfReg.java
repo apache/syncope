@@ -15,33 +15,21 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SAML2SPSelfReg extends WebPage {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SAML2SPSelfReg.class);
-
     private static final long serialVersionUID = -4330637558823990359L;
 
-    private static final String SAML_ACCESS_ERROR = "SAML 2.0 error - while getting user attributes";
+    private static final String SAML_ACCESS_ERROR =
+            "SAML 2.0 error - Admin Console does not support Self Registration";
 
     public SAML2SPSelfReg(final PageParameters parameters) {
         super(parameters);
 
         PageParameters params = new PageParameters();
-        try {
-//            params.add("saml2SPUserAttrs", ((ServletWebRequest) getRequest()).getContainerRequest().
-//                    getSession().getAttribute(SAML2SP4UIConstants.SAML2SP4UI_USER_ATTRS));
-        } catch (Exception e) {
-            LOG.error("While extracting user attributes", e);
-
-            params.add("errorMessage", SAML_ACCESS_ERROR);
-        }
-        setResponsePage(SelfRegistration.class, params);
+        params.add("errorMessage", SAML_ACCESS_ERROR);
+        setResponsePage(Login.class, params);
     }
 }

@@ -15,6 +15,8 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
@@ -31,9 +33,13 @@ public class SelfRegistration extends BasePage {
 
     private static final String SELF_REGISTRATION = "page.selfRegistration";
 
+    public static final String NEW_USER_PARAM = "newUser";
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     public SelfRegistration(final PageParameters parameters) {
         super(parameters, SELF_REGISTRATION);
-        
+
         setDomain(parameters);
         disableSidebar();
 
@@ -58,15 +64,18 @@ public class SelfRegistration extends BasePage {
     }
 
     private static UserTO buildNewUserTO(final PageParameters parameters) {
-        UserTO userTO = new UserTO();
-
+        UserTO userTO = null;
         if (parameters != null) {
-            // TODO manage new attribute sending made by PAC4j
-//            if (!parameters.get("saml2SPUserAttrs").isNull()) {
-//                SyncopeWebApplication.extractAttrsFromExt(parameters.get("saml2SPUserAttrs").toString(), userTO);
-//            } else if (!parameters.get("oidcClientUserAttrs").isNull()) {
-//                SyncopeWebApplication.extractAttrsFromExt(parameters.get("oidcClientUserAttrs").toString(), userTO);
-//            }
+            if (!parameters.get(NEW_USER_PARAM).isNull()) {
+                try {
+                    userTO = MAPPER.readValue(parameters.get(NEW_USER_PARAM).toString(), UserTO.class);
+                } catch (JsonProcessingException e) {
+                    LOG.error("While reading user data from social registration", e);
+                }
+            }
+        }
+        if (userTO == null) {
+            userTO = new UserTO();
         }
         userTO.setRealm(SyncopeConstants.ROOT_REALM);
         return userTO;
