@@ -16,7 +16,7 @@
 package org.apache.syncope.client.enduser.pages;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
@@ -160,7 +160,7 @@ public class EditSecurityQuestion extends BasePage {
                     }
                     parameters.add(
                             Constants.LANDING_PAGE,
-                            SyncopeEnduserApplication.get().getPageClass("profile", Dashboard.class).getName());
+                            SyncopeWebApplication.get().getPageClass("profile", Dashboard.class).getName());
                     setResponsePage(SelfResult.class, parameters);
                 }
             }

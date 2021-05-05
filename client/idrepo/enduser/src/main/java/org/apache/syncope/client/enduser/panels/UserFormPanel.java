@@ -15,7 +15,7 @@
  */
 package org.apache.syncope.client.enduser.panels;
 
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.pages.BasePage;
@@ -94,7 +94,7 @@ public class UserFormPanel extends AnyFormPanel implements UserForm {
     protected void onFormSubmit(final AjaxRequestTarget target) {
         // captcha check
         boolean checked = true;
-        if (SyncopeEnduserApplication.get().isCaptchaEnabled()) {
+        if (SyncopeWebApplication.get().isCaptchaEnabled()) {
             checked = captcha.check();
         }
         if (!checked) {
@@ -130,7 +130,7 @@ public class UserFormPanel extends AnyFormPanel implements UserForm {
             }
             parameters.add(
                     Constants.LANDING_PAGE,
-                    SyncopeEnduserApplication.get().getPageClass("profile", Dashboard.class).getName());
+                    SyncopeWebApplication.get().getPageClass("profile", Dashboard.class).getName());
             setResponsePage(SelfResult.class, parameters);
         }
     }
@@ -141,12 +141,12 @@ public class UserFormPanel extends AnyFormPanel implements UserForm {
     }
 
     @Override
-    public ModalPanelBuilder<AnyWrapper<UserTO>> setEventSink(IEventSink eventSink) {
+    public ModalPanelBuilder<AnyWrapper<UserTO>> setEventSink(final IEventSink eventSink) {
         return null;
     }
 
     @Override
-    public ModalPanelBuilder<AnyWrapper<UserTO>> setItem(AnyWrapper<UserTO> item) {
+    public ModalPanelBuilder<AnyWrapper<UserTO>> setItem(final AnyWrapper<UserTO> item) {
         return null;
     }
 
@@ -156,7 +156,7 @@ public class UserFormPanel extends AnyFormPanel implements UserForm {
     }
 
     @Override
-    public WizardModalPanel<AnyWrapper<UserTO>> build(String id, int index, AjaxWizard.Mode mode) {
+    public WizardModalPanel<AnyWrapper<UserTO>> build(final String id, final int index, final AjaxWizard.Mode mode) {
         return null;
     }
 }

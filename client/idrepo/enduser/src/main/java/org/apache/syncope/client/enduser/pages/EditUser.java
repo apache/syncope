@@ -15,7 +15,7 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.panels.UserFormPanel;
@@ -53,7 +53,7 @@ public class EditUser extends BasePage {
     }
 
     protected UserFormLayoutInfo buildFormLayout() {
-        UserFormLayoutInfo customlayoutInfo = SyncopeEnduserApplication.get().getCustomFormLayout();
+        UserFormLayoutInfo customlayoutInfo = SyncopeWebApplication.get().getCustomFormLayout();
         return customlayoutInfo != null ? customlayoutInfo : new UserFormLayoutInfo();
     }
 }

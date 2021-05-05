@@ -108,11 +108,11 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     public SyncopeEnduserSession(final Request request) {
         super(request);
 
-        clientFactory = SyncopeEnduserApplication.get().newClientFactory();
+        clientFactory = SyncopeWebApplication.get().newClientFactory();
         anonymousClient = clientFactory.
                 create(new AnonymousAuthenticationHandler(
-                        SyncopeEnduserApplication.get().getAnonymousUser(),
-                        SyncopeEnduserApplication.get().getAnonymousKey()));
+                        SyncopeWebApplication.get().getAnonymousUser(),
+                        SyncopeWebApplication.get().getAnonymousKey()));
 
         platformInfo = getAnonymousService(SyncopeService.class).platform();
         systemInfo = getAnonymousService(SyncopeService.class).system();
@@ -216,7 +216,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     @Override
     public boolean authenticate(final String username, final String password) {
         boolean authenticated = false;
-        if (SyncopeEnduserApplication.get().getAdminUser().equalsIgnoreCase(username)) {
+        if (SyncopeWebApplication.get().getAdminUser().equalsIgnoreCase(username)) {
             return authenticated;
         }
 

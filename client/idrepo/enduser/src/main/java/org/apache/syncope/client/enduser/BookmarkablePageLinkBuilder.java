@@ -30,7 +30,7 @@ public final class BookmarkablePageLinkBuilder {
             final String key, final String id, final Class<T> defaultPageClass) {
 
         @SuppressWarnings("unchecked")
-        Class<T> pageClass = (Class<T>) SyncopeEnduserApplication.get().getPageClass(key);
+        Class<T> pageClass = (Class<T>) SyncopeWebApplication.get().getPageClass(key);
         return new BookmarkablePageLink<>(
                 id,
                 pageClass == null ? defaultPageClass : pageClass);

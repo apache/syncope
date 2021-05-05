@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2020 Tirasa (info@tirasa.net)
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
@@ -18,10 +18,8 @@ package org.apache.syncope.client.enduser.panels.any;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.rest.GroupRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroups;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroupsModel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
-import org.apache.syncope.common.lib.to.*;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.basic.Label;
@@ -33,15 +31,61 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
+import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
+import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.GroupableRelatableTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.panel.Panel;
 
-public class Groups extends AbstractGroups {
+public class Groups extends Panel {
 
     private static final long serialVersionUID = 552437609667518888L;
 
+    protected static final int MAX_GROUP_LIST_CARDINALITY = 30;
+
     private final EnduserGroupsModel groupsModel;
 
-    public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject) {
-        super(modelObject);
+    protected final AnyTO anyTO;
+
+    protected WebMarkupContainer dyngroupsContainer;
+
+    protected WebMarkupContainer dynrealmsContainer;
+
+    protected WebMarkupContainer groupsContainer;
+
+    public <T extends AnyTO> Groups(final String id,
+            final AnyWrapper<T> modelObject,
+            final boolean templateMode) {
+
+        super(id);
+        this.anyTO = modelObject.getInnerObject();
+
+        setOutputMarkupId(true);
+
+        groupsContainer = new WebMarkupContainer("groupsContainer");
+        groupsContainer.setOutputMarkupId(true);
+        groupsContainer.setOutputMarkupPlaceholderTag(true);
+        add(groupsContainer);
+
+        // ------------------
+        // insert changed label if needed
+        // ------------------
+        if (modelObject instanceof UserWrapper
+                && UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
+                && !ListUtils.isEqualList(
+                        UserWrapper.class.cast(modelObject).getInnerObject().getMemberships(),
+                        UserWrapper.class.cast(modelObject).getPreviousUserTO().getMemberships())) {
+            groupsContainer.add(new LabelInfo("changed", StringUtils.EMPTY));
+        } else {
+            groupsContainer.add(new Label("changed", StringUtils.EMPTY));
+        }
+        // ------------------
+
         this.groupsModel = new EnduserGroupsModel();
 
         setOutputMarkupId(true);
@@ -59,7 +103,6 @@ public class Groups extends AbstractGroups {
         };
     }
 
-    @Override
     protected void addGroupsPanel() {
         if (anyTO instanceof GroupTO) {
             groupsContainer.add(new Label("groups").setVisible(false));
@@ -119,11 +162,9 @@ public class Groups extends AbstractGroups {
         }
     }
 
-    @Override
     protected void addDynamicRealmsContainer() {
     }
 
-    @Override
     protected void addDynamicGroupsContainer() {
     }
 

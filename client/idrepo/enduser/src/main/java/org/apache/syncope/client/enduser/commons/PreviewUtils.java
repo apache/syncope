@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2020 Tirasa (info@tirasa.net)
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
@@ -16,44 +16,36 @@
 package org.apache.syncope.client.enduser.commons;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.enduser.init.EnduserInitializer;
-import org.apache.syncope.client.ui.commons.markup.html.form.preview.AbstractBinaryPreviewer;
+import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.DefaultPreviewer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ClassUtils;
 
 public class PreviewUtils {
 
-    public static PreviewUtils getInstance() {
-        return new PreviewUtils();
-    }
+    protected static final Logger LOG = LoggerFactory.getLogger(PreviewUtils.class);
 
-    private final ClassPathScanImplementationLookup classPathScanImplementationLookup;
+    @Autowired
+    private ClassPathScanImplementationLookup lookup;
 
-    public PreviewUtils() {
-        classPathScanImplementationLookup = (ClassPathScanImplementationLookup) SyncopeEnduserApplication.get().
-                getServletContext().getAttribute(EnduserInitializer.CLASSPATH_LOOKUP);
-    }
-
-    public AbstractBinaryPreviewer getDefaultPreviewer(final String mimeType) {
-        return new DefaultPreviewer("previewer", mimeType);
-    }
-
-    public AbstractBinaryPreviewer getPreviewer(final String mimeType) {
+    public BinaryPreviewer getPreviewer(final String mimeType) {
         if (StringUtils.isBlank(mimeType)) {
-            return null;
+            return new DefaultPreviewer("previewer", mimeType);
         }
 
-        Class<? extends AbstractBinaryPreviewer> previewer =
-                classPathScanImplementationLookup.getPreviewerClass(mimeType);
+        Class<? extends BinaryPreviewer> previewer = lookup.getPreviewerClass(mimeType);
         try {
             return previewer == null
-                    ? null
+                    ? new DefaultPreviewer("previewer", mimeType)
                     : ClassUtils.getConstructorIfAvailable(previewer, String.class, String.class).
-                    newInstance(new Object[] { "previewer", mimeType });
+                            newInstance(new Object[] { "previewer", mimeType });
         } catch (Exception e) {
-            return null;
+            LOG.error("While getting BinaryPreviewer for {}", mimeType, e);
+
+            return new DefaultPreviewer("previewer", mimeType);
         }
     }
 }

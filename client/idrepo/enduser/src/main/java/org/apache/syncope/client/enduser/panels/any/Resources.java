@@ -1,6 +1,6 @@
 /*
  *  Copyright (C) 2020 Tirasa (info@tirasa.net)
- * 
+ *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
@@ -15,21 +15,68 @@
  */
 package org.apache.syncope.client.enduser.panels.any;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
-import org.apache.syncope.client.ui.commons.wizards.any.AbstractResources;
+import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.util.ListModel;
 
-public class Resources extends AbstractResources {
+public class Resources extends Panel {
 
     private static final long serialVersionUID = 702900610508752856L;
 
-    public <T extends AnyTO> Resources(final AnyWrapper<T> modelObject) {
-        super(modelObject);
+    protected final ListModel<String> available;
+
+    public <T extends AnyTO> Resources(final String id, final AnyWrapper<T> modelObject) {
+        super(id);
+        final T entityTO = modelObject.getInnerObject();
+
+        if (modelObject instanceof UserWrapper
+                && UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
+                && !modelObject.getInnerObject().getResources().equals(
+                        UserWrapper.class.cast(modelObject).getPreviousUserTO().getResources())) {
+
+            add(new LabelInfo("changed", StringUtils.EMPTY));
+        } else {
+            add(new Label("changed", StringUtils.EMPTY));
+        }
+
+        this.setOutputMarkupId(true);
+        this.available = new ListModel<>(List.of());
+
+        add(new AjaxPalettePanel.Builder<String>().build("resources",
+                new PropertyModel<List<String>>(entityTO, "resources") {
+
+            private static final long serialVersionUID = 3799387950428254072L;
+
+            @Override
+            public List<String> getObject() {
+                return new ArrayList<>(entityTO.getResources());
+            }
+
+            @Override
+            public void setObject(final List<String> object) {
+                entityTO.getResources().clear();
+                entityTO.getResources().addAll(object);
+            }
+        }, available).hideLabel().setOutputMarkupId(true));
     }
 
     @Override
+    protected void onInitialize() {
+        super.onInitialize();
+        available.setObject(SyncopeEnduserSession.get().getService(SyncopeService.class).platform().getResources());
+    }
+
     public boolean evaluate() {
         available.setObject(SyncopeEnduserSession.get().getService(SyncopeService.class).platform().getResources());
         return !available.getObject().isEmpty();

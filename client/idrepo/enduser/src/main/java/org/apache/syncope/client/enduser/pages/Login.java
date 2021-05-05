@@ -22,15 +22,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.enduser.init.EnduserInitializer;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.StyledNotificationBehavior;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -54,6 +56,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +65,14 @@ public class Login extends WebPage {
     private static final long serialVersionUID = 5889157642852559004L;
 
     private static final Logger LOG = LoggerFactory.getLogger(Login.class);
+
+    @SpringBean
+    private DomainOps domainOps;
+
+    @SpringBean
+    private ClassPathScanImplementationLookup classPathScanImplementationLookup;
+
+    private final List<String> domains = new ArrayList<>();
 
     private final NotificationPanel notificationPanel;
 
@@ -82,6 +93,9 @@ public class Login extends WebPage {
     public Login(final PageParameters parameters) {
         super(parameters);
         setStatelessHint(true);
+
+        // init domains
+        populateDomains();
 
         notificationPanel = new NotificationPanel(Constants.FEEDBACK);
         add(notificationPanel);
@@ -134,7 +148,7 @@ public class Login extends WebPage {
 
         DomainDropDown domainSelect = new DomainDropDown("domain");
         domainSelect.setOutputMarkupPlaceholderTag(true);
-        if (SyncopeEnduserApplication.get().getDomains().size() == 1) {
+        if (domains.size() == 1) {
             domainSelect.setVisible(false);
         }
         domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
@@ -162,7 +176,7 @@ public class Login extends WebPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                if (SyncopeEnduserApplication.get().getAnonymousUser().equals(usernameField.getRawInput())) {
+                if (SyncopeWebApplication.get().getAnonymousUser().equals(usernameField.getRawInput())) {
                     throw new AccessControlException("Illegal username");
                 }
 
@@ -184,9 +198,6 @@ public class Login extends WebPage {
         form.add(submitButton);
         form.setDefaultButton(submitButton);
 
-        ClassPathScanImplementationLookup classPathScanImplementationLookup =
-                (ClassPathScanImplementationLookup) SyncopeEnduserApplication.get().
-                        getServletContext().getAttribute(EnduserInitializer.CLASSPATH_LOOKUP);
         List<Panel> ssoLoginFormPanels = new ArrayList<>();
         classPathScanImplementationLookup.getSSOLoginFormPanels().forEach(ssoLoginFormPanel -> {
             try {
@@ -231,6 +242,11 @@ public class Login extends WebPage {
         }
     }
 
+    protected void populateDomains() {
+        domains.addAll(domainOps.list().stream().map(Domain::getKey).collect(Collectors.toList()));
+        domains.add(0, SyncopeConstants.MASTER_DOMAIN);
+    }
+
     /**
      * Inner class which implements (custom) Locale DropDownChoice component.
      */
@@ -249,7 +265,7 @@ public class Login extends WebPage {
         }
 
         LocaleDropDown(final String id) {
-            super(id, SyncopeEnduserApplication.SUPPORTED_LOCALES);
+            super(id, SyncopeWebApplication.SUPPORTED_LOCALES);
 
             setChoiceRenderer(new LocaleRenderer());
             setModel(new IModel<Locale>() {
@@ -280,7 +296,7 @@ public class Login extends WebPage {
             if (StringUtils.isNotBlank(acceptLanguage)) {
                 try {
                     filtered = Locale.filter(
-                            Locale.LanguageRange.parse(acceptLanguage), SyncopeEnduserApplication.SUPPORTED_LOCALES);
+                            Locale.LanguageRange.parse(acceptLanguage), SyncopeWebApplication.SUPPORTED_LOCALES);
                 } catch (Exception e) {
                     LOG.debug("Could not parse {} HTTP header value '{}'",
                             HttpHeaders.ACCEPT_LANGUAGE, acceptLanguage, e);
@@ -296,12 +312,12 @@ public class Login extends WebPage {
     /**
      * Inner class which implements (custom) Domain DropDownChoice component.
      */
-    private static class DomainDropDown extends BootstrapSelect<String> {
+    private class DomainDropDown extends BootstrapSelect<String> {
 
         private static final long serialVersionUID = -7401167913360133325L;
 
         DomainDropDown(final String id) {
-            super(id, SyncopeEnduserApplication.get().getDomains());
+            super(id, domains);
 
             setModel(new IModel<String>() {
 

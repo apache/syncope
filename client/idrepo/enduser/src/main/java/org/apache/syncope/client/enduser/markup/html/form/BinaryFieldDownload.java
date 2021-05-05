@@ -16,7 +16,7 @@
 package org.apache.syncope.client.enduser.markup.html.form;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.init.EnduserInitializer;
 import org.apache.syncope.client.enduser.init.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
@@ -30,7 +30,7 @@ public abstract class BinaryFieldDownload extends AbstractAjaxBehavior {
 
     private static final long serialVersionUID = 7203445884857810583L;
 
-    private static final MIMETypesLoader MIME_TYPES_LOADER = (MIMETypesLoader) SyncopeEnduserApplication.get().
+    private static final MIMETypesLoader MIME_TYPES_LOADER = (MIMETypesLoader) SyncopeWebApplication.get().
             getServletContext().getAttribute(EnduserInitializer.MIMETYPES_LOADER);
 
     private final String name;

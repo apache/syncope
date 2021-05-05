@@ -15,7 +15,7 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.panels.UserSelfFormPanel;
@@ -53,7 +53,7 @@ public class SelfRegistration extends BasePage {
     }
 
     private UserFormLayoutInfo buildFormLayout() {
-        UserFormLayoutInfo customlayoutInfo = SyncopeEnduserApplication.get().getCustomFormLayout();
+        UserFormLayoutInfo customlayoutInfo = SyncopeWebApplication.get().getCustomFormLayout();
         return customlayoutInfo != null ? customlayoutInfo : new UserFormLayoutInfo();
     }
 
@@ -61,11 +61,12 @@ public class SelfRegistration extends BasePage {
         UserTO userTO = new UserTO();
 
         if (parameters != null) {
-            if (!parameters.get("saml2SPUserAttrs").isNull()) {
-                SyncopeEnduserApplication.extractAttrsFromExt(parameters.get("saml2SPUserAttrs").toString(), userTO);
-            } else if (!parameters.get("oidcClientUserAttrs").isNull()) {
-                SyncopeEnduserApplication.extractAttrsFromExt(parameters.get("oidcClientUserAttrs").toString(), userTO);
-            }
+            // TODO manage new attribute sending made by PAC4j
+//            if (!parameters.get("saml2SPUserAttrs").isNull()) {
+//                SyncopeWebApplication.extractAttrsFromExt(parameters.get("saml2SPUserAttrs").toString(), userTO);
+//            } else if (!parameters.get("oidcClientUserAttrs").isNull()) {
+//                SyncopeWebApplication.extractAttrsFromExt(parameters.get("oidcClientUserAttrs").toString(), userTO);
+//            }
         }
         userTO.setRealm(SyncopeConstants.ROOT_REALM);
         return userTO;

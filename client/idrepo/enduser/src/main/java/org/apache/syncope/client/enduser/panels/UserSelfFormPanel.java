@@ -19,7 +19,7 @@
 package org.apache.syncope.client.enduser.panels;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.pages.BasePage;
@@ -27,7 +27,6 @@ import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.pages.SelfResult;
 import org.apache.syncope.client.enduser.panels.any.Details;
 import org.apache.syncope.client.enduser.panels.any.SelfUserDetails;
-import org.apache.syncope.client.enduser.panels.any.UserDetails;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
@@ -82,7 +81,7 @@ public class UserSelfFormPanel extends UserFormPanel {
     protected void onFormSubmit(final AjaxRequestTarget target) {
         // captcha check
         boolean checked = true;
-        if (SyncopeEnduserApplication.get().isCaptchaEnabled()) {
+        if (SyncopeWebApplication.get().isCaptchaEnabled()) {
             checked = captcha.check();
         }
         if (!checked) {

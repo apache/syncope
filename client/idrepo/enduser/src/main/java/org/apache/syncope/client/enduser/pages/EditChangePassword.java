@@ -15,7 +15,7 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -55,7 +55,7 @@ public class EditChangePassword extends AbstractChangePassword {
             SyncopeEnduserSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             parameters.add(
                     Constants.LANDING_PAGE,
-                    SyncopeEnduserApplication.get().getPageClass("profile", Dashboard.class).getName());
+                    SyncopeWebApplication.get().getPageClass("profile", Dashboard.class).getName());
             setResponsePage(SelfResult.class, parameters);
         } catch (Exception e) {
             LOG.error("While changing password for {}",

@@ -18,10 +18,9 @@ package org.apache.syncope.client.enduser.pages;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.enduser.init.EnduserInitializer;
 import org.apache.syncope.client.enduser.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -43,10 +42,14 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class BasePage extends BaseWebPage {
 
     private static final long serialVersionUID = 1571997737305598502L;
+
+    @SpringBean
+    private ClassPathScanImplementationLookup classPathScanImplementationLookup;
 
     protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
@@ -65,23 +68,20 @@ public class BasePage extends BaseWebPage {
     public BasePage(final PageParameters parameters, final String name) {
         super(parameters);
 
-        ClassPathScanImplementationLookup lookup = (ClassPathScanImplementationLookup) SyncopeEnduserApplication.get().
-                getServletContext().getAttribute(EnduserInitializer.CLASSPATH_LOOKUP);
-
         Serializable leftMenuCollapse = SyncopeEnduserSession.get().getAttribute(Constants.MENU_COLLAPSE);
         if ((leftMenuCollapse instanceof Boolean) && ((Boolean) leftMenuCollapse)) {
             body.add(new AttributeAppender("class", " sidebar-collapse"));
         }
 
         // sidebar
-        Class<? extends Sidebar> clazz = SyncopeEnduserApplication.get().getSidebar();
+        Class<? extends Sidebar> clazz = SyncopeWebApplication.get().getSidebar();
 
         try {
             sidebar = clazz.getConstructor(
                     String.class,
                     PageReference.class,
                     List.class).
-                    newInstance("sidebar", getPageReference(), lookup.getExtPageClasses());
+                    newInstance("sidebar", getPageReference(), classPathScanImplementationLookup.getExtPageClasses());
         } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
                 | IllegalArgumentException | InvocationTargetException e) {
             throw new IllegalArgumentException("Could not instantiate " + clazz.getName(), e);
@@ -119,7 +119,7 @@ public class BasePage extends BaseWebPage {
 
         collapse.setOutputMarkupPlaceholderTag(true);
         body.add(collapse);
-        
+
         @SuppressWarnings("unchecked")
         final Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) Session.get().
                 getAttribute(Constants.BEFORE_LOGOUT_PAGE);

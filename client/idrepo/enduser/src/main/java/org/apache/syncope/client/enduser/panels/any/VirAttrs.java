@@ -15,6 +15,11 @@
  */
 package org.apache.syncope.client.enduser.panels.any;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.layout.CustomizationOption;
@@ -40,7 +45,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
-import java.util.*;
 import java.util.stream.Collectors;
 
 public class VirAttrs extends AbstractAttrs<VirSchemaTO> {

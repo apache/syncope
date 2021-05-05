@@ -15,7 +15,7 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.panels.captcha.CaptchaPanel;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
@@ -62,7 +62,7 @@ public class SelfPasswordReset extends BasePage {
 
         captcha = new CaptchaPanel<>("captchaPanel");
         captcha.setOutputMarkupPlaceholderTag(true);
-        captcha.setVisible(SyncopeEnduserApplication.get().isCaptchaEnabled());
+        captcha.setVisible(SyncopeWebApplication.get().isCaptchaEnabled());
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
@@ -87,7 +87,7 @@ public class SelfPasswordReset extends BasePage {
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
                 boolean checked = true;
-                if (SyncopeEnduserApplication.get().isCaptchaEnabled()) {
+                if (SyncopeWebApplication.get().isCaptchaEnabled()) {
                     checked = captcha.check();
                 }
                 if (!checked) {
