@@ -134,7 +134,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         // 1. get the query string from the search condition
         Pair<StringBuilder, Set<String>> queryInfo =
-                getQuery(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight()), parameters, svs);
+                getQuery(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
 
         StringBuilder queryString = queryInfo.getLeft();
 
@@ -171,7 +171,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             // 1. get the query string from the search condition
             Pair<StringBuilder, Set<String>> queryInfo =
-                    getQuery(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight()), parameters, svs);
+                    getQuery(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
 
             StringBuilder queryString = queryInfo.getLeft();
 

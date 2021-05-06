@@ -25,17 +25,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -55,8 +61,14 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
@@ -76,6 +88,9 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Test
     public void searchWithLikeCondition() {
@@ -563,6 +578,51 @@ public class AnySearchTest extends AbstractTest {
         assertEquals(2, groups.size());
         assertTrue(groups.contains(groupDAO.findByName("root")));
         assertTrue(groups.contains(groupDAO.findByName("otherchild")));
+    }
+
+    @Test
+    public void asGroupOwner() {
+        // prepare authentication
+        Map<String, Set<String>> entForRealms = new HashMap<>();
+        roleDAO.find(SyncopeConstants.GROUP_OWNER_ROLE).getEntitlements().forEach(entitlement -> {
+            Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
+                HashSet<String> r = new HashSet<>();
+                entForRealms.put(entitlement, r);
+                return r;
+            });
+
+            realms.add(RealmUtils.getGroupOwnerRealm(
+                    SyncopeConstants.ROOT_REALM, "37d15e4c-cdc1-460b-a591-8505c8133806"));
+        });
+
+        Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
+        entForRealms.forEach((key, value) -> {
+            SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(key);
+            authority.addRealms(RealmUtils.normalize(value));
+            authorities.add(authority);
+        });
+
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                new org.springframework.security.core.userdetails.User(
+                        "poorGroupOwner", "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
+        auth.setDetails(new SyncopeAuthenticationDetails(SyncopeConstants.MASTER_DOMAIN));
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        try {
+            // test count() and search()
+            Set<String> authRealms = RealmUtils.getEffective(
+                    AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_SEARCH),
+                    SyncopeConstants.ROOT_REALM);
+
+            assertEquals(1, searchDAO.count(authRealms, groupDAO.getAllMatchingCond(), AnyTypeKind.GROUP));
+
+            List<Group> groups = searchDAO.search(
+                    authRealms, groupDAO.getAllMatchingCond(), 1, 10, Collections.emptyList(), AnyTypeKind.GROUP);
+            assertEquals(1, groups.size());
+            assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", groups.get(0).getKey());
+        } finally {
+            SecurityContextHolder.getContext().setAuthentication(null);
+        }
     }
 
     @Test

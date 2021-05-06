@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AbstractSearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
@@ -96,7 +97,10 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     protected AnyUtilsFactory anyUtilsFactory;
 
     protected SearchCond buildEffectiveCond(
-            final SearchCond cond, final Set<String> dynRealmKeys, final Set<String> groupOwners) {
+            final SearchCond cond,
+            final Set<String> dynRealmKeys,
+            final Set<String> groupOwners,
+            final AnyTypeKind kind) {
 
         List<SearchCond> result = new ArrayList<>();
         result.add(cond);
@@ -111,9 +115,18 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         }
 
         List<SearchCond> groupOwnerConds = groupOwners.stream().map(key -> {
-            MembershipCond membershipCond = new MembershipCond();
-            membershipCond.setGroup(key);
-            return SearchCond.getLeaf(membershipCond);
+            AbstractSearchCond asc;
+            if (kind == AnyTypeKind.GROUP) {
+                AnyCond anyCond = new AnyCond(AttrCond.Type.EQ);
+                anyCond.setSchema("id");
+                anyCond.setExpression(key);
+                asc = anyCond;
+            } else {
+                MembershipCond membershipCond = new MembershipCond();
+                membershipCond.setGroup(key);
+                asc = membershipCond;
+            }
+            return SearchCond.getLeaf(asc);
         }).collect(Collectors.toList());
         if (!groupOwnerConds.isEmpty()) {
             result.add(SearchCond.getOr(groupOwnerConds));

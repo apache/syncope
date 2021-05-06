@@ -640,7 +640,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         Triple<String, Set<String>, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
 
         Pair<StringBuilder, Set<String>> queryInfo =
-                getQuery(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight()), parameters, svs);
+                getQuery(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
 
         StringBuilder queryString =
                 new StringBuilder("SELECT count(").append(svs.table().alias).append(".id").append(')');
@@ -670,7 +670,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
             Triple<String, Set<String>, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
 
-            SearchCond effectiveCond = buildEffectiveCond(cond, filter.getMiddle(), filter.getRight());
+            SearchCond effectiveCond = buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind);
 
             // 1. get the query string from the search condition
             Pair<StringBuilder, Set<String>> queryInfo = getQuery(effectiveCond, parameters, svs);
