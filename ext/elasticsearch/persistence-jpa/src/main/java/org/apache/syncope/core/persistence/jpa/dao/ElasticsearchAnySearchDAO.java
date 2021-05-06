@@ -138,7 +138,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         if (SyncopeConstants.FULL_ADMIN_REALMS.equals(adminRealms)) {
             queryBuilder = getQueryBuilder(cond, kind);
         } else {
-            queryBuilder = getQueryBuilder(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight()), kind);
+            queryBuilder = getQueryBuilder(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), kind);
 
             if (filter.getLeft().isPresent()) {
                 queryBuilder = QueryBuilders.boolQuery().
