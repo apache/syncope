@@ -31,6 +31,7 @@ import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
@@ -313,7 +314,7 @@ public class Groups extends AbstractGroups {
                 realm = SyncopeConstants.ROOT_REALM;
             } else {
                 reload = !Groups.this.anyTO.getRealm().equalsIgnoreCase(realm);
-                realm = Groups.this.anyTO.getRealm();
+                realm = RealmsUtils.getFullPath(Groups.this.anyTO.getRealm());
             }
 
             if (reload) {

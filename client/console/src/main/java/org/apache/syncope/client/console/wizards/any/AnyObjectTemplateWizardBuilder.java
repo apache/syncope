@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -49,7 +50,8 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
             AnyObjectTO anyObjectTO = new AnyObjectTO();
             anyObjectTO.setType(anyType);
             if (templatable instanceof RealmTO) {
-                anyObjectTO.setRealm(String.format("'%s'", RealmTO.class.cast(templatable).getFullPath()));
+                anyObjectTO.setRealm(
+                        String.format("'%s'", RealmsUtils.getFullPath(RealmTO.class.cast(templatable).getFullPath())));
             }
             setItem(new AnyWrapper<>(anyObjectTO));
         }

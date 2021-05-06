@@ -33,6 +33,14 @@ public final class RealmsUtils {
         // private constructor for static utility class
     }
 
+    public static String getFullPath(final String fullpath) {
+        String display = fullpath;
+        if (display.indexOf('@') != -1) {
+            display = StringUtils.substringBefore(display, "@");
+        }
+        return display;
+    }
+
     public static boolean isSearchEnabled() {
         return isSearchEnabled(SyncopeConsoleSession.get().getAuthRealms());
     }
