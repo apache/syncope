@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.StyledNotificationBehavior;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
@@ -201,7 +202,8 @@ public class Login extends WebPage {
         List<Panel> ssoLoginFormPanels = new ArrayList<>();
         classPathScanImplementationLookup.getSSOLoginFormPanels().forEach(ssoLoginFormPanel -> {
             try {
-                ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class).newInstance("ssoLogin"));
+                ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class, BaseSession.class).
+                        newInstance("ssoLogin", SyncopeEnduserSession.get()));
             } catch (Exception e) {
                 LOG.error("Could not initialize the provided SSO login form panel", e);
             }

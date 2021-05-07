@@ -15,19 +15,15 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class OIDCClientLogout extends WebPage {
 
-    private static final long serialVersionUID = -4862264444058746154L;
+    private static final long serialVersionUID = -1453838909720946011L;
 
-    public OIDCClientLogout() {
-        super();
-
-        SyncopeEnduserSession.get().cleanup();
-
-        SyncopeEnduserSession.get().invalidate();
+    public OIDCClientLogout(final PageParameters parameters) {
+        super(parameters);
 
         setResponsePage(getApplication().getHomePage());
     }

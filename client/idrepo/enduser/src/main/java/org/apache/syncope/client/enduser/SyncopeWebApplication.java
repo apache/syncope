@@ -25,6 +25,7 @@ import com.google.common.net.HttpHeaders;
 import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
+import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,6 +52,7 @@ import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.pages.MustChangePassword;
 import org.apache.syncope.client.enduser.pages.SelfConfirmPasswordReset;
 import org.apache.syncope.client.enduser.panels.Sidebar;
+import org.apache.syncope.client.enduser.themes.AdminLTE;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
@@ -306,6 +308,9 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         // Application settings
         IBootstrapSettings settings = new BootstrapSettings();
 
+        // set theme provider
+        settings.setThemeProvider(new SingleThemeProvider(new AdminLTE()));
+        
         // install application settings
         Bootstrap.install(this, settings);
 

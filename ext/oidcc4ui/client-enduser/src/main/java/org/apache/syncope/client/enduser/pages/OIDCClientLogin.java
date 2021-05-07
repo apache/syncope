@@ -21,7 +21,6 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
 import org.apache.wicket.authentication.IAuthenticationStrategy;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,10 +48,8 @@ public class OIDCClientLogin extends WebPage {
         IAuthenticationStrategy strategy = getApplication().getSecuritySettings().getAuthenticationStrategy();
 
         if (SyncopeEnduserSession.get().authenticate(token)) {
-            if (parameters.get("logoutSupported").toBoolean(false)) {
-                SyncopeEnduserSession.get().setAttribute(
-                        Constants.BEFORE_LOGOUT_PAGE,
-                        OIDCClientBeforeLogout.class);
+            if (parameters.get(OIDCC4UIConstants.OIDCC4UI_SLO_SUPPORTED).toBoolean(false)) {
+                SyncopeEnduserSession.get().setAttribute(Constants.BEFORE_LOGOUT_PAGE, OIDCClientBeforeLogout.class);
             }
 
             // If login has been called because the user was not yet logged in, than continue to the

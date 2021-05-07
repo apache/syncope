@@ -16,23 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.enduser.pages;
+package org.apache.syncope.client.enduser.resources;
 
+import org.apache.syncope.client.enduser.pages.OIDCClientLogout;
+import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
+import org.apache.syncope.client.ui.commons.resources.oidcc4ui.LogoutResource;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.request.UrlUtils;
-import org.apache.wicket.request.cycle.RequestCycle;
-import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 
-public class OIDCClientBeforeLogout extends WebPage {
+@Resource(
+        key = OIDCC4UIConstants.URL_CONTEXT + ".logout",
+        path = "/" + OIDCC4UIConstants.URL_CONTEXT + "/logout")
+public class EnduserLogoutResource extends LogoutResource {
 
-    private static final long serialVersionUID = 4666948447239743855L;
+    private static final long serialVersionUID = -4250716706885039749L;
 
-    public OIDCClientBeforeLogout() {
-        super();
-
-        RequestCycle.get().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(
-                UrlUtils.rewriteToContextRelative(OIDCC4UIConstants.URL_CONTEXT + "/before-logout",
-                        RequestCycle.get())));
+    @Override
+    protected Class<? extends WebPage> getLogoutPageClass() {
+        return OIDCClientLogout.class;
     }
 }
