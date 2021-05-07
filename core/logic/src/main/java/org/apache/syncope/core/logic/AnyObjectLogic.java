@@ -168,13 +168,6 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
                 after.getRight(),
                 before.getRight());
 
-        // check if any object can still be managed by the caller
-        anyObjectDAO.securityChecks(
-                authRealms,
-                after.getLeft().getKey(),
-                result.getEntity().getRealm(),
-                groups(result.getEntity()));
-
         return result;
     }
 

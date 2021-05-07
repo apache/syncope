@@ -242,15 +242,6 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 after.getRight(),
                 before.getRight());
 
-        if (!self) {
-            // check if user can still be managed by the caller
-            userDAO.securityChecks(
-                    authRealms,
-                    after.getLeft().getKey(),
-                    result.getEntity().getRealm(),
-                    groups(result.getEntity()));
-        }
-
         return result;
     }
 
