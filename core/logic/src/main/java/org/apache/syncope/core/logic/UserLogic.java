@@ -22,16 +22,19 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
+import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -146,6 +149,12 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         return doCreate(userTO, storePassword, false, nullPriorityAsync);
     }
 
+    protected Set<String> groups(final UserTO userTO) {
+        return userTO.getMemberships().stream().filter(Objects::nonNull).
+                map(MembershipTO::getGroupKey).filter(Objects::nonNull).
+                collect(Collectors.toSet());
+    }
+
     protected ProvisioningResult<UserTO> doCreate(
             final UserTO userTO,
             final boolean storePassword,
@@ -162,7 +171,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             Set<String> authRealms = RealmUtils.getEffective(
                     AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_CREATE),
                     before.getLeft().getRealm());
-            userDAO.securityChecks(authRealms, null, before.getLeft().getRealm());
+            userDAO.securityChecks(
+                    authRealms,
+                    null,
+                    before.getLeft().getRealm(),
+                    groups(before.getLeft()));
         }
 
         Pair<String, List<PropagationStatus>> created =
@@ -208,10 +221,17 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
                 userTO.getRealm());
         if (!self) {
+            Set<String> groups = groups(userTO);
+            groups.removeAll(userPatch.getMemberships().stream().filter(Objects::nonNull).
+                    filter(m -> m.getOperation() == PatchOperation.DELETE).
+                    map(MembershipPatch::getGroup).filter(Objects::nonNull).
+                    collect(Collectors.toSet()));
+
             userDAO.securityChecks(
                     authRealms,
                     before.getLeft().getKey(),
-                    userTO.getRealm());
+                    userTO.getRealm(),
+                    groups);
         }
 
         Pair<UserPatch, List<PropagationStatus>> after =
@@ -227,7 +247,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             userDAO.securityChecks(
                     authRealms,
                     after.getLeft().getKey(),
-                    result.getEntity().getRealm());
+                    result.getEntity().getRealm(),
+                    groups(result.getEntity()));
         }
 
         return result;
@@ -268,7 +289,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         userDAO.securityChecks(
                 authRealms,
                 toUpdate.getKey(),
-                toUpdate.getRealm());
+                toUpdate.getRealm(),
+                groups(toUpdate));
 
         // ensures the actual user key is effectively on the patch - as the binder.getUserTO(statusPatch.getKey())
         // call above works with username as well
@@ -356,7 +378,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             userDAO.securityChecks(
                     authRealms,
                     before.getLeft().getKey(),
-                    before.getLeft().getRealm());
+                    before.getLeft().getRealm(),
+                    groups(before.getLeft()));
         }
 
         List<Group> ownedGroups = groupDAO.findOwnedByUser(before.getLeft().getKey());
@@ -389,7 +412,10 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         userDAO.securityChecks(
                 authRealms,
                 user.getKey(),
-                user.getRealm().getFullPath());
+                user.getRealm().getFullPath(),
+                user.getMemberships().stream().
+                        map(m -> m.getRightEnd().getKey()).
+                        collect(Collectors.toSet()));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")

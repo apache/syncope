@@ -153,13 +153,12 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     public void securityChecks(
             final Set<String> authRealms,
             final String key,
-            final String realm) {
+            final String realm,
+            final Collection<String> groups) {
 
         // 1. check if AuthContextUtils.getUsername() is owner of at least one group of which user is member
         boolean authorized = authRealms.stream().map(RealmUtils::parseGroupOwnerRealm).filter(Optional::isPresent).
-                anyMatch(pair -> Optional.ofNullable(find(key)).
-                map(user -> findAllGroupKeys(user).contains(pair.get().getRight())).
-                orElse(false));
+                anyMatch(pair -> groups.contains(pair.get().getRight()));
 
         // 2. check if user is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
@@ -186,7 +185,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             Set<String> authRealms = AuthContextUtils.getAuthorizations().
                     getOrDefault(StandardEntitlement.USER_READ, Collections.emptySet());
 
-            securityChecks(authRealms, user.getKey(), user.getRealm().getFullPath());
+            securityChecks(authRealms, user.getKey(), user.getRealm().getFullPath(), findAllGroupKeys(user));
         }
     }
 
