@@ -493,8 +493,9 @@ public class AuthenticationITCase extends AbstractITCase {
 
         UserTO member = UserITCase.getUniqueSampleTO("forgroupownership@syncope.org");
         member.getMemberships().add(new MembershipTO.Builder().group(group.getKey()).build());
+        member.getMemberships().add(new MembershipTO.Builder().group("37d15e4c-cdc1-460b-a591-8505c8133806").build());
         member = createUser(member).getEntity();
-        assertNotNull(member);
+        assertEquals(2, member.getMemberships().size());
         String memberKey = member.getKey();
 
         if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
@@ -533,6 +534,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         member = groupOwnerService.read(memberKey);
         assertEquals(memberPatch.getUsername().getValue(), member.getUsername());
+        assertEquals(2, member.getMemberships().size());
 
         // 3. update with membership removal -> fail
         memberPatch.setUsername(null);
