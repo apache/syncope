@@ -25,4 +25,4 @@ Master.orm=META-INF/spring-orm-pgjsonb.xml
 Master.pool.maxActive=${DB_POOL_MAX}
 Master.pool.minIdle=${DB_POOL_MIN}
 
-Master.audit.sql=audit.sql
+Master.audit.sql=audit_pgjsonb.sql
