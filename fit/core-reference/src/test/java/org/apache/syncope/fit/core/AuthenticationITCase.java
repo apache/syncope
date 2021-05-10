@@ -547,7 +547,31 @@ public class AuthenticationITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
         }
 
-        // 4. delete
+        // 4. update non-member -> fail
+        UserTO nonmember = createUser(UserITCase.getUniqueSampleTO("nonmember@syncope.org")).getEntity();
+        UserPatch nonmemberPatch = new UserPatch();
+        nonmemberPatch.setKey(nonmember.getKey());
+        nonmemberPatch.setUsername(new StringReplacePatchItem.Builder().value("new" + getUUIDString()).build());
+        try {
+            groupOwnerService.update(nonmemberPatch);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
+        }
+
+        // 5. update user under /even
+        member = UserITCase.getUniqueSampleTO("forgroupownership2@syncope.org");
+        member.setRealm("/even");
+        member.getMemberships().add(new MembershipTO.Builder().group(group.getKey()).build());
+        member = createUser(member).getEntity();
+
+        memberPatch = new UserPatch();
+        memberPatch.setKey(member.getKey());
+        memberPatch.setUsername(new StringReplacePatchItem.Builder().value("new" + getUUIDString()).build());
+        response = groupOwnerService.update(memberPatch);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // 6 delete
         groupOwnerService.delete(memberKey);
         try {
             userService.read(memberKey);

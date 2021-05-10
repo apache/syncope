@@ -353,8 +353,11 @@ public class AuthDataAccessor {
 
             // Finally normalize realms for each given entitlement and generate authorities
             entForRealms.forEach((key, value) -> {
+                Pair<Set<String>, Set<String>> normalized = RealmUtils.normalize(value);
+
                 SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(key);
-                authority.addRealms(RealmUtils.normalize(value));
+                authority.addRealms(normalized.getLeft());
+                authority.addRealms(normalized.getRight());
                 authorities.add(authority);
             });
         }

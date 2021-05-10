@@ -87,13 +87,13 @@ public class AnyPanel extends Panel implements ModalPanel {
             (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
                 AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
-                final Panel panel;
+                Panel panel;
                 String fiql;
 
-                final String realm;
-                final String dynRealm;
+                String realm;
+                String dynRealm;
                 if (StringUtils.startsWith(realmTO.getFullPath(), SyncopeConstants.ROOT_REALM)) {
-                    realm = realmTO.getFullPath();
+                    realm = RealmsUtils.getFullPath(realmTO.getFullPath());
                     dynRealm = null;
                 } else {
                     realm = SyncopeConstants.ROOT_REALM;

@@ -598,7 +598,7 @@ public class AnySearchTest extends AbstractTest {
         Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
         entForRealms.forEach((key, value) -> {
             SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(key);
-            authority.addRealms(RealmUtils.normalize(value));
+            authority.addRealms(value);
             authorities.add(authority);
         });
 

@@ -90,7 +90,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         Set<String> dynRealmKeys = new HashSet<>();
         Set<String> groupOwners = new HashSet<>();
 
-        RealmUtils.normalize(adminRealms).forEach(realmPath -> {
+        adminRealms.forEach(realmPath -> {
             Optional<Pair<String, String>> goRealm = RealmUtils.parseGroupOwnerRealm(realmPath);
             if (goRealm.isPresent()) {
                 groupOwners.add(goRealm.get().getRight());
