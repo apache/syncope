@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.wa.starter;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import org.apache.syncope.wa.starter.config.SyncopeWARefreshContextJob;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.CasConfigurationPropertiesValidator;
-
-import org.apache.syncope.wa.starter.config.SyncopeWARefreshContextJob;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -45,12 +47,10 @@ import org.springframework.boot.autoconfigure.jersey.JerseyAutoConfiguration;
 import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.event.EventListener;
@@ -58,15 +58,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.WebApplicationInitializer;
-
-import javax.servlet.SessionTrackingMode;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @PropertySource("classpath:wa.properties")
 @PropertySource(value = "file:${conf.directory}/wa.properties", ignoreResourceNotFound = true)
@@ -84,7 +75,7 @@ import java.util.stream.Collectors;
     DataSourceTransactionManagerAutoConfiguration.class,
     RedisRepositoriesAutoConfiguration.class
 })
-@EnableConfigurationProperties({CasConfigurationProperties.class, ServerProperties.class})
+@EnableConfigurationProperties({ CasConfigurationProperties.class })
 @EnableAsync
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableTransactionManagement(proxyTargetClass = true)
@@ -95,9 +86,6 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
 
     @Autowired
     private SchedulerFactoryBean scheduler;
-
-    @Autowired
-    private ServerProperties serverProperties;
 
     @Value("${contextRefreshDelay:15}")
     private long contextRefreshDelay;
@@ -119,18 +107,6 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
     public void handleApplicationReadyEvent(final ApplicationReadyEvent event) {
         validateConfiguration(event);
         scheduleJobToRefreshContext();
-    }
-
-    @Bean
-    public WebApplicationInitializer syncopeWebApplicationInitializer() {
-        return servletContext -> {
-            Set<SessionTrackingMode> trackingModes = serverProperties.getServlet().getSession().getTrackingModes().
-                stream().
-                map(mode -> SessionTrackingMode.valueOf(mode.name())).
-                collect(Collectors.toSet());
-            servletContext.setSessionTrackingModes(trackingModes);
-            LOG.debug("Set session tracking modes to {}", trackingModes);
-        };
     }
 
     private void scheduleJobToRefreshContext() {

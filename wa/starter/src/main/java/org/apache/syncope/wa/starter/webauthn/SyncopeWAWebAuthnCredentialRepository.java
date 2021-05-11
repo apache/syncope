@@ -65,7 +65,7 @@ public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentia
     }
 
     @Override
-    protected Stream<CredentialRegistration> load() {
+    public Stream<? extends CredentialRegistration> stream() {
         return getService().list().
                 stream().
                 map(WebAuthnAccount::getCredentials).
