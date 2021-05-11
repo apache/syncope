@@ -18,14 +18,19 @@
  */
 package org.apache.syncope.core.workflow.java;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,8 +88,20 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     public UserWorkflowResult<Pair<UserPatch, Boolean>> update(final UserPatch userPatch) {
         UserWorkflowResult<Pair<UserPatch, Boolean>> result = doUpdate(userDAO.authFind(userPatch.getKey()), userPatch);
 
-        // re-read to ensure that requester's administration rights are still valid
-        userDAO.authFind(userPatch.getKey());
+        User user = userDAO.find(userPatch.getKey());
+        if (!AuthContextUtils.getUsername().equals(user.getUsername())) {
+            // ensure that requester's administration rights are still valid
+            Set<String> authRealms = new HashSet<>();
+            authRealms.addAll(AuthContextUtils.getAuthorizations().
+                    getOrDefault(StandardEntitlement.USER_READ, Collections.emptySet()));
+            authRealms.addAll(AuthContextUtils.getAuthorizations().
+                    getOrDefault(StandardEntitlement.USER_UPDATE, Collections.emptySet()));
+            userDAO.securityChecks(
+                    authRealms,
+                    user.getKey(),
+                    user.getRealm().getFullPath(),
+                    userDAO.findAllGroupKeys(user));
+        }
 
         return result;
     }

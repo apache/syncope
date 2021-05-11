@@ -36,33 +36,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 
-public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
-
-    @Override
-    protected String buildAdminRealmsFilter(
-            final Set<String> realmKeys,
-            final SearchSupport svs,
-            final List<Object> parameters) {
-
-        StringBuilder adminRealmsFilter = new StringBuilder("u.any_id IN (").
-                append("SELECT any_id FROM ").append(svs.field().name).
-                append(" WHERE realm_id IN (SELECT id AS realm_id FROM Realm");
-
-        boolean firstRealm = true;
-        for (String realmKey : realmKeys) {
-            if (firstRealm) {
-                adminRealmsFilter.append(" WHERE");
-                firstRealm = false;
-            } else {
-                adminRealmsFilter.append(" OR");
-            }
-            adminRealmsFilter.append(" id=?").append(setParameter(parameters, realmKey));
-        }
-
-        adminRealmsFilter.append("))");
-
-        return adminRealmsFilter.toString();
-    }
+public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
     @Override
     protected void processOBS(
@@ -133,7 +107,7 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
 
         obs.views.add(svs.field());
 
-        item.select = svs.field().alias + "."
+        item.select = svs.field().alias + '.'
                 + (schema.isUniqueConstraint() ? "attrUniqueValue" : key(schema.getType()))
                 + " AS " + fieldName;
         item.where = "plainSchema = '" + fieldName + "'";
@@ -158,7 +132,7 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
             query.append("id NOT IN (SELECT DISTINCT any_id FROM ");
             query.append(svs.field().name).append(" WHERE ");
             fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
-            query.append(")");
+            query.append(')');
         } else {
             if (!not && cond.getType() == AttrCond.Type.EQ) {
                 PlainAttr<?> container = anyUtils.newPlainAttr();
@@ -188,13 +162,61 @@ public class MyJPAJSONAnySearchDAO extends AbstractJPAJSONAnySearchDAO {
                         append(schema.isUniqueConstraint()
                                 ? "attrUniqueValue ->> '$." + key + "'"
                                 : key).
-                        append(lower ? ")" : "");
+                        append(lower ? ')' : "");
 
-                appendOp(query, cond.getType(), not);
+                switch (cond.getType()) {
+                    case LIKE:
+                    case ILIKE:
+                        if (not) {
+                            query.append("NOT ");
+                        }
+                        query.append(" LIKE ");
+                        break;
+
+                    case GE:
+                        if (not) {
+                            query.append('<');
+                        } else {
+                            query.append(">=");
+                        }
+                        break;
+
+                    case GT:
+                        if (not) {
+                            query.append("<=");
+                        } else {
+                            query.append('>');
+                        }
+                        break;
+
+                    case LE:
+                        if (not) {
+                            query.append('>');
+                        } else {
+                            query.append("<=");
+                        }
+                        break;
+
+                    case LT:
+                        if (not) {
+                            query.append(">=");
+                        } else {
+                            query.append('<');
+                        }
+                        break;
+
+                    case EQ:
+                    case IEQ:
+                    default:
+                        if (not) {
+                            query.append('!');
+                        }
+                        query.append('=');
+                }
 
                 query.append(lower ? "LOWER(" : "").
                         append("?").append(setParameter(parameters, value)).
-                        append(lower ? ")" : "");
+                        append(lower ? ')' : "");
             }
         }
     }

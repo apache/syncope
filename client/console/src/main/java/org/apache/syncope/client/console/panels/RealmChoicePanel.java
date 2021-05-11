@@ -154,10 +154,9 @@ public class RealmChoicePanel extends Panel {
                         return left.getKey().compareTo(right.getKey());
                     }
                 });
-                return dynRealms.stream().filter(dynRealm
-                        -> availableRealms.stream().anyMatch(
-                                availableRealm -> SyncopeConstants.ROOT_REALM.equals(availableRealm)
-                                || dynRealm.getKey().equals(availableRealm))).collect(Collectors.toList());
+                return dynRealms.stream().filter(dynRealm -> availableRealms.stream().
+                        anyMatch(availableRealm -> SyncopeConstants.ROOT_REALM.equals(availableRealm)
+                        || dynRealm.getKey().equals(availableRealm))).collect(Collectors.toList());
             }
         };
 
@@ -186,7 +185,7 @@ public class RealmChoicePanel extends Panel {
     }
 
     public final void reloadRealmTree() {
-        final Label realmLabel = new Label("realmLabel", new Model<>());
+        Label realmLabel = new Label("realmLabel", new Model<>());
         realmLabel.setOutputMarkupId(true);
 
         container.addOrReplace(realmLabel);
@@ -197,7 +196,7 @@ public class RealmChoicePanel extends Panel {
             realmLabel.setDefaultModel(new ResourceModel("dynRealmLabel", "Dynamic Realm"));
         }
 
-        final Label label = new Label("realm", model.getObject().getFullPath());
+        Label label = new Label("realm", RealmsUtils.getFullPath(model.getObject().getFullPath()));
         label.setOutputMarkupId(true);
         container.addOrReplace(label);
 

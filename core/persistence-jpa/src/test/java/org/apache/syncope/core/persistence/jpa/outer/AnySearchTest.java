@@ -24,8 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -34,6 +36,7 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -43,14 +46,19 @@ import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class AnySearchTest extends AbstractTest {
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Autowired
     private GroupDAO groupDAO;
@@ -96,6 +104,44 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
+    }
+
+    @Test
+    public void searchAsGroupOwner() {
+        // 1. define rossini as member of director
+        User rossini = userDAO.findByUsername("rossini");
+        assertNotNull(rossini);
+
+        Group group = groupDAO.findByName("director");
+        assertNotNull(group);
+
+        UMembership membership = entityFactory.newEntity(UMembership.class);
+        membership.setLeftEnd(rossini);
+        membership.setRightEnd(group);
+        rossini.add(membership);
+
+        userDAO.save(rossini);
+        assertNotNull(rossini);
+
+        entityManager().flush();
+
+        // 2. search all users with root realm entitlements: all users are returned, including rossini
+        AnyCond anyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
+        anyCond.setSchema("id");
+
+        List<User> users = searchDAO.search(
+                Collections.singleton(SyncopeConstants.ROOT_REALM),
+                SearchCond.getLeaf(anyCond), 1, 100, Collections.emptyList(), AnyTypeKind.USER);
+        assertNotNull(users);
+        assertTrue(users.stream().anyMatch(user -> rossini.getKey().equals(user.getKey())));
+
+        // 3. search all users with director owner's entitlements: only rossini is returned
+        users = searchDAO.search(
+                Collections.singleton(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())),
+                SearchCond.getLeaf(anyCond), 1, 100, Collections.emptyList(), AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertEquals(rossini.getKey(), users.get(0).getKey());
     }
 
     @Test

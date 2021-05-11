@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -42,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AbstractSearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
@@ -94,15 +96,43 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
 
-    protected SearchCond buildEffectiveCond(final SearchCond cond, final Set<String> dynRealmKeys) {
-        List<SearchCond> effectiveConds = dynRealmKeys.stream().map(dynRealmKey -> {
+    protected SearchCond buildEffectiveCond(
+            final SearchCond cond,
+            final Set<String> dynRealmKeys,
+            final Set<String> groupOwners,
+            final AnyTypeKind kind) {
+
+        List<SearchCond> result = new ArrayList<>();
+        result.add(cond);
+
+        List<SearchCond> dynRealmConds = dynRealmKeys.stream().map(key -> {
             DynRealmCond dynRealmCond = new DynRealmCond();
-            dynRealmCond.setDynRealm(dynRealmKey);
+            dynRealmCond.setDynRealm(key);
             return SearchCond.getLeaf(dynRealmCond);
         }).collect(Collectors.toList());
-        effectiveConds.add(cond);
+        if (!dynRealmConds.isEmpty()) {
+            result.add(SearchCond.getOr(dynRealmConds));
+        }
 
-        return SearchCond.getAnd(effectiveConds);
+        List<SearchCond> groupOwnerConds = groupOwners.stream().map(key -> {
+            AbstractSearchCond asc;
+            if (kind == AnyTypeKind.GROUP) {
+                AnyCond anyCond = new AnyCond(AttrCond.Type.EQ);
+                anyCond.setSchema("id");
+                anyCond.setExpression(key);
+                asc = anyCond;
+            } else {
+                MembershipCond membershipCond = new MembershipCond();
+                membershipCond.setGroup(key);
+                asc = membershipCond;
+            }
+            return SearchCond.getLeaf(asc);
+        }).collect(Collectors.toList());
+        if (!groupOwnerConds.isEmpty()) {
+            result.add(SearchCond.getOr(groupOwnerConds));
+        }
+
+        return SearchCond.getAnd(result);
     }
 
     protected abstract int doCount(Set<String> adminRealms, SearchCond cond, AnyTypeKind kind);
@@ -324,13 +354,13 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
         if (adminRealms == null || adminRealms.isEmpty()) {
             LOG.error("No realms provided");
-            return Collections.<T>emptyList();
+            return Collections.emptyList();
         }
 
         LOG.debug("Search condition:\n{}", cond);
         if (cond == null || !cond.isValid()) {
             LOG.error("Invalid search condition:\n{}", cond);
-            return Collections.<T>emptyList();
+            return Collections.emptyList();
         }
 
         List<OrderByClause> effectiveOrderBy;

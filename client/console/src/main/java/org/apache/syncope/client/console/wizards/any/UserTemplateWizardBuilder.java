@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -64,7 +65,8 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
         } else {
             UserTO userTO = new UserTO();
             if (templatable instanceof RealmTO) {
-                userTO.setRealm(String.format("'%s'", RealmTO.class.cast(templatable).getFullPath()));
+                userTO.setRealm(
+                        String.format("'%s'", RealmsUtils.getFullPath(RealmTO.class.cast(templatable).getFullPath())));
             }
             setItem(new UserWrapper(userTO));
         }

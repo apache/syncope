@@ -48,6 +48,7 @@ import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -55,6 +56,7 @@ import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -91,10 +93,6 @@ public class AuthDataAccessor {
     protected static final Set<SyncopeGrantedAuthority> ANONYMOUS_AUTHORITIES =
             Collections.singleton(new SyncopeGrantedAuthority(StandardEntitlement.ANONYMOUS));
 
-    protected static final String[] GROUP_OWNER_ENTITLEMENTS = new String[] {
-        StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE, StandardEntitlement.GROUP_DELETE
-    };
-
     @Resource(name = "adminUser")
     protected String adminUser;
 
@@ -124,6 +122,9 @@ public class AuthDataAccessor {
 
     @Autowired
     protected AccessTokenDAO accessTokenDAO;
+
+    @Autowired
+    protected RoleDAO roleDAO;
 
     @Autowired
     protected ConnectorFactory connFactory;
@@ -317,12 +318,15 @@ public class AuthDataAccessor {
 
             // Give entitlements as assigned by roles (with static or dynamic realms, where applicable) - assigned
             // either statically and dynamically
-            userDAO.findAllRoles(user).forEach(role -> role.getEntitlements().forEach(entitlement -> {
-                Set<String> realms = entForRealms.get(entitlement);
-                if (realms == null) {
-                    realms = new HashSet<>();
-                    entForRealms.put(entitlement, realms);
-                }
+            userDAO.findAllRoles(user).stream().
+                    filter(role -> !SyncopeConstants.GROUP_OWNER_ROLE.equals(role.getKey())).
+                    forEach(role -> role.getEntitlements().forEach(entitlement -> {
+                Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
+                    HashSet<String> r = new HashSet<>();
+                    entForRealms.put(entitlement, r);
+                    return r;
+                });
+
                 realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
                 if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
                     realms.addAll(role.getDynRealms().stream().map(DynRealm::getKey).collect(Collectors.toList()));
@@ -330,22 +334,30 @@ public class AuthDataAccessor {
             }));
 
             // Give group entitlements for owned groups
-            groupDAO.findOwnedByUser(user.getKey()).forEach((group) -> {
-                for (String entitlement : GROUP_OWNER_ENTITLEMENTS) {
-                    Set<String> realms = entForRealms.get(entitlement);
-                    if (realms == null) {
-                        realms = new HashSet<>();
-                        entForRealms.put(entitlement, realms);
-                    }
+            groupDAO.findOwnedByUser(user.getKey()).forEach(group -> {
+                Role groupOwnerRole = roleDAO.find(SyncopeConstants.GROUP_OWNER_ROLE);
+                if (groupOwnerRole == null) {
+                    LOG.warn("Role {} was not found", SyncopeConstants.GROUP_OWNER_ROLE);
+                } else {
+                    groupOwnerRole.getEntitlements().forEach(entitlement -> {
+                        Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
+                            HashSet<String> r = new HashSet<>();
+                            entForRealms.put(entitlement, r);
+                            return r;
+                        });
 
-                    realms.add(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
+                        realms.add(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
+                    });
                 }
             });
 
             // Finally normalize realms for each given entitlement and generate authorities
             entForRealms.forEach((key, value) -> {
+                Pair<Set<String>, Set<String>> normalized = RealmUtils.normalize(value);
+
                 SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(key);
-                authority.addRealms(RealmUtils.normalize(value));
+                authority.addRealms(normalized.getLeft());
+                authority.addRealms(normalized.getRight());
                 authorities.add(authority);
             });
         }

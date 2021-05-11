@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.layout.AnyLayout;
 import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.panels.search.AbstractSearchPanel;
@@ -86,13 +87,13 @@ public class AnyPanel extends Panel implements ModalPanel {
             (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
                 AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
-                final Panel panel;
+                Panel panel;
                 String fiql;
 
-                final String realm;
-                final String dynRealm;
+                String realm;
+                String dynRealm;
                 if (StringUtils.startsWith(realmTO.getFullPath(), SyncopeConstants.ROOT_REALM)) {
-                    realm = realmTO.getFullPath();
+                    realm = RealmsUtils.getFullPath(realmTO.getFullPath());
                     dynRealm = null;
                 } else {
                     realm = SyncopeConstants.ROOT_REALM;
@@ -108,7 +109,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                                         inDynRealms(dynRealm).query();
 
                         UserTO userTO = new UserTO();
-                        userTO.setRealm(realmTO.getFullPath());
+                        userTO.setRealm(RealmsUtils.getFullPath(realmTO.getFullPath()));
                         panel = new UserDirectoryPanel.Builder(
                                 anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                                 anyTypeTO.getKey(),
@@ -128,7 +129,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                                 : SyncopeClient.getGroupSearchConditionBuilder().inDynRealms(dynRealm).query();
 
                         GroupTO groupTO = new GroupTO();
-                        groupTO.setRealm(realmTO.getFullPath());
+                        groupTO.setRealm(RealmsUtils.getFullPath(realmTO.getFullPath()));
                         panel = new GroupDirectoryPanel.Builder(
                                 anyTypeClassRestClient.list(anyTypeTO.getClasses()),
                                 anyTypeTO.getKey(),
@@ -148,7 +149,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                                         inDynRealms(dynRealm).query();
 
                         AnyObjectTO anyObjectTO = new AnyObjectTO();
-                        anyObjectTO.setRealm(realmTO.getFullPath());
+                        anyObjectTO.setRealm(RealmsUtils.getFullPath(realmTO.getFullPath()));
                         anyObjectTO.setType(anyTypeTO.getKey());
                         panel = new AnyObjectDirectoryPanel.Builder(
                                 anyTypeClassRestClient.list(anyTypeTO.getClasses()),

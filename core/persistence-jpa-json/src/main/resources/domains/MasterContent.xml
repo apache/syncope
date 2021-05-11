@@ -78,7 +78,7 @@ under the License.
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
     
   <SyncopeConf id="cd64d66f-6fff-4008-b966-a06b1cc1436d"
-               plainAttrs="[{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;SSHA256&quot;}],&quot;schema&quot;:&quot;password.cipher.algorithm&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;&quot;}],&quot;schema&quot;:&quot;notificationjob.cronExpression&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:3}],&quot;schema&quot;:&quot;notification.maxRetries&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:256}],&quot;schema&quot;:&quot;token.length&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:60}],&quot;schema&quot;:&quot;token.expireTime&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;selfRegistration.allowed&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;passwordReset.allowed&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;passwordReset.securityQuestion&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;username&quot;},{&quot;stringValue&quot;:&quot;email&quot;}],&quot;schema&quot;:&quot;authentication.attributes&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;created&quot;},{&quot;stringValue&quot;:&quot;active&quot;}],&quot;schema&quot;:&quot;authentication.statuses&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;log.lastlogindate&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:false}],&quot;schema&quot;:&quot;return.password.value&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:120}],&quot;schema&quot;:&quot;jwt.lifetime.minutes&quot;},{&quot;values&quot;:[{&quot;longValue&quot;:10}]}]"/>
+               plainAttrs='[{"values":[{"stringValue":"SSHA256"}],"schema":"password.cipher.algorithm"},{"values":[{"stringValue":""}],"schema":"notificationjob.cronExpression"},{"values":[{"longValue":3}],"schema":"notification.maxRetries"},{"values":[{"longValue":256}],"schema":"token.length"},{"values":[{"longValue":60}],"schema":"token.expireTime"},{"values":[{"booleanValue":true}],"schema":"selfRegistration.allowed"},{"values":[{"booleanValue":true}],"schema":"passwordReset.allowed"},{"values":[{"booleanValue":true}],"schema":"passwordReset.securityQuestion"},{"values":[{"stringValue":"username"},{"stringValue":"email"}],"schema":"authentication.attributes"},{"values":[{"stringValue":"created"},{"stringValue":"active"}],"schema":"authentication.statuses"},{"values":[{"booleanValue":true}],"schema":"log.lastlogindate"},{"values":[{"booleanValue":false}],"schema":"return.password.value"},{"values":[{"longValue":120}],"schema":"jwt.lifetime.minutes"}]'/>
 
   <AnyType id="USER" kind="USER"/>
   <AnyTypeClass id="BaseUser"/>
@@ -171,4 +171,20 @@ we are happy to inform you that the password request was successfully executed f
                   body='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
   <ReportReportlet report_id="c3520ad9-179f-49e7-b315-d684d216dd97" implementation_id="ReconciliationReportletConf"/>
 
+  <SyncopeRole id="GROUP_OWNER"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="USER_SEARCH"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="USER_READ"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="USER_CREATE"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="USER_UPDATE"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="USER_DELETE"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="ANYTYPECLASS_READ"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="ANYTYPE_LIST"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="ANYTYPECLASS_LIST"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="RELATIONSHIPTYPE_LIST"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="ANYTYPE_READ"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="REALM_LIST"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="GROUP_SEARCH"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="GROUP_READ"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="GROUP_UPDATE"/>
+  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="GROUP_DELETE"/>
 </dataset>
