@@ -251,7 +251,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         GroupTO group = binder.getGroupTO(key);
 
         Set<String> authRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
+                AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_UPDATE),
                 group.getRealm());
         groupDAO.securityChecks(
                 authRealms,
@@ -338,7 +338,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     public ProvisioningResult<GroupTO> deprovision(
             final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
-        GroupTO groupTO = updateChecks(key);
+        updateChecks(key);
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
 
@@ -357,7 +357,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
             final String password,
             final boolean nullPriorityAsync) {
 
-        GroupTO groupTO = updateChecks(key);
+        updateChecks(key);
 
         List<PropagationStatus> statuses = provisioningManager.provision(key, resources, nullPriorityAsync);
 
