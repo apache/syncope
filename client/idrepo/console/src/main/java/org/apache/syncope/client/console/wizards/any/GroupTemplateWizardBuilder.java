@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wizards.any;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -48,7 +49,8 @@ public class GroupTemplateWizardBuilder extends GroupWizardBuilder implements Te
         } else {
             GroupTO groupTO = new GroupTO();
             if (templatable instanceof RealmTO) {
-                groupTO.setRealm(String.format("'%s'", RealmTO.class.cast(templatable).getFullPath()));
+                groupTO.setRealm(
+                        String.format("'%s'", RealmsUtils.getFullPath(RealmTO.class.cast(templatable).getFullPath())));
             }
             setItem(new GroupWrapper(groupTO));
         }

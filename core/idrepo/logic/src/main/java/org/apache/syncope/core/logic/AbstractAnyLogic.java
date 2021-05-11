@@ -19,9 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyCR;
@@ -32,22 +30,15 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.core.persistence.api.dao.AnyDAO;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
-import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.LogicActions;
-import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -55,15 +46,6 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         extends AbstractResourceAssociator<TO> {
 
     protected static final String REST_CONTEXT = "REST";
-
-    @Autowired
-    protected UserDAO userDAO;
-
-    @Autowired
-    protected GroupDAO groupDAO;
-
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
 
     @Autowired
     private RealmDAO realmDAO;
@@ -186,20 +168,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
     protected ProvisioningResult<TO> afterUpdate(
             final TO input,
             final List<PropagationStatus> statuses,
-            final List<LogicActions> actions,
-            final boolean authDynRealms,
-            final Set<String> dynRealmsBefore) {
-
-        Set<String> dynRealmsAfter = new HashSet<>(input.getDynRealms());
-        if (authDynRealms && !dynRealmsBefore.equals(dynRealmsAfter)) {
-            throw new DelegatedAdministrationException(
-                    this instanceof UserLogic
-                            ? AnyTypeKind.USER
-                            : this instanceof GroupLogic
-                                    ? AnyTypeKind.GROUP
-                                    : AnyTypeKind.ANY_OBJECT,
-                    input.getKey());
-        }
+            final List<LogicActions> actions) {
 
         TO any = input;
 
@@ -229,31 +198,6 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         result.getPropagationStatuses().addAll(statuses);
 
         return result;
-    }
-
-    protected boolean securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
-        if (!authorized) {
-            AnyDAO<?> anyDAO = this instanceof UserLogic
-                    ? userDAO
-                    : this instanceof GroupLogic
-                            ? groupDAO
-                            : anyObjectDAO;
-            authorized = anyDAO.findDynRealms(key).stream().
-                    anyMatch(effectiveRealms::contains);
-        }
-        if (!authorized) {
-            throw new DelegatedAdministrationException(
-                    realm,
-                    (this instanceof UserLogic
-                            ? AnyTypeKind.USER
-                            : this instanceof GroupLogic
-                                    ? AnyTypeKind.GROUP
-                                    : AnyTypeKind.ANY_OBJECT).name(),
-                    key);
-        }
-
-        return effectiveRealms.stream().anyMatch(new RealmUtils.DynRealmsPredicate());
     }
 
     public abstract TO read(String key);

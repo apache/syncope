@@ -21,14 +21,12 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -48,9 +46,11 @@ import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -67,7 +67,6 @@ import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.quartz.JobDataMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -81,6 +80,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
+
+    @Autowired
+    protected UserDAO userDAO;
+
+    @Autowired
+    protected GroupDAO groupDAO;
 
     @Resource(name = "adminUser")
     protected String adminUser;
@@ -115,21 +120,6 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     @Autowired
     protected EntityFactory entityFactory;
 
-    @Override
-    protected boolean securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        boolean authorized = effectiveRealms.stream().anyMatch(ownedRealm
-                -> realm.startsWith(ownedRealm) || ownedRealm.equals(RealmUtils.getGroupOwnerRealm(realm, key)));
-        if (!authorized) {
-            authorized = groupDAO.findDynRealms(key).stream().
-                    anyMatch(effectiveRealms::contains);
-        }
-        if (!authorized) {
-            throw new DelegatedAdministrationException(realm, AnyTypeKind.GROUP.name(), key);
-        }
-
-        return effectiveRealms.stream().anyMatch(new RealmUtils.DynRealmsPredicate());
-    }
-
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_READ + "')")
     @Transactional(readOnly = true)
     @Override
@@ -157,15 +147,15 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             final String realm,
             final boolean details) {
 
-        Set<String> adminRealms = RealmUtils.getEffective(
+        Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_SEARCH), realm);
 
         SearchCond effectiveCond = searchCond == null ? groupDAO.getAllMatchingCond() : searchCond;
 
-        int count = searchDAO.count(adminRealms, effectiveCond, AnyTypeKind.GROUP);
+        int count = searchDAO.count(authRealms, effectiveCond, AnyTypeKind.GROUP);
 
         List<Group> matching = searchDAO.search(
-                adminRealms, effectiveCond, page, size, orderBy, AnyTypeKind.GROUP);
+                authRealms, effectiveCond, page, size, orderBy, AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
                 map(group -> binder.getGroupTO(group, details)).
                 collect(Collectors.toList());
@@ -181,10 +171,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
         }
 
-        Set<String> effectiveRealms = RealmUtils.getEffective(
+        Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_CREATE),
                 before.getLeft().getRealm());
-        securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
+        groupDAO.securityChecks(
+                authRealms,
+                null,
+                before.getLeft().getRealm());
 
         Pair<String, List<PropagationStatus>> created = provisioningManager.create(
                 before.getLeft(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
@@ -196,27 +189,31 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     @Override
     public ProvisioningResult<GroupTO> update(final GroupUR req, final boolean nullPriorityAsync) {
         GroupTO groupTO = binder.getGroupTO(req.getKey());
-        Set<String> dynRealmsBefore = new HashSet<>(groupTO.getDynRealms());
         Pair<GroupUR, List<LogicActions>> before = beforeUpdate(req, groupTO.getRealm());
 
-        String realm =
-                before.getLeft().getRealm() != null && StringUtils.isNotBlank(before.getLeft().getRealm().getValue())
-                ? before.getLeft().getRealm().getValue()
-                : groupTO.getRealm();
-        Set<String> effectiveRealms = RealmUtils.getEffective(
+        Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_UPDATE),
-                realm);
-        boolean authDynRealms = securityChecks(effectiveRealms, realm, before.getLeft().getKey());
+                groupTO.getRealm());
+        groupDAO.securityChecks(
+                authRealms,
+                before.getLeft().getKey(),
+                groupTO.getRealm());
 
-        Pair<GroupUR, List<PropagationStatus>> updated =
+        Pair<GroupUR, List<PropagationStatus>> after =
                 provisioningManager.update(req, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
-        return afterUpdate(
-                binder.getGroupTO(updated.getLeft().getKey()),
-                updated.getRight(),
-                before.getRight(),
-                authDynRealms,
-                dynRealmsBefore);
+        ProvisioningResult<GroupTO> result = afterUpdate(
+                binder.getGroupTO(after.getLeft().getKey()),
+                after.getRight(),
+                before.getRight());
+
+        // check if group can still be managed by the caller
+        groupDAO.securityChecks(
+                authRealms,
+                after.getLeft().getKey(),
+                result.getEntity().getRealm());
+
+        return result;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_DELETE + "')")
@@ -225,10 +222,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         GroupTO group = binder.getGroupTO(key);
         Pair<GroupTO, List<LogicActions>> before = beforeDelete(group);
 
-        Set<String> effectiveRealms = RealmUtils.getEffective(
+        Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_DELETE),
                 before.getLeft().getRealm());
-        securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
+        groupDAO.securityChecks(
+                authRealms,
+                before.getLeft().getKey(),
+                before.getLeft().getRealm());
 
         List<Group> ownedGroups = groupDAO.findOwnedByGroup(before.getLeft().getKey());
         if (!ownedGroups.isEmpty()) {
@@ -247,23 +247,32 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         return afterDelete(groupTO, statuses, before.getRight());
     }
 
+    protected GroupTO updateChecks(final String key) {
+        GroupTO group = binder.getGroupTO(key);
+
+        Set<String> authRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_UPDATE),
+                group.getRealm());
+        groupDAO.securityChecks(
+                authRealms,
+                group.getKey(),
+                group.getRealm());
+
+        return group;
+    }
+
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_UPDATE + "')")
     @Override
     public GroupTO unlink(final String key, final Collection<String> resources) {
-        // security checks
-        GroupTO group = binder.getGroupTO(key);
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_UPDATE),
-                group.getRealm());
-        securityChecks(effectiveRealms, group.getRealm(), group.getKey());
+        GroupTO groupTO = updateChecks(key);
 
         GroupUR req = new GroupUR();
         req.setKey(key);
         req.getResources().addAll(resources.stream().
-                map(resource -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
+                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
                 collect(Collectors.toList()));
-        req.setUDynMembershipCond(group.getUDynMembershipCond());
-        req.getADynMembershipConds().putAll(group.getADynMembershipConds());
+        req.setUDynMembershipCond(groupTO.getUDynMembershipCond());
+        req.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
 
         return binder.getGroupTO(provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
@@ -271,20 +280,15 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_UPDATE + "')")
     @Override
     public GroupTO link(final String key, final Collection<String> resources) {
-        // security checks
-        GroupTO group = binder.getGroupTO(key);
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_UPDATE),
-                group.getRealm());
-        securityChecks(effectiveRealms, group.getRealm(), group.getKey());
+        GroupTO groupTO = updateChecks(key);
 
         GroupUR req = new GroupUR();
         req.setKey(key);
-        req.getResources().addAll(resources.stream().map(resource
-                -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+        req.getResources().addAll(resources.stream().
+                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
                 collect(Collectors.toList()));
-        req.getADynMembershipConds().putAll(group.getADynMembershipConds());
-        req.setUDynMembershipCond(group.getUDynMembershipCond());
+        req.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
+        req.setUDynMembershipCond(groupTO.getUDynMembershipCond());
 
         return binder.getGroupTO(provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
@@ -294,20 +298,15 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     public ProvisioningResult<GroupTO> unassign(
             final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
-        // security checks
-        GroupTO group = binder.getGroupTO(key);
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_UPDATE),
-                group.getRealm());
-        securityChecks(effectiveRealms, group.getRealm(), group.getKey());
+        GroupTO groupTO = updateChecks(key);
 
         GroupUR req = new GroupUR();
         req.setKey(key);
-        req.getResources().addAll(resources.stream().map(resource
-                -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
+        req.getResources().addAll(resources.stream().
+                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
                 collect(Collectors.toList()));
-        req.getADynMembershipConds().putAll(group.getADynMembershipConds());
-        req.setUDynMembershipCond(group.getUDynMembershipCond());
+        req.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
+        req.setUDynMembershipCond(groupTO.getUDynMembershipCond());
 
         return update(req, nullPriorityAsync);
     }
@@ -321,20 +320,15 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             final String password,
             final boolean nullPriorityAsync) {
 
-        // security checks
-        GroupTO group = binder.getGroupTO(key);
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_UPDATE),
-                group.getRealm());
-        securityChecks(effectiveRealms, group.getRealm(), group.getKey());
+        GroupTO groupTO = updateChecks(key);
 
         GroupUR req = new GroupUR();
         req.setKey(key);
-        req.getResources().addAll(resources.stream().map(resource
-                -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+        req.getResources().addAll(resources.stream().
+                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
                 collect(Collectors.toList()));
-        req.getADynMembershipConds().putAll(group.getADynMembershipConds());
-        req.setUDynMembershipCond(group.getUDynMembershipCond());
+        req.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
+        req.setUDynMembershipCond(groupTO.getUDynMembershipCond());
 
         return update(req, nullPriorityAsync);
     }
@@ -344,12 +338,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     public ProvisioningResult<GroupTO> deprovision(
             final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
-        // security checks
-        GroupTO group = binder.getGroupTO(key);
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_UPDATE),
-                group.getRealm());
-        securityChecks(effectiveRealms, group.getRealm(), group.getKey());
+        updateChecks(key);
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(
                 key, resources, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
@@ -369,12 +358,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             final String password,
             final boolean nullPriorityAsync) {
 
-        // security checks
-        GroupTO group = binder.getGroupTO(key);
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_UPDATE),
-                group.getRealm());
-        securityChecks(effectiveRealms, group.getRealm(), group.getKey());
+        updateChecks(key);
 
         List<PropagationStatus> statuses = provisioningManager.provision(
                 key, resources, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);

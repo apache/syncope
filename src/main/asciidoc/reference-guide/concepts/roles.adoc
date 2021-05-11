@@ -74,16 +74,6 @@ above:
 * Administrator C: `GROUP_UPDATE` on R~8~
 ====
 
-[NOTE]
-.Group Ownership
-====
-Groups can designate a user or another group as _owner_.
-
-The practical consequence of this setting is that Users owning a Group (either because they are directly set as owners
-or members of the owning group) is that they are entitled to perform all operations (create, update, delete, ...) on the
-owned group, regardless of the Realm.
-====
-
 [[delegated-administration-console]]
 [TIP]
 .Delegated Administration via Admin Console
@@ -106,3 +96,34 @@ For example, the following entitlements are normally required to be granted for 
 . `REALM_LIST`
 . `GROUP_SEARCH`
 ====
+
+===== Group Ownership
+
+Groups can designate a User or another Group as _owner_.
+
+The practical consequence of this setting is that Users owning a Group (either because they are directly set as owners
+or members of the owning Group) is that they are entitled to
+
+* perform all operations (create, update, delete, ...) on the owned Group
+* perform all operations (create, update, delete, ...) on all User and Any Object members of the owner Group, with
+exception of removing members from the Group itself
+
+regardless of the Realm.
+
+The actual Entitlements are assigned through the predefined `GROUP_OWNER` Role:
+
+. `USER_SEARCH`
+. `USER_READ`
+. `USER_CREATE`
+. `USER_UPDATE`
+. `USER_DELETE`
+. `ANYTYPECLASS_READ`
+. `ANYTYPE_LIST`
+. `ANYTYPECLASS_LIST`
+. `RELATIONSHIPTYPE_LIST`
+. `ANYTYPE_READ`
+. `REALM_LIST`
+. `GROUP_SEARCH`
+. `GROUP_READ`
+. `GROUP_UPDATE`
+. `GROUP_DELETE`

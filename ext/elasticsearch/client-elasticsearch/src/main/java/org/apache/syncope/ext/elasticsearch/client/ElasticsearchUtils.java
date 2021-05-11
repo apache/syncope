@@ -20,6 +20,7 @@ package org.apache.syncope.ext.elasticsearch.client;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,9 +30,8 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -172,38 +172,37 @@ public class ElasticsearchUtils {
                     field("suspended", user.isSuspended()).
                     field("mustChangePassword", user.isMustChangePassword());
 
-            List<Object> roles = userDAO.findAllRoles(user).stream().
-                    map(Entity::getKey).collect(Collectors.toList());
+            List<String> roles = new ArrayList<>();
+            Set<String> privileges = new HashSet<>();
+            userDAO.findAllRoles(user).forEach(role -> {
+                roles.add(role.getKey());
+                privileges.addAll(role.getPrivileges().stream().map(Privilege::getKey).collect(Collectors.toSet()));
+            });
             builder = builder.field("roles", roles);
-
-            Set<Object> privileges = userDAO.findAllRoles(user).stream().
-                    flatMap(role -> role.getPrivileges().stream()).map(Entity::getKey).collect(Collectors.toSet());
             builder = builder.field("privileges", privileges);
 
-            List<Object> memberships = new ArrayList<>(userDAO.findAllGroupKeys(user));
+            Collection<String> memberships = userDAO.findAllGroupKeys(user);
             builder = builder.field("memberships", memberships);
 
-            List<Object> relationships = new ArrayList<>();
-            Set<Object> relationshipTypes = new HashSet<>();
-            user.getRelationships().stream().map(relationship -> {
+            List<String> relationships = new ArrayList<>();
+            Set<String> relationshipTypes = new HashSet<>();
+            user.getRelationships().forEach(relationship -> {
                 relationships.add(relationship.getRightEnd().getKey());
-                return relationship;
-            }).forEachOrdered(relationship -> relationshipTypes.add(relationship.getType().getKey()));
+                relationshipTypes.add(relationship.getType().getKey());
+            });
             builder = builder.field("relationships", relationships);
             builder = builder.field("relationshipTypes", relationshipTypes);
         }
 
-        if (any.getPlainAttrs() != null) {
-            for (PlainAttr<?> plainAttr : any.getPlainAttrs()) {
-                List<Object> values = plainAttr.getValues().stream().
-                        map(PlainAttrValue::getValue).collect(Collectors.toList());
+        for (PlainAttr<?> plainAttr : any.getPlainAttrs()) {
+            List<Object> values = plainAttr.getValues().stream().
+                    map(value -> value.getValue()).collect(Collectors.toList());
 
-                if (plainAttr.getUniqueValue() != null) {
-                    values.add(plainAttr.getUniqueValue().getValue());
-                }
-
-                builder = builder.field(plainAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
+            if (plainAttr.getUniqueValue() != null) {
+                values.add(plainAttr.getUniqueValue().getValue());
             }
+
+            builder = builder.field(plainAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
         }
 
         return builder.endObject();
