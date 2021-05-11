@@ -2552,21 +2552,21 @@ $$ }&#10;
   <SecurityQuestion id="887028ea-66fc-41e7-b397-620d7ea6dfbb" content="What's your mother's maiden name?"/>
 
   <SyncopeRole id="GROUP_OWNER"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="USER_SEARCH"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="USER_READ"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="USER_CREATE"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="USER_UPDATE"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="USER_DELETE"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="ANYTYPECLASS_READ"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="ANYTYPE_LIST"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="ANYTYPECLASS_LIST"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="RELATIONSHIPTYPE_LIST"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="ANYTYPE_READ"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="REALM_LIST"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="GROUP_SEARCH"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="GROUP_READ"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="GROUP_UPDATE"/>
-  <SyncopeRole_Entitlements role_id="GROUP_OWNER" entitlement="GROUP_DELETE"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_SEARCH"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_READ"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_CREATE"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_UPDATE"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_DELETE"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPECLASS_READ"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPE_LIST"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPECLASS_LIST"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="RELATIONSHIPTYPE_LIST"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPE_READ"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="REALM_LIST"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_SEARCH"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_READ"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_UPDATE"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_DELETE"/>
 
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG"/>
 
