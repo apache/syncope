@@ -410,7 +410,7 @@ under the License.
 
     <jackson.version>2.12.3</jackson.version>
 
-    <spring.version>5.3.5</spring.version>
+    <spring.version>5.3.7</spring.version>
     <spring-security.version>5.4.6</spring-security.version>
     <spring-boot.version>2.4.5</spring-boot.version>
     <spring-cloud-gateway.version>3.0.2</spring-cloud-gateway.version>
@@ -457,7 +457,7 @@ under the License.
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.7.1</junit.version>
-    <mockito.version>3.9.0</mockito.version>
+    <mockito.version>3.10.0</mockito.version>
 
     <swagger-core.version>2.1.8</swagger-core.version>
     <swagger-ui.version>3.48.0</swagger-ui.version>
