@@ -396,12 +396,12 @@ div.modal-body div.box-body div.wizard-buttons {
   width: 100%;
 }
 
-.wizard-buttons div.pull-left {
+.wizard-buttons div.float-left {
   position: absolute;
   left: 15px;
 }
 
-.wizard-buttons div.pull-right {
+.wizard-buttons div.float-right {
   position: absolute;
   right: 15px;
 }
@@ -1278,6 +1278,16 @@ h4.card-title {
   box-shadow:0 4px 10px 0 rgba(0,0,0,0.2),0 4px 20px 0 rgba(0,0,0,0.19);
   margin-bottom: 15px;
   padding: 0px !important;
+}
+
+.box {
+  position: relative;
+  border-radius: 3px;
+  background: #ffffff;
+  border-top: 3px solid #d2d6de;
+  margin-bottom: 20px;
+  width: 100%;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
 .no-border-top {
