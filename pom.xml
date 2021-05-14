@@ -518,7 +518,7 @@ under the License.
 
     <docker.postgresql.version>13</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
-    <docker.mariadb.version>10.5</docker.mariadb.version>
+    <docker.mariadb.version>10.6</docker.mariadb.version>
 
     <jdbc.postgresql.version>42.2.19</jdbc.postgresql.version>
     <jdbc.mysql.version>8.0.22</jdbc.mysql.version>
