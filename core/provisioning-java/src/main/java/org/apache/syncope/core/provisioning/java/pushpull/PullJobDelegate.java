@@ -66,6 +66,7 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.java.DefaultProvisionSorter;
 import org.apache.syncope.core.spring.ImplementationManager;
+import org.quartz.JobExecutionContext;
 
 public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> implements SyncopePullExecutor {
 
@@ -188,7 +189,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             final PullTask pullTask,
             final Connector connector,
             final boolean dryRun,
-            final String executor) throws JobExecutionException {
+            final String executor,
+            final JobExecutionContext context) throws JobExecutionException {
 
         LOG.debug("Executing pull on {}", pullTask.getResource());
 

@@ -31,6 +31,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -58,7 +59,9 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
     private AnyObjectDAO anyObjectDAO;
 
     @Override
-    protected String doExecute(final boolean dryRun, final String executor) throws JobExecutionException {
+    protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
+            throws JobExecutionException {
+
         if (!dryRun) {
             LOG.debug("Start rebuilding indexes");
 
