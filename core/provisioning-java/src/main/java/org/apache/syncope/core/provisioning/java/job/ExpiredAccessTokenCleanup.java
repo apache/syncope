@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.job;
 
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,7 +29,7 @@ public class ExpiredAccessTokenCleanup extends AbstractSchedTaskJobDelegate {
     private AccessTokenDAO accessTokenDAO;
 
     @Override
-    protected String doExecute(final boolean dryRun) throws JobExecutionException {
+    protected String doExecute(final boolean dryRun, final JobExecutionContext context) throws JobExecutionException {
         if (!dryRun) {
             int deleted = accessTokenDAO.deleteExpired();
             LOG.debug("Successfully deleted {} expired access tokens", deleted);
@@ -36,5 +37,4 @@ public class ExpiredAccessTokenCleanup extends AbstractSchedTaskJobDelegate {
 
         return "SUCCESS";
     }
-
 }

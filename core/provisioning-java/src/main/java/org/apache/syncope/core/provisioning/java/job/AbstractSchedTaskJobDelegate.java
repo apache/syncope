@@ -119,7 +119,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         AuditElements.Result result;
 
         try {
-            execution.setMessage(doExecute(dryRun));
+            execution.setMessage(doExecute(dryRun, context));
             execution.setStatus(TaskJob.Status.SUCCESS.name());
             result = AuditElements.Result.SUCCESS;
         } catch (JobExecutionException e) {
@@ -163,10 +163,11 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
      * The actual execution, delegated to child classes.
      *
      * @param dryRun whether to actually touch the data
+     * @param context Quartz' execution context, can be used to pass parameters to the job
      * @return the task execution status to be set
      * @throws JobExecutionException if anything goes wrong
      */
-    protected abstract String doExecute(boolean dryRun) throws JobExecutionException;
+    protected abstract String doExecute(boolean dryRun, JobExecutionContext context) throws JobExecutionException;
 
     /**
      * Template method to determine whether this job's task execution has to be persisted or not.
@@ -177,5 +178,4 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
     protected boolean hasToBeRegistered(final TaskExec execution) {
         return false;
     }
-
 }
