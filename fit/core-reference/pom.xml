@@ -1214,7 +1214,7 @@ under the License.
                       <mount>/var/lib/mysql:rw</mount>
                     </tmpfs>
                     <wait>
-                      <log>MySQL init process done. Ready for start up.</log>
+                      <log>MariaDB init process done. Ready for start up.</log>
                       <time>30000</time>
                     </wait>
                   </run>
