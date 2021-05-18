@@ -209,15 +209,42 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         // owner
+        PropagationByResource<String> ownerPropByRes = new PropagationByResource<>();
         if (groupUR.getUserOwner() != null) {
-            group.setUserOwner(groupUR.getUserOwner().getValue() == null
-                    ? null
-                    : userDAO.find(groupUR.getUserOwner().getValue()));
+            if (groupUR.getUserOwner().getValue() == null) {
+                if (group.getUserOwner() != null) {
+                    group.setUserOwner(null);
+                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
+                }
+            } else {
+                User userOwner = userDAO.find(groupUR.getUserOwner().getValue());
+                if (userOwner == null) {
+                    LOG.debug("Unable to find user owner for group {} by key {}",
+                            group.getKey(), groupUR.getUserOwner().getValue());
+                    group.setUserOwner(null);
+                } else {
+                    group.setUserOwner(userOwner);
+                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
+                }
+            }
         }
         if (groupUR.getGroupOwner() != null) {
-            group.setGroupOwner(groupUR.getGroupOwner().getValue() == null
-                    ? null
-                    : groupDAO.find(groupUR.getGroupOwner().getValue()));
+            if (groupUR.getGroupOwner().getValue() == null) {
+                if (group.getGroupOwner() != null) {
+                    group.setGroupOwner(null);
+                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
+                }
+            } else {
+                Group groupOwner = groupDAO.find(groupUR.getGroupOwner().getValue());
+                if (groupOwner == null) {
+                    LOG.debug("Unable to find group owner for group {} by key {}",
+                            group.getKey(), groupUR.getGroupOwner().getValue());
+                    group.setGroupOwner(null);
+                } else {
+                    group.setGroupOwner(groupOwner);
+                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
+                }
+            }
         }
 
         // attributes and resources
@@ -299,8 +326,10 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         group = groupDAO.save(group);
 
         // Build final information for next stage (propagation)
-        return propByRes(
+        PropagationByResource<String> propByRes = propByRes(
                 beforeOnResources, onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, false));
+        propByRes.merge(ownerPropByRes);
+        return propByRes;
     }
 
     @Override
