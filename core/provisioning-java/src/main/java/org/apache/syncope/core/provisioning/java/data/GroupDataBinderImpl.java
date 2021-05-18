@@ -207,16 +207,43 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             group.setName(groupPatch.getName().getValue());
         }
 
+        PropagationByResource<String> ownerPropByRes = new PropagationByResource<>();
         // owner
         if (groupPatch.getUserOwner() != null) {
-            group.setUserOwner(groupPatch.getUserOwner().getValue() == null
-                    ? null
-                    : userDAO.find(groupPatch.getUserOwner().getValue()));
+            if (groupPatch.getUserOwner().getValue() == null) {
+                if (group.getUserOwner() != null) {
+                    group.setUserOwner(null);
+                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
+                }
+            } else {
+                User userOwner = userDAO.find(groupPatch.getUserOwner().getValue());
+                if (userOwner == null) {
+                    LOG.debug("Unable to find user owner for group {} by key {}",
+                            group.getKey(), groupPatch.getUserOwner().getValue());
+                    group.setUserOwner(null);
+                } else {
+                    group.setUserOwner(userOwner);
+                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
+                }
+            }
         }
         if (groupPatch.getGroupOwner() != null) {
-            group.setGroupOwner(groupPatch.getGroupOwner().getValue() == null
-                    ? null
-                    : groupDAO.find(groupPatch.getGroupOwner().getValue()));
+            if (groupPatch.getGroupOwner().getValue() == null) {
+                if (group.getGroupOwner() != null) {
+                    group.setGroupOwner(null);
+                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
+                }
+            } else {
+                Group groupOwner = groupDAO.find(groupPatch.getGroupOwner().getValue());
+                if (groupOwner == null) {
+                    LOG.debug("Unable to find group owner for group {} by key {}",
+                            group.getKey(), groupPatch.getGroupOwner().getValue());
+                    group.setGroupOwner(null);
+                } else {
+                    group.setGroupOwner(groupOwner);
+                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
+                }
+            }
         }
 
         // attributes and resources
@@ -298,8 +325,13 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         group = groupDAO.save(group);
 
         // Build final information for next stage (propagation)
-        return propByRes(
-                beforeOnResources, onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, false));
+        PropagationByResource<String> propByResource = propByRes(
+                beforeOnResources,
+                onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, false)
+        );
+        propByResource.merge(ownerPropByRes);
+
+        return propByResource;
     }
 
     @Override
