@@ -80,6 +80,8 @@ public final class Constants {
     public static final String OUTER = "outer";
 
     public static final String ACTION = "action";
+    
+    public static final String CONFIRM_DELETE = "confirmDelete";
 
     public static final String BEFORE_LOGOUT_PAGE = "beforeLogoutPage";
 
