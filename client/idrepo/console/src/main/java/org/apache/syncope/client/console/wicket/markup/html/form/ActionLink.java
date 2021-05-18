@@ -33,6 +33,8 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
 
     private boolean enabled = true;
 
+    private String confirmMessage;
+
     public ActionLink() {
     }
 
@@ -161,6 +163,15 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
 
     public boolean isIndicatorEnabled() {
         return true;
+    }
+
+    public String getConfirmMessage() {
+        return confirmMessage;
+    }
+
+    public ActionLink<T> confirmMessage(final String confirmMessage) {
+        this.confirmMessage = confirmMessage;
+        return this;
     }
 }
 
