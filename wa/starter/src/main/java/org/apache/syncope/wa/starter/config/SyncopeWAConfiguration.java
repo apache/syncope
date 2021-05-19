@@ -20,22 +20,28 @@ package org.apache.syncope.wa.starter.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.warrenstrange.googleauth.IGoogleAuthenticator;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
-import org.apache.commons.lang3.StringUtils;
-import com.warrenstrange.googleauth.IGoogleAuthenticator;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.audit.SyncopeWAAuditTrailManager;
+import org.apache.syncope.wa.starter.events.SyncopeWAEventRepository;
 import org.apache.syncope.wa.starter.gauth.SyncopeWAGoogleMfaAuthCredentialRepository;
+import org.apache.syncope.wa.starter.gauth.SyncopeWAGoogleMfaAuthTokenRepository;
 import org.apache.syncope.wa.starter.mapping.AccessMapFor;
 import org.apache.syncope.wa.starter.mapping.AccessMapper;
-import org.apache.syncope.wa.starter.mapping.DefaultAttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.AuthMapFor;
@@ -44,6 +50,7 @@ import org.apache.syncope.wa.starter.mapping.CASSPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapFor;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAccessMapper;
+import org.apache.syncope.wa.starter.mapping.DefaultAttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAuthMapper;
 import org.apache.syncope.wa.starter.mapping.OIDCRPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
@@ -55,6 +62,7 @@ import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataLoc
 import org.apache.syncope.wa.starter.services.SyncopeWAServiceRegistry;
 import org.apache.syncope.wa.starter.surrogate.SyncopeWASurrogateAuthenticationService;
 import org.apache.syncope.wa.starter.u2f.SyncopeWAU2FDeviceRepository;
+import org.apache.syncope.wa.starter.webauthn.SyncopeWAWebAuthnCredentialRepository;
 import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRepository;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
@@ -65,17 +73,16 @@ import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepositor
 import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
 import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
 import org.apereo.cas.services.ServiceRegistryListener;
+import org.apereo.cas.support.events.CasEventRepository;
+import org.apereo.cas.support.events.CasEventRepositoryFilter;
 import org.apereo.cas.support.pac4j.authentication.DelegatedClientFactoryCustomizer;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
-import org.apereo.cas.support.saml.idp.metadata.writer.SamlIdPCertificateAndKeyWriter;
 import org.apereo.cas.util.DateTimeUtils;
 import org.apereo.cas.util.crypto.CipherExecutor;
-
-import org.apache.syncope.wa.starter.webauthn.SyncopeWAWebAuthnCredentialRepository;
+import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
 import org.pac4j.core.client.Client;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -83,25 +90,10 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.syncope.wa.starter.events.SyncopeWAEventRepository;
-import org.apache.syncope.wa.starter.gauth.SyncopeWAGoogleMfaAuthTokenRepository;
-import org.apereo.cas.support.events.CasEventRepository;
-import org.apereo.cas.support.events.CasEventRepositoryFilter;
-import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
-
 public class SyncopeWAConfiguration {
 
     @Autowired
     private CasConfigurationProperties casProperties;
-
-    @Autowired
-    @Qualifier("samlSelfSignedCertificateWriter")
-    private ObjectProvider<SamlIdPCertificateAndKeyWriter> samlSelfSignedCertificateWriter;
 
     @Autowired
     private ConfigurableApplicationContext ctx;
@@ -223,16 +215,20 @@ public class SyncopeWAConfiguration {
 
     @Autowired
     @Bean
-    public SamlIdPMetadataGenerator samlIdPMetadataGenerator(final WARestClient restClient,
-                                                         final SamlIdPMetadataGeneratorConfigurationContext context) {
+    public SamlIdPMetadataGenerator samlIdPMetadataGenerator(
+            final WARestClient restClient,
+            final SamlIdPMetadataGeneratorConfigurationContext context) {
+
         return new RestfulSamlIdPMetadataGenerator(context, restClient);
     }
 
     @Autowired
     @Bean
     public SamlIdPMetadataLocator samlIdPMetadataLocator(final WARestClient restClient) {
-        return new RestfulSamlIdPMetadataLocator(CipherExecutor.noOpOfStringToString(),
-                Caffeine.newBuilder().build(), restClient);
+        return new RestfulSamlIdPMetadataLocator(
+                CipherExecutor.noOpOfStringToString(),
+                Caffeine.newBuilder().build(),
+                restClient);
     }
 
     @Autowired
