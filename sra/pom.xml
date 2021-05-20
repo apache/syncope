@@ -34,7 +34,6 @@ under the License.
   <packaging>jar</packaging>
   
   <properties>
-    <nimbus-jose-jwt.version>8.20.2</nimbus-jose-jwt.version>
     <rootpom.basedir>${basedir}/..</rootpom.basedir>
   </properties>
 
@@ -72,6 +71,32 @@ under the License.
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-crypto</artifactId>
+      <version>${spring-security.version}</version>      
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-client</artifactId>
+      <version>${spring-security.version}</version>      
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-core</artifactId>
+      <version>${spring-security.version}</version>      
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-jose</artifactId>
+      <version>${spring-security.version}</version>      
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-oauth2-resource-server</artifactId>
+      <version>${spring-security.version}</version>      
     </dependency>
 
     <dependency>
