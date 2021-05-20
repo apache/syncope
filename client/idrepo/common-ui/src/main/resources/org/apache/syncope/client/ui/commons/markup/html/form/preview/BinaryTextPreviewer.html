@@ -21,6 +21,7 @@ under the License.
     <link rel="stylesheet" type="text/css" href="webjars/codemirror/${codemirror.version}/lib/codemirror.css"/>
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/lib/codemirror.js"></script>
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/mode/javascript/javascript.js"></script>
+    <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/mode/yaml/yaml.js"></script>
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/display/autorefresh.js"></script>
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/search/search.js"></script>
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/search/searchcursor.js"></script>
@@ -41,8 +42,8 @@ under the License.
       <span wicket:id="preview"/>
     </div>
     <wicket:fragment wicket:id="previewFragment">
-      <div style="w_content_3">
-        <textarea wicket:id="jsonEditorInfo" name="jsonEditorInfo" ></textarea>
+      <div class="w_content_3">
+        <textarea wicket:id="previewer" name="previewer"></textarea>
       </div>
     </wicket:fragment>
     <wicket:fragment wicket:id="noPreviewFragment">

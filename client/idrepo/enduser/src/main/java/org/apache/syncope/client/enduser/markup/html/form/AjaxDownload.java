@@ -20,8 +20,8 @@ package org.apache.syncope.client.enduser.markup.html.form;
 
 import java.time.Duration;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.init.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
+import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;

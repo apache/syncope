@@ -691,6 +691,9 @@
     "name": "application/x-zip-compressed"
   },
   {
+    "name": "application/yaml"
+  },
+  {
     "name": "application/zip"
   },
   {

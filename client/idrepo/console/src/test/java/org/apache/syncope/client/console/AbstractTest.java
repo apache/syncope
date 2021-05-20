@@ -56,11 +56,11 @@ import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.wizards.any.UserFormFinalizerUtils;
 import org.apache.syncope.client.lib.AuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -281,7 +281,7 @@ public abstract class AbstractTest {
     @BeforeAll
     public static void loadProps() throws IOException {
         PROPS = new Properties();
-        try (InputStream is = AbstractTest.class.getResourceAsStream("/console.properties")) {
+        try ( InputStream is = AbstractTest.class.getResourceAsStream("/console.properties")) {
             PROPS.load(is);
         }
     }
