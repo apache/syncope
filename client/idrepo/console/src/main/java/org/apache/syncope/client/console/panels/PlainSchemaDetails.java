@@ -374,7 +374,6 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             mimeType.setChoices(null);
         } else if (AttrSchemaType.Encrypted.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
-            conversionPattern.setModelObject(null);
 
             enumParams.setVisible(false);
             if (enumerationValuesPanel.isRequired()) {
