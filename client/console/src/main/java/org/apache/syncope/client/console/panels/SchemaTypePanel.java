@@ -161,15 +161,15 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
     @Override
     public ActionsPanel<SchemaTO> getActions(final IModel<SchemaTO> model) {
-        final ActionsPanel<SchemaTO> panel = super.getActions(model);
+        ActionsPanel<SchemaTO> panel = super.getActions(model);
         panel.add(new ActionLink<SchemaTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final SchemaTO ignore) {
-                send(SchemaTypePanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                send(SchemaTypePanel.this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<>(
+                        restClient.read(schemaType, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, StandardEntitlement.SCHEMA_UPDATE);
         panel.add(new ActionLink<SchemaTO>() {
