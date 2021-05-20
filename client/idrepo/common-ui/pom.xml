@@ -154,6 +154,7 @@ under the License.
         <filtering>true</filtering>
         <excludes>
           <exclude>org/apache/syncope/**/*.properties</exclude>
+          <exclude>META-INF/resources/**</exclude>
         </excludes>
       </resource>
       <resource>
@@ -161,6 +162,7 @@ under the License.
         <filtering>false</filtering>
         <includes>
           <include>org/apache/syncope/**/*.properties</include>
+          <include>META-INF/resources/**</include>
         </includes>
       </resource>
 
