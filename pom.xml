@@ -477,8 +477,6 @@ under the License.
     <wicket-bootstrap.version>5.0.4</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
 
-    <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
-
     <netbeans.version>RELEASE122</netbeans.version>
 
     <antlr4.version>4.9.2</antlr4.version>
@@ -543,7 +541,7 @@ under the License.
     -->
     <argLine>-Xms512m -Xmx1024m -Xss256k</argLine>
 
-    <ianal.skip>false</ianal.skip>
+    <ianal.phase>verify</ianal.phase>
     <sass.skip>false</sass.skip>
     <remote-resources.skip>true</remote-resources.skip>
 
@@ -2655,19 +2653,20 @@ under the License.
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>ianal-maven-plugin</artifactId>
-        <version>1.0-alpha-1</version>
+        <groupId>org.apache.geronimo.genesis.plugins</groupId>
+        <artifactId>tools-maven-plugin</artifactId>
+        <version>1.4</version>
+        <configuration>
+          <!-- Fail the build if any artifacts are missing legal files -->
+          <strict>true</strict>
+        </configuration>
         <executions>
           <execution>
+            <id>verify-legal-files</id>
+            <phase>${ianal.phase}</phase>
             <goals>
               <goal>verify-legal-files</goal>
             </goals>
-            <configuration>
-              <!-- Fail the build if any artifacts are missing legal files -->
-              <strict>true</strict>
-              <skip>${ianal.skip}</skip>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -2951,7 +2950,7 @@ under the License.
 
       <properties>
         <skipTests>true</skipTests>
-        <ianal.skip>true</ianal.skip>
+        <ianal.phase>none</ianal.phase>
         <modernizer.skip>true</modernizer.skip>
         <rat.skip>true</rat.skip>
         <checkstyle.skip>true</checkstyle.skip>

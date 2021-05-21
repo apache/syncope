@@ -34,9 +34,7 @@ under the License.
   <packaging>war</packaging>
   
   <properties>
-    <nimbus-jose-jwt.version>8.20.1</nimbus-jose-jwt.version>
-
-    <ianal.skip>true</ianal.skip>
+    <ianal.phase>none</ianal.phase>
 
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
