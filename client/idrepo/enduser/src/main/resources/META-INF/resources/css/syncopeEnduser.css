@@ -1373,3 +1373,12 @@ h4.card-title {
     padding-top: 5px;
 }
 
+.brand-custom{
+  height: 56px; 
+  z-index: 1; 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 50%;
+}
+

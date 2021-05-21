@@ -17,27 +17,36 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:panel>
-    <div class="box">
-      <div class="box-body" wicket:id="userProfile">
-        <div class="box-header formcard col-md-4">
-          <header class="card-container card-red">
-            <label class="card-header-style"><wicket:message key="welcome"/><b><label class="card-header-style" wicket:id="welcome"/></b></label>
-          </header>
-          <div class="card-container-body">
-            <div>
-              <div class="box-footer no-padding no-border-top">
-                <ul class="nav nav-stacked">
-                  <li><a href="#">Name:<span class="float-right badge"><label wicket:id="username"/></span></a></li>
-                  <li><a href="#">Last Login Date:<span class="float-right badge"><label wicket:id="lastLoginDate"/></span></a></li>
-                  <li><a href="#">Last Change Password Date:<span class="float-right badge"><label wicket:id="changePwdDate"/></span></a></li>
-                </ul>
-              </div>
+<wicket:panel>
+  <div class="box">
+    <div class="box-body" wicket:id="userProfile">
+      <div class="box-header formcard col-md-4">
+        <header class="card-container card-red">
+          <label class="card-header-style">
+            <wicket:message key="welcome"/>
+            <b><label class="card-header-style" wicket:id="welcome"/></b></label>
+        </header>
+        <div class="card-container-body">
+          <div>
+            <div class="box-footer no-padding no-border-top">
+              <ul class="nav navbar-nav flex-column">
+                <li class="nav-item"><a class="nav-link disabled" href="#">Name:
+                  <span class="float-right badge"><label wicket:id="username"/></span></a>
+                </li>
+                <li class="nav-item"><a class="nav-link disabled" href="#">Last Login Date:
+                  <span class="float-right badge"><label wicket:id="lastLoginDate"/></span></a>
+                </li>
+                <li class="nav-item"><a class="nav-link disabled" href="#">Last Change Password Date:
+                  <span class="float-right badge"><label
+                          wicket:id="changePwdDate"/></span></a>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </wicket:panel>
+  </div>
+</wicket:panel>
 </html>
 

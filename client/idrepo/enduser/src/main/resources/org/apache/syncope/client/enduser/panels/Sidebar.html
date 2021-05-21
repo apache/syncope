@@ -18,52 +18,66 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:panel>
-    <section class="sidebar">
-      <div class="user-panel">
-        <div class="float-left info"></div>
-      </div>
-
-      <ul class="sidebar-menu">
-        <li wicket:id="homeLI">
-          <a href="#" wicket:id="home">
-            <i class="fa fa-id-card"></i>
-            <span><wicket:message key="home"/></span>
+<wicket:panel>
+  <div class="brand-link bg-red" style="height: 56px;">
+            <span class="logo-mini">
+                <img aria-label="Apache Syncope Enduser" alt="Apache Syncope Enduser" src="img/logo-mini.png"/>
+            </span>
+    <span class="brand-text font-weight-light">Apache Syncope</span>
+  </div>
+  <div class="sidebar">
+    <div class="user-panel">
+      <div class="float-left info"></div>
+    </div>
+    <nav class="mt-2">
+      <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent nav-compact" data-widget="treeview">
+        <li wicket:id="homeLI" class="nav-item">
+          <a href="#" wicket:id="home" class="nav-link active">
+            <i class="fa fa-id-card nav-icon"></i>
+            <p>
+              <wicket:message key="home"/>
+            </p>
           </a>
         </li>
-        <li wicket:id="profileLI" class="treeview">
-          <a href="#"><i class="fa fa fa-user"></i>
-            <span><wicket:message key="profile"/></span> 
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left float-right"></i></span>
+        <li wicket:id="profileLI" class="nav-item has-treeview">
+          <a href="#" class="nav-link"><i class="fa fa fa-user nav-icon"></i>
+            <p>
+              <wicket:message key="profile"/>
+            </p>
+            <i class="fas fa-angle-left pull-right"></i>
           </a>
-          <ul wicket:id="profileUL" class="treeview-menu">
-            <li wicket:id="edituserLI">
-              <a href="#" wicket:id="edituser">
-                <i class="fa fa-edit"></i><wicket:message key="edituser"/>
+          <ul wicket:id="profileUL" class="nav nav-treeview">
+            <li wicket:id="edituserLI" class="nav-item">
+              <a class="nav-link" href="#" wicket:id="edituser">
+                <i class="fa fa-edit"></i>
+                <wicket:message key="edituser"/>
               </a>
             </li>
-            <li wicket:id="editchangepasswordLI">
-              <a href="#" wicket:id="editchangepassword">
-                <i class="fa fa-lock"></i><wicket:message key="editchangepassword"/>
+            <li wicket:id="editchangepasswordLI" class="nav-item">
+              <a class="nav-link" href="#" wicket:id="editchangepassword">
+                <i class="fa fa-lock"></i>
+                <wicket:message key="editchangepassword"/>
               </a>
             </li>
-            <li wicket:id="editsecurityquestionLI">
-              <a href="#" wicket:id="editsecurityquestion">
-                <i class="fa fa-lock"></i><wicket:message key="editsecurityquestion"/>
+            <li wicket:id="editsecurityquestionLI" class="nav-item">
+              <a class="nav-link" href="#" wicket:id="editsecurityquestion">
+                <i class="fa fa-lock"></i>
+                <wicket:message key="editsecurityquestion"/>
               </a>
             </li>
           </ul>
         </li>
-        <li wicket:id="listItems">
-          <a href="#" 
+        <li wicket:id="listItems" class="nav-item has-treeview">
+          <a href="#"
+             class="nav-link"
              wicket:id="extPageLILink"
              tabindex="0">
-            <i wicket:id="extPageIcon"></i>
+            <i wicket:id="extPageIcon" class="nav-icon"></i>
             <span wicket:id="extPageLabel"/>
           </a>
         </li>
       </ul>
-    </section>
-  </wicket:panel>
+    </nav>
+  </div>
+</wicket:panel>
 </html>
