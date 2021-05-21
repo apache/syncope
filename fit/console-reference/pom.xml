@@ -89,11 +89,6 @@ under the License.
     
     <!-- TEST -->
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.syncope.fit</groupId>
       <artifactId>syncope-fit-build-tools</artifactId>
       <version>${project.version}</version>
@@ -126,12 +121,6 @@ under the License.
             <timeout>300000</timeout>
             <log>${cargo.log}</log>
             <output>${cargo.output}</output>
-            <dependencies>
-              <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-              </dependency>
-            </dependencies>
           </container>
           <configuration>
             <properties>

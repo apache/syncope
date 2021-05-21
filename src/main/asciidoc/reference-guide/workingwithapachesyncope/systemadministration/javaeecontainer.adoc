@@ -39,7 +39,7 @@ for the Master domain.
 Each JavaEE Container provides its own way to accomplish this task:
   * https://tomcat.apache.org/tomcat-9.0-doc/jdbc-pool.html[Apache Tomcat 9^]
   * https://payara.gitbooks.io/payara-server/content/documentation/user-guides/connection-pools/connection-pools.html[Payara Server 5^]
-  * http://docs.wildfly.org/21/Admin_Guide.html#DataSource[Wildfly 21^]
+  * http://docs.wildfly.org/23/Admin_Guide.html#DataSource[Wildfly 23^]
 ****
 
 ===== Apache Tomcat 9
@@ -152,7 +152,7 @@ For better performance under GNU / Linux, do not forget to include
 among JVM options.
 ====
 
-===== Wildfly 20
+===== Wildfly 23
 
 Add
 
@@ -161,7 +161,6 @@ Add
     <dependency>
       <groupId>jakarta.xml.ws</groupId>
       <artifactId>jakarta.xml.ws-api</artifactId>
-      <version>2.3.3</version>
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
