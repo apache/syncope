@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.spring;
 
-import groovy.lang.GroovyClassLoader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import groovy.lang.GroovyClassLoader;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
@@ -31,14 +31,16 @@ import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
-import org.apache.syncope.core.persistence.api.dao.Reportlet;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.Reportlet;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 public final class ImplementationManager {
 
@@ -217,27 +219,26 @@ public final class ImplementationManager {
 
     @SuppressWarnings("unchecked")
     private static <T> T buildJavaWithConf(final Class<T> clazz) {
-        T bean = null;
-
         if (clazz != null) {
-            if (ApplicationContextProvider.getBeanFactory().containsSingleton(clazz.getName())) {
-                bean = (T) ApplicationContextProvider.getBeanFactory().getSingleton(clazz.getName());
-            } else {
-                try {
-                    bean = (T) ApplicationContextProvider.getBeanFactory().
-                            createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                    ApplicationContextProvider.getBeanFactory().registerSingleton(clazz.getName(), bean);
-                } catch (IllegalStateException e) {
-                    LOG.debug("While attempting to register {}", clazz.getName(), e);
+            String domainableBeanNameWithConf = AuthContextUtils.getDomain() + clazz.getName();
+            DefaultListableBeanFactory beanFactory = ApplicationContextProvider.getBeanFactory();
 
-                    // if this exception was raised, it means another bean for same name is already registered,
-                    // revert to it
-                    bean = (T) ApplicationContextProvider.getBeanFactory().getSingleton(clazz.getName());
+            if (beanFactory.containsSingleton(domainableBeanNameWithConf)) {
+                return (T) beanFactory.getSingleton(domainableBeanNameWithConf);
+            }
+
+            synchronized (beanFactory.getSingletonMutex()) {
+                if (beanFactory.containsSingleton(domainableBeanNameWithConf)) {
+                    return (T) beanFactory.getSingleton(domainableBeanNameWithConf);
+                } else {
+                    T bean = (T) beanFactory.
+                            createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                    beanFactory.registerSingleton(domainableBeanNameWithConf, bean);
+                    return bean;
                 }
             }
         }
-
-        return bean;
+        return null;
     }
 
     public static Class<?> purge(final String implementation) {
