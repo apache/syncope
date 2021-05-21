@@ -427,7 +427,7 @@ under the License.
 
     <flowable.version>6.6.0</flowable.version>
 
-    <camel.version>3.9.0</camel.version>
+    <camel.version>3.10.0</camel.version>
 
     <slf4j.version>2.0.0-alpha1</slf4j.version>
 
@@ -458,7 +458,7 @@ under the License.
     <mockito.version>3.10.0</mockito.version>
 
     <swagger-core.version>2.1.8</swagger-core.version>
-    <swagger-ui.version>3.48.0</swagger-ui.version>
+    <swagger-ui.version>3.49.0</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
@@ -476,8 +476,6 @@ under the License.
     <wicket-jqueryui.version>9.3.1</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.4</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
-
-    <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
 
     <netbeans.version>RELEASE122</netbeans.version>
 
@@ -510,7 +508,7 @@ under the License.
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
     <tomcat.version>9.0.46</tomcat.version>
-    <wildfly.version>21.0.1.Final</wildfly.version>
+    <wildfly.version>23.0.2.Final</wildfly.version>
     <payara.version>5.2021.3</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
@@ -543,7 +541,7 @@ under the License.
     -->
     <argLine>-Xms512m -Xmx1024m -Xss256k</argLine>
 
-    <ianal.skip>false</ianal.skip>
+    <ianal.phase>verify</ianal.phase>
     <sass.skip>false</sass.skip>
     <remote-resources.skip>true</remote-resources.skip>
 
@@ -2316,7 +2314,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.9.1</version>
+          <version>1.9.4</version>
           <configuration>
             <configuration>
               <type>standalone</type>
@@ -2655,19 +2653,20 @@ under the License.
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>ianal-maven-plugin</artifactId>
-        <version>1.0-alpha-1</version>
+        <groupId>org.apache.geronimo.genesis.plugins</groupId>
+        <artifactId>tools-maven-plugin</artifactId>
+        <version>1.4</version>
+        <configuration>
+          <!-- Fail the build if any artifacts are missing legal files -->
+          <strict>true</strict>
+        </configuration>
         <executions>
           <execution>
+            <id>verify-legal-files</id>
+            <phase>${ianal.phase}</phase>
             <goals>
               <goal>verify-legal-files</goal>
             </goals>
-            <configuration>
-              <!-- Fail the build if any artifacts are missing legal files -->
-              <strict>true</strict>
-              <skip>${ianal.skip}</skip>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -2951,7 +2950,7 @@ under the License.
 
       <properties>
         <skipTests>true</skipTests>
-        <ianal.skip>true</ianal.skip>
+        <ianal.phase>none</ianal.phase>
         <modernizer.skip>true</modernizer.skip>
         <rat.skip>true</rat.skip>
         <checkstyle.skip>true</checkstyle.skip>
