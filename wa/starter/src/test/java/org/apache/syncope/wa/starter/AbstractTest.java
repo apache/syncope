@@ -27,7 +27,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest(
-        classes = AbstractTest.SyncopeTestConfiguration.class,
+        classes = { SyncopeWAApplication.class, AbstractTest.SyncopeTestConfiguration.class },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
             "cas.authn.accept.users=mrossi::password",

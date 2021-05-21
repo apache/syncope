@@ -74,32 +74,6 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-crypto</artifactId>
-      <version>${spring-security.version}</version>      
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-oauth2-client</artifactId>
-      <version>${spring-security.version}</version>      
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-oauth2-core</artifactId>
-      <version>${spring-security.version}</version>      
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-oauth2-jose</artifactId>
-      <version>${spring-security.version}</version>      
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-oauth2-resource-server</artifactId>
-      <version>${spring-security.version}</version>      
-    </dependency>
-
-    <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-saml</artifactId>
     </dependency>

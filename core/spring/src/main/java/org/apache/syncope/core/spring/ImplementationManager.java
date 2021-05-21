@@ -231,8 +231,7 @@ public final class ImplementationManager {
                 if (beanFactory.containsSingleton(domainableBeanNameWithConf)) {
                     return (T) beanFactory.getSingleton(domainableBeanNameWithConf);
                 } else {
-                    T bean = (T) beanFactory.
-                            createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                    T bean = (T) beanFactory.createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
                     beanFactory.registerSingleton(domainableBeanNameWithConf, bean);
                     return bean;
                 }
