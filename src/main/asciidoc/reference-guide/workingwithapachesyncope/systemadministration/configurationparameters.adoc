@@ -26,7 +26,7 @@ barely invoking the REST layer through http://curl.haxx.se/[curl^]:
 algorithms include `SHA-1`, `SHA-256`, `SHA-512`, `AES`, `S-MD5`, `S-SHA-1`, `S-SHA-256`, `S-SHA-512` and `BCRYPT`;
 salting options are available in the `security.properties` file;
 [WARNING]
-The value of the `secretKey` property in the `security.properties` file is used for AES-based encryption / decription.
+The value of the `secretKey` property in the `security.properties` file is used for AES-based encryption / decryption.
 Besides password values, this is also used whenever reversible encryption is needed, throughout the whole system. +
 When the `secretKey` value has length less than 16, it is right-padded by random characters during startup, to reach
 such mininum value. +
