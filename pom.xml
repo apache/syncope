@@ -2187,6 +2187,9 @@ under the License.
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>3.3.0</version>
+          <configuration>
+            <source>${targetJdk}</source>
+          </configuration>
         </plugin>
 
         <plugin>
@@ -2709,6 +2712,7 @@ under the License.
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.3.0</version>
         <configuration>
+          <source>${targetJdk}</source>
           <destDir>apidocs/3.0</destDir>
           <isOffline>false</isOffline>
           <detectLinks>true</detectLinks>
