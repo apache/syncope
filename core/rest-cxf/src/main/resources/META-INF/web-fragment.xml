@@ -34,6 +34,10 @@ under the License.
       <param-name>openapi.context.id</param-name>
       <param-value>openapi.context.id.default</param-value>
     </init-param>
+    <init-param>
+      <param-name>hide-service-list-page</param-name>
+      <param-value>true</param-value>
+    </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>
