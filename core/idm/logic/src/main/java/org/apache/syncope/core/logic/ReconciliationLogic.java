@@ -104,6 +104,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
@@ -455,6 +456,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
+    @Transactional(noRollbackFor = SyncopeClientException.class)
     public List<ProvisioningReport> pull(
             final String anyTypeKey,
             final String resourceKey,
@@ -485,6 +487,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
+    @Transactional(noRollbackFor = SyncopeClientException.class)
     public List<ProvisioningReport> pull(
             final String anyTypeKey,
             final String resourceKey,
@@ -628,6 +631,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
+    @Transactional(noRollbackFor = SyncopeClientException.class)
     public List<ProvisioningReport> pull(final CSVPullSpec spec, final InputStream csv) {
         AnyType anyType = anyTypeDAO.find(spec.getAnyTypeKey());
         if (anyType == null) {
