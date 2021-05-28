@@ -815,8 +815,11 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void remediationSinglePull() throws IOException {
+        // First of all, clear any potential conflict with existing user / group
+        ldapCleanup();
+
         ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
-        ldap.setKey("ldapForRemediation");
+        ldap.setKey("ldapForRemediationSinglePull");
 
         ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
         provision.getMapping().getItems().removeIf(item -> "userId".equals(item.getIntAttrName()));
@@ -830,7 +833,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         try {
             // 2. pull an user
-            PullTaskTO pullTask =new PullTaskTO();
+            PullTaskTO pullTask = new PullTaskTO();
             pullTask.setResource(ldap.getKey());
             pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
             pullTask.setRemediation(true);
