@@ -54,6 +54,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.ReflectionUtils;
 
@@ -92,7 +94,8 @@ public class ElasticsearchAnySearchDAOTest {
 
         // 2. test
         Set<String> adminRealms = Collections.singleton(SyncopeConstants.ROOT_REALM);
-        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter = searchDAO.getAdminRealmsFilter(adminRealms);
+        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter =
+                searchDAO.getAdminRealmsFilter(AnyTypeKind.USER, adminRealms);
         assertEquals(
                 QueryBuilders.disMaxQuery().add(QueryBuilders.termQuery("realm", SyncopeConstants.ROOT_REALM)),
                 filter.getLeft().get());
@@ -110,7 +113,8 @@ public class ElasticsearchAnySearchDAOTest {
 
         // 2. test
         Set<String> adminRealms = Collections.singleton("dyn");
-        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter = searchDAO.getAdminRealmsFilter(adminRealms);
+        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter =
+                searchDAO.getAdminRealmsFilter(AnyTypeKind.USER, adminRealms);
         assertFalse(filter.getLeft().isPresent());
         assertEquals(Collections.singleton("dyn"), filter.getMiddle());
         assertEquals(Collections.emptySet(), filter.getRight());
@@ -119,7 +123,8 @@ public class ElasticsearchAnySearchDAOTest {
     @Test
     public void getAdminRealmsFilter_groupOwner() {
         Set<String> adminRealms = Collections.singleton(RealmUtils.getGroupOwnerRealm("/any", "groupKey"));
-        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter = searchDAO.getAdminRealmsFilter(adminRealms);
+        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter =
+                searchDAO.getAdminRealmsFilter(AnyTypeKind.USER, adminRealms);
         assertFalse(filter.getLeft().isPresent());
         assertEquals(Collections.emptySet(), filter.getMiddle());
         assertEquals(Collections.singleton("groupKey"), filter.getRight());
@@ -138,21 +143,24 @@ public class ElasticsearchAnySearchDAOTest {
 
         when(groupDAO.findKey("groupKey")).thenReturn("groupKey");
 
-        when(elasticsearchUtils.getContextDomainName(AnyTypeKind.USER)).thenReturn("master_user");
+        try (MockedStatic<ElasticsearchUtils> utils = Mockito.mockStatic(ElasticsearchUtils.class)) {
+            utils.when(() -> ElasticsearchUtils.getContextDomainName(
+                    SyncopeConstants.MASTER_DOMAIN, AnyTypeKind.USER)).thenReturn("master_user");
 
-        // 2. test
-        Set<String> adminRealms = Collections.singleton(RealmUtils.getGroupOwnerRealm("/any", "groupKey"));
+            // 2. test
+            Set<String> adminRealms = Collections.singleton(RealmUtils.getGroupOwnerRealm("/any", "groupKey"));
 
-        AnyCond anyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
-        anyCond.setSchema("id");
+            AnyCond anyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
+            anyCond.setSchema("id");
 
-        SearchRequest searchRequest = searchDAO.searchRequest(
-                adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER, 1, 10, Collections.emptyList());
+            SearchRequest searchRequest = searchDAO.searchRequest(
+                    adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER, 1, 10, Collections.emptyList());
 
-        assertEquals(
-                QueryBuilders.boolQuery().
-                        must(QueryBuilders.existsQuery("id")).
-                        must(QueryBuilders.termQuery("memberships", "groupKey")),
-                searchRequest.source().query());
+            assertEquals(
+                    QueryBuilders.boolQuery().
+                            must(QueryBuilders.existsQuery("id")).
+                            must(QueryBuilders.termQuery("memberships", "groupKey")),
+                    searchRequest.source().query());
+        }
     }
 }

@@ -57,12 +57,14 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
+import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.MatchNoneQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -80,6 +82,8 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected static final QueryBuilder MATCH_NONE_QUERY_BUILDER = new MatchNoneQueryBuilder();
 
+    protected static final QueryBuilder MATCH_ALL_QUERY_BUILDER = new MatchAllQueryBuilder();
+
     @Autowired
     protected RestHighLevelClient client;
 
@@ -87,7 +91,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     protected ElasticsearchUtils elasticsearchUtils;
 
     protected Triple<Optional<QueryBuilder>, Set<String>, Set<String>> getAdminRealmsFilter(
-            final Set<String> adminRealms) {
+            final AnyTypeKind kind, final Set<String> adminRealms) {
 
         DisMaxQueryBuilder builder = QueryBuilders.disMaxQuery();
 
@@ -133,7 +137,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final int size,
             final List<SortBuilder<?>> sortBuilders) {
 
-        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter = getAdminRealmsFilter(adminRealms);
+        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter = getAdminRealmsFilter(kind, adminRealms);
         QueryBuilder queryBuilder;
         if (SyncopeConstants.FULL_ADMIN_REALMS.equals(adminRealms)) {
             queryBuilder = getQueryBuilder(cond, kind);
@@ -153,7 +157,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 size(size);
         sortBuilders.forEach(sourceBuilder::sort);
 
-        return new SearchRequest(elasticsearchUtils.getContextDomainName(kind)).
+        return new SearchRequest(ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), kind)).
                 searchType(SearchType.QUERY_THEN_FETCH).
                 source(sourceBuilder);
     }
@@ -162,7 +166,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     protected int doCount(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind kind) {
         SearchRequest request = searchRequest(adminRealms, cond, kind, 0, 0, Collections.emptyList());
         try {
-            return (int) client.search(request, RequestOptions.DEFAULT).getHits().getTotalHits();
+            return (int) client.search(request, RequestOptions.DEFAULT).getHits().getTotalHits().value;
         } catch (IOException e) {
             LOG.error("Search error", e);
             return 0;
@@ -227,7 +231,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
         return ArrayUtils.isEmpty(esResult)
                 ? Collections.emptyList()
-                : buildResult(Stream.of(esResult).map(hit -> hit.getId()).collect(Collectors.toList()), kind);
+                : buildResult(Stream.of(esResult).map(SearchHit::getId).collect(Collectors.toList()), kind);
     }
 
     protected QueryBuilder getQueryBuilder(final SearchCond cond, final AnyTypeKind kind) {
@@ -312,9 +316,15 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                     }
                 }
 
+                // allow for additional search conditions
+                if (builder == null) {
+                    builder = getQueryBuilderForCustomConds(cond, kind);
+                }
+
                 if (builder == null) {
                     builder = MATCH_NONE_QUERY_BUILDER;
                 }
+
                 if (cond.getType() == SearchCond.Type.NOT_LEAF) {
                     builder = QueryBuilders.boolQuery().mustNot(builder);
                 }
@@ -384,9 +394,8 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
         DisMaxQueryBuilder builder = QueryBuilders.disMaxQuery();
         if (cond.isFromGroup()) {
-            realmDAO.findDescendants(realm).forEach(current -> {
-                builder.add(QueryBuilders.termQuery("realm", current.getFullPath()));
-            });
+            realmDAO.findDescendants(realm).forEach(
+                    current -> builder.add(QueryBuilders.termQuery("realm", current.getFullPath())));
         } else {
             for (Realm current = realm; current.getParent() != null; current = current.getParent()) {
                 builder.add(QueryBuilders.termQuery("realm", current.getFullPath()));
@@ -515,5 +524,9 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         return fillAttrQuery(checked.getLeft(), checked.getMiddle(), checked.getRight());
+    }
+
+    protected QueryBuilder getQueryBuilderForCustomConds(final SearchCond cond, final AnyTypeKind kind) {
+        return MATCH_ALL_QUERY_BUILDER;
     }
 }

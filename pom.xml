@@ -430,7 +430,7 @@ under the License.
     <slf4j.version>1.7.30</slf4j.version>
     <opensaml.version>3.3.1</opensaml.version>
 
-    <elasticsearch.version>6.8.16</elasticsearch.version>
+    <elasticsearch.version>7.13.0</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -1795,6 +1795,12 @@ under the License.
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-inline</artifactId>
         <version>${mockito.version}</version>
         <scope>test</scope>
       </dependency>
