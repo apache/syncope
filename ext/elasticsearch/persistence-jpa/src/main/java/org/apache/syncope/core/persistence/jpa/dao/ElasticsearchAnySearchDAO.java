@@ -23,7 +23,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -64,6 +63,7 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
+import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.MatchNoneQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -81,6 +81,8 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected static final QueryBuilder MATCH_NONE_QUERY_BUILDER = new MatchNoneQueryBuilder();
 
+    protected static final QueryBuilder MATCH_ALL_QUERY_BUILDER = new MatchAllQueryBuilder();
+
     @Autowired
     protected RestHighLevelClient client;
 
@@ -88,7 +90,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     protected ElasticsearchUtils elasticsearchUtils;
 
     protected Triple<Optional<QueryBuilder>, Set<String>, Set<String>> getAdminRealmsFilter(
-            final Set<String> adminRealms) {
+            final AnyTypeKind kind, final Set<String> adminRealms) {
 
         DisMaxQueryBuilder builder = QueryBuilders.disMaxQuery();
 
@@ -134,7 +136,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final int size,
             final List<SortBuilder<?>> sortBuilders) {
 
-        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter = getAdminRealmsFilter(adminRealms);
+        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter = getAdminRealmsFilter(kind, adminRealms);
         QueryBuilder queryBuilder;
         if (SyncopeConstants.FULL_ADMIN_REALMS.equals(adminRealms)) {
             queryBuilder = getQueryBuilder(cond, kind);
@@ -228,8 +230,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
         return ArrayUtils.isEmpty(esResult)
                 ? List.of()
-                : buildResult(Stream.of(Objects.requireNonNull(esResult))
-                        .map(SearchHit::getId).collect(Collectors.toList()), kind);
+                : buildResult(Stream.of(esResult).map(SearchHit::getId).collect(Collectors.toList()), kind);
     }
 
     protected QueryBuilder getQueryBuilder(final SearchCond cond, final AnyTypeKind kind) {
@@ -314,9 +315,15 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                     }
                 }
 
+                // allow for additional search conditions
+                if (builder == null) {
+                    builder = getQueryBuilderForCustomConds(cond, kind);
+                }
+
                 if (builder == null) {
                     builder = MATCH_NONE_QUERY_BUILDER;
                 }
+
                 if (cond.getType() == SearchCond.Type.NOT_LEAF) {
                     builder = QueryBuilders.boolQuery().mustNot(builder);
                 }
@@ -516,5 +523,9 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         return fillAttrQuery(checked.getLeft(), checked.getMiddle(), checked.getRight());
+    }
+
+    protected QueryBuilder getQueryBuilderForCustomConds(final SearchCond cond, final AnyTypeKind kind) {
+        return MATCH_ALL_QUERY_BUILDER;
     }
 }

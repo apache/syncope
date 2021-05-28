@@ -65,10 +65,8 @@ public class ElasticsearchIndexManager {
                 new GetIndexRequest(ElasticsearchUtils.getContextDomainName(domain, kind)), RequestOptions.DEFAULT);
     }
 
-    public void createIndex(final String domain, final AnyTypeKind kind)
-            throws InterruptedException, ExecutionException, IOException {
-
-        XContentBuilder settings = XContentFactory.jsonBuilder().
+    public XContentBuilder defaultSettings() throws IOException {
+        return XContentFactory.jsonBuilder().
                 startObject().
                 startObject("analysis").
                 startObject("normalizer").
@@ -87,8 +85,10 @@ public class ElasticsearchIndexManager {
                 field("number_of_replicas", elasticsearchUtils.getNumberOfReplicas()).
                 endObject().
                 endObject();
+    }
 
-        XContentBuilder mapping = XContentFactory.jsonBuilder().
+    public XContentBuilder defaultMapping() throws IOException {
+        return XContentFactory.jsonBuilder().
                 startObject().
                 startArray("dynamic_templates").
                 startObject().
@@ -102,6 +102,14 @@ public class ElasticsearchIndexManager {
                 endObject().
                 endArray().
                 endObject();
+    }
+
+    public void createIndex(
+            final String domain,
+            final AnyTypeKind kind,
+            final XContentBuilder settings,
+            final XContentBuilder mapping)
+            throws InterruptedException, ExecutionException, IOException {
 
         CreateIndexResponse response = client.indices().create(
                 new CreateIndexRequest(ElasticsearchUtils.getContextDomainName(domain, kind)).

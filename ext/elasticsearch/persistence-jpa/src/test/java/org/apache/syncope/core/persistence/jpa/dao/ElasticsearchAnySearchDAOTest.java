@@ -94,7 +94,8 @@ public class ElasticsearchAnySearchDAOTest {
 
         // 2. test
         Set<String> adminRealms = Set.of(SyncopeConstants.ROOT_REALM);
-        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter = searchDAO.getAdminRealmsFilter(adminRealms);
+        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter =
+                searchDAO.getAdminRealmsFilter(AnyTypeKind.USER, adminRealms);
         assertEquals(
                 QueryBuilders.disMaxQuery().add(QueryBuilders.termQuery("realm", SyncopeConstants.ROOT_REALM)),
                 filter.getLeft().get());
@@ -112,7 +113,8 @@ public class ElasticsearchAnySearchDAOTest {
 
         // 2. test
         Set<String> adminRealms = Set.of("dyn");
-        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter = searchDAO.getAdminRealmsFilter(adminRealms);
+        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter =
+                searchDAO.getAdminRealmsFilter(AnyTypeKind.USER, adminRealms);
         assertFalse(filter.getLeft().isPresent());
         assertEquals(Set.of("dyn"), filter.getMiddle());
         assertEquals(Set.of(), filter.getRight());
@@ -121,7 +123,8 @@ public class ElasticsearchAnySearchDAOTest {
     @Test
     public void getAdminRealmsFilter_groupOwner() {
         Set<String> adminRealms = Set.of(RealmUtils.getGroupOwnerRealm("/any", "groupKey"));
-        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter = searchDAO.getAdminRealmsFilter(adminRealms);
+        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter =
+                searchDAO.getAdminRealmsFilter(AnyTypeKind.USER, adminRealms);
         assertFalse(filter.getLeft().isPresent());
         assertEquals(Set.of(), filter.getMiddle());
         assertEquals(Set.of("groupKey"), filter.getRight());

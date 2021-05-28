@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.io.IOException;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -31,6 +32,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,22 +43,46 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
 
     @Autowired
-    private RestHighLevelClient client;
+    protected RestHighLevelClient client;
 
     @Autowired
-    private ElasticsearchIndexManager indexManager;
+    protected ElasticsearchIndexManager indexManager;
 
     @Autowired
-    private ElasticsearchUtils elasticsearchUtils;
+    protected ElasticsearchUtils elasticsearchUtils;
 
     @Autowired
-    private UserDAO userDAO;
+    protected UserDAO userDAO;
 
     @Autowired
-    private GroupDAO groupDAO;
+    protected GroupDAO groupDAO;
 
     @Autowired
-    private AnyObjectDAO anyObjectDAO;
+    protected AnyObjectDAO anyObjectDAO;
+
+    protected XContentBuilder userSettings() throws IOException {
+        return indexManager.defaultSettings();
+    }
+
+    protected XContentBuilder groupSettings() throws IOException {
+        return indexManager.defaultSettings();
+    }
+
+    protected XContentBuilder anyObjectSettings() throws IOException {
+        return indexManager.defaultSettings();
+    }
+
+    protected XContentBuilder userMapping() throws IOException {
+        return indexManager.defaultMapping();
+    }
+
+    protected XContentBuilder groupMapping() throws IOException {
+        return indexManager.defaultMapping();
+    }
+
+    protected XContentBuilder anyObjectMapping() throws IOException {
+        return indexManager.defaultMapping();
+    }
 
     @Override
     protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
@@ -69,17 +95,20 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 if (indexManager.existsIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER)) {
                     indexManager.removeIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER);
                 }
-                indexManager.createIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER);
+                indexManager.createIndex(
+                        AuthContextUtils.getDomain(), AnyTypeKind.USER, userSettings(), userMapping());
 
                 if (indexManager.existsIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP)) {
                     indexManager.removeIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP);
                 }
-                indexManager.createIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP);
+                indexManager.createIndex(
+                        AuthContextUtils.getDomain(), AnyTypeKind.GROUP, groupSettings(), groupMapping());
 
                 if (indexManager.existsIndex(AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT)) {
                     indexManager.removeIndex(AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT);
                 }
-                indexManager.createIndex(AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT);
+                indexManager.createIndex(
+                        AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT, anyObjectSettings(), anyObjectMapping());
 
                 LOG.debug("Indexing users...");
                 for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
