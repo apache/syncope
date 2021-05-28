@@ -847,6 +847,11 @@ any resulting litigation.
 
 ==
 
+For Eclipse Project for JAX-RS (https://projects.eclipse.org/projects/ee4j.jaxrs):
+This is licensed under the EPL 1.0, see above.
+
+==
+
 For Jakarta XML Binding (https://eclipse-ee4j.github.io/jaxb-ri/):
 This is licensed under the EPL 1.0, see above.
 
@@ -867,17 +872,12 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For javax.ws.rs-api (https://jax-rs-spec.java.net/):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
 For SAAJ Standard Implementation (https://saaj.java.net/):
 This is licensed under the CDDL 1.0, see above.
 
 ==
 
-For javax.ws.rs-api (https://jax-ws.java.net/):
+For JAX-WS (http://jax-ws.java.net/):
 This is licensed under the CDDL 1.0, see above.
 
 ==
