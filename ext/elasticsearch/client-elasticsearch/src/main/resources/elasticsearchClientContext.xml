@@ -22,7 +22,7 @@ under the License.
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="localhost" class="org.apache.http.HttpHost">
+  <bean id="httpHost" class="org.apache.http.HttpHost">
     <constructor-arg value="localhost"/>
     <constructor-arg value="9200"/>
     <constructor-arg value="http"/>
@@ -30,11 +30,11 @@ under the License.
   <bean class="org.apache.syncope.ext.elasticsearch.client.ElasticsearchClientFactoryBean">
     <constructor-arg>
       <list>
-        <ref bean="localhost"/>
+        <ref bean="httpHost"/>
       </list>
     </constructor-arg>
   </bean>
-  
+
   <bean class="org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils">
     <property name="indexMaxResultWindow" value="10000"/>
     <property name="retryOnConflict" value="5"/>

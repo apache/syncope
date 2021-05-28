@@ -404,14 +404,14 @@ under the License.
     <connid.scimv11.version>1.0.1</connid.scimv11.version>
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
-    <cxf.version>3.2.14</cxf.version>
+    <cxf.version>3.3.10</cxf.version>
 
     <jackson.version>2.11.4</jackson.version>
 
     <spring.version>5.1.20.RELEASE</spring.version>
     <spring-security.version>5.1.13.RELEASE</spring-security.version>
 
-    <openjpa.version>3.1.2</openjpa.version>
+    <openjpa.version>3.2.0</openjpa.version>
     <hikaricp.version>4.0.3</hikaricp.version>
     <bval.version>2.0.5</bval.version>
 
@@ -425,12 +425,12 @@ under the License.
 
     <flowable.version>6.6.0</flowable.version>
 
-    <camel.version>2.24.2</camel.version>	
+    <camel.version>2.25.4</camel.version>
 
     <slf4j.version>1.7.30</slf4j.version>
     <opensaml.version>3.3.1</opensaml.version>
 
-    <elasticsearch.version>6.8.16</elasticsearch.version>
+    <elasticsearch.version>7.13.0</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -502,7 +502,7 @@ under the License.
     <httpclient.version>4.5.13</httpclient.version>
     <maven-invoker.version>3.0.1</maven-invoker.version>
 
-    <tycho.version>1.2.0</tycho.version>
+    <tycho.version>1.7.0</tycho.version>
     <netbeans.version>RELEASE122</netbeans.version>
 
     <antlr4.version>4.9.2</antlr4.version>
@@ -1800,6 +1800,12 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
+        <artifactId>mockito-inline</artifactId>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
         <artifactId>mockito-junit-jupiter</artifactId>
         <version>${mockito.version}</version>
         <scope>test</scope>
@@ -2032,7 +2038,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.7.16</version>
+          <version>1.8.5</version>
           <configuration>
             <container>
               <containerId>tomcat9x</containerId>
@@ -2812,7 +2818,7 @@ under the License.
         <dependency>
           <groupId>javax.xml.ws</groupId>
           <artifactId>jaxws-api</artifactId>
-          <version>2.3.0</version>
+          <version>2.3.1</version>
         </dependency>
         <dependency>
           <groupId>javax.activation</groupId>

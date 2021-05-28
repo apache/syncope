@@ -35,7 +35,6 @@ import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,22 +45,26 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class ElasticsearchUtils {
 
-    @Autowired
-    private UserDAO userDAO;
+    public static String getContextDomainName(final String domain, final AnyTypeKind kind) {
+        return domain.toLowerCase() + '_' + kind.name().toLowerCase();
+    }
 
     @Autowired
-    private GroupDAO groupDAO;
+    protected UserDAO userDAO;
 
     @Autowired
-    private AnyObjectDAO anyObjectDAO;
+    protected GroupDAO groupDAO;
 
-    private int indexMaxResultWindow = 10000;
+    @Autowired
+    protected AnyObjectDAO anyObjectDAO;
 
-    private int retryOnConflict = 5;
+    protected int indexMaxResultWindow = 10000;
 
-    private int numberOfShards = 1;
+    protected int retryOnConflict = 5;
 
-    private int numberOfReplicas = 1;
+    protected int numberOfShards = 1;
+
+    protected int numberOfReplicas = 1;
 
     public void setIndexMaxResultWindow(final int indexMaxResultWindow) {
         this.indexMaxResultWindow = indexMaxResultWindow;
@@ -112,7 +115,7 @@ public class ElasticsearchUtils {
                 field("creationDate", any.getCreationDate()).
                 field("creator", any.getCreator()).
                 field("lastChangeDate", any.getLastChangeDate()).
-                field("lastModified", any.getLastModifier()).
+                field("lastModifier", any.getLastModifier()).
                 field("status", any.getStatus()).
                 field("resources",
                         any instanceof User
@@ -142,6 +145,8 @@ public class ElasticsearchUtils {
             });
             builder = builder.field("relationships", relationships);
             builder = builder.field("relationshipTypes", relationshipTypes);
+
+            builder = customizeBuilder(builder, anyObject);
         } else if (any instanceof Group) {
             Group group = ((Group) any);
             builder = builder.field("name", group.getName());
@@ -159,6 +164,8 @@ public class ElasticsearchUtils {
                     map(membership -> membership.getLeftEnd().getKey()).collect(Collectors.toList()));
             members.add(groupDAO.findADynMembers(group));
             builder = builder.field("members", members);
+
+            builder = customizeBuilder(builder, group);
         } else if (any instanceof User) {
             User user = ((User) any);
             builder = builder.
@@ -191,6 +198,8 @@ public class ElasticsearchUtils {
             });
             builder = builder.field("relationships", relationships);
             builder = builder.field("relationshipTypes", relationshipTypes);
+
+            builder = customizeBuilder(builder, user);
         }
 
         for (PlainAttr<?> plainAttr : any.getPlainAttrs()) {
@@ -207,7 +216,17 @@ public class ElasticsearchUtils {
         return builder.endObject();
     }
 
-    public String getContextDomainName(final AnyTypeKind kind) {
-        return AuthContextUtils.getDomain().toLowerCase() + "_" + kind.name().toLowerCase();
+    protected XContentBuilder customizeBuilder(final XContentBuilder builder, final AnyObject anyObject)
+            throws IOException {
+
+        return builder;
+    }
+
+    protected XContentBuilder customizeBuilder(final XContentBuilder builder, final Group group) throws IOException {
+        return builder;
+    }
+
+    protected XContentBuilder customizeBuilder(final XContentBuilder builder, final User user) throws IOException {
+        return builder;
     }
 }

@@ -599,11 +599,6 @@ This is licensed under the CDDL 1.0, see above.
 
 ==
 
-For javax.ws.rs-api (https://jax-rs-spec.java.net/):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
 For Joda Time (http://www.joda.org/joda-time/):
 This is licensed under the AL 2.0, see above.
 
@@ -894,3 +889,9 @@ This is licensed under the EPL 1.0, see above.
 
 For Eclipse SWT (https://projects.eclipse.org/projects/eclipse.platform.swt):
 This is licensed under the EPL 1.0, see above.
+
+==
+
+This product includes software developed by the Eclipse Project for JAX-RS.
+Eclipse Project for JAX-RS is a trademark of the Eclipse Foundation.
+All content is the property of the respective authors or their employers. For more information regarding authorship of content, please consult the listed source code repository logs.
