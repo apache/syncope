@@ -122,6 +122,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
         if (taskTO instanceof PushTaskTO) {
             form.add(new Label("realm", ""));
+            form.add(new Label("remediation", ""));
         } else {
             boolean isSearchEnabled = RealmsUtils.isSearchEnabled();
             AutoCompleteSettings settings = new AutoCompleteSettings();
@@ -155,6 +156,9 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
                 realm.setEnabled(false);
             }
             form.add(realm);
+
+            form.add(new AjaxCheckBoxPanel(
+                    "remediation", "remediation", new PropertyModel<>(taskTO, "remediation"), false));
         }
 
         AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().

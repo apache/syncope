@@ -81,12 +81,15 @@ import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.beans.RemediationQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
@@ -807,6 +810,61 @@ public class PullTaskITCase extends AbstractTaskITCase {
             }
         } finally {
             resourceService.delete(ldap.getKey());
+        }
+    }
+
+    @Test
+    public void remediationSinglePull() throws IOException {
+        // First of all, clear any potential conflict with existing user / group
+        ldapCleanup();
+
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        ldap.setKey("ldapForRemediationSinglePull");
+
+        ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
+        provision.getMapping().getItems().removeIf(item -> "userId".equals(item.getIntAttrName()));
+        provision.getMapping().getItems().removeIf(item -> "email".equals(item.getIntAttrName()));
+        provision.getVirSchemas().clear();
+
+        ldap.getProvisions().clear();
+        ldap.getProvisions().add(provision);
+
+        ldap = createResource(ldap);
+
+        try {
+            // 2. pull an user
+            PullTaskTO pullTask = new PullTaskTO();
+            pullTask.setResource(ldap.getKey());
+            pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+            pullTask.setRemediation(true);
+            pullTask.setPerformCreate(true);
+            pullTask.setPerformUpdate(true);
+            pullTask.setUnmatchingRule(UnmatchingRule.ASSIGN);
+            pullTask.setMatchingRule(MatchingRule.UPDATE);
+
+            try {
+                reconciliationService.pull(new ReconQuery.Builder(AnyTypeKind.USER.name(), ldap.getKey()).fiql(
+                        "uid==pullFromLDAP").build(), pullTask);
+                fail("Should not arrive here");
+            } catch (SyncopeClientException sce) {
+                assertEquals(ClientExceptionType.Reconciliation, sce.getType());
+            }
+            Optional<RemediationTO> remediation = remediationService.list(
+                    new RemediationQuery.Builder().page(1).size(1000).build()).getResult().stream().
+                    filter(r -> "uid=pullFromLDAP,ou=People,o=isp".equalsIgnoreCase(r.getRemoteName())).
+                    findFirst();
+            assertTrue(remediation.isPresent());
+            assertEquals(AnyTypeKind.USER.name(), remediation.get().getAnyType());
+            assertEquals(ResourceOperation.CREATE, remediation.get().getOperation());
+            assertNotNull(remediation.get().getAnyTOPayload());
+            assertNull(remediation.get().getAnyPatchPayload());
+            assertNull(remediation.get().getKeyPayload());
+            assertTrue(remediation.get().getError().contains(
+                    "SyncopeClientCompositeException: {[RequiredValuesMissing [userId]]}"));
+        } finally {
+            resourceService.delete(ldap.getKey());
+            remediationService.list(new RemediationQuery.Builder().page(1).size(10).build()).getResult().forEach(
+                    r -> remediationService.delete(r.getKey()));
         }
     }
 

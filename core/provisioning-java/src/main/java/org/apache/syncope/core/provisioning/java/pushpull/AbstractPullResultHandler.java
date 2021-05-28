@@ -57,6 +57,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionExceptio
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
+import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
@@ -87,6 +88,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     @Autowired
     protected UserDAO userDAO;
+
+    @Autowired
+    protected TaskDAO taskDAO;
 
     @Autowired
     protected RemediationDAO remediationDAO;
@@ -206,19 +210,18 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             result.setKey(null);
             end(provision.getAnyType().getKind(), UnmatchingRule.toEventName(rule), Result.SUCCESS, null, null, delta);
         } else {
-            for (PullActions action : profile.getActions()) {
-                if (rule == UnmatchingRule.ASSIGN) {
-                    action.beforeAssign(profile, delta, anyTO);
-                } else if (rule == UnmatchingRule.PROVISION) {
-                    action.beforeProvision(profile, delta, anyTO);
-                }
-            }
-            result.setName(getName(anyTO));
-
             Object output;
             Result resultStatus;
-
             try {
+                for (PullActions action : profile.getActions()) {
+                    if (rule == UnmatchingRule.ASSIGN) {
+                        action.beforeAssign(profile, delta, anyTO);
+                    } else if (rule == UnmatchingRule.PROVISION) {
+                        action.beforeProvision(profile, delta, anyTO);
+                    }
+                }
+                result.setName(getName(anyTO));
+
                 AnyTO created = doCreate(anyTO, delta);
                 output = created;
                 result.setKey(created.getKey());
@@ -253,7 +256,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     entity.setError(result.getMessage());
                     entity.setInstant(new Date());
                     entity.setRemoteName(delta.getObject().getName().getNameValue());
-                    entity.setPullTask(profile.getTask());
+                    if (taskDAO.find(profile.getTask().getKey()) != null) {
+                        entity.setPullTask(profile.getTask());
+                    }
 
                     remediationDAO.save(entity);
                 }
