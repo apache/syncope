@@ -104,6 +104,7 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
@@ -454,6 +455,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    @Transactional(noRollbackFor = SyncopeClientException.class)
     public List<ProvisioningReport> pull(
             final String anyTypeKey,
             final String resourceKey,
@@ -484,6 +486,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    @Transactional(noRollbackFor = SyncopeClientException.class)
     public List<ProvisioningReport> pull(
             final String anyTypeKey,
             final String resourceKey,
@@ -626,6 +629,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    @Transactional(noRollbackFor = SyncopeClientException.class)
     public List<ProvisioningReport> pull(final CSVPullSpec spec, final InputStream csv) {
         AnyType anyType = anyTypeDAO.find(spec.getAnyTypeKey());
         if (anyType == null) {
