@@ -381,13 +381,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         Implementation jobDelegate = implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                 filter(impl -> GroupMemberProvisionTaskJobDelegate.class.getName().equals(impl.getBody())).
                 findFirst().orElseGet(() -> {
-                    Implementation caz = entityFactory.newEntity(Implementation.class);
-                    caz.setKey(GroupMemberProvisionTaskJobDelegate.class.getSimpleName());
-                    caz.setEngine(ImplementationEngine.JAVA);
-                    caz.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
-                    caz.setBody(GroupMemberProvisionTaskJobDelegate.class.getName());
-                    caz = implementationDAO.save(caz);
-                    return caz;
+                    Implementation groupMemberProvision = entityFactory.newEntity(Implementation.class);
+                    groupMemberProvision.setKey(GroupMemberProvisionTaskJobDelegate.class.getSimpleName());
+                    groupMemberProvision.setEngine(ImplementationEngine.JAVA);
+                    groupMemberProvision.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
+                    groupMemberProvision.setBody(GroupMemberProvisionTaskJobDelegate.class.getName());
+                    groupMemberProvision = implementationDAO.save(groupMemberProvision);
+                    return groupMemberProvision;
                 });
 
         SchedTask task = entityFactory.newEntity(SchedTask.class);
