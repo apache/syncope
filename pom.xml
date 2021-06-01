@@ -503,7 +503,7 @@ under the License.
     <maven-invoker.version>3.0.1</maven-invoker.version>
 
     <tycho.version>1.7.0</tycho.version>
-    <netbeans.version>RELEASE122</netbeans.version>
+    <netbeans.version>RELEASE124</netbeans.version>
 
     <antlr4.version>4.9.2</antlr4.version>
 
