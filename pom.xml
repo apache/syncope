@@ -477,7 +477,7 @@ under the License.
     <wicket-bootstrap.version>5.0.4</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
 
-    <netbeans.version>RELEASE123</netbeans.version>
+    <netbeans.version>RELEASE124</netbeans.version>
 
     <antlr4.version>4.9.2</antlr4.version>
 
