@@ -408,8 +408,8 @@ under the License.
 
     <jackson.version>2.11.4</jackson.version>
 
-    <spring.version>5.1.20.RELEASE</spring.version>
-    <spring-security.version>5.1.13.RELEASE</spring-security.version>
+    <spring.version>5.2.15.RELEASE</spring.version>
+    <spring-security.version>5.2.10.RELEASE</spring-security.version>
 
     <openjpa.version>3.2.0</openjpa.version>
     <hikaricp.version>4.0.3</hikaricp.version>
