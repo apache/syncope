@@ -49,7 +49,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
     protected ElasticsearchIndexManager indexManager;
 
     @Autowired
-    protected ElasticsearchUtils elasticsearchUtils;
+    protected ElasticsearchUtils utils;
 
     @Autowired
     protected UserDAO userDAO;
@@ -115,7 +115,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                                 ElasticsearchUtils.getContextDomainName(
                                         AuthContextUtils.getDomain(), AnyTypeKind.USER)).
                                 id(user).
-                                source(elasticsearchUtils.builder(userDAO.find(user)));
+                                source(utils.builder(userDAO.find(user), AuthContextUtils.getDomain()));
                         IndexResponse response = client.index(request, RequestOptions.DEFAULT);
                         LOG.debug("Index successfully created for {}: {}", user, response);
                     }
@@ -128,7 +128,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                                 ElasticsearchUtils.getContextDomainName(
                                         AuthContextUtils.getDomain(), AnyTypeKind.GROUP)).
                                 id(group).
-                                source(elasticsearchUtils.builder(groupDAO.find(group)));
+                                source(utils.builder(groupDAO.find(group), AuthContextUtils.getDomain()));
                         IndexResponse response = client.index(request, RequestOptions.DEFAULT);
                         LOG.debug("Index successfully created for {}: {}", group, response);
                     }
@@ -141,7 +141,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                                 ElasticsearchUtils.getContextDomainName(
                                         AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT)).
                                 id(anyObject).
-                                source(elasticsearchUtils.builder(anyObjectDAO.find(anyObject)));
+                                source(utils.builder(anyObjectDAO.find(anyObject), AuthContextUtils.getDomain()));
                         IndexResponse response = client.index(request, RequestOptions.DEFAULT);
                         LOG.debug("Index successfully created for {}: {}", anyObject, response);
                     }

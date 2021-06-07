@@ -141,7 +141,7 @@ public class ElasticsearchIndexManager {
                             AuthContextUtils.getDomain(), event.getAny().getType().getKind()),
                     event.getAny().getKey()).
                     retryOnConflict(elasticsearchUtils.getRetryOnConflict()).
-                    doc(elasticsearchUtils.builder(event.getAny()));
+                    doc(elasticsearchUtils.builder(event.getAny(), event.getDomain()));
             UpdateResponse response = client.update(request, RequestOptions.DEFAULT);
             LOG.debug("Index successfully updated for {}: {}", event.getAny(), response);
         } else {
@@ -151,7 +151,7 @@ public class ElasticsearchIndexManager {
                     ElasticsearchUtils.getContextDomainName(
                             AuthContextUtils.getDomain(), event.getAny().getType().getKind())).
                     id(event.getAny().getKey()).
-                    source(elasticsearchUtils.builder(event.getAny()));
+                    source(elasticsearchUtils.builder(event.getAny(), event.getDomain()));
             IndexResponse response = client.index(request, RequestOptions.DEFAULT);
             LOG.debug("Index successfully created for {}: {}", event.getAny(), response);
         }
