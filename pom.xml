@@ -439,7 +439,7 @@ under the License.
     <log4j.version>2.14.1</log4j.version>
     <disruptor.version>3.4.4</disruptor.version>
     
-    <commons-jexl.version>3.2</commons-jexl.version>
+    <commons-jexl.version>3.1</commons-jexl.version>
     <commons-lang.version>3.12.0</commons-lang.version>
     <commons-text.version>1.9</commons-text.version>
     <commons-codec.version>1.15</commons-codec.version>
@@ -640,49 +640,9 @@ under the License.
 
       <!-- Camel -->
       <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-core</artifactId>
+        <groupId>org.apache.camel.springboot</groupId>
+        <artifactId>camel-spring-boot-starter</artifactId>
         <version>${camel.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-spring</artifactId>
-        <version>${camel.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-spring-javaconfig</artifactId>
-        <version>${camel.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
@@ -2029,6 +1989,13 @@ under the License.
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-client</artifactId>
         <version>9.4.20.v20190813</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
         <scope>test</scope>
       </dependency>
 

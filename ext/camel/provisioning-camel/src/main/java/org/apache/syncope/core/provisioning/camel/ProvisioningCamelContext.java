@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.camel;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.spring.javaconfig.CamelConfiguration;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -28,16 +26,10 @@ import org.springframework.context.annotation.Configuration;
 
 @ComponentScan("org.apache.syncope.core.provisioning.camel")
 @Configuration
-public class ProvisioningCamelContext extends CamelConfiguration {
+public class ProvisioningCamelContext {
 
     @Value("${camel.directory}")
     private String camelDirectory;
-
-    @Override
-    protected void setupCamelContext(final CamelContext camelContext) throws Exception {
-        camelContext.setStreamCaching(false);
-        camelContext.setAllowUseOriginalMessage(false);
-    }
 
     @Bean
     public ResourceWithFallbackLoader userRoutes() {
