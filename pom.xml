@@ -406,7 +406,7 @@ under the License.
 
     <cxf.version>3.4.3</cxf.version>
     <bouncycastle.version>1.68</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.9.3</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.10</nimbus-jose-jwt.version>
 
     <jackson.version>2.12.3</jackson.version>
 
@@ -439,7 +439,7 @@ under the License.
     <log4j.version>2.14.1</log4j.version>
     <disruptor.version>3.4.4</disruptor.version>
     
-    <commons-jexl.version>3.1</commons-jexl.version>
+    <commons-jexl.version>3.2</commons-jexl.version>
     <commons-lang.version>3.12.0</commons-lang.version>
     <commons-text.version>1.9</commons-text.version>
     <commons-codec.version>1.15</commons-codec.version>

@@ -35,6 +35,7 @@ import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,53 +103,62 @@ public class ElasticsearchUtils {
      * Returns the builder specialized with content from the provided any.
      *
      * @param any user, group or any object to index
+     * @param domain tenant information
      * @return builder specialized with content from the provided any
      * @throws IOException in case of errors
      */
     @Transactional
-    public XContentBuilder builder(final Any<?> any) throws IOException {
+    public XContentBuilder builder(final Any<?> any, final String domain) throws IOException {
+        Set<String> resources = new HashSet<>();
+        List<String> dynRealms = new ArrayList<>();
+        AuthContextUtils.callAsAdmin(domain, () -> {
+            resources.addAll(any instanceof User
+                    ? userDAO.findAllResourceKeys(any.getKey())
+                    : any instanceof AnyObject
+                            ? anyObjectDAO.findAllResourceKeys(any.getKey())
+                            : groupDAO.findAllResourceKeys(any.getKey()));
+            dynRealms.addAll(any instanceof User
+                    ? userDAO.findDynRealms(any.getKey())
+                    : any instanceof AnyObject
+                            ? anyObjectDAO.findDynRealms(any.getKey())
+                            : groupDAO.findDynRealms(any.getKey()));
+            return null;
+        });
+
         XContentBuilder builder = XContentFactory.jsonBuilder().
                 startObject().
                 field("id", any.getKey()).
                 field("realm", any.getRealm().getFullPath()).
                 field("anyType", any.getType().getKey()).
                 field("creationDate", any.getCreationDate()).
-                field("creationContext", any.getCreationContext()).
                 field("creator", any.getCreator()).
                 field("lastChangeDate", any.getLastChangeDate()).
                 field("lastModifier", any.getLastModifier()).
-                field("lastChangeContext", any.getLastChangeContext()).
                 field("status", any.getStatus()).
-                field("resources",
-                        any instanceof User
-                                ? userDAO.findAllResourceKeys(any.getKey())
-                                : any instanceof AnyObject
-                                        ? anyObjectDAO.findAllResourceKeys(any.getKey())
-                                        : groupDAO.findAllResourceKeys(any.getKey())).
-                field("dynRealms",
-                        any instanceof User
-                                ? userDAO.findDynRealms(any.getKey())
-                                : any instanceof AnyObject
-                                        ? anyObjectDAO.findDynRealms(any.getKey())
-                                        : groupDAO.findDynRealms(any.getKey()));
+                field("resources", resources).
+                field("dynRealms", dynRealms);
 
         if (any instanceof AnyObject) {
             AnyObject anyObject = ((AnyObject) any);
             builder = builder.field("name", anyObject.getName());
 
-            List<Object> memberships = new ArrayList<>(anyObjectDAO.findAllGroupKeys(anyObject));
+            Collection<String> memberships = AuthContextUtils.callAsAdmin(
+                    domain, () -> anyObjectDAO.findAllGroupKeys(anyObject));
             builder = builder.field("memberships", memberships);
 
-            List<Object> relationships = new ArrayList<>();
-            List<Object> relationshipTypes = new ArrayList<>();
-            anyObjectDAO.findAllRelationships(anyObject).forEach(relationship -> {
-                relationships.add(relationship.getRightEnd().getKey());
-                relationshipTypes.add(relationship.getType().getKey());
+            List<String> relationships = new ArrayList<>();
+            List<String> relationshipTypes = new ArrayList<>();
+            AuthContextUtils.callAsAdmin(domain, () -> {
+                anyObjectDAO.findAllRelationships(anyObject).forEach(relationship -> {
+                    relationships.add(relationship.getRightEnd().getKey());
+                    relationshipTypes.add(relationship.getType().getKey());
+                });
+                return null;
             });
             builder = builder.field("relationships", relationships);
             builder = builder.field("relationshipTypes", relationshipTypes);
 
-            builder = customizeBuilder(builder, anyObject);
+            builder = customizeBuilder(builder, anyObject, domain);
         } else if (any instanceof Group) {
             Group group = ((Group) any);
             builder = builder.field("name", group.getName());
@@ -159,15 +169,19 @@ public class ElasticsearchUtils {
                 builder = builder.field("groupOwner", group.getGroupOwner().getKey());
             }
 
-            List<Object> members = groupDAO.findUMemberships(group).stream().
-                    map(membership -> membership.getLeftEnd().getKey()).collect(Collectors.toList());
-            members.add(groupDAO.findUDynMembers(group));
-            members.addAll(groupDAO.findAMemberships(group).stream().
-                    map(membership -> membership.getLeftEnd().getKey()).collect(Collectors.toList()));
-            members.add(groupDAO.findADynMembers(group));
+            List<String> members = new ArrayList<>();
+            AuthContextUtils.callAsAdmin(domain, () -> {
+                members.addAll(groupDAO.findUMemberships(group).stream().
+                        map(membership -> membership.getLeftEnd().getKey()).collect(Collectors.toList()));
+                members.addAll(groupDAO.findUDynMembers(group));
+                members.addAll(groupDAO.findAMemberships(group).stream().
+                        map(membership -> membership.getLeftEnd().getKey()).collect(Collectors.toList()));
+                members.addAll(groupDAO.findADynMembers(group));
+                return null;
+            });
             builder = builder.field("members", members);
 
-            builder = customizeBuilder(builder, group);
+            builder = customizeBuilder(builder, group, domain);
         } else if (any instanceof User) {
             User user = ((User) any);
             builder = builder.
@@ -182,14 +196,18 @@ public class ElasticsearchUtils {
 
             List<String> roles = new ArrayList<>();
             Set<String> privileges = new HashSet<>();
-            userDAO.findAllRoles(user).forEach(role -> {
-                roles.add(role.getKey());
-                privileges.addAll(role.getPrivileges().stream().map(Privilege::getKey).collect(Collectors.toSet()));
+            AuthContextUtils.callAsAdmin(domain, () -> {
+                userDAO.findAllRoles(user).forEach(role -> {
+                    roles.add(role.getKey());
+                    privileges.addAll(role.getPrivileges().stream().map(Privilege::getKey).collect(Collectors.toSet()));
+                });
+                return null;
             });
             builder = builder.field("roles", roles);
             builder = builder.field("privileges", privileges);
 
-            Collection<String> memberships = userDAO.findAllGroupKeys(user);
+            Collection<String> memberships = AuthContextUtils.callAsAdmin(
+                    domain, () -> userDAO.findAllGroupKeys(user));
             builder = builder.field("memberships", memberships);
 
             List<String> relationships = new ArrayList<>();
@@ -201,7 +219,7 @@ public class ElasticsearchUtils {
             builder = builder.field("relationships", relationships);
             builder = builder.field("relationshipTypes", relationshipTypes);
 
-            builder = customizeBuilder(builder, user);
+            builder = customizeBuilder(builder, user, domain);
         }
 
         for (PlainAttr<?> plainAttr : any.getPlainAttrs()) {
@@ -218,17 +236,23 @@ public class ElasticsearchUtils {
         return builder.endObject();
     }
 
-    protected XContentBuilder customizeBuilder(final XContentBuilder builder, final AnyObject anyObject)
+    protected XContentBuilder customizeBuilder(
+            final XContentBuilder builder, final AnyObject anyObject, final String domain)
             throws IOException {
 
         return builder;
     }
 
-    protected XContentBuilder customizeBuilder(final XContentBuilder builder, final Group group) throws IOException {
+    protected XContentBuilder customizeBuilder(
+            final XContentBuilder builder, final Group group, final String domain)
+            throws IOException {
+
         return builder;
     }
 
-    protected XContentBuilder customizeBuilder(final XContentBuilder builder, final User user) throws IOException {
+    protected XContentBuilder customizeBuilder(final XContentBuilder builder, final User user, final String domain)
+            throws IOException {
+
         return builder;
     }
 }
