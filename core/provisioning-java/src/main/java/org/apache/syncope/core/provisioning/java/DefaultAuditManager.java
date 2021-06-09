@@ -129,32 +129,34 @@ public class DefaultAuditManager implements AuditManager {
             final Object output,
             final Object... input) {
 
-        Throwable throwable = null;
-        if (output instanceof Throwable) {
-            throwable = (Throwable) output;
-        }
-
-        AuditEntry auditEntry = new AuditEntry();
-        auditEntry.setWho(who);
-        auditEntry.setLogger(new AuditLoggerName.Builder().
-                type(type).category(category).subcategory(subcategory).event(event).result(condition).build());
-        auditEntry.setDate(new Date());
-        auditEntry.setBefore(POJOHelper.serialize((maskSensitive(before))));
-        if (throwable == null) {
-            auditEntry.setOutput(POJOHelper.serialize((maskSensitive(output))));
-        } else {
-            auditEntry.setOutput(throwable.getMessage());
-            auditEntry.setThrowable(ExceptionUtils2.getFullStackTrace(throwable));
-        }
-        if (input != null) {
-            auditEntry.getInputs().addAll(Arrays.stream(input).
-                    map(DefaultAuditManager::maskSensitive).map(POJOHelper::serialize).
-                    collect(Collectors.toList()));
-        }
+        AuditLoggerName auditLoggerName = new AuditLoggerName.Builder().
+                type(type).category(category).subcategory(subcategory).event(event).result(condition).build();
 
         org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
-                loggerDAO.find(auditEntry.getLogger().toLoggerName());
+                loggerDAO.find(auditLoggerName.toLoggerName());
         if (syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG) {
+            Throwable throwable = null;
+            if (output instanceof Throwable) {
+                throwable = (Throwable) output;
+            }
+
+            AuditEntry auditEntry = new AuditEntry();
+            auditEntry.setWho(who);
+            auditEntry.setLogger(auditLoggerName);
+            auditEntry.setDate(new Date());
+            auditEntry.setBefore(POJOHelper.serialize((maskSensitive(before))));
+            if (throwable == null) {
+                auditEntry.setOutput(POJOHelper.serialize((maskSensitive(output))));
+            } else {
+                auditEntry.setOutput(throwable.getMessage());
+                auditEntry.setThrowable(ExceptionUtils2.getFullStackTrace(throwable));
+            }
+            if (input != null) {
+                auditEntry.getInputs().addAll(Arrays.stream(input).
+                        map(DefaultAuditManager::maskSensitive).map(POJOHelper::serialize).
+                        collect(Collectors.toList()));
+            }
+
             Logger logger = LoggerFactory.getLogger(
                     AuditLoggerName.getAuditLoggerName(AuthContextUtils.getDomain()));
             Logger eventLogger = LoggerFactory.getLogger(

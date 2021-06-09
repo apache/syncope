@@ -82,7 +82,7 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory, Sy
     @Override
     public Connector getConnector(final ExternalResource resource) {
         // Try to re-create connector bean from underlying resource (useful for managing failover scenarios)
-        if (!ApplicationContextProvider.getBeanFactory().containsBean(getBeanName(resource))) {
+        if (!ApplicationContextProvider.getBeanFactory().containsSingleton(getBeanName(resource))) {
             registerConnector(resource);
         }
 

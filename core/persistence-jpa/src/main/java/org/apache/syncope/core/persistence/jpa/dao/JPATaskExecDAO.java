@@ -128,12 +128,12 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec> implements TaskExecDAO
     private String toOrderByStatement(final List<OrderByClause> orderByClauses) {
         StringBuilder statement = new StringBuilder();
 
-        for (OrderByClause clause : orderByClauses) {
+        orderByClauses.forEach(clause -> {
             String field = clause.getField().trim();
             if (ReflectionUtils.findField(JPATaskExec.class, field) != null) {
                 statement.append("e.").append(field).append(' ').append(clause.getDirection().name());
             }
-        }
+        });
 
         if (statement.length() == 0) {
             statement.append("ORDER BY e.id DESC");
@@ -164,13 +164,14 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec> implements TaskExecDAO
         return query.getResultList();
     }
 
+    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public TaskExec save(final TaskExec execution) {
         return entityManager().merge(execution);
     }
 
-    @Override
     @Transactional(rollbackFor = { Throwable.class })
+    @Override
     public void saveAndAdd(final String taskKey, final TaskExec execution) {
         Task task = taskDAO.find(taskKey);
         task.add(execution);

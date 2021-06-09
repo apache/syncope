@@ -300,6 +300,8 @@ public class DefaultNotificationManager implements NotificationManager {
             final Object output,
             final Object... input) {
 
+        String currentEvent = AuditLoggerName.buildEvent(type, category, subcategory, event, condition);
+
         Any<?> any = null;
 
         if (before instanceof UserTO) {
@@ -338,13 +340,11 @@ public class DefaultNotificationManager implements NotificationManager {
         List<NotificationTask> notifications = new ArrayList<>();
         for (Notification notification : notificationDAO.findAll()) {
             if (LOG.isDebugEnabled()) {
-                notification.getAbouts().forEach(about -> {
-                    LOG.debug("Notification about {} defined: {}", about.getAnyType(), about.get());
-                });
+                notification.getAbouts().
+                        forEach(a -> LOG.debug("Notification about {} defined: {}", a.getAnyType(), a.get()));
             }
 
             if (notification.isActive()) {
-                String currentEvent = AuditLoggerName.buildEvent(type, category, subcategory, event, condition);
                 if (!notification.getEvents().contains(currentEvent)) {
                     LOG.debug("No events found about {}", any);
                 } else if (anyType == null || any == null
@@ -354,7 +354,7 @@ public class DefaultNotificationManager implements NotificationManager {
 
                     LOG.debug("Creating notification task for event {} about {}", currentEvent, any);
 
-                    final Map<String, Object> model = new HashMap<>();
+                    Map<String, Object> model = new HashMap<>();
                     model.put("who", who);
                     model.put("type", type);
                     model.put("category", category);

@@ -169,7 +169,7 @@ public class ElasticsearchUtils {
                 builder = builder.field("groupOwner", group.getGroupOwner().getKey());
             }
 
-            List<String> members = new ArrayList<>();
+            Set<String> members = new HashSet<>();
             AuthContextUtils.execWithAuthContext(domain, () -> {
                 members.addAll(groupDAO.findUMemberships(group).stream().
                         map(membership -> membership.getLeftEnd().getKey()).collect(Collectors.toList()));
