@@ -404,7 +404,7 @@ under the License.
     <connid.scimv11.version>1.0.1</connid.scimv11.version>
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
-    <cxf.version>3.3.10</cxf.version>
+    <cxf.version>3.3.11</cxf.version>
 
     <jackson.version>2.11.4</jackson.version>
 
@@ -1777,7 +1777,7 @@ under the License.
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
-        <version>1.68</version>
+        <version>1.69</version>
         <scope>test</scope>
       </dependency>
       <dependency>
