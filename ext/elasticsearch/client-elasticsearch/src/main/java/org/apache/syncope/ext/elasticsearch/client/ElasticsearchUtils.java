@@ -131,9 +131,11 @@ public class ElasticsearchUtils {
                 field("realm", any.getRealm().getFullPath()).
                 field("anyType", any.getType().getKey()).
                 field("creationDate", any.getCreationDate()).
+                field("creationContext", any.getCreationContext()).
                 field("creator", any.getCreator()).
                 field("lastChangeDate", any.getLastChangeDate()).
                 field("lastModifier", any.getLastModifier()).
+                field("lastChangeContext", any.getLastChangeContext()).
                 field("status", any.getStatus()).
                 field("resources", resources).
                 field("dynRealms", dynRealms);
@@ -169,7 +171,7 @@ public class ElasticsearchUtils {
                 builder = builder.field("groupOwner", group.getGroupOwner().getKey());
             }
 
-            List<String> members = new ArrayList<>();
+            Set<String> members = new HashSet<>();
             AuthContextUtils.callAsAdmin(domain, () -> {
                 members.addAll(groupDAO.findUMemberships(group).stream().
                         map(membership -> membership.getLeftEnd().getKey()).collect(Collectors.toList()));

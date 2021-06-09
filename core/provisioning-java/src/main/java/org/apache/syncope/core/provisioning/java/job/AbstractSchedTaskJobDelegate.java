@@ -141,7 +141,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         execution.setEnd(new Date());
 
         if (hasToBeRegistered(execution)) {
-            taskExecDAO.saveAndAdd(taskKey, execution);
+            register(execution);
         }
         task = taskDAO.save(task);
 
@@ -188,5 +188,9 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
      */
     protected boolean hasToBeRegistered(final TaskExec execution) {
         return false;
+    }
+
+    protected void register(final TaskExec execution) {
+        taskExecDAO.saveAndAdd(task.getKey(), execution);
     }
 }
