@@ -630,6 +630,19 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         return report.toString();
     }
 
+    protected Connector getConnector(final T provisioningTask) throws JobExecutionException {
+        Connector connector;
+        try {
+            connector = connFactory.getConnector(provisioningTask.getResource());
+        } catch (Exception e) {
+            String msg = String.format("Connector instance bean for resource %s and connInstance %s not found",
+                    provisioningTask.getResource(), provisioningTask.getResource().getConnector());
+            throw new JobExecutionException(msg, e);
+        }
+
+        return connector;
+    }
+
     @Override
     protected String doExecute(final boolean dryRun, final JobExecutionContext context) throws JobExecutionException {
         try {
@@ -640,14 +653,7 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
 
             T provisioningTask = clazz.cast(task);
 
-            Connector connector;
-            try {
-                connector = connFactory.getConnector(provisioningTask.getResource());
-            } catch (Exception e) {
-                String msg = String.format("Connector instance bean for resource %s and connInstance %s not found",
-                        provisioningTask.getResource(), provisioningTask.getResource().getConnector());
-                throw new JobExecutionException(msg, e);
-            }
+            Connector connector = getConnector(provisioningTask);
 
             boolean noMapping = true;
             for (Provision provision : provisioningTask.getResource().getProvisions()) {
