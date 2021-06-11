@@ -33,6 +33,7 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.identityconnectors.common.CollectionUtil;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -54,10 +55,7 @@ import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
-import org.springframework.util.CollectionUtils;
 
 public class ConnectorFacadeProxy implements Connector {
 
@@ -75,20 +73,21 @@ public class ConnectorFacadeProxy implements Connector {
      */
     private final ConnInstance connInstance;
 
-    @Autowired
-    private AsyncConnectorFacade asyncFacade;
+    private final AsyncConnectorFacade asyncFacade;
 
     /**
      * Use the passed connector instance to build a ConnectorFacade that will be used to make all wrapped calls.
      *
      * @param connInstance the connector instance
+     * @param asyncFacade the async connectot facade
      * @see ConnectorInfo
      * @see APIConfiguration
      * @see ConfigurationProperties
      * @see ConnectorFacade
      */
-    public ConnectorFacadeProxy(final ConnInstance connInstance) {
+    public ConnectorFacadeProxy(final ConnInstance connInstance, final AsyncConnectorFacade asyncFacade) {
         this.connInstance = connInstance;
+        this.asyncFacade = asyncFacade;
 
         ConnIdBundleManager connIdBundleManager =
                 ApplicationContextProvider.getBeanFactory().getBean(ConnIdBundleManager.class);
@@ -105,7 +104,7 @@ public class ConnectorFacadeProxy implements Connector {
         // set connector configuration according to conninstance's
         ConfigurationProperties properties = apiConfig.getConfigurationProperties();
         connInstance.getConf().stream().
-                filter(property -> !CollectionUtils.isEmpty(property.getValues())).
+                filter(property -> !CollectionUtil.isEmpty(property.getValues())).
                 forEach(property -> properties.setPropertyValue(
                 property.getSchema().getName(),
                 getPropertyValue(property.getSchema().getType(), property.getValues())));
@@ -257,7 +256,6 @@ public class ConnectorFacadeProxy implements Connector {
         }
     }
 
-    @Transactional
     @Override
     public void sync(final ObjectClass objectClass, final SyncToken token, final SyncResultsHandler handler,
             final OperationOptions options) {
@@ -298,7 +296,6 @@ public class ConnectorFacadeProxy implements Connector {
         return result;
     }
 
-    @Transactional
     @Override
     public void fullReconciliation(
             final ObjectClass objectClass,
@@ -308,7 +305,6 @@ public class ConnectorFacadeProxy implements Connector {
         Connector.super.fullReconciliation(objectClass, handler, options);
     }
 
-    @Transactional
     @Override
     public void filteredReconciliation(
             final ObjectClass objectClass,

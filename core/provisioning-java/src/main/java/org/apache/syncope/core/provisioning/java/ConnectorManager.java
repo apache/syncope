@@ -68,6 +68,9 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
     @Autowired
     private ConnInstanceDataBinder connInstanceDataBinder;
 
+    @Autowired
+    private AsyncConnectorFacade asyncFacade;
+
     private EntityFactory entityFactory;
 
     private static String getBeanName(final ExternalResource resource) {
@@ -76,13 +79,18 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
     }
 
     @Override
+    public Optional<Connector> readConnector(final ExternalResource resource) {
+        return Optional.ofNullable((Connector) ApplicationContextProvider.getBeanFactory().
+                getSingleton(getBeanName(resource)));
+    }
+
+    @Override
     public Connector getConnector(final ExternalResource resource) {
         // Try to re-create connector bean from underlying resource (useful for managing failover scenarios)
-        if (!ApplicationContextProvider.getBeanFactory().containsSingleton(getBeanName(resource))) {
+        return readConnector(resource).orElseGet(() -> {
             registerConnector(resource);
-        }
-
-        return ApplicationContextProvider.getBeanFactory().getBean(getBeanName(resource), Connector.class);
+            return (Connector) ApplicationContextProvider.getBeanFactory().getSingleton(getBeanName(resource));
+        });
     }
 
     @Override
@@ -148,26 +156,23 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
 
     @Override
     public Connector createConnector(final ConnInstance connInstance) {
-        Connector connector = new ConnectorFacadeProxy(connInstance);
-        ApplicationContextProvider.getBeanFactory().autowireBean(connector);
-
-        return connector;
+        return new ConnectorFacadeProxy(connInstance, asyncFacade);
     }
 
     @Override
     public void registerConnector(final ExternalResource resource) {
+        String beanName = getBeanName(resource);
+
+        if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
+            unregisterConnector(beanName);
+        }
+
         ConnInstance connInstance = buildConnInstanceOverride(
                 connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
                 resource.getConfOverride(),
                 resource.isOverrideCapabilities() ? Optional.of(resource.getCapabilitiesOverride()) : Optional.empty());
         Connector connector = createConnector(connInstance);
         LOG.debug("Connector to be registered: {}", connector);
-
-        String beanName = getBeanName(resource);
-
-        if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
-            unregisterConnector(beanName);
-        }
 
         ApplicationContextProvider.getBeanFactory().registerSingleton(beanName, connector);
         LOG.debug("Successfully registered bean {}", beanName);

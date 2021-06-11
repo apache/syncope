@@ -55,12 +55,20 @@ public interface ConnectorFactory {
     Connector createConnector(ConnInstance connInstance);
 
     /**
-     * Get existing connector for the given resource.
+     * Get existing connector bean for the given resource or create if not found.
      *
-     * @param resource the resource.
-     * @return live connector bran for given resource
+     * @param resource the resource
+     * @return live connector bean for given resource
      */
     Connector getConnector(ExternalResource resource);
+
+    /*
+     * Get existing connector bean for the given resource if found.
+     *
+     * @param resource the resource.
+     * @return live connector bean for given resource
+     */
+    Optional<Connector> readConnector(ExternalResource resource);
 
     /**
      * Load connectors for all existing resources.
