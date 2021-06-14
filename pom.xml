@@ -449,7 +449,7 @@ under the License.
 
     <pac4j.version>5.0.1</pac4j.version>
 
-    <cas.version>6.4.0-RC4</cas.version>
+    <cas.version>6.4.0-RC5</cas.version>
     <cas-client.version>3.6.2</cas-client.version>
 
     <h2.version>1.4.200</h2.version>
@@ -1509,18 +1509,6 @@ under the License.
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet-core</artifactId>
           </exclusion>
-          <exclusion>
-            <groupId>com.yubico</groupId>
-            <artifactId>webauthn-server-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.yubico</groupId>
-            <artifactId>webauthn-server-attestation</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.yubico</groupId>
-            <artifactId>yubico-util</artifactId>
-          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -1544,36 +1532,8 @@ under the License.
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
           </exclusion>
-          <exclusion>
-            <groupId>com.yubico</groupId>
-            <artifactId>webauthn-server-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.yubico</groupId>
-            <artifactId>webauthn-server-attestation</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.yubico</groupId>
-            <artifactId>yubico-util</artifactId>
-          </exclusion>
         </exclusions>
       </dependency>
-      <!-- TMP until CAS 6.4.0-RC5 -->
-      <dependency>
-        <groupId>com.yubico</groupId>
-        <artifactId>webauthn-server-core</artifactId>
-        <version>1.9.1-RC2</version>
-      </dependency>
-      <dependency>
-        <groupId>com.yubico</groupId>
-        <artifactId>webauthn-server-attestation</artifactId>
-        <version>1.9.1-RC2</version>
-      </dependency>
-      <dependency>
-        <groupId>com.yubico</groupId>
-        <artifactId>yubico-util</artifactId>
-        <version>1.9.1-RC2</version>
-      </dependency>      
       <dependency>
         <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-gauth</artifactId>
@@ -2044,40 +2004,6 @@ under the License.
       <releases>
         <enabled>true</enabled>
       </releases>
-    </repository>
-
-    <!-- Disable some Spring repositories pulled in by dependencies - see
-    https://spring.io/blog/2020/10/29/notice-of-permissions-changes-to-repo-spring-io-fall-and-winter-2020 -->
-    <repository>
-      <id>spring-libs-milestone</id>
-      <url>https://repo.spring.io/libs-milestone</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>spring-plugins</id>
-      <url>https://repo.spring.io/plugins-release/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <!-- see https://jfrog.com/blog/into-the-sunset-bintray-jcenter-gocenter-and-chartcenter/ -->
-    <repository>
-      <id>uniconiam</id>
-      <url>https://dl.bintray.com/uniconiam/maven</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
     </repository>
   </repositories>
 

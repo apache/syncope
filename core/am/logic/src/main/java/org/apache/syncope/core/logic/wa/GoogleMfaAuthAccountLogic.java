@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,26 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
             profile.setGoogleMfaAuthAccounts(List.of());
             authProfileDAO.save(profile);
         });
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public void deleteFor(final long id) {
+        authProfileDAO.findAll(-1, -1).
+            stream().
+            filter(Objects::nonNull).
+            filter(profile -> profile.
+                getGoogleMfaAuthAccounts().
+                stream().
+                allMatch(acct -> acct.getId() == id)).
+            findFirst().
+            ifPresentOrElse(profile -> {
+                if (profile.getGoogleMfaAuthAccounts().removeIf(acct -> acct.getId() == id)) {
+                    authProfileDAO.save(profile);
+                }
+            },
+            () -> {
+                throw new NotFoundException("Could not find account for id " + id);
+            });
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")

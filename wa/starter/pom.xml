@@ -227,19 +227,6 @@ under the License.
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-webauthn-core</artifactId>
     </dependency>
-    <!-- TMP until CAS 6.4.0-RC5 -->
-    <dependency>
-      <groupId>com.yubico</groupId>
-      <artifactId>webauthn-server-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.yubico</groupId>
-      <artifactId>webauthn-server-attestation</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.yubico</groupId>
-      <artifactId>yubico-util</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-u2f</artifactId>
