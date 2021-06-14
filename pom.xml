@@ -455,7 +455,7 @@ under the License.
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.7.2</junit.version>
-    <mockito.version>3.11.0</mockito.version>
+    <mockito.version>3.11.1</mockito.version>
 
     <swagger-core.version>2.1.8</swagger-core.version>
     <swagger-ui.version>3.50.0</swagger-ui.version>
@@ -464,7 +464,7 @@ under the License.
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
 
     <bootbox.version>5.5.2</bootbox.version>
-    <font-awesome.version>5.15.2</font-awesome.version>
+    <font-awesome.version>5.15.3</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <codemirror.version>5.50.0</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
@@ -2168,7 +2168,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.1.2</version>
+          <version>3.2.0</version>
           <configuration>
             <outputDirectory>${bundles.directory}</outputDirectory>
             <useBaseVersion>true</useBaseVersion>
