@@ -1409,6 +1409,17 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-radius-core</artifactId>
+        <version>${cas.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>gnu-getopt</groupId>
+            <artifactId>getopt</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-radius</artifactId>
         <version>${cas.version}</version>
       </dependency>
