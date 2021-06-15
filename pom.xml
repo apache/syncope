@@ -431,7 +431,7 @@ under the License.
 
     <slf4j.version>2.0.0-alpha1</slf4j.version>
 
-    <elasticsearch.version>7.13.1</elasticsearch.version>
+    <elasticsearch.version>7.13.2</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
