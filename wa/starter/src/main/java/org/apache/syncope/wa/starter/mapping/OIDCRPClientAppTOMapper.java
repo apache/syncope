@@ -73,7 +73,6 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         if (!service.isSignIdToken()) {
             service.setIdTokenSigningAlg("none");
         }
-        service.setJwtAccessToken(true);
         service.setSupportedGrantTypes(rp.getSupportedGrantTypes().stream().
                 map(OIDCGrantType::name).collect(Collectors.toCollection(HashSet::new)));
         service.setSupportedResponseTypes(rp.getSupportedResponseTypes().stream().
