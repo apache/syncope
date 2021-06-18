@@ -102,8 +102,7 @@ public class SyncopeWAConfiguration {
     @Qualifier("serviceRegistryListeners")
     private Collection<ServiceRegistryListener> serviceRegistryListeners;
 
-    @Bean
-    public String version() {
+    private String version() {
         return ctx.getEnvironment().getProperty("version");
     }
 
