@@ -60,7 +60,7 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
     private void ajaxify(final WizardButton button) {
         button.add(new AjaxFormSubmitBehavior("click") {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 18163421824742L;
 
             @Override
             protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {

@@ -21,38 +21,32 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.ApplicationTO;
-import org.apache.syncope.common.lib.to.PrivilegeTO;
+import org.apache.syncope.common.lib.to.DelegationTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.ApplicationService;
-import org.apache.syncope.core.logic.ApplicationLogic;
+import org.apache.syncope.common.rest.api.service.DelegationService;
+import org.apache.syncope.core.logic.DelegationLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ApplicationServiceImpl extends AbstractServiceImpl implements ApplicationService {
+public class DelegationServiceImpl extends AbstractServiceImpl implements DelegationService {
 
     @Autowired
-    private ApplicationLogic logic;
+    private DelegationLogic logic;
 
     @Override
-    public List<ApplicationTO> list() {
+    public List<DelegationTO> list() {
         return logic.list();
     }
 
     @Override
-    public ApplicationTO read(final String key) {
+    public DelegationTO read(final String key) {
         return logic.read(key);
     }
 
     @Override
-    public PrivilegeTO readPrivilege(final String key) {
-        return logic.readPrivilege(key);
-    }
-
-    @Override
-    public Response create(final ApplicationTO applicationTO) {
-        ApplicationTO created = logic.create(applicationTO);
+    public Response create(final DelegationTO applicationTO) {
+        DelegationTO created = logic.create(applicationTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_KEY, created.getKey()).
@@ -60,7 +54,7 @@ public class ApplicationServiceImpl extends AbstractServiceImpl implements Appli
     }
 
     @Override
-    public void update(final ApplicationTO applicationTO) {
+    public void update(final DelegationTO applicationTO) {
         logic.update(applicationTO);
     }
 

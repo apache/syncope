@@ -280,6 +280,16 @@ public final class StandardEntitlement {
 
     public static final String REMEDIATION_DELETE = "REMEDIATION_DELETE";
 
+    public static final String DELEGATION_LIST = "DELEGATION_LIST";
+
+    public static final String DELEGATION_CREATE = "DELEGATION_CREATE";
+
+    public static final String DELEGATION_READ = "DELEGATION_READ";
+
+    public static final String DELEGATION_UPDATE = "DELEGATION_UPDATE";
+
+    public static final String DELEGATION_DELETE = "DELEGATION_DELETE";
+
     private static final Set<String> VALUES;
 
     static {

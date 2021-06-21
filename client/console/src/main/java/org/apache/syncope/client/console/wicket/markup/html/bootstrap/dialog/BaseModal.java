@@ -52,7 +52,7 @@ import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 
 public class BaseModal<T extends Serializable> extends Modal<T> {
 
-    private static final long serialVersionUID = -6142277554912316095L;
+    private static final long serialVersionUID = 18135548644909L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(BaseModal.class);
 
@@ -90,7 +90,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
         content = new AbstractModalPanel<T>(this, null) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -6142277554912316095L;
 
         };
 

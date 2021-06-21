@@ -145,7 +145,7 @@ public class Ownership extends WizardStep implements ICondition {
                 final CheckBox checkBox = super.newCheckBox(id, model);
                 checkBox.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 18235445704320L;
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {

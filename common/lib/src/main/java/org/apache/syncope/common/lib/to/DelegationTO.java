@@ -18,78 +18,63 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.HashSet;
+import java.util.Set;
+import javax.ws.rs.PathParam;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.types.JobType;
 
-@XmlRootElement(name = "exec")
+@XmlRootElement(name = "delegation")
 @XmlType
-public class ExecTO extends AbstractStartEndBean implements EntityTO {
+public class DelegationTO extends AbstractStartEndBean implements EntityTO {
 
-    private static final long serialVersionUID = -4621191979198357081L;
+    private static final long serialVersionUID = 18031949556054L;
 
     private String key;
 
-    private JobType jobType;
+    private String delegating;
 
-    private String refKey;
+    private String delegated;
 
-    private String refDesc;
-
-    private String status;
-
-    private String message;
+    private final Set<String> roles = new HashSet<>();
 
     @Override
     public String getKey() {
         return key;
     }
 
+    @PathParam("key")
     @Override
     public void setKey(final String key) {
         this.key = key;
     }
 
-    public JobType getJobType() {
-        return jobType;
+    public String getDelegating() {
+        return delegating;
     }
 
-    public void setJobType(final JobType jobType) {
-        this.jobType = jobType;
+    public void setDelegating(final String delegating) {
+        this.delegating = delegating;
     }
 
-    public String getRefKey() {
-        return refKey;
+    public String getDelegated() {
+        return delegated;
     }
 
-    public void setRefKey(final String refKey) {
-        this.refKey = refKey;
+    public void setDelegated(final String delegated) {
+        this.delegated = delegated;
     }
 
-    public String getRefDesc() {
-        return refDesc;
-    }
-
-    public void setRefDesc(final String refDesc) {
-        this.refDesc = refDesc;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(final String message) {
-        this.message = message;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(final String status) {
-        this.status = status;
+    @XmlElementWrapper(name = "roles")
+    @XmlElement(name = "role")
+    @JsonProperty("roles")
+    public Set<String> getRoles() {
+        return roles;
     }
 
     @Override
@@ -97,11 +82,9 @@ public class ExecTO extends AbstractStartEndBean implements EntityTO {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(key).
-                append(jobType).
-                append(refKey).
-                append(refDesc).
-                append(status).
-                append(message).
+                append(delegating).
+                append(delegated).
+                append(roles).
                 build();
     }
 
@@ -116,15 +99,13 @@ public class ExecTO extends AbstractStartEndBean implements EntityTO {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ExecTO other = (ExecTO) obj;
+        final DelegationTO other = (DelegationTO) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(key, other.key).
-                append(jobType, other.jobType).
-                append(refKey, other.refKey).
-                append(refDesc, other.refDesc).
-                append(status, other.status).
-                append(message, other.message).
+                append(delegating, other.delegating).
+                append(delegated, other.delegated).
+                append(roles, other.roles).
                 build();
     }
 }

@@ -110,6 +110,7 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
+import org.apache.syncope.common.rest.api.service.DelegationService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 import org.apache.syncope.fit.core.UserITCase;
 import org.identityconnectors.common.security.Encryptor;
@@ -268,6 +269,8 @@ public abstract class AbstractITCase {
 
     protected static RemediationService remediationService;
 
+    protected static DelegationService delegationService;
+
     protected static CamelRouteService camelRouteService;
 
     protected static SAML2SPService saml2SpService;
@@ -344,6 +347,7 @@ public abstract class AbstractITCase {
         securityQuestionService = adminClient.getService(SecurityQuestionService.class);
         implementationService = adminClient.getService(ImplementationService.class);
         remediationService = adminClient.getService(RemediationService.class);
+        delegationService = adminClient.getService(DelegationService.class);
         camelRouteService = adminClient.getService(CamelRouteService.class);
         saml2SpService = adminClient.getService(SAML2SPService.class);
         saml2IdPService = adminClient.getService(SAML2IdPService.class);
