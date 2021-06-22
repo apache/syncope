@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -28,6 +29,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -36,7 +38,9 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.persistence.jpa.validation.entity.DelegationCheck;
 
 @Entity
-@Table(name = JPADelegation.TABLE)
+@Table(name = JPADelegation.TABLE, uniqueConstraints =
+        @UniqueConstraint(columnNames = { "delegating_id", "delegated_id" }))
+@Cacheable
 @DelegationCheck
 public class JPADelegation extends AbstractGeneratedKeyEntity implements Delegation {
 

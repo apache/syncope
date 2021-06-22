@@ -31,7 +31,7 @@ import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
@@ -272,7 +272,7 @@ public class SyncopeClient {
         }
     }
 
-    public Pair<Map<String, Set<String>>, UserTO> self() {
+    public Triple<Map<String, Set<String>>, List<String>, UserTO> self() {
         // Explicitly disable header value split because it interferes with JSON deserialization below
         UserSelfService service = getService(UserSelfService.class);
         WebClient.getConfig(WebClient.client(service)).getRequestContext().put(HEADER_SPLIT_PROPERTY, false);
@@ -286,10 +286,14 @@ public class SyncopeClient {
         }
 
         try {
-            return Pair.of(
+            return Triple.of(
                     OBJECT_MAPPER.readValue(
                             response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS),
                             new TypeReference<Map<String, Set<String>>>() {
+                    }),
+                    OBJECT_MAPPER.readValue(
+                            response.getHeaderString(RESTHeaders.DELEGATED_BY),
+                            new TypeReference<List<String>>() {
                     }),
                     response.readEntity(UserTO.class));
         } catch (IOException e) {

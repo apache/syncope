@@ -27,6 +27,8 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.security.AccessControlException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,7 +36,7 @@ import javax.sql.DataSource;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -107,22 +109,25 @@ public class AuthenticationITCase extends AbstractITCase {
         }
 
         // 2. as anonymous
-        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(
+        Triple<Map<String, Set<String>>, List<String>, UserTO> self = clientFactory.create(
                 new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY)).self();
         assertEquals(1, self.getLeft().size());
         assertTrue(self.getLeft().keySet().contains(StandardEntitlement.ANONYMOUS));
+        assertEquals(Collections.emptyList(), self.getMiddle());
         assertEquals(ANONYMOUS_UNAME, self.getRight().getUsername());
 
         // 3. as admin
         self = adminClient.self();
         assertEquals(syncopeService.platform().getEntitlements().size(), self.getLeft().size());
         assertFalse(self.getLeft().keySet().contains(StandardEntitlement.ANONYMOUS));
+        assertEquals(Collections.emptyList(), self.getMiddle());
         assertEquals(ADMIN_UNAME, self.getRight().getUsername());
 
         // 4. as user
         self = clientFactory.create("bellini", ADMIN_PWD).self();
         assertFalse(self.getLeft().isEmpty());
         assertFalse(self.getLeft().keySet().contains(StandardEntitlement.ANONYMOUS));
+        assertEquals(Collections.emptyList(), self.getMiddle());
         assertEquals("bellini", self.getRight().getUsername());
     }
 
@@ -615,10 +620,11 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals("active", userTO.getStatus());
 
         // 4. try to authenticate again: success
-        Pair<Map<String, Set<String>>, UserTO> self =
+        Triple<Map<String, Set<String>>, List<String>, UserTO> self =
                 clientFactory.create(userTO.getUsername(), "password123").self();
         assertNotNull(self);
         assertNotNull(self.getLeft());
+        assertEquals(Collections.emptyList(), self.getMiddle());
         assertNotNull(self.getRight());
     }
 
@@ -651,7 +657,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals(Encryptor.getInstance().encode("password123", CipherAlgorithm.SHA1), value.toUpperCase());
 
         // 5. successfully authenticate with old (on db resource) and new (on internal storage) password values
-        Pair<Map<String, Set<String>>, UserTO> self =
+        Triple<Map<String, Set<String>>, List<String>, UserTO> self =
                 clientFactory.create(user.getUsername(), "password123").self();
         assertNotNull(self);
         self = clientFactory.create(user.getUsername(), "password234").self();

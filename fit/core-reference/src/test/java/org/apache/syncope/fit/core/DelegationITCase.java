@@ -28,8 +28,11 @@ import java.security.AccessControlException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -220,9 +223,13 @@ public class DelegationITCase extends AbstractITCase {
         int forBellini = bellini.getService(UserService.class).search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).getTotalCount();
 
-        // 3a. search users as bellini without delegation -> FAIL
         SyncopeClient rossini = clientFactory.create("rossini", "password");
 
+        // 3. search users as rossini
+        Triple<Map<String, Set<String>>, List<String>, UserTO> self = rossini.self();
+        assertEquals(Collections.singletonList("bellini"), self.getMiddle());
+
+        // 3a. search users as rossini without delegation -> FAIL
         try {
             rossini.getService(UserService.class).search(
                     new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
@@ -231,12 +238,12 @@ public class DelegationITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        // 3b. search users as bellini with delegation -> SUCCESS
+        // 3b. search users as rossini with delegation -> SUCCESS
         int forRossini = rossini.delegatedBy(rossini.getService(UserService.class), "bellini").search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).getTotalCount();
         assertEquals(forBellini, forRossini);
 
-        // 4. delete delegation: searching users as bellini does not work, even with delegation
+        // 4. delete delegation: searching users as rossini does not work, even with delegation
         delegationService.delete(delegation.getKey());
 
         try {

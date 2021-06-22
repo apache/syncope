@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
 import javax.servlet.ServletContext;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
@@ -163,7 +163,7 @@ public abstract class AbstractTest {
         public SyncopeClientFactoryBean newClientFactory() {
             SyncopeClient client = mock(SyncopeClient.class);
 
-            when(client.self()).thenReturn(Pair.of(new HashMap<>(), getUserTO()));
+            when(client.self()).thenReturn(Triple.of(new HashMap<>(), Collections.emptyList(), getUserTO()));
 
             SyncopeService syncopeService = getSyncopeService();
             when(client.getService(SyncopeService.class)).thenReturn(syncopeService);

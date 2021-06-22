@@ -38,7 +38,7 @@ import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -208,7 +208,8 @@ public class UserSelfITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(user.getUsername(), "password123").self();
+        Triple<Map<String, Set<String>>, List<String>, UserTO> self =
+                clientFactory.create(user.getUsername(), "password123").self();
         assertEquals(user.getUsername(), self.getRight().getUsername());
     }
 
@@ -219,7 +220,7 @@ public class UserSelfITCase extends AbstractITCase {
         String userId = rossini.getPlainAttr("userId").get().getValues().get(0);
         assertNotNull(userId);
 
-        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(userId, ADMIN_PWD).self();
+        Triple<Map<String, Set<String>>, List<String>, UserTO> self = clientFactory.create(userId, ADMIN_PWD).self();
         assertEquals(rossini.getUsername(), self.getRight().getUsername());
     }
 
@@ -466,7 +467,8 @@ public class UserSelfITCase extends AbstractITCase {
         vivaldiClient.getService(UserSelfService.class).mustChangePassword("password123");
 
         // 4. verify it worked
-        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create("vivaldi", "password123").self();
+        Triple<Map<String, Set<String>>, List<String>, UserTO> self =
+                clientFactory.create("vivaldi", "password123").self();
         assertFalse(self.getRight().isMustChangePassword());
     }
 

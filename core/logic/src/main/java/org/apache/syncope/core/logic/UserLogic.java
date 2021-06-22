@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
@@ -45,6 +46,7 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -86,6 +88,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     protected AccessTokenDAO accessTokenDAO;
 
     @Autowired
+    protected DelegationDAO delegationDAO;
+
+    @Autowired
     protected UserDataBinder binder;
 
     @Autowired
@@ -96,10 +101,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "'))")
     @Transactional(readOnly = true)
-    public Pair<String, UserTO> selfRead() {
-        return Pair.of(
+    public Triple<String, String, UserTO> selfRead() {
+        UserTO authenticatedUser = binder.getAuthenticatedUserTO();
+
+        return Triple.of(
                 POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
-                binder.returnUserTO(binder.getAuthenticatedUserTO()));
+                POJOHelper.serialize(authenticatedUser.getDelegatedDelegations().stream().
+                        map(d -> delegationDAO.find(d).getDelegating().getUsername()).collect(Collectors.toList())),
+                binder.returnUserTO(authenticatedUser));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_READ + "')")
