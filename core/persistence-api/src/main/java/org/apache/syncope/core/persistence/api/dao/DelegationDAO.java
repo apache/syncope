@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -26,6 +27,8 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 public interface DelegationDAO extends DAO<Delegation> {
 
     Delegation find(String key);
+
+    Optional<String> findFor(String delegating, String delegated);
 
     List<Delegation> findByDelegating(User user);
 

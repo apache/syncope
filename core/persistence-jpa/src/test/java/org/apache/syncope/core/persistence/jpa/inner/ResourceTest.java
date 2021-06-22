@@ -101,7 +101,7 @@ public class ResourceTest extends AbstractTest {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 new org.springframework.security.core.userdetails.User(
                         "admin", "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
-        auth.setDetails(new SyncopeAuthenticationDetails("Master"));
+        auth.setDetails(new SyncopeAuthenticationDetails(SyncopeConstants.MASTER_DOMAIN, null));
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         try {

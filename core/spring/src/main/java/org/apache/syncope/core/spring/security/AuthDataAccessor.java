@@ -32,7 +32,9 @@ import javax.annotation.Resource;
 import javax.security.auth.login.AccountNotFoundException;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -45,6 +47,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -53,6 +56,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
+import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -75,6 +79,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -127,6 +132,9 @@ public class AuthDataAccessor {
     protected RoleDAO roleDAO;
 
     @Autowired
+    protected DelegationDAO delegationDAO;
+
+    @Autowired
     protected ConnectorFactory connFactory;
 
     @Autowired
@@ -173,6 +181,20 @@ public class AuthDataAccessor {
         return domain;
     }
 
+    protected String getDelegationKey(final SyncopeAuthenticationDetails details, final String delegatedKey) {
+        return Optional.ofNullable(details.getDelegatedBy()).
+                map(delegatingKey -> SyncopeConstants.UUID_PATTERN.matcher(delegatingKey).matches()
+                ? delegatingKey
+                : userDAO.findKey(delegatingKey)).map(delegatingKey -> {
+
+            LOG.debug("Delegation request: delegating:{}, delegated:{}", delegatingKey, delegatedKey);
+
+            return delegationDAO.findFor(delegatingKey, delegatedKey).
+                    orElseThrow(() -> new SessionAuthenticationException(
+                    "Delegation by " + delegatingKey + " was requested but none found"));
+        }).orElse(null);
+    }
+
     /**
      * Attempts to authenticate the given credentials against internal storage and pass-through resources (if
      * configured): the first succeeding causes global success.
@@ -181,7 +203,7 @@ public class AuthDataAccessor {
      * @return {@code null} if no matching user was found, authentication result otherwise
      */
     @Transactional(noRollbackFor = DisabledException.class)
-    public Pair<User, Boolean> authenticate(final Authentication authentication) {
+    public Triple<User, Boolean, String> authenticate(final Authentication authentication) {
         User user = null;
 
         Optional<? extends CPlainAttr> authAttrs = confDAO.find("authentication.attributes");
@@ -206,6 +228,7 @@ public class AuthDataAccessor {
         }
 
         Boolean authenticated = null;
+        String delegationKey = null;
         if (user != null) {
             authenticated = false;
 
@@ -218,8 +241,11 @@ public class AuthDataAccessor {
             }
 
             boolean userModified = false;
-            authenticated = AuthDataAccessor.this.authenticate(user, authentication.getCredentials().toString());
+            authenticated = authenticate(user, authentication.getCredentials().toString());
             if (authenticated) {
+                delegationKey = getDelegationKey(
+                        SyncopeAuthenticationDetails.class.cast(authentication.getDetails()), user.getKey());
+
                 if (confDAO.find("log.lastlogindate", true)) {
                     user.setLastLoginDate(new Date());
                     userModified = true;
@@ -229,7 +255,6 @@ public class AuthDataAccessor {
                     user.setFailedLogins(0);
                     userModified = true;
                 }
-
             } else {
                 user.setFailedLogins(user.getFailedLogins() + 1);
                 userModified = true;
@@ -240,7 +265,7 @@ public class AuthDataAccessor {
             }
         }
 
-        return Pair.of(user, authenticated);
+        return Triple.of(user, authenticated, delegationKey);
     }
 
     protected boolean authenticate(final User user, final String password) {
@@ -308,76 +333,106 @@ public class AuthDataAccessor {
                 collect(Collectors.toSet());
     }
 
-    protected Set<SyncopeGrantedAuthority> getUserAuthorities(final User user) {
+    protected Set<SyncopeGrantedAuthority> buildAuthorities(final Map<String, Set<String>> entForRealms) {
         Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
 
-        if (user.isMustChangePassword()) {
-            authorities.add(new SyncopeGrantedAuthority(StandardEntitlement.MUST_CHANGE_PASSWORD));
-        } else {
-            Map<String, Set<String>> entForRealms = new HashMap<>();
+        entForRealms.forEach((entitlement, realms) -> {
+            Pair<Set<String>, Set<String>> normalized = RealmUtils.normalize(realms);
 
-            // Give entitlements as assigned by roles (with static or dynamic realms, where applicable) - assigned
-            // either statically and dynamically
-            userDAO.findAllRoles(user).stream().
-                    filter(role -> !SyncopeConstants.GROUP_OWNER_ROLE.equals(role.getKey())).
-                    forEach(role -> role.getEntitlements().forEach(entitlement -> {
-                Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
-                    HashSet<String> r = new HashSet<>();
-                    entForRealms.put(entitlement, r);
-                    return r;
-                });
-
-                realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
-                if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
-                    realms.addAll(role.getDynRealms().stream().map(DynRealm::getKey).collect(Collectors.toList()));
-                }
-            }));
-
-            // Give group entitlements for owned groups
-            groupDAO.findOwnedByUser(user.getKey()).forEach(group -> {
-                Role groupOwnerRole = roleDAO.find(SyncopeConstants.GROUP_OWNER_ROLE);
-                if (groupOwnerRole == null) {
-                    LOG.warn("Role {} was not found", SyncopeConstants.GROUP_OWNER_ROLE);
-                } else {
-                    groupOwnerRole.getEntitlements().forEach(entitlement -> {
-                        Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
-                            HashSet<String> r = new HashSet<>();
-                            entForRealms.put(entitlement, r);
-                            return r;
-                        });
-
-                        realms.add(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
-                    });
-                }
-            });
-
-            // Finally normalize realms for each given entitlement and generate authorities
-            entForRealms.forEach((key, value) -> {
-                Pair<Set<String>, Set<String>> normalized = RealmUtils.normalize(value);
-
-                SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(key);
-                authority.addRealms(normalized.getLeft());
-                authority.addRealms(normalized.getRight());
-                authorities.add(authority);
-            });
-        }
+            SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
+            authority.addRealms(normalized.getLeft());
+            authority.addRealms(normalized.getRight());
+            authorities.add(authority);
+        });
 
         return authorities;
     }
 
+    protected Set<SyncopeGrantedAuthority> getUserAuthorities(final User user) {
+        if (user.isMustChangePassword()) {
+            return Collections.singleton(new SyncopeGrantedAuthority(StandardEntitlement.MUST_CHANGE_PASSWORD));
+        }
+
+        Map<String, Set<String>> entForRealms = new HashMap<>();
+
+        // Give entitlements as assigned by roles (with static or dynamic realms, where applicable) - assigned
+        // either statically and dynamically
+        userDAO.findAllRoles(user).stream().
+                filter(role -> !SyncopeConstants.GROUP_OWNER_ROLE.equals(role.getKey())).
+                forEach(role -> role.getEntitlements().forEach(entitlement -> {
+            Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
+                HashSet<String> r = new HashSet<>();
+                entForRealms.put(entitlement, r);
+                return r;
+            });
+
+            realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
+            if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
+                realms.addAll(role.getDynRealms().stream().map(DynRealm::getKey).collect(Collectors.toList()));
+            }
+        }));
+
+        // Give group entitlements for owned groups
+        groupDAO.findOwnedByUser(user.getKey()).forEach(group -> {
+            Role groupOwnerRole = roleDAO.find(SyncopeConstants.GROUP_OWNER_ROLE);
+            if (groupOwnerRole == null) {
+                LOG.warn("Role {} was not found", SyncopeConstants.GROUP_OWNER_ROLE);
+            } else {
+                groupOwnerRole.getEntitlements().forEach(entitlement -> {
+                    Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
+                        HashSet<String> r = new HashSet<>();
+                        entForRealms.put(entitlement, r);
+                        return r;
+                    });
+
+                    realms.add(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
+                });
+            }
+        });
+
+        return buildAuthorities(entForRealms);
+    }
+
+    protected Set<SyncopeGrantedAuthority> getDelegatedAuthorities(final Delegation delegation) {
+        Map<String, Set<String>> entForRealms = new HashMap<>();
+
+        delegation.getRoles().stream().filter(role -> !SyncopeConstants.GROUP_OWNER_ROLE.equals(role.getKey())).
+                forEach(role -> role.getEntitlements().forEach(entitlement -> {
+            Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
+                HashSet<String> r = new HashSet<>();
+                entForRealms.put(entitlement, r);
+                return r;
+            });
+
+            realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
+            if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
+                realms.addAll(role.getDynRealms().stream().map(DynRealm::getKey).collect(Collectors.toList()));
+            }
+        }));
+
+        return buildAuthorities(entForRealms);
+    }
+
     @Transactional
-    public Set<SyncopeGrantedAuthority> getAuthorities(final String username) {
+    public Set<SyncopeGrantedAuthority> getAuthorities(final String username, final String delegationKey) {
         Set<SyncopeGrantedAuthority> authorities;
 
         if (anonymousUser.equals(username)) {
             authorities = ANONYMOUS_AUTHORITIES;
         } else if (adminUser.equals(username)) {
             authorities = getAdminAuthorities();
+        } else if (delegationKey != null) {
+            Delegation delegation = Optional.ofNullable(delegationDAO.find(delegationKey)).
+                    orElseThrow(() -> new UsernameNotFoundException(
+                    "Could not find delegation " + delegationKey));
+
+            authorities = delegation.getRoles().isEmpty()
+                    ? getUserAuthorities(delegation.getDelegating())
+                    : getDelegatedAuthorities(delegation);
         } else {
-            User user = userDAO.findByUsername(username);
-            if (user == null) {
-                throw new UsernameNotFoundException("Could not find any user with id " + username);
-            }
+            User user = Optional.ofNullable(userDAO.findByUsername(username)).
+                    orElseThrow(() -> new UsernameNotFoundException(
+                    "Could not find any user with username " + username));
 
             authorities = getUserAuthorities(user);
         }
@@ -409,12 +464,19 @@ public class AuthDataAccessor {
             }
 
             User user = resolved.getLeft();
+            String delegationKey = getDelegationKey(authentication.getDetails(), user.getKey());
             username = user.getUsername();
-            authorities = resolved.getRight() == null ? Collections.emptySet() : resolved.getRight();
+            authorities = resolved.getRight() == null
+                    ? Collections.emptySet()
+                    : delegationKey == null
+                            ? resolved.getRight()
+                            : getAuthorities(username, delegationKey);
             LOG.debug("JWT {} issued by {} resolved to User {} with authorities {}",
                     authentication.getClaims().getTokenId(),
                     authentication.getClaims().getIssuer(),
-                    username, authorities);
+                    username + Optional.ofNullable(delegationKey).
+                            map(d -> " [under delegation " + delegationKey + "]").orElse(StringUtils.EMPTY),
+                    authorities);
 
             if (BooleanUtils.isTrue(user.isSuspended())) {
                 throw new DisabledException("User " + username + " is suspended");
@@ -441,17 +503,16 @@ public class AuthDataAccessor {
 
     @Transactional(readOnly = true)
     public void audit(
-            final String who,
-            final AuditElements.EventCategoryType type,
-            final String category,
-            final String subcategory,
-            final String event,
+            final String username,
+            final String delegationKey,
             final AuditElements.Result result,
-            final Object before,
             final Object output,
             final Object... input) {
 
-        auditManager.audit(who, type, category, subcategory, event, result, before, output, input);
+        auditManager.audit(
+                username + Optional.ofNullable(delegationKey).
+                        map(d -> " [under delegation " + delegationKey + "]").orElse(StringUtils.EMPTY),
+                AuditElements.EventCategoryType.LOGIC, AuditElements.AUTHENTICATION_CATEGORY, null,
+                AuditElements.LOGIN_EVENT, result, null, output, input);
     }
-
 }

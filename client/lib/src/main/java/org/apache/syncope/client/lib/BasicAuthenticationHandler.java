@@ -39,5 +39,4 @@ public class BasicAuthenticationHandler implements AuthenticationHandler {
     public String getPassword() {
         return password;
     }
-
 }

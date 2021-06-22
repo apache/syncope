@@ -43,15 +43,21 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
 
         protected final StringBuilder query = new StringBuilder();
 
+        protected String andIfNeeded() {
+            return query.length() == 0 ? " " : " AND ";
+        }
+
         protected MessageCriteriaBuilder entityKey(final String entityKey) {
-            query.append(' ').append(AUDIT_MESSAGE_COLUMN).
-                    append(" LIKE '%key%").append(entityKey).append("%'");
+            if (entityKey != null) {
+                query.append(andIfNeeded()).append(AUDIT_MESSAGE_COLUMN).
+                        append(" LIKE '%key%").append(entityKey).append("%'");
+            }
             return this;
         }
 
         public MessageCriteriaBuilder type(final AuditElements.EventCategoryType type) {
             if (type != null) {
-                query.append(" AND ").append(AUDIT_MESSAGE_COLUMN).
+                query.append(andIfNeeded()).append(AUDIT_MESSAGE_COLUMN).
                         append(" LIKE '%\"type\":\"").append(type.name()).append("\"%'");
             }
             return this;
@@ -59,7 +65,7 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
 
         public MessageCriteriaBuilder category(final String category) {
             if (StringUtils.isNotBlank(category)) {
-                query.append(" AND ").append(AUDIT_MESSAGE_COLUMN).
+                query.append(andIfNeeded()).append(AUDIT_MESSAGE_COLUMN).
                         append(" LIKE '%\"category\":\"").append(category).append("\"%'");
             }
             return this;
@@ -67,7 +73,7 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
 
         public MessageCriteriaBuilder subcategory(final String subcategory) {
             if (StringUtils.isNotBlank(subcategory)) {
-                query.append(" AND ").append(AUDIT_MESSAGE_COLUMN).
+                query.append(andIfNeeded()).append(AUDIT_MESSAGE_COLUMN).
                         append(" LIKE '%\"subcategory\":\"").append(subcategory).append("\"%'");
             }
             return this;
@@ -75,7 +81,7 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
 
         public MessageCriteriaBuilder events(final List<String> events) {
             if (!events.isEmpty()) {
-                query.append(" AND ( ").
+                query.append(andIfNeeded()).append("( ").
                         append(events.stream().
                                 map(event -> AUDIT_MESSAGE_COLUMN + " LIKE '%\"event\":\"" + event + "\"%'").
                                 collect(Collectors.joining(" OR "))).
@@ -86,7 +92,7 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
 
         public MessageCriteriaBuilder result(final AuditElements.Result result) {
             if (result != null) {
-                query.append(" AND ").append(AUDIT_MESSAGE_COLUMN).
+                query.append(andIfNeeded()).append(AUDIT_MESSAGE_COLUMN).
                         append(" LIKE '%\"result\":\"").append(result.name()).append("\"%' ");
             }
             return this;
@@ -139,9 +145,23 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
     }
 
     @Override
-    public int countAuditEntries(final String entityKey) {
-        String queryString = "SELECT COUNT(0) FROM " + AUDIT_TABLE
-                + " WHERE " + messageCriteriaBuilder(entityKey).build();
+    public int countAuditEntries(
+            final String entityKey,
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final String subcategory,
+            final List<String> events,
+            final AuditElements.Result result) {
+
+        String queryString = "SELECT COUNT(0)"
+                + " FROM " + AUDIT_TABLE
+                + " WHERE " + messageCriteriaBuilder(entityKey).
+                        type(type).
+                        category(category).
+                        subcategory(subcategory).
+                        result(result).
+                        events(events).
+                        build();
         Query countQuery = entityManager().createNativeQuery(queryString);
 
         return ((Number) countQuery.getSingleResult()).intValue();

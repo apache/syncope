@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
@@ -33,6 +35,21 @@ public class JPADelegationDAO extends AbstractDAO<Delegation> implements Delegat
     @Override
     public Delegation find(final String key) {
         return entityManager().find(JPADelegation.class, key);
+    }
+
+    @Override
+    public Optional<String> findFor(final String delegating, final String delegated) {
+        TypedQuery<Delegation> query = entityManager().createQuery(
+                "SELECT e FROM " + JPADelegation.class.getSimpleName() + " e "
+                + "WHERE e.delegating.id=:delegating AND e.delegated.id=:delegated "
+                + "AND e.start <= :now AND (e.end IS NULL OR e.end >= :now)", Delegation.class);
+        query.setParameter("delegating", delegating);
+        query.setParameter("delegated", delegated);
+        query.setParameter("now", new Date());
+        query.setMaxResults(1);
+
+        List<Delegation> raw = query.getResultList();
+        return raw.isEmpty() ? Optional.empty() : Optional.of(raw.get(0).getKey());
     }
 
     @Override

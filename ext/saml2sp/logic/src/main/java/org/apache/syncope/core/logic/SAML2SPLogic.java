@@ -483,8 +483,8 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
             }
         }
 
-        final List<String> matchingUsers = keyValue == null
-                ? Collections.<String>emptyList()
+        List<String> matchingUsers = keyValue == null
+                ? Collections.emptyList()
                 : userManager.findMatchingUser(keyValue, idp.getKey());
         LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 
@@ -540,7 +540,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<EntityTO> {
         byte[] authorities = null;
         try {
             authorities = ENCRYPTOR.encode(POJOHelper.serialize(
-                    authDataAccessor.getAuthorities(responseTO.getUsername())), CipherAlgorithm.AES).getBytes();
+                    authDataAccessor.getAuthorities(responseTO.getUsername(), null)), CipherAlgorithm.AES).getBytes();
         } catch (Exception e) {
             LOG.error("Could not fetch authorities", e);
         }

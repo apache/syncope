@@ -46,6 +46,8 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
 
     protected final String username;
 
+    protected final String delegatedBy;
+
     protected final Collection<? extends GrantedAuthority> authorities;
 
     protected PropagationTaskInfo taskInfo;
@@ -56,6 +58,7 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
         SecurityContext ctx = SecurityContextHolder.getContext();
         domain = AuthContextUtils.getDomain();
         username = ctx.getAuthentication().getName();
+        delegatedBy = AuthContextUtils.getDelegatedBy().orElse(null);
         authorities = ctx.getAuthentication().getAuthorities();
     }
 
@@ -74,7 +77,7 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
         // set security context according to the one gathered at instantiation time from the calling thread
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 new User(username, "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
-        auth.setDetails(new SyncopeAuthenticationDetails(domain));
+        auth.setDetails(new SyncopeAuthenticationDetails(domain, delegatedBy));
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         LOG.debug("Execution started for {}", taskInfo);

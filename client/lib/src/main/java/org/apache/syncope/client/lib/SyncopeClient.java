@@ -324,6 +324,18 @@ public class SyncopeClient {
     }
 
     /**
+     * Requests to invoke the given service instance as delegating user.
+     *
+     * @param <T> any service class
+     * @param service service class instance
+     * @param delegating delegating username
+     * @return given service instance, with delegation set
+     */
+    public <T> T delegatedBy(final T service, final String delegating) {
+        return header(service, RESTHeaders.DELEGATED_BY, delegating);
+    }
+
+    /**
      * Asks for asynchronous propagation towards external resources with null priority.
      *
      * @param <T> any service class

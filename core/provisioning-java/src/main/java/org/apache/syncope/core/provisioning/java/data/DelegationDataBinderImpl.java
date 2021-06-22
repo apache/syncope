@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.data;
 import java.util.Iterator;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.DelegationTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -55,13 +56,17 @@ public class DelegationDataBinderImpl implements DelegationDataBinder {
     public Delegation create(final DelegationTO delegationTO) {
         Delegation delegation = entityFactory.newEntity(Delegation.class);
 
-        User delegating = userDAO.find(delegationTO.getDelegating());
+        User delegating = SyncopeConstants.UUID_PATTERN.matcher(delegationTO.getDelegating()).matches()
+                ? userDAO.find(delegationTO.getDelegating())
+                : userDAO.findByUsername(delegationTO.getDelegating());
         if (delegating == null) {
             throw new NotFoundException("Delegating User " + delegationTO.getDelegating());
         }
         delegation.setDelegating(delegating);
 
-        User delegated = userDAO.find(delegationTO.getDelegated());
+        User delegated = SyncopeConstants.UUID_PATTERN.matcher(delegationTO.getDelegated()).matches()
+                ? userDAO.find(delegationTO.getDelegated())
+                : userDAO.findByUsername(delegationTO.getDelegated());
         if (delegated == null) {
             throw new NotFoundException("Delegated User " + delegationTO.getDelegated());
         }

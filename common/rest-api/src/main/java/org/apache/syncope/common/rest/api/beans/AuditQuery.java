@@ -34,14 +34,14 @@ public class AuditQuery extends AbstractQuery {
 
     public static class Builder extends AbstractQuery.Builder<AuditQuery, Builder> {
 
-        public Builder(final String entityKey) {
-            super();
-            getInstance().setEntityKey(entityKey);
-        }
-
         @Override
         protected AuditQuery newInstance() {
             return new AuditQuery();
+        }
+
+        public Builder entityKey(final String entityKey) {
+            getInstance().setEntityKey(entityKey);
+            return this;
         }
 
         public Builder type(final AuditElements.EventCategoryType type) {

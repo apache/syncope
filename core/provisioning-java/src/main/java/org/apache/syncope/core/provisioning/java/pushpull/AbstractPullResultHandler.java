@@ -916,7 +916,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         }
 
         notificationManager.createTasks(
-                AuthContextUtils.getUsername(),
+                AuthContextUtils.getWho(),
                 AuditElements.EventCategoryType.PULL,
                 anyTypeKind.name().toLowerCase(),
                 profile.getTask().getResource().getKey(),
@@ -928,7 +928,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 furtherInput);
 
         auditManager.audit(
-                AuthContextUtils.getUsername(),
+                AuthContextUtils.getWho(),
                 AuditElements.EventCategoryType.PULL,
                 anyTypeKind.name().toLowerCase(),
                 profile.getTask().getResource().getKey(),

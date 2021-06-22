@@ -101,7 +101,7 @@ public class LogicInvocationHandler {
             if (notificationsAvailable || auditRequested) {
                 Map<String, Object> jobMap = new HashMap<>();
                 jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
-                        AuthContextUtils.getUsername(),
+                        AuthContextUtils.getWho(),
                         AuditElements.EventCategoryType.LOGIC,
                         category,
                         null,

@@ -26,5 +26,4 @@ public class AnonymousAuthenticationHandler extends BasicAuthenticationHandler i
     public AnonymousAuthenticationHandler(final String username, final String password) {
         super(username, password);
     }
-
 }

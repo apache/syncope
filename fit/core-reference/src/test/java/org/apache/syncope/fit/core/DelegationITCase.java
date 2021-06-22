@@ -21,16 +21,32 @@ package org.apache.syncope.fit.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.security.AccessControlException;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.log.AuditEntry;
+import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.to.DelegationTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.LoggerLevel;
+import org.apache.syncope.common.lib.types.LoggerType;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.DelegationService;
+import org.apache.syncope.common.rest.api.service.UserService;
+import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
@@ -98,7 +114,7 @@ public class DelegationITCase extends AbstractITCase {
         assertEquals(Collections.emptyList(), delegated.getDelegatingDelegations());
         assertEquals(Collections.singletonList(delegation.getKey()), delegated.getDelegatedDelegations());
 
-        // 4. update delegation
+        // 4. update and read delegation
         delegation.setEnd(null);
         delegationService.update(delegation);
 
@@ -160,7 +176,7 @@ public class DelegationITCase extends AbstractITCase {
         assertNotNull(delegation.getKey());
         assertNull(delegation.getEnd());
 
-        // 3. update delegation
+        // 3. update and read delegation
         delegation.setEnd(new Date());
         uds.update(delegation);
 
@@ -176,5 +192,73 @@ public class DelegationITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
+    }
+
+    @Test
+    public void operations() {
+        // 0. enable audit
+        AuditLoggerName authLoginSuccess = new AuditLoggerName.Builder().
+                type(AuditElements.EventCategoryType.LOGIC).
+                category(UserLogic.class.getSimpleName()).
+                event("search").
+                result(AuditElements.Result.SUCCESS).build();
+        LoggerTO authLogin = new LoggerTO();
+        authLogin.setKey(authLoginSuccess.toLoggerName());
+        authLogin.setLevel(LoggerLevel.DEBUG);
+        loggerService.update(LoggerType.AUDIT, authLogin);
+
+        // 1. bellini delegates rossini
+        DelegationTO delegation = new DelegationTO();
+        delegation.setDelegating("bellini");
+        delegation.setDelegated("rossini");
+        delegation.setStart(new Date());
+        delegation = create(delegationService, delegation);
+        assertNotNull(delegation.getKey());
+
+        // 2. search users as bellini
+        SyncopeClient bellini = clientFactory.create("bellini", "password");
+        int forBellini = bellini.getService(UserService.class).search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).getTotalCount();
+
+        // 3a. search users as bellini without delegation -> FAIL
+        SyncopeClient rossini = clientFactory.create("rossini", "password");
+
+        try {
+            rossini.getService(UserService.class).search(
+                    new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
+            fail();
+        } catch (ForbiddenException e) {
+            assertNotNull(e);
+        }
+
+        // 3b. search users as bellini with delegation -> SUCCESS
+        int forRossini = rossini.delegatedBy(rossini.getService(UserService.class), "bellini").search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).getTotalCount();
+        assertEquals(forBellini, forRossini);
+
+        // 4. delete delegation: searching users as bellini does not work, even with delegation
+        delegationService.delete(delegation.getKey());
+
+        try {
+            rossini.delegatedBy(rossini.getService(UserService.class), "bellini").search(
+                    new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+
+        // 5. query audit entries
+        AuditQuery query = new AuditQuery.Builder().
+                type(authLoginSuccess.getType()).
+                category(authLoginSuccess.getCategory()).
+                event(authLoginSuccess.getEvent()).
+                result(authLoginSuccess.getResult()).
+                build();
+        List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
+        assertTrue(entries.stream().anyMatch(entry -> "rossini [delegated by bellini]".equals(entry.getWho())));
+
+        // 6. disable audit
+        authLogin.setLevel(LoggerLevel.OFF);
+        loggerService.update(LoggerType.AUDIT, authLogin);
     }
 }

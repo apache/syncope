@@ -139,7 +139,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         status.set("Done");
 
         notificationManager.createTasks(
-                AuthContextUtils.getUsername(),
+                AuthContextUtils.getWho(),
                 AuditElements.EventCategoryType.TASK,
                 this.getClass().getSimpleName(),
                 null,
@@ -149,14 +149,14 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
                 execution);
 
         auditManager.audit(
-                AuthContextUtils.getUsername(),
+                AuthContextUtils.getWho(),
                 AuditElements.EventCategoryType.TASK,
                 task.getClass().getSimpleName(),
                 null,
                 null, // searching for before object is too much expensive ...
                 result,
                 task,
-                (Object[]) null);
+                null);
     }
 
     /**

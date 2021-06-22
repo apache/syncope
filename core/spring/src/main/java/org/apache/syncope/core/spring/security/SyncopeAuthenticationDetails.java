@@ -33,12 +33,16 @@ public class SyncopeAuthenticationDetails implements Serializable {
 
     private final String domain;
 
+    private final String delegatedBy;
+
     public SyncopeAuthenticationDetails(final HttpServletRequest request) {
         this.domain = request.getHeader(RESTHeaders.DOMAIN);
+        this.delegatedBy = request.getHeader(RESTHeaders.DELEGATED_BY);
     }
 
-    public SyncopeAuthenticationDetails(final String domain) {
+    public SyncopeAuthenticationDetails(final String domain, final String delegatedBy) {
         this.domain = domain;
+        this.delegatedBy = delegatedBy;
     }
 
     public String getDomain() {
@@ -47,10 +51,15 @@ public class SyncopeAuthenticationDetails implements Serializable {
                 : domain;
     }
 
+    public String getDelegatedBy() {
+        return delegatedBy;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
                 append(domain).
+                append(delegatedBy).
                 build();
     }
 
@@ -68,6 +77,7 @@ public class SyncopeAuthenticationDetails implements Serializable {
         final SyncopeAuthenticationDetails other = (SyncopeAuthenticationDetails) obj;
         return new EqualsBuilder().
                 append(domain, other.domain).
+                append(delegatedBy, other.delegatedBy).
                 build();
     }
 
@@ -75,6 +85,7 @@ public class SyncopeAuthenticationDetails implements Serializable {
     public String toString() {
         return new ToStringBuilder(this).
                 append(domain).
+                append(delegatedBy).
                 build();
     }
 }

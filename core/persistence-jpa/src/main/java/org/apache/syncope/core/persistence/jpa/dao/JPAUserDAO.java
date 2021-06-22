@@ -122,6 +122,22 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return findLastChange(key, JPAUser.TABLE);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<String> findUsername(final String key) {
+        Query query = entityManager().createNativeQuery("SELECT username FROM " + JPAUser.TABLE + " WHERE id=?");
+        query.setParameter(1, key);
+
+        String username = null;
+        for (Object resultKey : query.getResultList()) {
+            username = resultKey instanceof Object[]
+                    ? (String) ((Object[]) resultKey)[0]
+                    : ((String) resultKey);
+        }
+
+        return Optional.ofNullable(username);
+    }
+
     @Override
     public int count() {
         Query query = entityManager().createQuery(

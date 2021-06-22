@@ -406,7 +406,7 @@ public class SCIMDataBinder {
             }
 
             if (output(attributes, excludedAttributes, "entitlements")) {
-                authDataAccessor.getAuthorities(userTO.getUsername()).forEach(authority -> {
+                authDataAccessor.getAuthorities(userTO.getUsername(), null).forEach(authority -> {
                     user.getEntitlements().
                             add(new Value(authority.getAuthority() + " on Realm(s) " + authority.getRealms()));
                 });
