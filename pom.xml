@@ -409,7 +409,7 @@ under the License.
     <jackson.version>2.11.4</jackson.version>
 
     <spring.version>5.2.15.RELEASE</spring.version>
-    <spring-security.version>5.2.10.RELEASE</spring-security.version>
+    <spring-security.version>5.2.11.RELEASE</spring-security.version>
 
     <openjpa.version>3.2.0</openjpa.version>
     <hikaricp.version>4.0.3</hikaricp.version>
@@ -427,7 +427,7 @@ under the License.
 
     <camel.version>2.25.4</camel.version>
 
-    <slf4j.version>1.7.30</slf4j.version>
+    <slf4j.version>1.7.31</slf4j.version>
     <opensaml.version>3.3.1</opensaml.version>
 
     <elasticsearch.version>7.13.2</elasticsearch.version>
@@ -450,7 +450,7 @@ under the License.
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.7.2</junit.version>
-    <mockito.version>3.11.1</mockito.version>
+    <mockito.version>3.11.2</mockito.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
