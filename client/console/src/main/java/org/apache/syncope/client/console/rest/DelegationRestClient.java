@@ -19,30 +19,30 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
-import org.apache.syncope.common.lib.to.ApplicationTO;
-import org.apache.syncope.common.rest.api.service.ApplicationService;
+import org.apache.syncope.common.lib.to.DelegationTO;
+import org.apache.syncope.common.rest.api.service.DelegationService;
 
-public class ApplicationRestClient extends BaseRestClient {
+public class DelegationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -381814125643246243L;
 
     public void delete(final String key) {
-        getService(ApplicationService.class).delete(key);
+        getService(DelegationService.class).delete(key);
     }
 
-    public ApplicationTO read(final String key) {
-        return getService(ApplicationService.class).read(key);
+    public DelegationTO read(final String key) {
+        return getService(DelegationService.class).read(key);
     }
 
-    public void update(final ApplicationTO applicationTO) {
-        getService(ApplicationService.class).update(applicationTO);
+    public void update(final DelegationTO applicationTO) {
+        getService(DelegationService.class).update(applicationTO);
     }
 
-    public void create(final ApplicationTO applicationTO) {
-        getService(ApplicationService.class).create(applicationTO);
+    public void create(final DelegationTO applicationTO) {
+        getService(DelegationService.class).create(applicationTO);
     }
 
-    public List<ApplicationTO> list() {
-        return getService(ApplicationService.class).list();
+    public List<DelegationTO> list() {
+        return getService(DelegationService.class).list();
     }
 }

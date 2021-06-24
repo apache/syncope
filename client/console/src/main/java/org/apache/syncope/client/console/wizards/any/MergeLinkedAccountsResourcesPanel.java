@@ -16,18 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.wizards.any;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardModel;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -43,19 +48,14 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
 public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICondition {
+
     private static final long serialVersionUID = 1221037007528732347L;
 
     private final MergeLinkedAccountsWizardModel wizardModel;
 
     public MergeLinkedAccountsResourcesPanel(final MergeLinkedAccountsWizardModel wizardModel,
-                                             final PageReference pageReference) {
+            final PageReference pageReference) {
         super();
         setOutputMarkupId(true);
         this.wizardModel = wizardModel;
@@ -65,20 +65,20 @@ public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICo
     @Override
     public boolean evaluate() {
         return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
-            isActionAuthorized(this, RENDER);
+                isActionAuthorized(this, RENDER);
     }
 
     @Override
     public String getTitle() {
         setSummaryModel(new StringResourceModel("mergeLinkedAccounts.searchResource.summary",
-            Model.of(wizardModel.getMergingUser())));
+                Model.of(wizardModel.getMergingUser())));
         setTitleModel(new StringResourceModel("mergeLinkedAccounts.searchResource.title",
-            Model.of(wizardModel.getMergingUser())));
+                Model.of(wizardModel.getMergingUser())));
         return super.getTitle();
     }
 
     private class ResourceSelectionDirectoryPanel extends
-        DirectoryPanel<ResourceTO, ResourceTO,
+            DirectoryPanel<ResourceTO, ResourceTO, 
             ResourceSelectionDirectoryPanel.ResourcesDataProvider, ResourceRestClient> {
 
         private static final long serialVersionUID = 6005711052393825472L;
@@ -114,25 +114,26 @@ public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICo
         protected ActionsPanel<ResourceTO> getActions(final IModel<ResourceTO> model) {
             final ActionsPanel<ResourceTO> panel = super.getActions(model);
             panel.add(new ActionLink<ResourceTO>() {
+
                 private static final long serialVersionUID = -7978723352517770644L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ResourceTO resource) {
                     MergeLinkedAccountsWizardModel model = MergeLinkedAccountsResourcesPanel.this.wizardModel;
                     String connObjectKeyValue = restClient.getConnObjectKeyValue(
-                        resource.getKey(),
-                        model.getMergingUser().getType(),
-                        model.getMergingUser().getKey());
+                            resource.getKey(),
+                            model.getMergingUser().getType(),
+                            model.getMergingUser().getKey());
                     if (connObjectKeyValue != null) {
                         model.setResource(resource);
                         String tableId = MergeLinkedAccountsResourcesPanel.this.
-                            get("resources:container:content:searchContainer:resultTable"
-                                + ":tablePanel:groupForm:checkgroup:dataTable").
-                            getMarkupId();
+                                get("resources:container:content:searchContainer:resultTable"
+                                        + ":tablePanel:groupForm:checkgroup:dataTable").
+                                getMarkupId();
                         String js = "$('#" + tableId + "').removeClass('active');";
                         js += "$('#" + tableId + " tbody tr td div').filter(function() "
-                            + "{return $(this).text() === \"" + resource.getKey() + "\";})"
-                            + ".parent().parent().addClass('active');";
+                                + "{return $(this).text() === \"" + resource.getKey() + "\";})"
+                                + ".parent().parent().addClass('active');";
                         target.prependJavaScript(js);
 
                     } else {

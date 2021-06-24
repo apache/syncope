@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.DelegationTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -54,7 +55,8 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
         if (!AuthContextUtils.getAuthorizations().keySet().contains(entitlement)
                 && (delegating == null || !delegating.equals(userDAO.findKey(AuthContextUtils.getUsername())))) {
 
-            throw new DelegatedAdministrationException(AnyTypeKind.USER, delegating);
+            throw new DelegatedAdministrationException(
+                    SyncopeConstants.ROOT_REALM, AnyTypeKind.USER.name(), delegating);
         }
     }
 
@@ -87,6 +89,17 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
 
     @PreAuthorize("isAuthenticated()")
     public DelegationTO create(final DelegationTO delegationTO) {
+        if (delegationTO.getDelegating() != null
+                && !SyncopeConstants.UUID_PATTERN.matcher(delegationTO.getDelegating()).matches()) {
+
+            delegationTO.setDelegating(userDAO.findKey(delegationTO.getDelegating()));
+        }
+        if (delegationTO.getDelegated() != null
+                && !SyncopeConstants.UUID_PATTERN.matcher(delegationTO.getDelegated()).matches()) {
+
+            delegationTO.setDelegated(userDAO.findKey(delegationTO.getDelegated()));
+        }
+
         securityChecks(delegationTO.getDelegating(), StandardEntitlement.DELEGATION_CREATE);
 
         return binder.getDelegationTO(delegationDAO.save(binder.create(delegationTO)));

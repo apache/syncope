@@ -199,7 +199,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
             super(id, model);
             setOutputMarkupId(true);
 
-            final AjaxDropDownChoicePanel<String> type =
+            AjaxDropDownChoicePanel<String> type =
                     new AjaxDropDownChoicePanel<>("about", "anyType", new Model<String>() {
 
                         private static final long serialVersionUID = -2350296434572623272L;
@@ -213,13 +213,12 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
                         public void setObject(final String object) {
                             model.setObject(Pair.of(object, model.getObject().getRight()));
                         }
-
                     });
             type.setChoices(new AnyTypeRestClient().list());
             type.addRequiredLabel();
             add(type);
 
-            final ListModel<SearchClause> clauseModel = new ListModel<SearchClause>() {
+            ListModel<SearchClause> clauseModel = new ListModel<SearchClause>() {
 
                 private static final long serialVersionUID = 3769540249683319782L;
 
@@ -232,10 +231,9 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
                 public void setObject(final List<SearchClause> object) {
                     model.getObject().setValue(object);
                 }
-
             };
 
-            final WebMarkupContainer searchContainer = new WebMarkupContainer("search");
+            WebMarkupContainer searchContainer = new WebMarkupContainer("search");
             add(searchContainer.setOutputMarkupId(true));
 
             searchContainer.add(getClauseBuilder(model.getObject().getLeft(), clauseModel).build("clauses"));
@@ -283,7 +281,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
         public Abouts(final NotificationWrapper modelObject) {
             setTitleModel(new ResourceModel("about"));
 
-            final WebMarkupContainer aboutContainer = new WebMarkupContainer("about");
+            WebMarkupContainer aboutContainer = new WebMarkupContainer("about");
             aboutContainer.setOutputMarkupId(true);
             add(aboutContainer);
 

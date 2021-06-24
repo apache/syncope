@@ -103,7 +103,7 @@ public class Ownership extends WizardStep implements ICondition {
         // -----------------------------------------------------------------
         // Pre-Authorizations
         // -----------------------------------------------------------------
-        final ActionPermissions permissions = new ActionPermissions();
+        ActionPermissions permissions = new ActionPermissions();
         setMetaData(MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS, permissions);
         permissions.authorize(RENDER, new Roles(StandardEntitlement.USER_SEARCH));
         // -----------------------------------------------------------------

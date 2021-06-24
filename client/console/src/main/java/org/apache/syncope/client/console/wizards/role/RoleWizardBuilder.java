@@ -52,7 +52,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private final RoleRestClient groupRestClient = new RoleRestClient();
+    private final RoleRestClient restClient = new RoleRestClient();
 
     /**
      * Construct.
@@ -73,9 +73,9 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
      */
     @Override
     public AjaxWizardBuilder<RoleWrapper> setItem(final RoleWrapper item) {
-        return (AjaxWizardBuilder<RoleWrapper>) (item != null
-                ? super.setItem(new RoleWrapper(item.getInnerObject()))
-                : super.setItem(null));
+        return (AjaxWizardBuilder<RoleWrapper>) (item == null
+                ? super.setItem(null)
+                : super.setItem(new RoleWrapper(item.getInnerObject())));
     }
 
     @Override
@@ -83,9 +83,10 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
         modelObject.fillDynamicConditions();
         if (getOriginalItem() == null || getOriginalItem().getInnerObject() == null
                 || StringUtils.isBlank(getOriginalItem().getInnerObject().getKey())) {
-            groupRestClient.create(modelObject.getInnerObject());
+
+            restClient.create(modelObject.getInnerObject());
         } else {
-            groupRestClient.update(modelObject.getInnerObject());
+            restClient.update(modelObject.getInnerObject());
         }
         return null;
     }

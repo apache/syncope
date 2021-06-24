@@ -16,8 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.wizards;
 
+import java.util.ArrayList;
 import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
@@ -25,87 +26,73 @@ import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.panels.search.UserSelectionDirectoryPanel;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
-import org.apache.syncope.client.console.rest.UserRestClient;
-import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardModel;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.wizard.WizardStep;
-import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.panel.Fragment;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 
-import java.util.ArrayList;
+public class UserSelectionWizardStep extends WizardStep {
 
-public class MergeLinkedAccountsSearchPanel extends WizardStep {
-    private static final long serialVersionUID = 1221037007528732347L;
-
-    private final WebMarkupContainer ownerContainer;
-
-    private final UserSearchPanel userSearchPanel;
+    private static final long serialVersionUID = 36221031226727L;
 
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
+    private final IModel<String> model;
+
+    private final UserSearchPanel userSearchPanel;
+
     private final UserSelectionDirectoryPanel userDirectoryPanel;
 
-    private final Fragment userSearchFragment;
+    public UserSelectionWizardStep(
+            final IModel<String> title, final IModel<String> model, final PageReference pageRef) {
 
-    private final MergeLinkedAccountsWizardModel wizardModel;
-
-    public MergeLinkedAccountsSearchPanel(final MergeLinkedAccountsWizardModel model, final PageReference pageRef) {
         super();
         setOutputMarkupId(true);
 
-        this.wizardModel = model;
-        setTitleModel(new StringResourceModel("mergeLinkedAccounts.searchUser", Model.of(model.getBaseUser())));
-        ownerContainer = new WebMarkupContainer("ownerContainer");
-        ownerContainer.setOutputMarkupId(true);
-        add(ownerContainer);
+        this.model = model;
+        setTitleModel(title);
 
-        userSearchFragment = new Fragment("search", "userSearchFragment", this);
         userSearchPanel = UserSearchPanel.class.cast(new UserSearchPanel.Builder(
-            new ListModel<>(new ArrayList<>())).required(false).enableSearch(MergeLinkedAccountsSearchPanel.this).
-            build("usersearch"));
-        userSearchFragment.add(userSearchPanel);
+                new ListModel<>(new ArrayList<>())).required(false).enableSearch(UserSelectionWizardStep.this).
+                build("usersearch"));
+        add(userSearchPanel);
 
         AnyTypeTO anyTypeTO = anyTypeRestClient.read(AnyTypeKind.USER.name());
         userDirectoryPanel = UserSelectionDirectoryPanel.class.cast(new UserSelectionDirectoryPanel.Builder(
-            anyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
-            build("searchResult"));
-
-        userSearchFragment.add(userDirectoryPanel);
-        ownerContainer.add(userSearchFragment);
+                anyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                build("searchResult"));
+        add(userDirectoryPanel);
     }
 
     @Override
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
-            final AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
-            final String fiql = "username!~" + this.wizardModel.getBaseUser().getUsername() + ';'
-                + SearchUtils.buildFIQL(userSearchPanel.getModel().getObject(),
-                SyncopeClient.getUserSearchConditionBuilder());
+            AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
+            String fiql = SearchUtils.buildFIQL(
+                    userSearchPanel.getModel().getObject(), SyncopeClient.getUserSearchConditionBuilder());
             userDirectoryPanel.search(fiql, target);
         } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
-            AnySelectionDirectoryPanel.ItemSelection payload =
-                (AnySelectionDirectoryPanel.ItemSelection) event.getPayload();
+            @SuppressWarnings("unchecked")
+            AnySelectionDirectoryPanel.ItemSelection<UserTO> payload =
+                    (AnySelectionDirectoryPanel.ItemSelection<UserTO>) event.getPayload();
 
-            final AnyTO sel = payload.getSelection();
-            this.wizardModel.setMergingUser(new UserRestClient().read(sel.getKey()));
+            UserTO selected = payload.getSelection();
+            this.model.setObject(selected.getKey());
 
             String tableId = ((Component) event.getSource()).
-                get("container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable").
-                getMarkupId();
+                    get("container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable").
+                    getMarkupId();
             String js = "$('#" + tableId + " tr').removeClass('active');";
-            js += "$('#" + tableId + " td[title=" + sel.getKey() + "]').parent().addClass('active');";
+            js += "$('#" + tableId + " td[title=" + selected.getKey() + "]').parent().addClass('active');";
             payload.getTarget().prependJavaScript(js);
         }
     }
