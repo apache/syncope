@@ -21,6 +21,8 @@ package org.apache.syncope.common.rest.api.service;
 import static org.apache.syncope.common.rest.api.service.JAXRSService.PARAM_PAGE;
 import static org.apache.syncope.common.rest.api.service.JAXRSService.PARAM_SIZE;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -107,6 +109,8 @@ public interface AuthProfileService extends JAXRSService {
      *
      * @param authProfileTO auth profile
      */
+    @Parameter(name = "key", description = "AuthProfile's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })

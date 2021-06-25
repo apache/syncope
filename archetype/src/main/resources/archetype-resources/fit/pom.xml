@@ -44,11 +44,6 @@ under the License.
       <type>war</type>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -213,12 +208,6 @@ under the License.
               <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
               <extractDir>${project.build.directory}/cargo/extract</extractDir>
             </zipUrlInstaller>
-            <dependencies>
-              <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-              </dependency>
-            </dependencies>
             <timeout>300000</timeout>
             <log>${cargo.log}</log>
             <output>${cargo.output}</output> 

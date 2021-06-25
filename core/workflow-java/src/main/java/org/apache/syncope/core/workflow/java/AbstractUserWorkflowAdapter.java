@@ -18,14 +18,18 @@
  */
 package org.apache.syncope.core.workflow.java;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,8 +96,20 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         UserWorkflowResult<Pair<UserUR, Boolean>> result = doUpdate(
                 userDAO.authFind(userUR.getKey()), userUR, updater, context);
 
-        // re-read to ensure that requester's administration rights are still valid
-        userDAO.authFind(userUR.getKey());
+        User user = userDAO.find(userUR.getKey());
+        if (!AuthContextUtils.getUsername().equals(user.getUsername())) {
+            // ensure that requester's administration rights are still valid
+            Set<String> authRealms = new HashSet<>();
+            authRealms.addAll(AuthContextUtils.getAuthorizations().
+                    getOrDefault(IdRepoEntitlement.USER_READ, Set.of()));
+            authRealms.addAll(AuthContextUtils.getAuthorizations().
+                    getOrDefault(IdRepoEntitlement.USER_UPDATE, Set.of()));
+            userDAO.securityChecks(
+                    authRealms,
+                    user.getKey(),
+                    user.getRealm().getFullPath(),
+                    userDAO.findAllGroupKeys(user));
+        }
 
         return result;
     }

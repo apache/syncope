@@ -2498,6 +2498,23 @@ $$ }&#10;
             logout="0" csrf="1" routeType="PROTECTED"
             predicates="[{&quot;cond&quot;:null,&quot;factory&quot;:&quot;METHOD&quot;,&quot;args&quot;:&quot;GET&quot;}]"/>
 
+  <SyncopeRole id="GROUP_OWNER"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_SEARCH"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_READ"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_CREATE"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_UPDATE"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_DELETE"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPECLASS_READ"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPE_LIST"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPECLASS_LIST"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="RELATIONSHIPTYPE_LIST"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPE_READ"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="REALM_LIST"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_SEARCH"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_READ"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_UPDATE"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_DELETE"/>
+
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG"/>
 
   <SyncopeLogger logType="AUDIT" logName="syncope.audit.[WA]:[LoggerLogic]:[AUTHENTICATION]:[validate]:[SUCCESS]" logLevel="DEBUG"/>

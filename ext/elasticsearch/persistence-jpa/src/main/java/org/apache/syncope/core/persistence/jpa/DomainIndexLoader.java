@@ -45,13 +45,16 @@ public class DomainIndexLoader implements SyncopeCoreLoader {
     public void load(final String domain, final DataSource datasource) {
         try {
             if (!indexManager.existsIndex(domain, AnyTypeKind.USER)) {
-                indexManager.createIndex(domain, AnyTypeKind.USER);
+                indexManager.createIndex(domain, AnyTypeKind.USER,
+                        indexManager.defaultSettings(), indexManager.defaultMapping());
             }
             if (!indexManager.existsIndex(domain, AnyTypeKind.GROUP)) {
-                indexManager.createIndex(domain, AnyTypeKind.GROUP);
+                indexManager.createIndex(domain, AnyTypeKind.GROUP,
+                        indexManager.defaultSettings(), indexManager.defaultMapping());
             }
             if (!indexManager.existsIndex(domain, AnyTypeKind.ANY_OBJECT)) {
-                indexManager.createIndex(domain, AnyTypeKind.ANY_OBJECT);
+                indexManager.createIndex(domain, AnyTypeKind.ANY_OBJECT,
+                        indexManager.defaultSettings(), indexManager.defaultMapping());
             }
         } catch (Exception e) {
             LOG.error("While creating index for domain {}", domain, e);

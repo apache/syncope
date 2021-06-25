@@ -26,4 +26,7 @@ under the License.
 
   <display-name>Apache Syncope ${syncope.version} WA</display-name>
 
+  <session-config>
+    <tracking-mode>COOKIE</tracking-mode>
+  </session-config>
 </web-app>

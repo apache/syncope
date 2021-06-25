@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
@@ -32,12 +33,13 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.util.io.IOUtils;
 
-@BinaryPreview(mimeTypes = { "application/json", "application/xml" })
+@BinaryPreview(mimeTypes = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
+    RESTHeaders.APPLICATION_YAML, "application/x-yaml", "text/x-yaml", "text/yaml" })
 public class BinaryTextPreviewer extends BinaryPreviewer {
 
     private static final long serialVersionUID = 3808379310090668773L;
 
-    private String jsonEditorInfoId;
+    private String previewerId;
 
     public BinaryTextPreviewer(final String id, final String mimeType) {
         super(id, mimeType);
@@ -51,11 +53,10 @@ public class BinaryTextPreviewer extends BinaryPreviewer {
             try {
                 fragment = new Fragment("preview", "previewFragment", this);
                 InputStream stream = new ByteArrayInputStream(uploadedBytes);
-                TextArea<String> jsonEditor =
-                        new TextArea<>("jsonEditorInfo", new Model<>(IOUtils.toString(stream)));
-                jsonEditor.setOutputMarkupPlaceholderTag(true);
-                jsonEditorInfoId = jsonEditor.getMarkupId();
-                fragment.add(jsonEditor);
+                TextArea<String> previewer = new TextArea<>("previewer", Model.of(IOUtils.toString(stream)));
+                previewer.setOutputMarkupPlaceholderTag(true);
+                previewerId = previewer.getMarkupId();
+                fragment.add(previewer);
             } catch (IOException e) {
                 LOG.error("Error evaluating text file", e);
             }
@@ -76,21 +77,30 @@ public class BinaryTextPreviewer extends BinaryPreviewer {
             case MediaType.APPLICATION_JSON:
                 options = "matchBrackets: true, autoCloseBrackets: true,";
                 break;
+
             case MediaType.APPLICATION_XML:
                 options = "autoCloseTags: true, mode: 'text/html',";
                 break;
+
+            case RESTHeaders.APPLICATION_YAML:
+            case "application/x-yaml":
+            case "text/x-yaml":
+            case "text/yaml":
+                options = "mode: 'yaml',";
+                break;
+
             default:
                 options = "mode: 'text/html',";
         }
 
         response.render(OnLoadHeaderItem.forScript(
-                "var editor = CodeMirror.fromTextArea(document.getElementById('" + jsonEditorInfoId + "'), {"
+                "var editor = CodeMirror.fromTextArea(document.getElementById('" + previewerId + "'), {"
                 + "  readOnly: true, "
                 + "  lineNumbers: true, "
                 + "  lineWrapping: false, "
                 + options
                 + "  autoRefresh: true"
                 + "});"
-                + "editor.setSize('500', 100)"));
+                + "editor.setSize('900', 250)"));
     }
 }

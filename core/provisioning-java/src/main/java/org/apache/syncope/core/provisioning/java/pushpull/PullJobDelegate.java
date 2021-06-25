@@ -66,6 +66,7 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.java.DefaultProvisionSorter;
 import org.apache.syncope.core.spring.ImplementationManager;
+import org.quartz.JobExecutionContext;
 
 public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> implements SyncopePullExecutor {
 
@@ -94,11 +95,11 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
     @Override
     public void reportHandled(final ObjectClass objectClass, final Name name) {
-        MutablePair<Integer, String> pair = handled.get(objectClass);
-        if (pair == null) {
-            pair = MutablePair.of(0, null);
-            handled.put(objectClass, pair);
-        }
+        MutablePair<Integer, String> pair = Optional.ofNullable(handled.get(objectClass)).orElseGet(() -> {
+            MutablePair<Integer, String> p = MutablePair.of(0, null);
+            handled.put(objectClass, p);
+            return p;
+        });
         pair.setLeft(pair.getLeft() + 1);
         pair.setRight(name.getNameValue());
     }
@@ -159,17 +160,35 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         });
     }
 
-    protected static RealmPullResultHandler buildRealmHandler() {
+    protected List<PullActions> buildPullActions(final PullTask pullTask) {
+        List<PullActions> actions = new ArrayList<>();
+        pullTask.getActions().forEach(impl -> {
+            try {
+                actions.add(ImplementationManager.build(impl));
+            } catch (Exception e) {
+                LOG.warn("While building {}", impl, e);
+            }
+        });
+        return actions;
+    }
+
+    protected ReconFilterBuilder buildReconFilterBuilder(final PullTask pullTask)
+            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+
+        return ImplementationManager.build(pullTask.getReconFilterBuilder());
+    }
+
+    protected RealmPullResultHandler buildRealmHandler() {
         return (RealmPullResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultRealmPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }
 
-    protected static AnyObjectPullResultHandler buildAnyObjectHandler() {
+    protected AnyObjectPullResultHandler buildAnyObjectHandler() {
         return (AnyObjectPullResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultAnyObjectPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }
 
-    protected static UserPullResultHandler buildUserHandler() {
+    protected UserPullResultHandler buildUserHandler() {
         return (UserPullResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultUserPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }
@@ -188,18 +207,12 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             final PullTask pullTask,
             final Connector connector,
             final boolean dryRun,
-            final String executor) throws JobExecutionException {
+            final String executor,
+            final JobExecutionContext context) throws JobExecutionException {
 
         LOG.debug("Executing pull on {}", pullTask.getResource());
 
-        List<PullActions> actions = new ArrayList<>();
-        pullTask.getActions().forEach(impl -> {
-            try {
-                actions.add(ImplementationManager.build(impl));
-            } catch (Exception e) {
-                LOG.warn("While building {}", impl, e);
-            }
-        });
+        List<PullActions> actions = buildPullActions(pullTask);
 
         profile = new ProvisioningProfile<>(connector, pullTask);
         profile.getActions().addAll(actions);
@@ -254,10 +267,9 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                         break;
 
                     case FILTERED_RECONCILIATION:
-                        ReconFilterBuilder filterBuilder =
-                                ImplementationManager.build(pullTask.getReconFilterBuilder());
-                        connector.filteredReconciliation(orgUnit.getObjectClass(),
-                                filterBuilder,
+                        connector.filteredReconciliation(
+                                orgUnit.getObjectClass(),
+                                buildReconFilterBuilder(pullTask),
                                 handler,
                                 options);
                         break;
@@ -338,7 +350,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                     case FILTERED_RECONCILIATION:
                         connector.filteredReconciliation(
                                 provision.getObjectClass(),
-                                ImplementationManager.build(pullTask.getReconFilterBuilder()),
+                                buildReconFilterBuilder(pullTask),
                                 handler,
                                 options);
                         break;
@@ -358,9 +370,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                             filter(result -> result.getUidValue() != null && result.getKey() != null
                             && result.getOperation() == ResourceOperation.CREATE
                             && result.getAnyType().equals(provision.getAnyType().getKey())).
-                            forEach(result -> {
-                                anyUtils.addAttr(result.getKey(), provision.getUidOnCreate(), result.getUidValue());
-                            });
+                            forEach(result -> anyUtils.addAttr(
+                            result.getKey(), provision.getUidOnCreate(), result.getUidValue()));
                 }
             } catch (Throwable t) {
                 throw new JobExecutionException("While pulling from connector", t);

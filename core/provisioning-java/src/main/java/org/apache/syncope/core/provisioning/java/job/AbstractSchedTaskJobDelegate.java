@@ -128,7 +128,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         AuditElements.Result result;
 
         try {
-            execution.setMessage(doExecute(dryRun, executor));
+            execution.setMessage(doExecute(dryRun, executor, context));
             execution.setStatus(TaskJob.Status.SUCCESS.name());
             result = AuditElements.Result.SUCCESS;
         } catch (JobExecutionException e) {
@@ -141,7 +141,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         execution.setEnd(new Date());
 
         if (hasToBeRegistered(execution)) {
-            taskExecDAO.saveAndAdd(taskKey, execution);
+            register(execution);
         }
         task = taskDAO.save(task);
 
@@ -173,10 +173,12 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
      *
      * @param dryRun whether to actually touch the data
      * @param executor the user executing this task
+     * @param context Quartz' execution context, can be used to pass parameters to the job
      * @return the task execution status to be set
      * @throws JobExecutionException if anything goes wrong
      */
-    protected abstract String doExecute(boolean dryRun, String executor) throws JobExecutionException;
+    protected abstract String doExecute(boolean dryRun, String executor, JobExecutionContext context)
+            throws JobExecutionException;
 
     /**
      * Template method to determine whether this job's task execution has to be persisted or not.
@@ -186,5 +188,9 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
      */
     protected boolean hasToBeRegistered(final TaskExec execution) {
         return false;
+    }
+
+    protected void register(final TaskExec execution) {
+        taskExecDAO.saveAndAdd(task.getKey(), execution);
     }
 }

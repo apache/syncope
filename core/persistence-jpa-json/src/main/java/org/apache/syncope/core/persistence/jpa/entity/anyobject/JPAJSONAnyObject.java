@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -43,6 +44,7 @@ public class JPAJSONAnyObject extends JPAAnyObject implements JSONAttributable<A
 
     private static final long serialVersionUID = -8543654943709531885L;
 
+    @Lob
     private String plainAttrs;
 
     @Transient

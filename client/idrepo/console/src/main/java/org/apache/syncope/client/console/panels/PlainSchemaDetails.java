@@ -27,9 +27,9 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.PropertyList;
-import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
@@ -374,7 +374,6 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             mimeType.setChoices(null);
         } else if (AttrSchemaType.Encrypted.ordinal() == typeOrdinal) {
             conversionParams.setVisible(false);
-            conversionPattern.setModelObject(null);
 
             enumParams.setVisible(false);
             if (enumerationValuesPanel.isRequired()) {

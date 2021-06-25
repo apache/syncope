@@ -23,5 +23,13 @@ import org.quartz.JobExecutionException;
 
 public interface SchedTaskJobDelegate extends JobDelegate {
 
+    /**
+     * Executes a Quartz Job to run the given Task.
+     *
+     * @param taskKey Task key to run
+     * @param dryRun indicates if execution shall be simulated with no actual changes
+     * @param context Quartz' execution context, can be used to pass parameters to the job
+     * @throws JobExecutionException if anything goes wrong
+     */
     void execute(String taskKey, boolean dryRun, JobExecutionContext context) throws JobExecutionException;
 }

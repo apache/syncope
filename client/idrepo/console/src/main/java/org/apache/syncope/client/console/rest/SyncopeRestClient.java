@@ -19,8 +19,10 @@
 package org.apache.syncope.client.console.rest;
 
 import javax.ws.rs.core.Response;
+import java.util.List;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 
 public class SyncopeRestClient extends BaseRestClient {
@@ -37,5 +39,14 @@ public class SyncopeRestClient extends BaseRestClient {
 
     public static Response exportInternalStorageContent() {
         return getService(SyncopeService.class).exportInternalStorageContent();
+    }
+
+    public static List<GroupTO> searchAssignableGroups(
+            final String realm,
+            final String term,
+            final int page,
+            final int size) {
+
+        return getService(SyncopeService.class).searchAssignableGroups(realm, term, page, size).getResult();
     }
 }

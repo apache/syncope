@@ -23,13 +23,14 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.rest.GroupRestClient;
+import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
@@ -149,13 +150,8 @@ public class Groups extends AbstractGroups {
                             ? List.of()
                             : ("*".equals(filter)
                                     ? groupsModel.getObject()
-                                    : groupRestClient.search(
-                                            anyTO.getRealm(),
-                                            SyncopeClient.getGroupSearchConditionBuilder().isAssignable().
-                                                    and(Constants.NAME_FIELD_NAME).equalToIgnoreCase(filter).query(),
-                                            1, Constants.MAX_GROUP_LIST_SIZE,
-                                            new SortParam<>(Constants.NAME_FIELD_NAME, true),
-                                            null)).stream().
+                                    : SyncopeRestClient.searchAssignableGroups(
+                                            anyTO.getRealm(), filter, 1, Constants.MAX_GROUP_LIST_SIZE)).stream().
                                     map(group -> new MembershipTO.Builder(group.getKey()).
                                     groupName(group.getName()).build()).
                                     collect(Collectors.toList());
@@ -217,12 +213,11 @@ public class Groups extends AbstractGroups {
          */
         @Override
         protected void reloadObject() {
-            groupsObj = groupRestClient.search(realmObj,
-                    SyncopeClient.getGroupSearchConditionBuilder().isAssignable().query(),
+            groupsObj = SyncopeRestClient.searchAssignableGroups(
+                    realmObj,
+                    null,
                     1,
-                    Constants.MAX_GROUP_LIST_SIZE,
-                    new SortParam<>(Constants.NAME_FIELD_NAME, true),
-                    null);
+                    Constants.MAX_GROUP_LIST_SIZE);
         }
 
         @Override
@@ -237,7 +232,7 @@ public class Groups extends AbstractGroups {
         @Override
         protected void reloadMemberships() {
             // this is to be sure to have group names (required to see membership details in approval page)
-            Map<String, GroupTO> assignedGroups = new HashMap<>();
+            Map<String, String> assignedGroups = new HashMap<>();
 
             int total = GroupableRelatableTO.class.cast(anyTO).getMemberships().size();
             int pages = (total / Constants.MAX_GROUP_LIST_SIZE) + 1;
@@ -253,25 +248,21 @@ public class Groups extends AbstractGroups {
                         collect(Collectors.toList());
 
                 if (!conditions.isEmpty()) {
-                    assignedGroups.putAll(groupRestClient.search(realmObj,
+                    assignedGroups.putAll(groupRestClient.search(
+                            realmObj,
                             builder.isAssignable().and().or(conditions).query(),
                             1,
                             Constants.MAX_GROUP_LIST_SIZE,
                             sort,
-                            null).stream().collect(Collectors.toMap(GroupTO::getKey, Function.identity())));
+                            null).stream().collect(Collectors.toMap(GroupTO::getKey, GroupTO::getName)));
                 }
             }
 
             // set group names in membership TOs and remove membership not assignable
-            List<MembershipTO> toBeRemoved = new ArrayList<>();
-            GroupableRelatableTO.class.cast(anyTO).getMemberships().forEach(membership -> {
-                if (assignedGroups.containsKey(membership.getGroupKey())) {
-                    membership.setGroupName(assignedGroups.get(membership.getGroupKey()).getName());
-                } else {
-                    toBeRemoved.add(membership);
-                }
-            });
-            GroupableRelatableTO.class.cast(anyTO).getMemberships().removeAll(toBeRemoved);
+            GroupableRelatableTO.class.cast(anyTO).getMemberships().stream().
+                    filter(m -> m.getGroupName() == null && assignedGroups.containsKey(m.getGroupKey())).
+                    forEach(m -> m.setGroupName(assignedGroups.get(m.getGroupKey())));
+            GroupableRelatableTO.class.cast(anyTO).getMemberships().removeIf(m -> m.getGroupName() == null);
 
             membershipsObj = GroupableRelatableTO.class.cast(anyTO).getMemberships();
             membershipsObj.sort(Comparator.comparing(MembershipTO::getGroupName));
@@ -318,7 +309,7 @@ public class Groups extends AbstractGroups {
                 realmObj = SyncopeConstants.ROOT_REALM;
             } else {
                 reload = !Groups.this.anyTO.getRealm().equalsIgnoreCase(realmObj);
-                realmObj = Groups.this.anyTO.getRealm();
+                realmObj = RealmsUtils.getFullPath(Groups.this.anyTO.getRealm());
             }
 
             if (reload) {

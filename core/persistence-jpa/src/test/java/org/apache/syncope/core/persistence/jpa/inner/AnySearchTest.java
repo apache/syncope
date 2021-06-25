@@ -25,19 +25,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.time.DateUtils;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -59,8 +65,14 @@ import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.BeforeEach;
+import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
@@ -85,6 +97,9 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @BeforeEach
     public void adjustLoginDateForLocalSystem() throws ParseException {
@@ -224,15 +239,16 @@ public class AnySearchTest extends AbstractTest {
 
         assertTrue(cond.isValid());
 
+        int count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
+        assertEquals(1, count);
+
         List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                cond, 1, 2, List.of(),
-                AnyTypeKind.USER);
+                cond, 1, 2, List.of(), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 
         users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                cond, 2, 2, List.of(),
-                AnyTypeKind.USER);
+                cond, 2, 2, List.of(), AnyTypeKind.USER);
         assertNotNull(users);
         assertTrue(users.isEmpty());
     }
@@ -581,6 +597,51 @@ public class AnySearchTest extends AbstractTest {
         assertEquals(2, groups.size());
         assertTrue(groups.contains(groupDAO.findByName("root")));
         assertTrue(groups.contains(groupDAO.findByName("otherchild")));
+    }
+
+    @Test
+    public void asGroupOwner() {
+        // prepare authentication
+        Map<String, Set<String>> entForRealms = new HashMap<>();
+        roleDAO.find(SyncopeConstants.GROUP_OWNER_ROLE).getEntitlements().forEach(entitlement -> {
+            Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
+                Set<String> r = new HashSet<>();
+                entForRealms.put(entitlement, r);
+                return r;
+            });
+
+            realms.add(RealmUtils.getGroupOwnerRealm(
+                    SyncopeConstants.ROOT_REALM, "37d15e4c-cdc1-460b-a591-8505c8133806"));
+        });
+
+        Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
+        entForRealms.forEach((key, value) -> {
+            SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(key);
+            authority.addRealms(value);
+            authorities.add(authority);
+        });
+
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                new org.springframework.security.core.userdetails.User(
+                        "poorGroupOwner", "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
+        auth.setDetails(new SyncopeAuthenticationDetails(SyncopeConstants.MASTER_DOMAIN));
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        try {
+            // test count() and search()
+            Set<String> authRealms = RealmUtils.getEffective(
+                    AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_SEARCH),
+                    SyncopeConstants.ROOT_REALM);
+
+            assertEquals(1, searchDAO.count(authRealms, groupDAO.getAllMatchingCond(), AnyTypeKind.GROUP));
+
+            List<Group> groups = searchDAO.search(
+                    authRealms, groupDAO.getAllMatchingCond(), 1, 10, List.of(), AnyTypeKind.GROUP);
+            assertEquals(1, groups.size());
+            assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", groups.get(0).getKey());
+        } finally {
+            SecurityContextHolder.getContext().setAuthentication(null);
+        }
     }
 
     @Test

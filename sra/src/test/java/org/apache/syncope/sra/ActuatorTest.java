@@ -21,7 +21,7 @@ package org.apache.syncope.sra;
 import javax.net.ssl.SSLException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.http.ActuatorMediaType;
+import org.springframework.boot.actuate.endpoint.ApiVersion;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -39,7 +39,7 @@ public class ActuatorTest extends AbstractTest {
                 header(HttpHeaders.AUTHORIZATION, basicAuthHeader()).
                 exchange().
                 expectStatus().isOk().
-                expectHeader().valueEquals(HttpHeaders.CONTENT_TYPE, ActuatorMediaType.V3_JSON);
+                expectHeader().valueEquals(HttpHeaders.CONTENT_TYPE, ApiVersion.V3.getProducedMimeType().toString());
     }
 
     @Test

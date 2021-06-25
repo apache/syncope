@@ -50,7 +50,6 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -68,6 +67,7 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
+import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
@@ -149,6 +149,33 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 result -> ((Number) result[1]).intValue()));
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public void securityChecks(
+            final Set<String> authRealms,
+            final String key,
+            final String realm,
+            final Collection<String> groups) {
+
+        // 1. check if AuthContextUtils.getUsername() is owner of at least one group of which user is member
+        boolean authorized = authRealms.stream().map(RealmUtils::parseGroupOwnerRealm).filter(Optional::isPresent).
+                anyMatch(pair -> groups.contains(pair.get().getRight()));
+
+        // 2. check if user is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
+        if (!authorized) {
+            authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
+        }
+
+        // 3. check if user is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
+        if (!authorized) {
+            authorized = authRealms.stream().anyMatch(realm::startsWith);
+        }
+
+        if (!authorized) {
+            throw new DelegatedAdministrationException(realm, AnyTypeKind.USER.name(), key);
+        }
+    }
+
     @Override
     protected void securityChecks(final User user) {
         // Allows anonymous (during self-registration) and self (during self-update) to read own user,
@@ -156,21 +183,10 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         if (!AuthContextUtils.getUsername().equals(anonymousUser)
                 && !AuthContextUtils.getUsername().equals(user.getUsername())) {
 
-            Map<String, Set<String>> authorizations = AuthContextUtils.getAuthorizations();
-            Set<String> authRealms = authorizations.containsKey(IdRepoEntitlement.USER_READ)
-                    ? authorizations.get(IdRepoEntitlement.USER_READ)
-                    : Set.of();
-            boolean authorized = authRealms.stream().
-                    anyMatch(realm -> user.getRealm().getFullPath().startsWith(realm));
-            if (!authorized) {
-                authorized = findDynRealms(user.getKey()).stream().
-                        filter(authRealms::contains).
-                        count() > 0;
-            }
-            if (authRealms.isEmpty() || !authorized) {
-                throw new DelegatedAdministrationException(
-                        user.getRealm().getFullPath(), AnyTypeKind.USER.name(), user.getKey());
-            }
+            Set<String> authRealms = AuthContextUtils.getAuthorizations().
+                    getOrDefault(IdRepoEntitlement.USER_READ, Set.of());
+
+            securityChecks(authRealms, user.getKey(), user.getRealm().getFullPath(), findAllGroupKeys(user));
         }
     }
 
@@ -520,7 +536,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<String> findAllGroupKeys(final User user) {
-        return findAllGroups(user).stream().map(Entity::getKey).collect(Collectors.toList());
+        return findAllGroups(user).stream().map(Group::getKey).collect(Collectors.toList());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -542,7 +558,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
-        return findAllResources(authFind(key)).stream().map(Entity::getKey).collect(Collectors.toList());
+        return findAllResources(authFind(key)).stream().map(ExternalResource::getKey).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

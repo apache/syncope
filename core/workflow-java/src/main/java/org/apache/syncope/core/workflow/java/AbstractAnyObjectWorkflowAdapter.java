@@ -18,13 +18,18 @@
  */
 package org.apache.syncope.core.workflow.java;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -65,8 +70,18 @@ public abstract class AbstractAnyObjectWorkflowAdapter
         WorkflowResult<AnyObjectUR> result = doUpdate(
                 anyObjectDAO.authFind(anyObjectUR.getKey()), anyObjectUR, updater, context);
 
-        // re-read to ensure that requester's administration rights are still valid
-        anyObjectDAO.authFind(anyObjectUR.getKey());
+        AnyObject anyObject = anyObjectDAO.find(anyObjectUR.getKey());
+        // ensure that requester's administration rights are still valid
+        Set<String> authRealms = new HashSet<>();
+        authRealms.addAll(AuthContextUtils.getAuthorizations().
+                getOrDefault(AnyEntitlement.READ.getFor(anyObject.getType().getKey()), Collections.emptySet()));
+        authRealms.addAll(AuthContextUtils.getAuthorizations().
+                getOrDefault(AnyEntitlement.UPDATE.getFor(anyObject.getType().getKey()), Collections.emptySet()));
+        anyObjectDAO.securityChecks(
+                authRealms,
+                anyObject.getKey(),
+                anyObject.getRealm().getFullPath(),
+                anyObjectDAO.findAllGroupKeys(anyObject));
 
         return result;
     }

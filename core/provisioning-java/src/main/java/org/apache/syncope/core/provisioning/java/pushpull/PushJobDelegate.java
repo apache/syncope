@@ -57,6 +57,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandle
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
 import org.apache.syncope.core.provisioning.java.DefaultProvisionSorter;
 import org.apache.syncope.core.spring.ImplementationManager;
+import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -155,7 +156,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
             final PushTask pushTask,
             final Connector connector,
             final boolean dryRun,
-            final String executor) throws JobExecutionException {
+            final String executor,
+            final JobExecutionContext context) throws JobExecutionException {
 
         LOG.debug("Executing push on {}", pushTask.getResource());
 

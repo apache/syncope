@@ -34,9 +34,7 @@ under the License.
   <packaging>war</packaging>
   
   <properties>
-    <nimbus-jose-jwt.version>8.20.1</nimbus-jose-jwt.version>
-
-    <ianal.skip>true</ianal.skip>
+    <ianal.phase>none</ianal.phase>
 
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
@@ -71,11 +69,6 @@ under the License.
       <groupId>org.apache.syncope</groupId>
       <artifactId>syncope-sra</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -135,12 +128,6 @@ under the License.
             <timeout>600000</timeout>
             <log>${cargo.log}</log>
             <output>${cargo.output}</output>
-            <dependencies>
-              <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-              </dependency>
-            </dependencies>
           </container>
           <configuration>
             <properties>

@@ -21,6 +21,7 @@ package org.apache.syncope.fit.core.reference;
 import java.util.Date;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
+import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 /**
@@ -29,7 +30,9 @@ import org.quartz.JobExecutionException;
 public class TestSampleJobDelegate extends AbstractSchedTaskJobDelegate {
 
     @Override
-    protected String doExecute(final boolean dryRun, final String executor) throws JobExecutionException {
+    protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
+            throws JobExecutionException {
+
         for (int i = 0; i < 2; i++) {
             LOG.debug("TestSampleJob#doExecute round {} time {}", i, new Date().toString());
             try {

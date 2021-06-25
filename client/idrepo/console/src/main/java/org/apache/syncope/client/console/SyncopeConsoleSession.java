@@ -41,6 +41,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -311,7 +312,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
             if (auth.containsKey(entitlement)) {
                 boolean owns = false;
 
-                Set<String> owned = auth.get(entitlement);
+                Set<String> owned = auth.get(entitlement).stream().
+                        map(RealmsUtils::getFullPath).collect(Collectors.toSet());
                 if (requested.isEmpty()) {
                     return !owned.isEmpty();
                 } else {

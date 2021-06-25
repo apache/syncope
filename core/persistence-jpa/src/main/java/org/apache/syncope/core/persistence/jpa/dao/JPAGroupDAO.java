@@ -130,24 +130,34 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                 result -> ((Number) result[1]).intValue()));
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public void securityChecks(
+            final Set<String> authRealms,
+            final String key,
+            final String realm) {
+
+        // 1. check if AuthContextUtils.getUsername() is owner of the group, or
+        // if group is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
+        boolean authorized = authRealms.stream().anyMatch(authRealm -> realm.startsWith(authRealm)
+                || authRealm.equals(RealmUtils.getGroupOwnerRealm(realm, key)));
+
+        // 2. check if groups is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
+        if (!authorized) {
+            authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
+        }
+
+        if (authRealms.isEmpty() || !authorized) {
+            throw new DelegatedAdministrationException(realm, AnyTypeKind.GROUP.name(), key);
+        }
+    }
+
     @Override
     protected void securityChecks(final Group group) {
-        Map<String, Set<String>> authorizations = AuthContextUtils.getAuthorizations();
-        Set<String> authRealms = authorizations.containsKey(IdRepoEntitlement.GROUP_READ)
-                ? authorizations.get(IdRepoEntitlement.GROUP_READ)
-                : Set.of();
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().
+                getOrDefault(IdRepoEntitlement.GROUP_READ, Set.of());
 
-        boolean authorized = authRealms.stream().anyMatch(realm -> group.getRealm().getFullPath().startsWith(realm)
-                || realm.equals(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())));
-        if (!authorized) {
-            authorized = findDynRealms(group.getKey()).stream().
-                    filter(authRealms::contains).
-                    count() > 0;
-        }
-        if (authRealms.isEmpty() || !authorized) {
-            throw new DelegatedAdministrationException(
-                    group.getRealm().getFullPath(), AnyTypeKind.GROUP.name(), group.getKey());
-        }
+        securityChecks(authRealms, group.getKey(), group.getRealm().getFullPath());
     }
 
     @Override

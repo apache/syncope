@@ -39,6 +39,7 @@ import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
+import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -625,8 +626,23 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         return report.toString();
     }
 
+    protected Connector getConnector(final T provisioningTask) throws JobExecutionException {
+        Connector connector;
+        try {
+            connector = connFactory.getConnector(provisioningTask.getResource());
+        } catch (Exception e) {
+            String msg = String.format("Connector instance bean for resource %s and connInstance %s not found",
+                    provisioningTask.getResource(), provisioningTask.getResource().getConnector());
+            throw new JobExecutionException(msg, e);
+        }
+
+        return connector;
+    }
+
     @Override
-    protected String doExecute(final boolean dryRun, final String executor) throws JobExecutionException {
+    protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
+            throws JobExecutionException {
+
         try {
             Class<T> clazz = getTaskClassReference();
             if (!clazz.isAssignableFrom(task.getClass())) {
@@ -635,14 +651,7 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
 
             T provisioningTask = clazz.cast(task);
 
-            Connector connector;
-            try {
-                connector = connFactory.getConnector(provisioningTask.getResource());
-            } catch (Exception e) {
-                String msg = String.format("Connector instance bean for resource %s and connInstance %s not found",
-                        provisioningTask.getResource(), provisioningTask.getResource().getConnector());
-                throw new JobExecutionException(msg, e);
-            }
+            Connector connector = getConnector(provisioningTask);
 
             boolean noMapping = true;
             for (Provision provision : provisioningTask.getResource().getProvisions()) {
@@ -661,14 +670,15 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                 return "No provisions nor orgUnit available: aborting...";
             }
 
-            return doExecuteProvisioning(provisioningTask, connector, dryRun, executor);
+            return doExecuteProvisioning(provisioningTask, connector, dryRun, executor, context);
         } catch (Throwable t) {
             LOG.error("While executing provisioning job {}", getClass().getName(), t);
             throw t;
         }
     }
 
-    protected abstract String doExecuteProvisioning(T task, Connector connector, boolean dryRun, String executor)
+    protected abstract String doExecuteProvisioning(
+            T task, Connector connector, boolean dryRun, String executor, JobExecutionContext context)
             throws JobExecutionException;
 
     @Override

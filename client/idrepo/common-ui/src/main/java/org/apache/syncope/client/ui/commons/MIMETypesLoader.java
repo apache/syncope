@@ -20,18 +20,18 @@ package org.apache.syncope.client.ui.commons;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractMIMETypesLoader {
+public class MIMETypesLoader {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractMIMETypesLoader.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(MIMETypesLoader.class);
 
     protected static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -42,7 +42,7 @@ public abstract class AbstractMIMETypesLoader {
     public void load() {
         mimeTypesMap = new HashMap<>();
         try {
-            JsonNode jsonNode = MAPPER.readTree(getMimeTypesFile());
+            JsonNode jsonNode = MAPPER.readTree(IOUtils.toString(getClass().getResourceAsStream("/MIMETypes.json")));
             for (JsonNode node : jsonNode) {
                 JsonNode type = node.path("name");
                 JsonNode ext = node.path("extension");
@@ -61,8 +61,6 @@ public abstract class AbstractMIMETypesLoader {
             LOG.error("Error reading file MIMETypes from resources", e);
         }
     }
-
-    protected abstract String getMimeTypesFile() throws IOException;
 
     public List<String> getMimeTypes() {
         return mimeTypes;

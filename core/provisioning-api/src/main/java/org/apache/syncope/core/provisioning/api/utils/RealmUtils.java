@@ -18,16 +18,26 @@
  */
 package org.apache.syncope.core.provisioning.api.utils;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 
 public final class RealmUtils {
 
     public static String getGroupOwnerRealm(final String realmPath, final String groupKey) {
         return realmPath + '@' + groupKey;
+    }
+
+    public static Optional<Pair<String, String>> parseGroupOwnerRealm(final String input) {
+        String[] split = input.split("@");
+        return split == null || split.length < 2
+                ? Optional.empty()
+                : Optional.of(Pair.of(split[0], split[1]));
     }
 
     public static boolean normalizingAddTo(final Set<String> realms, final String newRealm) {
@@ -48,13 +58,20 @@ public final class RealmUtils {
         return !dontAdd;
     }
 
-    public static Set<String> normalize(final Collection<String> realms) {
+    public static Pair<Set<String>, Set<String>> normalize(final Collection<String> realms) {
         Set<String> normalized = new HashSet<>();
+        Set<String> groupOwnership = new HashSet<>();
         if (realms != null) {
-            realms.forEach(realm -> normalizingAddTo(normalized, realm));
+            realms.forEach(realm -> {
+                if (realm.indexOf('@') == -1) {
+                    normalizingAddTo(normalized, realm);
+                } else {
+                    groupOwnership.add(realm);
+                }
+            });
         }
 
-        return normalized;
+        return Pair.of(normalized, groupOwnership);
     }
 
     private static class StartsWithPredicate implements Predicate<String> {
@@ -69,7 +86,6 @@ public final class RealmUtils {
         public boolean test(final String realm) {
             return targets.stream().anyMatch(realm::startsWith);
         }
-
     }
 
     public static class DynRealmsPredicate implements Predicate<String> {
@@ -81,13 +97,18 @@ public final class RealmUtils {
     }
 
     public static Set<String> getEffective(final Set<String> allowedRealms, final String requestedRealm) {
-        Set<String> allowed = RealmUtils.normalize(allowedRealms);
-        Set<String> requested = new HashSet<>();
-        requested.add(requestedRealm);
+        Pair<Set<String>, Set<String>> normalized = normalize(allowedRealms);
+
+        Collection<String> requested = Arrays.asList(requestedRealm);
 
         Set<String> effective = new HashSet<>();
-        effective.addAll(requested.stream().filter(new StartsWithPredicate(allowed)).collect(Collectors.toSet()));
-        effective.addAll(allowed.stream().filter(new StartsWithPredicate(requested)).collect(Collectors.toSet()));
+        effective.addAll(requested.stream().
+                filter(new StartsWithPredicate(normalized.getLeft())).collect(Collectors.toSet()));
+        effective.addAll(normalized.getLeft().stream().
+                filter(new StartsWithPredicate(requested)).collect(Collectors.toSet()));
+
+        // includes group ownership
+        effective.addAll(normalized.getRight());
 
         // includes dynamic realms
         if (allowedRealms != null) {

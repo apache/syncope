@@ -147,6 +147,33 @@ under the License.
         </configuration>
       </plugin>
     </plugins>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <excludes>
+          <exclude>org/apache/syncope/**/*.properties</exclude>
+          <exclude>META-INF/resources/**</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>org/apache/syncope/**/*.properties</include>
+          <include>META-INF/resources/**</include>
+        </includes>
+      </resource>
+
+      <resource>
+        <directory>${basedir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE</include>
+          <include>NOTICE</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
-  
 </project>

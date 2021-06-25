@@ -23,8 +23,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -80,6 +83,12 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_DELETE + "')")
     public RoleTO delete(final String key) {
+        if (SyncopeConstants.GROUP_OWNER_ROLE.equals(key)) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRole);
+            sce.getElements().add("This Role cannot be deleted");
+            throw sce;
+        }
+
         Role role = roleDAO.find(key);
         if (role == null) {
             LOG.error("Could not find role '" + key + '\'');

@@ -34,7 +34,6 @@ under the License.
   <packaging>jar</packaging>
   
   <properties>
-    <nimbus-jose-jwt.version>8.20.2</nimbus-jose-jwt.version>
     <rootpom.basedir>${basedir}/..</rootpom.basedir>
   </properties>
 

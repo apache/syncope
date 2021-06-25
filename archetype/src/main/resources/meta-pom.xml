@@ -36,6 +36,7 @@ under the License.
     <jwsKey>${jwsKey}</jwsKey>
     <adminPassword>${adminPassword}</adminPassword>
     
+    <ianal.phase>none</ianal.phase>
     <rat.skip>true</rat.skip>
     <checkstyle.skip>true</checkstyle.skip>
   </properties>
@@ -116,24 +117,6 @@ under the License.
       </dependency>
     </dependencies>
   </dependencyManagement>
-    
-  <build>    
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>ianal-maven-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>            
-            <goals>
-              <goal>verify-legal-files</goal>
-            </goals>
-            <phase>none</phase>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
     
   <modules>
     <module>common</module>

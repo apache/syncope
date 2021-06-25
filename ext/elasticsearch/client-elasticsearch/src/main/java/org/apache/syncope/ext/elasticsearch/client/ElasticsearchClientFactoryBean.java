@@ -18,9 +18,19 @@
  */
 package org.apache.syncope.ext.elasticsearch.client;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
+import org.apache.http.Header;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.message.BasicHeader;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -32,17 +42,74 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<RestHighLevel
 
     private final List<HttpHost> hosts;
 
+    private String username;
+
+    private String password;
+
+    private String serviceToken;
+
+    private String apiKeyId;
+
+    private String apiKeySecret;
+
     private RestHighLevelClient client;
 
     public ElasticsearchClientFactoryBean(final List<HttpHost> hosts) {
         this.hosts = hosts;
     }
 
+    public void setUsername(final String username) {
+        this.username = username;
+    }
+
+    public void setPassword(final String password) {
+        this.password = password;
+    }
+
+    public String getServiceToken() {
+        return serviceToken;
+    }
+
+    public void setServiceToken(final String serviceToken) {
+        this.serviceToken = serviceToken;
+    }
+
+    public String getApiKeyId() {
+        return apiKeyId;
+    }
+
+    public void setApiKeyId(final String apiKeyId) {
+        this.apiKeyId = apiKeyId;
+    }
+
+    public String getApiKeySecret() {
+        return apiKeySecret;
+    }
+
+    public void setApiKeySecret(final String apiKeySecret) {
+        this.apiKeySecret = apiKeySecret;
+    }
+
     @Override
     public RestHighLevelClient getObject() throws Exception {
         synchronized (this) {
             if (client == null) {
-                client = new RestHighLevelClient(RestClient.builder(hosts.toArray(new HttpHost[0])));
+                RestClientBuilder restClient = RestClient.builder(hosts.toArray(new HttpHost[0]));
+                if (username != null && password != null) {
+                    CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                    credentialsProvider.setCredentials(
+                            AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+                    restClient.setHttpClientConfigCallback(b -> b.setDefaultCredentialsProvider(credentialsProvider));
+                } else if (serviceToken != null) {
+                    restClient.setDefaultHeaders(
+                            new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "Bearer " + serviceToken) });
+                } else if (apiKeyId != null && apiKeySecret != null) {
+                    String apiKeyAuth = Base64.getEncoder().encodeToString(
+                            (apiKeyId + ":" + apiKeySecret).getBytes(StandardCharsets.UTF_8));
+                    restClient.setDefaultHeaders(
+                            new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "ApiKey " + apiKeyAuth) });
+                }
+                client = new RestHighLevelClient(restClient);
             }
         }
         return client;
@@ -51,11 +118,6 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<RestHighLevel
     @Override
     public Class<?> getObjectType() {
         return RestHighLevelClient.class;
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return true;
     }
 
     @Override

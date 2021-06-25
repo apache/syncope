@@ -73,7 +73,9 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
     }
 
     @Override
-    protected String doExecute(final boolean dryRun, final String executor) throws JobExecutionException {
+    protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
+            throws JobExecutionException {
+
         Group group = groupDAO.authFind(groupKey);
 
         StringBuilder result = new StringBuilder("Group ").append(group.getName()).append(" members ");

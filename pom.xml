@@ -404,18 +404,16 @@ under the License.
     <connid.scimv11.version>1.0.1</connid.scimv11.version>
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
-    <cxf.version>3.4.3</cxf.version>
-    <bouncycastle.version>1.68</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.9</nimbus-jose-jwt.version>
+    <cxf.version>3.4.4</cxf.version>
+    <bouncycastle.version>1.69</bouncycastle.version>
+    <nimbus-jose-jwt.version>9.10</nimbus-jose-jwt.version>
 
     <jackson.version>2.12.3</jackson.version>
 
-    <spring.version>5.3.5</spring.version>
-    <spring-security.version>5.4.6</spring-security.version>
-    <spring-boot.version>2.4.5</spring-boot.version>
-    <spring-cloud-gateway.version>3.0.2</spring-cloud-gateway.version>
+    <spring-boot.version>2.5.2</spring-boot.version>
+    <spring-cloud-gateway.version>3.0.3</spring-cloud-gateway.version>
 
-    <openjpa.version>3.2.0-SNAPSHOT</openjpa.version>
+    <openjpa.version>3.2.0</openjpa.version>
     <hikaricp.version>4.0.3</hikaricp.version>
     <bval.version>2.0.5</bval.version>
 
@@ -429,11 +427,11 @@ under the License.
 
     <flowable.version>6.6.0</flowable.version>
 
-    <camel.version>3.9.0</camel.version>
+    <camel.version>3.10.0</camel.version>
 
     <slf4j.version>2.0.0-alpha1</slf4j.version>
 
-    <elasticsearch.version>7.12.1</elasticsearch.version>
+    <elasticsearch.version>7.13.2</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -441,7 +439,7 @@ under the License.
     <log4j.version>2.14.1</log4j.version>
     <disruptor.version>3.4.4</disruptor.version>
     
-    <commons-jexl.version>3.1</commons-jexl.version>
+    <commons-jexl.version>3.2</commons-jexl.version>
     <commons-lang.version>3.12.0</commons-lang.version>
     <commons-text.version>1.9</commons-text.version>
     <commons-codec.version>1.15</commons-codec.version>
@@ -451,22 +449,22 @@ under the License.
 
     <pac4j.version>5.0.1</pac4j.version>
 
-    <cas.version>6.4.0-SNAPSHOT</cas.version>
+    <cas.version>6.4.0-RC4</cas.version>
     <cas-client.version>3.6.2</cas-client.version>
 
     <h2.version>1.4.200</h2.version>
 
-    <junit.version>5.7.1</junit.version>
-    <mockito.version>3.9.0</mockito.version>
+    <junit.version>5.7.2</junit.version>
+    <mockito.version>3.11.2</mockito.version>
 
     <swagger-core.version>2.1.8</swagger-core.version>
-    <swagger-ui.version>3.48.0</swagger-ui.version>
+    <swagger-ui.version>3.50.0</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
 
     <bootbox.version>5.5.2</bootbox.version>
-    <font-awesome.version>5.15.2</font-awesome.version>
+    <font-awesome.version>5.15.3</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <codemirror.version>5.50.0</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
@@ -479,9 +477,7 @@ under the License.
     <wicket-bootstrap.version>5.0.4</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
 
-    <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
-
-    <netbeans.version>RELEASE122</netbeans.version>
+    <netbeans.version>RELEASE124</netbeans.version>
 
     <antlr4.version>4.9.2</antlr4.version>
 
@@ -511,14 +507,14 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.45</tomcat.version>
-    <wildfly.version>21.0.1.Final</wildfly.version>
-    <payara.version>5.2021.2</payara.version>
+    <tomcat.version>9.0.46</tomcat.version>
+    <wildfly.version>23.0.2.Final</wildfly.version>
+    <payara.version>5.2021.4</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
     <docker.postgresql.version>13</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
-    <docker.mariadb.version>10.5</docker.mariadb.version>
+    <docker.mariadb.version>10.6</docker.mariadb.version>
 
     <jdbc.postgresql.version>42.2.19</jdbc.postgresql.version>
     <jdbc.mysql.version>8.0.22</jdbc.mysql.version>
@@ -545,7 +541,7 @@ under the License.
     -->
     <argLine>-Xms512m -Xmx1024m -Xss256k</argLine>
 
-    <ianal.skip>false</ianal.skip>
+    <ianal.phase>verify</ianal.phase>
     <sass.skip>false</sass.skip>
     <remote-resources.skip>true</remote-resources.skip>
 
@@ -644,49 +640,9 @@ under the License.
 
       <!-- Camel -->
       <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-core</artifactId>
+        <groupId>org.apache.camel.springboot</groupId>
+        <artifactId>camel-spring-boot-starter</artifactId>
         <version>${camel.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-spring</artifactId>
-        <version>${camel.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-spring-javaconfig</artifactId>
-        <version>${camel.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
@@ -1014,106 +970,6 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-core</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-beans</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-jcl</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-context-support</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-tx</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-jdbc</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-orm</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-web</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-webmvc</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-aop</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-expression</artifactId>
-        <version>${spring.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-core</artifactId>
-        <version>${spring-security.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-expression</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-web</artifactId>
-        <version>${spring-security.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-config</artifactId>
-        <version>${spring-security.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
         <version>1.9.6</version>
@@ -1274,7 +1130,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.6.3</version>
+        <version>1.6.4</version>
         <exclusions>
           <exclusion>
             <groupId>junit</groupId>
@@ -1653,6 +1509,18 @@ under the License.
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet-core</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>com.yubico</groupId>
+            <artifactId>webauthn-server-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.yubico</groupId>
+            <artifactId>webauthn-server-attestation</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.yubico</groupId>
+            <artifactId>yubico-util</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -1676,8 +1544,36 @@ under the License.
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>com.yubico</groupId>
+            <artifactId>webauthn-server-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.yubico</groupId>
+            <artifactId>webauthn-server-attestation</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.yubico</groupId>
+            <artifactId>yubico-util</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
+      <!-- TMP until CAS 6.4.0-RC5 -->
+      <dependency>
+        <groupId>com.yubico</groupId>
+        <artifactId>webauthn-server-core</artifactId>
+        <version>1.9.1-RC2</version>
+      </dependency>
+      <dependency>
+        <groupId>com.yubico</groupId>
+        <artifactId>webauthn-server-attestation</artifactId>
+        <version>1.9.1-RC2</version>
+      </dependency>
+      <dependency>
+        <groupId>com.yubico</groupId>
+        <artifactId>yubico-util</artifactId>
+        <version>1.9.1-RC2</version>
+      </dependency>      
       <dependency>
         <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-gauth</artifactId>
@@ -2097,11 +1993,12 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring-test</artifactId>
-        <version>${spring.version}</version>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
         <scope>test</scope>
       </dependency>
+
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
@@ -2256,7 +2153,10 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.3.0</version>
+          <configuration>
+            <source>${targetJdk}</source>
+          </configuration>
         </plugin>
 
         <plugin>
@@ -2268,7 +2168,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.1.2</version>
+          <version>3.2.0</version>
           <configuration>
             <outputDirectory>${bundles.directory}</outputDirectory>
             <useBaseVersion>true</useBaseVersion>
@@ -2384,7 +2284,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.9.1</version>
+          <version>1.9.4</version>
           <configuration>
             <configuration>
               <type>standalone</type>
@@ -2436,7 +2336,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.42</version>
+              <version>8.43</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2448,7 +2348,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.35.0</version>
+          <version>0.36.0</version>
         </plugin>
 
         <plugin>
@@ -2490,7 +2390,7 @@ under the License.
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.6</version>
+          <version>0.8.7</version>
         </plugin>
 
         <plugin>
@@ -2723,19 +2623,20 @@ under the License.
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>ianal-maven-plugin</artifactId>
-        <version>1.0-alpha-1</version>
+        <groupId>org.apache.geronimo.genesis.plugins</groupId>
+        <artifactId>tools-maven-plugin</artifactId>
+        <version>1.4</version>
+        <configuration>
+          <!-- Fail the build if any artifacts are missing legal files -->
+          <strict>true</strict>
+        </configuration>
         <executions>
           <execution>
+            <id>verify-legal-files</id>
+            <phase>${ianal.phase}</phase>
             <goals>
               <goal>verify-legal-files</goal>
             </goals>
-            <configuration>
-              <!-- Fail the build if any artifacts are missing legal files -->
-              <strict>true</strict>
-              <skip>${ianal.skip}</skip>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -2776,8 +2677,9 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.0</version>
         <configuration>
+          <source>${targetJdk}</source>
           <destDir>apidocs/3.0</destDir>
           <isOffline>false</isOffline>
           <detectLinks>true</detectLinks>
@@ -2882,7 +2784,7 @@ under the License.
               <dependency>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctorj-pdf</artifactId>
-                <version>1.5.4</version>
+                <version>1.6.0</version>
               </dependency>
             </dependencies>
             <configuration>
@@ -3019,7 +2921,7 @@ under the License.
 
       <properties>
         <skipTests>true</skipTests>
-        <ianal.skip>true</ianal.skip>
+        <ianal.phase>none</ianal.phase>
         <modernizer.skip>true</modernizer.skip>
         <rat.skip>true</rat.skip>
         <checkstyle.skip>true</checkstyle.skip>
