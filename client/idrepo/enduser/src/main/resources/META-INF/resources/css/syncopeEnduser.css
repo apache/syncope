@@ -1376,7 +1376,7 @@ h4.card-title {
 .brand-custom{
   height: 56px; 
   z-index: 1; 
-  position: fixed; 
+  position: absolute; 
   top: 0; 
   left: 0; 
   width: 50%;
