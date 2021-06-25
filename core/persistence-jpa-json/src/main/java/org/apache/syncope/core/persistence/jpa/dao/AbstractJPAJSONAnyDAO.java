@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -219,7 +218,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
             return List.of();
         }
 
-        Parser parser = new Parser(new StringReader(derSchema.getExpression()));
+        Parser parser = new Parser(derSchema.getExpression());
 
         // Schema keys
         List<String> identifiers = new ArrayList<>();

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -284,7 +283,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     }
 
     private Set<String> getWhereClause(final String expression, final String value, final boolean ignoreCaseMatch) {
-        Parser parser = new Parser(new StringReader(expression));
+        Parser parser = new Parser(expression);
 
         // Schema keys
         List<String> identifiers = new ArrayList<>();
