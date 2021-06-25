@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.jexl3.JexlEngine;
-import org.apache.commons.jexl3.internal.TemplateInterpreter;
 import org.apache.commons.jexl3.internal.introspection.Uberspect;
 import org.apache.commons.jexl3.introspection.JexlMethod;
 import org.apache.commons.jexl3.introspection.JexlPropertySet;
@@ -66,9 +65,7 @@ class SandboxUberspect extends Uberspect {
 
     @Override
     public JexlMethod getMethod(final Object obj, final String method, final Object... args) {
-        if (obj instanceof TemplateInterpreter) { // https://issues.apache.org/jira/browse/JEXL-351
-            return super.getMethod(obj, method, args);
-        } else if (obj instanceof AnyTO || obj instanceof Any
+        if (obj instanceof AnyTO || obj instanceof Any
                 || obj instanceof PlainAttr || obj instanceof AttrTO
                 || obj instanceof MembershipTO || obj instanceof Membership
                 || obj instanceof Realm || obj instanceof RealmTO) {
