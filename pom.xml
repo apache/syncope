@@ -406,7 +406,7 @@ under the License.
 
     <cxf.version>3.4.4</cxf.version>
     <bouncycastle.version>1.69</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.10</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.10.1</nimbus-jose-jwt.version>
 
     <jackson.version>2.12.3</jackson.version>
 
@@ -2349,7 +2349,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.36.0</version>
+          <version>0.36.1</version>
         </plugin>
 
         <plugin>
