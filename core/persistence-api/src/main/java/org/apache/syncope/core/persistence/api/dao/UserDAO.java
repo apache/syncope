@@ -46,6 +46,8 @@ public interface UserDAO extends AnyDAO<User> {
      */
     void securityChecks(Set<String> authRealms, String key, String realm, Collection<String> groups);
 
+    Optional<String> findUsername(String key);
+
     Map<String, Integer> countByRealm();
 
     Map<String, Integer> countByStatus();

@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
+import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
@@ -309,6 +310,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPARemediation();
         } else if (reference.equals(Batch.class)) {
             result = (E) new JPABatch();
+        } else if (reference.equals(Delegation.class)) {
+            result = (E) new JPADelegation();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

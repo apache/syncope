@@ -122,7 +122,8 @@ public class LoggerRestClient extends BaseRestClient {
             final AuditElements.Result result,
             final SortParam<String> sort) {
 
-        AuditQuery query = new AuditQuery.Builder(key).
+        AuditQuery query = new AuditQuery.Builder().
+                entityKey(key).
                 size(size).
                 page(page).
                 type(type).
@@ -142,7 +143,8 @@ public class LoggerRestClient extends BaseRestClient {
             final List<String> events,
             final AuditElements.Result result) {
 
-        AuditQuery query = new AuditQuery.Builder(key).
+        AuditQuery query = new AuditQuery.Builder().
+                entityKey(key).
                 page(1).
                 size(0).
                 type(type).

@@ -19,7 +19,7 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.StatusPatch;
@@ -57,10 +57,11 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public Response read() {
-        Pair<String, UserTO> self = logic.selfRead();
+        Triple<String, String, UserTO> self = logic.selfRead();
         return Response.ok().
                 header(RESTHeaders.RESOURCE_KEY, self.getRight().getKey()).
                 header(RESTHeaders.OWNED_ENTITLEMENTS, self.getLeft()).
+                header(RESTHeaders.DELEGATIONS, self.getMiddle()).
                 entity(self.getRight()).
                 build();
     }
@@ -73,7 +74,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public Response update(final UserTO user) {
-        Pair<String, UserTO> self = logic.selfRead();
+        Triple<String, String, UserTO> self = logic.selfRead();
         return update(AnyOperations.diff(user, self.getRight(), false));
     }
 

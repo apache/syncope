@@ -86,8 +86,23 @@ under the License.
                       </div>
                     </div>
                   </li>
+                  <li class="user-body" wicket:id="delegationsContainer">
+                    <div class="row">
+                      <div class="col-xs-12 text-center">
+                        <div class="box box-primary">
+                          <div class="box-header">
+                            <h3 class="box-title" wicket:id="delegationsHeader"/>
+                          </div>
+                        </div>
+                      </div>
+                      <span wicket:id="delegations">
+                        <span wicket:id="delegation"/>
+                      </span>
+                    </div>
+                  </li>
                   <li class="user-footer">
                     <div class="pull-left">
+                      <a href="#" class="btn btn-default btn-flat" wicket:id="endDelegation"><wicket:message key="endDelegation"/></a>
                     </div>
                     <div class="pull-right">
                       <a href="#" class="btn btn-default btn-flat" wicket:id="logout"><wicket:message key="logout"/></a>

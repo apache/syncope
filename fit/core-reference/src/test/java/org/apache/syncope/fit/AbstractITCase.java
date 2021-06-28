@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -49,6 +50,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.GroupPatch;
@@ -74,6 +76,7 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
+import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -110,6 +113,7 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
+import org.apache.syncope.common.rest.api.service.DelegationService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 import org.apache.syncope.fit.core.UserITCase;
 import org.identityconnectors.common.security.Encryptor;
@@ -268,6 +272,8 @@ public abstract class AbstractITCase {
 
     protected static RemediationService remediationService;
 
+    protected static DelegationService delegationService;
+
     protected static CamelRouteService camelRouteService;
 
     protected static SAML2SPService saml2SpService;
@@ -344,6 +350,7 @@ public abstract class AbstractITCase {
         securityQuestionService = adminClient.getService(SecurityQuestionService.class);
         implementationService = adminClient.getService(ImplementationService.class);
         remediationService = adminClient.getService(RemediationService.class);
+        delegationService = adminClient.getService(DelegationService.class);
         camelRouteService = adminClient.getService(CamelRouteService.class);
         saml2SpService = adminClient.getService(SAML2SPService.class);
         saml2IdPService = adminClient.getService(SAML2IdPService.class);
@@ -680,5 +687,19 @@ public abstract class AbstractITCase {
         }
 
         return object;
+    }
+
+    protected static List<AuditEntry> query(final AuditQuery query, final int maxWaitSeconds) {
+        int i = 0;
+        List<AuditEntry> results = Collections.emptyList();
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+            results = loggerService.search(query).getResult();
+            i++;
+        } while (results.isEmpty() && i < maxWaitSeconds);
+        return results;
     }
 }

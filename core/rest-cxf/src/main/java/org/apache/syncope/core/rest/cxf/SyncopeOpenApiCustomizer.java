@@ -93,9 +93,8 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
                             getBean(DomainsHolder.class).getDomains().keySet());
         }
         if (!domains.isEmpty() && !domains.equals(Collections.singletonList(SyncopeConstants.MASTER_DOMAIN))) {
-            Optional<Parameter> domainHeaderParameter = parameters.stream().filter(parameter
-                    -> parameter instanceof HeaderParameter && RESTHeaders.DOMAIN.equals(parameter.getName())).
-                    findFirst();
+            Optional<Parameter> domainHeaderParameter = parameters.stream().
+                    filter(p -> p instanceof HeaderParameter && RESTHeaders.DOMAIN.equals(p.getName())).findFirst();
             if (!domainHeaderParameter.isPresent()) {
                 HeaderParameter parameter = new HeaderParameter();
                 parameter.setName(RESTHeaders.DOMAIN);
@@ -114,6 +113,25 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
                 parameters.add(parameter);
             }
+        }
+
+        Optional<Parameter> delegatedByHeaderParameter = parameters.stream().
+                filter(p -> p instanceof HeaderParameter && RESTHeaders.DELEGATED_BY.equals(p.getName())).findFirst();
+        if (!delegatedByHeaderParameter.isPresent()) {
+            HeaderParameter parameter = new HeaderParameter();
+            parameter.setName(RESTHeaders.DELEGATED_BY);
+            parameter.setRequired(false);
+
+            ExternalDocumentation extDoc = new ExternalDocumentation();
+            extDoc.setDescription("Apache Syncope Reference Guide");
+            extDoc.setUrl("http://syncope.apache.org/docs/2.1/reference-guide.html#delegation");
+
+            Schema<String> schema = new Schema<>();
+            schema.setDescription("Acton behalf of someone else");
+            schema.setExternalDocs(extDoc);
+            parameter.setSchema(schema);
+
+            parameters.add(parameter);
         }
     }
 

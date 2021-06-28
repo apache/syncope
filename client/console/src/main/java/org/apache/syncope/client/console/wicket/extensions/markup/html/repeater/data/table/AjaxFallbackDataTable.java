@@ -46,7 +46,7 @@ import org.apache.wicket.model.Model;
 
 public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<T, S> {
 
-    private static final long serialVersionUID = 6861105496141602937L;
+    private static final long serialVersionUID = 18103848201505L;
 
     private ActionLinksTogglePanel<T> togglePanel;
 
@@ -95,7 +95,7 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
                     final String borderId, final S property, final ISortStateLocator<S> locator) {
                 return new AjaxFallbackOrderByBorder<S>(borderId, property, locator) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 18100257555728L;
 
                     @Override
                     protected void onAjaxClick(final AjaxRequestTarget target) {

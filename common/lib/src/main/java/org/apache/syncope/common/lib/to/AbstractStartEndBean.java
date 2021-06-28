@@ -27,7 +27,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
 @XmlType
-@XmlSeeAlso({ ExecTO.class, ReportTO.class, TaskTO.class })
+@XmlSeeAlso({ ExecTO.class, ReportTO.class, TaskTO.class, DelegationTO.class })
 public class AbstractStartEndBean extends BaseBean {
 
     private static final long serialVersionUID = 2399577415544539917L;

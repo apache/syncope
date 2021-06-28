@@ -68,5 +68,4 @@ public class ApplicationServiceImpl extends AbstractServiceImpl implements Appli
     public void delete(final String key) {
         logic.delete(key);
     }
-
 }

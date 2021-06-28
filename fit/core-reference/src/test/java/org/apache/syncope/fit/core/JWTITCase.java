@@ -31,12 +31,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.rs.security.jose.common.JoseType;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureProvider;
@@ -436,7 +437,7 @@ public class JWTITCase extends AbstractITCase {
 
         SyncopeClient jwtClient = clientFactory.create(signed);
 
-        Pair<Map<String, Set<String>>, UserTO> self = jwtClient.self();
+        Triple<Map<String, Set<String>>, List<String>, UserTO> self = jwtClient.self();
         assertFalse(self.getLeft().isEmpty());
         assertEquals("puccini", self.getRight().getUsername());
     }

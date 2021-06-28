@@ -72,7 +72,6 @@ public class ApplicationDirectoryPanel extends
             super.onConfigure();
             setFooterVisible(false);
         }
-
     };
 
     protected ApplicationDirectoryPanel(final String id, final Builder builder) {

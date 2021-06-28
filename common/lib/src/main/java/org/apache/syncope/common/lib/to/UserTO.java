@@ -78,6 +78,10 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private final List<LinkedAccountTO> linkedAccounts = new ArrayList<>();
 
+    private final List<String> delegatingDelegations = new ArrayList<>();
+
+    private final List<String> delegatedDelegations = new ArrayList<>();
+
     @JsonProperty("@class")
     @Schema(name = "@class", required = true, example = "org.apache.syncope.common.lib.to.UserTO")
     @Override
@@ -281,6 +285,22 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return linkedAccounts;
     }
 
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    @XmlElementWrapper(name = "delegatingDelegations")
+    @XmlElement(name = "delegatingDelegation")
+    @JsonProperty("delegatingDelegations")
+    public List<String> getDelegatingDelegations() {
+        return delegatingDelegations;
+    }
+
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    @XmlElementWrapper(name = "delegatedDelegations")
+    @XmlElement(name = "delegatedDelegation")
+    @JsonProperty("delegatedDelegations")
+    public List<String> getDelegatedDelegations() {
+        return delegatedDelegations;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -302,6 +322,8 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 append(memberships).
                 append(dynMemberships).
                 append(linkedAccounts).
+                append(delegatingDelegations).
+                append(delegatedDelegations).
                 build();
     }
 
@@ -336,6 +358,8 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 append(memberships, other.memberships).
                 append(dynMemberships, other.dynMemberships).
                 append(linkedAccounts, other.linkedAccounts).
+                append(delegatingDelegations, other.delegatingDelegations).
+                append(delegatedDelegations, other.delegatedDelegations).
                 build();
     }
 }

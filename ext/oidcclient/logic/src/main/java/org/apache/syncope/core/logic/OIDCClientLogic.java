@@ -356,7 +356,7 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
         byte[] authorities = null;
         try {
             authorities = ENCRYPTOR.encode(POJOHelper.serialize(
-                    authDataAccessor.getAuthorities(responseTO.getUsername())), CipherAlgorithm.AES).
+                    authDataAccessor.getAuthorities(responseTO.getUsername(), null)), CipherAlgorithm.AES).
                     getBytes();
         } catch (Exception e) {
             LOG.error("Could not fetch authorities", e);

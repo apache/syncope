@@ -90,7 +90,7 @@ public class CustomJWTSSOProvider implements JWTSSOProvider {
         List<User> matching = searchDAO.search(SearchCond.getLeaf(userIdCond), AnyTypeKind.USER);
         if (matching.size() == 1) {
             User user = matching.get(0);
-            Set<SyncopeGrantedAuthority> authorities = authDataAccessor.getAuthorities(user.getUsername());
+            Set<SyncopeGrantedAuthority> authorities = authDataAccessor.getAuthorities(user.getUsername(), null);
 
             return Pair.of(user, authorities);
         }

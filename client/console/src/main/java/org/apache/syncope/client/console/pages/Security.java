@@ -22,12 +22,17 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.ApplicationDirectoryPanel;
+import org.apache.syncope.client.console.panels.DelegationDirectoryPanel;
 import org.apache.syncope.client.console.panels.DynRealmDirectoryPanel;
 import org.apache.syncope.client.console.panels.RoleDirectoryPanel;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel;
+import org.apache.syncope.client.console.wizards.DelegationWizardBuilder;
 import org.apache.syncope.client.console.wizards.role.RoleWizardBuilder;
+import org.apache.syncope.common.lib.to.DelegationTO;
 import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -51,19 +56,37 @@ public class Security extends BasePage {
     }
 
     private List<ITab> buildTabList() {
-        final List<ITab> tabs = new ArrayList<>();
+        List<ITab> tabs = new ArrayList<>();
 
-        tabs.add(new AbstractTab(new ResourceModel("roles")) {
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.ROLE_LIST)) {
+            tabs.add(new AbstractTab(new ResourceModel("roles")) {
 
-            private static final long serialVersionUID = -6815067322125799251L;
+                private static final long serialVersionUID = -6815067322125799251L;
+
+                @Override
+                public Panel getPanel(final String panelId) {
+                    return new RoleDirectoryPanel.Builder(getPageReference()) {
+
+                        private static final long serialVersionUID = -5960765294082359003L;
+
+                    }.addNewItemPanelBuilder(new RoleWizardBuilder(new RoleTO(), getPageReference()), true).build(
+                            panelId);
+                }
+            });
+        }
+
+        tabs.add(new AbstractTab(new ResourceModel("delegations")) {
+
+            private static final long serialVersionUID = 29722178554609L;
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new RoleDirectoryPanel.Builder(getPageReference()) {
+                return new DelegationDirectoryPanel.Builder(getPageReference()) {
 
-                    private static final long serialVersionUID = -5960765294082359003L;
+                    private static final long serialVersionUID = 30231721305047L;
 
-                }.addNewItemPanelBuilder(new RoleWizardBuilder(new RoleTO(), getPageReference()), true).build(panelId);
+                }.addNewItemPanelBuilder(
+                        new DelegationWizardBuilder(new DelegationTO(), getPageReference()), true).build(panelId);
             }
         });
 
@@ -81,19 +104,21 @@ public class Security extends BasePage {
             }
         });
 
-        tabs.add(new AbstractTab(new ResourceModel("applications")) {
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.APPLICATION_LIST)) {
+            tabs.add(new AbstractTab(new ResourceModel("applications")) {
 
-            private static final long serialVersionUID = -6815067322125799251L;
+                private static final long serialVersionUID = -6815067322125799251L;
 
-            @Override
-            public Panel getPanel(final String panelId) {
-                return new ApplicationDirectoryPanel.Builder(getPageReference()) {
+                @Override
+                public Panel getPanel(final String panelId) {
+                    return new ApplicationDirectoryPanel.Builder(getPageReference()) {
 
-                    private static final long serialVersionUID = -5960765294082359003L;
+                        private static final long serialVersionUID = -5960765294082359003L;
 
-                }.build(panelId);
-            }
-        });
+                    }.build(panelId);
+                }
+            });
+        }
 
         tabs.add(new AbstractTab(new ResourceModel("securityQuestions")) {
 

@@ -80,7 +80,7 @@ public final class Constants {
     public static final String OUTER = "outer";
 
     public static final String ACTION = "action";
-    
+
     public static final String CONFIRM_DELETE = "confirmDelete";
 
     public static final String BEFORE_LOGOUT_PAGE = "beforeLogoutPage";
@@ -178,6 +178,8 @@ public final class Constants {
     public static final String PREF_PUSH_TASKS_PAGINATOR_ROWS = "pushtasks.paginator.rows";
 
     public static final String PREF_TYPE_EXTENSIONS_PAGINATOR_ROWS = "typeextensions.paginator.rows";
+
+    public static final String PREF_DELEGATION_PAGINATOR_ROWS = "delegation.paginator.rows";
 
     public static final String PREF_TODO_PAGINATOR_ROWS = "todo.paginator.rows";
 

@@ -408,7 +408,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
             final AuditElements.Result result,
             final List<OrderByClause> orderByClauses) {
 
-        int count = loggerDAO.countAuditEntries(entityKey);
+        int count = loggerDAO.countAuditEntries(entityKey, type, category, subcategory, events, result);
         List<AuditEntry> matching = loggerDAO.findAuditEntries(
                 entityKey, page, size, type, category, subcategory, events, result, orderByClauses);
         return Pair.of(count, matching);

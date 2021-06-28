@@ -16,15 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.wizards.any;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardModel;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
@@ -37,18 +43,12 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class MergeLinkedAccountsReviewPanel extends WizardStep {
+
     private static final long serialVersionUID = 1221037007528732347L;
 
     public MergeLinkedAccountsReviewPanel(final MergeLinkedAccountsWizardModel wizardModel,
-                                          final PageReference pageReference) {
+            final PageReference pageReference) {
         super();
         setOutputMarkupId(true);
         setTitleModel(new StringResourceModel("mergeLinkedAccounts.reviewAccounts.title"));
@@ -56,7 +56,7 @@ public class MergeLinkedAccountsReviewPanel extends WizardStep {
     }
 
     private static class LinkedAccountsReviewDirectoryPanel extends
-        DirectoryPanel<LinkedAccountTO, LinkedAccountTO,
+            DirectoryPanel<LinkedAccountTO, LinkedAccountTO, 
             LinkedAccountsReviewDirectoryPanel.LinkedAccountsDataProvider, ResourceRestClient> {
 
         private static final String PAGINATOR_ROWS = "linked.account.review.paginator.rows";
@@ -66,7 +66,7 @@ public class MergeLinkedAccountsReviewPanel extends WizardStep {
         private final MergeLinkedAccountsWizardModel wizardModel;
 
         LinkedAccountsReviewDirectoryPanel(final String id, final PageReference pageReference,
-                                           final MergeLinkedAccountsWizardModel wizardModel) {
+                final MergeLinkedAccountsWizardModel wizardModel) {
             super(id, pageReference, true);
             this.restClient = new ResourceRestClient();
             this.wizardModel = wizardModel;
@@ -91,11 +91,11 @@ public class MergeLinkedAccountsReviewPanel extends WizardStep {
             List<IColumn<LinkedAccountTO, String>> columns = new ArrayList<>();
             columns.add(new PropertyColumn<>(new ResourceModel("resource"), "resource", "resource"));
             columns.add(new PropertyColumn<>(
-                new ResourceModel("connObjectKeyValue"), "connObjectKeyValue", "connObjectKeyValue"));
+                    new ResourceModel("connObjectKeyValue"), "connObjectKeyValue", "connObjectKeyValue"));
             columns.add(new PropertyColumn<>(
-                new ResourceModel("username"), "username", "username"));
+                    new ResourceModel("username"), "username", "username"));
             columns.add(new BooleanPropertyColumn<>(
-                new ResourceModel("suspended"), "suspended", "suspended"));
+                    new ResourceModel("suspended"), "suspended", "suspended"));
             return columns;
         }
 
@@ -110,11 +110,11 @@ public class MergeLinkedAccountsReviewPanel extends WizardStep {
             // Move linked accounts into the target/base user as linked accounts
             List<LinkedAccountTO> accounts = mergingUser.getLinkedAccounts().stream().map(acct -> {
                 LinkedAccountTO linkedAccount =
-                    new LinkedAccountTO.Builder(acct.getResource(), acct.getConnObjectKeyValue())
-                        .password(acct.getPassword())
-                        .suspended(acct.isSuspended())
-                        .username(acct.getUsername())
-                        .build();
+                        new LinkedAccountTO.Builder(acct.getResource(), acct.getConnObjectKeyValue())
+                                .password(acct.getPassword())
+                                .suspended(acct.isSuspended())
+                                .username(acct.getUsername())
+                                .build();
                 linkedAccount.getPlainAttrs().addAll(acct.getPlainAttrs());
                 linkedAccount.getPrivileges().addAll(acct.getPrivileges());
                 return linkedAccount;
@@ -123,20 +123,20 @@ public class MergeLinkedAccountsReviewPanel extends WizardStep {
             // Move merging user's resources into the target/base user as a linked account
             accounts.addAll(mergingUser.getResources().stream().map(resource -> {
                 String connObjectKeyValue = restClient.getConnObjectKeyValue(resource,
-                    mergingUser.getType(), mergingUser.getKey());
+                        mergingUser.getType(), mergingUser.getKey());
                 return new LinkedAccountTO.Builder(resource, connObjectKeyValue).build();
             }).collect(Collectors.toList()));
 
             // Move merging user into target/base user as a linked account
             String connObjectKeyValue = restClient.getConnObjectKeyValue(
-                wizardModel.getResource().getKey(),
-                mergingUser.getType(), mergingUser.getKey());
+                    wizardModel.getResource().getKey(),
+                    mergingUser.getType(), mergingUser.getKey());
             LinkedAccountTO linkedAccount =
-                new LinkedAccountTO.Builder(wizardModel.getResource().getKey(), connObjectKeyValue)
-                    .password(mergingUser.getPassword())
-                    .suspended(mergingUser.isSuspended())
-                    .username(mergingUser.getUsername())
-                    .build();
+                    new LinkedAccountTO.Builder(wizardModel.getResource().getKey(), connObjectKeyValue)
+                            .password(mergingUser.getPassword())
+                            .suspended(mergingUser.isSuspended())
+                            .username(mergingUser.getUsername())
+                            .build();
             linkedAccount.getPlainAttrs().addAll(mergingUser.getPlainAttrs());
             linkedAccount.getPrivileges().addAll(mergingUser.getPrivileges());
             accounts.add(linkedAccount);
