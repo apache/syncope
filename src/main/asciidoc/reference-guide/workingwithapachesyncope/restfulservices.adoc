@@ -159,6 +159,11 @@ https://github.com/apache/syncope/blob/2_1_X/common/lib/src/main/java/org/apache
 endif::[]
 and `X-Application-Error-Info` might be optionally populated with more details, if available.
 
+===== X-Syncope-Delegated-By
+
+When requesting an operation under <<delegation,Delegation>>, this header must be provided to indicate the delegating
+User, either by their username or key.
+
 ===== X-Syncope-Null-Priority-Async
 
 When set to `true`, this request header instructs the <<propagation,propagation process>> not to wait for completion
@@ -203,6 +208,11 @@ Groups and Any Objects operations.
 
 When invoking the REST endpoint `/users/self` in `GET`, the `X-Syncope-Entitlements` response header will list all
 the <<entitlements,entitlements>> owned by the requesting user.
+
+===== X-Syncope-Delegations
+
+When invoking the REST endpoint `/users/self` in `GET`, the `X-Syncope-Delegations` response header will list all
+delegating users for each <<delegation,Delegation>> for which the requesting user is delegated.
 
 ===== X-Syncope-Privileges
 
