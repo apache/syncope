@@ -2091,7 +2091,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.43</version>
+              <version>8.44</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2109,7 +2109,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.36.0</version>
+          <version>0.36.1</version>
         </plugin>
 
         <plugin>
