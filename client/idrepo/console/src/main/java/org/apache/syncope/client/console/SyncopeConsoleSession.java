@@ -39,7 +39,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
@@ -112,6 +112,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     protected UserTO selfTO;
 
     protected Map<String, Set<String>> auth;
+
+    protected List<String> delegations;
+
+    protected String delegatedBy;
 
     protected Roles roles;
 
@@ -259,6 +263,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     public void cleanup() {
         client = null;
         auth = null;
+        delegations = null;
+        delegatedBy = null;
         selfTO = null;
         services.clear();
     }
@@ -343,10 +349,27 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return roles;
     }
 
+    public List<String> getDelegations() {
+        return delegations;
+    }
+
+    public String getDelegatedBy() {
+        return delegatedBy;
+    }
+
+    public void setDelegatedBy(final String delegatedBy) {
+        this.delegatedBy = delegatedBy;
+
+        this.client.delegatedBy(delegatedBy);
+
+        refreshAuth(null);
+    }
+
     public void refreshAuth(final String username) {
         try {
-            Pair<Map<String, Set<String>>, UserTO> self = client.self();
+            Triple<Map<String, Set<String>>, List<String>, UserTO> self = client.self();
             auth = self.getLeft();
+            delegations = self.getMiddle();
             selfTO = self.getRight();
             roles = null;
         } catch (ForbiddenException e) {

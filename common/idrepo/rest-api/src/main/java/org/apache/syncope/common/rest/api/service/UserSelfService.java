@@ -58,14 +58,14 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Returns the user making the service call.
      *
-     * @return calling user data, including own UUID and entitlements
+     * @return calling user data, including own UUID, entitlements and delegations
      */
     @Operation(security = {
         @SecurityRequirement(name = "BasicAuthentication"),
         @SecurityRequirement(name = "Bearer") })
     @ApiResponses(
-            @ApiResponse(responseCode = "200", description = "Calling user data, including own UUID and entitlements",
-                    content =
+            @ApiResponse(responseCode = "200",
+                    description = "Calling user data, including own UUID, entitlements and delegations", content =
                     @Content(schema =
                             @Schema(implementation = UserTO.class)), headers = {
                 @Header(name = RESTHeaders.RESOURCE_KEY, schema =

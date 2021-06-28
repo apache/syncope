@@ -67,7 +67,7 @@ public class MultitenancyTest extends AbstractTest {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 new org.springframework.security.core.userdetails.User(
                         "admin", "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
-        auth.setDetails(new SyncopeAuthenticationDetails("Two"));
+        auth.setDetails(new SyncopeAuthenticationDetails("Two", null));
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 

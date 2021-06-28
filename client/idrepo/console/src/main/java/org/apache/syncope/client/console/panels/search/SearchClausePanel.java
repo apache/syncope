@@ -412,7 +412,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 CheckBox checkBox = super.newCheckBox(id, model);
                 checkBox.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 18266219802290L;
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {

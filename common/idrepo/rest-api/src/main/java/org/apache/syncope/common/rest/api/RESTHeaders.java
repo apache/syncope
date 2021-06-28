@@ -33,6 +33,10 @@ public final class RESTHeaders {
 
     public static final String OWNED_ENTITLEMENTS = "X-Syncope-Entitlements";
 
+    public static final String DELEGATED_BY = "X-Syncope-Delegated-By";
+
+    public static final String DELEGATIONS = "X-Syncope-Delegations";
+
     public static final String RESOURCE_KEY = "X-Syncope-Key";
 
     public static final String CONNOBJECT_KEY = "X-Syncope-ConnObject-Key";

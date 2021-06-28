@@ -27,6 +27,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -54,6 +55,9 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
     @Autowired
     private AnySearchDAO searchDAO;
+
+    @Autowired
+    private DelegationDAO delegationDAO;
 
     @Autowired
     private SearchCondVisitor searchCondVisitor;
@@ -135,6 +139,8 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
         });
 
         clearDynMembers(role);
+
+        delegationDAO.findByRole(role).forEach(delegation -> delegation.getRoles().remove(role));
 
         entityManager().remove(role);
     }

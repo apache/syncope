@@ -44,12 +44,14 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -95,6 +97,9 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Autowired
     protected GroupDAO groupDAO;
 
+    @Autowired
+    protected DelegationDAO delegationDAO;
+
     @Resource(name = "adminUser")
     protected String adminUser;
 
@@ -116,6 +121,22 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public Date findLastChange(final String key) {
         return findLastChange(key, JPAUser.TABLE);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<String> findUsername(final String key) {
+        Query query = entityManager().createNativeQuery("SELECT username FROM " + JPAUser.TABLE + " WHERE id=?");
+        query.setParameter(1, key);
+
+        String username = null;
+        for (Object resultKey : query.getResultList()) {
+            username = resultKey instanceof Object[]
+                    ? (String) ((Object[]) resultKey)[0]
+                    : ((String) resultKey);
+        }
+
+        return Optional.ofNullable(username);
     }
 
     @Override
@@ -455,6 +476,13 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         roleDAO.removeDynMemberships(user.getKey());
         groupDAO.removeDynMemberships(user);
         dynRealmDAO.removeDynMemberships(user.getKey());
+
+        Set<String> delegations = delegationDAO.findByDelegating(user).stream().
+                map(Delegation::getKey).collect(Collectors.toSet());
+        delegations.forEach(delegationDAO::delete);
+        delegations = delegationDAO.findByDelegated(user).stream().
+                map(Delegation::getKey).collect(Collectors.toSet());
+        delegations.forEach(delegationDAO::delete);
 
         AccessToken accessToken = accessTokenDAO.findByOwner(user.getUsername());
         if (accessToken != null) {

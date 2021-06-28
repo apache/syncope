@@ -45,5 +45,4 @@ public class ApplicationRestClient extends BaseRestClient {
     public static List<ApplicationTO> list() {
         return getService(ApplicationService.class).list();
     }
-
 }

@@ -229,7 +229,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         byte[] authorities = null;
         try {
             authorities = ENCRYPTOR.encode(POJOHelper.serialize(
-                    authDataAccessor.getAuthorities(loginResponse.getUsername())), CipherAlgorithm.AES).
+                    authDataAccessor.getAuthorities(loginResponse.getUsername(), null)), CipherAlgorithm.AES).
                     getBytes();
         } catch (Exception e) {
             LOG.error("Could not fetch authorities", e);

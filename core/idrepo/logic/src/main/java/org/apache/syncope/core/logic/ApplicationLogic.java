@@ -133,5 +133,4 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
 
         throw new UnresolvedReferenceException();
     }
-
 }

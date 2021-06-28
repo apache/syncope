@@ -734,7 +734,7 @@ public class DefaultRealmPullResultHandler
         }
 
         notificationManager.createTasks(
-                AuthContextUtils.getUsername(),
+                AuthContextUtils.getWho(),
                 AuditElements.EventCategoryType.PULL,
                 SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                 profile.getTask().getResource().getKey(),
@@ -745,7 +745,7 @@ public class DefaultRealmPullResultHandler
                 delta);
 
         auditManager.audit(
-                AuthContextUtils.getUsername(),
+                AuthContextUtils.getWho(),
                 AuditElements.EventCategoryType.PULL,
                 SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                 profile.getTask().getResource().getKey(),

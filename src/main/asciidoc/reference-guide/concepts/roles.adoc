@@ -127,3 +127,23 @@ The actual Entitlements are assigned through the predefined `GROUP_OWNER` Role:
 . `GROUP_READ`
 . `GROUP_UPDATE`
 . `GROUP_DELETE`
+
+The `GROUP_OWNER` Role can be updated to adjust the set of assigned Entitlements.
+
+==== Delegation
+
+With Delegation, any user can delegate other users to perform operations on their behalf.
+
+In order to set up a Delegation, the following information shall be provided:
+
+* delegating User (mandatory) - administrators granted with `DELEGATION_CREATE` Entitlement can create Delegations for
+all defined Users; otherwise, the only accepted value is the User itself;
+* delegated User (mandatory) - any User defined, distinct from delegating;
+* start (mandatory) - initial timestamp from which the Delegation is considered effective;
+* end (optional) - final timestamp after which the Delegation is not considered effective: when not provided, Delegation
+will remain valid unless deleted;
+* roles (optional) - set of Roles granted by delegating to delegated User: only Roles owned by delegating can be
+granted, when not provided all owned Roles are considered as part of the Delegation.
+
+[NOTE]
+<<Audit>> entries generated when operating under Delegation will report both delegating and delegated users.

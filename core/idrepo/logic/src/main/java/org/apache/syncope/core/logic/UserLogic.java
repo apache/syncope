@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
@@ -45,6 +46,7 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -83,6 +85,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     protected AccessTokenDAO accessTokenDAO;
 
     @Autowired
+    protected DelegationDAO delegationDAO;
+
+    @Autowired
     protected ConfParamOps confParamOps;
 
     @Autowired
@@ -96,10 +101,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
     @Transactional(readOnly = true)
-    public Pair<String, UserTO> selfRead() {
-        return Pair.of(
+    public Triple<String, String, UserTO> selfRead() {
+        UserTO authenticatedUser = binder.getAuthenticatedUserTO();
+
+        return Triple.of(
                 POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
-                binder.returnUserTO(binder.getAuthenticatedUserTO()));
+                POJOHelper.serialize(delegationDAO.findValidDelegating(authenticatedUser.getKey())),
+                binder.returnUserTO(authenticatedUser));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_READ + "')")

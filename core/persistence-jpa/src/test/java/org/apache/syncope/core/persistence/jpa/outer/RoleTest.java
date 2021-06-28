@@ -25,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,10 +35,12 @@ import javax.persistence.Query;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
+import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
@@ -65,6 +69,9 @@ public class RoleTest extends AbstractTest {
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
+
+    @Autowired
+    private DelegationDAO delegationDAO;
 
     /**
      * Static copy of {@link org.apache.syncope.core.persistence.jpa.dao.JPAUserDAO} method with same signature:
@@ -201,5 +208,32 @@ public class RoleTest extends AbstractTest {
         user = userDAO.find(user.getKey());
         assertNotNull(user);
         assertTrue(user.getRoles().isEmpty());
+    }
+
+    @Test
+    public void deleteCascadeOnDelegations() {
+        User bellini = userDAO.findByUsername("bellini");
+        User rossini = userDAO.findByUsername("rossini");
+
+        Role reviewer = roleDAO.find("User reviewer");
+
+        Delegation delegation = entityFactory.newEntity(Delegation.class);
+        delegation.setDelegating(bellini);
+        delegation.setDelegated(rossini);
+        delegation.setStart(new Date());
+        delegation.add(reviewer);
+        delegation = delegationDAO.save(delegation);
+
+        entityManager().flush();
+
+        delegation = delegationDAO.find(delegation.getKey());
+
+        assertEquals(Collections.singletonList(delegation), delegationDAO.findByRole(reviewer));
+
+        roleDAO.delete(reviewer.getKey());
+
+        entityManager().flush();
+
+        assertTrue(delegationDAO.find(delegation.getKey()).getRoles().isEmpty());
     }
 }

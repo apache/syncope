@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -33,15 +34,19 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
+import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
@@ -84,6 +89,12 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private ApplicationDAO applicationDAO;
+
+    @Autowired
+    private DelegationDAO delegationDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Test
     public void delete() {
@@ -316,6 +327,34 @@ public class UserTest extends AbstractTest {
         entityManager().flush();
 
         assertNull(entityManager().find(JPALinkedAccount.class, account.getKey()));
+    }
+
+    @Test
+    public void deleteCascadeOnDelegations() {
+        User bellini = userDAO.findByUsername("bellini");
+        User rossini = userDAO.findByUsername("rossini");
+
+        Role reviewer = roleDAO.find("User reviewer");
+
+        Delegation delegation = entityFactory.newEntity(Delegation.class);
+        delegation.setDelegating(bellini);
+        delegation.setDelegated(rossini);
+        delegation.setStart(new Date());
+        delegation.add(reviewer);
+        delegation = delegationDAO.save(delegation);
+
+        entityManager().flush();
+
+        delegation = delegationDAO.find(delegation.getKey());
+
+        assertEquals(List.of(delegation), delegationDAO.findByDelegating(bellini));
+        assertEquals(List.of(delegation), delegationDAO.findByDelegated(rossini));
+
+        userDAO.delete(rossini.getKey());
+
+        entityManager().flush();
+
+        assertNull(delegationDAO.find(delegation.getKey()));
     }
 
     /**

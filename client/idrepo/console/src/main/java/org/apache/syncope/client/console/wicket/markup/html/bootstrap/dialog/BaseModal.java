@@ -90,7 +90,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
         content = new AbstractModalPanel<T>(this, null) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -6142277554912316095L;
 
         };
 

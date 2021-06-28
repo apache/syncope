@@ -624,7 +624,7 @@ public class AnySearchTest extends AbstractTest {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 new org.springframework.security.core.userdetails.User(
                         "poorGroupOwner", "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
-        auth.setDetails(new SyncopeAuthenticationDetails(SyncopeConstants.MASTER_DOMAIN));
+        auth.setDetails(new SyncopeAuthenticationDetails(SyncopeConstants.MASTER_DOMAIN, null));
 
         SecurityContextHolder.getContext().setAuthentication(auth);
         try {

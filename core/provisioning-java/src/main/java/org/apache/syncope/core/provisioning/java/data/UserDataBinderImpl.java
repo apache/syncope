@@ -57,9 +57,11 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
+import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
@@ -97,6 +99,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     private AccessTokenDAO accessTokenDAO;
 
     @Autowired
+    private DelegationDAO delegationDAO;
+
+    @Autowired
     private ConfParamOps confParamOps;
 
     @Resource(name = "adminUser")
@@ -118,7 +123,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     @Transactional(readOnly = true)
     @Override
     public UserTO getAuthenticatedUserTO() {
-        final UserTO authUserTO;
+        UserTO authUserTO;
 
         String authUsername = AuthContextUtils.getUsername();
         if (anonymousUser.equals(authUsername)) {
@@ -770,6 +775,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             // linked accounts
             userTO.getLinkedAccounts().addAll(
                     user.getLinkedAccounts().stream().map(this::getLinkedAccountTO).collect(Collectors.toList()));
+
+            // delegations
+            userTO.getDelegatingDelegations().addAll(
+                    delegationDAO.findByDelegating(user).stream().map(Delegation::getKey).collect(Collectors.toList()));
+            userTO.getDelegatedDelegations().addAll(
+                    delegationDAO.findByDelegated(user).stream().map(Delegation::getKey).collect(Collectors.toList()));
         }
 
         return userTO;

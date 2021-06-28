@@ -41,6 +41,14 @@ public interface LoggerDAO extends DAO<Logger> {
 
     void delete(Logger logger);
 
+    int countAuditEntries(
+            String entityKey,
+            AuditElements.EventCategoryType type,
+            String category,
+            String subcategory,
+            List<String> events,
+            AuditElements.Result result);
+
     List<AuditEntry> findAuditEntries(
             String entityKey,
             int page,
@@ -51,11 +59,4 @@ public interface LoggerDAO extends DAO<Logger> {
             List<String> events,
             AuditElements.Result result,
             List<OrderByClause> orderByClauses);
-
-    int countAuditEntries(String entityKey,
-                          AuditElements.EventCategoryType type,
-                          String category,
-                          String subcategory,
-                          List<String> events,
-                          AuditElements.Result result);
 }

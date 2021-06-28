@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.wizards.any;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
@@ -25,11 +25,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.panels.MergeLinkedAccountsReviewPanel.LinkedAccountsReviewDirectoryPanel.LinkedAccountsDataProvider;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardModel;
+import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsReviewPanel.LinkedAccountsReviewDirectoryPanel.LinkedAccountsDataProvider;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
