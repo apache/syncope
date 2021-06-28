@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Date;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
@@ -29,8 +30,10 @@ public abstract class AbstractSysInfoListener {
     protected static final Logger LOG = LoggerFactory.getLogger(AnnotatedEntityListener.class);
 
     protected void setSysInfoOnAnnotatedEntity(final AnnotatedEntity entity) {
-        String username = AuthContextUtils.getWho();
         LOG.debug("Set system properties for '{}'", entity);
+
+        String username = AuthContextUtils.getUsername()
+                + AuthContextUtils.getDelegatedBy().map(d -> " [delegated by " + d + "]").orElse(StringUtils.EMPTY);
 
         Date now = new Date();
 
