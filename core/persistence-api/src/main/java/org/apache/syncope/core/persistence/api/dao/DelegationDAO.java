@@ -28,7 +28,9 @@ public interface DelegationDAO extends DAO<Delegation> {
 
     Delegation find(String key);
 
-    Optional<String> findFor(String delegating, String delegated);
+    Optional<String> findValidFor(String delegating, String delegated);
+
+    List<String> findValidDelegating(String delegated);
 
     List<Delegation> findByDelegating(User user);
 

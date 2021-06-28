@@ -106,8 +106,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
         return Triple.of(
                 POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
-                POJOHelper.serialize(authenticatedUser.getDelegatedDelegations().stream().
-                        map(d -> delegationDAO.find(d).getDelegating().getUsername()).collect(Collectors.toList())),
+                POJOHelper.serialize(delegationDAO.findValidDelegating(authenticatedUser.getKey())),
                 binder.returnUserTO(authenticatedUser));
     }
 

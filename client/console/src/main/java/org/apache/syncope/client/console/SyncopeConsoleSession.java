@@ -116,6 +116,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     protected List<String> delegations;
 
+    protected String delegatedBy;
+
     protected Roles roles;
 
     public static SyncopeConsoleSession get() {
@@ -266,6 +268,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         client = null;
         auth = null;
         delegations = null;
+        delegatedBy = null;
         selfTO = null;
         services.clear();
     }
@@ -352,6 +355,18 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     public List<String> getDelegations() {
         return delegations;
+    }
+
+    public String getDelegatedBy() {
+        return delegatedBy;
+    }
+
+    public void setDelegatedBy(final String delegatedBy) {
+        this.delegatedBy = delegatedBy;
+
+        this.client.delegatedBy(delegatedBy);
+
+        refreshAuth(null);
     }
 
     public void refreshAuth(final String username) {

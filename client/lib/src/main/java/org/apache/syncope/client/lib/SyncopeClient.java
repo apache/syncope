@@ -119,7 +119,9 @@ public class SyncopeClient {
             restClientFactory.setPassword(((BasicAuthenticationHandler) handler).getPassword());
 
             String jwt = getService(AccessTokenService.class).login().getHeaderString(RESTHeaders.TOKEN);
-            restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, Collections.singletonList("Bearer " + jwt));
+            restClientFactory.getHeaders().put(
+                    HttpHeaders.AUTHORIZATION,
+                    Collections.singletonList("Bearer " + jwt));
 
             restClientFactory.setUsername(null);
             restClientFactory.setPassword(null);
@@ -132,8 +134,24 @@ public class SyncopeClient {
 
     protected void cleanup() {
         restClientFactory.getHeaders().remove(HttpHeaders.AUTHORIZATION);
+        restClientFactory.getHeaders().remove(RESTHeaders.DELEGATED_BY);
         restClientFactory.setUsername(null);
         restClientFactory.setPassword(null);
+    }
+
+    /**
+     * Requests to invoke services as delegating user.
+     *
+     * @param delegating delegating username
+     * @return this instance, for fluent usage
+     */
+    public SyncopeClient delegatedBy(final String delegating) {
+        if (delegating == null) {
+            restClientFactory.getHeaders().remove(RESTHeaders.DELEGATED_BY);
+        } else {
+            restClientFactory.getHeaders().put(RESTHeaders.DELEGATED_BY, Collections.singletonList(delegating));
+        }
+        return this;
     }
 
     /**
@@ -292,7 +310,7 @@ public class SyncopeClient {
                             new TypeReference<Map<String, Set<String>>>() {
                     }),
                     OBJECT_MAPPER.readValue(
-                            response.getHeaderString(RESTHeaders.DELEGATED_BY),
+                            response.getHeaderString(RESTHeaders.DELEGATIONS),
                             new TypeReference<List<String>>() {
                     }),
                     response.readEntity(UserTO.class));
@@ -325,18 +343,6 @@ public class SyncopeClient {
      */
     public <T> T prefer(final T service, final Preference preference) {
         return header(service, RESTHeaders.PREFER, preference.toString());
-    }
-
-    /**
-     * Requests to invoke the given service instance as delegating user.
-     *
-     * @param <T> any service class
-     * @param service service class instance
-     * @param delegating delegating username
-     * @return given service instance, with delegation set
-     */
-    public <T> T delegatedBy(final T service, final String delegating) {
-        return header(service, RESTHeaders.DELEGATED_BY, delegating);
     }
 
     /**

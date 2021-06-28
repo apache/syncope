@@ -189,7 +189,7 @@ public class AuthDataAccessor {
 
             LOG.debug("Delegation request: delegating:{}, delegated:{}", delegatingKey, delegatedKey);
 
-            return delegationDAO.findFor(delegatingKey, delegatedKey).
+            return delegationDAO.findValidFor(delegatingKey, delegatedKey).
                     orElseThrow(() -> new SessionAuthenticationException(
                     "Delegation by " + delegatingKey + " was requested but none found"));
         }).orElse(null);

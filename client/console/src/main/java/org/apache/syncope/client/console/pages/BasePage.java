@@ -30,12 +30,13 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
+import org.apache.syncope.client.console.panels.DelegationSelectionPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.ResponseHolder;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
 import org.apache.syncope.client.console.widgets.RemediationsWidget;
 import org.apache.syncope.common.lib.info.PlatformInfo;
@@ -53,7 +54,6 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -65,6 +65,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
@@ -104,7 +105,11 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         body.addOrReplace(notificationPanel.setOutputMarkupId(true));
 
         // header, footer
-        body.add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
+        String username = SyncopeConsoleSession.get().getSelfTO().getUsername();
+        if (SyncopeConsoleSession.get().getDelegatedBy() != null) {
+            username += " (" + SyncopeConsoleSession.get().getDelegatedBy() + ")";
+        }
+        body.add(new Label("username", username));
 
         remediationWidget = new RemediationsWidget("remediationWidget", getPageReference());
         body.add(remediationWidget.setRenderBodyOnly(true));
@@ -247,8 +252,30 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         });
         body.add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
 
+        WebMarkupContainer delegationsContainer = new WebMarkupContainer("delegationsContainer");
+        body.add(delegationsContainer.setOutputMarkupPlaceholderTag(true).
+                setVisible(!SyncopeConsoleSession.get().getDelegations().isEmpty()));
+        delegationsContainer.add(new Label("delegationsHeader", new ResourceModel("delegations")));
+        delegationsContainer.add(new ListView<String>("delegations", SyncopeConsoleSession.get().getDelegations()) {
+
+            @Override
+            protected void populateItem(final ListItem<String> item) {
+                item.add(new DelegationSelectionPanel("delegation", item.getModelObject()));
+            }
+        });
+
+        body.add(new IndicatingOnConfirmAjaxLink<String>("endDelegation", "confirmDelegation", true) {
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                SyncopeConsoleSession.get().setDelegatedBy(null);
+                setResponsePage(Dashboard.class);
+            }
+        }.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true).
+                setVisible(SyncopeConsoleSession.get().getDelegatedBy() != null));
+
         @SuppressWarnings("unchecked")
-        final Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) SyncopeConsoleSession.get().
+        Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) SyncopeConsoleSession.get().
                 getAttribute(Constants.BEFORE_LOGOUT_PAGE);
         if (beforeLogout == null) {
             body.add(new BookmarkablePageLink<>("logout", Logout.class));
@@ -439,25 +466,5 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     public RemediationsWidget getRemediationWidget() {
         return remediationWidget;
-    }
-
-    /**
-     * Set a WindowClosedCallback for a Modal instance.
-     *
-     * @param modal window
-     * @param container container
-     */
-    public void setWindowClosedCallback(final BaseModal<?> modal, final WebMarkupContainer container) {
-        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
-
-            private static final long serialVersionUID = 8804221891699487139L;
-
-            @Override
-            public void onClose(final AjaxRequestTarget target) {
-                if (container != null) {
-                    target.add(container);
-                }
-            }
-        });
     }
 }

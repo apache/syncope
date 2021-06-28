@@ -19,6 +19,8 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.PathParam;
@@ -43,6 +45,7 @@ public class DelegationTO extends AbstractStartEndBean implements EntityTO {
 
     private final Set<String> roles = new HashSet<>();
 
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @Override
     public String getKey() {
         return key;
@@ -75,6 +78,18 @@ public class DelegationTO extends AbstractStartEndBean implements EntityTO {
     @JsonProperty("roles")
     public Set<String> getRoles() {
         return roles;
+    }
+
+    @Schema(accessMode = Schema.AccessMode.READ_WRITE)
+    @Override
+    public Date getStart() {
+        return super.getStart();
+    }
+
+    @Schema(accessMode = Schema.AccessMode.READ_WRITE)
+    @Override
+    public Date getEnd() {
+        return super.getEnd();
     }
 
     @Override

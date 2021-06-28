@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
@@ -38,7 +39,7 @@ public class JPADelegationDAO extends AbstractDAO<Delegation> implements Delegat
     }
 
     @Override
-    public Optional<String> findFor(final String delegating, final String delegated) {
+    public Optional<String> findValidFor(final String delegating, final String delegated) {
         TypedQuery<Delegation> query = entityManager().createQuery(
                 "SELECT e FROM " + JPADelegation.class.getSimpleName() + " e "
                 + "WHERE e.delegating.id=:delegating AND e.delegated.id=:delegated "
@@ -50,6 +51,20 @@ public class JPADelegationDAO extends AbstractDAO<Delegation> implements Delegat
 
         List<Delegation> raw = query.getResultList();
         return raw.isEmpty() ? Optional.empty() : Optional.of(raw.get(0).getKey());
+    }
+
+    @Override
+    public List<String> findValidDelegating(final String delegated) {
+        TypedQuery<Delegation> query = entityManager().createQuery(
+                "SELECT e FROM " + JPADelegation.class.getSimpleName() + " e "
+                + "WHERE e.delegated.id=:delegated "
+                + "AND e.start <= :now AND (e.end IS NULL OR e.end >= :now)", Delegation.class);
+        query.setParameter("delegated", delegated);
+        query.setParameter("now", new Date());
+
+        return query.getResultList().stream().
+                map(delegation -> delegation.getDelegating().getUsername()).
+                collect(Collectors.toList());
     }
 
     @Override

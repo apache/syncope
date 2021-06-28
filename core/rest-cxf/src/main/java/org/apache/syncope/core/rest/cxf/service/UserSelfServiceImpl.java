@@ -61,7 +61,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
         return Response.ok().
                 header(RESTHeaders.RESOURCE_KEY, self.getRight().getKey()).
                 header(RESTHeaders.OWNED_ENTITLEMENTS, self.getLeft()).
-                header(RESTHeaders.DELEGATED_BY, self.getMiddle()).
+                header(RESTHeaders.DELEGATIONS, self.getMiddle()).
                 entity(self.getRight()).
                 build();
     }

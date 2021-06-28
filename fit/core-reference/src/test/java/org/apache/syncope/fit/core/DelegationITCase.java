@@ -239,7 +239,7 @@ public class DelegationITCase extends AbstractITCase {
         }
 
         // 3b. search users as rossini with delegation -> SUCCESS
-        int forRossini = rossini.delegatedBy(rossini.getService(UserService.class), "bellini").search(
+        int forRossini = rossini.delegatedBy("bellini").getService(UserService.class).search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).getTotalCount();
         assertEquals(forBellini, forRossini);
 
@@ -247,7 +247,7 @@ public class DelegationITCase extends AbstractITCase {
         delegationService.delete(delegation.getKey());
 
         try {
-            rossini.delegatedBy(rossini.getService(UserService.class), "bellini").search(
+            rossini.getService(UserService.class).search(
                     new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
             fail();
         } catch (AccessControlException e) {
