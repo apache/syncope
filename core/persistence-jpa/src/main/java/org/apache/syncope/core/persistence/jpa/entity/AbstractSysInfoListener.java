@@ -29,7 +29,7 @@ public abstract class AbstractSysInfoListener {
     protected static final Logger LOG = LoggerFactory.getLogger(AnnotatedEntityListener.class);
 
     protected void setSysInfoOnAnnotatedEntity(final AnnotatedEntity entity) {
-        String username = AuthContextUtils.getUsername();
+        String username = AuthContextUtils.getWho();
         LOG.debug("Set system properties for '{}'", entity);
 
         Date now = new Date();
