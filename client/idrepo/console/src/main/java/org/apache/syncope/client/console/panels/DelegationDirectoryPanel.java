@@ -167,7 +167,7 @@ public class DelegationDirectoryPanel extends
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
-                    LOG.error("While deleting {}", model.getObject(), e);
+                    LOG.error("While deleting {}", model.getObject().getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -192,7 +192,7 @@ public class DelegationDirectoryPanel extends
         }
     }
 
-    protected class DelegationDataProvider extends DirectoryDataProvider<DelegationTO> {
+    protected static class DelegationDataProvider extends DirectoryDataProvider<DelegationTO> {
 
         private static final long serialVersionUID = 28297380054779L;
 

@@ -100,10 +100,10 @@ public class DelegationWizardBuilder extends BaseAjaxWizardBuilder<DelegationTO>
                     delegating = Model.of(userRestClient.read(delegating.getObject()).getUsername());
                     delegated = Model.of(userRestClient.read(delegated.getObject()).getUsername());
                 } else {
-                    if (SyncopeConsoleSession.get().getSelfTO().getKey().equals(delegating)) {
+                    if (SyncopeConsoleSession.get().getSelfTO().getKey().equals(delegating.getObject())) {
                         delegating = Model.of(SyncopeConsoleSession.get().getSelfTO().getUsername());
                     }
-                    if (SyncopeConsoleSession.get().getSelfTO().getKey().equals(delegated)) {
+                    if (SyncopeConsoleSession.get().getSelfTO().getKey().equals(delegated.getObject())) {
                         delegated = Model.of(SyncopeConsoleSession.get().getSelfTO().getUsername());
                     }
                 }
@@ -129,7 +129,7 @@ public class DelegationWizardBuilder extends BaseAjaxWizardBuilder<DelegationTO>
         }
     }
 
-    private class StartEnd extends WizardStep {
+    private static class StartEnd extends WizardStep {
 
         private static final long serialVersionUID = 16957451737824L;
 
