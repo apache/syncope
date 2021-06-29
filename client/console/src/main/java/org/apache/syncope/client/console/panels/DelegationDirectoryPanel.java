@@ -166,7 +166,7 @@ public class DelegationDirectoryPanel extends
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
-                    LOG.error("While deleting {}", model.getObject(), e);
+                    LOG.error("While deleting {}", model.getObject().getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -196,8 +196,6 @@ public class DelegationDirectoryPanel extends
         private static final long serialVersionUID = 28297380054779L;
 
         private final SortableDataProviderComparator<DelegationTO> comparator;
-
-        private final DelegationRestClient restClient = new DelegationRestClient();
 
         public DelegationDataProvider(final int paginatorRows) {
             super(paginatorRows);
