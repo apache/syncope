@@ -427,7 +427,7 @@ public class DefaultRealmPushResultHandler
                 if (notificationsAvailable || auditRequested) {
                     Map<String, Object> jobMap = new HashMap<>();
                     jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
-                            AuthContextUtils.getUsername(),
+                            AuthContextUtils.getWho(),
                             AuditElements.EventCategoryType.PUSH,
                             SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                             profile.getTask().getResource().getKey(),

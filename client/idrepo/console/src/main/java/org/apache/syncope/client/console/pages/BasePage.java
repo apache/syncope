@@ -29,9 +29,11 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.console.annotations.IdMPage;
+import org.apache.syncope.client.console.panels.DelegationSelectionPanel;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
+import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
@@ -63,6 +65,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
@@ -87,7 +90,11 @@ public class BasePage extends BaseWebPage {
         add(body);
 
         // header, footer
-        body.add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
+        String username = SyncopeConsoleSession.get().getSelfTO().getUsername();
+        if (SyncopeConsoleSession.get().getDelegatedBy() != null) {
+            username += " (" + SyncopeConsoleSession.get().getDelegatedBy() + ")";
+        }
+        body.add(new Label("username", username));
 
         // right sidebar
         PlatformInfo platformInfo = SyncopeConsoleSession.get().getPlatformInfo();
@@ -294,10 +301,6 @@ public class BasePage extends BaseWebPage {
         liContainer = new WebMarkupContainer(getLIContainerId("security"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("security", Security.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER,
-                String.format("%s,%s",
-                        IdRepoEntitlement.ROLE_LIST,
-                        IdRepoEntitlement.APPLICATION_LIST));
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("policies"));
@@ -326,6 +329,28 @@ public class BasePage extends BaseWebPage {
         });
 
         body.add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
+
+        WebMarkupContainer delegationsContainer = new WebMarkupContainer("delegationsContainer");
+        body.add(delegationsContainer.setOutputMarkupPlaceholderTag(true).
+                setVisible(!SyncopeConsoleSession.get().getDelegations().isEmpty()));
+        delegationsContainer.add(new Label("delegationsHeader", new ResourceModel("delegations")));
+        delegationsContainer.add(new ListView<String>("delegations", SyncopeConsoleSession.get().getDelegations()) {
+
+            @Override
+            protected void populateItem(final ListItem<String> item) {
+                item.add(new DelegationSelectionPanel("delegation", item.getModelObject()));
+            }
+        });
+
+        body.add(new IndicatingOnConfirmAjaxLink<String>("endDelegation", "confirmDelegation", true) {
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                SyncopeConsoleSession.get().setDelegatedBy(null);
+                setResponsePage(Dashboard.class);
+            }
+        }.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true).
+                setVisible(SyncopeConsoleSession.get().getDelegatedBy() != null));
 
         @SuppressWarnings("unchecked")
         Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) SyncopeConsoleSession.get().

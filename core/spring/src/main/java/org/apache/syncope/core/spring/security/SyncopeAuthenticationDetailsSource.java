@@ -28,5 +28,4 @@ public class SyncopeAuthenticationDetailsSource
     public SyncopeAuthenticationDetails buildDetails(final HttpServletRequest context) {
         return new SyncopeAuthenticationDetails(context);
     }
-
 }

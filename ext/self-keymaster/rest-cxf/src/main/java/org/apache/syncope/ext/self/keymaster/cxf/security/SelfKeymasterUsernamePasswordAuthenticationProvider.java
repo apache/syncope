@@ -40,6 +40,7 @@ public class SelfKeymasterUsernamePasswordAuthenticationProvider extends Usernam
                     authentication.getCredentials().toString().equals(keymasterPassword),
                     SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain(),
                     keymasterUsername,
+                    null,
                     authentication);
         }
 

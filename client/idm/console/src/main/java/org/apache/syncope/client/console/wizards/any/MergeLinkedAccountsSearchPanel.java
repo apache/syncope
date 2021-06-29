@@ -16,8 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.wizards.any;
 
+import java.util.ArrayList;
 import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
@@ -26,7 +27,6 @@ import org.apache.syncope.client.console.panels.search.UserSelectionDirectoryPan
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
-import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardModel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -42,9 +42,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
 
-import java.util.ArrayList;
-
 public class MergeLinkedAccountsSearchPanel extends WizardStep {
+
     private static final long serialVersionUID = 1221037007528732347L;
 
     private final WebMarkupContainer ownerContainer;
@@ -73,14 +72,14 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep {
 
         userSearchFragment = new Fragment("search", "userSearchFragment", this);
         userSearchPanel = UserSearchPanel.class.cast(new UserSearchPanel.Builder(
-            new ListModel<>(new ArrayList<>())).required(false).enableSearch(MergeLinkedAccountsSearchPanel.this).
-            build("usersearch"));
+                new ListModel<>(new ArrayList<>())).required(false).enableSearch(MergeLinkedAccountsSearchPanel.this).
+                build("usersearch"));
         userSearchFragment.add(userSearchPanel);
 
         AnyTypeTO anyTypeTO = anyTypeRestClient.read(AnyTypeKind.USER.name());
         userDirectoryPanel = UserSelectionDirectoryPanel.class.cast(new UserSelectionDirectoryPanel.Builder(
-            anyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
-            build("searchResult"));
+                anyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                build("searchResult"));
 
         userSearchFragment.add(userDirectoryPanel);
         ownerContainer.add(userSearchFragment);
@@ -91,19 +90,19 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep {
         if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
             final AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
             final String fiql = "username!~" + this.wizardModel.getBaseUser().getUsername() + ';'
-                + SearchUtils.buildFIQL(userSearchPanel.getModel().getObject(),
-                SyncopeClient.getUserSearchConditionBuilder());
+                    + SearchUtils.buildFIQL(userSearchPanel.getModel().getObject(),
+                            SyncopeClient.getUserSearchConditionBuilder());
             userDirectoryPanel.search(fiql, target);
         } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
             AnySelectionDirectoryPanel.ItemSelection payload =
-                (AnySelectionDirectoryPanel.ItemSelection) event.getPayload();
+                    (AnySelectionDirectoryPanel.ItemSelection) event.getPayload();
 
             final AnyTO sel = payload.getSelection();
             this.wizardModel.setMergingUser(new UserRestClient().read(sel.getKey()));
 
             String tableId = ((Component) event.getSource()).
-                get("container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable").
-                getMarkupId();
+                    get("container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable").
+                    getMarkupId();
             String js = "$('#" + tableId + " tr').removeClass('active');";
             js += "$('#" + tableId + " td[title=" + sel.getKey() + "]').parent().addClass('active');";
             payload.getTarget().prependJavaScript(js);

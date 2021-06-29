@@ -102,6 +102,8 @@ public final class IdRepoConstants {
 
     public static final String PREF_TYPE_EXTENSIONS_PAGINATOR_ROWS = "typeextensions.paginator.rows";
 
+    public static final String PREF_DELEGATION_PAGINATOR_ROWS = "delegation.paginator.rows";
+
     public static final String PREF_TODO_PAGINATOR_ROWS = "todo.paginator.rows";
 
     public static final String PREF_REPORT_PAGINATOR_ROWS = "report.paginator.rows";

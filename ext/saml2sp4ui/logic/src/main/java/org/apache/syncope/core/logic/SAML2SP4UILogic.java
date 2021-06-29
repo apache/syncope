@@ -407,7 +407,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         byte[] authorities = null;
         try {
             authorities = ENCRYPTOR.encode(POJOHelper.serialize(
-                    authDataAccessor.getAuthorities(loginResp.getUsername())), CipherAlgorithm.AES).getBytes();
+                    authDataAccessor.getAuthorities(loginResp.getUsername(), null)), CipherAlgorithm.AES).getBytes();
         } catch (Exception e) {
             LOG.error("Could not fetch authorities", e);
         }

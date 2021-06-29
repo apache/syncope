@@ -41,7 +41,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
@@ -336,7 +336,7 @@ public class UserITCase extends AbstractITCase {
 
         // 3. verify password
         try {
-            Pair<Map<String, Set<String>>, UserTO> self =
+            Triple<Map<String, Set<String>>, List<String>, UserTO> self =
                     clientFactory.create(userTO.getUsername(), "password123").self();
             assertNotNull(self);
         } catch (AccessControlException e) {

@@ -77,8 +77,25 @@ under the License.
                   <wicket:message key="domain"/>: <label wicket:id="domain"/>
                 </div>
               </li>
+              <li class="user-body" wicket:id="delegationsContainer">
+                <div class="row">
+                  <div class="col-xs-12 text-center">
+                    <div class="box box-primary">
+                      <div class="box-header">
+                        <h3 class="box-title" wicket:id="delegationsHeader"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-xs-12 text-center">
+                    <span wicket:id="delegations">
+                      <span wicket:id="delegation"/>
+                    </span>
+                  </div>
+                </div>
+              </li>
               <!-- Menu Footer-->
               <li class="user-footer">
+                <a href="#" class="btn btn-default btn-flat float-left" wicket:id="endDelegation"><wicket:message key="endDelegation"/></a>
                 <a href="#" class="btn btn-default btn-flat float-right" wicket:id="logout"><wicket:message key="logout"/></a>
               </li>
             </ul>

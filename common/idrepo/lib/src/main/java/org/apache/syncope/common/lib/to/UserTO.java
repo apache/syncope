@@ -74,6 +74,10 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private final List<LinkedAccountTO> linkedAccounts = new ArrayList<>();
 
+    private final List<String> delegatingDelegations = new ArrayList<>();
+
+    private final List<String> delegatedDelegations = new ArrayList<>();
+
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.UserTO")
@@ -261,6 +265,20 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return linkedAccounts;
     }
 
+    @JacksonXmlElementWrapper(localName = "delegatingDelegations")
+    @JacksonXmlProperty(localName = "delegatingDelegation")
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    public List<String> getDelegatingDelegations() {
+        return delegatingDelegations;
+    }
+
+    @JacksonXmlElementWrapper(localName = "getDelegatedDelegations")
+    @JacksonXmlProperty(localName = "getDelegatedDelegation")
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    public List<String> getDelegatedDelegations() {
+        return delegatedDelegations;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -282,6 +300,8 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 append(memberships).
                 append(dynMemberships).
                 append(linkedAccounts).
+                append(delegatingDelegations).
+                append(delegatedDelegations).
                 build();
     }
 
@@ -316,6 +336,8 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 append(memberships, other.memberships).
                 append(dynMemberships, other.dynMemberships).
                 append(linkedAccounts, other.linkedAccounts).
+                append(delegatingDelegations, other.delegatingDelegations).
+                append(delegatedDelegations, other.delegatedDelegations).
                 build();
     }
 }
