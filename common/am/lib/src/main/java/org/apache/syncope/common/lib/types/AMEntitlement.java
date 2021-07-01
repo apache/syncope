@@ -96,6 +96,10 @@ public final class AMEntitlement {
 
     public static final String WA_CONFIG_PUSH = "WA_CONFIG_PUSH";
 
+    public static final String WA_SESSION_LIST = "WA_SESSION_LIST";
+
+    public static final String WA_SESSION_DELETE = "WA_SESSION_DELETE";
+
     private static final Set<String> VALUES;
 
     static {

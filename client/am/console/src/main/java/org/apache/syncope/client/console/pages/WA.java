@@ -38,13 +38,12 @@ import org.apache.syncope.client.console.clientapps.ClientApps;
 import org.apache.syncope.client.console.panels.OIDC;
 import org.apache.syncope.client.console.panels.SAML2;
 import org.apache.syncope.client.console.panels.WAConfigDirectoryPanel;
+import org.apache.syncope.client.console.panels.WASessionPanel;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -75,6 +74,8 @@ public class WA extends BasePage {
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
         body.setOutputMarkupId(true);
 
+        List<NetworkService> waInstances = serviceOps.list(NetworkService.Type.WA);
+
         AjaxLink<?> push = new AjaxLink<>("push") {
 
             @Override
@@ -90,19 +91,20 @@ public class WA extends BasePage {
                 ((BaseWebPage) getPageReference().getPage()).getNotificationPanel().refresh(target);
             }
         };
-        push.setEnabled(!serviceOps.list(NetworkService.Type.WA).isEmpty()
-                && SyncopeConsoleSession.get().owns(AMEntitlement.WA_CONFIG_PUSH, SyncopeConstants.ROOT_REALM));
+        push.setEnabled(!waInstances.isEmpty()
+                && SyncopeConsoleSession.get().owns(AMEntitlement.WA_CONFIG_PUSH));
         body.add(push);
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
-        AjaxBootstrapTabbedPanel<ITab> tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
+        AjaxBootstrapTabbedPanel<ITab> tabbedPanel =
+                new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(waInstances));
         content.add(tabbedPanel);
 
         body.add(content);
 
-        if (!serviceOps.list(NetworkService.Type.WA).isEmpty()) {
-            String actuatorEndpoint = serviceOps.list(NetworkService.Type.WA).get(0).getAddress() + "/actuator/env";
+        if (!waInstances.isEmpty()) {
+            String actuatorEndpoint = waInstances.get(0).getAddress() + "/actuator/env";
             try {
                 Response response = WebClient.create(
                         actuatorEndpoint,
@@ -132,10 +134,10 @@ public class WA extends BasePage {
         }
     }
 
-    private List<ITab> buildTabList() {
+    private List<ITab> buildTabList(final List<NetworkService> waInstances) {
         List<ITab> tabs = new ArrayList<>(0);
 
-        if (SyncopeConsoleSession.get().owns(AMEntitlement.AUTH_MODULE_LIST, SyncopeConstants.ROOT_REALM)) {
+        if (SyncopeConsoleSession.get().owns(AMEntitlement.AUTH_MODULE_LIST)) {
             tabs.add(new AbstractTab(new ResourceModel("authModules")) {
 
                 private static final long serialVersionUID = 5211692813425391144L;
@@ -147,7 +149,7 @@ public class WA extends BasePage {
             });
         }
 
-        if (SyncopeConsoleSession.get().owns(AMEntitlement.CLIENTAPP_LIST, SyncopeConstants.ROOT_REALM)) {
+        if (SyncopeConsoleSession.get().owns(AMEntitlement.CLIENTAPP_LIST)) {
             tabs.add(new AbstractTab(new ResourceModel("clientApps")) {
 
                 private static final long serialVersionUID = 5211692813425391144L;
@@ -179,7 +181,7 @@ public class WA extends BasePage {
             }
         });
 
-        if (SyncopeConsoleSession.get().owns(AMEntitlement.WA_CONFIG_LIST, SyncopeConstants.ROOT_REALM)) {
+        if (SyncopeConsoleSession.get().owns(AMEntitlement.WA_CONFIG_LIST)) {
             tabs.add(new AbstractTab(new ResourceModel("config")) {
 
                 private static final long serialVersionUID = 5211692813425391144L;
@@ -191,7 +193,7 @@ public class WA extends BasePage {
             });
         }
 
-        if (SyncopeConsoleSession.get().owns(AMEntitlement.AUTH_PROFILE_LIST, SyncopeConstants.ROOT_REALM)) {
+        if (SyncopeConsoleSession.get().owns(AMEntitlement.AUTH_PROFILE_LIST)) {
             tabs.add(new AbstractTab(new ResourceModel("authProfiles")) {
 
                 private static final long serialVersionUID = 5211692813425391144L;
@@ -203,15 +205,14 @@ public class WA extends BasePage {
             });
         }
 
-        List<NetworkService> instances = serviceOps.list(NetworkService.Type.WA);
-        if (!instances.isEmpty()) {
+        if (!waInstances.isEmpty() && SyncopeConsoleSession.get().owns(AMEntitlement.WA_SESSION_LIST)) {
             tabs.add(new AbstractTab(new ResourceModel("sessions")) {
 
                 private static final long serialVersionUID = 5211692813425391144L;
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new AjaxTextFieldPanel(panelId, panelId, Model.of(instances.get(0).getAddress()));
+                    return new WASessionPanel(panelId, waInstances, getPageReference());
                 }
             });
         }

@@ -156,7 +156,7 @@ public class DashboardOverviewPanel extends Panel {
         if (numbers.getAnyType1() == null) {
             number = numbers.getTotalRoles();
             label = new ResourceModel("roles").getObject();
-            icon = "fa fa-users";
+            icon = "fas fa-users";
         } else {
             number = numbers.getTotalAny1();
             label = numbers.getAnyType1();

@@ -82,9 +82,9 @@ public class SCIMDataBinder {
     private AuthDataAccessor authDataAccessor;
 
     private static <E extends Enum<?>> void fill(
-        final Map<String, Attr> attrs,
-        final List<SCIMComplexConf<E>> confs,
-        final List<SCIMComplexValue> values) {
+            final Map<String, Attr> attrs,
+            final List<SCIMComplexConf<E>> confs,
+            final List<SCIMComplexValue> values) {
 
         confs.forEach(conf -> {
             SCIMComplexValue value = new SCIMComplexValue();
@@ -109,19 +109,19 @@ public class SCIMDataBinder {
     }
 
     private static boolean output(
-        final List<String> attributes,
-        final List<String> excludedAttributes,
-        final String schema) {
+            final List<String> attributes,
+            final List<String> excludedAttributes,
+            final String schema) {
 
         return (attributes.isEmpty() || attributes.contains(schema))
                 && (excludedAttributes.isEmpty() || !excludedAttributes.contains(schema));
     }
 
     private static <T> T output(
-        final List<String> attributes,
-        final List<String> excludedAttributes,
-        final String schema,
-        final T value) {
+            final List<String> attributes,
+            final List<String> excludedAttributes,
+            final String schema,
+            final T value) {
 
         return output(attributes, excludedAttributes, schema)
                 ? value
@@ -399,7 +399,7 @@ public class SCIMDataBinder {
             }
 
             if (output(attributes, excludedAttributes, "entitlements")) {
-                authDataAccessor.getAuthorities(userTO.getUsername()).forEach(authority -> user.getEntitlements().
+                authDataAccessor.getAuthorities(userTO.getUsername(), null).forEach(authority -> user.getEntitlements().
                         add(new Value(authority.getAuthority() + " on Realm(s) " + authority.getRealms())));
             }
 
@@ -412,18 +412,14 @@ public class SCIMDataBinder {
     }
 
     private static <E extends Enum<?>> void fill(
-        final Set<Attr> attrs,
-        final List<SCIMComplexConf<E>> confs,
-        final List<SCIMComplexValue> values) {
+            final Set<Attr> attrs,
+            final List<SCIMComplexConf<E>> confs,
+            final List<SCIMComplexValue> values) {
 
-        values.forEach(value -> {
-            if (value.getType() != null) {
-                confs.stream().
-                        filter(object -> value.getType().equals(object.getType().name())).findFirst().
-                        ifPresent(conf -> attrs.add(
-                        new Attr.Builder(conf.getValue()).value(value.getValue()).build()));
-            }
-        });
+        values.stream().filter(value -> value.getType() != null).forEach(value -> confs.stream().
+                filter(object -> value.getType().equals(object.getType().name())).findFirst().
+                ifPresent(conf -> attrs.add(
+                new Attr.Builder(conf.getValue()).value(value.getValue()).build())));
     }
 
     public UserTO toUserTO(final SCIMUser user) {

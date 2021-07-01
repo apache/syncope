@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.syncope.client.console.AbstractTest.TestSyncopeWebApplication.SyncopeServiceClient;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
@@ -254,7 +254,7 @@ public abstract class AbstractTest {
         public SyncopeClientFactoryBean newClientFactory() {
             SyncopeClient client = mock(SyncopeClient.class);
 
-            when(client.self()).thenReturn(Pair.of(new HashMap<>(), getUserTO()));
+            when(client.self()).thenReturn(Triple.of(new HashMap<>(), List.of(), getUserTO()));
 
             SyncopeService syncopeService = getSyncopeService();
             when(client.getService(SyncopeService.class)).thenReturn(syncopeService);
@@ -281,7 +281,7 @@ public abstract class AbstractTest {
     @BeforeAll
     public static void loadProps() throws IOException {
         PROPS = new Properties();
-        try ( InputStream is = AbstractTest.class.getResourceAsStream("/console.properties")) {
+        try (InputStream is = AbstractTest.class.getResourceAsStream("/console.properties")) {
             PROPS.load(is);
         }
     }

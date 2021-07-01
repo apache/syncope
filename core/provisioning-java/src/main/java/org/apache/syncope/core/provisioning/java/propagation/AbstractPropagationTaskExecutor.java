@@ -482,7 +482,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         if (notificationsAvailable || auditRequested) {
             ExecTO execTO = taskDataBinder.getExecTO(execution);
             notificationManager.createTasks(
-                    AuthContextUtils.getUsername(),
+                    AuthContextUtils.getWho(),
                     AuditElements.EventCategoryType.PROPAGATION,
                     anyTypeKind,
                     task.getResource().getKey(),
@@ -493,7 +493,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     taskInfo);
 
             auditManager.audit(
-                    AuthContextUtils.getUsername(),
+                    AuthContextUtils.getWho(),
                     AuditElements.EventCategoryType.PROPAGATION,
                     anyTypeKind,
                     task.getResource().getKey(),

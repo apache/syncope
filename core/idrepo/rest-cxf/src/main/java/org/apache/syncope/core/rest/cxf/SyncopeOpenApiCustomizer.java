@@ -117,8 +117,7 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
     @Override
     protected void addParameters(final List<Parameter> parameters) {
         Optional<Parameter> domainHeaderParameter = parameters.stream().filter(parameter
-                -> parameter instanceof HeaderParameter && RESTHeaders.DOMAIN.equals(parameter.getName())).
-                findFirst();
+                -> parameter instanceof HeaderParameter && RESTHeaders.DOMAIN.equals(parameter.getName())).findFirst();
         if (domainHeaderParameter.isEmpty()) {
             HeaderParameter parameter = new HeaderParameter();
             parameter.setName(RESTHeaders.DOMAIN);
@@ -126,13 +125,32 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
             ExternalDocumentation extDoc = new ExternalDocumentation();
             extDoc.setDescription("Apache Syncope Reference Guide");
-            extDoc.setUrl("http://syncope.apache.org/docs/2.1/reference-guide.html#domains");
+            extDoc.setUrl("http://syncope.apache.org/docs/3.0/reference-guide.html#domains");
 
             Schema<String> schema = new Schema<>();
             schema.setDescription("Domains are built to facilitate multitenancy.");
             schema.setExternalDocs(extDoc);
             schema.setEnum(domains);
             schema.setDefault(SyncopeConstants.MASTER_DOMAIN);
+            parameter.setSchema(schema);
+
+            parameters.add(parameter);
+        }
+
+        Optional<Parameter> delegatedByHeaderParameter = parameters.stream().
+                filter(p -> p instanceof HeaderParameter && RESTHeaders.DELEGATED_BY.equals(p.getName())).findFirst();
+        if (!delegatedByHeaderParameter.isPresent()) {
+            HeaderParameter parameter = new HeaderParameter();
+            parameter.setName(RESTHeaders.DELEGATED_BY);
+            parameter.setRequired(false);
+
+            ExternalDocumentation extDoc = new ExternalDocumentation();
+            extDoc.setDescription("Apache Syncope Reference Guide");
+            extDoc.setUrl("http://syncope.apache.org/docs/3.0/reference-guide.html#delegation");
+
+            Schema<String> schema = new Schema<>();
+            schema.setDescription("Acton behalf of someone else");
+            schema.setExternalDocs(extDoc);
             parameter.setSchema(schema);
 
             parameters.add(parameter);

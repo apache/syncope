@@ -191,7 +191,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             super(id, model);
             setOutputMarkupId(true);
 
-            final AjaxDropDownChoicePanel<String> type =
+            AjaxDropDownChoicePanel<String> type =
                     new AjaxDropDownChoicePanel<>("about", "anyType", new Model<String>() {
 
                         private static final long serialVersionUID = -2350296434572623272L;
@@ -211,7 +211,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             type.addRequiredLabel();
             add(type);
 
-            final ListModel<SearchClause> clauseModel = new ListModel<SearchClause>() {
+            ListModel<SearchClause> clauseModel = new ListModel<SearchClause>() {
 
                 private static final long serialVersionUID = 3769540249683319782L;
 
@@ -224,7 +224,6 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
                 public void setObject(final List<SearchClause> object) {
                     model.getObject().setValue(object);
                 }
-
             };
 
             WebMarkupContainer searchContainer = new WebMarkupContainer("search");
@@ -275,7 +274,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
         public Abouts(final NotificationWrapper modelObject) {
             setTitleModel(new ResourceModel("about"));
 
-            final WebMarkupContainer aboutContainer = new WebMarkupContainer("about");
+            WebMarkupContainer aboutContainer = new WebMarkupContainer("about");
             aboutContainer.setOutputMarkupId(true);
             add(aboutContainer);
 
