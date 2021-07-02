@@ -29,11 +29,13 @@ import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.jpa.entity.JPARemediation;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
 @Repository
 public class JPARemediationDAO extends AbstractDAO<Remediation> implements RemediationDAO {
 
+    @Transactional(readOnly = true)
     @Override
     public Remediation find(final String key) {
         return entityManager().find(JPARemediation.class, key);
@@ -122,6 +124,7 @@ public class JPARemediationDAO extends AbstractDAO<Remediation> implements Remed
         entityManager().remove(remediation);
     }
 
+    @Transactional
     @Override
     public void delete(final String key) {
         Remediation remediation = find(key);
@@ -131,5 +134,4 @@ public class JPARemediationDAO extends AbstractDAO<Remediation> implements Remed
 
         delete(remediation);
     }
-
 }
