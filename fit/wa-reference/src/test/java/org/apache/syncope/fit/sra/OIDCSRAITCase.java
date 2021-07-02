@@ -76,7 +76,8 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
     public static void startSRA() throws IOException, InterruptedException, TimeoutException {
         assumeTrue(OIDCSRAITCase.class.equals(MethodHandles.lookup().lookupClass()));
 
-        doStartSRA("oidc");
+        // doStartSRA("oidc");
+        sraRouteService.pushToSRA();
     }
 
     protected static void oidcClientAppSetup(

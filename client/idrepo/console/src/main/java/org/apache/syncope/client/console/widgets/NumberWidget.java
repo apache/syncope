@@ -36,11 +36,11 @@ public class NumberWidget extends BaseWidget {
 
     private static final long serialVersionUID = -816175678514035085L;
 
-    private int number;
+    private Number number;
 
     private final Label numberLabel;
 
-    public NumberWidget(final String id, final String bg, final int number, final String label, final String icon) {
+    public NumberWidget(final String id, final String bg, final Number number, final String label, final String icon) {
         super(id);
         this.number = number;
         setOutputMarkupId(true);
@@ -49,8 +49,8 @@ public class NumberWidget extends BaseWidget {
         box.add(new AttributeAppender("class", ' ' + bg));
 
         boolean isAuthorized = true;
-        final PageParameters pageParameters = new PageParameters();
-        final Class<? extends IRequestablePage> responsePage;
+        PageParameters pageParameters = new PageParameters();
+        Class<? extends IRequestablePage> responsePage;
         List<String> anyTypes = AnyTypeRestClient.list();
         switch (id) {
             case "totalUsers":
@@ -124,7 +124,7 @@ public class NumberWidget extends BaseWidget {
         box.add(iconLabel);
     }
 
-    public boolean refresh(final int number) {
+    public boolean refresh(final Number number) {
         if (this.number != number) {
             this.number = number;
             numberLabel.setDefaultModelObject(number);

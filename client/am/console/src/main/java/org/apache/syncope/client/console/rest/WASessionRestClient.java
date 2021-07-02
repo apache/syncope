@@ -42,8 +42,8 @@ public final class WASessionRestClient implements RestClient {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static String getActuatorEndpoint(final List<NetworkService> waInstances) {
-        return waInstances.get(0).getAddress() + "/actuator/ssoSessions";
+    private static String getActuatorEndpoint(final List<NetworkService> instances) {
+        return instances.get(0).getAddress() + "actuator/ssoSessions";
     }
 
     public static List<WASession> list(final List<NetworkService> waInstances) {

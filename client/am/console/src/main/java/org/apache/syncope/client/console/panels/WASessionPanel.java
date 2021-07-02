@@ -36,7 +36,7 @@ public class WASessionPanel extends Panel {
 
     private static final long serialVersionUID = 30189416462011L;
 
-    public WASessionPanel(final String id, final List<NetworkService> waInstances, final PageReference pageRef) {
+    public WASessionPanel(final String id, final List<NetworkService> instances, final PageReference pageRef) {
         super(id);
 
         Model<String> keywordModel = new Model<>(StringUtils.EMPTY);
@@ -44,7 +44,7 @@ public class WASessionPanel extends Panel {
         WebMarkupContainer searchBoxContainer = new WebMarkupContainer("searchBox");
         add(searchBoxContainer);
 
-        WASessionDirectoryPanel directoryPanel = new WASessionDirectoryPanel("directoryPanel", waInstances, pageRef);
+        WASessionDirectoryPanel directoryPanel = new WASessionDirectoryPanel("directoryPanel", instances, pageRef);
         add(directoryPanel);
 
         Form<?> form = new Form<>("form");
