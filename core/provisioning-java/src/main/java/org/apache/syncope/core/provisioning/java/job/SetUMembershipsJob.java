@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -115,6 +116,8 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
         } catch (RuntimeException e) {
             LOG.error("While setting memberships", e);
             throw new JobExecutionException("While executing memberships", e);
+        } finally {
+            ApplicationContextProvider.getBeanFactory().destroySingleton(context.getJobDetail().getKey().getName());
         }
     }
 }

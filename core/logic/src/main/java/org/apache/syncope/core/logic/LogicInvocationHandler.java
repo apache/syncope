@@ -20,14 +20,11 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
-import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -36,7 +33,6 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 @Aspect
 public class LogicInvocationHandler {
@@ -48,9 +44,6 @@ public class LogicInvocationHandler {
 
     @Autowired
     private AuditManager auditManager;
-
-    @Autowired
-    private SchedulerFactoryBean scheduler;
 
     @Around("execution(* org.apache.syncope.core.logic.AbstractLogic+.*(..))")
     public Object around(final ProceedingJoinPoint joinPoint) throws Throwable {
@@ -99,8 +92,7 @@ public class LogicInvocationHandler {
             throw t;
         } finally {
             if (notificationsAvailable || auditRequested) {
-                Map<String, Object> jobMap = new HashMap<>();
-                jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
+                AfterHandlingEvent afterHandlingEvent = new AfterHandlingEvent(
                         AuthContextUtils.getWho(),
                         AuditElements.EventCategoryType.LOGIC,
                         category,
@@ -109,8 +101,16 @@ public class LogicInvocationHandler {
                         condition,
                         before,
                         output,
-                        input));
-                AfterHandlingJob.schedule(scheduler, jobMap);
+                        input);
+                AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(), () -> {
+                    try {
+                        notificationManager.createTasks(afterHandlingEvent);
+                        auditManager.audit(afterHandlingEvent);
+                    } catch (Throwable t) {
+                        LOG.error("While managing Audit and Notifications", t);
+                    }
+                    return null;
+                });
             }
         }
     }

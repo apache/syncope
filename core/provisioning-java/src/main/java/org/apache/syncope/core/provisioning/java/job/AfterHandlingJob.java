@@ -31,6 +31,7 @@ import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
@@ -53,18 +54,18 @@ public class AfterHandlingJob extends AbstractInterruptableJob {
         @SuppressWarnings("unchecked")
         AfterHandlingJob jobInstance = (AfterHandlingJob) ApplicationContextProvider.getBeanFactory().
                 createBean(AfterHandlingJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-        String jobName = AfterHandlingJob.class.getName() + SecureRandomUtils.generateRandomUUID();
+        String jobName = AfterHandlingJob.class.getSimpleName() + SecureRandomUtils.generateRandomUUID();
 
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
 
         ApplicationContextProvider.getBeanFactory().registerSingleton(jobName, jobInstance);
 
         JobBuilder jobDetailBuilder = JobBuilder.newJob(AfterHandlingJob.class).
-                withIdentity(jobName).
+                withIdentity(jobName, Scheduler.DEFAULT_GROUP).
                 usingJobData(new JobDataMap(jobMap));
 
         TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger().
-                withIdentity(JobNamer.getTriggerName(jobName)).
+                withIdentity(JobNamer.getTriggerName(jobName), Scheduler.DEFAULT_GROUP).
                 startNow();
 
         try {
@@ -93,6 +94,8 @@ public class AfterHandlingJob extends AbstractInterruptableJob {
                     });
         } catch (RuntimeException e) {
             throw new JobExecutionException("While handling notification / audit events", e);
+        } finally {
+            ApplicationContextProvider.getBeanFactory().destroySingleton(context.getJobDetail().getKey().getName());
         }
     }
 }
