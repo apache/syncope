@@ -119,12 +119,12 @@ public class OIDC4UIITCase extends AbstractUIITCase {
             cas.setClientID(appName);
             cas.setClientSecret(appName);
 
-            cas.setIssuer(WA_ADDRESS + "/oidc/");
-            cas.setAuthorizationEndpoint(WA_ADDRESS + "/oidc/authorize");
-            cas.setTokenEndpoint(WA_ADDRESS + "/oidc/accessToken");
-            cas.setJwksUri(WA_ADDRESS + "/oidc/jwks");
-            cas.setUserinfoEndpoint(WA_ADDRESS + "/oidc/profile");
-            cas.setEndSessionEndpoint(WA_ADDRESS + "/oidc/logout");
+            cas.setIssuer(WA_ADDRESS + "/oidc");
+            cas.setAuthorizationEndpoint(cas.getIssuer() + "/authorize");
+            cas.setTokenEndpoint(cas.getIssuer() + "/accessToken");
+            cas.setJwksUri(cas.getIssuer() + "/jwks");
+            cas.setUserinfoEndpoint(cas.getIssuer() + "/profile");
+            cas.setEndSessionEndpoint(cas.getIssuer() + "/logout");
 
             cas.setCreateUnmatching(createUnmatching);
             cas.setSelfRegUnmatching(selfRegUnmatching);
