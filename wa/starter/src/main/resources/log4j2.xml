@@ -37,11 +37,11 @@ under the License.
 
   <loggers>
 
-    <asyncLogger name="org.apereo.cas" additivity="false" level="DEBUG">
+    <asyncLogger name="org.apereo.cas" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
 
-    <asyncLogger name="org.apereo.services.persondir" additivity="false" level="DEBUG">
+    <asyncLogger name="org.apereo.services.persondir" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
 
