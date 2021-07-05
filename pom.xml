@@ -2939,16 +2939,16 @@ under the License.
   </profiles>
 
   <modules>
-    <!-- <module>common</module> -->
-    <!-- <module>core</module> -->
-    <!-- <module>client</module> -->
+    <module>common</module>
+    <module>core</module>
+    <module>client</module>
     <module>sra</module>
     <module>wa</module>
     <module>fit</module>
-    <!-- <module>ext</module> -->
-    <!-- <module>archetype</module> -->
-    <!-- <module>standalone</module> -->
-    <!-- <module>ide</module> -->
+    <module>ext</module>
+    <module>archetype</module>
+    <module>standalone</module>
+    <module>ide</module>
   </modules>
 
 </project>
