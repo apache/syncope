@@ -32,5 +32,5 @@ for the Master domain.
 `java:comp/env/jdbc/syncopeMasterDataSource` for the Master domain. +
 Each JavaEE Container provides its own way to accomplish this task:
   * https://tomcat.apache.org/tomcat-9.0-doc/jdbc-pool.html[Apache Tomcat 9^]
-  * https://payara.gitbooks.io/payara-server/content/documentation/user-guides/connection-pools/connection-pools.html[Payara Server 5^]
-  * http://docs.wildfly.org/14/Admin_Guide.html#DataSource[Wildfly 14^]
+  * https://docs.payara.fish/community/docs/documentation/user-guides/connection-pools/connection-pools.html[Payara Server 5^]
+  * https://docs.wildfly.org/14/Admin_Guide.html#DataSource[Wildfly 14^]
