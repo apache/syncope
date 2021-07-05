@@ -21,9 +21,12 @@ package org.apache.syncope.sra;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
+import org.apache.syncope.sra.actuator.SRASessions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cache.CacheManager;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.context.annotation.Bean;
@@ -42,9 +45,18 @@ public class SyncopeSRAApplication {
     @Autowired
     private RouteProvider provider;
 
+    @Autowired
+    private CacheManager cacheManager;
+
     @Bean
     public RouteLocator routes() {
         return () -> Flux.fromIterable(provider.fetch()).map(Route.AbstractBuilder::build);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SRASessions sraSessionsActuatorEndpoint() {
+        return new SRASessions(cacheManager);
     }
 
     @Bean

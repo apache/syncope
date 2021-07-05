@@ -508,7 +508,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.46</tomcat.version>
+    <tomcat.version>9.0.50</tomcat.version>
     <wildfly.version>23.0.2.Final</wildfly.version>
     <payara.version>5.2021.4</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
@@ -2129,7 +2129,10 @@ under the License.
             <useIncrementalCompilation>false</useIncrementalCompilation>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
-            <compilerArgument>-Xlint:unchecked</compilerArgument>
+            <compilerArgs>
+              <arg>-Xlint:unchecked</arg>
+              <arg>-parameters</arg>
+            </compilerArgs>
           </configuration>
         </plugin>
 

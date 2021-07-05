@@ -26,7 +26,9 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.console.panels.SRARouteDirectoryPanel;
 import org.apache.syncope.client.console.panels.SRAStatisticsPanel;
+import org.apache.syncope.client.console.panels.AMSessionPanel;
 import org.apache.syncope.client.console.rest.SRARouteRestClient;
+import org.apache.syncope.client.console.rest.SRASessionRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -103,7 +105,20 @@ public class SRA extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new SRAStatisticsPanel(panelId, instances, getPageReference());
+                    return new SRAStatisticsPanel(panelId, instances);
+                }
+            });
+        }
+
+        if (!instances.isEmpty() && SyncopeConsoleSession.get().owns(AMEntitlement.SRA_SESSION_LIST)) {
+            tabs.add(new AbstractTab(new ResourceModel("sessions")) {
+
+                private static final long serialVersionUID = 5211692813425391144L;
+
+                @Override
+                public Panel getPanel(final String panelId) {
+                    return new AMSessionPanel(panelId, new SRASessionRestClient(instances),
+                            AMEntitlement.SRA_SESSION_LIST, AMEntitlement.SRA_SESSION_DELETE, getPageReference());
                 }
             });
         }

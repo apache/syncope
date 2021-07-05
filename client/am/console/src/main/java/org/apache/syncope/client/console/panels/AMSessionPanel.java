@@ -19,10 +19,9 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.rest.AMSessionRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -32,11 +31,17 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
-public class WASessionPanel extends Panel {
+public class AMSessionPanel extends Panel {
 
     private static final long serialVersionUID = 30189416462011L;
 
-    public WASessionPanel(final String id, final List<NetworkService> instances, final PageReference pageRef) {
+    public AMSessionPanel(
+            final String id,
+            final AMSessionRestClient restClient,
+            final String listEntitlement,
+            final String deleteEntitlement,
+            final PageReference pageRef) {
+
         super(id);
 
         Model<String> keywordModel = new Model<>(StringUtils.EMPTY);
@@ -44,7 +49,8 @@ public class WASessionPanel extends Panel {
         WebMarkupContainer searchBoxContainer = new WebMarkupContainer("searchBox");
         add(searchBoxContainer);
 
-        WASessionDirectoryPanel directoryPanel = new WASessionDirectoryPanel("directoryPanel", instances, pageRef);
+        AMSessionDirectoryPanel directoryPanel = new AMSessionDirectoryPanel(
+                "directoryPanel", restClient, listEntitlement, deleteEntitlement, pageRef);
         add(directoryPanel);
 
         Form<?> form = new Form<>("form");
@@ -59,7 +65,7 @@ public class WASessionPanel extends Panel {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                send(directoryPanel, Broadcast.EXACT, new WASessionSearchEvent(target, keywordModel.getObject()));
+                send(directoryPanel, Broadcast.EXACT, new AMSessionSearchEvent(target, keywordModel.getObject()));
             }
         };
         search.setOutputMarkupId(true);
@@ -67,7 +73,7 @@ public class WASessionPanel extends Panel {
         form.setDefaultButton(search);
     }
 
-    public static class WASessionSearchEvent implements Serializable {
+    public static class AMSessionSearchEvent implements Serializable {
 
         private static final long serialVersionUID = 5063826346823013424L;
 
@@ -75,7 +81,7 @@ public class WASessionPanel extends Panel {
 
         private final String keyword;
 
-        WASessionSearchEvent(final AjaxRequestTarget target, final String keyword) {
+        AMSessionSearchEvent(final AjaxRequestTarget target, final String keyword) {
             this.target = target;
             this.keyword = keyword;
         }

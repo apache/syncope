@@ -30,7 +30,6 @@ import org.apache.syncope.client.console.rest.SRAStatisticsRestClient;
 import org.apache.syncope.client.console.widgets.NumberWidget;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.SRARouteTO;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.ComponentTag;
@@ -69,7 +68,7 @@ public class SRAStatisticsPanel extends Panel {
 
     private int current;
 
-    public SRAStatisticsPanel(final String id, final List<NetworkService> instances, final PageReference pageRef) {
+    public SRAStatisticsPanel(final String id, final List<NetworkService> instances) {
         super(id);
 
         SRAStatistics stats = SRAStatisticsRestClient.get(instances, selected);

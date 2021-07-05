@@ -39,10 +39,10 @@ public final class SRAStatisticsRestClient {
         return instances.get(0).getAddress() + "actuator/metrics/spring.cloud.gateway.requests";
     }
 
-    public static SRAStatistics get(final List<NetworkService> waInstances, final List<Pair<String, String>> selected) {
+    public static SRAStatistics get(final List<NetworkService> instances, final List<Pair<String, String>> selected) {
         try {
             WebClient client = WebClient.create(
-                    getActuatorEndpoint(waInstances),
+                    getActuatorEndpoint(instances),
                     JAX_RS_PROVIDERS,
                     SyncopeWebApplication.get().getAnonymousUser(),
                     SyncopeWebApplication.get().getAnonymousKey(),
@@ -59,9 +59,9 @@ public final class SRAStatisticsRestClient {
             }
 
             LOG.error("Unexpected response for SRA statistics from {}: {}",
-                    getActuatorEndpoint(waInstances), response.getStatus());
+                    getActuatorEndpoint(instances), response.getStatus());
         } catch (Exception e) {
-            LOG.error("Could not fetch SRA statistics from {}", getActuatorEndpoint(waInstances), e);
+            LOG.error("Could not fetch SRA statistics from {}", getActuatorEndpoint(instances), e);
         }
 
         return new SRAStatistics();

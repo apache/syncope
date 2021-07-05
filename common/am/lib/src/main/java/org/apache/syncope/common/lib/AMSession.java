@@ -16,14 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.rest;
+package org.apache.syncope.common.lib;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Date;
 import org.apache.syncope.common.lib.to.EntityTO;
 
-@JsonDeserialize(using = WASessionDeserializer.class)
-public class WASession implements EntityTO {
+public class AMSession implements EntityTO {
 
     private static final long serialVersionUID = 18201657700802L;
 
@@ -31,7 +29,7 @@ public class WASession implements EntityTO {
 
     private Date authenticationDate;
 
-    private String authenticatedPrincipal;
+    private String principal;
 
     private String json;
 
@@ -53,12 +51,12 @@ public class WASession implements EntityTO {
         this.authenticationDate = authenticationDate;
     }
 
-    public String getAuthenticatedPrincipal() {
-        return authenticatedPrincipal;
+    public String getPrincipal() {
+        return principal;
     }
 
-    public void setAuthenticatedPrincipal(final String authenticatedPrincipal) {
-        this.authenticatedPrincipal = authenticatedPrincipal;
+    public void setPrincipal(final String authenticatedPrincipal) {
+        this.principal = authenticatedPrincipal;
     }
 
     public String getJson() {

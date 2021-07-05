@@ -29,30 +29,31 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.ParseException;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.syncope.common.lib.AMSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WASessionDeserializer extends StdDeserializer<WASession> {
+public class AMSessionDeserializer extends StdDeserializer<AMSession> {
 
     private static final long serialVersionUID = 24527200564172L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(WASessionDeserializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AMSessionDeserializer.class);
 
-    public WASessionDeserializer() {
+    public AMSessionDeserializer() {
         this(null);
     }
 
-    public WASessionDeserializer(final Class<?> vc) {
+    public AMSessionDeserializer(final Class<?> vc) {
         super(vc);
     }
 
     @Override
-    public WASession deserialize(final JsonParser jp, final DeserializationContext ctxt)
+    public AMSession deserialize(final JsonParser jp, final DeserializationContext ctxt)
             throws IOException, JsonProcessingException {
 
         JsonNode node = jp.getCodec().readTree(jp);
 
-        WASession waSession = new WASession();
+        AMSession waSession = new AMSession();
 
         if (node.has("authentication_date_formatted")) {
             String authenticationDate = node.get("authentication_date_formatted").textValue();
@@ -65,7 +66,7 @@ public class WASessionDeserializer extends StdDeserializer<WASession> {
         }
 
         if (node.has("authenticated_principal")) {
-            waSession.setAuthenticatedPrincipal(node.get("authenticated_principal").textValue());
+            waSession.setPrincipal(node.get("authenticated_principal").textValue());
         }
 
         if (node.has("ticket_granting_ticket")) {

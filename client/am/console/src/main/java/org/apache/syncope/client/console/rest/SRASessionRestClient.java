@@ -18,12 +18,8 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.io.InputStream;
 import java.util.List;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -31,49 +27,38 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.AMSession;
 
-public final class WASessionRestClient extends AMSessionRestClient {
+public final class SRASessionRestClient extends AMSessionRestClient {
 
     private static final long serialVersionUID = 22118820292494L;
 
-    private static final ObjectMapper MAPPER;
-
-    static {
-        MAPPER = new ObjectMapper();
-
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(AMSession.class, new AMSessionDeserializer());
-        MAPPER.registerModule(module);
-    }
-
-    public WASessionRestClient(final List<NetworkService> instances) {
-        super(instances);
+    public SRASessionRestClient(final List<NetworkService> list) {
+        super(list);
     }
 
     @Override
     protected String getActuatorEndpoint() {
-        return instances.get(0).getAddress() + "actuator/ssoSessions";
+        return instances.get(0).getAddress() + "actuator/sraSessions";
     }
 
     @Override
     public List<AMSession> list() {
         try {
-            Response response = WebClient.create(
+            WebClient client = WebClient.create(
                     getActuatorEndpoint(),
+                    JAX_RS_PROVIDERS,
                     SyncopeWebApplication.get().getAnonymousUser(),
                     SyncopeWebApplication.get().getAnonymousKey(),
                     null).
-                    accept(MediaType.APPLICATION_JSON_TYPE).get();
+                    accept(MediaType.APPLICATION_JSON_TYPE);
+
+            Response response = client.get();
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-                JsonNode node = MAPPER.readTree((InputStream) response.getEntity());
-                if (node.has("activeSsoSessions")) {
-                    return MAPPER.readValue(MAPPER.treeAsTokens(node.get("activeSsoSessions")),
-                            new TypeReference<List<AMSession>>() {
-                    });
-                }
-            } else {
-                LOG.error("Unexpected response for SSO Sessions from {}: {}",
-                        getActuatorEndpoint(), response.getStatus());
+                return response.readEntity(new GenericType<List<AMSession>>() {
+                });
             }
+
+            LOG.error("Unexpected response for SSO Sessions from {}: {}",
+                    getActuatorEndpoint(), response.getStatus());
         } catch (Exception e) {
             LOG.error("Could not fetch SSO Sessions from {}", getActuatorEndpoint(), e);
         }

@@ -38,8 +38,9 @@ import org.apache.syncope.client.console.clientapps.ClientApps;
 import org.apache.syncope.client.console.panels.OIDC;
 import org.apache.syncope.client.console.panels.SAML2;
 import org.apache.syncope.client.console.panels.WAConfigDirectoryPanel;
-import org.apache.syncope.client.console.panels.WASessionPanel;
+import org.apache.syncope.client.console.panels.AMSessionPanel;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
+import org.apache.syncope.client.console.rest.WASessionRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -210,7 +211,8 @@ public class WA extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new WASessionPanel(panelId, instances, getPageReference());
+                    return new AMSessionPanel(panelId, new WASessionRestClient(instances),
+                            AMEntitlement.WA_SESSION_LIST, AMEntitlement.WA_SESSION_DELETE, getPageReference());
                 }
             });
         }
