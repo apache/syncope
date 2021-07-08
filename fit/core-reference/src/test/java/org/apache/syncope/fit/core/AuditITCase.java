@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -29,8 +28,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -45,33 +42,20 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
+import org.apache.syncope.core.logic.ConnectorLogic;
+import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
 public class AuditITCase extends AbstractITCase {
 
-    private static AuditEntry query(final AuditQuery query, final int maxWaitSeconds, final boolean failIfEmpty) {
+    private static AuditEntry queryWithFailure(final AuditQuery query, final int maxWaitSeconds) {
         List<AuditEntry> results = query(query, maxWaitSeconds);
         if (results.isEmpty()) {
-            if (failIfEmpty) {
-                fail("Timeout when executing query for key " + query.getEntityKey());
-            }
+            fail("Timeout when executing query for key " + query.getEntityKey());
             return null;
         }
         return results.get(0);
-    }
-
-    private static List<AuditEntry> query(final AuditQuery query, final int maxWaitSeconds) {
-        AtomicReference<List<AuditEntry>> holder = new AtomicReference<>();
-        await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
-            try {
-                holder.set(loggerService.search(query).getResult());
-                return !holder.get().isEmpty();
-            } catch (Exception e) {
-                return false;
-            }
-        });
-        return holder.get();
     }
 
     @Test
@@ -102,7 +86,7 @@ public class AuditITCase extends AbstractITCase {
 
         AuditQuery query = new AuditQuery.Builder().entityKey(userTO.getKey()).orderBy("event_date desc").
                 page(1).size(1).build();
-        AuditEntry entry = query(query, MAX_WAIT_SECONDS, true);
+        AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);
         userService.delete(userTO.getKey());
     }
@@ -118,11 +102,11 @@ public class AuditITCase extends AbstractITCase {
                 page(1).
                 size(1).
                 type(AuditElements.EventCategoryType.LOGIC).
-                category("UserLogic").
+                category(UserLogic.class.getSimpleName()).
                 event("create").
                 result(AuditElements.Result.SUCCESS).
                 build();
-        AuditEntry entry = query(query, MAX_WAIT_SECONDS, true);
+        AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);
         userService.delete(userTO.getKey());
     }
@@ -134,7 +118,7 @@ public class AuditITCase extends AbstractITCase {
 
         AuditQuery query = new AuditQuery.Builder().entityKey(groupTO.getKey()).orderBy("event_date desc").
                 page(1).size(1).build();
-        AuditEntry entry = query(query, MAX_WAIT_SECONDS, true);
+        AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);
         groupService.delete(groupTO.getKey());
     }
@@ -148,11 +132,9 @@ public class AuditITCase extends AbstractITCase {
         List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
 
-        PagedResult<GroupTO> groups = groupService.search(
-                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql(SyncopeClient.getGroupSearchConditionBuilder().
-                                is("name").equalTo(groupTO.getName()).query()).
-                        build());
+        PagedResult<GroupTO> groups = groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo(groupTO.getName()).query()).
+                build());
         assertNotNull(groups);
         assertFalse(groups.getResult().isEmpty());
 
@@ -164,9 +146,9 @@ public class AuditITCase extends AbstractITCase {
     public void findByAnyObject() {
         AnyObjectTO anyObjectTO = createAnyObject(AnyObjectITCase.getSample("Italy")).getEntity();
         assertNotNull(anyObjectTO.getKey());
-        AuditQuery query = new AuditQuery.Builder().entityKey(anyObjectTO.getKey()).orderBy("event_date desc").
-                page(1).size(1).build();
-        AuditEntry entry = query(query, MAX_WAIT_SECONDS, true);
+        AuditQuery query = new AuditQuery.Builder().entityKey(anyObjectTO.getKey()).
+                orderBy("event_date desc").page(1).size(1).build();
+        AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);
         anyObjectService.delete(anyObjectTO.getKey());
     }
@@ -199,7 +181,7 @@ public class AuditITCase extends AbstractITCase {
                 entityKey(connectorKey).
                 orderBy("event_date desc").
                 type(AuditElements.EventCategoryType.LOGIC).
-                category("ConnectorLogic").
+                category(ConnectorLogic.class.getSimpleName()).
                 event("update").
                 result(AuditElements.Result.SUCCESS).
                 build();

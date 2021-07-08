@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,7 +47,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> {
+public class RemediationLogic extends AbstractLogic<RemediationTO> {
 
     @Autowired
     private UserLogic userLogic;
@@ -81,111 +82,80 @@ public class RemediationLogic extends AbstractTransactionalLogic<RemediationTO> 
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_READ + "')")
     @Transactional(readOnly = true)
     public RemediationTO read(final String key) {
-        Remediation remediation = remediationDAO.find(key);
-        if (remediation == null) {
-            LOG.error("Could not find remediation '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        Remediation remediation = Optional.ofNullable(remediationDAO.find(key)).
+                orElseThrow(() -> new NotFoundException(key));
 
         return binder.getRemediationTO(remediation);
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_DELETE + "')")
+    @Transactional
     public void delete(final String key) {
-        Remediation remediation = remediationDAO.find(key);
-        if (remediation == null) {
-            LOG.error("Could not find remediation '" + key + '\'');
+        Optional.ofNullable(remediationDAO.find(key)).
+                orElseThrow(() -> new NotFoundException(key));
 
-            throw new NotFoundException(key);
-        }
-
-        remediationDAO.delete(remediation);
+        remediationDAO.delete(key);
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_REMEDY + "')")
     public ProvisioningResult<?> remedy(final String key, final AnyCR anyCR, final boolean nullPriorityAsync) {
-        Remediation remediation = remediationDAO.find(key);
-        if (remediation == null) {
-            LOG.error("Could not find remediation '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
-
         ProvisioningResult<?> result;
-        switch (remediation.getAnyType().getKind()) {
-            case USER:
-            default:
+        switch (read(key).getAnyType()) {
+            case "USER":
                 result = userLogic.create((UserCR) anyCR, nullPriorityAsync);
                 break;
 
-            case GROUP:
+            case "GROUP":
                 result = groupLogic.create((GroupCR) anyCR, nullPriorityAsync);
                 break;
 
-            case ANY_OBJECT:
+            default:
                 result = anyObjectLogic.create((AnyObjectCR) anyCR, nullPriorityAsync);
         }
 
-        remediationDAO.delete(remediation);
+        remediationDAO.delete(key);
 
         return result;
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_REMEDY + "')")
     public ProvisioningResult<?> remedy(final String key, final AnyUR anyUR, final boolean nullPriorityAsync) {
-        Remediation remediation = remediationDAO.find(key);
-        if (remediation == null) {
-            LOG.error("Could not find remediation '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
-
         ProvisioningResult<?> result;
-        switch (remediation.getAnyType().getKind()) {
-            case USER:
-            default:
+        switch (read(key).getAnyType()) {
+            case "USER":
                 result = userLogic.update((UserUR) anyUR, nullPriorityAsync);
                 break;
 
-            case GROUP:
+            case "GROUP":
                 result = groupLogic.update((GroupUR) anyUR, nullPriorityAsync);
                 break;
 
-            case ANY_OBJECT:
+            default:
                 result = anyObjectLogic.update((AnyObjectUR) anyUR, nullPriorityAsync);
         }
 
-        remediationDAO.delete(remediation);
+        remediationDAO.delete(key);
 
         return result;
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_REMEDY + "')")
     public ProvisioningResult<?> remedy(final String key, final String anyKey, final boolean nullPriorityAsync) {
-        Remediation remediation = remediationDAO.find(key);
-        if (remediation == null) {
-            LOG.error("Could not find remediation '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
-
         ProvisioningResult<?> result;
-        switch (remediation.getAnyType().getKind()) {
-            case USER:
-            default:
+        switch (read(key).getAnyType()) {
+            case "USER":
                 result = userLogic.delete(anyKey, nullPriorityAsync);
                 break;
 
-            case GROUP:
+            case "GROUP":
                 result = groupLogic.delete(anyKey, nullPriorityAsync);
                 break;
 
-            case ANY_OBJECT:
+            default:
                 result = anyObjectLogic.delete(anyKey, nullPriorityAsync);
         }
 
-        remediationDAO.delete(remediation);
+        remediationDAO.delete(key);
 
         return result;
     }

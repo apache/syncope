@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -112,15 +112,16 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
             }
         }
 
-        String[] username = new String[1];
-        boolean authenticated;
+        AtomicReference<String> username = new AtomicReference<>();
+        Boolean authenticated;
+        AtomicReference<String> delegationKey = new AtomicReference<>();
 
         if (anonymousUser.equals(authentication.getName())) {
-            username[0] = anonymousUser;
+            username.set(anonymousUser);
             credentialChecker.checkIsDefaultAnonymousKeyInUse();
             authenticated = authentication.getCredentials().toString().equals(anonymousKey);
         } else if (adminUser.equals(authentication.getName())) {
-            username[0] = adminUser;
+            username.set(adminUser);
             if (SyncopeConstants.MASTER_DOMAIN.equals(domain.getKey())) {
                 credentialChecker.checkIsDefaultAdminPasswordInUse();
                 authenticated = ENCRYPTOR.verify(
@@ -134,13 +135,13 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                         domain.getAdminPassword());
             }
         } else {
-            Pair<User, Boolean> authResult = AuthContextUtils.callAsAdmin(domain.getKey(),
+            Triple<User, Boolean, String> authResult = AuthContextUtils.callAsAdmin(domain.getKey(),
                     () -> dataAccessor.authenticate(domain.getKey(), authentication));
-            authenticated = BooleanUtils.toBoolean(authResult.getRight());
-            if (authResult.getLeft() != null && authResult.getRight() != null) {
-                username[0] = authResult.getLeft().getUsername();
+            authenticated = authResult.getMiddle();
+            if (authResult.getLeft() != null && authResult.getMiddle() != null) {
+                username.set(authResult.getLeft().getUsername());
 
-                if (!authResult.getRight()) {
+                if (!authenticated) {
                     AuthContextUtils.callAsAdmin(domain.getKey(), () -> {
                         provisioningManager.internalSuspend(
                                 authResult.getLeft().getKey(), adminUser, "Failed authentication");
@@ -148,57 +149,51 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                     });
                 }
             }
+            delegationKey.set(authResult.getRight());
         }
-        if (username[0] == null) {
-            username[0] = authentication.getPrincipal().toString();
+        if (username.get() == null) {
+            username.set(authentication.getPrincipal().toString());
         }
 
-        return finalizeAuthentication(authenticated, domain.getKey(), username[0], authentication);
+        return finalizeAuthentication(
+                authenticated, domain.getKey(), username.get(), delegationKey.get(), authentication);
     }
 
     protected Authentication finalizeAuthentication(
-            final boolean authenticated,
+            final Boolean authenticated,
             final String domain,
             final String username,
+            final String delegationKey,
             final Authentication authentication) {
 
         UsernamePasswordAuthenticationToken token;
-        if (authenticated) {
+        if (BooleanUtils.isTrue(authenticated)) {
             token = AuthContextUtils.callAsAdmin(domain, () -> {
                 UsernamePasswordAuthenticationToken upat = new UsernamePasswordAuthenticationToken(
                         username,
                         null,
-                        dataAccessor.getAuthorities(username));
+                        dataAccessor.getAuthorities(username, delegationKey));
                 upat.setDetails(authentication.getDetails());
                 dataAccessor.audit(
                         username,
-                        AuditElements.EventCategoryType.LOGIC,
-                        AuditElements.AUTHENTICATION_CATEGORY,
-                        null,
-                        AuditElements.LOGIN_EVENT,
+                        delegationKey,
                         Result.SUCCESS,
-                        null,
-                        authenticated,
+                        true,
                         authentication,
-                        "User " + username + " successfully authenticated with entitlements: " + upat.getAuthorities());
+                        "Successfully authenticated, with entitlements: " + upat.getAuthorities());
                 return upat;
             });
 
-            LOG.debug("User {} successfully authenticated, with entitlements {}",
-                    username, token.getAuthorities());
+            LOG.debug("User {} successfully authenticated, with entitlements {}", username, token.getAuthorities());
         } else {
             AuthContextUtils.callAsAdmin(domain, () -> {
                 dataAccessor.audit(
                         username,
-                        AuditElements.EventCategoryType.LOGIC,
-                        AuditElements.AUTHENTICATION_CATEGORY,
-                        null,
-                        AuditElements.LOGIN_EVENT,
+                        delegationKey,
                         Result.FAILURE,
-                        null,
-                        authenticated,
+                        false,
                         authentication,
-                        "User " + username + " not authenticated");
+                        "Not authenticated");
                 return null;
             });
 

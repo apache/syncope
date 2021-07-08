@@ -104,7 +104,6 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
                     }
                 };
             }
-
         });
         addBottomToolbar(new AjaxDataNavigationToolbar(this, container));
         addBottomToolbar(new NoRecordsToolbar(this));

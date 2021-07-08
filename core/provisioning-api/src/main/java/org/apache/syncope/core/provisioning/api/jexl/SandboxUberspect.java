@@ -19,17 +19,13 @@
 package org.apache.syncope.core.provisioning.api.jexl;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.jexl3.JexlEngine;
-import org.apache.commons.jexl3.internal.TemplateInterpreter;
 import org.apache.commons.jexl3.internal.introspection.Uberspect;
 import org.apache.commons.jexl3.introspection.JexlMethod;
 import org.apache.commons.jexl3.introspection.JexlPropertySet;
@@ -46,14 +42,14 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 
 class SandboxUberspect extends Uberspect {
 
-    private static final Set<String> COLLECTION_METHODS = Collections.unmodifiableSet(new HashSet<>(
-            Arrays.asList("contains", "containsAll", "isEmpty", "size", "iterator", "toString")));
+    private static final Set<String> COLLECTION_METHODS =
+            Set.of("contains", "containsAll", "isEmpty", "size", "iterator", "toString");
 
-    private static final Set<String> LIST_METHODS = Collections.unmodifiableSet(new HashSet<>(
-            Arrays.asList("get", "indexOf", "lastIndexOf", "toString")));
+    private static final Set<String> LIST_METHODS =
+            Set.of("get", "indexOf", "lastIndexOf", "toString");
 
-    private static final Set<String> MAP_METHODS = Collections.unmodifiableSet(new HashSet<>(
-            Arrays.asList("get", "getOrDefault", "containsKey", "containsValue", "toString")));
+    private static final Set<String> MAP_METHODS =
+            Set.of("get", "getOrDefault", "containsKey", "containsValue", "toString");
 
     SandboxUberspect() {
         super(LogFactory.getLog(JexlEngine.class), JexlUberspect.JEXL_STRATEGY);
@@ -66,9 +62,7 @@ class SandboxUberspect extends Uberspect {
 
     @Override
     public JexlMethod getMethod(final Object obj, final String method, final Object... args) {
-        if (obj instanceof TemplateInterpreter) { // https://issues.apache.org/jira/browse/JEXL-351
-            return super.getMethod(obj, method, args);
-        } else if (obj instanceof AnyTO || obj instanceof Any
+        if (obj instanceof AnyTO || obj instanceof Any
                 || obj instanceof PlainAttr || obj instanceof Attr
                 || obj instanceof MembershipTO || obj instanceof Membership
                 || obj instanceof Realm || obj instanceof RealmTO) {

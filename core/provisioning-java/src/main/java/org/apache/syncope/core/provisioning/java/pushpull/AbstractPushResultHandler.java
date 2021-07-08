@@ -478,7 +478,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 if (notificationsAvailable || auditRequested) {
                     Map<String, Object> jobMap = new HashMap<>();
                     jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
-                            AuthContextUtils.getUsername(),
+                            AuthContextUtils.getWho(),
                             AuditElements.EventCategoryType.PUSH,
                             any.getType().getKind().name().toLowerCase(),
                             profile.getTask().getResource().getKey(),

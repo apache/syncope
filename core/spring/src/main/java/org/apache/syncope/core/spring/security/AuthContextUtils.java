@@ -19,22 +19,22 @@
 package org.apache.syncope.core.spring.security;
 
 import java.util.Collection;
-import org.apache.syncope.common.lib.types.EntitlementsHolder;
-
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.EntitlementsHolder;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 
@@ -59,29 +59,39 @@ public final class AuthContextUtils {
         SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 
-    public static Set<SyncopeGrantedAuthority> getAuthorities() {
-        SecurityContext ctx = SecurityContextHolder.getContext();
-        if (ctx != null && ctx.getAuthentication() != null && ctx.getAuthentication().getAuthorities() != null) {
-            return ctx.getAuthentication().getAuthorities().stream().
-                    filter(SyncopeGrantedAuthority.class::isInstance).
-                    map(SyncopeGrantedAuthority.class::cast).
-                    collect(Collectors.toSet());
-        }
+    public static Optional<String> getDelegatedBy() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        return Set.of();
+        return auth != null && auth.getDetails() instanceof SyncopeAuthenticationDetails
+                ? Optional.ofNullable(SyncopeAuthenticationDetails.class.cast(auth.getDetails()).getDelegatedBy())
+                : Optional.empty();
+    }
+
+    public static String getWho() {
+        return getUsername() + getDelegatedBy().map(d -> {
+            String delegatedBy = callAsAdmin(getDomain(),
+                    () -> ApplicationContextProvider.getApplicationContext().getBean(UserDAO.class).findUsername(d)).
+                    orElse(d);
+            return " [delegated by " + delegatedBy + "]";
+        }).orElse(StringUtils.EMPTY);
+    }
+
+    public static Set<SyncopeGrantedAuthority> getAuthorities() {
+        return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).
+                map(authentication -> authentication.getAuthorities().stream().
+                filter(SyncopeGrantedAuthority.class::isInstance).
+                map(SyncopeGrantedAuthority.class::cast).
+                collect(Collectors.toSet())).
+                orElse(Set.of());
     }
 
     public static Map<String, Set<String>> getAuthorizations() {
-        SecurityContext ctx = SecurityContextHolder.getContext();
-        if (ctx != null && ctx.getAuthentication() != null && ctx.getAuthentication().getAuthorities() != null) {
-            return ctx.getAuthentication().getAuthorities().stream().
-                    filter(SyncopeGrantedAuthority.class::isInstance).
-                    map(SyncopeGrantedAuthority.class::cast).
-                    collect(Collectors.toMap(
-                            SyncopeGrantedAuthority::getAuthority, SyncopeGrantedAuthority::getRealms));
-        }
-
-        return Map.of();
+        return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).
+                map(authentication -> authentication.getAuthorities().stream().
+                filter(SyncopeGrantedAuthority.class::isInstance).
+                map(SyncopeGrantedAuthority.class::cast).
+                collect(Collectors.toMap(SyncopeGrantedAuthority::getAuthority, SyncopeGrantedAuthority::getRealms))).
+                orElse(Map.of());
     }
 
     public static String getDomain() {
@@ -125,7 +135,7 @@ public final class AuthContextUtils {
                 collect(Collectors.toList());
         UsernamePasswordAuthenticationToken fakeAuth = new UsernamePasswordAuthenticationToken(
                 new User(username, FAKE_PASSWORD, authorities), FAKE_PASSWORD, authorities);
-        fakeAuth.setDetails(new SyncopeAuthenticationDetails(domain));
+        fakeAuth.setDetails(new SyncopeAuthenticationDetails(domain, getDelegatedBy().orElse(null)));
 
         return call(domain, fakeAuth, callable);
     }

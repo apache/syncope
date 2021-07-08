@@ -63,6 +63,7 @@ import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.GroupCR;
@@ -102,6 +103,7 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
+import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -145,6 +147,7 @@ import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIService;
 import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
+import org.apache.syncope.common.rest.api.service.DelegationService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
@@ -312,6 +315,8 @@ public abstract class AbstractITCase {
 
     protected static RemediationService remediationService;
 
+    protected static DelegationService delegationService;
+
     protected static SRARouteService sraRouteService;
 
     protected static CamelRouteService camelRouteService;
@@ -410,6 +415,7 @@ public abstract class AbstractITCase {
         securityQuestionService = adminClient.getService(SecurityQuestionService.class);
         implementationService = adminClient.getService(ImplementationService.class);
         remediationService = adminClient.getService(RemediationService.class);
+        delegationService = adminClient.getService(DelegationService.class);
         sraRouteService = adminClient.getService(SRARouteService.class);
         camelRouteService = adminClient.getService(CamelRouteService.class);
         saml2SP4UIService = adminClient.getService(SAML2SP4UIService.class);
@@ -875,5 +881,19 @@ public abstract class AbstractITCase {
         policy.setConf(conf);
 
         return policy;
+    }
+
+    protected static List<AuditEntry> query(final AuditQuery query, final int maxWaitSeconds) {
+        int i = 0;
+        List<AuditEntry> results = List.of();
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+            results = loggerService.search(query).getResult();
+            i++;
+        } while (results.isEmpty() && i < maxWaitSeconds);
+        return results;
     }
 }

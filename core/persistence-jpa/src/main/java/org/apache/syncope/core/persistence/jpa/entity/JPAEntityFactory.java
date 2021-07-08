@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
+import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
@@ -317,6 +318,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPARemediation();
         } else if (reference.equals(Batch.class)) {
             result = (E) new JPABatch();
+        } else if (reference.equals(Delegation.class)) {
+            result = (E) new JPADelegation();
         } else if (reference.equals(SRARoute.class)) {
             result = (E) new JPASRARoute();
         } else if (reference.equals(AuthModule.class)) {

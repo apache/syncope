@@ -36,6 +36,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -47,7 +48,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -1176,7 +1177,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
         // 5. Test the pulled user
-        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(user.getUsername(), newCleanPassword).self();
+        Triple<Map<String, Set<String>>, List<String>, UserTO> self =
+                clientFactory.create(user.getUsername(), newCleanPassword).self();
         assertNotNull(self);
 
         // 6. Delete PullTask + user
@@ -1211,7 +1213,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             user = updateUser(userUR).getEntity();
 
             // 3. Check that the Syncope user now has the changed password
-            Pair<Map<String, Set<String>>, UserTO> self =
+            Triple<Map<String, Set<String>>, List<String>, UserTO> self =
                     clientFactory.create(user.getUsername(), newCleanPassword).self();
             assertNotNull(self);
 

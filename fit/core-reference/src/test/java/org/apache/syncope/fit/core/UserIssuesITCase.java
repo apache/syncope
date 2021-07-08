@@ -38,7 +38,7 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -1142,7 +1142,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertEquals(
                 "passwordTESTNULL1",
                 connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).get().getValues().get(0));
-        Pair<Map<String, Set<String>>, UserTO> self =
+        Triple<Map<String, Set<String>>, List<String>, UserTO> self =
                 clientFactory.create(userTO.getUsername(), "passwordTESTNULL1").self();
         assertNotNull(self);
 

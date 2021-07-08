@@ -159,7 +159,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
                     }
 
                     notificationManager.createTasks(
-                            AuthContextUtils.getUsername(),
+                            AuthContextUtils.getWho(),
                             AuditElements.EventCategoryType.TASK,
                             "notification",
                             null,
@@ -178,7 +178,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
                     }
 
                     notificationManager.createTasks(
-                            AuthContextUtils.getUsername(),
+                            AuthContextUtils.getWho(),
                             AuditElements.EventCategoryType.TASK,
                             "notification",
                             null,
@@ -250,7 +250,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
             notificationManager.setTaskExecuted(execution.getTask().getKey(), false);
 
             auditManager.audit(
-                    AuthContextUtils.getUsername(),
+                    AuthContextUtils.getWho(),
                     AuditElements.EventCategoryType.TASK,
                     "notification",
                     null,
@@ -264,7 +264,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
             LOG.error("Maximum number of retries reached for task {} - giving up", execution.getTask());
 
             auditManager.audit(
-                    AuthContextUtils.getUsername(),
+                    AuthContextUtils.getWho(),
                     AuditElements.EventCategoryType.TASK,
                     "notification",
                     null,

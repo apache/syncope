@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -189,7 +188,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     private Query findByPlainAttrValueQuery(final String entityName, final boolean ignoreCaseMatch) {
         String query = "SELECT e FROM " + entityName + " e"
-                + " WHERE e.attribute.schema.id = :schemaKey AND (e.stringValue IS NOT NULL"
+                + " WHERE e.attribute.schema.id = :schemaKey AND ((e.stringValue IS NOT NULL"
                 + " AND "
                 + (ignoreCaseMatch ? "LOWER(" : "") + "e.stringValue" + (ignoreCaseMatch ? ")" : "")
                 + " = "
@@ -197,7 +196,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                 + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
                 + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
                 + " OR (e.longValue IS NOT NULL AND e.longValue = :longValue)"
-                + " OR (e.doubleValue IS NOT NULL AND e.doubleValue = :doubleValue)";
+                + " OR (e.doubleValue IS NOT NULL AND e.doubleValue = :doubleValue))";
         return entityManager().createQuery(query);
     }
 
@@ -284,7 +283,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     }
 
     private Set<String> getWhereClause(final String expression, final String value, final boolean ignoreCaseMatch) {
-        Parser parser = new Parser(new StringReader(expression));
+        Parser parser = new Parser(expression);
 
         // Schema keys
         List<String> identifiers = new ArrayList<>();

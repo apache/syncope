@@ -406,9 +406,9 @@ under the License.
 
     <cxf.version>3.4.4</cxf.version>
     <bouncycastle.version>1.69</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.10</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.10.1</nimbus-jose-jwt.version>
 
-    <jackson.version>2.12.3</jackson.version>
+    <jackson.version>2.12.4</jackson.version>
 
     <spring-boot.version>2.5.2</spring-boot.version>
     <spring-cloud-gateway.version>3.0.3</spring-cloud-gateway.version>
@@ -427,9 +427,9 @@ under the License.
 
     <flowable.version>6.6.0</flowable.version>
 
-    <camel.version>3.10.0</camel.version>
+    <camel.version>3.11.0</camel.version>
 
-    <slf4j.version>2.0.0-alpha1</slf4j.version>
+    <slf4j.version>2.0.0-alpha2</slf4j.version>
 
     <elasticsearch.version>7.13.2</elasticsearch.version>
 
@@ -439,7 +439,7 @@ under the License.
     <log4j.version>2.14.1</log4j.version>
     <disruptor.version>3.4.4</disruptor.version>
     
-    <commons-jexl.version>3.2</commons-jexl.version>
+    <commons-jexl.version>3.2.1</commons-jexl.version>
     <commons-lang.version>3.12.0</commons-lang.version>
     <commons-text.version>1.9</commons-text.version>
     <commons-codec.version>1.15</commons-codec.version>
@@ -457,8 +457,8 @@ under the License.
     <junit.version>5.7.2</junit.version>
     <mockito.version>3.11.2</mockito.version>
 
-    <swagger-core.version>2.1.8</swagger-core.version>
-    <swagger-ui.version>3.50.0</swagger-ui.version>
+    <swagger-core.version>2.1.10</swagger-core.version>
+    <swagger-ui.version>3.51.0</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
@@ -466,15 +466,16 @@ under the License.
     <bootbox.version>5.5.2</bootbox.version>
     <font-awesome.version>5.15.3</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
-    <codemirror.version>5.50.0</codemirror.version>
+    <highlightjs.version>10.1.2</highlightjs.version>
+    <codemirror.version>5.62.0</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
 
     <wicket.version>9.3.0</wicket.version>
     <wicketstuff.version>9.3.0</wicketstuff.version>
-    <wicket-jqueryui.version>9.3.1</wicket-jqueryui.version>
-    <wicket-bootstrap.version>5.0.4</wicket-bootstrap.version>
+    <wicket-jqueryui.version>9.3.2</wicket-jqueryui.version>
+    <wicket-bootstrap.version>5.0.5</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
 
     <netbeans.version>RELEASE124</netbeans.version>
@@ -507,8 +508,8 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.46</tomcat.version>
-    <wildfly.version>23.0.2.Final</wildfly.version>
+    <tomcat.version>9.0.50</tomcat.version>
+    <wildfly.version>24.0.0.Final</wildfly.version>
     <payara.version>5.2021.4</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
@@ -516,11 +517,11 @@ under the License.
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10.6</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.2.19</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.2.22</jdbc.postgresql.version>
     <jdbc.mysql.version>8.0.22</jdbc.mysql.version>
-    <jdbc.mariadb.version>2.7.2</jdbc.mariadb.version>
+    <jdbc.mariadb.version>2.7.3</jdbc.mariadb.version>
     <jdbc.mssql.version>9.2.1.jre</jdbc.mssql.version>
-    <jdbc.oracle.version>19.10.0.0</jdbc.oracle.version>
+    <jdbc.oracle.version>19.11.0.0</jdbc.oracle.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -972,7 +973,7 @@ under the License.
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.9.6</version>
+        <version>1.9.7</version>
       </dependency>
 
       <dependency>
@@ -1017,7 +1018,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>1.26</version>
+        <version>1.27</version>
       </dependency>
 
       <dependency>
@@ -2128,7 +2129,10 @@ under the License.
             <useIncrementalCompilation>false</useIncrementalCompilation>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
-            <compilerArgument>-Xlint:unchecked</compilerArgument>
+            <compilerArgs>
+              <arg>-Xlint:unchecked</arg>
+              <arg>-parameters</arg>
+            </compilerArgs>
           </configuration>
         </plugin>
 
@@ -2284,7 +2288,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.9.4</version>
+          <version>1.9.5</version>
           <configuration>
             <configuration>
               <type>standalone</type>
@@ -2336,7 +2340,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.43</version>
+              <version>8.44</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2348,7 +2352,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.36.0</version>
+          <version>0.36.1</version>
         </plugin>
 
         <plugin>

@@ -29,6 +29,7 @@ import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionException;
+import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
@@ -52,18 +53,18 @@ public abstract class SchedulingPullActions implements PullActions {
         @SuppressWarnings("unchecked")
         T jobInstance = (T) ApplicationContextProvider.getBeanFactory().
                 createBean(reference, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-        String jobName = getClass().getName() + SecureRandomUtils.generateRandomUUID();
+        String jobName = getClass().getSimpleName() + SecureRandomUtils.generateRandomUUID();
 
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
 
         ApplicationContextProvider.getBeanFactory().registerSingleton(jobName, jobInstance);
 
         JobBuilder jobDetailBuilder = JobBuilder.newJob(reference).
-                withIdentity(jobName).
+                withIdentity(jobName, Scheduler.DEFAULT_GROUP).
                 usingJobData(new JobDataMap(jobMap));
 
         TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger().
-                withIdentity(JobNamer.getTriggerName(jobName)).
+                withIdentity(JobNamer.getTriggerName(jobName), Scheduler.DEFAULT_GROUP).
                 startNow();
 
         try {

@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
 
 public abstract class BaseRestClient implements RestClient {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(BaseRestClient.class);
-
     private static final long serialVersionUID = 1523999867826481989L;
+
+    protected static final Logger LOG = LoggerFactory.getLogger(BaseRestClient.class);
 
     public static SyncopeService getSyncopeService() {
         return getService(SyncopeService.class);

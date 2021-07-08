@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.wizards.any;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
@@ -27,11 +27,11 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.IdMConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.panels.MergeLinkedAccountsResourcesPanel.ResourceSelectionDirectoryPanel.ResourcesDataProvider;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardModel;
+import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsResourcesPanel.ResourceSelectionDirectoryPanel.ResourcesDataProvider;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.IdMEntitlement;

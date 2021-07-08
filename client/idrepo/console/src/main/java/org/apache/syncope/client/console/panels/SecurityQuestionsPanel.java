@@ -122,7 +122,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
 
     @Override
     public ActionsPanel<SecurityQuestionTO> getActions(final IModel<SecurityQuestionTO> model) {
-        final ActionsPanel<SecurityQuestionTO> panel = super.getActions(model);
+        ActionsPanel<SecurityQuestionTO> panel = super.getActions(model);
 
         panel.add(new ActionLink<SecurityQuestionTO>() {
 
@@ -150,7 +150,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.TASK_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.SECURITY_QUESTION_DELETE, true);
 
         return panel;
     }

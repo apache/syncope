@@ -67,8 +67,6 @@ public class SRARouteDirectoryPanel
             modal.show(false);
         });
 
-        restClient = new SRARouteRestClient();
-
         addNewItemPanelBuilder(new SRARouteWizardBuilder(new SRARouteTO(), pageRef), true);
         initResultTable();
     }
