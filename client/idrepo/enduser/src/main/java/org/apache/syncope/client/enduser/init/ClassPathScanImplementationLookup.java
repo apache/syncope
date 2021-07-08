@@ -24,8 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.client.enduser.pages.BaseEnduserWebPage;
-import org.apache.syncope.client.enduser.pages.BaseExtPage;
+import org.apache.syncope.client.enduser.pages.BasePage;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
@@ -50,9 +49,7 @@ public class ClassPathScanImplementationLookup {
 
     private List<Class<? extends BinaryPreviewer>> previewers;
 
-    private List<Class<? extends BaseExtPage>> extPages;
-
-    private List<Class<? extends BaseEnduserWebPage>> pages;
+    private List<Class<? extends BasePage>> extPages;
 
     /**
      * This method can be overridden by subclasses to customize classpath scan.
@@ -63,9 +60,8 @@ public class ClassPathScanImplementationLookup {
         return DEFAULT_BASE_PACKAGE;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "unchecked" })
     public void load() {
-        pages = new ArrayList<>();
         previewers = new ArrayList<>();
         extPages = new ArrayList<>();
         ssoLoginFormPanels = new ArrayList<>();
@@ -73,10 +69,9 @@ public class ClassPathScanImplementationLookup {
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractResource.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseSSOLoginFormPanel.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BinaryPreviewer.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(BaseEnduserWebPage.class));
 
         scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
@@ -84,9 +79,9 @@ public class ClassPathScanImplementationLookup {
                         ClassUtils.getDefaultClassLoader());
                 boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
                 if (!isAbstractClazz) {
-                    if (BaseExtPage.class.isAssignableFrom(clazz)) {
+                    if (BasePage.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(ExtPage.class)) {
-                            extPages.add((Class<? extends BaseExtPage>) clazz);
+                            extPages.add((Class<? extends BasePage>) clazz);
                         } else {
                             LOG.error("Could not find annotation {} in {}, ignoring",
                                     ExtPage.class.getName(), clazz.getName());
@@ -102,8 +97,6 @@ public class ClassPathScanImplementationLookup {
                         previewers.add((Class<? extends BinaryPreviewer>) clazz);
                     } else if (BaseSSOLoginFormPanel.class.isAssignableFrom(clazz)) {
                         ssoLoginFormPanels.add((Class<? extends BaseSSOLoginFormPanel>) clazz);
-                    } else if (BaseEnduserWebPage.class.isAssignableFrom(clazz)) {
-                        pages.add((Class<? extends BaseEnduserWebPage>) clazz);
                     }
                 }
             } catch (Throwable t) {
@@ -113,8 +106,6 @@ public class ClassPathScanImplementationLookup {
         resources = Collections.unmodifiableList(resources);
 
         ssoLoginFormPanels = Collections.unmodifiableList(ssoLoginFormPanels);
-
-        pages = Collections.unmodifiableList(pages);
 
         LOG.debug("Binary previewers found: {}", previewers);
         LOG.debug("Extension pages found: {}", extPages);
@@ -144,11 +135,7 @@ public class ClassPathScanImplementationLookup {
         return this.ssoLoginFormPanels;
     }
 
-    public List<Class<? extends BaseExtPage>> getExtPageClasses() {
+    public List<Class<? extends BasePage>> getExtPageClasses() {
         return extPages;
-    }
-
-    public List<Class<? extends BaseEnduserWebPage>> getPageClasses() {
-        return pages;
     }
 }

@@ -86,8 +86,8 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
 
     @Test
     public void update() {
-        final String plainSchema = "anyPlainSchema";
-        final String name = "anyTypeClassToUpdate";
+        String plainSchema = "anyPlainSchema";
+        String name = "anyTypeClassToUpdate";
         createAnyTypeClassWithoutSchema(name);
         createPlainSchema(plainSchema);
         browsingToAnyTypeClasses();

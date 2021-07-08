@@ -34,7 +34,7 @@ public class RolesITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
+        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security", false);
         TESTER.assertRenderedPage(Security.class);
     }
 
@@ -70,7 +70,7 @@ public class RolesITCase extends AbstractConsoleITCase {
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
+        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security", false);
     }
 
     @Test

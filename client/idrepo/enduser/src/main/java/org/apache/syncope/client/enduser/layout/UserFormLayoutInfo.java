@@ -20,10 +20,10 @@ package org.apache.syncope.client.enduser.layout;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.syncope.client.enduser.wizards.any.UserWizardBuilder;
+import org.apache.syncope.client.enduser.panels.UserFormPanel;
 import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormBaseLayout;
-import org.apache.syncope.client.ui.commons.layout.UserForm;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.client.ui.commons.layout.UserForm;
 
 public class UserFormLayoutInfo extends AbstractAnyFormBaseLayout<UserTO, UserForm> {
 
@@ -36,6 +36,8 @@ public class UserFormLayoutInfo extends AbstractAnyFormBaseLayout<UserTO, UserFo
     private final Map<String, CustomizationOption> whichVirAttrs = new HashMap<>();
 
     private boolean passwordManagement = true;
+
+    private boolean detailsManagement = true;
 
     public Map<String, CustomizationOption> getWhichPlainAttrs() {
         return whichPlainAttrs;
@@ -51,7 +53,7 @@ public class UserFormLayoutInfo extends AbstractAnyFormBaseLayout<UserTO, UserFo
 
     @Override
     protected Class<? extends UserForm> getDefaultFormClass() {
-        return UserWizardBuilder.class;
+        return UserFormPanel.class;
     }
 
     public boolean isPasswordManagement() {
@@ -60,5 +62,13 @@ public class UserFormLayoutInfo extends AbstractAnyFormBaseLayout<UserTO, UserFo
 
     public void setPasswordManagement(final boolean passwordManagement) {
         this.passwordManagement = passwordManagement;
+    }
+
+    public boolean isDetailsManagement() {
+        return detailsManagement;
+    }
+
+    public void setDetailsManagement(final boolean detailsManagement) {
+        this.detailsManagement = detailsManagement;
     }
 }

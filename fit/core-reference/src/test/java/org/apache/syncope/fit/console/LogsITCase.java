@@ -42,7 +42,7 @@ public class LogsITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.clickLink("body:configurationLI:configurationUL:logsLI:logs");
+        TESTER.clickLink("body:configurationLI:configurationUL:logsLI:logs", false);
         TESTER.assertRenderedPage(Logs.class);
     }
 

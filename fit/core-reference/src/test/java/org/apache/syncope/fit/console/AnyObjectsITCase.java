@@ -42,7 +42,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void filteredSearch() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
 
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
@@ -62,7 +62,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void clickToClonePrinter() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
         Component component = findComponentByProp("key", CONTAINER
@@ -84,7 +84,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void editPrinter() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
         Component component = findComponentByProp("key", CONTAINER
@@ -136,7 +136,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void checkDeletePrinterLink() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
         Component component = findComponentByProp("key", CONTAINER

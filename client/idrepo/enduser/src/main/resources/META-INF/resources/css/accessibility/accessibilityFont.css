@@ -1,0 +1,101 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+body,
+p {
+  font-size: 200%;
+}
+
+.menu a,
+.treeview-menu a,
+.control-sidebar-subheading {
+  font-size: 80% !important;
+}
+
+.box-header > .fa, 
+.box-header > .glyphicon, 
+.box-header > .ion, .box-header .box-title,
+.dropdown-toggle .filter-option,
+.dropdown-menu a,
+.menu-info span,
+.user-header,
+.header,
+.modal-title,
+.small-box p,
+.alert-widget,
+.alert-widget > a > .label,
+.alert h4,
+#mappings .fa,
+.popover-content,
+.box .dropdown-toggle .glyphicon,
+.box-header button,
+.toggle .toggle-group .btn,
+.input-group .form-control label {
+  font-size: 120%;
+}
+
+input,
+select,
+.footer a,
+.modal-footer button,
+.dropdown-menu:not([role='menu']),
+.dropdown-menu > li.header,
+div#tablehandling ul.menu i,
+.content-header > .breadcrumb,
+.btn-primary:not(.btn-circle),
+.modal-content .box .dialog pre {
+  font-size: 100% !important;
+}
+
+#topology .window {
+  height: 90px;
+}
+
+.dataTables_length select {
+  font-size: 85% !important;
+}
+
+button.close {
+  font-size: 2em;
+}
+
+.details-footer .information {
+  font-size: 12px;
+}
+
+.btn-file i,
+.btn-file span,
+.input-group-btn button.btn-primary {
+  font-size: 20px !important;
+}
+
+.checkbox input[type=checkbox], 
+.checkbox-inline input[type=checkbox], 
+.radio input[type=radio], 
+.radio-inline input[type=radio],
+input[type=checkbox], 
+input[type=radio] {
+  width: 20px;
+  height: 20px;
+}
+
+.k-timepicker, 
+.k-datepicker {
+  width: 200px !important;
+}

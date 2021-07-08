@@ -22,12 +22,10 @@ import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.wicket.Component;
@@ -35,27 +33,27 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Login extends BaseLogin {
 
-    private static final long serialVersionUID = -3422492668689122688L;
-
-    @SpringBean
-    private ClassPathScanImplementationLookup lookup;
-
-    private final BookmarkablePageLink<Void> selfRegistration;
+    private static final long serialVersionUID = 5889157642852559004L;
 
     private final BookmarkablePageLink<Void> selfPwdReset;
+
+    private final BookmarkablePageLink<Void> selfRegistration;
 
     public Login(final PageParameters parameters) {
         super(parameters);
 
-        selfRegistration = new BookmarkablePageLink<>("self-registration", Self.class);
-        add(selfRegistration.setOutputMarkupId(true));
-
         selfPwdReset = new BookmarkablePageLink<>("self-pwd-reset", SelfPasswordReset.class);
-        add(selfPwdReset.setOutputMarkupId(true));
+        selfPwdReset.getPageParameters().add("domain", SyncopeEnduserSession.get().getDomain());
+        selfPwdReset.setVisible(SyncopeEnduserSession.get().getPlatformInfo().isPwdResetAllowed());
+        add(selfPwdReset.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
+
+        selfRegistration = new BookmarkablePageLink<>("self-registration", SelfRegistration.class);
+        selfRegistration.getPageParameters().add("domain", SyncopeEnduserSession.get().getDomain());
+        selfRegistration.setVisible(SyncopeEnduserSession.get().getPlatformInfo().isSelfRegAllowed());
+        add(selfRegistration.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
     }
 
     @Override
@@ -74,10 +72,10 @@ public class Login extends BaseLogin {
     @Override
     protected List<Panel> getSSOLoginFormPanels() {
         List<Panel> ssoLoginFormPanels = new ArrayList<>();
-        lookup.getSSOLoginFormPanels().forEach(ssoLoginFormPanel -> {
+        SyncopeWebApplication.get().getLookup().getSSOLoginFormPanels().forEach(ssoLoginFormPanel -> {
             try {
-                ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class, BaseSession.class).
-                        newInstance("ssoLogin", SyncopeEnduserSession.get()));
+                ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class, BaseSession.class).newInstance(
+                        "ssoLogin", SyncopeEnduserSession.get()));
             } catch (Exception e) {
                 LOG.error("Could not initialize the provided SSO login form panel", e);
             }
@@ -96,26 +94,22 @@ public class Login extends BaseLogin {
     }
 
     @Override
-    protected List<Locale> getSupportedLocales() {
-        return SyncopeWebApplication.SUPPORTED_LOCALES;
-    }
+    protected void authenticate(final String username, final String password, final AjaxRequestTarget target)
+            throws AccessControlException {
 
-    @Override
-    protected void authenticate(
-            final String username,
-            final String password,
-            final AjaxRequestTarget target) throws AccessControlException {
+        if (SyncopeWebApplication.get().getAnonymousUser().equals(username)
+                || SyncopeWebApplication.get().getAdminUser().equals(username)) {
 
-        if (!SyncopeWebApplication.get().getAdminUser().equalsIgnoreCase(username)
-                && !SyncopeWebApplication.get().getAnonymousUser().equalsIgnoreCase(username)
-                && SyncopeEnduserSession.get().authenticate(username, password)) {
+            throw new AccessControlException("Illegal username");
+        }
 
-            // user has been authenticated successfully
+        if (SyncopeEnduserSession.get().authenticate(username, password)) {
+            // If login has been called because the user was not yet logged in, than continue to the
+            // original destination, otherwise to the Home page
             continueToOriginalDestination();
             setResponsePage(getApplication().getHomePage());
         } else {
-            // not authenticated
-            sendError(getString("login-error"));
+            SyncopeEnduserSession.get().error(getString("login-error"));
             notificationPanel.refresh(target);
         }
     }

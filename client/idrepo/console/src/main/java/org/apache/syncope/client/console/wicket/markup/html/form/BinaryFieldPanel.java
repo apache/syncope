@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import org.apache.syncope.client.ui.commons.markup.html.form.BinaryFieldDownload;
+
 import static de.agilecoders.wicket.jquery.JQuery.$;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.BootstrapFileInputField;

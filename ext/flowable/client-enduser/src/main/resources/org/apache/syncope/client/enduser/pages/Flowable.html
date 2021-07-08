@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -19,40 +20,58 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
     <section class="content" wicket:id="content">
-      <div id="flowable_wrapper" class="container-fluid password_reset_wrapper">
-        <div class="row">
-          <div class="col-md-6 col-md-offset-3">
-
-            <div class="page-header">
-              <h1>
-                <wicket:message key="bpmn.process.title">[BPMN_PROCESSES_TITLE]</wicket:message>
-              </h1>
+      <div class="box">
+        <div class="row clearfix">
+          <div class="col-md-12">
+            <div class="col-md-6 col-md-offset-3">
+              <div>
+                <h3 class="box-title"></h3>
+              </div>
+              <div class="box-body">
+                <div class="box-header formcard">
+                  <header class="card-container card-red">
+                    <h4><wicket:message key="bpmn.process.title">[BPMN_PROCESSES_TITLE]</wicket:message></h4>
+                  </header>
+                  <div class="card-container-body">
+                    <div>
+                      <div class="col-xs-12">
+                        <div class="form-group">
+                          <span wicket:id="bpmnProcesses" class="bpmn-process-span">[BPMN PROCESSES]</span> 
+                          <input wicket:id="start" wicket:message="value:start" type="button" class="btn btn-success">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="box-body">
+                <div class="box-header formcard">
+                  <header class="card-container card-red">
+                    <h4><wicket:message key="requests.to.be.approved">[ACTIVE REQUEST]</wicket:message></h4>
+                  </header>
+                  <div class="card-container-body">
+                    <div>
+                      <div class="col-xs-12">
+                        <div class="form-group">
+                          <div wicket:id="userRequests">
+                            <div wicket:id="userRequestDetails"/>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="box-footer">
+                <table class="paginator">
+                  <tfoot>
+                    <tr>
+                      <td wicket:id="navigator"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
-
-            <div>
-              <span wicket:id="bpmnProcesses">[BPMN PROCESSES]</span> 
-              <input wicket:id="start" wicket:message="value:start" type="button" class="btn btn-success">
-            </div>
-
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-6 col-md-offset-3">
-            <table>
-              <tbody>
-                <tr wicket:id="userRequests">
-                  <td>
-                    <div wicket:id="userRequestDetails"/>
-                  </td>
-                </tr>
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td wicket:id="navigator"></td>
-                </tr>
-              </tfoot>
-            </table>
           </div>
         </div>
       </div>

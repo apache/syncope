@@ -18,127 +18,95 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthConfig;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.commons.EnduserConstants;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.DomainDropDown;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
-import org.apache.syncope.common.keymaster.client.api.DomainOps;
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.client.ui.commons.panels.CardPanel;
+import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
+import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
-import org.apache.wicket.markup.html.form.validation.EqualPasswordInputValidator;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class SelfConfirmPasswordReset extends BaseEnduserWebPage {
+public class SelfConfirmPasswordReset extends BasePage {
 
     private static final long serialVersionUID = -2166782304542750726L;
 
-    @SpringBean
-    private DomainOps domainOps;
-
-    private final LoadableDetachableModel<List<String>> domains = new LoadableDetachableModel<List<String>>() {
-
-        private static final long serialVersionUID = 4659376149825914247L;
-
-        @Override
-        protected List<String> load() {
-            List<String> current = new ArrayList<>();
-            current.addAll(domainOps.list().stream().map(Domain::getKey).sorted().collect(Collectors.toList()));
-            current.add(0, SyncopeConstants.MASTER_DOMAIN);
-            return current;
-        }
-    };
+    private static final String CONFIRM_PASSWORD_RESET = "confirmPasswordReset";
 
     public SelfConfirmPasswordReset(final PageParameters parameters) {
-        super(parameters);
+        super(parameters, CONFIRM_PASSWORD_RESET);
 
-        if (parameters.get("token").isEmpty()) {
-            LOG.debug("No token parameter found in the request url");
-            parameters.add("errorMessage", getString("self.confirm.pwd.reset.error.empty"));
-            setResponsePage(getApplication().getHomePage(), parameters);
+        setDomain(parameters);
+        disableSidebar();
+
+        if (parameters == null || parameters.get("token").isEmpty()) {
+            LOG.error("No token parameter found in the request url");
+
+            PageParameters homeParameters = new PageParameters();
+            homeParameters.add("errorMessage", getString("self.confirm.pwd.reset.error.empty"));
+            setResponsePage(getApplication().getHomePage(), homeParameters);
         }
-
-        navbar.setEnabled(false);
-        navbar.setVisible(false);
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
-        body.add(content);
+        contentWrapper.add(content);
 
         Form<?> form = new StatelessForm<>("selfConfirmPwdResetForm");
         form.setOutputMarkupId(true);
         content.add(form);
 
-        DomainDropDown domainSelect = new DomainDropDown("domain", domains);
-        domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+        UserTO fakeUserTO = new UserTO();
+        PasswordPanel passwordPanel = new PasswordPanel(
+                EnduserConstants.CONTENT_PANEL,
+                new UserWrapper(fakeUserTO),
+                false,
+                false,
+                new PasswordStrengthBehavior(new PasswordStrengthConfig().
+                        withDebug(false).
+                        withShowVerdictsInsideProgressBar(true).
+                        withShowProgressBar(true)));
+        passwordPanel.setOutputMarkupId(true);
 
-            private static final long serialVersionUID = -1107858522700306810L;
+        form.add(new CardPanel.Builder<PasswordPanel>()
+                .setName("selfConfirmPasswordResetPanel")
+                .setComponent(passwordPanel)
+                .isVisible(true)
+                .build("selfConfirmPasswordResetPanelCard"));
 
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
-            }
-        }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
-            }
-        });
-        form.add(domainSelect);
-
-        AjaxPasswordFieldPanel passwordField = new AjaxPasswordFieldPanel(
-                "password", getString("password"), new Model<>());
-        passwordField.setRequired(true);
-        passwordField.setMarkupId("password");
-        passwordField.setPlaceholder(getString("password"));
-        ((PasswordTextField) passwordField.getField()).setResetPassword(false);
-        form.add(passwordField);
-
-        FieldPanel<String> confirmPasswordField = new AjaxPasswordFieldPanel(
-                "confirmPassword", getString("confirm-password"), new Model<>());
-        confirmPasswordField.setRequired(true);
-        confirmPasswordField.setMarkupId("confirmPassword");
-        confirmPasswordField.setPlaceholder(getString("confirm-password"));
-        ((PasswordTextField) confirmPasswordField.getField()).setResetPassword(false);
-        form.add(confirmPasswordField);
-
-        form.add(new EqualPasswordInputValidator(passwordField.getField(), confirmPasswordField.getField()));
-
-        AjaxButton submitButton = new AjaxButton("submit", new Model<>(getString("submit"))) {
+        AjaxButton submit = new AjaxButton("submit", new Model<>(getString("submit"))) {
 
             private static final long serialVersionUID = 509325877101838812L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
+                PageParameters params = new PageParameters();
                 try {
                     SyncopeEnduserSession.get().getService(UserSelfService.class).confirmPasswordReset(
-                            parameters.get("token").toString(), passwordField.getDefaultModelObjectAsString());
-                    PageParameters parameters = new PageParameters();
-                    parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.confirm.pwd.reset.success"));
-                    setResponsePage(getApplication().getHomePage(), parameters);
+                            parameters.get("token").toString(), fakeUserTO.getPassword());
+                    params.add(EnduserConstants.STATUS, Constants.OPERATION_SUCCEEDED);
+                    params.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.confirm.pwd.reset.success"));
+                    params.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.confirm.pwd.reset.success.msg"));
+                    SyncopeEnduserSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                    parameters.add(EnduserConstants.LANDING_PAGE, Login.class.getName());
+                    setResponsePage(SelfResult.class, params);
                 } catch (SyncopeClientException sce) {
                     LOG.error("Unable to complete the 'Password Reset Confirmation' process", sce);
+                    params.add(EnduserConstants.STATUS, Constants.OPERATION_ERROR);
+                    params.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.confirm.pwd.reset.error"));
+                    params.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.confirm.pwd.reset.error.msg"));
                     SyncopeEnduserSession.get().onException(sce);
-                    ((BaseEnduserWebPage) getPageReference().getPage()).getNotificationPanel().refresh(target);
+                    ((BasePage) getPageReference().getPage()).getNotificationPanel().refresh(target);
                 }
             }
 
@@ -147,8 +115,8 @@ public class SelfConfirmPasswordReset extends BaseEnduserWebPage {
                 notificationPanel.refresh(target);
             }
         };
-        form.setDefaultButton(submitButton);
-        form.add(submitButton);
+        form.setDefaultButton(submit);
+        form.add(submit);
 
         Button cancel = new Button("cancel") {
 
@@ -158,7 +126,6 @@ public class SelfConfirmPasswordReset extends BaseEnduserWebPage {
             public void onSubmit() {
                 setResponsePage(getApplication().getHomePage());
             }
-
         };
         cancel.setOutputMarkupId(true);
         cancel.setDefaultFormProcessing(false);

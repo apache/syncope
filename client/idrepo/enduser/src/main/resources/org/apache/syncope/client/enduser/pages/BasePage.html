@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org" wicket:message="lang:lang">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+
+    <title>Apache Syncope</title>
+
+    <link rel="shortcut icon" href="ui-commons/img/favicon.png" type="image/png"/>
+
+    <link href="webjars/font-awesome/${font-awesome.version}/css/all.min.css" rel="stylesheet" type="text/css"/>
+    <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css"/>
+    <link href="ui-commons/css/fonts.css" rel="stylesheet" type="text/css"/>
+
+    <link href="css/AdminLTE_plugins/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
+    <link href="ui-commons/css/animations.css" rel="stylesheet" type="text/css"/>
+    <link href="ui-commons/css/syncopeUI.css" rel="stylesheet" type="text/css"/>
+    <link href="css/syncopeEnduser.css" rel="stylesheet" type="text/css"/>
+
+    <!-- accessibility -->
+    <link href="ui-commons/css/accessibility.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="ui-commons/js/accessibility.js"></script>
+
+    <script type="text/javascript" src="webjars/bootbox/${bootbox.version}/bootbox.js"></script>
+    <script type="text/javascript" src="webjars/jQuery-slimScroll/${jquery-slimscroll.version}/jquery.slimscroll.min.js"></script>
+    <script type="text/javascript">
+      // global variable for IndicatingOnConfirmAjaxLink
+      var proceed = false;
+    </script>
+</head>
+<body class="hold-transition sidebar-mini" wicket:id="body">
+
+<div class="wrapper">
+    <span wicket:id="feedback"></span>
+    <nav class="main-header navbar navbar-expand navbar-red navbar-light" aria-label="primary" style="z-index: 0">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a href="#" class="nav-link" data-widget="pushmenu" role="button" wicket:id="collapse">
+                    <i class="fas fa-bars"></i>
+                </a>
+            </li>
+        </ul>
+
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="#" wicket:id="logout">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <aside wicket:id="sidebar" class="main-sidebar sidebar-light-red elevation-4" aria-label="secondary">[SIDEBAR]</aside>
+
+    <div class="content-wrapper" wicket:id="contentWrapper" role="main">
+        <section class="content-header">
+            <h1><span wicket:id="pageTitle"/></h1>
+        </section>
+        <wicket:child/>
+    </div>
+
+      <footer class="main-footer">
+        <strong>Copyright &copy; 2010&#45;${year}
+          <a href="http://www.apache.org/" target="_blank" rel="noopener noreferrer">The Apache Software Foundation</a>.</strong>
+        All rights reserved.
+      </footer>
+
+    <div class="control-sidebar-bg" style="position: fixed; height: auto;"></div>
+</div>
+
+<div id="veil">Loading...</div>
+</body>
+</html>

@@ -44,7 +44,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
     @Test
     public void read() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", CONTAINER
@@ -74,7 +74,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
     @Test
     public void filteredSearch() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
         TESTER.clickLink(
@@ -92,7 +92,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
     }
 
     private static void cloneGroup(final String group) {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", CONTAINER
@@ -245,7 +245,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
     @Test
     public void checkDeleteGroupLink() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", CONTAINER

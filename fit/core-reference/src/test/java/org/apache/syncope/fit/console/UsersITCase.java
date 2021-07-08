@@ -45,7 +45,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
     @Test
     public void filteredSearch() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         TESTER.clickLink(
@@ -68,7 +68,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
     @Test
     public void forceChangePassword() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", CONTAINER
@@ -85,7 +85,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
     @Test
     public void clickToCloneUser() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", CONTAINER
@@ -109,7 +109,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
     @Test
     public void editRelationships() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", CONTAINER
@@ -189,7 +189,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
     @Test
     public void editUser() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", CONTAINER
@@ -255,7 +255,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
     @Test
     public void editUserMembership() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.executeAjaxEvent("body:content:realmChoicePanel:container"
                 + ":realmsFragment:realms:btn", Constants.ON_CLICK);
         TESTER.executeAjaxEvent("body:content:realmChoicePanel:container"
@@ -349,7 +349,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
     @Test
     public void editUserMemberships() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.executeAjaxEvent("body:content:realmChoicePanel:container"
                 + ":realmsFragment:realms:btn", Constants.ON_CLICK);
         TESTER.executeAjaxEvent("body:content:realmChoicePanel:container"
@@ -571,7 +571,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
     @Test
     public void checkDeleteUsrLink() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", CONTAINER
@@ -586,7 +586,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
     @Test
     public void editDateTimeField() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", CONTAINER
@@ -679,7 +679,7 @@ public class UsersITCase extends AbstractConsoleITCase {
     public void changePassword() {
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", CONTAINER
@@ -705,7 +705,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         component = findComponentByProp("username", CONTAINER

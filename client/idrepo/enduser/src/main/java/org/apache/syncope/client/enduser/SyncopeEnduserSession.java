@@ -18,21 +18,6 @@
  */
 package org.apache.syncope.client.enduser;
 
-import java.security.AccessControlException;
-import java.text.DateFormat;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.MediaType;
-import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -43,24 +28,63 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.info.PlatformInfo;
+import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Session;
-import org.apache.wicket.protocol.http.WebSession;
+import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
+import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.MediaType;
+import javax.xml.ws.WebServiceException;
+import java.security.AccessControlException;
+import java.text.DateFormat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 
-/**
- * Custom Syncope Enduser Session class.
- */
-public class SyncopeEnduserSession extends WebSession implements BaseSession {
+public class SyncopeEnduserSession extends AuthenticatedWebSession implements BaseSession {
 
-    private static final long serialVersionUID = 1284946129513378647L;
+    private static final long serialVersionUID = 747562246415852166L;
+
+    public enum Error {
+        INVALID_SECURITY_ANSWER("invalid.security.answer", "Invalid Security Answer"),
+        SESSION_EXPIRED("error.session.expired", "Session expired: please login again"),
+        AUTHORIZATION("error.authorization", "Insufficient access rights when performing the requested operation"),
+        REST("error.rest", "There was an error while contacting the Core server");
+
+        private final String key;
+
+        private final String fallback;
+
+        Error(final String key, final String fallback) {
+            this.key = key;
+            this.fallback = fallback;
+        }
+
+        public String key() {
+            return key;
+        }
+
+        public String fallback() {
+            return fallback;
+        }
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeEnduserSession.class);
 
@@ -68,15 +92,19 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
 
     private final SyncopeClient anonymousClient;
 
-    private SyncopeClient client;
+    private final PlatformInfo platformInfo;
 
-    private UserTO selfTO;
+    private final SystemInfo systemInfo;
 
     private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
 
     private final ThreadPoolTaskExecutor executor;
 
     private String domain;
+
+    private SyncopeClient client;
+
+    private UserTO selfTO;
 
     public static SyncopeEnduserSession get() {
         return (SyncopeEnduserSession) Session.get();
@@ -86,22 +114,39 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         super(request);
 
         clientFactory = SyncopeWebApplication.get().newClientFactory();
-        anonymousClient = clientFactory.create(new AnonymousAuthenticationHandler(
-                SyncopeWebApplication.get().getAnonymousUser(),
-                SyncopeWebApplication.get().getAnonymousKey()));
+        anonymousClient = clientFactory.
+                create(new AnonymousAuthenticationHandler(
+                        SyncopeWebApplication.get().getAnonymousUser(),
+                        SyncopeWebApplication.get().getAnonymousKey()));
+
+        platformInfo = getAnonymousService(SyncopeService.class).platform();
+        systemInfo = getAnonymousService(SyncopeService.class).system();
 
         executor = new ThreadPoolTaskExecutor();
         executor.setWaitForTasksToCompleteOnShutdown(false);
-        executor.setCorePoolSize(SyncopeWebApplication.get().getCorePoolSize());
-        executor.setMaxPoolSize(SyncopeWebApplication.get().getMaxPoolSize());
-        executor.setQueueCapacity(SyncopeWebApplication.get().getQueueCapacity());
         executor.initialize();
     }
 
     protected String message(final SyncopeClientException sce) {
-        return sce.getType().name() + ": " + sce.getElements().stream().collect(Collectors.joining(", "));
+        Error error = null;
+        if (sce.getType() == ClientExceptionType.InvalidSecurityAnswer) {
+            error = Error.INVALID_SECURITY_ANSWER;
+        }
+        if (error == null) {
+            return sce.getType().name() + ": " + sce.getElements().stream().collect(Collectors.joining(", "));
+        }
+        return getApplication().getResourceSettings().getLocalizer().
+                getString(error.key(), null, null, null, null, error.fallback());
     }
 
+    /**
+     * Extract and localize (if translation available) the actual message from the given exception; then, report it
+     * via {@link Session#error(java.io.Serializable)}.
+     *
+     * @see org.apache.syncope.client.lib.RestClientExceptionMapper
+     *
+     * @param e raised exception
+     */
     @Override
     public void onException(final Exception e) {
         Throwable root = ExceptionUtils.getRootCause(e);
@@ -111,8 +156,6 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
             SyncopeClientException sce = (SyncopeClientException) root;
             message = sce.isComposite()
                     ? sce.asComposite().getExceptions().stream().map(this::message).collect(Collectors.joining("; "))
-                    : sce.getType() == ClientExceptionType.InvalidSecurityAnswer
-                    ? getApplication().getResourceSettings().getLocalizer().getString("invalid.security.answer", null)
                     : message(sce);
         } else if (root instanceof AccessControlException || root instanceof ForbiddenException) {
             Error error = StringUtils.containsIgnoreCase(message, "expired")
@@ -130,15 +173,31 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         error(message);
     }
 
-    public void cleanup() {
-        client = null;
-        selfTO = null;
-        services.clear();
+    public MediaType getMediaType() {
+        return clientFactory.getContentType().getMediaType();
+    }
+
+    public SyncopeClient getAnonymousClient() {
+        return anonymousClient;
+    }
+
+    public void execute(final Runnable command) {
+        try {
+            executor.execute(command);
+        } catch (TaskRejectedException e) {
+            LOG.error("Could not execute {}", command, e);
+        }
     }
 
     @Override
-    public String getJWT() {
-        return Optional.ofNullable(client).map(SyncopeClient::getJWT).orElse(null);
+    public <T> Future<T> execute(final Callable<T> command) {
+        try {
+            return executor.submit(command);
+        } catch (TaskRejectedException e) {
+            LOG.error("Could not execute {}", command, e);
+
+            return new CompletableFuture<>();
+        }
     }
 
     @Override
@@ -151,24 +210,30 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         return StringUtils.isBlank(domain) ? SyncopeConstants.MASTER_DOMAIN : domain;
     }
 
-    private void afterAuthentication(final String username) {
-        try {
-            selfTO = client.self().getRight();
-        } catch (ForbiddenException e) {
-            LOG.warn("Could not read self(), probably in a {} scenario", IdRepoEntitlement.MUST_CHANGE_PASSWORD, e);
-
-            selfTO = new UserTO();
-            selfTO.setUsername(username);
-            selfTO.setMustChangePassword(true);
-        }
-
-        // bind explicitly this session to have a stateful behavior during http requests, unless session will
-        // expire at each request
-        this.bind();
+    @Override
+    public String getJWT() {
+        return client == null ? null : client.getJWT();
     }
 
+    @Override
+    public Roles getRoles() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public PlatformInfo getPlatformInfo() {
+        return platformInfo;
+    }
+
+    public SystemInfo getSystemInfo() {
+        return systemInfo;
+    }
+
+    @Override
     public boolean authenticate(final String username, final String password) {
         boolean authenticated = false;
+        if (SyncopeWebApplication.get().getAdminUser().equalsIgnoreCase(username)) {
+            return authenticated;
+        }
 
         try {
             client = clientFactory.setDomain(getDomain()).create(username, password);
@@ -199,6 +264,36 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         return authenticated;
     }
 
+    private void afterAuthentication(final String username) {
+        try {
+            selfTO = client.self().getRight();
+        } catch (ForbiddenException e) {
+            LOG.warn("Could not read self(), probably in a {} scenario", IdRepoEntitlement.MUST_CHANGE_PASSWORD, e);
+
+            selfTO = new UserTO();
+            selfTO.setUsername(username);
+            selfTO.setMustChangePassword(true);
+        }
+
+        // bind explicitly this session to have a stateful behavior during http requests, unless session will
+        // expire at each request
+        this.bind();
+    }
+
+    protected boolean isAuthenticated() {
+        return client != null && client.getJWT() != null;
+    }
+
+    protected boolean isMustChangePassword() {
+        return selfTO != null && selfTO.isMustChangePassword();
+    }
+
+    public void cleanup() {
+        client = null;
+        selfTO = null;
+        services.clear();
+    }
+
     @Override
     public void invalidate() {
         if (isAuthenticated()) {
@@ -214,9 +309,30 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         super.invalidate();
     }
 
-    @Override
-    public <T> T getAnonymousService(final Class<T> serviceClass) {
-        return getService(serviceClass);
+    public UserTO getSelfTO() {
+        return getSelfTO(false);
+    }
+
+    public UserTO getSelfTO(final boolean reload) {
+        if (reload) {
+            afterAuthentication(selfTO.getUsername());
+        }
+        return selfTO;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T getCachedService(final Class<T> serviceClass) {
+        T service;
+        if (services.containsKey(serviceClass)) {
+            service = (T) services.get(serviceClass);
+        } else {
+            service = client.getService(serviceClass);
+            services.put(serviceClass, service);
+        }
+
+        WebClient.client(service).type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
+
+        return service;
     }
 
     @Override
@@ -237,43 +353,6 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
         return serviceInstance;
     }
 
-    public UserTO getSelfTO() {
-        if (selfTO == null) {
-            throw new IllegalArgumentException("User not authenticated");
-        }
-        return selfTO;
-    }
-
-    @Override
-    public <T> Future<T> execute(final Callable<T> command) {
-        try {
-            return executor.submit(command);
-        } catch (TaskRejectedException e) {
-            LOG.error("Could not execute {}", command, e);
-
-            return new CompletableFuture<>();
-        }
-    }
-
-    public boolean isAuthenticated() {
-        return client != null && client.getJWT() != null;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> T getCachedService(final Class<T> serviceClass) {
-        T service;
-        if (services.containsKey(serviceClass)) {
-            service = (T) services.get(serviceClass);
-        } else {
-            service = client.getService(serviceClass);
-            services.put(serviceClass, service);
-        }
-
-        WebClient.client(service).type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
-
-        return service;
-    }
-
     @Override
     public <T> void resetClient(final Class<T> service) {
         T serviceInstance = getCachedService(service);
@@ -283,5 +362,10 @@ public class SyncopeEnduserSession extends WebSession implements BaseSession {
     @Override
     public FastDateFormat getDateFormat() {
         return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale());
+    }
+
+    @Override
+    public <T> T getAnonymousService(final Class<T> serviceClass) {
+        return getAnonymousClient().getService(serviceClass);
     }
 }

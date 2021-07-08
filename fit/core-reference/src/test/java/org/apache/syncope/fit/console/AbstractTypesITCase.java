@@ -42,7 +42,7 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     }
 
     protected void browsingToRelationshipType() {
-        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
+        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types", false);
         TESTER.assertRenderedPage(Types.class);
 
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
@@ -51,7 +51,7 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     }
 
     protected void browsingToAnyTypes() {
-        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
+        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types", false);
         TESTER.assertRenderedPage(Types.class);
 
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
@@ -60,7 +60,7 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     }
 
     protected void browsingToAnyTypeClasses() {
-        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
+        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types", false);
         TESTER.assertRenderedPage(Types.class);
 
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
@@ -69,7 +69,7 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     }
 
     protected void browsingToPlainSchemas() {
-        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
+        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types", false);
         TESTER.assertRenderedPage(Types.class);
 
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
@@ -78,7 +78,7 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     }
 
     protected void browsingToVirtualSchemas() {
-        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
+        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types", false);
         TESTER.assertRenderedPage(Types.class);
 
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
@@ -114,16 +114,14 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
         browsingToAnyTypeClasses();
 
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
-                Modal.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
-        final FormTester formTester = TESTER.newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:anyTypeClassDetailsPanel:form:key:textField", name);
 
         TESTER.clearFeedbackMessages();
-        TESTER.clickLink(
-                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
         assertSuccessMessage();
         TESTER.clearFeedbackMessages();
     }
@@ -132,15 +130,13 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
         browsingToAnyTypes();
 
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
-                Modal.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
         final FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:anyTypeDetailsPanel:container:form:key:textField", name);
 
-        TESTER.clickLink(
-                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
         assertSuccessMessage();
         TESTER.clearFeedbackMessages();
     }
@@ -150,8 +146,7 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
 
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
-                Modal.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
         final FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
@@ -159,8 +154,7 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
         formTester.setValue(
                 "content:relationshipTypeDetails:container:form:description:textField", "test relationshipType");
 
-        TESTER.clickLink(
-                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
         assertSuccessMessage();
         TESTER.clearFeedbackMessages();

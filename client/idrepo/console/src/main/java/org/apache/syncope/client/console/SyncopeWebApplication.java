@@ -28,8 +28,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.lang3.BooleanUtils;
@@ -43,7 +41,6 @@ import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
-import org.apache.syncope.client.console.themes.AdminLTE;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.wicket.Page;
@@ -69,6 +66,7 @@ import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.pages.MustChangePassword;
 import org.apache.syncope.client.console.panels.AnyPanel;
+import org.apache.syncope.client.ui.commons.themes.AdminLTE;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -87,10 +85,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
 
     private static final String CONSOLE_PROPERTIES = "console.properties";
-
-    public static final List<Locale> SUPPORTED_LOCALES = List.of(
-            Locale.ENGLISH, Locale.CANADA_FRENCH, Locale.ITALIAN, Locale.JAPANESE, new Locale("pt", "BR"),
-            new Locale("ru"));
 
     public static SyncopeWebApplication get() {
         return (SyncopeWebApplication) WebApplication.get();
@@ -169,7 +163,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         }
     }
 
-    protected void setSecurityHeaders(final Properties props, final WebResponse response) {
+    protected static void setSecurityHeaders(final Properties props, final WebResponse response) {
         @SuppressWarnings("unchecked")
         Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
         while (propNames.hasMoreElements()) {

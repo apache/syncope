@@ -1,0 +1,50 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
+    <div class="box">
+      <div class="box-body" wicket:id="userProfile">
+        <div class="box-header formcard col-md-4">
+          <header class="card-container bg-danger">
+            <label class="card-header-style">
+              <wicket:message key="welcome"/>
+              <b><label class="card-header-style" wicket:id="welcome"/></b></label>
+          </header>
+          <div class="card-container-body">
+            <div>
+              <div class="box-footer no-padding no-border-top">
+                <ul class="nav navbar-nav flex-column">
+                  <li class="nav-item"><a class="nav-link disabled" href="#"><wicket:message key="name"/>:
+                      <span class="float-right badge"><label wicket:id="username"/></span></a>
+                  </li>
+                  <li class="nav-item"><a class="nav-link disabled" href="#"><wicket:message key="lastLoginDate"/>:
+                      <span class="float-right badge"><label wicket:id="lastLoginDate"/></span></a>
+                  </li>
+                  <li class="nav-item"><a class="nav-link disabled" href="#"><wicket:message key="lastChangePwdDate"/>:
+                      <span class="float-right badge"><label wicket:id="changePwdDate"/></span></a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </wicket:panel>
+</html>

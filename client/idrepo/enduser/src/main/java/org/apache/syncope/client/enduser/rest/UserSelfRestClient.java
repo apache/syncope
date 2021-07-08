@@ -18,45 +18,16 @@
  */
 package org.apache.syncope.client.enduser.rest;
 
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
+import javax.ws.rs.core.GenericType;
 
-/**
- * Console client for invoking rest users services.
- */
 public class UserSelfRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1575748964398293968L;
-
-    public static ProvisioningResult<UserTO> create(final UserCR createReq) {
-        Response response = getService(UserSelfService.class).create(createReq);
-        return response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
-        });
-    }
-
-    public ProvisioningResult<UserTO> update(final String etag, final UserUR updateReq) {
-        ProvisioningResult<UserTO> result;
-        synchronized (this) {
-            result = getService(etag, UserSelfService.class).update(updateReq).
-                    readEntity(new GenericType<ProvisioningResult<UserTO>>() {
-                    });
-            resetClient(UserSelfService.class);
-        }
-        return result;
-    }
-
-    public ProvisioningResult<UserTO> mustChangePassword(final String etag, final boolean value, final String key) {
-        UserUR userUR = new UserUR();
-        userUR.setKey(key);
-        userUR.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(value).build());
-        return update(etag, userUR);
-    }
 
     public static void changePassword(final String password) {
         getService(UserSelfService.class).mustChangePassword(password);
@@ -64,5 +35,24 @@ public class UserSelfRestClient extends BaseRestClient {
 
     public static void requestPasswordReset(final String username, final String securityAnswer) {
         getService(UserSelfService.class).requestPasswordReset(username, securityAnswer);
+    }
+
+    public ProvisioningResult<UserTO> create(final UserCR createReq, final boolean storePassword) {
+        ProvisioningResult<UserTO> result;
+        result = getService(UserSelfService.class).create(createReq).readEntity(
+                new GenericType<ProvisioningResult<UserTO>>() {
+        });
+        return result;
+    }
+
+    public ProvisioningResult<UserTO> update(final String etag, final UserUR userPatch) {
+        ProvisioningResult<UserTO> result;
+        synchronized (this) {
+            result = getService(etag, UserSelfService.class).update(userPatch).
+                    readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                    });
+            resetClient(UserSelfService.class);
+        }
+        return result;
     }
 }

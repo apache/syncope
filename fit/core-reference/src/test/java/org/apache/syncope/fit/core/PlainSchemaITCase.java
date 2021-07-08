@@ -184,58 +184,65 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
-
-        UserUR userUR = new UserUR();
-        userUR.setKey(userTO.getKey());
-        // validation OK - application/pdf -> application/pdf
-        userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryPDF",
-                Base64.getEncoder().encodeToString(
-                        IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.pdf"))))).
-                operation(PatchOperation.ADD_REPLACE).
-                build());
-
-        updateUser(userUR);
-        assertNotNull(userService.read(userTO.getKey()).getPlainAttr("BinaryPDF"));
-
-        userUR = new UserUR();
-        userUR.setKey(userTO.getKey());
-        // validation KO - text/html -> application/pdf
         try {
+            UserUR userUR = new UserUR();
+            userUR.setKey(userTO.getKey());
+            // validation OK - application/pdf -> application/pdf
             userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryPDF",
                     Base64.getEncoder().encodeToString(
-                            IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.html"))))).
+                            IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.pdf"))))).
                     operation(PatchOperation.ADD_REPLACE).
                     build());
 
             updateUser(userUR);
-            fail("This should not be reacheable");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidValues, e.getType());
+            assertNotNull(userService.read(userTO.getKey()).getPlainAttr("BinaryPDF"));
+
+            userUR = new UserUR();
+            userUR.setKey(userTO.getKey());
+            // validation KO - text/html -> application/pdf
+            try {
+                userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryPDF",
+                        Base64.getEncoder().encodeToString(
+                                IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.html"))))).
+                        operation(PatchOperation.ADD_REPLACE).
+                        build());
+
+                updateUser(userUR);
+                fail("This should not be reacheable");
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.InvalidValues, e.getType());
+            }
+
+            userUR = new UserUR();
+            userUR.setKey(userTO.getKey());
+            // validation ok - application/json -> application/json
+            userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryJSON",
+                    Base64.getEncoder().encodeToString(
+                            IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.json"))))).
+                    operation(PatchOperation.ADD_REPLACE).
+                    build());
+
+            updateUser(userUR);
+            assertNotNull(userService.read(userTO.getKey()).getPlainAttr("BinaryJSON"));
+
+            userUR = new UserUR();
+            userUR.setKey(userTO.getKey());
+            // no validation - application/xml -> application/json
+            userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryJSON2",
+                    Base64.getEncoder().encodeToString(
+                            IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.xml"))))).
+                    operation(PatchOperation.ADD_REPLACE).
+                    build());
+
+            updateUser(userUR);
+            assertNotNull(userService.read(userTO.getKey()).getPlainAttr("BinaryJSON2"));
+        } finally {
+            userService.delete(userTO.getKey());
+
+            schemaService.delete(SchemaType.PLAIN, schemaTOpdf.getKey());
+            schemaService.delete(SchemaType.PLAIN, schemaTOjson.getKey());
+            schemaService.delete(SchemaType.PLAIN, schemaTOjson2.getKey());
         }
-
-        userUR = new UserUR();
-        userUR.setKey(userTO.getKey());
-        // validation ok - application/json -> application/json
-        userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryJSON",
-                Base64.getEncoder().encodeToString(
-                        IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.json"))))).
-                operation(PatchOperation.ADD_REPLACE).
-                build());
-
-        updateUser(userUR);
-        assertNotNull(userService.read(userTO.getKey()).getPlainAttr("BinaryJSON"));
-
-        userUR = new UserUR();
-        userUR.setKey(userTO.getKey());
-        // no validation - application/xml -> application/json
-        userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryJSON2",
-                Base64.getEncoder().encodeToString(
-                        IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.xml"))))).
-                operation(PatchOperation.ADD_REPLACE).
-                build());
-
-        updateUser(userUR);
-        assertNotNull(userService.read(userTO.getKey()).getPlainAttr("BinaryJSON2"));
     }
 
     @Test

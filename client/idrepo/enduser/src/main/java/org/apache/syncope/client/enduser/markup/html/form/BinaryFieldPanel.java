@@ -30,17 +30,19 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Locale;
 import java.util.Optional;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.BaseBinaryFieldPanel;
+import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
+import org.apache.syncope.client.ui.commons.markup.html.form.BaseBinaryFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.BinaryFieldDownload;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.Component;
@@ -82,7 +84,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
 
     private final BootstrapFileInputField fileUpload;
 
-    private final AjaxDownload fileDownload;
+    private final BinaryFieldDownload fileDownload;
 
     private final BinaryPreviewer previewer;
 
@@ -100,6 +102,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
             final IModel<String> model,
             final String mimeType,
             final String fileKey) {
+
         super(id, name, model);
         this.model = model;
         this.fileKey = fileKey;
@@ -122,7 +125,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
             public void renderHead(final IHeaderResponse response) {
                 if (previewer == null) {
                     FileinputJsReference.INSTANCE.renderHead(response);
-                    final JQuery fileinputJS = $(fileUpload).chain(new IFunction() {
+                    JQuery fileinputJS = $(fileUpload).chain(new IFunction() {
 
                         private static final long serialVersionUID = -2285418135375523652L;
 
@@ -150,7 +153,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
 
         uploadForm.add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : '(' + mimeType + ')'));
 
-        fileDownload = new AjaxDownload(name, fileKey, mimeType, true) {
+        fileDownload = new BinaryFieldDownload(name, fileKey, mimeType, true) {
 
             private static final long serialVersionUID = 7203445884857810583L;
 
@@ -185,10 +188,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         if (!Locale.ENGLISH.getLanguage().equals(language)) {
             config.withLocale(language);
         }
-
         fileUpload = new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<>()), config);
-        fileUpload.setOutputMarkupId(true);
-
         fileUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -253,11 +253,13 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
 
     private Response buildResponse() {
         return Response.ok(new ByteArrayInputStream(Base64.getMimeDecoder().decode(getModelObject()))).
-                type(StringUtils.isBlank(mimeType) ? MediaType.APPLICATION_OCTET_STREAM : mimeType).build();
+                type(StringUtils.isBlank(mimeType) ? MediaType.APPLICATION_OCTET_STREAM : mimeType).
+                header(HttpHeaders.LOCATION, StringUtils.EMPTY).
+                build();
     }
 
     private void changePreviewer(final Component panelPreview) {
-        final Fragment fragment = new Fragment("panelPreview", "previewFragment", container);
+        Fragment fragment = new Fragment("panelPreview", "previewFragment", container);
         fragment.add(panelPreview);
         container.addOrReplace(fragment);
         uploadForm.addOrReplace(container);
@@ -296,5 +298,12 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
     @Override
     protected Integer getMaxUploadFileSizeMB() {
         return SyncopeWebApplication.get().getMaxUploadFileSizeMB();
+    }
+
+    @Override
+    public FieldPanel<String> setReadOnly(final boolean readOnly) {
+        super.setReadOnly(readOnly);
+        fileUpload.setEnabled(!readOnly);
+        return this;
     }
 }

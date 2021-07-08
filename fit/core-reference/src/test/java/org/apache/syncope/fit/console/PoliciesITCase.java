@@ -37,7 +37,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
+        TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies", false);
         TESTER.assertRenderedPage(Policies.class);
     }
 
@@ -741,7 +741,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         composeDefaultAccountPolicy(name);
 
         // goto realms
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.assertRenderedPage(Realms.class);
 
         // edit root realm
@@ -844,7 +844,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         assertNull(component);
 
         // delete default policy
-        TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
+        TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies", false);
         TESTER.assertRenderedPage(Policies.class);
         deleteAccountPolicy(name);
     }

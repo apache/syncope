@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -32,13 +33,14 @@ under the License.
 
     <link href="ui-commons/css/login.css" rel="stylesheet" type="text/css" />
     <link href="ui-commons/css/syncopeUI.css" rel="stylesheet" type="text/css"/>
+    <link href="css/syncopeEnduser.css" rel="stylesheet" type="text/css"/>
 
     <!-- accessibility -->
     <link href="ui-commons/css/accessibility.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="ui-commons/js/accessibility.js"></script>
   </head>
 
-  <body class="login-body login_enduser">
+  <body class="login-body">
     <div id="accessibility">
       <div id="change_contrast" class="btn-accessibility">
         <i aria-label="Toggle high contrast colors mode" tabindex="0" accesskey="H"
@@ -51,13 +53,12 @@ under the License.
         </i>
       </div>
     </div>
-
     <div class="container">
       <div class="login-card card card-container">
         <img class="login-logo" src="ui-commons/img/logo-green.png" />
 
         <span wicket:id="feedback" role="alert"/>
-        <div class="box alert-danger" style="padding: 5px;text-align: center;" wicket:id="exceptionMessage"/>
+        <div class="alert-danger" style="padding: 5px;text-align: center;" wicket:id="exceptionMessage"/>
 
         <form class="form-signin" wicket:id="login">
           <fieldset class="form-group">
@@ -75,7 +76,7 @@ under the License.
               <select class="form-control select2bs4 select2-hidden-accessible" wicket:id="domain"/>
             </div>
 
-            <button wicket:id="submit" type="submit" class="btn btn-lg btn-primary btn-block btn-signin"></button>
+            <button wicket:id="submit" type="submit" class="btn btn-lg btn-primary btn-block btn-signin bg-danger"></button>
           </fieldset>
 
           <div wicket:id="ssoLogins">
@@ -84,10 +85,8 @@ under the License.
         </form>
 
         <div class="text-center login_link">
+          <a wicket:id="self-pwd-reset"><wicket:message key="self-pwd-reset">[SELFPWDRESET]</wicket:message></a><br/>
           <a wicket:id="self-registration"><wicket:message key="self-registration">[SELFREGISTRATION]</wicket:message></a>
-        </div>
-        <div class="text-center login_link">
-          <a wicket:id="self-pwd-reset"><wicket:message key="self-pwd-reset">[SELFPWDRESET]</wicket:message></a>
         </div>
       </div>
     </div>

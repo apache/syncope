@@ -35,7 +35,7 @@ public class ReportsITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.clickLink("body:reportsLI:reports");
+        TESTER.clickLink("body:reportsLI:reports", false);
         TESTER.assertRenderedPage(Reports.class);
     }
 
@@ -63,11 +63,11 @@ public class ReportsITCase extends AbstractConsoleITCase {
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.clickLink("body:reportsLI:reports");
+        TESTER.clickLink("body:reportsLI:reports", false);
     }
 
     private static void delete(final String name) {
-        TESTER.clickLink("body:reportsLI:reports");
+        TESTER.clickLink("body:reportsLI:reports", false);
 
         Component result = findComponentByProp(
                 "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"

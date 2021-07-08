@@ -102,8 +102,6 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         this.windowClosedCallback = null;
         components = new ArrayList<>();
 
-        // Note: not adding this would imply adding WebjarsJavaScriptResourceReference about JQuery resizable and mouse
-        // add(new Resizable().withChildSelector(".modal-content"));
         // Note: not adding this would imply adding of WebjarsJavaScriptResourceReference about JQuery draggable
         add(new Draggable(new DraggableConfig().withHandle(".modal-header").withCursor("move")));
 

@@ -30,9 +30,6 @@ public class CustomizationOption implements Serializable {
 
     private List<String> defaultValues = new ArrayList<>();
 
-    public CustomizationOption() {
-    }
-
     public boolean isReadonly() {
         return readonly;
     }
@@ -48,15 +45,4 @@ public class CustomizationOption implements Serializable {
     public void setDefaultValues(final List<String> defaultValues) {
         this.defaultValues = defaultValues;
     }
-
-    public CustomizationOption readonly(final Boolean value) {
-        this.readonly = value;
-        return this;
-    }
-
-    public CustomizationOption defaultValues(final List<String> value) {
-        this.defaultValues = value;
-        return this;
-    }
-
 }

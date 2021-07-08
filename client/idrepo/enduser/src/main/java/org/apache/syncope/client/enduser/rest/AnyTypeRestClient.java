@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.rest;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
@@ -47,7 +48,7 @@ public class AnyTypeRestClient extends BaseRestClient {
     }
 
     public static List<AnyTypeTO> listAnyTypes() {
-        List<AnyTypeTO> types = List.of();
+        List<AnyTypeTO> types = Collections.emptyList();
 
         try {
             types = getService(AnyTypeService.class).list();

@@ -37,7 +37,7 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
+        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security", false);
         TESTER.assertRenderedPage(Security.class);
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
     }
@@ -59,7 +59,7 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
+        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security", false);
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
     }
 
