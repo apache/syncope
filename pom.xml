@@ -408,7 +408,7 @@ under the License.
     <bouncycastle.version>1.69</bouncycastle.version>
     <nimbus-jose-jwt.version>9.10.1</nimbus-jose-jwt.version>
 
-    <jackson.version>2.12.3</jackson.version>
+    <jackson.version>2.12.4</jackson.version>
 
     <spring-boot.version>2.5.2</spring-boot.version>
     <spring-cloud-gateway.version>3.0.3</spring-cloud-gateway.version>
@@ -1018,7 +1018,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>1.26</version>
+        <version>1.27</version>
       </dependency>
 
       <dependency>
