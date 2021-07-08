@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.pages;
 
 import org.apache.syncope.client.enduser.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.enduser.commons.EnduserConstants;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -36,16 +37,16 @@ public class SelfResult extends BasePage {
     @SuppressWarnings("unchecked")
     public SelfResult(final PageParameters parameters) {
         super(parameters, RESULT_PAGE);
-        
+
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
         contentWrapper.add(content);
-        Class page;
+        Class<? extends WebPage> page;
         try {
-            page = Class.forName(parameters.get(Constants.LANDING_PAGE)
-                    .toString("org.apache.syncope.client.enduser.pages.Login"));
-        } catch (ClassNotFoundException ex) {
-            LOG.debug("Landing page not found", ex);
+            page = (Class<? extends WebPage>) Class.forName(parameters.get(EnduserConstants.LANDING_PAGE).
+                    toString("org.apache.syncope.client.enduser.pages.Login"));
+        } catch (ClassNotFoundException e) {
+            LOG.debug("Login page not found", e);
             page = Login.class;
         }
         if (page.equals(Login.class)) {
@@ -60,7 +61,7 @@ public class SelfResult extends BasePage {
         content.add(new Label("resultTitle", parameters.get(Constants.NOTIFICATION_TITLE_PARAM).toString()));
         content.add(new Label("resultMessage", parameters.get(Constants.NOTIFICATION_MSG_PARAM).toString()));
         content.add(new Fragment("statusIcon",
-                Constants.OPERATION_SUCCEEDED.equals(parameters.get(Constants.STATUS).toString())
+                Constants.OPERATION_SUCCEEDED.equals(parameters.get(EnduserConstants.STATUS).toString())
                 ? "successIcon" : "errorIcon", content));
     }
 }

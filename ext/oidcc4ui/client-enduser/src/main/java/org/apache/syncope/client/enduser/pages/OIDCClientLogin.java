@@ -66,5 +66,4 @@ public class OIDCClientLogin extends WebPage {
         }
         strategy.remove();
     }
-
 }

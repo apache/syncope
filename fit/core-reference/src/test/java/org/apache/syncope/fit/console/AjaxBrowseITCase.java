@@ -58,28 +58,28 @@ public class AjaxBrowseITCase extends AbstractConsoleITCase {
 
         TESTER.assertRenderedPage(Dashboard.class);
 
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.assertRenderedPage(Realms.class);
 
-        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage", false);
         TESTER.assertRenderedPage(Topology.class);
 
-        TESTER.clickLink("body:reportsLI:reports");
+        TESTER.clickLink("body:reportsLI:reports", false);
         TESTER.assertRenderedPage(Reports.class);
 
-        TESTER.clickLink("body:configurationLI:configurationUL:logsLI:logs");
+        TESTER.clickLink("body:configurationLI:configurationUL:logsLI:logs", false);
         TESTER.assertRenderedPage(Logs.class);
 
-        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
+        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types", false);
         TESTER.assertRenderedPage(Types.class);
 
-        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security");
+        TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security", false);
         TESTER.assertRenderedPage(Security.class);
 
-        TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
+        TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies", false);
         TESTER.assertRenderedPage(Policies.class);
 
-        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications", false);
         TESTER.assertRenderedPage(Notifications.class);
     }
 }

@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.time.Duration;
 import java.util.List;
+import java.util.stream.StreamSupport;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -394,19 +395,16 @@ public class BasePage extends BaseWebPage {
         }
         // 4. when found, set CSS coordinates for menu
         if (containingLI != null) {
-            for (Component child : containingLI) {
-                if (child instanceof Link) {
-                    child.add(new Behavior() {
+            StreamSupport.stream(containingLI.spliterator(), false).filter(Link.class::isInstance).
+                    forEach(child -> child.add(new Behavior() {
 
-                        private static final long serialVersionUID = -5775607340182293596L;
+                private static final long serialVersionUID = -5775607340182293596L;
 
-                        @Override
-                        public void onComponentTag(final Component component, final ComponentTag tag) {
-                            tag.append("class", "active", " ");
-                        }
-                    });
+                @Override
+                public void onComponentTag(final Component component, final ComponentTag tag) {
+                    tag.append("class", "active", " ");
                 }
-            }
+            }));
 
             if (keymasterULContainer.getId().equals(containingLI.getParent().getId())) {
                 keymasterULContainer.add(new Behavior() {

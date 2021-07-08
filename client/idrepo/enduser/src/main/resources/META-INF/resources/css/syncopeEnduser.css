@@ -727,16 +727,6 @@ START - Result page
   padding: 0px 4px 0px 4px; 
 }
 
-.left {
-  float:left; 
-  width: 50%; 
-}
-
-.right {
-  float:right; 
-  width: 50%; 
-}
-
 span.highlight .attribute label {
   color : red;
 }
@@ -1297,7 +1287,7 @@ h4.card-title {
   border-top: 0px !important;
 }
 
-.card-red,.card-hover-blue:hover{
+.card-hover-blue:hover{
   color:#fff!important;
   background-color:#dd4b39!important
 }

@@ -21,7 +21,6 @@ package org.apache.syncope.client.enduser.panels;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.panels.captcha.CaptchaPanel;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.CardPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.Attr;
@@ -30,6 +29,7 @@ import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import java.util.List;
+import org.apache.syncope.client.enduser.commons.EnduserConstants;
 import org.apache.syncope.client.enduser.panels.any.DerAttrs;
 import org.apache.syncope.client.enduser.panels.any.Details;
 import org.apache.syncope.client.enduser.panels.any.Groups;
@@ -52,6 +52,7 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
             final PageReference pageReference) {
+
         super(id, new UserWrapper(anyTO), pageReference);
 
         this.formLayoutInfo = formLayoutInfo;
@@ -64,6 +65,7 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
             final PageReference pageReference) {
+
         super(id, wrapper, pageReference);
 
         this.formLayoutInfo = formLayoutInfo;
@@ -71,19 +73,19 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
     }
 
     protected Details<UserTO> addOptionalDetailsPanel(final UserWrapper modelObject) {
-        Details<UserTO> details = new Details<>(Constants.CONTENT_PANEL, modelObject, false, true, pageReference);
+        Details<UserTO> details = new Details<>(EnduserConstants.CONTENT_PANEL, modelObject, false, true, pageRef);
         details.setOutputMarkupId(true);
         return details;
     }
 
+    @Override
     protected void buildLayout(final UserWrapper modelObject) {
-        
         form.add(new CardPanel.Builder<>()
                 .setName("details")
                 .setComponent(addOptionalDetailsPanel(modelObject))
                 .isVisible(formLayoutInfo.isDetailsManagement()).build("userDetailsPanelCard"));
 
-        Groups groups = new Groups(Constants.CONTENT_PANEL, modelObject, false);
+        Groups groups = new Groups(EnduserConstants.CONTENT_PANEL, modelObject, false);
         setOutputMarkupId(true);
 
         form.add(new CardPanel.Builder<Groups>()
@@ -91,7 +93,7 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
                 .setComponent(groups)
                 .isVisible(formLayoutInfo.isGroups()).build("groupsPanelCard"));
 
-        PlainAttrs plainAttrs = new PlainAttrs(Constants.CONTENT_PANEL,
+        PlainAttrs plainAttrs = new PlainAttrs(EnduserConstants.CONTENT_PANEL,
                 modelObject, anyTypeClasses, formLayoutInfo.getWhichPlainAttrs());
         plainAttrs.setOutputMarkupId(true);
 
@@ -100,7 +102,7 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
                 .setComponent(plainAttrs)
                 .isVisible(formLayoutInfo.isPlainAttrs() && plainAttrs.isPanelVisible()).build("plainAttrsPanelCard"));
 
-        DerAttrs derAttrs = new DerAttrs(Constants.CONTENT_PANEL,
+        DerAttrs derAttrs = new DerAttrs(EnduserConstants.CONTENT_PANEL,
                 modelObject, anyTypeClasses, formLayoutInfo.getWhichDerAttrs());
         derAttrs.setOutputMarkupId(true);
 
@@ -109,7 +111,7 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
                 .setComponent(derAttrs)
                 .isVisible(formLayoutInfo.isVirAttrs() && derAttrs.isPanelVisible()).build("derAttrsPanelCard"));
 
-        VirAttrs virAttrs = new VirAttrs(Constants.CONTENT_PANEL,
+        VirAttrs virAttrs = new VirAttrs(EnduserConstants.CONTENT_PANEL,
                 modelObject, anyTypeClasses, formLayoutInfo.getWhichVirAttrs());
         virAttrs.setOutputMarkupId(true);
 
@@ -118,7 +120,7 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
                 .setComponent(virAttrs)
                 .isVisible(formLayoutInfo.isVirAttrs() && virAttrs.isPanelVisible()).build("virAttrsPanelCard"));
 
-        Resources resources = new Resources(Constants.CONTENT_PANEL, modelObject);
+        Resources resources = new Resources(EnduserConstants.CONTENT_PANEL, modelObject);
         resources.setOutputMarkupId(true);
 
         form.add(new CardPanel.Builder<Resources>()
@@ -127,7 +129,7 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
                 .isVisible(formLayoutInfo.isResources()).build("resourcesPanelCard"));
 
         // add captcha
-        captcha = new CaptchaPanel<>(Constants.CONTENT_PANEL);
+        captcha = new CaptchaPanel<>(EnduserConstants.CONTENT_PANEL);
         captcha.setOutputMarkupPlaceholderTag(true);
 
         form.add(new CardPanel.Builder<CaptchaPanel<Void>>()
@@ -173,14 +175,10 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
         updated.getPlainAttrs().removeIf(attr -> attr.getValues().isEmpty());
         updated.getVirAttrs().removeIf(attr -> attr.getValues().isEmpty());
         if (updated instanceof GroupableRelatableTO) {
-            GroupableRelatableTO.class
-                    .cast(updated).getMemberships().forEach(memb -> {
-                memb.getPlainAttrs()
-                        .removeIf(attr -> attr.getValues().isEmpty());
-                memb.getVirAttrs()
-                        .removeIf(attr -> attr.getValues().isEmpty());
+            GroupableRelatableTO.class.cast(updated).getMemberships().forEach(memb -> {
+                memb.getPlainAttrs().removeIf(attr -> attr.getValues().isEmpty());
+                memb.getVirAttrs().removeIf(attr -> attr.getValues().isEmpty());
             });
         }
     }
-
 }

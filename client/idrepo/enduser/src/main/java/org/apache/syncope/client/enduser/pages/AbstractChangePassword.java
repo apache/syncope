@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
+import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.enduser.panels.ChangePasswordPanel;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -38,7 +41,7 @@ public abstract class AbstractChangePassword extends BasePage {
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
         contentWrapper.add(content);
-        
+
         ChangePasswordPanel changePasswordPanel = getPasswordPanel();
         content.add(changePasswordPanel);
         content.add(new AttributeModifier("style", "height: \"100%\""));
@@ -51,7 +54,16 @@ public abstract class AbstractChangePassword extends BasePage {
 
             @Override
             protected void doSubmit(final AjaxRequestTarget target, final AjaxPasswordFieldPanel passwordField) {
-                doPwdSubmit(target, passwordField);
+                boolean checked = true;
+                if (SyncopeWebApplication.get().isCaptchaEnabled()) {
+                    checked = captcha.check();
+                }
+                if (!checked) {
+                    SyncopeEnduserSession.get().error(getString(Constants.CAPTCHA_ERROR));
+                    getNotificationPanel().refresh(target);
+                } else {
+                    doPwdSubmit(target, passwordField);
+                }
             }
 
             @Override
@@ -63,7 +75,7 @@ public abstract class AbstractChangePassword extends BasePage {
             protected UserTO getLoggedUser() {
                 return getPwdLoggedUser();
             }
-            };
+        };
 
         changePasswordPanel.setOutputMarkupId(true);
         return changePasswordPanel;

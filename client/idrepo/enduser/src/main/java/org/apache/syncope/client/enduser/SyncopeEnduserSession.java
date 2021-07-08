@@ -56,12 +56,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 
 public class SyncopeEnduserSession extends AuthenticatedWebSession implements BaseSession {
 
     private static final long serialVersionUID = 747562246415852166L;
 
     public enum Error {
+        INVALID_SECURITY_ANSWER("invalid.security.answer", "Invalid Security Answer"),
         SESSION_EXPIRED("error.session.expired", "Session expired: please login again"),
         AUTHORIZATION("error.authorization", "Insufficient access rights when performing the requested operation"),
         REST("error.rest", "There was an error while contacting the Core server");
@@ -126,7 +128,15 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     }
 
     protected String message(final SyncopeClientException sce) {
-        return sce.getType().name() + ": " + sce.getElements().stream().collect(Collectors.joining(", "));
+        Error error = null;
+        if (sce.getType() == ClientExceptionType.InvalidSecurityAnswer) {
+            error = Error.INVALID_SECURITY_ANSWER;
+        }
+        if (error == null) {
+            return sce.getType().name() + ": " + sce.getElements().stream().collect(Collectors.joining(", "));
+        }
+        return getApplication().getResourceSettings().getLocalizer().
+                getString(error.key(), null, null, null, null, error.fallback());
     }
 
     /**
@@ -179,6 +189,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         }
     }
 
+    @Override
     public <T> Future<T> execute(final Callable<T> command) {
         try {
             return executor.submit(command);
@@ -199,6 +210,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         return StringUtils.isBlank(domain) ? SyncopeConstants.MASTER_DOMAIN : domain;
     }
 
+    @Override
     public String getJWT() {
         return client == null ? null : client.getJWT();
     }
@@ -268,8 +280,12 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         this.bind();
     }
 
-    public boolean isAuthenticated() {
+    protected boolean isAuthenticated() {
         return client != null && client.getJWT() != null;
+    }
+
+    protected boolean isMustChangePassword() {
+        return selfTO != null && selfTO.isMustChangePassword();
     }
 
     public void cleanup() {

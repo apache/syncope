@@ -19,18 +19,13 @@
 package org.apache.syncope.client.enduser.panels;
 
 import org.apache.syncope.client.ui.commons.BaseSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.syncope.client.ui.commons.panels.AbstractOIDCSSOLoginFormPanel;
 
 public class OIDCSSOLoginFormPanel extends AbstractOIDCSSOLoginFormPanel {
 
     private static final long serialVersionUID = 1154933731474854671L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(OIDCSSOLoginFormPanel.class);
-
     public OIDCSSOLoginFormPanel(final String id, final BaseSession session) {
         super(id, session);
     }
-
 }

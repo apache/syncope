@@ -31,7 +31,7 @@ public abstract class AbstractFormPanel<T extends Serializable> extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractFormPanel.class);
 
-    protected final PageReference pageReference;
+    protected final PageReference pageRef;
 
     protected final T defaultItem;
 
@@ -40,7 +40,7 @@ public abstract class AbstractFormPanel<T extends Serializable> extends Panel {
     public AbstractFormPanel(final String id, final T defaultItem, final PageReference pageReference) {
         super(id);
         this.defaultItem = defaultItem;
-        this.pageReference = pageReference;
+        this.pageRef = pageReference;
     }
 
     protected T getOriginalItem() {
@@ -58,7 +58,6 @@ public abstract class AbstractFormPanel<T extends Serializable> extends Panel {
     }
 
     public PageReference getPageReference() {
-        return pageReference;
+        return pageRef;
     }
-
 }

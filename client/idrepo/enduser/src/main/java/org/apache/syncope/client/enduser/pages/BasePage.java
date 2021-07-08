@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.commons.EnduserConstants;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.ui.commons.BaseSession;
@@ -52,15 +53,13 @@ public class BasePage extends BaseWebPage {
     private static final long serialVersionUID = 1571997737305598502L;
 
     @SpringBean
-    private ClassPathScanImplementationLookup classPathScanImplementationLookup;
+    private ClassPathScanImplementationLookup lookup;
 
     protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
     protected final Sidebar sidebar;
 
     protected final WebMarkupContainer contentWrapper;
-
-    protected final WebMarkupContainer footer;
 
     protected final AjaxLink<Void> collapse;
 
@@ -84,7 +83,7 @@ public class BasePage extends BaseWebPage {
                     String.class,
                     PageReference.class,
                     List.class).
-                    newInstance("sidebar", getPageReference(), classPathScanImplementationLookup.getExtPageClasses());
+                    newInstance("sidebar", getPageReference(), lookup.getExtPageClasses());
         } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
                 | IllegalArgumentException | InvocationTargetException e) {
             throw new IllegalArgumentException("Could not instantiate " + clazz.getName(), e);
@@ -101,11 +100,6 @@ public class BasePage extends BaseWebPage {
         //pageTitle
         addPageTitle(name);
 
-        // footer
-        footer = new WebMarkupContainer("footer");
-        footer.setOutputMarkupPlaceholderTag(true);
-        body.add(footer);
-
         // collapse
         collapse = new AjaxLink<Void>("collapse") {
 
@@ -119,12 +113,11 @@ public class BasePage extends BaseWebPage {
                         : !(Boolean) Session.get().getAttribute(Constants.MENU_COLLAPSE));
             }
         };
-
         collapse.setOutputMarkupPlaceholderTag(true);
         body.add(collapse);
 
         @SuppressWarnings("unchecked")
-        final Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) Session.get().
+        Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) Session.get().
                 getAttribute(Constants.BEFORE_LOGOUT_PAGE);
         if (beforeLogout == null) {
             body.add(new BookmarkablePageLink<>("logout", Logout.class));
@@ -151,14 +144,13 @@ public class BasePage extends BaseWebPage {
     }
 
     protected void addPageTitle(final String title) {
-        contentWrapper.addOrReplace(new Label(Constants.PAGE_TITLE, new ResourceModel(title, title)));
+        contentWrapper.addOrReplace(new Label(EnduserConstants.PAGE_TITLE, new ResourceModel(title, title)));
     }
 
     protected void disableSidebar() {
         sidebar.setVisible(false);
         collapse.setVisible(false);
         contentWrapper.add(new AttributeModifier("style", "margin-left: 0px"));
-        footer.add(new AttributeModifier("style", "margin-left: 0px"));
     }
 
     protected void setDomain(final PageParameters parameters) {

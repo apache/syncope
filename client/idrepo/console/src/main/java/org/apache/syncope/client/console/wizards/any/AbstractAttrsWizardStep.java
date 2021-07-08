@@ -285,7 +285,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                 break;
 
             case Binary:
-                final PageReference pageRef = getPageReference();
+                PageReference pageRef = getPageReference();
                 panel = new BinaryFieldPanel(
                         "panel",
                         plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()),
@@ -299,7 +299,6 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                     protected PageReference getPageReference() {
                         return pageRef;
                     }
-
                 };
                 if (required) {
                     panel.addRequiredLabel();

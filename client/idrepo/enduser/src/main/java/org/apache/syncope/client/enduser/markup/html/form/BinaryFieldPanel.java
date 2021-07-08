@@ -42,6 +42,7 @@ import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
 import org.apache.syncope.client.ui.commons.markup.html.form.BaseBinaryFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.BinaryFieldDownload;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.Component;

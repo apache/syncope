@@ -121,22 +121,6 @@ public final class Constants {
 
     public static final String ENDUSER_ANYLAYOUT = "enduser.anylayout";
 
-    public static final String STATUS = "status";
-
-    public static final String SUCCESS = "success";
-
-    public static final String LANDING_PAGE = "landingPage";
-
-    public static final String BASE_PACKAGE = "org.apache.syncope.client.enduser.pages.";
-
-    public static final String CONTENT_PANEL = "contentPanel";
-
-    public static final String SELF_ALLOWED = "selfRegistration.allowed";
-
-    public static final String USER_REQUEST_ERROR = "user_request_error";
-
-    public static final String PAGE_TITLE = "pageTitle";
-
     public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {
         return getJEXLPopover(caller, placement, caller.getString("jexl_ex1"), caller.getString("jexl_ex2"));
     }

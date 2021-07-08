@@ -30,7 +30,6 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.event.IEvent;
@@ -49,7 +48,7 @@ import java.util.stream.Collectors;
 public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
     private static final long serialVersionUID = -5387344116983102292L;
-    
+
     protected static final String FORM_SUFFIX = "form_";
 
     protected final Comparator<Attr> attrComparator = new AttrComparator();
@@ -218,12 +217,6 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
         this.attrs.setObject(loadAttrs());
         this.membershipTOs.setObject(loadMembershipAttrs());
         return !attrs.getObject().isEmpty() || !membershipTOs.getObject().isEmpty();
-    }
-
-    public PageReference getPageReference() {
-        // SYNCOPE-1213
-        // default implementation does not require to pass page reference, override this method of want otherwise
-        return null;
     }
 
     private class AttrComparator implements Comparator<Attr>, Serializable {

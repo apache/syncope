@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.pages;
 
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.commons.EnduserConstants;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
@@ -44,14 +45,14 @@ public class MustChangePassword extends AbstractChangePassword {
             UserSelfRestClient.changePassword(passwordField.getModelObject());
 
             SyncopeEnduserSession.get().invalidate();
-            parameters.add(Constants.STATUS, Constants.OPERATION_SUCCEEDED);
+            parameters.add(EnduserConstants.STATUS, Constants.OPERATION_SUCCEEDED);
             parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.pwd.change.success"));
             parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.change.success"));
             SyncopeEnduserSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
             LOG.error("While changing password for {}",
                     SyncopeEnduserSession.get().getSelfTO().getUsername(), e);
-            parameters.add(Constants.STATUS, Constants.OPERATION_ERROR);
+            parameters.add(EnduserConstants.STATUS, Constants.OPERATION_ERROR);
             parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.pwd.change.error"));
             parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.change.error.msg"));
             SyncopeEnduserSession.get().onException(e);

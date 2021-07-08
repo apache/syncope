@@ -28,7 +28,7 @@ under the License.
               <form wicket:id="securityQuestionForm" class="form-horizontal">
                 <div class="box-body">
                   <div class="box-header formcard">
-                    <header class="card-container card-red">
+                    <header class="card-container bg-danger">
                       <label class="card-header-style">Security Question</label>
                     </header>
                     <div class="card-container-body">
@@ -44,6 +44,8 @@ under the License.
                       </div>
                     </div>
                   </div>
+
+                  <span wicket:id="captchaPanelCard"/>
                 </div>
                 <div class="box-footer">
                   <input id="submit_button" wicket:id="submit" type="submit" wicket:message="value:submit" 

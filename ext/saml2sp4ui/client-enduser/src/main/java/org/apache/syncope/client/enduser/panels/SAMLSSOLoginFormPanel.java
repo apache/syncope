@@ -18,16 +18,12 @@
  */
 package org.apache.syncope.client.enduser.panels;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.panels.AbstractSAMLSSOLoginFormPanel;
 
 public class SAMLSSOLoginFormPanel extends AbstractSAMLSSOLoginFormPanel {
 
     private static final long serialVersionUID = -5252094098970677128L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(SAMLSSOLoginFormPanel.class);
 
     public SAMLSSOLoginFormPanel(final String id, final BaseSession session) {
         super(id, session);

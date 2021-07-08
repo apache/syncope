@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.enduser.panels;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 import org.apache.syncope.client.enduser.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
@@ -35,17 +35,21 @@ import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.markup.repeater.RepeatingView;
 
 public class Sidebar extends Panel {
 
     private static final long serialVersionUID = 8091307811313529503L;
 
-    private final List<WebMarkupContainer> navbarItems = new ArrayList<>();
+    protected WebMarkupContainer dashboardLIContainer;
 
     protected WebMarkupContainer profileULContainer;
 
@@ -53,47 +57,38 @@ public class Sidebar extends Panel {
 
     public Sidebar(
             final String id,
-            final PageReference pageReference,
+            final PageReference pageRef,
             final List<Class<? extends BasePage>> extPageClasses) {
 
         super(id);
 
         buildBaseSidebar();
 
-        RepeatingView listItems = new RepeatingView("listItems");
-        add(listItems);
-
-        extPageClasses.forEach(ext -> {
-            WebMarkupContainer list = new WebMarkupContainer(listItems.newChildId());
-            BookmarkablePageLink<Page> externalLink =
-                    new BookmarkablePageLink<>("extPageLILink", ext);
-            ExtPage ann = ext.getAnnotation(ExtPage.class);
-            externalLink.add(new Label("extPageIcon").add(new AttributeModifier("class", "fa " + ann.icon())));
-            externalLink.add(new Label("extPageLabel", ann.label()));
-            list.add(externalLink);
-            listItems.add(list);
-        });
-
         // set 'active' menu item for everything but extensions
-        // 1. check if current class is set to top-level menu
-        Component containingLI = this.get(getLIContainerId(
-                pageReference.getPage().getClass().getSimpleName().toLowerCase()));
+        // 1. check if current class is set to top-level menu        
+        WebMarkupContainer containingLI = null;
+        if (dashboardLIContainer.getId().equals(
+                getLIContainerId(pageRef.getPage().getClass().getSimpleName().toLowerCase()))) {
+
+            containingLI = dashboardLIContainer;
+        }
         // 2. if not, check if it is under 'Configuration'
         if (containingLI == null) {
-            containingLI = profileULContainer.get(
-                    getLIContainerId(pageReference.getPage().getClass().getSimpleName().toLowerCase()));
+            containingLI = (WebMarkupContainer) profileULContainer.get(
+                    getLIContainerId(pageRef.getPage().getClass().getSimpleName().toLowerCase()));
         }
         // 3. when found, set CSS coordinates for menu
         if (containingLI != null) {
-            containingLI.add(new Behavior() {
+            StreamSupport.stream(containingLI.spliterator(), false).filter(Link.class::isInstance).
+                    forEach(child -> child.add(new Behavior() {
 
-                private static final long serialVersionUID = 1469628524240283489L;
+                private static final long serialVersionUID = -5775607340182293596L;
 
                 @Override
                 public void onComponentTag(final Component component, final ComponentTag tag) {
-                    tag.put("class", "active");
+                    tag.append("class", "active", " ");
                 }
-            });
+            }));
 
             if (profileULContainer.getId().equals(containingLI.getParent().getId())) {
                 profileULContainer.add(new Behavior() {
@@ -101,11 +96,16 @@ public class Sidebar extends Panel {
                     private static final long serialVersionUID = 3109256773218160485L;
 
                     @Override
-                    public void onComponentTag(final Component component, final ComponentTag tag) {
-                        tag.put("class", "treeview-menu menu-open");
-                        tag.put("style", "display: block;");
+                    public void renderHead(final Component component, final IHeaderResponse response) {
+                        response.render(OnDomReadyHeaderItem.forScript(
+                                "$('#profileLink').addClass('active')"));
                     }
 
+                    @Override
+                    public void onComponentTag(final Component component, final ComponentTag tag) {
+                        tag.put("class", "nav nav-treeview");
+                        tag.put("style", "display: block;");
+                    }
                 });
 
                 profileLIContainer.add(new Behavior() {
@@ -114,17 +114,60 @@ public class Sidebar extends Panel {
 
                     @Override
                     public void onComponentTag(final Component component, final ComponentTag tag) {
-                        tag.put("class", "treeview active");
+                        tag.put("class", "nav-item has-treeview menu-open");
                     }
                 });
             }
         }
+
+        ListView<Class<? extends BasePage>> extPages =
+                new ListView<Class<? extends BasePage>>("extPages", extPageClasses) {
+
+            private static final long serialVersionUID = 4949588177564901031L;
+
+            @Override
+            protected void populateItem(final ListItem<Class<? extends BasePage>> item) {
+                WebMarkupContainer containingLI = new WebMarkupContainer("extPageLI");
+                item.add(containingLI);
+
+                ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);
+
+                BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
+
+                link.add(new Label("extPageLabel", ann.label()));
+
+                if (item.getModelObject().equals(pageRef.getPage().getClass())) {
+                    link.add(new Behavior() {
+
+                        private static final long serialVersionUID = 1469628524240283489L;
+
+                        @Override
+                        public void renderHead(final Component component, final IHeaderResponse response) {
+                            response.render(OnDomReadyHeaderItem.forScript(
+                                    "$('#extensionsLink').addClass('active')"));
+                        }
+
+                        @Override
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
+                            tag.append("class", "active", " ");
+                        }
+                    });
+                }
+                containingLI.add(link);
+
+                Label extPageIcon = new Label("extPageIcon");
+                extPageIcon.add(new AttributeModifier("class", "nav-icon " + ann.icon()));
+                link.add(extPageIcon);
+            }
+        };
+
+        add(extPages.setRenderBodyOnly(true).setOutputMarkupId(true));
     }
 
     protected void buildBaseSidebar() {
-        WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("home"));
-        add(liContainer);
-        liContainer.add(BookmarkablePageLinkBuilder.build(
+        dashboardLIContainer = new WebMarkupContainer(getLIContainerId("dashboard"));
+        add(dashboardLIContainer);
+        dashboardLIContainer.add(BookmarkablePageLinkBuilder.build(
                 "home", SyncopeWebApplication.get().getPageClass("profile", Dashboard.class)));
 
         profileLIContainer = new WebMarkupContainer(getLIContainerId("profile"));
@@ -132,7 +175,7 @@ public class Sidebar extends Panel {
         profileULContainer = new WebMarkupContainer(getULContainerId("profile"));
         profileLIContainer.add(profileULContainer);
 
-        liContainer = new WebMarkupContainer(getLIContainerId("edituser"));
+        WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("edituser"));
         profileULContainer.add(liContainer);
         liContainer.add(BookmarkablePageLinkBuilder.build("edituser", EditUser.class));
 
@@ -153,19 +196,5 @@ public class Sidebar extends Panel {
 
     protected String getULContainerId(final String linkId) {
         return linkId + "UL";
-    }
-
-    public void setActiveNavItem(final String id) {
-        navbarItems.stream().
-                filter(containingLI -> containingLI.getMarkupId().equals(id)).findFirst().
-                ifPresent(found -> found.add(new Behavior() {
-
-            private static final long serialVersionUID = -5775607340182293596L;
-
-            @Override
-            public void onComponentTag(final Component component, final ComponentTag tag) {
-                tag.put("class", "active");
-            }
-        }));
     }
 }

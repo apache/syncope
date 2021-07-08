@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.wicket.request.Request;
-import org.apache.wicket.request.Response;
 import org.apache.wicket.util.cookies.CookieDefaults;
 import org.apache.wicket.util.cookies.CookieUtils;
 import org.slf4j.Logger;
@@ -44,7 +42,7 @@ public class PreferenceManager implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(PreferenceManager.class);
 
-    private static final String COOKIE_NAME = "syncope2ConsolePrefs";
+    private static final String COOKIE_NAME = "syncope2EnduserPrefs";
 
     private static final int ONE_YEAR_TIME = 60 * 60 * 24 * 365;
 
@@ -90,7 +88,7 @@ public class PreferenceManager implements Serializable {
         return writer.toString();
     }
 
-    public String get(final Request request, final String key) {
+    public String get(final String key) {
         String result = null;
 
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
@@ -102,10 +100,10 @@ public class PreferenceManager implements Serializable {
         return result;
     }
 
-    public Integer getPaginatorRows(final Request request, final String key) {
+    public Integer getPaginatorRows(final String key) {
         Integer result = getPaginatorChoices().get(0);
 
-        String value = get(request, key);
+        String value = get(key);
         if (value != null) {
             result = NumberUtils.toInt(value, 10);
         }
@@ -113,10 +111,10 @@ public class PreferenceManager implements Serializable {
         return result;
     }
 
-    public List<String> getList(final Request request, final String key) {
-        final List<String> result = new ArrayList<>();
+    public List<String> getList(final String key) {
+        List<String> result = new ArrayList<>();
 
-        final String compound = get(request, key);
+        String compound = get(key);
 
         if (StringUtils.isNotBlank(compound)) {
             String[] items = compound.split(";");
@@ -126,7 +124,7 @@ public class PreferenceManager implements Serializable {
         return result;
     }
 
-    public void set(final Request request, final Response response, final Map<String, List<String>> prefs) {
+    public void set(final Map<String, List<String>> prefs) {
         Map<String, String> current = new HashMap<>();
 
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
@@ -146,7 +144,7 @@ public class PreferenceManager implements Serializable {
         }
     }
 
-    public void set(final Request request, final Response response, final String key, final String value) {
+    public void set(final String key, final String value) {
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
 
         final Map<String, String> current = new HashMap<>();
@@ -164,11 +162,11 @@ public class PreferenceManager implements Serializable {
         }
     }
 
-    public void setList(final Request request, final Response response, final String key, final List<String> values) {
-        set(request, response, key, StringUtils.join(values, ";"));
+    public void setList(final String key, final List<String> values) {
+        set(key, StringUtils.join(values, ";"));
     }
 
-    public void setList(final Request request, final Response response, final Map<String, List<String>> prefs) {
-        set(request, response, prefs);
+    public void setList(final Map<String, List<String>> prefs) {
+        set(prefs);
     }
 }

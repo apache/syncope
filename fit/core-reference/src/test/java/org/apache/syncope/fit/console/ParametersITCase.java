@@ -34,7 +34,7 @@ public class ParametersITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.clickLink("body:keymasterLI:keymasterUL:parametersLI:parameters");
+        TESTER.clickLink("body:keymasterLI:keymasterUL:parametersLI:parameters", false);
         TESTER.assertRenderedPage(Parameters.class);
     }
 

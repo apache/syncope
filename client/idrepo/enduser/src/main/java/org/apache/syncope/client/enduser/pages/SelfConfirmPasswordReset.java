@@ -21,6 +21,7 @@ package org.apache.syncope.client.enduser.pages;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthConfig;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.commons.EnduserConstants;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.CardPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
@@ -51,8 +52,10 @@ public class SelfConfirmPasswordReset extends BasePage {
 
         if (parameters == null || parameters.get("token").isEmpty()) {
             LOG.error("No token parameter found in the request url");
-            parameters.add("errorMessage", getString("self.confirm.pwd.reset.error.empty"));
-            setResponsePage(getApplication().getHomePage(), parameters);
+
+            PageParameters homeParameters = new PageParameters();
+            homeParameters.add("errorMessage", getString("self.confirm.pwd.reset.error.empty"));
+            setResponsePage(getApplication().getHomePage(), homeParameters);
         }
 
         WebMarkupContainer content = new WebMarkupContainer("content");
@@ -64,16 +67,15 @@ public class SelfConfirmPasswordReset extends BasePage {
         content.add(form);
 
         UserTO fakeUserTO = new UserTO();
-        PasswordPanel passwordPanel =
-                new PasswordPanel(
-                        Constants.CONTENT_PANEL,
-                        new UserWrapper(fakeUserTO),
-                        false,
-                        false,
-                        new PasswordStrengthBehavior(new PasswordStrengthConfig().
-                                withDebug(false).
-                                withShowVerdictsInsideProgressBar(true).
-                                withShowProgressBar(true)));
+        PasswordPanel passwordPanel = new PasswordPanel(
+                EnduserConstants.CONTENT_PANEL,
+                new UserWrapper(fakeUserTO),
+                false,
+                false,
+                new PasswordStrengthBehavior(new PasswordStrengthConfig().
+                        withDebug(false).
+                        withShowVerdictsInsideProgressBar(true).
+                        withShowProgressBar(true)));
         passwordPanel.setOutputMarkupId(true);
 
         form.add(new CardPanel.Builder<PasswordPanel>()
@@ -92,15 +94,15 @@ public class SelfConfirmPasswordReset extends BasePage {
                 try {
                     SyncopeEnduserSession.get().getService(UserSelfService.class).confirmPasswordReset(
                             parameters.get("token").toString(), fakeUserTO.getPassword());
-                    params.add(Constants.STATUS, Constants.OPERATION_SUCCEEDED);
+                    params.add(EnduserConstants.STATUS, Constants.OPERATION_SUCCEEDED);
                     params.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.confirm.pwd.reset.success"));
                     params.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.confirm.pwd.reset.success.msg"));
                     SyncopeEnduserSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                    parameters.add(Constants.LANDING_PAGE, Login.class.getName());
+                    parameters.add(EnduserConstants.LANDING_PAGE, Login.class.getName());
                     setResponsePage(SelfResult.class, params);
                 } catch (SyncopeClientException sce) {
                     LOG.error("Unable to complete the 'Password Reset Confirmation' process", sce);
-                    params.add(Constants.STATUS, Constants.OPERATION_ERROR);
+                    params.add(EnduserConstants.STATUS, Constants.OPERATION_ERROR);
                     params.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.confirm.pwd.reset.error"));
                     params.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.confirm.pwd.reset.error.msg"));
                     SyncopeEnduserSession.get().onException(sce);

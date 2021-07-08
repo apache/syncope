@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.pages;
 
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.commons.EnduserConstants;
 import org.apache.syncope.client.enduser.panels.captcha.CaptchaPanel;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -74,7 +75,7 @@ public class SelfPasswordReset extends BasePage {
         Form<?> form = new Form<>("selfPwdResetForm");
         content.add(form);
 
-        pwdResetPanel = new SelfPwdResetPanel(Constants.CONTENT_PANEL, captcha, getPageReference());
+        pwdResetPanel = new SelfPwdResetPanel(EnduserConstants.CONTENT_PANEL, captcha, getPageReference());
         pwdResetPanel.setOutputMarkupId(true);
 
         form.add(new CardPanel.Builder<SelfPwdResetPanel>()
@@ -100,10 +101,10 @@ public class SelfPasswordReset extends BasePage {
                     PageParameters parameters = new PageParameters();
                     try {
                         UserSelfRestClient.requestPasswordReset(usernameValue, securityAnswerValue);
-                        parameters.add(Constants.STATUS, Constants.OPERATION_SUCCEEDED);
+                        parameters.add(EnduserConstants.STATUS, Constants.OPERATION_SUCCEEDED);
                         parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.pwd.reset.success"));
                         parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.reset.success.msg"));
-                        parameters.add(Constants.LANDING_PAGE, Login.class.getName());
+                        parameters.add(EnduserConstants.LANDING_PAGE, Login.class.getName());
                         setResponsePage(SelfResult.class, parameters);
                     } catch (SyncopeClientException sce) {
                         LOG.error("Unable to reset password of [{}]", usernameValue, sce);
@@ -145,9 +146,8 @@ public class SelfPasswordReset extends BasePage {
             boolean isSecurityQuestionEnabled =
                     SyncopeEnduserSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions();
 
-            TextField<String> username =
-                    new TextField<>("username", new PropertyModel<>(SelfPasswordReset.this, "usernameValue"),
-                            String.class);
+            TextField<String> username = new TextField<>("username",
+                    new PropertyModel<>(SelfPasswordReset.this, "usernameValue"), String.class);
             username.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
                 private static final long serialVersionUID = -1107858522700306810L;

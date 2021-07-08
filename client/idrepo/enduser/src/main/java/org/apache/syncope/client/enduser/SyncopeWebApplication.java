@@ -52,10 +52,10 @@ import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.pages.MustChangePassword;
 import org.apache.syncope.client.enduser.pages.SelfConfirmPasswordReset;
 import org.apache.syncope.client.enduser.panels.Sidebar;
-import org.apache.syncope.client.enduser.themes.AdminLTE;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
+import org.apache.syncope.client.ui.commons.themes.AdminLTE;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.PropertyUtils;
@@ -76,7 +76,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
-import org.apache.wicket.resource.JQueryResourceReference;
 import org.apache.wicket.util.lang.Args;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,19 +134,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     private UserFormLayoutInfo customFormLayout;
 
-    private List<String> domains;
-
-    protected void setSecurityHeaders(final Properties props, final WebResponse response) {
-        @SuppressWarnings("unchecked")
-        Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
-        while (propNames.hasMoreElements()) {
-            String name = propNames.nextElement();
-            if (name.startsWith("security.headers.")) {
-                response.setHeader(StringUtils.substringAfter(name, "security.headers."), props.getProperty(name));
-            }
-        }
-    }
-
     @SuppressWarnings("unchecked")
     protected void populatePageClasses(final Properties props) {
         Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
@@ -165,6 +151,17 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                 } catch (ClassNotFoundException e) {
                     LOG.error("While looking for class identified by property '{}'", className, e);
                 }
+            }
+        }
+    }
+
+    protected static void setSecurityHeaders(final Properties props, final WebResponse response) {
+        @SuppressWarnings("unchecked")
+        Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
+        while (propNames.hasMoreElements()) {
+            String name = propNames.nextElement();
+            if (name.startsWith("security.headers.")) {
+                response.setHeader(StringUtils.substringAfter(name, "security.headers."), props.getProperty(name));
             }
         }
     }
@@ -229,11 +226,10 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         }
 
         // read customFormLayout.json
-        File enduserDir;
-        try (InputStream is = getClass().getResourceAsStream('/' + CUSTOM_FORM_LAYOUT_FILE)) {
+        try (InputStream is = SyncopeWebApplication.class.getResourceAsStream('/' + CUSTOM_FORM_LAYOUT_FILE)) {
             customFormLayout = MAPPER.readValue(is, new TypeReference<UserFormLayoutInfo>() {
             });
-            enduserDir = new File(props.getProperty("enduser.directory"));
+            File enduserDir = new File(props.getProperty("enduser.directory"));
             boolean existsEnduserDir = enduserDir.exists() && enduserDir.canRead() && enduserDir.isDirectory();
             if (existsEnduserDir) {
                 File customFormLayoutFile = FileUtils.getFile(enduserDir, CUSTOM_FORM_LAYOUT_FILE);
@@ -246,9 +242,11 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                 }
             }
             FileAlterationObserver observer = existsEnduserDir
-                    ? new FileAlterationObserver(enduserDir,
+                    ? new FileAlterationObserver(
+                            enduserDir,
                             pathname -> StringUtils.contains(pathname.getPath(), CUSTOM_FORM_LAYOUT_FILE))
-                    : new FileAlterationObserver(getClass().getResource('/' + CUSTOM_FORM_LAYOUT_FILE).getFile(),
+                    : new FileAlterationObserver(
+                            SyncopeWebApplication.class.getResource('/' + CUSTOM_FORM_LAYOUT_FILE).getFile(),
                             pathname -> StringUtils.contains(pathname.getPath(), CUSTOM_FORM_LAYOUT_FILE));
 
             customFormLayoutMonitor = new FileAlterationMonitor(5000);
@@ -310,7 +308,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
         // set theme provider
         settings.setThemeProvider(new SingleThemeProvider(new AdminLTE()));
-        
+
         // install application settings
         Bootstrap.install(this, settings);
 
@@ -318,13 +316,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         getResourceSettings().setUseDefaultOnMissingResource(true);
         getResourceSettings().setThrowExceptionOnMissingResource(false);
 
-        getJavaScriptLibrarySettings().setJQueryReference(JQueryResourceReference.getV2());
-
-        getResourceSettings().setThrowExceptionOnMissingResource(true);
-
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
-        getMarkupSettings().setStripComments(true);
 
         getRequestCycleListeners().add(new SyncopeUIRequestCycleListener() {
 
@@ -342,7 +335,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
             protected IRequestablePage getErrorPage(final PageParameters errorParameters) {
                 return new Login(errorParameters);
             }
-
         });
 
         if (BooleanUtils.toBoolean(props.getProperty("x-forward"))) {
@@ -424,11 +416,15 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
     @Override
     public Class<? extends Page> getHomePage() {
         return SyncopeEnduserSession.get().isAuthenticated()
-                && SyncopeEnduserSession.get().getSelfTO().isMustChangePassword()
+                && SyncopeEnduserSession.get().isMustChangePassword()
                 ? MustChangePassword.class
                 : SyncopeEnduserSession.get().isAuthenticated()
                 ? getPageClass("profile", Dashboard.class)
                 : getSignInPageClass();
+    }
+
+    public ClassPathScanImplementationLookup getLookup() {
+        return lookup;
     }
 
     @SuppressWarnings("unchecked")
@@ -472,7 +468,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         return pageClasses.getOrDefault(key, defaultValue);
     }
 
-    protected static Class<? extends WebPage> getSignInPageClass() {
+    protected Class<? extends WebPage> getSignInPageClass() {
         return Login.class;
     }
 

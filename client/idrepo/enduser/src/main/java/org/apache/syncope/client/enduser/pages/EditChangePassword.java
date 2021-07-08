@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.pages;
 
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.commons.EnduserConstants;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
@@ -41,23 +42,22 @@ public class EditChangePassword extends AbstractChangePassword {
 
     @Override
     protected void doPwdSubmit(final AjaxRequestTarget target, final AjaxPasswordFieldPanel passwordField) {
-        final PageParameters parameters = new PageParameters();
+        PageParameters parameters = new PageParameters();
         try {
             UserTO userTO = getPwdLoggedUser();
-            PasswordPatch passwordPatch = new PasswordPatch.Builder().
-                    value(passwordField.getModelObject()).onSyncope(true).resources(userTO.getResources()).build();
 
-            UserUR userPatch = new UserUR();
-            userPatch.setKey(getPwdLoggedUser().getKey());
-            userPatch.setPassword(passwordPatch);
-            userSelfRestClient.update(userTO.getETagValue(), userPatch);
+            UserUR req = new UserUR();
+            req.setKey(userTO.getKey());
+            req.setPassword(new PasswordPatch.Builder().
+                    value(passwordField.getModelObject()).onSyncope(true).resources(userTO.getResources()).build());
+            userSelfRestClient.update(userTO.getETagValue(), req);
 
-            parameters.add(Constants.STATUS, Constants.OPERATION_SUCCEEDED);
+            parameters.add(EnduserConstants.STATUS, Constants.OPERATION_SUCCEEDED);
             parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.pwd.change.success.msg"));
             parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.change.success"));
             SyncopeEnduserSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             parameters.add(
-                    Constants.LANDING_PAGE,
+                    EnduserConstants.LANDING_PAGE,
                     SyncopeWebApplication.get().getPageClass("profile", Dashboard.class).getName());
             setResponsePage(SelfResult.class, parameters);
         } catch (Exception e) {
@@ -70,7 +70,7 @@ public class EditChangePassword extends AbstractChangePassword {
 
     @Override
     protected UserTO getPwdLoggedUser() {
-        return SyncopeEnduserSession.get().getSelfTO();
+        return SyncopeEnduserSession.get().getSelfTO(true);
     }
 
     @Override

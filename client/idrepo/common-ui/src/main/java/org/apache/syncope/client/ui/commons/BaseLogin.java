@@ -63,6 +63,10 @@ public abstract class BaseLogin extends WebPage {
 
     protected static final Logger LOG = LoggerFactory.getLogger(BaseLogin.class);
 
+    public static final List<Locale> SUPPORTED_LOCALES = List.of(
+            Locale.ENGLISH, Locale.CANADA_FRENCH, Locale.ITALIAN, Locale.JAPANESE, new Locale("pt", "BR"),
+            new Locale("ru"));
+
     @SpringBean
     private DomainOps domainOps;
 
@@ -219,8 +223,6 @@ public abstract class BaseLogin extends WebPage {
 
     protected abstract String getAnonymousUser();
 
-    protected abstract List<Locale> getSupportedLocales();
-
     protected abstract void authenticate(
             String username,
             String password,
@@ -245,7 +247,7 @@ public abstract class BaseLogin extends WebPage {
         }
 
         LocaleDropDown(final String id) {
-            super(id, getSupportedLocales());
+            super(id, SUPPORTED_LOCALES);
 
             setChoiceRenderer(new LocaleRenderer());
             setModel(new IModel<Locale>() {
@@ -275,7 +277,7 @@ public abstract class BaseLogin extends WebPage {
                     getHeader(HttpHeaders.ACCEPT_LANGUAGE);
             if (StringUtils.isNotBlank(acceptLanguage)) {
                 try {
-                    filtered = Locale.filter(Locale.LanguageRange.parse(acceptLanguage), getSupportedLocales());
+                    filtered = Locale.filter(Locale.LanguageRange.parse(acceptLanguage), SUPPORTED_LOCALES);
                 } catch (Exception e) {
                     LOG.debug("Could not parse {} HTTP header value '{}'",
                             HttpHeaders.ACCEPT_LANGUAGE, acceptLanguage, e);

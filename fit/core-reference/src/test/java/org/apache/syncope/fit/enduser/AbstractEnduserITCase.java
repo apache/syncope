@@ -23,16 +23,15 @@ import com.giffing.wicket.spring.boot.context.extensions.boot.actuator.WicketEnd
 import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.WicketClassCandidatesHolder;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.enduser.init.MIMETypesLoader;
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
+import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.lib.Attr;
@@ -42,7 +41,7 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.common.rest.api.service.UserService;
-import org.apache.syncope.fit.ui.AbstractUITCase;
+import org.apache.syncope.fit.AbstractUITCase;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.AfterAll;
@@ -51,28 +50,13 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
 
 public abstract class AbstractEnduserITCase extends AbstractUITCase {
 
-    protected static final String ENV_KEY_CONTENT_TYPE = "jaxrsContentType";
-
-    protected static SyncopeClientFactoryBean clientFactory;
-
-    protected static SyncopeClient adminClient;
-
-    protected static UserService userService;
-
-    protected static SecurityQuestionService securityQuestionService;
-
-    protected static Properties PROPS;
-
-    @ImportAutoConfiguration(classes = {SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class})
+    @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
     @Configuration
     public static class SyncopeEnduserWebApplicationTestConfig {
 
@@ -121,13 +105,13 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
         }
     }
 
-    @BeforeAll
-    public static void loadProps() throws IOException {
-        PROPS = new Properties();
-        try (InputStream is = AbstractUITCase.class.getResourceAsStream("/enduser.properties")) {
-            PROPS.load(is);
-        }
-    }
+    protected static SyncopeClientFactoryBean clientFactory;
+
+    protected static SyncopeClient adminClient;
+
+    protected static UserService userService;
+
+    protected static SecurityQuestionService securityQuestionService;
 
     @BeforeAll
     public static void setUp() {
@@ -148,11 +132,6 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
     @BeforeAll
     public static void restSetup() {
         clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS);
-
-        String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
-        if (StringUtils.isNotBlank(envContentType)) {
-            clientFactory.setContentType(envContentType);
-        }
         LOG.info("Performing IT with content type {}", clientFactory.getContentType().getMediaType());
 
         adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
@@ -199,17 +178,15 @@ public abstract class AbstractEnduserITCase extends AbstractUITCase {
 
     @AfterAll
     public static void cleanUp() {
-        userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).getResult().
-                forEach(user -> {
-                    if (user.getUsername().equals("selfupdate") ||
-                            user.getUsername().equals("selfpwdreset") ||
-                            user.getUsername().equals("mustchangepassword")) {
-                        userService.delete(user.getKey());
-                    }
-                });
+        userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("username").equalTo("selfupdate").
+                        or("username").equalTo("selfpwdreset").
+                        or("username").equalTo("mustchangepassword").query()).
+                build()).getResult().forEach(user -> userService.delete(user.getKey()));
     }
 
-    protected void doLogin(final String user, final String passwd) {
+    protected static void doLogin(final String user, final String passwd) {
         TESTER.startPage(Login.class);
         TESTER.assertRenderedPage(Login.class);
 

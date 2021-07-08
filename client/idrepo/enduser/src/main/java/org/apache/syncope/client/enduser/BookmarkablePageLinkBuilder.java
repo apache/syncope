@@ -18,18 +18,18 @@
  */
 package org.apache.syncope.client.enduser;
 
-import org.apache.syncope.client.enduser.pages.BasePage;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 
 public final class BookmarkablePageLinkBuilder {
 
-    public static <T extends BasePage> BookmarkablePageLink<T> build(
+    public static <T extends WebPage> BookmarkablePageLink<T> build(
             final String key, final Class<T> defaultPageClass) {
 
         return build(key, key, defaultPageClass);
     }
 
-    public static <T extends BasePage> BookmarkablePageLink<T> build(
+    public static <T extends WebPage> BookmarkablePageLink<T> build(
             final String key, final String id, final Class<T> defaultPageClass) {
 
         @SuppressWarnings("unchecked")

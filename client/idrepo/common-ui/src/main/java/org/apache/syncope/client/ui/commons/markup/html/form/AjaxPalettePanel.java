@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -194,9 +195,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
                         processInput();
-                        if (builder.event != null) {
-                            builder.event.apply(target);
-                        }
+                        Optional.ofNullable(builder.event).ifPresent(e -> e.apply(target));
                     }
                 });
 

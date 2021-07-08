@@ -20,8 +20,12 @@ package org.apache.syncope.client.enduser.panels;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthConfig;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
+import org.apache.syncope.client.enduser.commons.EnduserConstants;
+import org.apache.syncope.client.enduser.panels.captcha.CaptchaPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
+import org.apache.syncope.client.ui.commons.panels.CardPanel;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.AttributeModifier;
@@ -55,12 +59,15 @@ public abstract class ChangePasswordPanel extends Panel {
 
     protected AjaxPasswordFieldPanel confirmPasswordField;
 
+    protected CaptchaPanel<Void> captcha;
+
     public ChangePasswordPanel(final String id, final NotificationPanel notificationPanel) {
         super(id);
         form = new StatelessForm<Void>("changePassword") {
 
             private static final long serialVersionUID = 418292023846536149L;
 
+            @Override
             protected void appendDefaultButtonField() {
                 AppendingStringBuffer buffer = new AppendingStringBuffer();
 
@@ -132,6 +139,14 @@ public abstract class ChangePasswordPanel extends Panel {
         form.add(confirmPasswordField);
 
         form.add(new EqualPasswordInputValidator(passwordField.getField(), confirmPasswordField.getField()));
+
+        captcha = new CaptchaPanel<>(EnduserConstants.CONTENT_PANEL);
+        captcha.setOutputMarkupPlaceholderTag(true);
+
+        form.add(new CardPanel.Builder<CaptchaPanel<Void>>()
+                .setName("captcha")
+                .setComponent(captcha)
+                .isVisible(SyncopeWebApplication.get().isCaptchaEnabled()).build("captchaPanelCard"));
 
         AjaxButton submitButton = new AjaxButton("submit", new Model<>(getString("submit"))) {
 

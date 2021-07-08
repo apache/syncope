@@ -45,6 +45,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import java.util.List;
+import org.apache.syncope.client.enduser.commons.EnduserConstants;
 
 public class UserSelfFormPanel extends UserFormPanel {
 
@@ -69,12 +70,12 @@ public class UserSelfFormPanel extends UserFormPanel {
     @Override
     protected Details<UserTO> addOptionalDetailsPanel(final UserWrapper modelObject) {
         return new SelfUserDetails(
-                Constants.CONTENT_PANEL,
+                EnduserConstants.CONTENT_PANEL,
                 UserWrapper.class.cast(modelObject),
                 false,
                 false,
                 UserFormLayoutInfo.class.cast(formLayoutInfo).isPasswordManagement(),
-                pageReference);
+                pageRef);
     }
 
     @Override
@@ -86,7 +87,7 @@ public class UserSelfFormPanel extends UserFormPanel {
         }
         if (!checked) {
             SyncopeEnduserSession.get().error(getString(Constants.CAPTCHA_ERROR));
-            ((BasePage) pageReference.getPage()).getNotificationPanel().refresh(target);
+            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         } else {
             ProvisioningResult<UserTO> result;
             PageParameters parameters = new PageParameters();
@@ -103,17 +104,17 @@ public class UserSelfFormPanel extends UserFormPanel {
                 result = userSelfRestClient.create(req, true);
                 LOG.debug("User {} has been created", result.getEntity().getUsername());
 
-                parameters.add(Constants.STATUS, Constants.OPERATION_SUCCEEDED);
+                parameters.add(EnduserConstants.STATUS, Constants.OPERATION_SUCCEEDED);
                 parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.profile.change.success"));
                 parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.profile.change.success.msg"));
             } catch (SyncopeClientException sce) {
-                parameters.add(Constants.STATUS, Constants.ERROR);
+                parameters.add(EnduserConstants.STATUS, Constants.ERROR);
                 parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.profile.change.error"));
                 parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.profile.change.error.msg"));
                 SyncopeEnduserSession.get().onException(sce);
-                ((BasePage) pageReference.getPage()).getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-            parameters.add(Constants.LANDING_PAGE, Login.class);
+            parameters.add(EnduserConstants.LANDING_PAGE, Login.class);
             setResponsePage(SelfResult.class, parameters);
         }
     }
