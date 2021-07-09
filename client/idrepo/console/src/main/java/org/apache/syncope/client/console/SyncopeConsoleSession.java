@@ -54,7 +54,6 @@ import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
@@ -131,8 +130,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
                 SyncopeWebApplication.get().getAnonymousUser(),
                 SyncopeWebApplication.get().getAnonymousKey()));
 
-        platformInfo = anonymousClient.getService(SyncopeService.class).platform();
-        systemInfo = anonymousClient.getService(SyncopeService.class).system();
+        platformInfo = anonymousClient.platform();
+        systemInfo = anonymousClient.system();
 
         executor = new ThreadPoolTaskExecutor();
         executor.setWaitForTasksToCompleteOnShutdown(false);
@@ -174,10 +173,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     public MediaType getMediaType() {
         return clientFactory.getContentType().getMediaType();
-    }
-
-    public SyncopeClient getAnonymousClient() {
-        return anonymousClient;
     }
 
     public void execute(final Runnable command) {
@@ -381,6 +376,16 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         }
     }
 
+    @Override
+    public SyncopeClient getAnonymousClient() {
+        return anonymousClient;
+    }
+
+    @Override
+    public <T> T getAnonymousService(final Class<T> serviceClass) {
+        return getAnonymousClient().getService(serviceClass);
+    }
+
     @SuppressWarnings("unchecked")
     protected <T> T getCachedService(final Class<T> serviceClass) {
         T service;
@@ -394,11 +399,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         WebClient.client(service).type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
         return service;
-    }
-
-    @Override
-    public <T> T getAnonymousService(final Class<T> serviceClass) {
-        return getAnonymousClient().getService(serviceClass);
     }
 
     @Override

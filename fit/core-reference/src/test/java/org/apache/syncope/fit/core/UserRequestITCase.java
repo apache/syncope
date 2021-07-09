@@ -56,7 +56,7 @@ public class UserRequestITCase extends AbstractITCase {
     @BeforeAll
     public static void loadBpmnProcesses() throws IOException {
         assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
 
         WebClient.client(bpmnProcessService).type(MediaType.APPLICATION_XML_TYPE);
         bpmnProcessService.set("directorGroupRequest",
@@ -70,7 +70,7 @@ public class UserRequestITCase extends AbstractITCase {
     @BeforeEach
     public void check() {
         assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
     }
 
     @Test

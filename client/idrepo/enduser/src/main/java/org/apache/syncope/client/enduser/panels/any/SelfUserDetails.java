@@ -28,17 +28,15 @@ public class SelfUserDetails extends UserDetails {
     public SelfUserDetails(
             final String id,
             final UserWrapper wrapper,
-            final boolean templateMode,
-            final boolean includeStatusPanel,
             final boolean showPasswordManagement,
             final PageReference pageRef) {
 
-        super(id, wrapper, templateMode, includeStatusPanel, pageRef);
+        super(id, wrapper, pageRef);
 
         // ------------------------
         // Password
         // ------------------------
-        EditUserPasswordPanel panel = new EditUserPasswordPanel("password", wrapper, templateMode);
+        EditUserPasswordPanel panel = new EditUserPasswordPanel("password", wrapper);
         panel.setVisible(showPasswordManagement);
 
         add(panel);

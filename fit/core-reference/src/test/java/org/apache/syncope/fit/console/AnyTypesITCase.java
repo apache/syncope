@@ -123,7 +123,7 @@ public class AnyTypesITCase extends AbstractTypesITCase {
 
     @Test
     public void delete() {
-        final String name = "anyTypeDelete";
+        String name = "anyTypeDelete";
         createAnyType(name);
         browsingToAnyTypes();
 

@@ -333,7 +333,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getPullCorrelationRuleJavaClasses() {
-        Set<String> classes = syncopeService.platform().
+        Set<String> classes = adminClient.platform().
                 getJavaImplInfo(IdMImplementationType.PULL_CORRELATION_RULE).get().getClasses();
         assertEquals(1, classes.size());
         assertEquals(DummyPullCorrelationRule.class.getName(), classes.iterator().next());
@@ -341,7 +341,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getPushCorrelationRuleJavaClasses() {
-        Set<String> classes = syncopeService.platform().
+        Set<String> classes = adminClient.platform().
                 getJavaImplInfo(IdMImplementationType.PUSH_CORRELATION_RULE).get().getClasses();
         assertEquals(1, classes.size());
         assertEquals(DummyPushCorrelationRule.class.getName(), classes.iterator().next());

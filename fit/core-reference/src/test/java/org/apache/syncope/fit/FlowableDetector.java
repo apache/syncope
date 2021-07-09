@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit;
 
-import org.apache.syncope.common.rest.api.service.SyncopeService;
+import org.apache.syncope.common.lib.info.PlatformInfo;
 
 public class FlowableDetector {
 
-    public static boolean isFlowableEnabledForUserWorkflow(final SyncopeService syncopeService) {
-        return syncopeService.platform().getWorkflowInfo().getUserWorkflowAdapter().contains("Flowable");
+    public static boolean isFlowableEnabledForUserWorkflow(final PlatformInfo platform) {
+        return platform.getWorkflowInfo().getUserWorkflowAdapter().contains("Flowable");
     }
 }

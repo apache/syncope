@@ -1065,7 +1065,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE391() {
-        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(syncopeService));
+        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform()));
 
         // 1. create user on Syncope with null password
         UserCR userCR = UserITCase.getUniqueSample("syncope391@syncope.apache.org");

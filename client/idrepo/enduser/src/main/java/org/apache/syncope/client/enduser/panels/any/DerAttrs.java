@@ -19,7 +19,6 @@
 package org.apache.syncope.client.enduser.panels.any;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,6 @@ import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -69,8 +67,8 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
             @Override
             protected void populateItem(final ListItem<MembershipTO> item) {
-                final MembershipTO membershipTO = item.getModelObject();
-                item.add(new Accordion("membershipDerSchemas", Collections.<ITab>singletonList(new AbstractTab(
+                MembershipTO membershipTO = item.getModelObject();
+                item.add(new Accordion("membershipDerSchemas", List.of(new AbstractTab(
                         new StringResourceModel(
                                 "attributes.membership.accordion",
                                 DerAttrs.this,
@@ -151,7 +149,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
         membershipTO.getDerAttrs().addAll(derAttrs);
     }
 
-    public class DerSchemas extends Schemas {
+    public static class DerSchemas extends Schemas {
 
         private static final long serialVersionUID = -4730563859116024676L;
 

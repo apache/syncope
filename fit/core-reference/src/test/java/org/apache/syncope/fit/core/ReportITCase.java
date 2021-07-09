@@ -84,7 +84,7 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void getReportletConfs() {
-        Set<String> reportletConfs = syncopeService.platform().
+        Set<String> reportletConfs = adminClient.platform().
                 getJavaImplInfo(IdRepoImplementationType.REPORTLET).get().getClasses();
         assertNotNull(reportletConfs);
         assertFalse(reportletConfs.isEmpty());

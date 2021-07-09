@@ -21,7 +21,8 @@ package org.apache.syncope.sra;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
-import org.apache.syncope.sra.actuator.SRASessions;
+import org.apache.syncope.sra.actuate.SRASessions;
+import org.apache.syncope.sra.actuate.SyncopeCoreHealthIndicator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -57,6 +58,12 @@ public class SyncopeSRAApplication {
     @Bean
     public SRASessions sraSessionsActuatorEndpoint() {
         return new SRASessions(cacheManager);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator() {
+        return new SyncopeCoreHealthIndicator();
     }
 
     @Bean

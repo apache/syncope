@@ -186,7 +186,7 @@ public class ClientAppITCase extends AbstractITCase {
         }
     }
 
-    private static CASSPClientAppTO buildCASSP() {
+    private CASSPClientAppTO buildCASSP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
         authPolicyTO.setName("Authentication Policy");

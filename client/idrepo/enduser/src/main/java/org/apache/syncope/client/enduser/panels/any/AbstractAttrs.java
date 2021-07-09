@@ -38,7 +38,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -74,8 +73,8 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
             final Map<String, CustomizationOption> whichAttrs) {
         super(id);
         this.anyTypeClasses = anyTypeClasses;
-        this.attrs = new ListModel<>(Collections.emptyList());
-        this.membershipTOs = new ListModel<>(Collections.emptyList());
+        this.attrs = new ListModel<>(List.of());
+        this.membershipTOs = new ListModel<>(List.of());
 
         this.setOutputMarkupId(true);
 
@@ -102,8 +101,9 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
             for (MembershipTO membership : (List<MembershipTO>) PropertyResolver.getPropertyField(
                     "memberships", anyTO).get(anyTO)) {
-                setSchemas(Pair.of(membership.getGroupKey(), membership.getGroupName()), getMembershipAuxClasses(
-                        membership, anyTO.getType()));
+                setSchemas(Pair.of(
+                        membership.getGroupKey(), membership.getGroupName()),
+                        getMembershipAuxClasses(membership));
                 setAttrs(membership);
 
                 if (AbstractAttrs.this instanceof PlainAttrs && !membership.getPlainAttrs().isEmpty()) {
@@ -144,7 +144,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
                 : groupName + '#')
                 + schema;
         return whichAttrs.get(schemaName) == null
-                ? Collections.emptyList()
+                ? List.of()
                 : whichAttrs.get(schemaName).getDefaultValues();
     }
 
@@ -199,11 +199,11 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
     protected abstract List<Attr> getAttrsFromTO(MembershipTO membershipTO);
 
-    protected static List<String> getMembershipAuxClasses(final MembershipTO membershipTO, final String anyType) {
+    protected static List<String> getMembershipAuxClasses(final MembershipTO membershipTO) {
         try {
             return SyncopeRestClient.searchUserTypeExtensions(membershipTO.getGroupName());
         } catch (Exception e) {
-            return Collections.emptyList();
+            return List.of();
         }
     }
 

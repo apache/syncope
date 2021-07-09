@@ -84,8 +84,6 @@ public class UserFormPanel extends AnyFormPanel implements UserForm {
         return new UserDetails(
                 EnduserConstants.CONTENT_PANEL,
                 UserWrapper.class.cast(modelObject),
-                false,
-                false,
                 pageRef);
     }
 

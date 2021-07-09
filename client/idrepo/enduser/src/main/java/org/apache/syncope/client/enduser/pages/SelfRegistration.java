@@ -26,7 +26,6 @@ import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.panels.UserSelfFormPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
@@ -54,7 +53,7 @@ public class SelfRegistration extends BasePage {
                 "selfRegistrationPanel",
                 buildNewUserTO(parameters),
                 buildNewUserTO(parameters),
-                SyncopeEnduserSession.get().getService(SyncopeService.class).platform().getUserClasses(),
+                SyncopeEnduserSession.get().getAnonymousClient().platform().getUserClasses(),
                 buildFormLayout(),
                 getPageReference());
         selfRegistrationPanel.setOutputMarkupId(true);

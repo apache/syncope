@@ -279,7 +279,7 @@ public class MembershipITCase extends AbstractITCase {
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             // 5. verify that pulled user has
-            if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {

@@ -76,10 +76,10 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
-import org.apache.wicket.util.lang.Args;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -106,25 +106,35 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
     @Autowired
     private ServiceOps serviceOps;
 
-    private boolean useGZIPCompression;
-
+    @Value("${adminUser}")
     private String adminUser;
 
-    private String anonymousUser;
+    @Value("${anonymousUser}")
+    protected String anonymousUser;
 
-    private String anonymousKey;
+    @Value("${anonymousKey}")
+    protected String anonymousKey;
 
+    @Value("${useGZIPCompression:false}")
+    protected boolean useGZIPCompression;
+
+    @Value("${captchaEnabled:false}")
     private boolean captchaEnabled;
 
-    private Integer maxWaitTime;
+    @Value("${maxUploadFileSizeMB:#{null}}")
+    protected Integer maxUploadFileSizeMB;
 
-    private Integer corePoolSize;
+    @Value("${maxWaitTime:30}")
+    protected Integer maxWaitTime;
 
-    private Integer maxPoolSize;
+    @Value("${corePoolSize:5}")
+    protected Integer corePoolSize;
 
-    private Integer queueCapacity;
+    @Value("${maxPoolSize:10}")
+    protected Integer maxPoolSize;
 
-    private Integer maxUploadFileSizeMB;
+    @Value("${queueCapacity:50}")
+    protected Integer queueCapacity;
 
     private FileAlterationMonitor customFormLayoutMonitor;
 
@@ -172,58 +182,6 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
         // read enduser.properties
         Properties props = PropertyUtils.read(getClass(), ENDUSER_PROPERTIES, "enduser.directory");
-
-        adminUser = props.getProperty("adminUser");
-        Args.notNull(adminUser, "<adminUser>");
-        anonymousUser = props.getProperty("anonymousUser");
-        Args.notNull(anonymousUser, "<anonymousUser>");
-        anonymousKey = props.getProperty("anonymousKey");
-        Args.notNull(anonymousKey, "<anonymousKey>");
-
-        captchaEnabled = Boolean.parseBoolean(props.getProperty("captcha"));
-        Args.notNull(captchaEnabled, "<captcha>");
-
-        useGZIPCompression = BooleanUtils.toBoolean(props.getProperty("useGZIPCompression"));
-        Args.notNull(useGZIPCompression, "<useGZIPCompression>");
-
-        try {
-            maxUploadFileSizeMB = Integer.valueOf(props.getProperty("maxUploadFileSizeMB", "4"));
-        } catch (NumberFormatException e) {
-            LOG.error("Invalid value provided for 'maxUploadFileSizeMB': {}",
-                    props.getProperty("maxUploadFileSizeMB"));
-            maxUploadFileSizeMB = 4;
-        }
-
-        try {
-            maxWaitTime = Integer.valueOf(props.getProperty("maxWaitTimeOnApplyChanges", "30"));
-        } catch (NumberFormatException e) {
-            LOG.error("Invalid value provided for 'maxWaitTimeOnApplyChanges': {}",
-                    props.getProperty("maxWaitTimeOnApplyChanges"));
-            maxWaitTime = 30;
-        }
-
-        // Resource connections check thread pool size
-        try {
-            corePoolSize = Integer.valueOf(props.getProperty("executor.corePoolSize", "5"));
-        } catch (NumberFormatException e) {
-            LOG.error("Invalid value provided for 'executor.corePoolSize': {}",
-                    props.getProperty("executor.corePoolSize"));
-            corePoolSize = 5;
-        }
-        try {
-            maxPoolSize = Integer.valueOf(props.getProperty("executor.maxPoolSize", "10"));
-        } catch (NumberFormatException e) {
-            LOG.error("Invalid value provided for 'executor.maxPoolSize': {}",
-                    props.getProperty("executor.maxPoolSize"));
-            maxPoolSize = 10;
-        }
-        try {
-            queueCapacity = Integer.valueOf(props.getProperty("executor.queueCapacity", "50"));
-        } catch (NumberFormatException e) {
-            LOG.error("Invalid value provided for 'executor.queueCapacity': {}",
-                    props.getProperty("executor.queueCapacity"));
-            maxPoolSize = 50;
-        }
 
         // read customFormLayout.json
         try (InputStream is = SyncopeWebApplication.class.getResourceAsStream('/' + CUSTOM_FORM_LAYOUT_FILE)) {

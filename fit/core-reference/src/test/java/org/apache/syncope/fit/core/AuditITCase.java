@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test;
 
 public class AuditITCase extends AbstractITCase {
 
-    private static AuditEntry queryWithFailure(final AuditQuery query, final int maxWaitSeconds) {
+    private AuditEntry queryWithFailure(final AuditQuery query, final int maxWaitSeconds) {
         List<AuditEntry> results = query(query, maxWaitSeconds);
         if (results.isEmpty()) {
             fail("Timeout when executing query for key " + query.getEntityKey());

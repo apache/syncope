@@ -37,9 +37,6 @@ import org.apache.cxf.transport.http.DestinationRegistry;
 import org.apache.cxf.transport.http.HTTPTransportFactory;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.info.NumbersInfo;
-import org.apache.syncope.common.lib.info.SystemInfo;
-import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
@@ -80,21 +77,6 @@ public class SyncopeServiceImpl extends AbstractServiceImpl implements SyncopeSe
 
     @Autowired
     private EntityFactory entityFactory;
-
-    @Override
-    public PlatformInfo platform() {
-        return logic.platform();
-    }
-
-    @Override
-    public SystemInfo system() {
-        return SyncopeLogic.system();
-    }
-
-    @Override
-    public NumbersInfo numbers() {
-        return logic.numbers();
-    }
 
     @Override
     public PagedResult<GroupTO> searchAssignableGroups(

@@ -111,7 +111,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 3. as admin
         self = adminClient.self();
-        assertEquals(syncopeService.platform().getEntitlements().size(), self.getLeft().size());
+        assertEquals(adminClient.platform().getEntitlements().size(), self.getLeft().size());
         assertFalse(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
         assertEquals(List.of(), self.getMiddle());
         assertEquals(ADMIN_UNAME, self.getRight().getUsername());
@@ -415,7 +415,7 @@ public class AuthenticationITCase extends AbstractITCase {
         String anyTypeKey = "FOLDER " + getUUIDString();
 
         // 1. no entitlement exists (yet) for the any type to be created
-        assertFalse(syncopeService.platform().getEntitlements().stream().
+        assertFalse(adminClient.platform().getEntitlements().stream().
                 anyMatch(entitlement -> entitlement.contains(anyTypeKey)));
 
         // 2. create plain schema, any type class and any type
@@ -436,7 +436,7 @@ public class AuthenticationITCase extends AbstractITCase {
         anyTypeService.create(anyTypeTO);
 
         // 2. now entitlement exists for the any type just created
-        assertTrue(syncopeService.platform().getEntitlements().stream().
+        assertTrue(adminClient.platform().getEntitlements().stream().
                 anyMatch(entitlement -> entitlement.contains(anyTypeKey)));
 
         // 3. attempt to create an instance of the type above: fail because no entitlement was assigned
@@ -495,7 +495,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals(2, member.getMemberships().size());
         String memberKey = member.getKey();
 
-        if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -580,7 +580,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE434() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
 
         // 1. create user with group 'groupForWorkflowApproval' 
         // (users with group groupForWorkflowApproval are defined in workflow as subject to approval)

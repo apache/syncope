@@ -72,12 +72,12 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void selfRegistrationAllowed() {
-        assertTrue(syncopeService.platform().isSelfRegAllowed());
+        assertTrue(adminClient.platform().isSelfRegAllowed());
     }
 
     @Test
     public void create() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
 
         // 1. self-registration as admin: failure
         try {
@@ -99,7 +99,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createAndApprove() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
 
         // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserCR userCR = UserITCase.getUniqueSample("anonymous@syncope.apache.org");
@@ -138,7 +138,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createAndUnclaim() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
 
         // 1. self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserCR userCR = UserITCase.getUniqueSample("anonymous@syncope.apache.org");
@@ -231,14 +231,14 @@ public class UserSelfITCase extends AbstractITCase {
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
         assertNotNull(updated);
-        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService)
+        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform())
                 ? "active" : "created", updated.getStatus());
         assertTrue(updated.getUsername().endsWith("XX"));
     }
 
     @Test
     public void updateWithApproval() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
 
         // 1. create user as admin
         UserTO created = createUser(UserITCase.getUniqueSample("anonymous@syncope.apache.org")).getEntity();
@@ -302,7 +302,7 @@ public class UserSelfITCase extends AbstractITCase {
                 new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(deleted);
-        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService)
+        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform())
                 ? "deleteApproval" : null, deleted.getStatus());
     }
 
@@ -343,7 +343,7 @@ public class UserSelfITCase extends AbstractITCase {
         anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "Rossi");
 
         // SYNCOPE-1293:get users with token not null before requesting password reset
-        if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -462,7 +462,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createWithReject() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
 
         UserCR userCR = UserITCase.getUniqueSample("createWithReject@syncope.apache.org");
         userCR.getResources().add(RESOURCE_NAME_TESTDB);
@@ -538,7 +538,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createWithApproval() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
 
         // read forms *before* any operation
         PagedResult<UserRequestForm> forms = userRequestService.listForms(new UserRequestQuery.Builder().build());
@@ -625,7 +625,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void updateApproval() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
 
         // read forms *before* any operation
         PagedResult<UserRequestForm> forms = userRequestService.listForms(
@@ -688,7 +688,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void availableTasks() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
 
         UserTO user = createUser(UserITCase.getUniqueSample("availableTasks@apache.org")).getEntity();
         assertEquals("active", user.getStatus());
@@ -702,7 +702,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE15() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
 
         // read forms *before* any operation
         PagedResult<UserRequestForm> forms = userRequestService.listForms(new UserRequestQuery.Builder().build());

@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.fit;
 
-import org.apache.syncope.common.rest.api.service.SyncopeService;
+import org.apache.syncope.common.lib.info.PlatformInfo;
 
 public class ElasticsearchDetector {
 
-    public static boolean isElasticSearchEnabled(final SyncopeService syncopeService) {
-        return syncopeService.platform().getPersistenceInfo().getAnySearchDAO().contains("Elasticsearch");
+    public static boolean isElasticSearchEnabled(final PlatformInfo platform) {
+        return platform.getPersistenceInfo().getAnySearchDAO().contains("Elasticsearch");
     }
 }

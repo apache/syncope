@@ -73,7 +73,7 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
     }
 
     protected Details<UserTO> addOptionalDetailsPanel(final UserWrapper modelObject) {
-        Details<UserTO> details = new Details<>(EnduserConstants.CONTENT_PANEL, modelObject, false, true, pageRef);
+        Details<UserTO> details = new Details<>(EnduserConstants.CONTENT_PANEL, pageRef);
         details.setOutputMarkupId(true);
         return details;
     }
@@ -85,7 +85,7 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
                 .setComponent(addOptionalDetailsPanel(modelObject))
                 .isVisible(formLayoutInfo.isDetailsManagement()).build("userDetailsPanelCard"));
 
-        Groups groups = new Groups(EnduserConstants.CONTENT_PANEL, modelObject, false);
+        Groups groups = new Groups(EnduserConstants.CONTENT_PANEL, modelObject);
         setOutputMarkupId(true);
 
         form.add(new CardPanel.Builder<Groups>()

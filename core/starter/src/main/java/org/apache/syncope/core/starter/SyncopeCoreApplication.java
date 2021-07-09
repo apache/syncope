@@ -22,8 +22,14 @@ import java.io.IOException;
 import org.apache.cxf.spring.boot.autoconfigure.openapi.OpenApiAutoConfiguration;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
+import org.apache.syncope.core.starter.actuate.DomainsHealthIndicator;
+import org.apache.syncope.core.starter.actuate.ExternalResourcesHealthIndicator;
+import org.apache.syncope.core.starter.actuate.SyncopeCoreInfoContributor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.mail.MailHealthIndicator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -34,6 +40,8 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication(exclude = {
@@ -58,6 +66,34 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
         pspc.setIgnoreResourceNotFound(true);
         pspc.setIgnoreUnresolvablePlaceholders(true);
         return pspc;
+    }
+
+    @Autowired
+    protected JavaMailSender mailSender;
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SyncopeCoreInfoContributor syncopeCoreInfoContributor() {
+        return new SyncopeCoreInfoContributor();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public DomainsHealthIndicator domainsHealthIndicator() {
+        return new DomainsHealthIndicator();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public MailHealthIndicator mailHealthIndicator() {
+        return new MailHealthIndicator((JavaMailSenderImpl) mailSender);
+    }
+
+    @ConditionalOnClass(name = { "org.apache.syncope.core.logic.ResourceLogic" })
+    @ConditionalOnMissingBean
+    @Bean
+    public ExternalResourcesHealthIndicator externalResourcesHealthIndicator() {
+        return new ExternalResourcesHealthIndicator();
     }
 
     @Bean

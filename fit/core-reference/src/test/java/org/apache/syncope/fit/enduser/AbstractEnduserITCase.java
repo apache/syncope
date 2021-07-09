@@ -53,10 +53,12 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import org.springframework.context.annotation.PropertySource;
 
 public abstract class AbstractEnduserITCase extends AbstractUITCase {
 
     @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
+    @PropertySource("classpath:enduser.properties")
     @Configuration
     public static class SyncopeEnduserWebApplicationTestConfig {
 

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser.panels.any;
 
-import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -33,12 +32,7 @@ public class Details<T extends AnyTO> extends Panel {
 
     protected final PageReference pageRef;
 
-    public Details(
-            final String id,
-            final AnyWrapper<T> wrapper,
-            final boolean templateMode,
-            final boolean includeStatusPanel,
-            final PageReference pageRef) {
+    public Details(final String id, final PageReference pageRef) {
         super(id);
         this.pageRef = pageRef;
     }
