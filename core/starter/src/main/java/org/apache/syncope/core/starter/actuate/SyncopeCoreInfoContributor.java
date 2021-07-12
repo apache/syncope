@@ -189,12 +189,6 @@ public class SyncopeCoreInfoContributor implements InfoContributor {
     @Autowired
     protected ServiceOps serviceOps;
 
-    @Resource(name = "version")
-    protected String version;
-
-    @Resource(name = "buildNumber")
-    protected String buildNumber;
-
     @Autowired
     protected ConnIdBundleManager bundleManager;
 
@@ -289,8 +283,6 @@ public class SyncopeCoreInfoContributor implements InfoContributor {
         synchronized (this) {
             if (PLATFORM_INFO == null) {
                 PLATFORM_INFO = new PlatformInfo();
-                PLATFORM_INFO.setVersion(version);
-                PLATFORM_INFO.setBuildNumber(buildNumber);
                 PLATFORM_INFO.setKeymasterConfParamOps(AopUtils.getTargetClass(confParamOps).getName());
                 PLATFORM_INFO.setKeymasterServiceOps(AopUtils.getTargetClass(serviceOps).getName());
 

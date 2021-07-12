@@ -34,6 +34,7 @@ import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.Client;
@@ -155,6 +156,16 @@ public class SyncopeClient {
                         (restClientFactory.getUsername() + ":" + restClientFactory.getPassword()).getBytes())));
 
         return OBJECT_MAPPER.readTree((InputStream) webClient.get().getEntity());
+    }
+
+    public Pair<String, String> gitAndBuildInfo() {
+        try {
+            return Pair.of(
+                    info().get("git").get("commit").get("id").asText(),
+                    info().get("build").get("version").asText());
+        } catch (IOException e) {
+            throw new RuntimeException("While getting build and git Info", e);
+        }
     }
 
     public PlatformInfo platform() {

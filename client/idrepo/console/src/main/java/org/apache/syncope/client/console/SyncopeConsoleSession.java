@@ -39,6 +39,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.commons.RealmsUtils;
@@ -96,6 +97,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     protected final SyncopeClient anonymousClient;
 
+    protected final Pair<String, String> gitAndBuildInfo;
+
     protected final PlatformInfo platformInfo;
 
     protected final SystemInfo systemInfo;
@@ -130,6 +133,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
                 SyncopeWebApplication.get().getAnonymousUser(),
                 SyncopeWebApplication.get().getAnonymousKey()));
 
+        gitAndBuildInfo = anonymousClient.gitAndBuildInfo();
         platformInfo = anonymousClient.platform();
         systemInfo = anonymousClient.system();
 
@@ -192,6 +196,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
             return new CompletableFuture<>();
         }
+    }
+
+    public Pair<String, String> gitAndBuildInfo() {
+        return gitAndBuildInfo;
     }
 
     public PlatformInfo getPlatformInfo() {
