@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.syncope.client.console.AbstractTest.TestSyncopeWebApplication.SyncopeServiceClient;
@@ -247,6 +248,7 @@ public abstract class AbstractTest {
 
             when(client.self()).thenReturn(Triple.of(new HashMap<>(), List.of(), getUserTO()));
 
+            when(client.gitAndBuildInfo()).thenReturn(Pair.of("", ""));
             when(client.platform()).thenReturn(new PlatformInfo());
             when(client.numbers()).thenAnswer(ic -> {
                 NumbersInfo numbersInfo = new NumbersInfo();
