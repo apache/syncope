@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.rest.api.service.RoleService;
 
@@ -75,6 +76,7 @@ public class RoleRestClient extends BaseRestClient {
     }
 
     public static List<String> getAllAvailableEntitlements() {
-        return getSyncopeService().platform().getEntitlements().stream().sorted().collect(Collectors.toList());
+        return SyncopeConsoleSession.get().getAnonymousClient().platform().getEntitlements().
+                stream().sorted().collect(Collectors.toList());
     }
 }

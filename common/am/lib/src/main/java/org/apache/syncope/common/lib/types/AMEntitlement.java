@@ -34,6 +34,10 @@ public final class AMEntitlement {
 
     public static final String SRA_ROUTE_PUSH = "SRA_ROUTE_PUSH";
 
+    public static final String SRA_SESSION_LIST = "SRA_SESSION_LIST";
+
+    public static final String SRA_SESSION_DELETE = "SRA_SESSION_DELETE";
+
     public static final String CLIENTAPP_READ = "CLIENTAPP_READ";
 
     public static final String CLIENTAPP_LIST = "CLIENTAPP_LIST";

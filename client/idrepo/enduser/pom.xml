@@ -52,6 +52,14 @@ under the License.
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-log4j2</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
     
     <dependency>
       <groupId>org.apache.syncope.client.idrepo</groupId>
@@ -110,24 +118,21 @@ under the License.
       <groupId>com.lmax</groupId>
       <artifactId>disruptor</artifactId>
     </dependency>
+
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-      
       <plugin>
         <groupId>nl.geodienstencentrum.maven</groupId>
         <artifactId>sass-maven-plugin</artifactId>
@@ -152,6 +157,30 @@ under the License.
           </resources>
           <skip>${sass.skip}</skip>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>io.github.git-commit-id</groupId>
+        <artifactId>git-commit-id-maven-plugin</artifactId>
+        <configuration>
+          <failOnNoGitDirectory>false</failOnNoGitDirectory>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>build-info</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
       </plugin>
     </plugins>
     
@@ -240,6 +269,7 @@ under the License.
             <configuration>
               <jvmArguments>
                 -Dwicket.core.settings.general.configuration-type=development
+                -XX:HotswapAgent=fatjar
                 -Xdebug -Xrunjdwp:transport=dt_socket,address=8004,server=y,suspend=n
               </jvmArguments>
               <profiles>

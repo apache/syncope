@@ -102,7 +102,7 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
     public void cleanUp() {
         try {
             SyncopeConsoleSession.get().getService(UserService.class).delete(user.getKey());
-        } catch (final SyncopeClientException e) {
+        } catch (SyncopeClientException e) {
             if (e.getType() != ClientExceptionType.NotFound) {
                 throw e;
             }
@@ -112,7 +112,7 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
     @Test
     public void createLinkedAccountAndMergeWithUser() {
         // Locate and select first user
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component verdiUserComponent = findComponentByProp("username", CONTAINER
@@ -183,10 +183,8 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
         try {
             userService.read(user.getKey());
             fail("User must have been deleted; expect an exception here");
-        } catch (final SyncopeClientException e) {
-            if (e.getType() != ClientExceptionType.NotFound) {
-                fail(e.getMessage());
-            }
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
         }
         // User must include merged accounts now
         UserTO verdi = userService.read("verdi");

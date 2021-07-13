@@ -36,6 +36,7 @@ import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apache.syncope.wa.starter.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.wa.starter.audit.SyncopeWAAuditTrailManager;
 import org.apache.syncope.wa.starter.events.SyncopeWAEventRepository;
 import org.apache.syncope.wa.starter.gauth.SyncopeWAGoogleMfaAuthCredentialRepository;
@@ -305,6 +306,13 @@ public class SyncopeWAConfiguration {
     @Autowired
     public SurrogateAuthenticationService surrogateAuthenticationService(final WARestClient restClient) {
         return new SyncopeWASurrogateAuthenticationService(restClient);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator(final WARestClient restClient) {
+        return new SyncopeCoreHealthIndicator(restClient);
     }
 
     @Bean

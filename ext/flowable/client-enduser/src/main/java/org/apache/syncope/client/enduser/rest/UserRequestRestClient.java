@@ -20,10 +20,13 @@ package org.apache.syncope.client.enduser.rest;
 
 import java.util.List;
 import java.util.Optional;
+import javax.ws.rs.core.GenericType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
@@ -64,7 +67,7 @@ public class UserRequestRestClient extends BaseRestClient {
                 getTotalCount();
     }
 
-    public static List<UserRequestForm> getForms(final int page, final int size, final SortParam<String> sort) {
+    public static List<UserRequestForm> listForms(final int page, final int size, final SortParam<String> sort) {
         return getService(UserRequestService.class).
                 listForms(new UserRequestQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
                 getResult();
@@ -77,11 +80,13 @@ public class UserRequestRestClient extends BaseRestClient {
                 taskId));
     }
 
-    public static void submitForm(final UserRequestForm form) {
-        getService(UserRequestService.class).submitForm(form);
+    public static ProvisioningResult<UserTO> submitForm(final UserRequestForm form) {
+        return getService(UserRequestService.class).submitForm(form).readEntity(
+                new GenericType<ProvisioningResult<UserTO>>() {
+        });
     }
 
-    public static void start(final String bpmnProcess, final String user) {
+    public static void startRequest(final String bpmnProcess, final String user) {
         getService(UserRequestService.class).startRequest(bpmnProcess, user, null);
     }
 

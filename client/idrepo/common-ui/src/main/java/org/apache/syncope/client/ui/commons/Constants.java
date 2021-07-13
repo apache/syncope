@@ -113,6 +113,8 @@ public final class Constants {
 
     public static final int MAX_ROLE_LIST_SIZE = 30;
 
+    public static final String NOTIFICATION_TITLE_PARAM = "notificationTitle";
+
     public static final String NOTIFICATION_MSG_PARAM = "notificationMessage";
 
     public static final String NOTIFICATION_LEVEL_PARAM = "notificationLevel";

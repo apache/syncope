@@ -58,7 +58,6 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
 
     public AnyTypesPanel(final String id, final PageReference pageRef) {
         super(id, false, pageRef);
-        this.restClient = new AnyTypeRestClient();
         disableCheckBoxes();
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeTO>(new AnyTypeTO(), pageRef) {

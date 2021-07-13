@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -60,7 +61,7 @@ public class AnyTypeRestClient extends BaseRestClient {
     }
 
     public static List<String> list() {
-        List<String> types = getSyncopeService().platform().getAnyTypes();
+        List<String> types = SyncopeEnduserSession.get().getAnonymousClient().platform().getAnyTypes();
         types.sort(new AnyTypeKeyComparator());
         return types;
     }

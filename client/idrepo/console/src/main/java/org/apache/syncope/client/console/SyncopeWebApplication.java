@@ -28,8 +28,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.lang3.BooleanUtils;
@@ -43,7 +41,6 @@ import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
-import org.apache.syncope.client.console.themes.AdminLTE;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.wicket.Page;
@@ -59,7 +56,6 @@ import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
-import org.apache.wicket.util.lang.Args;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
@@ -69,6 +65,7 @@ import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.pages.MustChangePassword;
 import org.apache.syncope.client.console.panels.AnyPanel;
+import org.apache.syncope.client.ui.commons.themes.AdminLTE;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -78,75 +75,81 @@ import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
 
     private static final String CONSOLE_PROPERTIES = "console.properties";
-
-    public static final List<Locale> SUPPORTED_LOCALES = List.of(
-            Locale.ENGLISH, Locale.CANADA_FRENCH, Locale.ITALIAN, Locale.JAPANESE, new Locale("pt", "BR"),
-            new Locale("ru"));
 
     public static SyncopeWebApplication get() {
         return (SyncopeWebApplication) WebApplication.get();
     }
 
     @Autowired
-    private ClassPathScanImplementationLookup lookup;
+    protected ClassPathScanImplementationLookup lookup;
 
     @Autowired
-    private ServiceOps serviceOps;
+    protected ServiceOps serviceOps;
 
-    private String anonymousUser;
+    @Value("${anonymousUser}")
+    protected String anonymousUser;
 
-    private String anonymousKey;
+    @Value("${anonymousKey}")
+    protected String anonymousKey;
 
-    private String reconciliationReportKey;
+    @Value("${useGZIPCompression:false}")
+    protected boolean useGZIPCompression;
 
-    private boolean useGZIPCompression;
+    @Value("${maxUploadFileSizeMB:#{null}}")
+    protected Integer maxUploadFileSizeMB;
 
-    private Integer maxUploadFileSizeMB;
+    @Value("${maxWaitTime:30}")
+    protected Integer maxWaitTime;
 
-    private Integer maxWaitTime;
+    @Value("${corePoolSize:5}")
+    protected Integer corePoolSize;
 
-    private Integer corePoolSize;
+    @Value("${maxPoolSize:10}")
+    protected Integer maxPoolSize;
 
-    private Integer maxPoolSize;
+    @Value("${queueCapacity:50}")
+    protected Integer queueCapacity;
 
-    private Integer queueCapacity;
-
-    @Autowired
-    private ExternalResourceProvider resourceProvider;
-
-    @Autowired
-    private AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider;
-
-    @Autowired
-    private AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider;
-
-    @Autowired
-    private AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps;
+    @Value("${reconciliationReportKey}")
+    protected String reconciliationReportKey;
 
     @Autowired
-    private StatusProvider statusProvider;
+    protected ExternalResourceProvider resourceProvider;
 
     @Autowired
-    private VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider;
+    protected AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider;
 
     @Autowired
-    private ImplementationInfoProvider implementationInfoProvider;
+    protected AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider;
 
     @Autowired
-    private ApplicationContext ctx;
+    protected AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps;
 
-    private Map<String, Class<? extends BasePage>> pageClasses;
+    @Autowired
+    protected StatusProvider statusProvider;
 
-    private String defaultAnyLayoutClass;
+    @Autowired
+    protected VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider;
+
+    @Autowired
+    protected ImplementationInfoProvider implementationInfoProvider;
+
+    @Autowired
+    protected ApplicationContext ctx;
+
+    protected Map<String, Class<? extends BasePage>> pageClasses;
+
+    protected String defaultAnyLayoutClass;
 
     @SuppressWarnings("unchecked")
     protected void populatePageClasses(final Properties props) {
@@ -169,7 +172,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         }
     }
 
-    protected void setSecurityHeaders(final Properties props, final WebResponse response) {
+    protected static void setSecurityHeaders(final Properties props, final WebResponse response) {
         @SuppressWarnings("unchecked")
         Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
         while (propNames.hasMoreElements()) {
@@ -186,55 +189,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
         // read console.properties
         Properties props = PropertyUtils.read(getClass(), CONSOLE_PROPERTIES, "console.directory");
-
-        anonymousUser = props.getProperty("anonymousUser");
-        Args.notNull(anonymousUser, "<anonymousUser>");
-        anonymousKey = props.getProperty("anonymousKey");
-        Args.notNull(anonymousKey, "<anonymousKey>");
-
-        useGZIPCompression = BooleanUtils.toBoolean(props.getProperty("useGZIPCompression"));
-        Args.notNull(useGZIPCompression, "<useGZIPCompression>");
-
-        try {
-            maxUploadFileSizeMB = props.getProperty("maxUploadFileSizeMB") == null
-                    ? null
-                    : Integer.valueOf(props.getProperty("maxUploadFileSizeMB"));
-        } catch (NumberFormatException e) {
-            LOG.error("Invalid value provided for 'maxUploadFileSizeMB': {}",
-                    props.getProperty("maxUploadFileSizeMB"));
-            maxUploadFileSizeMB = null;
-        }
-
-        try {
-            maxWaitTime = Integer.valueOf(props.getProperty("maxWaitTimeOnApplyChanges", "30"));
-        } catch (NumberFormatException e) {
-            LOG.error("Invalid value provided for 'maxWaitTimeOnApplyChanges': {}",
-                    props.getProperty("maxWaitTimeOnApplyChanges"));
-            maxWaitTime = 30;
-        }
-
-        // Resource connections check thread pool size
-        try {
-            corePoolSize = Integer.valueOf(props.getProperty("executor.corePoolSize", "5"));
-        } catch (NumberFormatException e) {
-            LOG.error("Invalid value provided for 'executor.corePoolSize': {}",
-                    props.getProperty("executor.corePoolSize"));
-            corePoolSize = 5;
-        }
-        try {
-            maxPoolSize = Integer.valueOf(props.getProperty("executor.maxPoolSize", "10"));
-        } catch (NumberFormatException e) {
-            LOG.error("Invalid value provided for 'executor.maxPoolSize': {}",
-                    props.getProperty("executor.maxPoolSize"));
-            maxPoolSize = 10;
-        }
-        try {
-            queueCapacity = Integer.valueOf(props.getProperty("executor.queueCapacity", "50"));
-        } catch (NumberFormatException e) {
-            LOG.error("Invalid value provided for 'executor.queueCapacity': {}",
-                    props.getProperty("executor.queueCapacity"));
-            maxPoolSize = 50;
-        }
 
         // process page properties
         pageClasses = new HashMap<>();
@@ -321,13 +275,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
         mountPage("/login", getSignInPageClass());
 
-        try {
-            reconciliationReportKey = props.getProperty("reconciliationReportKey");
-        } catch (NumberFormatException e) {
-            LOG.error("While parsing reconciliationReportKey", e);
-        }
-        Args.notNull(reconciliationReportKey, "<reconciliationReportKey>");
-
         for (Class<? extends AbstractResource> resource : lookup.getClasses(AbstractResource.class)) {
             Resource annotation = resource.getAnnotation(Resource.class);
             try {
@@ -335,7 +282,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
                 mountResource(annotation.path(), new ResourceReference(annotation.key()) {
 
-                    private static final long serialVersionUID = -128426276529456602L;
+                    protected static final long serialVersionUID = -128426276529456602L;
 
                     @Override
                     public IResource getResource() {

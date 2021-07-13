@@ -440,18 +440,6 @@ public abstract class AbstractITCase {
         impersonationService = anonymusClient.getService(ImpersonationService.class);
     }
 
-    @Autowired
-    protected ConfParamOps confParamOps;
-
-    @Autowired
-    protected ServiceOps serviceOps;
-
-    @Autowired
-    protected DomainOps domainOps;
-
-    @Autowired
-    protected DataSource testDataSource;
-
     protected static String getUUIDString() {
         return UUID.randomUUID().toString().substring(0, 8);
     }
@@ -464,7 +452,7 @@ public abstract class AbstractITCase {
         return new AttrPatch.Builder(attr(schema, value)).operation(PatchOperation.ADD_REPLACE).build();
     }
 
-    public static <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {
+    protected static <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {
         WebClient webClient = WebClient.fromClient(WebClient.client(adminClient.getService(serviceClass)));
         webClient.accept(clientFactory.getContentType().getMediaType()).to(location.toASCIIString(), false);
 
@@ -473,6 +461,18 @@ public abstract class AbstractITCase {
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT()).
                 get(resultClass);
     }
+
+    @Autowired
+    protected ConfParamOps confParamOps;
+
+    @Autowired
+    protected ServiceOps serviceOps;
+
+    @Autowired
+    protected DomainOps domainOps;
+
+    @Autowired
+    protected DataSource testDataSource;
 
     @SuppressWarnings("unchecked")
     protected <T extends SchemaTO> T createSchema(final SchemaType type, final T schemaTO) {
@@ -629,7 +629,7 @@ public abstract class AbstractITCase {
     }
 
     @SuppressWarnings("unchecked")
-    protected static <T extends PolicyTO> T createPolicy(final PolicyType type, final T policy) {
+    protected <T extends PolicyTO> T createPolicy(final PolicyType type, final T policy) {
         Response response = policyService.create(type, policy);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
@@ -776,7 +776,7 @@ public abstract class AbstractITCase {
         return object.get();
     }
 
-    protected static OIDCRPClientAppTO buildOIDCRP() {
+    protected OIDCRPClientAppTO buildOIDCRP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
         authPolicyTO.setName("Authentication Policy");
@@ -805,7 +805,7 @@ public abstract class AbstractITCase {
         return oidcrpTO;
     }
 
-    protected static SAML2SPClientAppTO buildSAML2SP() {
+    protected SAML2SPClientAppTO buildSAML2SP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
         authPolicyTO.setName("Authentication Policy");
@@ -846,7 +846,7 @@ public abstract class AbstractITCase {
         return (T) getObject(response.getLocation(), ClientAppService.class, clientAppTO.getClass());
     }
 
-    protected static AuthPolicyTO buildAuthPolicyTO(final String authModuleKey) {
+    protected AuthPolicyTO buildAuthPolicyTO(final String authModuleKey) {
         AuthPolicyTO policy = new AuthPolicyTO();
         policy.setName("Test Authentication policy");
 
@@ -857,7 +857,7 @@ public abstract class AbstractITCase {
         return policy;
     }
 
-    protected static AttrReleasePolicyTO buildAttrReleasePolicyTO() {
+    protected AttrReleasePolicyTO buildAttrReleasePolicyTO() {
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
         policy.setName("Test Attribute Release policy");
 
@@ -871,7 +871,7 @@ public abstract class AbstractITCase {
         return policy;
     }
 
-    protected static AccessPolicyTO buildAccessPolicyTO() {
+    protected AccessPolicyTO buildAccessPolicyTO() {
         AccessPolicyTO policy = new AccessPolicyTO();
         policy.setName("Test Access policy");
         policy.setEnabled(true);
@@ -883,7 +883,7 @@ public abstract class AbstractITCase {
         return policy;
     }
 
-    protected static List<AuditEntry> query(final AuditQuery query, final int maxWaitSeconds) {
+    protected List<AuditEntry> query(final AuditQuery query, final int maxWaitSeconds) {
         int i = 0;
         List<AuditEntry> results = List.of();
         do {

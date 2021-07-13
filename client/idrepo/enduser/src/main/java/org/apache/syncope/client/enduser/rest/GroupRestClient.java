@@ -18,9 +18,8 @@
  */
 package org.apache.syncope.client.enduser.rest;
 
-import java.util.List;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -29,6 +28,9 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * Console client for invoking Rest Group's services.
@@ -42,16 +44,16 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
         return GroupService.class;
     }
 
-    public static ProvisioningResult<GroupTO> create(final GroupCR groupCR) {
-        Response response = getService(GroupService.class).create(groupCR);
+    public static ProvisioningResult<GroupTO> create(final GroupCR groupTO) {
+        Response response = getService(GroupService.class).create(groupTO);
         return response.readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
         });
     }
 
-    public ProvisioningResult<GroupTO> update(final String etag, final GroupUR updateReq) {
+    public ProvisioningResult<GroupTO> update(final String etag, final GroupUR groupPatch) {
         ProvisioningResult<GroupTO> result;
         synchronized (this) {
-            result = getService(etag, GroupService.class).update(updateReq).
+            result = getService(etag, GroupService.class).update(groupPatch).
                     readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
                     });
             resetClient(getAnyServiceClass());
@@ -65,7 +67,8 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
         final int page,
         final int size) {
 
-        return getService(SyncopeService.class).searchAssignableGroups(realm, term, page, size).getResult();
+        return getService(SyncopeService.class).searchAssignableGroups(
+                StringUtils.isNotEmpty(realm) ? realm : SyncopeConstants.ROOT_REALM, term, page, size).getResult();
     }
 
     @Override

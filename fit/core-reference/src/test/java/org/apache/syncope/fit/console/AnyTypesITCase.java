@@ -87,7 +87,7 @@ public class AnyTypesITCase extends AbstractTypesITCase {
         TESTER.assertLabel(component.getPageRelativePath() + ":cells:3:cell", "[csv]");
 
         // issue SYNCOPE-1111
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.assertRenderedPage(Realms.class);
         TESTER.assertLabel(
                 "body:content:body:container:content:tabbedPanel:tabs-container:tabs:4:link:title",
@@ -123,7 +123,7 @@ public class AnyTypesITCase extends AbstractTypesITCase {
 
     @Test
     public void delete() {
-        final String name = "anyTypeDelete";
+        String name = "anyTypeDelete";
         createAnyType(name);
         browsingToAnyTypes();
 

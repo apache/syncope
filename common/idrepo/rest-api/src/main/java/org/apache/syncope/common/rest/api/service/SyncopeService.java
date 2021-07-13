@@ -41,9 +41,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.info.NumbersInfo;
-import org.apache.syncope.common.lib.info.SystemInfo;
-import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
@@ -58,38 +55,6 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
     @SecurityRequirement(name = "Bearer") })
 @Path("")
 public interface SyncopeService extends JAXRSService {
-
-    /**
-     * Provides information summary about platform configuration (workflow adapters, provisioning managers, validators,
-     * actions, correlation rules, reportlets, ...).
-     *
-     * @return information summary about platform configuration (workflow adapters, provisioning managers, validators,
-     * actions, correlation rules, reportlets, ...)
-     */
-    @GET
-    @Path("/platform")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    PlatformInfo platform();
-
-    /**
-     * Provides information about the underlying system (Operating System, CPU / memory usage, ...).
-     *
-     * @return information about the underlying system (Operating System, CPU / memory usage, ...)
-     */
-    @GET
-    @Path("/system")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    SystemInfo system();
-
-    /**
-     * Provides some numbers about the managed entities (users, groups, any objects...).
-     *
-     * @return some numbers about the managed entities (users, groups, any objects...)
-     */
-    @GET
-    @Path("/numbers")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    NumbersInfo numbers();
 
     /**
      * Requests for batch execution.

@@ -35,7 +35,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications", false);
         TESTER.assertRenderedPage(Notifications.class);
     }
 
@@ -110,7 +110,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         formTester.submit("content:form:buttons:finish");
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
-        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications", false);
     }
 
     @Test
@@ -147,7 +147,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
 
     @Test
     public void execute() {
-        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications", false);
 
         Component result = findComponentByProp("subject",
                 "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable:tablePanel:groupForm:"
@@ -178,7 +178,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications", false);
 
         result = findComponentByProp("subject", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "Password Reset request");

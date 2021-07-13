@@ -44,7 +44,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
 
     @Test
     public void users() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", CONTAINER
@@ -69,7 +69,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
 
     @Test
     public void userResource() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", CONTAINER
@@ -123,7 +123,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
 
     private static void userStatusBatch(final int index, final String resource) {
         // suspend 
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         Component component = findComponentByProp("username", CONTAINER
@@ -190,7 +190,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
         assertEquals(resource, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
 
         // re-activate
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
         component = findComponentByProp("username", CONTAINER
@@ -254,7 +254,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
 
     @Test
     public void groupResource() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", CONTAINER
@@ -303,7 +303,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
 
     @Test
     public void printerResource() {
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
 
         Component component = findComponentByProp("key", CONTAINER
@@ -353,7 +353,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
 
     @Test
     public void executePropagationTask() {
-        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage");
+        TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage", false);
 
         Component component = findComponentByProp("key", "body:resources", "resource-testdb");
         assertNotNull(component);

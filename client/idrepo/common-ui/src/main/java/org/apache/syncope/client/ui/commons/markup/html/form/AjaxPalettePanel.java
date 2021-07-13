@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.Component;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -193,6 +195,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
                         processInput();
+                        Optional.ofNullable(builder.event).ifPresent(e -> e.apply(target));
                     }
                 });
 
@@ -267,6 +270,8 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
         protected Function<String, Stream<String>> idExtractor =
                 (Function<String, Stream<String>> & Serializable) input -> Stream.of(Strings.split(input, ','));
 
+        protected Function<AjaxRequestTarget, Boolean> event;
+
         protected Function<Object, Map<String, String>> additionalAttributes;
 
         public Builder<T> setName(final String name) {
@@ -317,6 +322,11 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         public Builder<T> idExtractor(final Function<String, Stream<String>> idExtractor) {
             this.idExtractor = idExtractor;
+            return this;
+        }
+
+        public Builder<T> event(final Function<AjaxRequestTarget, Boolean> event) {
+            this.event = event;
             return this;
         }
 
@@ -402,6 +412,26 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             });
 
             return filtered;
+        }
+    }
+
+    public static class UpdateActionEvent {
+
+        private final UserTO item;
+
+        private final AjaxRequestTarget target;
+
+        public UpdateActionEvent(final UserTO item, final AjaxRequestTarget target) {
+            this.item = item;
+            this.target = target;
+        }
+
+        public UserTO getItem() {
+            return item;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
         }
     }
 }

@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.client.enduser.panels;
 
-import org.apache.syncope.client.ui.commons.panels.AbstractOIDCSSOLoginFormPanel;
 import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.client.ui.commons.panels.AbstractOIDCSSOLoginFormPanel;
 
 public class OIDCSSOLoginFormPanel extends AbstractOIDCSSOLoginFormPanel {
 
-    private static final long serialVersionUID = 4312771213433968542L;
+    private static final long serialVersionUID = 1154933731474854671L;
 
     public OIDCSSOLoginFormPanel(final String id, final BaseSession session) {
         super(id, session);

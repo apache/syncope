@@ -223,7 +223,7 @@ public class MultitenancyITCase extends AbstractITCase {
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(status));
 
             // verify that pulled user is found
-            if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            if (ElasticsearchDetector.isElasticSearchEnabled(anonymusClient.platform())) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {

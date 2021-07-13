@@ -227,10 +227,6 @@ public class PlatformInfo implements BaseBean {
         }
     }
 
-    private String version;
-
-    private String buildNumber;
-
     private String keymasterConfParamOps;
 
     private String keymasterServiceOps;
@@ -264,14 +260,6 @@ public class PlatformInfo implements BaseBean {
     private final Set<String> implementationTypes = new HashSet<>();
 
     private final Set<JavaImplInfo> javaImplInfos = new HashSet<>();
-
-    public String getVersion() {
-        return version;
-    }
-
-    public String getBuildNumber() {
-        return buildNumber;
-    }
 
     public String getKeymasterConfParamOps() {
         return keymasterConfParamOps;
@@ -364,14 +352,6 @@ public class PlatformInfo implements BaseBean {
     @JacksonXmlProperty(localName = "javaImplInfo")
     public Set<JavaImplInfo> getJavaImplInfos() {
         return javaImplInfos;
-    }
-
-    public void setVersion(final String version) {
-        this.version = version;
-    }
-
-    public void setBuildNumber(final String buildNumber) {
-        this.buildNumber = buildNumber;
     }
 
     public void setKeymasterConfParamOps(final String keymasterConfParamOps) {

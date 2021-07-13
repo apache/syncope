@@ -22,7 +22,9 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.time.Duration;
 import java.util.List;
+import java.util.stream.StreamSupport;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -39,7 +41,6 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.AttributeModifier;
@@ -97,13 +98,13 @@ public class BasePage extends BaseWebPage {
         body.add(new Label("username", username));
 
         // right sidebar
-        PlatformInfo platformInfo = SyncopeConsoleSession.get().getPlatformInfo();
-        Label version = new Label("version", platformInfo.getVersion());
-        String versionLink = StringUtils.isNotBlank(platformInfo.getBuildNumber())
-                && platformInfo.getVersion().endsWith("-SNAPSHOT")
+        Pair<String, String> gitAndBuildInfo = SyncopeConsoleSession.get().gitAndBuildInfo();
+        Label version = new Label("version", gitAndBuildInfo.getRight());
+        String versionLink = StringUtils.isNotBlank(gitAndBuildInfo.getLeft())
+                && gitAndBuildInfo.getRight().endsWith("-SNAPSHOT")
                 ? "https://gitbox.apache.org/repos/asf?p=syncope.git;a=commit;h="
-                + platformInfo.getBuildNumber()
-                : "https://cwiki.apache.org/confluence/display/SYNCOPE/Fusion";
+                + gitAndBuildInfo.getLeft()
+                : "https://cwiki.apache.org/confluence/display/SYNCOPE/Maggiore";
         version.add(new AttributeModifier("onclick", "window.open('" + versionLink + "', '_blank')"));
         body.add(version);
 
@@ -394,19 +395,16 @@ public class BasePage extends BaseWebPage {
         }
         // 4. when found, set CSS coordinates for menu
         if (containingLI != null) {
-            for (Component child : containingLI) {
-                if (child instanceof Link) {
-                    child.add(new Behavior() {
+            StreamSupport.stream(containingLI.spliterator(), false).filter(Link.class::isInstance).
+                    forEach(child -> child.add(new Behavior() {
 
-                        private static final long serialVersionUID = -5775607340182293596L;
+                private static final long serialVersionUID = -5775607340182293596L;
 
-                        @Override
-                        public void onComponentTag(final Component component, final ComponentTag tag) {
-                            tag.append("class", "active", " ");
-                        }
-                    });
+                @Override
+                public void onComponentTag(final Component component, final ComponentTag tag) {
+                    tag.append("class", "active", " ");
                 }
-            }
+            }));
 
             if (keymasterULContainer.getId().equals(containingLI.getParent().getId())) {
                 keymasterULContainer.add(new Behavior() {

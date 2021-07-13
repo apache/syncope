@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.pages;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.BaseLogin;
@@ -68,11 +67,6 @@ public class Login extends BaseLogin {
     @Override
     protected String getAnonymousUser() {
         return SyncopeWebApplication.get().getAnonymousUser();
-    }
-
-    @Override
-    protected List<Locale> getSupportedLocales() {
-        return SyncopeWebApplication.SUPPORTED_LOCALES;
     }
 
     @Override

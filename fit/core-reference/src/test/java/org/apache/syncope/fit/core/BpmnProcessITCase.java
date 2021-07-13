@@ -44,7 +44,7 @@ public class BpmnProcessITCase extends AbstractITCase {
     @BeforeAll
     public static void findDefault() {
         assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
 
         bpmnProcessService.list().stream().
                 filter(BpmnProcess::isUserWorkflow).findAny().
@@ -55,7 +55,7 @@ public class BpmnProcessITCase extends AbstractITCase {
     @BeforeEach
     public void check() {
         assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
     }
 
     @Test

@@ -494,6 +494,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertNotNull(schemaTO);
 
         ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        UserTO userTO = null;
         try {
             // 1. clone the LDAP resource and add some sensible mappings
             ProvisionTO provisionGroup =
@@ -522,7 +523,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             // 1. create group with the new resource assigned
             GroupCR groupCR = new GroupCR();
             groupCR.setName("SYNCOPEGROUP1473-" + getUUIDString());
-            groupCR.setRealm("/");
+            groupCR.setRealm(SyncopeConstants.ROOT_REALM);
             groupCR.getResources().add(ldap.getKey());
 
             GroupTO groupTO = createGroup(groupCR).getEntity();
@@ -534,7 +535,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             userCR.getResources().add(ldap.getKey());
             userCR.getMemberships().add(new MembershipTO.Builder(groupTO.getKey()).build());
 
-            UserTO userTO = createUser(userCR).getEntity();
+            userTO = createUser(userCR).getEntity();
             assertNotNull(userTO);
 
             // 3. check attributes prepared for propagation
@@ -571,6 +572,10 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         } finally {
             try {
                 resourceService.delete(ldap.getKey());
+                if (userTO != null) {
+                    userService.delete(userTO.getKey());
+                }
+                schemaService.delete(SchemaType.PLAIN, schemaTO.getKey());
             } catch (Exception ignore) {
                 // ignore
             }

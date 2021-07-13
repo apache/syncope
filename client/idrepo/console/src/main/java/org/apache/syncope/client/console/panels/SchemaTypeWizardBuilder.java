@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
@@ -163,7 +164,7 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
                         }
                     });
                     locale.setRequired(true).hideLabel();
-                    locale.setChoices(SyncopeWebApplication.SUPPORTED_LOCALES.stream().
+                    locale.setChoices(BaseLogin.SUPPORTED_LOCALES.stream().
                             map(Objects::toString).collect(Collectors.toList()));
                     locale.addValidator(validatable -> {
                         try {

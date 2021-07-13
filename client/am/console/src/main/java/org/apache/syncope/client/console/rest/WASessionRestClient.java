@@ -21,35 +21,44 @@ package org.apache.syncope.client.console.rest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.InputStream;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.syncope.common.lib.AMSession;
 
-public final class WASessionRestClient implements RestClient {
+public final class WASessionRestClient extends AMSessionRestClient {
 
     private static final long serialVersionUID = 22118820292494L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(WASessionRestClient.class);
+    private static final ObjectMapper MAPPER;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    static {
+        MAPPER = new ObjectMapper();
 
-    private static String getActuatorEndpoint(final List<NetworkService> waInstances) {
-        return waInstances.get(0).getAddress() + "/actuator/ssoSessions";
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(AMSession.class, new AMSessionDeserializer());
+        MAPPER.registerModule(module);
     }
 
-    public static List<WASession> list(final List<NetworkService> waInstances) {
+    public WASessionRestClient(final List<NetworkService> instances) {
+        super(instances);
+    }
+
+    @Override
+    protected String getActuatorEndpoint() {
+        return instances.get(0).getAddress() + "actuator/ssoSessions";
+    }
+
+    @Override
+    public List<AMSession> list() {
         try {
             Response response = WebClient.create(
-                    getActuatorEndpoint(waInstances),
+                    getActuatorEndpoint(),
                     SyncopeWebApplication.get().getAnonymousUser(),
                     SyncopeWebApplication.get().getAnonymousKey(),
                     null).
@@ -57,50 +66,18 @@ public final class WASessionRestClient implements RestClient {
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 JsonNode node = MAPPER.readTree((InputStream) response.getEntity());
                 if (node.has("activeSsoSessions")) {
-                    return MAPPER.readValue(
-                            MAPPER.treeAsTokens(node.get("activeSsoSessions")),
-                            new TypeReference<List<WASession>>() {
+                    return MAPPER.readValue(MAPPER.treeAsTokens(node.get("activeSsoSessions")),
+                            new TypeReference<List<AMSession>>() {
                     });
                 }
             } else {
                 LOG.error("Unexpected response for SSO Sessions from {}: {}",
-                        getActuatorEndpoint(waInstances), response.getStatus());
+                        getActuatorEndpoint(), response.getStatus());
             }
         } catch (Exception e) {
-            LOG.error("Could not fetch SSO Sessions from {}", getActuatorEndpoint(waInstances), e);
+            LOG.error("Could not fetch SSO Sessions from {}", getActuatorEndpoint(), e);
         }
 
         return List.of();
-    }
-
-    public static void delete(final List<NetworkService> waInstances, final String ticketGrantingTicket) {
-        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
-
-        try {
-            Response response = WebClient.create(
-                    getActuatorEndpoint(waInstances),
-                    SyncopeWebApplication.get().getAnonymousUser(),
-                    SyncopeWebApplication.get().getAnonymousKey(),
-                    null).
-                    path(ticketGrantingTicket).
-                    accept(MediaType.APPLICATION_JSON_TYPE).type(MediaType.APPLICATION_JSON_TYPE).delete();
-            if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-                LOG.error("Unexpected response when deleting SSO Session {} from {}: {}",
-                        ticketGrantingTicket, getActuatorEndpoint(waInstances), response.getStatus());
-                sce.getElements().add("Unexpected response code: " + response.getStatus());
-            }
-        } catch (Exception e) {
-            LOG.error("Could not delete SSO Session {} from {}",
-                    ticketGrantingTicket, getActuatorEndpoint(waInstances), e);
-            sce.getElements().add("Unexpected error: " + e.getMessage());
-        }
-
-        if (!sce.getElements().isEmpty()) {
-            throw sce;
-        }
-    }
-
-    private WASessionRestClient() {
-        // private constructor for static utility class
     }
 }

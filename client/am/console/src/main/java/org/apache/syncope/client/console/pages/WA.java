@@ -38,8 +38,9 @@ import org.apache.syncope.client.console.clientapps.ClientApps;
 import org.apache.syncope.client.console.panels.OIDC;
 import org.apache.syncope.client.console.panels.SAML2;
 import org.apache.syncope.client.console.panels.WAConfigDirectoryPanel;
-import org.apache.syncope.client.console.panels.WASessionPanel;
+import org.apache.syncope.client.console.panels.AMSessionPanel;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
+import org.apache.syncope.client.console.rest.WASessionRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -74,7 +75,7 @@ public class WA extends BasePage {
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
         body.setOutputMarkupId(true);
 
-        List<NetworkService> waInstances = serviceOps.list(NetworkService.Type.WA);
+        List<NetworkService> instances = serviceOps.list(NetworkService.Type.WA);
 
         AjaxLink<?> push = new AjaxLink<>("push") {
 
@@ -83,7 +84,6 @@ public class WA extends BasePage {
                 try {
                     WAConfigRestClient.push();
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                    target.add(body);
                 } catch (Exception e) {
                     LOG.error("While pushing to WA", e);
                     SyncopeConsoleSession.get().onException(e);
@@ -91,20 +91,19 @@ public class WA extends BasePage {
                 ((BaseWebPage) getPageReference().getPage()).getNotificationPanel().refresh(target);
             }
         };
-        push.setEnabled(!waInstances.isEmpty()
-                && SyncopeConsoleSession.get().owns(AMEntitlement.WA_CONFIG_PUSH));
+        push.setEnabled(!instances.isEmpty() && SyncopeConsoleSession.get().owns(AMEntitlement.WA_CONFIG_PUSH));
         body.add(push);
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
         AjaxBootstrapTabbedPanel<ITab> tabbedPanel =
-                new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(waInstances));
+                new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(instances));
         content.add(tabbedPanel);
 
         body.add(content);
 
-        if (!waInstances.isEmpty()) {
-            String actuatorEndpoint = waInstances.get(0).getAddress() + "/actuator/env";
+        if (!instances.isEmpty()) {
+            String actuatorEndpoint = instances.get(0).getAddress() + "actuator/env";
             try {
                 Response response = WebClient.create(
                         actuatorEndpoint,
@@ -134,8 +133,8 @@ public class WA extends BasePage {
         }
     }
 
-    private List<ITab> buildTabList(final List<NetworkService> waInstances) {
-        List<ITab> tabs = new ArrayList<>(0);
+    private List<ITab> buildTabList(final List<NetworkService> instances) {
+        List<ITab> tabs = new ArrayList<>();
 
         if (SyncopeConsoleSession.get().owns(AMEntitlement.AUTH_MODULE_LIST)) {
             tabs.add(new AbstractTab(new ResourceModel("authModules")) {
@@ -205,14 +204,15 @@ public class WA extends BasePage {
             });
         }
 
-        if (!waInstances.isEmpty() && SyncopeConsoleSession.get().owns(AMEntitlement.WA_SESSION_LIST)) {
+        if (!instances.isEmpty() && SyncopeConsoleSession.get().owns(AMEntitlement.WA_SESSION_LIST)) {
             tabs.add(new AbstractTab(new ResourceModel("sessions")) {
 
                 private static final long serialVersionUID = 5211692813425391144L;
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new WASessionPanel(panelId, waInstances, getPageReference());
+                    return new AMSessionPanel(panelId, new WASessionRestClient(instances),
+                            AMEntitlement.WA_SESSION_LIST, AMEntitlement.WA_SESSION_DELETE, getPageReference());
                 }
             });
         }

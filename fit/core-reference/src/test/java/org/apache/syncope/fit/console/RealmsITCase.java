@@ -34,7 +34,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
         TESTER.assertRenderedPage(Realms.class);
     }
 
@@ -65,7 +65,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
                 + "0:action:action", Constants.ON_CLICK);
 
         // remove the new realm just created
-        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:realmsLI:realms", false);
 
         TESTER.executeAjaxEvent(
                 "body:content:realmChoicePanel:container:realmsFragment:realms:btn", Constants.ON_CLICK);

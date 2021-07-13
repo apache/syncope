@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:extend>
+    <div class="brand-link bg-red brand-custom">
+      <span class="logo-mini">
+        <img aria-label="Apache Syncope Enduser" alt="Apache Syncope Enduser" src="ui-commons/img/logo-mini.png"/>
+      </span>
+      <span class="brand-text font-weight-light">Apache Syncope</span>
+    </div>
+    <section class="content" wicket:id="content">
+      <div class="box">
+        <div id="password_reset" class="container-fluid password_reset_wrapper">
+
+          <div class="row ">
+            <div class="col-md-6 mx-auto">
+
+              <div class="page-header">
+                <h1>
+                  <span wicket:id="resultTitle">[LABEL]</span>
+                </h1>
+
+              </div>
+              <fieldset class="enduser_fieldset">
+
+                <div class="form-group input-md">
+                  <span wicket:id="resultMessage">[LABEL]</span>
+                  <a wicket:id="login">
+                    <wicket:message key="login">[login]</wicket:message>
+                  </a>
+                </div>
+
+              </fieldset>
+
+              <span wicket:id="statusIcon"></span>
+              <wicket:fragment wicket:id="successIcon">
+                <svg class="checkmark_ok" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                  <circle class="checkmark_circle_ok" cx="26" cy="26" r="25" fill="none"/>
+                  <path class="checkmark_check_ok" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
+              </wicket:fragment>
+              <wicket:fragment wicket:id="errorIcon">
+                <svg class="checkmark_error" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                  <circle class="checkmark_circle_error" cx="26" cy="26" r="25" fill="none"/>
+                  <path class="checkmark_check_error" fill="none" d="M16 16 36 36 M36 16 16 36"/>
+                </svg>
+              </wicket:fragment>
+
+
+            </div>
+          </div> <!-- col -->
+        </div> <!-- row -->
+      </div>
+    </section>
+
+  </wicket:extend>
+</html>

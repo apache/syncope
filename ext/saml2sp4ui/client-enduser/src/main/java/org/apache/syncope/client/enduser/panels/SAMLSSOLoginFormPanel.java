@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.client.enduser.panels;
 
-import org.apache.syncope.client.ui.commons.panels.AbstractSAMLSSOLoginFormPanel;
 import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.client.ui.commons.panels.AbstractSAMLSSOLoginFormPanel;
 
 public class SAMLSSOLoginFormPanel extends AbstractSAMLSSOLoginFormPanel {
 
-    private static final long serialVersionUID = 6825891694497952535L;
+    private static final long serialVersionUID = -5252094098970677128L;
 
     public SAMLSSOLoginFormPanel(final String id, final BaseSession session) {
         super(id, session);
