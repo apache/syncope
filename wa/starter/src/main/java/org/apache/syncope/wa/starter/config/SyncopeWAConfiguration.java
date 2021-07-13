@@ -68,7 +68,7 @@ import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRepository;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.mfa.u2f.U2FCoreMultifactorAuthenticationProperties;
 import org.apereo.cas.oidc.jwks.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
@@ -90,7 +90,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration(value = "SyncopeWAConfiguration", proxyBeanMethods = true)
 public class SyncopeWAConfiguration {
 
     @Autowired
@@ -259,7 +261,7 @@ public class SyncopeWAConfiguration {
     @Bean
     public OneTimeTokenRepository oneTimeTokenAuthenticatorTokenRepository(final WARestClient restClient) {
         return new SyncopeWAGoogleMfaAuthTokenRepository(
-                restClient, casProperties.getAuthn().getMfa().getGauth().getTimeStepSize());
+                restClient, casProperties.getAuthn().getMfa().getGauth().getCore().getTimeStepSize());
     }
 
     @Autowired
@@ -291,7 +293,7 @@ public class SyncopeWAConfiguration {
     @Autowired
     @RefreshScope
     public U2FDeviceRepository u2fDeviceRepository(final WARestClient restClient) {
-        U2FMultifactorAuthenticationProperties u2f = casProperties.getAuthn().getMfa().getU2f();
+        U2FCoreMultifactorAuthenticationProperties u2f = casProperties.getAuthn().getMfa().getU2f().getCore();
         LocalDate expirationDate = LocalDate.now(ZoneId.systemDefault()).
                 minus(u2f.getExpireDevices(), DateTimeUtils.toChronoUnit(u2f.getExpireDevicesTimeUnit()));
         LoadingCache<String, String> requestStorage = Caffeine.newBuilder().

@@ -52,7 +52,7 @@ import org.apereo.cas.configuration.model.support.ldap.AbstractLdapAuthenticatio
 import org.apereo.cas.configuration.model.support.ldap.LdapAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.DuoSecurityMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.MultifactorAuthenticationProperties;
-import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.Pac4jDelegatedAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGenericOidcClientProperties;
@@ -206,14 +206,14 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             final String authModule,
             final GoogleMfaAuthModuleConf conf) {
 
-        GoogleAuthenticatorMultifactorAuthenticationProperties props =
-            new GoogleAuthenticatorMultifactorAuthenticationProperties();
+        GoogleAuthenticatorMultifactorProperties props =
+            new GoogleAuthenticatorMultifactorProperties();
         props.setName(authModule);
-        props.setIssuer(conf.getIssuer());
-        props.setCodeDigits(conf.getCodeDigits());
-        props.setLabel(conf.getLabel());
-        props.setTimeStepSize(conf.getTimeStepSize());
-        props.setWindowSize(conf.getWindowSize());
+        props.getCore().setIssuer(conf.getIssuer());
+        props.getCore().setCodeDigits(conf.getCodeDigits());
+        props.getCore().setLabel(conf.getLabel());
+        props.getCore().setTimeStepSize(conf.getTimeStepSize());
+        props.getCore().setWindowSize(conf.getWindowSize());
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
         casProperties.getAuthn().getMfa().setGauth(props);
@@ -239,10 +239,10 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
 
         U2FMultifactorAuthenticationProperties props = new U2FMultifactorAuthenticationProperties();
         props.setName(authModule);
-        props.setExpireDevices(conf.getExpireDevices());
-        props.setExpireDevicesTimeUnit(TimeUnit.valueOf(conf.getExpireDevicesTimeUnit()));
-        props.setExpireRegistrations(conf.getExpireRegistrations());
-        props.setExpireRegistrationsTimeUnit(TimeUnit.valueOf(conf.getExpireRegistrationsTimeUnit()));
+        props.getCore().setExpireDevices(conf.getExpireDevices());
+        props.getCore().setExpireDevicesTimeUnit(TimeUnit.valueOf(conf.getExpireDevicesTimeUnit()));
+        props.getCore().setExpireRegistrations(conf.getExpireRegistrations());
+        props.getCore().setExpireRegistrationsTimeUnit(TimeUnit.valueOf(conf.getExpireRegistrationsTimeUnit()));
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
         casProperties.getAuthn().getMfa().setU2f(props);

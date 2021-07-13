@@ -163,6 +163,11 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
     }
 
     @Override
+    public void delete(final long id) {
+        waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).delete(id);
+    }
+
+    @Override
     public long count() {
         return waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).list().getTotalCount();
     }

@@ -36,6 +36,10 @@ under the License.
     <asyncLogger name="org.apache.syncope.fit" additivity="false" level="DEBUG">
       <appender-ref ref="main"/>
     </asyncLogger>
+
+    <asyncLogger name="org.apereo.cas" additivity="false" level="DEBUG">
+      <appender-ref ref="main"/>
+    </asyncLogger>
     
     <asyncLogger name="org.springframework" additivity="false" level="INFO">
       <appender-ref ref="main"/>
