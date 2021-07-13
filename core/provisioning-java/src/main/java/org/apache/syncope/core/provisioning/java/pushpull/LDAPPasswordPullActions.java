@@ -19,10 +19,11 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 import javax.xml.bind.DatatypeConverter;
-import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -30,7 +31,13 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
+import org.identityconnectors.common.security.GuardedString;
+import org.identityconnectors.common.security.SecurityUtil;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -49,49 +56,28 @@ public class LDAPPasswordPullActions implements PullActions {
     @Autowired
     protected UserDAO userDAO;
 
-    protected String encodedPassword;
-
-    protected CipherAlgorithm cipher;
-
-    @Transactional(readOnly = true)
     @Override
-    public void beforeProvision(
-            final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
-            final EntityTO entity) throws JobExecutionException {
-
-        if (entity instanceof UserTO) {
-            String password = ((UserTO) entity).getPassword();
-            parseEncodedPassword(password);
+    public Set<String> moreAttrsToGet(final ProvisioningProfile<?, ?> profile, final Provision provision) {
+        if (AnyTypeKind.USER == provision.getAnyType().getKind()) {
+            return Collections.singleton(OperationalAttributes.PASSWORD_NAME);
         }
+        return PullActions.super.moreAttrsToGet(profile, provision);
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public <M extends AnyPatch> void beforeUpdate(
-            final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
-            final EntityTO entityTO,
-            final M anyPatch) throws JobExecutionException {
-
-        if (anyPatch instanceof UserPatch) {
-            PasswordPatch modPassword = ((UserPatch) anyPatch).getPassword();
-            parseEncodedPassword(modPassword == null ? null : modPassword.getValue());
-        }
-    }
-
-    protected void parseEncodedPassword(final String password) {
+    private static Optional<Pair<String, CipherAlgorithm>> parseEncodedPassword(final String password) {
         if (password != null && password.startsWith("{")) {
+            String digest = Optional.ofNullable(
+                    password.substring(1, password.indexOf('}'))).map(String::toUpperCase).
+                    orElse(null);
             int closingBracketIndex = password.indexOf('}');
-            String digest = password.substring(1, closingBracketIndex).toUpperCase();
             try {
-                encodedPassword = password.substring(closingBracketIndex + 1);
-                cipher = CipherAlgorithm.valueOf(digest);
+                return Optional.of(
+                        Pair.of(password.substring(closingBracketIndex + 1), CipherAlgorithm.valueOf(digest)));
             } catch (IllegalArgumentException e) {
                 LOG.error("Cipher algorithm not allowed: {}", digest, e);
-                encodedPassword = null;
             }
         }
+        return Optional.empty();
     }
 
     @Transactional
@@ -102,16 +88,19 @@ public class LDAPPasswordPullActions implements PullActions {
             final EntityTO entity,
             final ProvisioningReport result) throws JobExecutionException {
 
-        if (entity instanceof UserTO && encodedPassword != null && cipher != null) {
+        if (entity instanceof UserTO) {
             User user = userDAO.find(entity.getKey());
             if (user != null) {
-                byte[] encodedPasswordBytes = Base64.getDecoder().decode(encodedPassword.getBytes());
-                String encodedHexStr = DatatypeConverter.printHexBinary(encodedPasswordBytes).toUpperCase();
+                GuardedString passwordAttr = AttributeUtil.getPasswordValue(delta.getObject().getAttributes());
+                if (passwordAttr != null) {
+                    parseEncodedPassword(SecurityUtil.decrypt(passwordAttr)).ifPresent(encoded -> {
+                        byte[] encodedPasswordBytes = Base64.getDecoder().decode(encoded.getLeft().getBytes());
+                        String encodedHexStr = DatatypeConverter.printHexBinary(encodedPasswordBytes).toUpperCase();
 
-                user.setEncodedPassword(encodedHexStr, cipher);
+                        user.setEncodedPassword(encodedHexStr, encoded.getRight());
+                    });
+                }
             }
-            encodedPassword = null;
-            cipher = null;
         }
     }
 }

@@ -20,12 +20,10 @@ package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.Base64;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -89,33 +87,26 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
         }
     }
 
-    private String getCipherAlgorithm(final ConnInstance connInstance) {
-        Optional<ConnConfProperty> cipherAlgorithm = connInstance.getConf().stream().
+    private static String getCipherAlgorithm(final ConnInstance connInstance) {
+        return connInstance.getConf().stream().
                 filter(property -> "passwordHashAlgorithm".equals(property.getSchema().getName())
-                && property.getValues() != null && !property.getValues().isEmpty()).findFirst();
-
-        return cipherAlgorithm.isPresent()
-                ? (String) cipherAlgorithm.get().getValues().get(0)
-                : CLEARTEXT;
+                && property.getValues() != null && !property.getValues().isEmpty()).findFirst().
+                map(cipherAlgorithm -> (String) cipherAlgorithm.getValues().get(0)).
+                orElse(CLEARTEXT);
     }
 
-    private boolean cipherAlgorithmMatches(final String connectorAlgorithm, final CipherAlgorithm userAlgorithm) {
-        if (userAlgorithm == null) {
+    private static boolean cipherAlgorithmMatches(final String connectorAlgo, final CipherAlgorithm userAlgo) {
+        if (userAlgo == null) {
             return false;
         }
 
-        if (connectorAlgorithm.equals(userAlgorithm.name())) {
+        if (connectorAlgo.equals(userAlgo.name())) {
             return true;
         }
 
         // Special check for "SHA" and "SSHA" (user pulled from LDAP)
-        if (("SHA".equals(connectorAlgorithm) && userAlgorithm.name().startsWith("SHA"))
-                || ("SSHA".equals(connectorAlgorithm) && userAlgorithm.name().startsWith("SSHA"))) {
-
-            return true;
-        }
-
-        return false;
+        return ("SHA".equals(connectorAlgo) && userAlgo.name().startsWith("SHA"))
+                || ("SSHA".equals(connectorAlgo) && userAlgo.name().startsWith("SSHA"));
     }
 
 }

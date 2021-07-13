@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
-import org.apache.syncope.common.lib.patch.PasswordPatch;
-import org.apache.syncope.common.lib.patch.UserPatch;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -34,18 +34,23 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
+import org.identityconnectors.common.security.GuardedString;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.junit.jupiter.api.BeforeEach;
+import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.identityconnectors.framework.common.objects.SyncToken;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.quartz.JobExecutionException;
-import org.springframework.test.util.ReflectionTestUtils;
 
 public class LDAPPasswordPullActionsTest extends AbstractTest {
-
-    @Mock
-    private SyncDelta syncDelta;
 
     @Mock
     private ProvisioningProfile<?, ?> profile;
@@ -57,66 +62,37 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
     private ProvisioningReport result;
 
     @InjectMocks
-    private LDAPPasswordPullActions ldapPasswordPullActions;
-
-    private UserTO userTO;
-
-    private UserPatch userPatch;
-
-    private String encodedPassword;
-
-    private CipherAlgorithm cipher;
-
-    @BeforeEach
-    public void initTest() {
-        userTO = new UserTO();
-        encodedPassword = "s3cureP4ssw0rd";
-        cipher = CipherAlgorithm.SHA512;
-
-        ReflectionTestUtils.setField(ldapPasswordPullActions, "encodedPassword", encodedPassword);
-        ReflectionTestUtils.setField(ldapPasswordPullActions, "cipher", cipher);
-    }
-
-    @Test
-    public void beforeProvision() throws JobExecutionException {
-        String digest = "SHA256";
-        String password = "t3stPassw0rd";
-        userTO.setPassword(String.format("{%s}%s", digest, password));
-
-        ldapPasswordPullActions.beforeProvision(profile, syncDelta, userTO);
-
-        assertEquals(CipherAlgorithm.valueOf(digest), ReflectionTestUtils.getField(ldapPasswordPullActions, "cipher"));
-        assertEquals(password, ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
-    }
-
-    @Test
-    public void beforeUpdate() throws JobExecutionException {
-        userPatch = new UserPatch();
-        userPatch.setPassword(new PasswordPatch.Builder().value("{MD5}an0therTestP4ss").build());
-
-        ldapPasswordPullActions.beforeUpdate(profile, syncDelta, userTO, userPatch);
-
-        assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
-    }
+    private LDAPPasswordPullActions actions;
 
     @Test
     public void afterWithNullUser() throws JobExecutionException {
+        UserTO userTO = new UserTO();
+        userTO.setKey(UUID.randomUUID().toString());
         when(userDAO.find(userTO.getKey())).thenReturn(null);
 
-        ldapPasswordPullActions.after(profile, syncDelta, userTO, result);
-
-        assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
-        assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "cipher"));
+        assertDoesNotThrow(() -> actions.after(profile, null, userTO, result));
     }
 
     @Test
     public void after(@Mock User user) throws JobExecutionException {
+        UserTO userTO = new UserTO();
+        userTO.setKey(UUID.randomUUID().toString());
         when(userDAO.find(userTO.getKey())).thenReturn(user);
 
-        ldapPasswordPullActions.after(profile, syncDelta, userTO, result);
+        Set<Attribute> attributes = new HashSet<>();
+        attributes.add(new Uid(UUID.randomUUID().toString()));
+        attributes.add(new Name(UUID.randomUUID().toString()));
+        attributes.add(AttributeBuilder.buildPassword(
+                new GuardedString("{SSHA}4AwQq1UVDwubSXmR4pnmLsoVR6U2Z7R55kwxRA==".toCharArray())));
+        SyncDelta delta = new SyncDeltaBuilder().
+                setToken(new SyncToken("sample-token")).
+                setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
+                setUid(new Uid(UUID.randomUUID().toString())).
+                setObject(new ConnectorObject(ObjectClass.ACCOUNT, attributes)).
+                build();
+
+        actions.after(profile, delta, userTO, result);
 
         verify(user).setEncodedPassword(anyString(), any(CipherAlgorithm.class));
-        assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "encodedPassword"));
-        assertNull(ReflectionTestUtils.getField(ldapPasswordPullActions, "cipher"));
     }
 }
