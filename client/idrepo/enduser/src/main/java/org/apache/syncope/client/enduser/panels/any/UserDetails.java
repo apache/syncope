@@ -47,15 +47,8 @@ public class UserDetails extends Details<UserTO> {
 
     protected final UserTO userTO;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public UserDetails(
-            final String id,
-            final UserWrapper wrapper,
-            final boolean templateMode,
-            final boolean includeStatusPanel,
-            final PageReference pageRef) {
-
-        super(id, wrapper, templateMode, includeStatusPanel, pageRef);
+    public UserDetails(final String id, final UserWrapper wrapper, final PageReference pageRef) {
+        super(id, pageRef);
 
         userTO = wrapper.getInnerObject();
         // ------------------------
@@ -68,11 +61,7 @@ public class UserDetails extends Details<UserTO> {
             username.showExternAction(new LabelInfo("externalAction", wrapper.getPreviousUserTO().getUsername()));
         }
 
-        if (templateMode) {
-            username.enableJexlHelp();
-        } else {
-            username.addRequiredLabel();
-        }
+        username.addRequiredLabel();
         add(username);
         // ------------------------
 
@@ -91,18 +80,14 @@ public class UserDetails extends Details<UserTO> {
 
         private static final long serialVersionUID = -8198836979773590078L;
 
-        protected EditUserPasswordPanel(
-                final String id,
-                final UserWrapper wrapper,
-                final boolean templateMode) {
-
+        protected EditUserPasswordPanel(final String id, final UserWrapper wrapper) {
             super(id);
             setOutputMarkupId(true);
             add(new Label("warning", new ResourceModel("password.change.warning")));
             add(new PasswordPanel(
                     "passwordPanel",
                     wrapper,
-                    templateMode,
+                    false,
                     wrapper.getInnerObject().getKey() == null,
                     new PasswordStrengthBehavior(new PasswordStrengthConfig().
                             withDebug(false).

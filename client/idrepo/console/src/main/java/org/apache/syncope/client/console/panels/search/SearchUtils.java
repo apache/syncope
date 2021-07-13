@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -220,7 +219,7 @@ public final class SearchUtils implements Serializable {
             final List<SearchClause> clauses,
             final AbstractFiqlSearchConditionBuilder<?, ?, ?> builder) {
 
-        return buildFIQL(clauses, builder, Collections.emptyMap(), NO_CUSTOM_CONDITION);
+        return buildFIQL(clauses, builder, Map.of(), NO_CUSTOM_CONDITION);
     }
 
     public static String buildFIQL(

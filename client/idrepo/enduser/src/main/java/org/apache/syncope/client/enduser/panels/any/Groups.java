@@ -30,7 +30,6 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -61,10 +60,7 @@ public class Groups extends Panel {
 
     protected WebMarkupContainer groupsContainer;
 
-    public <T extends AnyTO> Groups(final String id,
-            final AnyWrapper<T> modelObject,
-            final boolean templateMode) {
-
+    public <T extends AnyTO> Groups(final String id, final AnyWrapper<T> modelObject) {
         super(id);
         this.anyTO = modelObject.getInnerObject();
 
@@ -215,7 +211,7 @@ public class Groups extends Panel {
 
         @Override
         public List<String> getDynMemberships() {
-            return Collections.emptyList();
+            return List.of();
         }
 
         /**

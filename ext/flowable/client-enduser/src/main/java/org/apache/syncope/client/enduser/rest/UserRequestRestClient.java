@@ -49,11 +49,12 @@ public class UserRequestRestClient extends BaseRestClient {
             final int size,
             final String username,
             final SortParam<String> sort) {
+
         return getService(UserRequestService.class).listRequests(new UserRequestQuery.Builder().
                 user(StringUtils.isBlank(username)
                         ? SyncopeEnduserSession.get().getSelfTO().getUsername()
                         : username).
-                page(page).size(size).build()).getResult();
+                page(page).size(size).orderBy(toOrderBy(sort)).build()).getResult();
     }
 
     public static void cancelRequest(final String executionId, final String reason) {

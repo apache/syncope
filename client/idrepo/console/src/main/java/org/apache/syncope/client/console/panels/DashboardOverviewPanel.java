@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.client.console.rest.SyncopeRestClient;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.widgets.AnyByRealmWidget;
 import org.apache.syncope.client.console.widgets.CompletenessWidget;
@@ -57,7 +57,7 @@ public class DashboardOverviewPanel extends Panel {
     public DashboardOverviewPanel(final String id) {
         super(id);
 
-        NumbersInfo numbers = SyncopeRestClient.numbers();
+        NumbersInfo numbers = SyncopeConsoleSession.get().getAnonymousClient().numbers();
 
         WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
@@ -97,7 +97,7 @@ public class DashboardOverviewPanel extends Panel {
                 numbers.getAny2ByRealm());
         container.add(anyByRealm);
 
-        load = new LoadWidget("load", SyncopeRestClient.system());
+        load = new LoadWidget("load", SyncopeConsoleSession.get().getAnonymousClient().system());
         container.add(load);
 
         container.add(new IndicatorAjaxTimerBehavior(Duration.of(60, ChronoUnit.SECONDS)) {
@@ -106,7 +106,7 @@ public class DashboardOverviewPanel extends Panel {
 
             @Override
             protected void onTimer(final AjaxRequestTarget target) {
-                NumbersInfo numbers = SyncopeRestClient.numbers();
+                NumbersInfo numbers = SyncopeConsoleSession.get().getAnonymousClient().numbers();
 
                 if (totalUsers.refresh(numbers.getTotalUsers())) {
                     target.add(totalUsers);
@@ -143,7 +143,7 @@ public class DashboardOverviewPanel extends Panel {
                     target.add(anyByRealm);
                 }
 
-                load.refresh(SyncopeRestClient.system());
+                load.refresh(SyncopeConsoleSession.get().getAnonymousClient().system());
                 target.add(load);
             }
         });

@@ -23,6 +23,7 @@ import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
+import org.apache.syncope.client.ui.commons.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
@@ -34,7 +35,10 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
 
+@PropertySource("classpath:enduser.properties")
+@PropertySource(value = "file:${console.directory}/enduser.properties", ignoreResourceNotFound = true)
 @SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
     HttpMessageConvertersAutoConfiguration.class })
@@ -51,18 +55,14 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    public KeymasterStart keymasterStart() {
-        return new KeymasterStart(NetworkService.Type.ENDUSER);
-    }
-
-    @Bean
-    public KeymasterStop keymasterStop() {
-        return new KeymasterStop(NetworkService.Type.ENDUSER);
-    }
-
-    @Bean
     public ApplicationContextProvider applicationContextProvider() {
         return new ApplicationContextProvider();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator() {
+        return new SyncopeCoreHealthIndicator();
     }
 
     @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")
@@ -85,5 +85,15 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
     @Bean
     public PreviewUtils previewUtils() {
         return new PreviewUtils();
+    }
+
+    @Bean
+    public KeymasterStart keymasterStart() {
+        return new KeymasterStart(NetworkService.Type.ENDUSER);
+    }
+
+    @Bean
+    public KeymasterStop keymasterStop() {
+        return new KeymasterStop(NetworkService.Type.ENDUSER);
     }
 }

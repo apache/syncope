@@ -94,7 +94,7 @@ public class ResourceITCase extends AbstractITCase {
 
     @Test
     public void getPropagationActionsClasses() {
-        Set<String> actions = syncopeService.platform().
+        Set<String> actions = adminClient.platform().
                 getJavaImplInfo(IdMImplementationType.PROPAGATION_ACTIONS).get().getClasses();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());

@@ -141,7 +141,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void getPullActionsClasses() {
-        Set<String> actions = syncopeService.platform().
+        Set<String> actions = adminClient.platform().
                 getJavaImplInfo(IdMImplementationType.PULL_ACTIONS).get().getClasses();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
@@ -188,7 +188,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void fromCSV() throws Exception {
-        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(syncopeService));
+        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform()));
 
         removeTestUsers();
 
@@ -261,7 +261,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             UserTO userTO = userService.read(inUserTO.getKey());
             assertNotNull(userTO);
             assertEquals(userName, userTO.getUsername());
-            assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(syncopeService)
+            assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform())
                     ? "active" : "created", userTO.getStatus());
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("email").get().getValues().get(0));
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("userId").get().getValues().get(0));
@@ -563,7 +563,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 4. pull
             execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
 
-            if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {

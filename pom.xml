@@ -406,7 +406,7 @@ under the License.
 
     <cxf.version>3.4.4</cxf.version>
     <bouncycastle.version>1.69</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.10.1</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.11</nimbus-jose-jwt.version>
 
     <jackson.version>2.12.4</jackson.version>
 
@@ -473,7 +473,7 @@ under the License.
     <chartjs.version>1.0.2</chartjs.version>
 
     <wicket.version>9.4.0</wicket.version>
-    <wicketstuff.version>9.3.0</wicketstuff.version>
+    <wicketstuff.version>9.4.0</wicketstuff.version>
     <wicket-jqueryui.version>9.3.2</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.5</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
@@ -902,6 +902,22 @@ under the License.
           <exclusion>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-parameter-names</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+        <version>${spring-boot.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -2155,6 +2171,25 @@ under the License.
         </plugin>
 
         <plugin>
+          <groupId>io.github.git-commit-id</groupId>
+          <artifactId>git-commit-id-maven-plugin</artifactId>
+          <version>5.0.0</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>revision</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <verbose>true</verbose>
+            <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+            <generateGitPropertiesFile>true</generateGitPropertiesFile>
+            <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+          </configuration>
+        </plugin>
+
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>3.3.0</version>
@@ -2359,12 +2394,6 @@ under the License.
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
           <version>3.3.0</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>buildnumber-maven-plugin</artifactId>
-          <version>1.4</version>
         </plugin>
 
         <plugin>

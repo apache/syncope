@@ -42,6 +42,7 @@ import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -190,9 +191,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             }, ActionType.PASSWORD_MANAGEMENT, IdRepoEntitlement.USER_UPDATE).
                     setRealms(realm, model.getObject().getDynRealms());
 
-            if (SyncopeConsoleSession.get().getPlatformInfo().isPwdResetAllowed()
-                    && !SyncopeConsoleSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions()) {
-
+            PlatformInfo platformInfo = SyncopeConsoleSession.get().getAnonymousClient().platform();
+            if (platformInfo.isPwdResetAllowed() && !platformInfo.isPwdResetRequiringSecurityQuestions()) {
                 panel.add(new ActionLink<UserTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;

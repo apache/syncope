@@ -33,7 +33,6 @@ import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
@@ -119,8 +118,8 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
                         SyncopeWebApplication.get().getAnonymousUser(),
                         SyncopeWebApplication.get().getAnonymousKey()));
 
-        platformInfo = getAnonymousService(SyncopeService.class).platform();
-        systemInfo = getAnonymousService(SyncopeService.class).system();
+        platformInfo = anonymousClient.platform();
+        systemInfo = anonymousClient.system();
 
         executor = new ThreadPoolTaskExecutor();
         executor.setWaitForTasksToCompleteOnShutdown(false);
@@ -175,10 +174,6 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     public MediaType getMediaType() {
         return clientFactory.getContentType().getMediaType();
-    }
-
-    public SyncopeClient getAnonymousClient() {
-        return anonymousClient;
     }
 
     public void execute(final Runnable command) {
@@ -320,6 +315,16 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         return selfTO;
     }
 
+    @Override
+    public SyncopeClient getAnonymousClient() {
+        return anonymousClient;
+    }
+
+    @Override
+    public <T> T getAnonymousService(final Class<T> serviceClass) {
+        return getService(serviceClass);
+    }
+
     @SuppressWarnings("unchecked")
     private <T> T getCachedService(final Class<T> serviceClass) {
         T service;
@@ -362,10 +367,5 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     @Override
     public FastDateFormat getDateFormat() {
         return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale());
-    }
-
-    @Override
-    public <T> T getAnonymousService(final Class<T> serviceClass) {
-        return getAnonymousClient().getService(serviceClass);
     }
 }

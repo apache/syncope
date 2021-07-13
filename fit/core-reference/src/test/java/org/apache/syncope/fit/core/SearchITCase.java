@@ -171,7 +171,7 @@ public class SearchITCase extends AbstractITCase {
         GroupTO group = createGroup(groupCR).getEntity();
         assertNotNull(group);
 
-        if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -229,7 +229,7 @@ public class SearchITCase extends AbstractITCase {
         role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
         assertNotNull(role);
 
-        if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -298,7 +298,7 @@ public class SearchITCase extends AbstractITCase {
     public void searchByDate() {
         clientFactory.create("bellini", "password").self();
 
-        if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -649,7 +649,7 @@ public class SearchITCase extends AbstractITCase {
                     build();
             updateAnyObject(anyObjectUR);
 
-            if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
@@ -688,7 +688,7 @@ public class SearchITCase extends AbstractITCase {
         req.getPlainAttrs().add(new AttrPatch.Builder(attr("ctype", "ou=sample,o=isp")).build());
         userService.update(req);
 
-        if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -753,7 +753,7 @@ public class SearchITCase extends AbstractITCase {
             userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getUserSearchConditionBuilder().is("userId").equalTo("*@apache.org").query()).
                     orderBy(SyncopeClient.getOrderByClauseBuilder().asc("surname").desc("firstname").build()).build());
-            if (!ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            if (!ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
                 fail();
             }
         } catch (SyncopeClientException e) {

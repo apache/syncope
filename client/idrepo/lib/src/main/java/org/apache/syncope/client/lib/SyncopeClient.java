@@ -20,16 +20,21 @@ package org.apache.syncope.client.lib;
 
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.Client;
@@ -41,6 +46,9 @@ import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.info.NumbersInfo;
+import org.apache.syncope.common.lib.info.PlatformInfo;
+import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.ConnObjectTOFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
@@ -60,19 +68,19 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
  */
 public class SyncopeClient {
 
-    private static final String HEADER_SPLIT_PROPERTY = "org.apache.cxf.http.header.split";
+    protected static final String HEADER_SPLIT_PROPERTY = "org.apache.cxf.http.header.split";
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final MediaType mediaType;
+    protected final MediaType mediaType;
 
-    private final JAXRSClientFactoryBean restClientFactory;
+    protected final JAXRSClientFactoryBean restClientFactory;
 
-    private final RestClientExceptionMapper exceptionMapper;
+    protected final RestClientExceptionMapper exceptionMapper;
 
-    private final boolean useCompression;
+    protected final boolean useCompression;
 
-    private final TLSClientParameters tlsClientParameters;
+    protected final TLSClientParameters tlsClientParameters;
 
     public SyncopeClient(
             final MediaType mediaType,
@@ -134,6 +142,54 @@ public class SyncopeClient {
         restClientFactory.getHeaders().remove(RESTHeaders.DELEGATED_BY);
         restClientFactory.setUsername(null);
         restClientFactory.setPassword(null);
+    }
+
+    protected JsonNode info() throws IOException {
+        WebClient webClient = WebClient.create(
+                restClientFactory.getAddress().replace("/rest", "/actuator/info")).
+                accept(MediaType.APPLICATION_JSON_TYPE).
+                header(RESTHeaders.DOMAIN, getDomain());
+
+        Optional.ofNullable(getJWT()).ifPresentOrElse(
+                jwt -> webClient.header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt),
+                () -> webClient.header(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString(
+                        (restClientFactory.getUsername() + ":" + restClientFactory.getPassword()).getBytes())));
+
+        return OBJECT_MAPPER.readTree((InputStream) webClient.get().getEntity());
+    }
+
+    public Pair<String, String> gitAndBuildInfo() {
+        try {
+            return Pair.of(
+                    info().get("git").get("commit").get("id").asText(),
+                    info().get("build").get("version").asText());
+        } catch (IOException e) {
+            throw new RuntimeException("While getting build and git Info", e);
+        }
+    }
+
+    public PlatformInfo platform() {
+        try {
+            return OBJECT_MAPPER.treeToValue(info().get("platform"), PlatformInfo.class);
+        } catch (IOException e) {
+            throw new RuntimeException("While getting Platform Info", e);
+        }
+    }
+
+    public SystemInfo system() {
+        try {
+            return OBJECT_MAPPER.treeToValue(info().get("system"), SystemInfo.class);
+        } catch (IOException e) {
+            throw new RuntimeException("While getting System Info", e);
+        }
+    }
+
+    public NumbersInfo numbers() {
+        try {
+            return OBJECT_MAPPER.treeToValue(info().get("numbers"), NumbersInfo.class);
+        } catch (IOException e) {
+            throw new RuntimeException("While getting Numbers Info", e);
+        }
     }
 
     /**
@@ -373,7 +429,7 @@ public class SyncopeClient {
      * @param ifNot if true then {@code If-None-Match} is set, {@code If-Match} otherwise
      * @return given service instance, with {@code If-Match} or {@code If-None-Match} set
      */
-    private static <T> T match(final T service, final EntityTag etag, final boolean ifNot) {
+    protected static <T> T match(final T service, final EntityTag etag, final boolean ifNot) {
         WebClient.client(service).match(etag, ifNot);
         return service;
     }

@@ -220,7 +220,7 @@ public class KeymasterITCase extends AbstractITCase {
 
         domainOps.create(new Domain.Builder(key).
                 jdbcDriver("org.h2.Driver").
-                jdbcURL("jdbc:h2:mem:syncopetest;DB_CLOSE_DELAY=-1").
+                jdbcURL("jdbc:h2:mem:syncopetest" + key + ";DB_CLOSE_DELAY=-1").
                 dbUsername("sa").
                 dbPassword("").
                 databasePlatform("org.apache.openjpa.jdbc.sql.H2Dictionary").
@@ -282,7 +282,7 @@ public class KeymasterITCase extends AbstractITCase {
         assertNotNull(user);
         assertEquals("monteverdi", user.getUsername());
 
-        if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {

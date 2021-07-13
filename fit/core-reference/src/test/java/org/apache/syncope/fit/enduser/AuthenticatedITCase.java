@@ -113,7 +113,7 @@ public class AuthenticatedITCase extends AbstractEnduserITCase {
 
         TESTER.assertRenderedPage(SelfResult.class);
 
-        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(SYNCOPE_SERVICE)
+        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform())
                 ? "active" : "created", userService.read(username).getStatus());
         assertEquals(newEmail, userService.read(username).getPlainAttr("email").get().getValues().get(0));
 

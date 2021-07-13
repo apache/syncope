@@ -68,7 +68,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void getPushActionsClasses() {
-        Set<String> actions = syncopeService.platform().
+        Set<String> actions = adminClient.platform().
                 getJavaImplInfo(IdMImplementationType.PUSH_ACTIONS).get().getClasses();
         assertNotNull(actions);
     }

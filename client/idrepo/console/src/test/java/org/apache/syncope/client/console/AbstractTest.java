@@ -34,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.syncope.client.console.AbstractTest.TestSyncopeWebApplication.SyncopeServiceClient;
@@ -64,11 +64,11 @@ import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
-import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -203,14 +203,6 @@ public abstract class AbstractTest {
             when(service.type(anyString())).thenReturn(service);
             when(service.accept(anyString())).thenReturn(service);
 
-            when(service.platform()).thenReturn(new PlatformInfo());
-            when(service.system()).thenReturn(new SystemInfo());
-
-            NumbersInfo numbersInfo = new NumbersInfo();
-            Stream.of(NumbersInfo.ConfItem.values()).
-                    forEach(item -> numbersInfo.getConfCompleteness().put(item.name(), true));
-            when(service.numbers()).thenReturn(numbersInfo);
-
             return service;
         }
 
@@ -255,6 +247,34 @@ public abstract class AbstractTest {
             SyncopeClient client = mock(SyncopeClient.class);
 
             when(client.self()).thenReturn(Triple.of(new HashMap<>(), List.of(), getUserTO()));
+
+            when(client.gitAndBuildInfo()).thenReturn(Pair.of("", ""));
+            when(client.platform()).thenReturn(new PlatformInfo());
+            when(client.numbers()).thenAnswer(ic -> {
+                NumbersInfo numbersInfo = new NumbersInfo();
+
+                numbersInfo.getConfCompleteness().put(
+                        NumbersInfo.ConfItem.RESOURCE.name(), numbersInfo.getTotalResources() > 0);
+                numbersInfo.getConfCompleteness().put(
+                        NumbersInfo.ConfItem.ACCOUNT_POLICY.name(), false);
+                numbersInfo.getConfCompleteness().put(
+                        NumbersInfo.ConfItem.PASSWORD_POLICY.name(), false);
+                numbersInfo.getConfCompleteness().put(
+                        NumbersInfo.ConfItem.NOTIFICATION.name(), false);
+                numbersInfo.getConfCompleteness().put(
+                        NumbersInfo.ConfItem.PULL_TASK.name(), false);
+                numbersInfo.getConfCompleteness().put(
+                        NumbersInfo.ConfItem.VIR_SCHEMA.name(), false);
+                numbersInfo.getConfCompleteness().put(
+                        NumbersInfo.ConfItem.ANY_TYPE.name(), false);
+                numbersInfo.getConfCompleteness().put(
+                        NumbersInfo.ConfItem.SECURITY_QUESTION.name(), false);
+                numbersInfo.getConfCompleteness().put(
+                        NumbersInfo.ConfItem.ROLE.name(), numbersInfo.getTotalRoles() > 0);
+
+                return numbersInfo;
+            });
+            when(client.system()).thenReturn(new SystemInfo());
 
             SyncopeService syncopeService = getSyncopeService();
             when(client.getService(SyncopeService.class)).thenReturn(syncopeService);

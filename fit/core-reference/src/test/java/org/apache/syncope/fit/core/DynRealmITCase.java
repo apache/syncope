@@ -150,7 +150,7 @@ public class DynRealmITCase extends AbstractITCase {
             assertNotNull(group);
             final String groupKey = group.getKey();
 
-            if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
@@ -271,7 +271,7 @@ public class DynRealmITCase extends AbstractITCase {
             assertNotNull(user.getKey());
 
             // 4a. check that Elasticsearch index was updated correctly
-            if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
@@ -293,7 +293,7 @@ public class DynRealmITCase extends AbstractITCase {
             dynRealmService.update(dynRealm);
 
             // 6a. check that Elasticsearch index was updated correctly
-            if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {

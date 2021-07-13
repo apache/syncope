@@ -49,10 +49,12 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 public abstract class AbstractConsoleITCase extends AbstractUITCase {
 
     @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
+    @PropertySource("classpath:console.properties")
     @Configuration
     public static class SyncopeConsoleWebApplicationTestConfig {
 

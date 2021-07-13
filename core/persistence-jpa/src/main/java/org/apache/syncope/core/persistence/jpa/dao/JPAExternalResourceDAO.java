@@ -84,6 +84,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     @Autowired
     private RealmDAO realmDAO;
 
+    @Transactional(readOnly = true)
     @Override
     public int count() {
         Query query = entityManager().createQuery(
@@ -173,9 +174,10 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         return query.getResultList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ExternalResource> findAll() {
-        final Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_LIST);
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_LIST);
         if (authRealms == null || authRealms.isEmpty()) {
             return List.of();
         }
@@ -189,8 +191,8 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
                 collect(Collectors.toList());
     }
 
-    @Override
     @Transactional(rollbackFor = { Throwable.class })
+    @Override
     public ExternalResource save(final ExternalResource resource) {
         ExternalResource merged = entityManager().merge(resource);
         try {

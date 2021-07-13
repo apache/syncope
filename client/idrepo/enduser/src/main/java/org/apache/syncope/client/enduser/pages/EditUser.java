@@ -23,7 +23,6 @@ import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.panels.UserFormPanel;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
@@ -48,7 +47,7 @@ public class EditUser extends BasePage {
                 "editUserPanel",
                 userTO,
                 userTO,
-                SyncopeEnduserSession.get().getService(SyncopeService.class).platform().getUserClasses(),
+                SyncopeEnduserSession.get().getAnonymousClient().platform().getUserClasses(),
                 buildFormLayout(),
                 getPageReference());
         editUserPanel.setOutputMarkupId(true);

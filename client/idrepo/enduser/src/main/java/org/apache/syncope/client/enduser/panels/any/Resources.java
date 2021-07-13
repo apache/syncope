@@ -27,7 +27,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
@@ -77,11 +76,11 @@ public class Resources extends Panel {
     @Override
     protected void onInitialize() {
         super.onInitialize();
-        available.setObject(SyncopeEnduserSession.get().getService(SyncopeService.class).platform().getResources());
+        available.setObject(SyncopeEnduserSession.get().getAnonymousClient().platform().getResources());
     }
 
     public boolean evaluate() {
-        available.setObject(SyncopeEnduserSession.get().getService(SyncopeService.class).platform().getResources());
+        available.setObject(SyncopeEnduserSession.get().getAnonymousClient().platform().getResources());
         return !available.getObject().isEmpty();
     }
 }

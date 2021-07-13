@@ -72,8 +72,6 @@ public class UserSelfFormPanel extends UserFormPanel {
         return new SelfUserDetails(
                 EnduserConstants.CONTENT_PANEL,
                 UserWrapper.class.cast(modelObject),
-                false,
-                false,
                 UserFormLayoutInfo.class.cast(formLayoutInfo).isPasswordManagement(),
                 pageRef);
     }
@@ -101,7 +99,7 @@ public class UserSelfFormPanel extends UserFormPanel {
                         ? UserWrapper.class.cast(updatedWarapper).isStorePasswordInSyncope()
                         : StringUtils.isNotBlank(userTO.getPassword()));
 
-                result = userSelfRestClient.create(req, true);
+                result = userSelfRestClient.create(req);
                 LOG.debug("User {} has been created", result.getEntity().getUsername());
 
                 parameters.add(EnduserConstants.STATUS, Constants.OPERATION_SUCCEEDED);

@@ -20,22 +20,12 @@ package org.apache.syncope.client.console.rest;
 
 import javax.ws.rs.core.Response;
 import java.util.List;
-import org.apache.syncope.common.lib.info.NumbersInfo;
-import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 
 public class SyncopeRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -9013241672773442286L;
-
-    public static NumbersInfo numbers() {
-        return getService(SyncopeService.class).numbers();
-    }
-
-    public static SystemInfo system() {
-        return getService(SyncopeService.class).system();
-    }
 
     public static Response exportInternalStorageContent() {
         return getService(SyncopeService.class).exportInternalStorageContent();

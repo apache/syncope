@@ -39,6 +39,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.commons.RealmsUtils;
@@ -54,7 +55,6 @@ import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
@@ -97,6 +97,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     protected final SyncopeClient anonymousClient;
 
+    protected final Pair<String, String> gitAndBuildInfo;
+
     protected final PlatformInfo platformInfo;
 
     protected final SystemInfo systemInfo;
@@ -131,8 +133,9 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
                 SyncopeWebApplication.get().getAnonymousUser(),
                 SyncopeWebApplication.get().getAnonymousKey()));
 
-        platformInfo = anonymousClient.getService(SyncopeService.class).platform();
-        systemInfo = anonymousClient.getService(SyncopeService.class).system();
+        gitAndBuildInfo = anonymousClient.gitAndBuildInfo();
+        platformInfo = anonymousClient.platform();
+        systemInfo = anonymousClient.system();
 
         executor = new ThreadPoolTaskExecutor();
         executor.setWaitForTasksToCompleteOnShutdown(false);
@@ -176,10 +179,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return clientFactory.getContentType().getMediaType();
     }
 
-    public SyncopeClient getAnonymousClient() {
-        return anonymousClient;
-    }
-
     public void execute(final Runnable command) {
         try {
             executor.execute(command);
@@ -197,6 +196,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
             return new CompletableFuture<>();
         }
+    }
+
+    public Pair<String, String> gitAndBuildInfo() {
+        return gitAndBuildInfo;
     }
 
     public PlatformInfo getPlatformInfo() {
@@ -381,6 +384,16 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         }
     }
 
+    @Override
+    public SyncopeClient getAnonymousClient() {
+        return anonymousClient;
+    }
+
+    @Override
+    public <T> T getAnonymousService(final Class<T> serviceClass) {
+        return getAnonymousClient().getService(serviceClass);
+    }
+
     @SuppressWarnings("unchecked")
     protected <T> T getCachedService(final Class<T> serviceClass) {
         T service;
@@ -394,11 +407,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         WebClient.client(service).type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
         return service;
-    }
-
-    @Override
-    public <T> T getAnonymousService(final Class<T> serviceClass) {
-        return getAnonymousClient().getService(serviceClass);
     }
 
     @Override

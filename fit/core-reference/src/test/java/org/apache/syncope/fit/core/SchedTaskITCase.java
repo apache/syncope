@@ -56,7 +56,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void getJobClasses() {
-        Set<String> jobClasses = syncopeService.platform().
+        Set<String> jobClasses = adminClient.platform().
                 getJavaImplInfo(IdRepoImplementationType.TASKJOB_DELEGATE).get().getClasses();
         assertNotNull(jobClasses);
         assertFalse(jobClasses.isEmpty());

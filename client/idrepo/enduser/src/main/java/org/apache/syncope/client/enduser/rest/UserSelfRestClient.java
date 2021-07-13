@@ -37,7 +37,7 @@ public class UserSelfRestClient extends BaseRestClient {
         getService(UserSelfService.class).requestPasswordReset(username, securityAnswer);
     }
 
-    public ProvisioningResult<UserTO> create(final UserCR createReq, final boolean storePassword) {
+    public ProvisioningResult<UserTO> create(final UserCR createReq) {
         ProvisioningResult<UserTO> result;
         result = getService(UserSelfService.class).create(createReq).readEntity(
                 new GenericType<ProvisioningResult<UserTO>>() {

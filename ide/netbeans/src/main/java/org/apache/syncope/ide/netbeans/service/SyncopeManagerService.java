@@ -21,18 +21,16 @@ package org.apache.syncope.ide.netbeans.service;
 import java.util.Set;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
 
 public class SyncopeManagerService {
 
-    private final SyncopeService service;
+    private final SyncopeClient syncopeClient;
 
     public SyncopeManagerService(final String url, final String userName, final String password) {
-        SyncopeClient syncopeClient = new SyncopeClientFactoryBean().setAddress(url).create(userName, password);
-        service = syncopeClient.getService(SyncopeService.class);
+        syncopeClient = new SyncopeClientFactoryBean().setAddress(url).create(userName, password);
     }
 
     public Set<String> getImplementationTypes() {
-        return service.platform().getImplementationTypes();
+        return syncopeClient.platform().getImplementationTypes();
     }
 }
