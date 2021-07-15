@@ -408,7 +408,7 @@ under the License.
 
     <jackson.version>2.11.4</jackson.version>
 
-    <spring.version>5.2.15.RELEASE</spring.version>
+    <spring.version>5.2.16.RELEASE</spring.version>
     <spring-security.version>5.2.11.RELEASE</spring-security.version>
 
     <openjpa.version>3.2.0</openjpa.version>
@@ -438,7 +438,7 @@ under the License.
     <log4j.version>2.14.1</log4j.version>
     <disruptor.version>3.4.4</disruptor.version>
 
-    <commons-io.version>2.7</commons-io.version>
+    <commons-io.version>2.11.0</commons-io.version>
     <commons-email.version>1.5</commons-email.version>
     <commons-jexl.version>3.2.1</commons-jexl.version>
     <commons-lang.version>3.12.0</commons-lang.version>
