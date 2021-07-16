@@ -162,8 +162,7 @@ under the License.
       <resource>
         <directory>${project.basedir}/../../client/idrepo/enduser/src/main/resources</directory>
         <includes>
-          <include>customFormAttributes.json</include>
-          <include>customTemplate.json</include>
+          <include>*.json</include>
         </includes>
         <filtering>true</filtering>
       </resource>
