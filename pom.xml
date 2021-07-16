@@ -32,7 +32,7 @@ under the License.
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>23</version>
+    <version>24</version>
     <relativePath />
   </parent>
 
@@ -390,6 +390,7 @@ under the License.
   </contributors>
 
   <properties>
+    <project.build.outputTimestamp>2021-07-16T09:00:00Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
     <connid.version>1.5.0.2</connid.version>
