@@ -406,7 +406,7 @@ under the License.
 
     <cxf.version>3.4.4</cxf.version>
     <bouncycastle.version>1.69</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.11</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.11.1</nimbus-jose-jwt.version>
 
     <jackson.version>2.12.4</jackson.version>
 
@@ -414,7 +414,7 @@ under the License.
     <spring-cloud-gateway.version>3.0.3</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.0</openjpa.version>
-    <hikaricp.version>4.0.3</hikaricp.version>
+    <hikaricp.version>5.0.0</hikaricp.version>
     <bval.version>2.0.5</bval.version>
 
     <jasypt.version>1.9.3</jasypt.version>
