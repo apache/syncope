@@ -25,24 +25,24 @@ import static org.mockito.Mockito.when;
 
 import java.util.Date;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.log.AuditEntry;
-import org.apache.syncope.common.rest.api.service.LoggerService;
+import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.AbstractTest;
 import org.apereo.inspektr.audit.AuditActionContext;
 import org.junit.jupiter.api.Test;
+import org.apache.syncope.common.rest.api.service.AuditService;
 
 public class SyncopeWAAuditTrailManagerTest extends AbstractTest {
 
-    private static LoggerService loggerService;
+    private static AuditService loggerService;
 
     private static WARestClient getWaRestClient() {
         WARestClient restClient = mock(WARestClient.class);
         SyncopeClient syncopeClient = mock(SyncopeClient.class);
-        loggerService = mock(LoggerService.class);
+        loggerService = mock(AuditService.class);
 
         when(restClient.getSyncopeClient()).thenReturn(syncopeClient);
-        when(syncopeClient.getService(LoggerService.class)).thenReturn(loggerService);
+        when(syncopeClient.getService(AuditService.class)).thenReturn(loggerService);
 
         return restClient;
     }

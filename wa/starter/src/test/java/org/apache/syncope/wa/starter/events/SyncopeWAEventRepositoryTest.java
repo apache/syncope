@@ -25,25 +25,25 @@ import static org.mockito.Mockito.when;
 
 import java.util.Map;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.log.AuditEntry;
-import org.apache.syncope.common.rest.api.service.LoggerService;
+import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.AbstractTest;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
 import org.apereo.cas.support.events.dao.CasEvent;
 import org.junit.jupiter.api.Test;
+import org.apache.syncope.common.rest.api.service.AuditService;
 
 public class SyncopeWAEventRepositoryTest extends AbstractTest {
 
-    private static LoggerService loggerService;
+    private static AuditService auditService;
 
     private static WARestClient getWaRestClient() {
         WARestClient restClient = mock(WARestClient.class);
         SyncopeClient syncopeClient = mock(SyncopeClient.class);
-        loggerService = mock(LoggerService.class);
+        auditService = mock(AuditService.class);
 
         when(restClient.getSyncopeClient()).thenReturn(syncopeClient);
-        when(syncopeClient.getService(LoggerService.class)).thenReturn(loggerService);
+        when(syncopeClient.getService(AuditService.class)).thenReturn(auditService);
 
         return restClient;
     }
@@ -54,7 +54,7 @@ public class SyncopeWAEventRepositoryTest extends AbstractTest {
         SyncopeWAEventRepository eventRepository = new SyncopeWAEventRepository(CasEventRepositoryFilter.noOp(),
                 getWaRestClient());
         eventRepository.saveInternal(event);
-        verify(loggerService).create(any(AuditEntry.class));
+        verify(auditService).create(any(AuditEntry.class));
     }
 
 }

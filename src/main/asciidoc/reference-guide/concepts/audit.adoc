@@ -20,7 +20,7 @@
 
 The audit feature allows to capture <<audit-events,events>> occurring within the <<core>> and to log relevant information
 about them. +
-By default, events are logged as entries into the `SYNCOPEAUDIT` table of the internal storage.
+By default, events are logged as entries into the `AuditEntry` table of the internal storage.
 
 Once events are reported, they can be used as input for external tools.
 
@@ -36,7 +36,7 @@ except for the admin console <<console-configuration-audit,tooling>>, which is n
 
 ==== Audit Appenders
 
-In addition to insertions into the `SYNCOPEAUDIT` table, events are also available for custom handling via Audit
+In addition to insertions into the `AuditEntry` table, events are also available for custom handling via Audit
 Appenders, based on https://logging.apache.org/log4j/2.x/manual/appenders.html[Apache Log4j 2 Appenders^]. +
 This allows to empower the available implementations or to write new ones in order to route audit messages, with optional
 transformation (rewrite), to files, queues, sockets, syslog, etc.

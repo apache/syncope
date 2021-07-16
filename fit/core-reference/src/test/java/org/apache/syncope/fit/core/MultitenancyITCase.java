@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.List;
 import java.util.Locale;
-import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -51,7 +50,6 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.MatchingRule;
@@ -64,7 +62,6 @@ import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
-import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -95,18 +92,6 @@ public class MultitenancyITCase extends AbstractITCase {
         LOG.info("Performing IT with content type {}", clientFactory.getContentType().getMediaType());
 
         adminClient = clientFactory.create(ADMIN_UNAME, "password2");
-    }
-
-    @Test
-    public void masterOnly() {
-        try {
-            adminClient.getService(LoggerService.class).list(LoggerType.LOG);
-            fail("This should not happen");
-        } catch (ForbiddenException e) {
-            assertNotNull(e);
-        }
-
-        adminClient.getService(LoggerService.class).list(LoggerType.AUDIT);
     }
 
     @Test

@@ -35,16 +35,14 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.log.AuditEntry;
-import org.apache.syncope.common.lib.log.LoggerTO;
+import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.to.DelegationTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.LoggerLevel;
-import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.DelegationService;
@@ -206,10 +204,10 @@ public class DelegationITCase extends AbstractITCase {
                 null,
                 "search",
                 AuditElements.Result.SUCCESS);
-        LoggerTO authLogin = new LoggerTO();
-        authLogin.setKey(authLoginSuccess.toLoggerName());
-        authLogin.setLevel(LoggerLevel.DEBUG);
-        loggerService.update(LoggerType.AUDIT, authLogin);
+        AuditConfTO authLogin = new AuditConfTO();
+        authLogin.setKey(authLoginSuccess.toAuditKey());
+        authLogin.setActive(true);
+        auditService.create(authLogin);
 
         // 1. bellini delegates rossini
         DelegationTO delegation = new DelegationTO();
@@ -266,7 +264,7 @@ public class DelegationITCase extends AbstractITCase {
         assertTrue(entries.stream().anyMatch(entry -> "rossini [delegated by bellini]".equals(entry.getWho())));
 
         // 6. disable audit
-        authLogin.setLevel(LoggerLevel.OFF);
-        loggerService.update(LoggerType.AUDIT, authLogin);
+        authLogin.setActive(false);
+        auditService.update(authLogin);
     }
 }

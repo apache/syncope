@@ -35,7 +35,6 @@ import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.Logger;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -168,6 +167,7 @@ import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPEntity;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
+import org.apache.syncope.core.persistence.api.entity.AuditConf;
 
 public class JPAEntityFactory implements EntityFactory {
 
@@ -302,8 +302,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAAnyTemplatePullTask();
         } else if (reference.equals(SecurityQuestion.class)) {
             result = (E) new JPASecurityQuestion();
-        } else if (reference.equals(Logger.class)) {
-            result = (E) new JPALogger();
+        } else if (reference.equals(AuditConf.class)) {
+            result = (E) new JPAAuditConf();
         } else if (reference.equals(DynRoleMembership.class)) {
             result = (E) new JPADynRoleMembership();
         } else if (reference.equals(ADynGroupMembership.class)) {

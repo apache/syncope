@@ -34,7 +34,7 @@ import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
-import org.apache.syncope.client.console.rest.LoggerRestClient;
+import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
@@ -165,7 +165,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
             add(new EventCategoryPanel(
                     "eventSelection",
-                    LoggerRestClient.listEvents(),
+                    AuditRestClient.listEvents(),
                     new PropertyModel<List<String>>(modelObject.getInnerObject(), "events")) {
 
                 private static final long serialVersionUID = 6429053774964787735L;

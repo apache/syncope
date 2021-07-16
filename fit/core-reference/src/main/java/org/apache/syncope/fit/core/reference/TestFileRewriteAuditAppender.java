@@ -49,9 +49,9 @@ public class TestFileRewriteAuditAppender extends DefaultRewriteAuditAppender {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
         // get log file path from existing file appender
-        RollingRandomAccessFileAppender mainFile =
-                (RollingRandomAccessFileAppender) ctx.getConfiguration().getAppender("mainFile");
-        String pathPrefix = StringUtils.replace(mainFile.getFileName(), "core.log", StringUtils.EMPTY);
+        RollingRandomAccessFileAppender main =
+                (RollingRandomAccessFileAppender) ctx.getConfiguration().getAppender("main");
+        String pathPrefix = StringUtils.replace(main.getFileName(), "core.log", StringUtils.EMPTY);
 
         targetAppender = FileAppender.newBuilder().
                 setName(getTargetAppenderName()).

@@ -15,10 +15,10 @@
 -- specific language governing permissions and limitations
 -- under the License.
 
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[dbo].[SYNCOPEAUDIT]') AND OBJECTPROPERTY(id, N'ISUSERTABLE') = 1)
-DROP TABLE [dbo].[SYNCOPEAUDIT];
+IF EXISTS (SELECT * FROM dbo.sysobjects WHERE id = OBJECT_ID(N'[dbo].[AuditEntry]') AND OBJECTPROPERTY(id, N'ISUSERTABLE') = 1)
+DROP TABLE [dbo].[AuditEntry];
 
-CREATE TABLE SYNCOPEAUDIT (
+CREATE TABLE AuditEntry (
   EVENT_DATE DATETIME,
   LOGGER_LEVEL VARCHAR(255) NOT NULL,
   LOGGER VARCHAR(255) NOT NULL,

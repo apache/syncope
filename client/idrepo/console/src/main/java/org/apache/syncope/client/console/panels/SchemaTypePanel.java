@@ -243,7 +243,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                     keyword = "*" + keyword;
                 }
                 if (!StringUtils.endsWith(keyword, "*")) {
-                    keyword = keyword + "*";
+                    keyword += "*";
                 }
             }
 

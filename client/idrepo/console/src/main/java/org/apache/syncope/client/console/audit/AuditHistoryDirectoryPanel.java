@@ -27,14 +27,14 @@ import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
-import org.apache.syncope.client.console.rest.LoggerRestClient;
+import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
-import org.apache.syncope.common.lib.log.AuditEntry;
+import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -49,7 +49,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public abstract class AuditHistoryDirectoryPanel<T extends Serializable> extends DirectoryPanel<
-        AuditEntry, AuditEntry, AuditHistoryDirectoryPanel<T>.AuditHistoryProvider, LoggerRestClient>
+        AuditEntry, AuditEntry, AuditHistoryDirectoryPanel<T>.AuditHistoryProvider, AuditRestClient>
         implements ModalPanel {
 
     private static final long serialVersionUID = -8248734710505211261L;
@@ -90,7 +90,7 @@ public abstract class AuditHistoryDirectoryPanel<T extends Serializable> extends
         this.auditRestoreEntitlement = auditRestoreEntitlement;
         this.pageRef = pageRef;
 
-        this.restClient = new LoggerRestClient();
+        this.restClient = new AuditRestClient();
         initResultTable();
     }
 

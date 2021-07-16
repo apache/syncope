@@ -45,7 +45,7 @@ public class RoleITCase extends AbstractITCase {
         RoleTO role = new RoleTO();
         role.setKey(name + getUUIDString());
         role.getRealms().add("/even");
-        role.getEntitlements().add(IdRepoEntitlement.LOG_SET_LEVEL);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_UPDATE);
 
         return role;
     }
@@ -70,8 +70,8 @@ public class RoleITCase extends AbstractITCase {
         RoleTO role = new RoleTO();
         role.getRealms().add(SyncopeConstants.ROOT_REALM);
         role.getRealms().add("/even/two");
-        role.getEntitlements().add(IdRepoEntitlement.LOG_LIST);
-        role.getEntitlements().add(IdRepoEntitlement.LOG_SET_LEVEL);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_CREATE);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_UPDATE);
 
         try {
             createRole(role);
@@ -89,7 +89,7 @@ public class RoleITCase extends AbstractITCase {
     public void createWithTilde() {
         RoleTO role = new RoleTO();
         role.getRealms().add(SyncopeConstants.ROOT_REALM);
-        role.getEntitlements().add(IdRepoEntitlement.LOG_LIST);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_UPDATE);
         role.setKey("new~" + getUUIDString());
         role = createRole(role);
         assertNotNull(role);
