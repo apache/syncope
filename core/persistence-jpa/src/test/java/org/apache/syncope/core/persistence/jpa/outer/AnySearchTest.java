@@ -82,8 +82,8 @@ public class AnySearchTest extends AbstractTest {
         role.setKey("new");
         role.add(realmDAO.getRoot());
         role.add(realmDAO.findByFullPath("/even/two"));
-        role.getEntitlements().add(IdRepoEntitlement.LOG_LIST);
-        role.getEntitlements().add(IdRepoEntitlement.LOG_SET_LEVEL);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_UPDATE);
 
         DynRoleMembership dynMembership = entityFactory.newEntity(DynRoleMembership.class);
         dynMembership.setFIQLCond("cool==true");

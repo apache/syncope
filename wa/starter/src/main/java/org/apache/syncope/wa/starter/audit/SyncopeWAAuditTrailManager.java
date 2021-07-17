@@ -25,20 +25,15 @@ import java.util.Set;
 import org.apereo.cas.audit.spi.AbstractAuditTrailManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.log.AuditEntry;
+import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
-import org.apache.syncope.common.rest.api.service.LoggerService;
+import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.inspektr.audit.AuditActionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.syncope.client.lib.SyncopeClient;
 
 public class SyncopeWAAuditTrailManager extends AbstractAuditTrailManager {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAAuditTrailManager.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -71,12 +66,14 @@ public class SyncopeWAAuditTrailManager extends AbstractAuditTrailManager {
                     ? AuditElements.Result.FAILURE
                     : AuditElements.Result.SUCCESS;
 
-            AuditLoggerName auditLogger = new AuditLoggerName(AuditElements.EventCategoryType.WA,
-                    "LoggerLogic", AuditElements.AUTHENTICATION_CATEGORY.toUpperCase(),
-                    audit.getActionPerformed(), result);
-
+            AuditLoggerName auditLogger = new AuditLoggerName(
+                    AuditElements.EventCategoryType.WA,
+                    null,
+                    AuditElements.AUTHENTICATION_CATEGORY.toUpperCase(),
+                    audit.getActionPerformed(),
+                    result);
             auditEntry.setLogger(auditLogger);
-            syncopeClient.getService(LoggerService.class).create(auditEntry);
+            syncopeClient.getService(AuditService.class).create(auditEntry);
         } catch (JsonProcessingException e) {
             LOG.error("During serialization", e);
         }

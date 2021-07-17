@@ -71,7 +71,7 @@ import org.apache.openjpa.lib.util.collections.DualHashBidiMap;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
-import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAccessToken;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
@@ -109,7 +109,7 @@ public class XMLContentExporter implements ContentExporter {
     private static final Logger LOG = LoggerFactory.getLogger(XMLContentExporter.class);
 
     private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = Stream.of(
-            "QRTZ_", "LOGGING", "NotificationTask_recipients", LoggerDAO.AUDIT_TABLE, JPAReportExec.TABLE,
+            "QRTZ_", "LOGGING", "NotificationTask_recipients", AuditConfDAO.AUDIT_ENTRY_TABLE, JPAReportExec.TABLE,
             JPATaskExec.TABLE, JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE,
             JPAUPlainAttrUniqueValue.TABLE, JPAURelationship.TABLE, JPAUMembership.TABLE,
             JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
@@ -468,7 +468,7 @@ public class XMLContentExporter implements ContentExporter {
                         String tableName = joinTable.name();
                         if (StringUtils.isBlank(tableName)) {
                             tableName = entities.getKey(e) + "_"
-                                    + entities.getKey((EntityType) ((PluralAttribute) a).getElementType());
+                                    + entities.getKey(((PluralAttribute) a).getElementType());
                         }
 
                         relationTables.put(

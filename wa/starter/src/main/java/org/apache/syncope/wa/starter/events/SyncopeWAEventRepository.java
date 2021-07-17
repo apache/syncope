@@ -26,10 +26,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.log.AuditEntry;
+import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
-import org.apache.syncope.common.rest.api.service.LoggerService;
+import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
 import org.apereo.cas.support.events.dao.AbstractCasEventRepository;
@@ -85,11 +85,14 @@ public class SyncopeWAEventRepository extends AbstractCasEventRepository {
                 auditEntry.setDate(new Date(event.getTimestamp()));
             }
             auditEntry.setOutput(output);
-            AuditLoggerName auditLogger = new AuditLoggerName(AuditElements.EventCategoryType.WA,
-                    "LoggerLogic", event.getType().toUpperCase(),
-                    String.valueOf(event.getId()), AuditElements.Result.SUCCESS);
+            AuditLoggerName auditLogger = new AuditLoggerName(
+                    AuditElements.EventCategoryType.WA,
+                    null,
+                    event.getType().toUpperCase(),
+                    String.valueOf(event.getId()),
+                    AuditElements.Result.SUCCESS);
             auditEntry.setLogger(auditLogger);
-            syncopeClient.getService(LoggerService.class).create(auditEntry);
+            syncopeClient.getService(AuditService.class).create(auditEntry);
         } catch (JsonProcessingException e) {
             LOG.error("During serialization", e);
         }
@@ -100,5 +103,4 @@ public class SyncopeWAEventRepository extends AbstractCasEventRepository {
     public Collection<? extends CasEvent> load() {
         throw new UnsupportedOperationException("Fetching authentication events from WA is not supported");
     }
-
 }

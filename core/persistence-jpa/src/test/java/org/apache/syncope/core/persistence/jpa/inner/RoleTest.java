@@ -29,6 +29,7 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,9 +58,7 @@ public class RoleTest extends AbstractTest {
         List<Role> list = roleDAO.findAll();
         assertNotNull(list);
         assertFalse(list.isEmpty());
-        for (Role role : list) {
-            assertNotNull(role);
-        }
+        list.forEach(Assertions::assertNotNull);
     }
 
     @Test
@@ -68,8 +67,8 @@ public class RoleTest extends AbstractTest {
         role.setKey("new");
         role.add(realmDAO.getRoot());
         role.add(realmDAO.findByFullPath("/even/two"));
-        role.getEntitlements().add(IdRepoEntitlement.LOG_LIST);
-        role.getEntitlements().add(IdRepoEntitlement.LOG_SET_LEVEL);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_UPDATE);
 
         Role actual = roleDAO.save(role);
         assertNotNull(actual);

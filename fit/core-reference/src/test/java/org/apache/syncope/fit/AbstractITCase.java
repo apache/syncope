@@ -63,7 +63,7 @@ import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.log.AuditEntry;
+import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.GroupCR;
@@ -114,7 +114,6 @@ import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
-import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
@@ -161,6 +160,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.apache.syncope.common.rest.api.service.AuditService;
 
 @SpringJUnitConfig({ CoreITContext.class, SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
 public abstract class AbstractITCase {
@@ -287,7 +287,7 @@ public abstract class AbstractITCase {
 
     protected static ConnectorService connectorService;
 
-    protected static LoggerService loggerService;
+    protected static AuditService auditService;
 
     protected static ReportTemplateService reportTemplateService;
 
@@ -402,7 +402,7 @@ public abstract class AbstractITCase {
         groupService = adminClient.getService(GroupService.class);
         resourceService = adminClient.getService(ResourceService.class);
         connectorService = adminClient.getService(ConnectorService.class);
-        loggerService = adminClient.getService(LoggerService.class);
+        auditService = adminClient.getService(AuditService.class);
         reportTemplateService = adminClient.getService(ReportTemplateService.class);
         reportService = adminClient.getService(ReportService.class);
         taskService = adminClient.getService(TaskService.class);
@@ -891,7 +891,7 @@ public abstract class AbstractITCase {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
-            results = loggerService.search(query).getResult();
+            results = auditService.search(query).getResult();
             i++;
         } while (results.isEmpty() && i < maxWaitSeconds);
         return results;

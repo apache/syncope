@@ -23,11 +23,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.log.AuditEntry;
+import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.DomainHolder;
-import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
@@ -36,6 +35,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
+import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 
 @ReportletConfClass(AuditReportletConf.class)
 public class AuditReportlet extends AbstractReportlet {
@@ -48,12 +48,12 @@ public class AuditReportlet extends AbstractReportlet {
     private DataSource datasource;
 
     private void doExtractConf(final ContentHandler handler, final AtomicReference<String> status) throws SAXException {
-        status.set("Fetching " + conf.getSize() + " rows from the " + LoggerDAO.AUDIT_TABLE + " table");
+        status.set("Fetching " + conf.getSize() + " rows from the " + AuditConfDAO.AUDIT_ENTRY_TABLE + " table");
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource);
         jdbcTemplate.setMaxRows(conf.getSize());
         List<Map<String, Object>> rows = jdbcTemplate.
-                queryForList("SELECT * FROM " + LoggerDAO.AUDIT_TABLE + " ORDER BY EVENT_DATE DESC");
+                queryForList("SELECT * FROM " + AuditConfDAO.AUDIT_ENTRY_TABLE + " ORDER BY EVENT_DATE DESC");
 
         handler.startElement("", "", "events", null);
         AttributesImpl atts = new AttributesImpl();
@@ -119,7 +119,7 @@ public class AuditReportlet extends AbstractReportlet {
         }
         handler.endElement("", "", "events");
 
-        status.set("Fetched " + conf.getSize() + " rows from the SYNCOPEAUDIT table");
+        status.set("Fetched " + conf.getSize() + " rows from the " + AuditConfDAO.AUDIT_ENTRY_TABLE + " table");
     }
 
     @Override
