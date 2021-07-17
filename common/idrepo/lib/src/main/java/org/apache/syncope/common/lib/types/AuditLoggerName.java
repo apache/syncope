@@ -28,7 +28,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.BaseBean;
-import org.apache.syncope.common.lib.log.EventCategory;
+import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 
@@ -36,8 +36,10 @@ public class AuditLoggerName implements BaseBean {
 
     private static final long serialVersionUID = -647989486671786839L;
 
+    public static final String AUDIT_PREFIX = "syncope.audit";
+
     public static String getAuditLoggerName(final String domain) {
-        return LoggerType.AUDIT.getPrefix() + '.' + domain;
+        return AUDIT_PREFIX + '.' + domain;
     }
 
     public static String getAuditEventLoggerName(final String domain, final String loggerName) {
@@ -91,8 +93,8 @@ public class AuditLoggerName implements BaseBean {
         return subcategory;
     }
 
-    public String toLoggerName() {
-        return new StringBuilder().append(LoggerType.AUDIT.getPrefix()).append('.').
+    public String toAuditKey() {
+        return new StringBuilder().append(AUDIT_PREFIX).append('.').
                 append(buildEvent(type, category, subcategory, event, result)).toString();
     }
 
@@ -128,19 +130,16 @@ public class AuditLoggerName implements BaseBean {
                 build();
     }
 
-    public static AuditLoggerName fromLoggerName(final String loggerName)
-            throws ParseException {
-
-        if (StringUtils.isBlank(loggerName)) {
+    public static AuditLoggerName fromAuditKey(final String key) throws ParseException {
+        if (StringUtils.isBlank(key)) {
             throw new IllegalArgumentException("Null value not permitted");
         }
 
-        if (!loggerName.startsWith(LoggerType.AUDIT.getPrefix())) {
-            throw new ParseException("Audit logger name must start with " + LoggerType.AUDIT.getPrefix(), 0);
+        if (!key.startsWith(AUDIT_PREFIX)) {
+            throw new ParseException("Audit logger name must start with " + AUDIT_PREFIX, 0);
         }
 
-        Map.Entry<EventCategory, Result> eventCategory = parseEventCategory(
-                loggerName.replaceAll(LoggerType.AUDIT.getPrefix() + '.', ""));
+        Map.Entry<EventCategory, Result> eventCategory = parseEventCategory(key.replace(AUDIT_PREFIX + '.', ""));
 
         return new AuditLoggerName(
                 eventCategory.getKey().getType(),

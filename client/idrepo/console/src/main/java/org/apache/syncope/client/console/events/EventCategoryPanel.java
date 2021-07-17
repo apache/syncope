@@ -33,7 +33,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.log.EventCategory;
+import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditLoggerName;

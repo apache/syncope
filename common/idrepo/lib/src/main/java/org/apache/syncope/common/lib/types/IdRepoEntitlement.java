@@ -110,8 +110,6 @@ public final class IdRepoEntitlement {
 
     public static final String SCHEMA_DELETE = "SCHEMA_DELETE";
 
-    public static final String AUDIT_SEARCH = "AUDIT_SEARCH";
-
     public static final String USER_SEARCH = "USER_SEARCH";
 
     public static final String USER_CREATE = "USER_CREATE";
@@ -200,13 +198,7 @@ public final class IdRepoEntitlement {
 
     public static final String REPORT_EXECUTE = "REPORT_EXECUTE";
 
-    public static final String LOG_READ = "LOG_READ";
-
-    public static final String LOG_LIST = "LOG_LIST";
-
-    public static final String LOG_SET_LEVEL = "LOG_SET_LEVEL";
-
-    public static final String LOG_DELETE = "LOG_DELETE";
+    public static final String AUDIT_SEARCH = "AUDIT_SEARCH";
 
     public static final String AUDIT_LIST = "AUDIT_LIST";
 
@@ -214,9 +206,9 @@ public final class IdRepoEntitlement {
 
     public static final String AUDIT_CREATE = "AUDIT_CREATE";
 
-    public static final String AUDIT_ENABLE = "AUDIT_ENABLE";
+    public static final String AUDIT_UPDATE = "AUDIT_UPDATE";
 
-    public static final String AUDIT_DISABLE = "AUDIT_DISABLE";
+    public static final String AUDIT_DELETE = "AUDIT_DELETE";
 
     public static final String SECURITY_QUESTION_CREATE = "SECURITY_QUESTION_CREATE";
 
@@ -249,6 +241,10 @@ public final class IdRepoEntitlement {
     public static final String DELEGATION_UPDATE = "DELEGATION_UPDATE";
 
     public static final String DELEGATION_DELETE = "DELEGATION_DELETE";
+
+    public static final String LOGGER_LIST = "LOGGER_LIST";
+
+    public static final String LOGGER_UPDATE = "LOGGER_UPDATE";
 
     private static final Set<String> VALUES;
 

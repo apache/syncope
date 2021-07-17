@@ -57,13 +57,13 @@ public class TestFileAuditAppender extends DefaultAuditAppender {
     protected void initTargetAppender() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         // get log file path from existing file appender
-        RollingRandomAccessFileAppender mainFile =
-                (RollingRandomAccessFileAppender) ctx.getConfiguration().getAppender("mainFile");
+        RollingRandomAccessFileAppender main =
+                (RollingRandomAccessFileAppender) ctx.getConfiguration().getAppender("main");
 
-        String pathPrefix = mainFile == null
+        String pathPrefix = main == null
                 ? System.getProperty("user.dir") + StringUtils.replace("/target/log", "/", File.separator)
                 + File.separator
-                : StringUtils.replace(mainFile.getFileName(), "core.log", StringUtils.EMPTY);
+                : StringUtils.replace(main.getFileName(), "core.log", StringUtils.EMPTY);
 
         targetAppender = FileAppender.newBuilder().
                 setName(getTargetAppenderName()).

@@ -15,7 +15,7 @@
 -- specific language governing permissions and limitations
 -- under the License.
 
-CREATE TABLE IF NOT EXISTS SYNCOPEAUDIT (
+CREATE TABLE IF NOT EXISTS AuditEntry (
   EVENT_DATE TIMESTAMP,
   LOGGER_LEVEL VARCHAR(255) NOT NULL,
   LOGGER VARCHAR(255) NOT NULL,

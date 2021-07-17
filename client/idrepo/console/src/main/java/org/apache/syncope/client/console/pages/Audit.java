@@ -25,8 +25,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.events.EventCategoryPanel;
 import org.apache.syncope.client.console.events.SelectedEventsPanel;
-import org.apache.syncope.client.console.rest.LoggerRestClient;
-import org.apache.syncope.common.lib.log.EventCategory;
+import org.apache.syncope.client.console.rest.AuditRestClient;
+import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -45,7 +45,7 @@ public class Audit extends BasePage {
 
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
-        List<String> events = LoggerRestClient.listAudits().stream().
+        List<String> events = AuditRestClient.list().stream().
                 map(audit -> AuditLoggerName.buildEvent(
                 audit.getType(),
                 audit.getCategory(),
@@ -62,7 +62,7 @@ public class Audit extends BasePage {
 
         form.add(new EventCategoryPanel(
                 "auditPanel",
-                LoggerRestClient.listEvents(),
+                AuditRestClient.listEvents(),
                 new ListModel<>(events)) {
 
             private static final long serialVersionUID = 6113164334533550277L;
@@ -74,7 +74,7 @@ public class Audit extends BasePage {
 
             @Override
             protected List<String> getChangeAuthRoles() {
-                return List.of(IdRepoEntitlement.AUDIT_ENABLE, IdRepoEntitlement.AUDIT_DISABLE);
+                return List.of(IdRepoEntitlement.AUDIT_UPDATE);
             }
 
             @Override
@@ -95,7 +95,7 @@ public class Audit extends BasePage {
                                 ? null : eventCategory.getKey().getEvents().iterator().next(),
                                 eventCategory.getValue());
 
-                        LoggerRestClient.disableAudit(auditLoggerName);
+                        AuditRestClient.disableAudit(auditLoggerName);
                     });
 
                     eventSelectionChanged.getToBeAdded().forEach(toBeAdded -> {
@@ -110,7 +110,7 @@ public class Audit extends BasePage {
                                 ? null : eventCategory.getKey().getEvents().iterator().next(),
                                 eventCategory.getValue());
 
-                        LoggerRestClient.enableAudit(auditLoggerName);
+                        AuditRestClient.enableAudit(auditLoggerName);
                     });
                 }
             }

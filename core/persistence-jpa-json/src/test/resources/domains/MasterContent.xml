@@ -2428,48 +2428,48 @@ $$ }&#10;
   <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_UPDATE"/>
   <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_DELETE"/>
 
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" active="1"/>
 
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[WA]:[LoggerLogic]:[AUTHENTICATION]:[validate]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[WA]:[LoggerLogic]:[AuthenticationEvent]:[auth]:[SUCCESS]" logLevel="DEBUG"/>
+  <AuditConf id="syncope.audit.[WA]:[]:[AUTHENTICATION]:[validate]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[WA]:[]:[AuthenticationEvent]:[auth]:[SUCCESS]" active="1"/>
 
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[update]:[SUCCESS]" active="1"/>
 
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]" active="1"/>
 
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[assign]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[confirmPasswordReset]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[deprovision]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[link]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[mustChangePassword]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[provision]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[requestPasswordReset]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfCreate]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfStatus]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfUpdate]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[status]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[unassign]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[unlink]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[UserLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[assign]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[confirmPasswordReset]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[deprovision]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[link]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[mustChangePassword]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[provision]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[requestPasswordReset]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfCreate]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfStatus]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfUpdate]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[status]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[update]:[SUCCESS]" active="1"/>
 
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[assign]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[deprovision]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[provisionMembers]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unassign]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unlink]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[GroupLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[assign]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[deprovision]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[provisionMembers]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[update]:[SUCCESS]" active="1"/>
 
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[assign]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[create]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[delete]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[deprovision]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[link]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[provision]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[unassign]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[unlink]:[SUCCESS]" logLevel="DEBUG"/>
-  <SyncopeLogger logType="AUDIT" logName="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[update]:[SUCCESS]" logLevel="DEBUG"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[assign]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[delete]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[deprovision]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[link]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[provision]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[update]:[SUCCESS]" active="1"/>
 </dataset>

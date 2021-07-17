@@ -39,7 +39,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
-import org.apache.syncope.common.lib.log.LoggerTO;
+import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -48,8 +48,6 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.LoggerLevel;
-import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -303,10 +301,9 @@ public class ReportITCase extends AbstractITCase {
                 AuditElements.Result.SUCCESS);
 
         try {
-            LoggerTO loggerTO = new LoggerTO();
-            loggerTO.setKey(auditLoggerName.toLoggerName());
-            loggerTO.setLevel(LoggerLevel.DEBUG);
-            loggerService.update(LoggerType.AUDIT, loggerTO);
+            AuditConfTO audit = new AuditConfTO();
+            audit.setKey(auditLoggerName.toAuditKey());
+            auditService.create(audit);
 
             ImplementationTO auditReportlet = new ImplementationTO();
             auditReportlet.setKey("UserReportletConf" + getUUIDString());
@@ -329,7 +326,7 @@ public class ReportITCase extends AbstractITCase {
             report = reportService.read(report.getKey());
             assertNotNull(report.getLastExec());
         } finally {
-            loggerService.delete(LoggerType.AUDIT, auditLoggerName.toLoggerName());
+            auditService.delete(auditLoggerName.toAuditKey());
         }
     }
 

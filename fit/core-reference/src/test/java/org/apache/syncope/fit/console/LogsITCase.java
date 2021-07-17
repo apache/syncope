@@ -23,9 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.lang.reflect.InvocationTargetException;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.Logs;
-import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.wicket.Component;
-import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -47,7 +45,7 @@ public class LogsITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void readCoreLogs() {
+    public void readLogs() {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
         TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
@@ -55,7 +53,7 @@ public class LogsITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void updateCoreLogs() {
+    public void updateLogs() {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
         TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
@@ -73,42 +71,16 @@ public class LogsITCase extends AbstractConsoleITCase {
         assertSuccessMessage();
     }
 
-    @Test
-    public void readConsoleLogs() {
-        TESTER.assertComponent("body:content:tabbedPanel:tabs-container:tabs:1:link", AjaxFallbackLink.class);
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
-        TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
-
-        assertNotNull(searchLog(KEY, CONTAINER_PATH, "org.apache.wicket"));
-    }
-
-    @Test
-    public void updateConsoleLogs() {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
-        TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
-
-        Component result = searchLog(KEY, CONTAINER_PATH, "org.apache.wicket");
-        assertNotNull(result);
-
-        TESTER.getRequest().setMethod(Form.METHOD_GET);
-        TESTER.getRequest().addParameter(
-                result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "6");
-        TESTER.assertComponent(
-                result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", DropDownChoice.class);
-        TESTER.executeAjaxEvent(
-                result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", Constants.ON_CHANGE);
-
-        assertSuccessMessage();
-    }
-
     private static Component searchLog(final String property, final String searchPath, final String key) {
         Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
 
         Component result = component.getPage().
-                visitChildren(ListItem.class, (final ListItem<LoggerTO> object, final IVisit<Component> visit) -> {
+                visitChildren(ListItem.class, (final ListItem<?> object, final IVisit<Component> visit) -> {
                     try {
-                        if (object.getModelObject() instanceof LoggerTO && PropertyResolver.getPropertyGetter(
-                                property, object.getModelObject()).invoke(object.getModelObject()).equals(key)) {
+                        if ("LoggerConf".equals(object.getModelObject().getClass().getSimpleName())
+                                && PropertyResolver.getPropertyGetter(property, object.getModelObject()).
+                                        invoke(object.getModelObject()).equals(key)) {
+
                             visit.stop(object);
                         }
                     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {

@@ -28,7 +28,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -40,6 +39,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.junit.jupiter.api.Test;
 
@@ -49,13 +49,13 @@ public abstract class SerializationTest {
 
     @Test
     public void emptyListAsRoot() throws IOException {
-        List<LoggerTO> original = new ArrayList<>();
+        List<ReportTO> original = new ArrayList<>();
 
         StringWriter writer = new StringWriter();
         objectMapper().writeValue(writer, original);
 
-        List<LoggerTO> actual = objectMapper().readValue(writer.toString(),
-                new TypeReference<List<LoggerTO>>() {
+        List<ReportTO> actual = objectMapper().readValue(writer.toString(),
+                new TypeReference<List<ReportTO>>() {
         });
         assertEquals(original, actual);
     }

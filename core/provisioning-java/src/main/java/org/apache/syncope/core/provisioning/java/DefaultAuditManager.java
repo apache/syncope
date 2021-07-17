@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.common.lib.log.AuditEntry;
+import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -30,9 +30,7 @@ import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
-import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -41,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.persistence.api.entity.AuditConf;
+import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 
 @Transactional(readOnly = true)
 public class DefaultAuditManager implements AuditManager {
@@ -77,7 +77,7 @@ public class DefaultAuditManager implements AuditManager {
     }
 
     @Autowired
-    private LoggerDAO loggerDAO;
+    private AuditConfDAO auditDAO;
 
     @Override
     public boolean auditRequested(
@@ -92,9 +92,8 @@ public class DefaultAuditManager implements AuditManager {
         auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS));
         auditEntry.setDate(new Date());
 
-        org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
-                loggerDAO.find(auditEntry.getLogger().toLoggerName());
-        boolean auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
+        AuditConf audit = auditDAO.find(auditEntry.getLogger().toAuditKey());
+        boolean auditRequested = audit != null && audit.isActive();
 
         if (auditRequested) {
             return true;
@@ -102,8 +101,8 @@ public class DefaultAuditManager implements AuditManager {
 
         auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.FAILURE));
 
-        syncopeLogger = loggerDAO.find(auditEntry.getLogger().toLoggerName());
-        auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
+        audit = auditDAO.find(auditEntry.getLogger().toAuditKey());
+        auditRequested = audit != null && audit.isActive();
 
         return auditRequested;
     }
@@ -138,9 +137,8 @@ public class DefaultAuditManager implements AuditManager {
 
         AuditLoggerName auditLoggerName = new AuditLoggerName(type, category, subcategory, event, condition);
 
-        org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
-                loggerDAO.find(auditLoggerName.toLoggerName());
-        if (syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG) {
+        AuditConf audit = auditDAO.find(auditLoggerName.toAuditKey());
+        if (audit != null && audit.isActive()) {
             Throwable throwable = null;
             if (output instanceof Throwable) {
                 throwable = (Throwable) output;
@@ -166,7 +164,7 @@ public class DefaultAuditManager implements AuditManager {
             Logger logger = LoggerFactory.getLogger(
                     AuditLoggerName.getAuditLoggerName(AuthContextUtils.getDomain()));
             Logger eventLogger = LoggerFactory.getLogger(
-                    AuditLoggerName.getAuditEventLoggerName(AuthContextUtils.getDomain(), syncopeLogger.getKey()));
+                    AuditLoggerName.getAuditEventLoggerName(AuthContextUtils.getDomain(), audit.getKey()));
             String serializedAuditEntry = POJOHelper.serialize(auditEntry);
 
             if (throwable == null) {

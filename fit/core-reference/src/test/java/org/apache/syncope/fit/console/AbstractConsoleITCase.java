@@ -46,6 +46,7 @@ import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -110,6 +111,12 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
         @Bean
         public PolicyTabProvider idRepoPolicyTabProvider() {
             return new IdRepoPolicyTabProvider();
+        }
+
+        @Bean
+        public LoggingSystem loggingSystem() {
+            System.setProperty(LoggingSystem.SYSTEM_PROPERTY, LoggingSystem.NONE);
+            return LoggingSystem.get(getClass().getClassLoader());
         }
     }
 

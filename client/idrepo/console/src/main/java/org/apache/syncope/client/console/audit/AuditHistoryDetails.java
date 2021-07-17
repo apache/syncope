@@ -25,7 +25,7 @@ import java.util.Date;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonDiffPanel;
-import org.apache.syncope.common.lib.log.AuditEntry;
+import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
