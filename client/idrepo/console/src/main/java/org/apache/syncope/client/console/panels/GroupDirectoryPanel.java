@@ -328,48 +328,49 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
         panel.add(new ActionLink<>() {
 
-                      private static final long serialVersionUID = -2878723352517770644L;
+                  private static final long serialVersionUID = -2878723352517770644L;
 
-                      @Override
-                      public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                          model.setObject(restClient.read(model.getObject().getKey()));
-                          target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
-                              altDefaultModal,
-                              AuditElements.EventCategoryType.LOGIC,
-                              "GroupLogic",
-                              model.getObject(),
-                              IdRepoEntitlement.GROUP_UPDATE,
-                              pageRef) {
+                  @Override
+                  public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                      model.setObject(restClient.read(model.getObject().getKey()));
+                      target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
+                          altDefaultModal,
+                          AuditElements.EventCategoryType.LOGIC,
+                          "GroupLogic",
+                          model.getObject(),
+                          IdRepoEntitlement.GROUP_UPDATE,
+                          pageRef) {
 
-                              private static final long serialVersionUID = -5819724478921691835L;
+                          private static final long serialVersionUID = -5819724478921691835L;
 
-                              @Override
-                              protected void restore(final String json, final AjaxRequestTarget target) {
-                                  GroupTO original = model.getObject();
-                                  try {
-                                      GroupTO updated = MAPPER.readValue(json, GroupTO.class);
-                                      GroupUR updateReq = AnyOperations.diff(updated, original, false);
-                                      ProvisioningResult<GroupTO> result = restClient.update(original.getETagValue(), updateReq);
-                                      model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
+                          @Override
+                          protected void restore(final String json, final AjaxRequestTarget target) {
+                              GroupTO original = model.getObject();
+                              try {
+                                  GroupTO updated = MAPPER.readValue(json, GroupTO.class);
+                                  GroupUR updateReq = AnyOperations.diff(updated, original, false);
+                                  ProvisioningResult<GroupTO> result =
+                                      restClient.update(original.getETagValue(), updateReq);
+                                  model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
 
-                                      SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                                      target.add(container);
-                                  } catch (Exception e) {
-                                      LOG.error("While restoring group {}", model.getObject().getKey(), e);
-                                      SyncopeConsoleSession.get().onException(e);
-                                  }
-                                  ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                                  SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                                  target.add(container);
+                              } catch (Exception e) {
+                                  LOG.error("While restoring group {}", model.getObject().getKey(), e);
+                                  SyncopeConsoleSession.get().onException(e);
                               }
-                          }));
+                              ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                          }
+                      }));
 
-                          altDefaultModal.header(new Model<>(
-                              getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
+                      altDefaultModal.header(new Model<>(
+                          getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
 
-                          altDefaultModal.show(true);
-                      }
-                  }, ActionType.VIEW_AUDIT_HISTORY,
-                String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.AUDIT_LIST)).
-                setRealms(realm, model.getObject().getDynRealms());
+                      altDefaultModal.show(true);
+                  }
+              }, ActionType.VIEW_AUDIT_HISTORY,
+            String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.AUDIT_LIST)).
+            setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<>() {
 

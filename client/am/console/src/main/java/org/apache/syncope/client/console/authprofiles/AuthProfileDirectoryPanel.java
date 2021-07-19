@@ -242,8 +242,10 @@ public class AuthProfileDirectoryPanel
                         @Override
                         protected List<IColumn<GoogleMfaAuthToken, String>> getColumns() {
                             List<IColumn<GoogleMfaAuthToken, String>> columns = new ArrayList<>();
-                            columns.add(new DatePropertyColumn<>(new ResourceModel("issueDate"), "issueDate", "issueDate"));
-                            columns.add(new PropertyColumn<>(new ResourceModel("otp"), "otp", "otp"));
+                            columns.add(new DatePropertyColumn<>(
+                                new ResourceModel("issueDate"), "issueDate", "issueDate"));
+                            columns.add(new PropertyColumn<>(
+                                new ResourceModel("otp"), "otp", "otp"));
                             return columns;
                         }
                     }, pageRef)));
@@ -381,8 +383,10 @@ public class AuthProfileDirectoryPanel
                         @Override
                         protected List<IColumn<WebAuthnDeviceCredential, String>> getColumns() {
                             List<IColumn<WebAuthnDeviceCredential, String>> columns = new ArrayList<>();
-                            columns.add(new PropertyColumn<>(new ResourceModel("identifier"), "identifier", "identifier"));
-                            columns.add(new PropertyColumn<>(new ResourceModel("json"), "json", "json"));
+                            columns.add(new PropertyColumn<>(
+                                new ResourceModel("identifier"), "identifier", "identifier"));
+                            columns.add(new PropertyColumn<>(
+                                new ResourceModel("json"), "json", "json"));
                             return columns;
                         }
                     }, pageRef)));

@@ -261,55 +261,55 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
 
         builder.addAction(new ActionLink<>() {
 
-                              private static final long serialVersionUID = 2555747430358755813L;
+                  private static final long serialVersionUID = 2555747430358755813L;
 
-                              @Override
-                              public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
-                                  mlp.next("PUSH " + linkedAccountTO.getResource(),
-                                      new ReconTaskPanel(
-                                          linkedAccountTO.getResource(),
-                                          new PushTaskTO(),
-                                          model.getObject().getType(),
-                                          null,
-                                          ConnIdSpecialName.UID + "==" + linkedAccountTO.getConnObjectKeyValue(),
-                                          true,
-                                          mlp,
-                                          pageRef),
-                                      target);
-                                  target.add(mlp);
+                  @Override
+                  public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
+                      mlp.next("PUSH " + linkedAccountTO.getResource(),
+                          new ReconTaskPanel(
+                              linkedAccountTO.getResource(),
+                              new PushTaskTO(),
+                              model.getObject().getType(),
+                              null,
+                              ConnIdSpecialName.UID + "==" + linkedAccountTO.getConnObjectKeyValue(),
+                              true,
+                              mlp,
+                              pageRef),
+                          target);
+                      target.add(mlp);
 
-                                  ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                                  send(LinkedAccountModalPanel.this, Broadcast.BREADTH,
-                                      new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
-                              }
-                          }, ActionLink.ActionType.RECONCILIATION_PUSH,
-                String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.TASK_EXECUTE));
+                      ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                      send(LinkedAccountModalPanel.this, Broadcast.BREADTH,
+                          new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
+                  }
+              }, ActionLink.ActionType.RECONCILIATION_PUSH,
+            String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.TASK_EXECUTE));
 
         builder.addAction(new ActionLink<>() {
 
-                              private static final long serialVersionUID = 2555747430358755813L;
+                      private static final long serialVersionUID = 2555747430358755813L;
 
-                              @Override
-                              public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
-                                  mlp.next("PULL " + linkedAccountTO.getResource(),
-                                      new ReconTaskPanel(
-                                          linkedAccountTO.getResource(),
-                                          new PullTaskTO(),
-                                          model.getObject().getType(),
-                                          null,
-                                          ConnIdSpecialName.UID + "==" + linkedAccountTO.getConnObjectKeyValue(),
-                                          true,
-                                          mlp,
-                                          pageRef),
-                                      target);
-                                  target.add(mlp);
+                      @Override
+                      public void onClick(final AjaxRequestTarget target, final LinkedAccountTO linkedAccountTO) {
+                          mlp.next("PULL " + linkedAccountTO.getResource(),
+                              new ReconTaskPanel(
+                                  linkedAccountTO.getResource(),
+                                  new PullTaskTO(),
+                                  model.getObject().getType(),
+                                  null,
+                                  ConnIdSpecialName.UID + "==" + linkedAccountTO.getConnObjectKeyValue(),
+                                  true,
+                                  mlp,
+                                  pageRef),
+                              target);
+                          target.add(mlp);
 
-                                  ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                                  send(LinkedAccountModalPanel.this, Broadcast.BREADTH,
-                                      new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
-                              }
-                          }, ActionLink.ActionType.RECONCILIATION_PULL,
-                String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.TASK_EXECUTE));
+                          ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                          send(LinkedAccountModalPanel.this, Broadcast.BREADTH,
+                              new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
+                      }
+                  }, ActionLink.ActionType.RECONCILIATION_PULL,
+            String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.TASK_EXECUTE));
 
         if (!recounciliationOnly) {
             builder.addAction(new ActionLink<>() {

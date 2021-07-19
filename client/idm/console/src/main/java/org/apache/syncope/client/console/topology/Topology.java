@@ -318,7 +318,8 @@ public class Topology extends BasePage {
                             // Set the position
                             int kx = size >= 6 ? 800 : (130 * size);
 
-                            double hpos = conn.getLocation().startsWith(CONNECTOR_SERVER_LOCATION_PREFIX) ? Math.PI : 0.0;
+                            double hpos = conn.getLocation().
+                                startsWith(CONNECTOR_SERVER_LOCATION_PREFIX) ? Math.PI : 0.0;
 
                             int x = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getX).orElse(origX))
                                 + kx * Math.cos(hpos + Math.PI * (item.getIndex() + 1) / size));

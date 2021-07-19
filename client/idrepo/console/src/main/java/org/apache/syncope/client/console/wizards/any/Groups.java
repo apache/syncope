@@ -168,7 +168,8 @@ public class Groups extends AbstractGroups {
                         return Groups.this.groupsModel.getDynMemberships();
                     }
 
-                }, new ListModel<>(groupsModel.getObject().stream().map(GroupTO::getName).collect(Collectors.toList()))).
+                }, new ListModel<>(groupsModel.getObject().stream().
+                        map(GroupTO::getName).collect(Collectors.toList()))).
                     hideLabel().setEnabled(false).setOutputMarkupId(true));
         }
     }
