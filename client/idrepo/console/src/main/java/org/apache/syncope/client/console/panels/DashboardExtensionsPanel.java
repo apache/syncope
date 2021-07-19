@@ -60,7 +60,7 @@ public class DashboardExtensionsPanel extends Panel {
             }
         });
 
-        ListView<BaseExtWidget> widgets = new ListView<BaseExtWidget>("widgets", instances) {
+        ListView<BaseExtWidget> widgets = new ListView<>("widgets", instances) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 

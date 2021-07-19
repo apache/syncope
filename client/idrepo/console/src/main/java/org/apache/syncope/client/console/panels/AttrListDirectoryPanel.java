@@ -64,19 +64,19 @@ public abstract class AttrListDirectoryPanel
     protected List<IColumn<Attr, String>> getColumns() {
         final List<IColumn<Attr, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<>(new ResourceModel("schema"), "schema"));
-        columns.add(new PropertyColumn<Attr, String>(new ResourceModel("values"), "values") {
+        columns.add(new PropertyColumn<>(new ResourceModel("values"), "values") {
 
             private static final long serialVersionUID = -1822504503325964706L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<Attr>> item,
-                    final String componentId,
-                    final IModel<Attr> rowModel) {
+                final Item<ICellPopulator<Attr>> item,
+                final String componentId,
+                final IModel<Attr> rowModel) {
 
                 if (rowModel.getObject().getValues().toString().length() > 96) {
                     item.add(new Label(componentId, getString("tooLong")).
-                            add(new AttributeModifier("style", "font-style:italic")));
+                        add(new AttributeModifier("style", "font-style:italic")));
                 } else {
                     super.populateItem(item, componentId, rowModel);
                 }

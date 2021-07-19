@@ -125,8 +125,8 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                 if (clazzField.getType().equals(Boolean.class) || clazzField.getType().equals(boolean.class)) {
                     columns.add(new BooleanPropertyColumn<>(new ResourceModel(field), field, field));
                 } else {
-                    IColumn<SchemaTO, String> column = new PropertyColumn<SchemaTO, String>(
-                            new ResourceModel(field), field, field) {
+                    IColumn<SchemaTO, String> column = new PropertyColumn<>(
+                        new ResourceModel(field), field, field) {
 
                         private static final long serialVersionUID = 3282547854226892169L;
 
@@ -135,8 +135,8 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                             String css = super.getCssClass();
                             if (Constants.KEY_FIELD_NAME.equals(field)) {
                                 css = StringUtils.isBlank(css)
-                                        ? "col-xs-1"
-                                        : css + " col-xs-1";
+                                    ? "col-xs-1"
+                                    : css + " col-xs-1";
                             }
                             return css;
                         }
@@ -152,17 +152,17 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
     @Override
     public ActionsPanel<SchemaTO> getActions(final IModel<SchemaTO> model) {
         ActionsPanel<SchemaTO> panel = super.getActions(model);
-        panel.add(new ActionLink<SchemaTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final SchemaTO ignore) {
                 send(SchemaTypePanel.this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<>(
-                        SchemaRestClient.read(schemaType, model.getObject().getKey()), target));
+                    SchemaRestClient.read(schemaType, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.SCHEMA_UPDATE);
-        panel.add(new ActionLink<SchemaTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

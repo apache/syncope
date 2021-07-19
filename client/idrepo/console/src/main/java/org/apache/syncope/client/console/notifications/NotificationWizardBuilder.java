@@ -166,7 +166,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             add(new EventCategoryPanel(
                     "eventSelection",
                     AuditRestClient.listEvents(),
-                    new PropertyModel<List<String>>(modelObject.getInnerObject(), "events")) {
+                new PropertyModel<>(modelObject.getInnerObject(), "events")) {
 
                 private static final long serialVersionUID = 6429053774964787735L;
 
@@ -192,7 +192,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             setOutputMarkupId(true);
 
             AjaxDropDownChoicePanel<String> type =
-                    new AjaxDropDownChoicePanel<>("about", "anyType", new Model<String>() {
+                    new AjaxDropDownChoicePanel<>("about", "anyType", new Model<>() {
 
                         private static final long serialVersionUID = -2350296434572623272L;
 
@@ -211,7 +211,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             type.addRequiredLabel();
             add(type);
 
-            ListModel<SearchClause> clauseModel = new ListModel<SearchClause>() {
+            ListModel<SearchClause> clauseModel = new ListModel<>() {
 
                 private static final long serialVersionUID = 3769540249683319782L;
 
@@ -280,7 +280,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
             IModel<List<Pair<String, List<SearchClause>>>> model = new PropertyModel<>(modelObject, "aboutClauses");
 
-            aboutContainer.add(new MultiPanel<Pair<String, List<SearchClause>>>("abouts", "abouts", model) {
+            aboutContainer.add(new MultiPanel<>("abouts", "abouts", model) {
 
                 private static final long serialVersionUID = -2481579077338205547L;
 
@@ -292,7 +292,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
                 @Override
                 protected About getItemPanel(final ListItem<Pair<String, List<SearchClause>>> item) {
 
-                    return new About("panel", new Model<Pair<String, List<SearchClause>>>() {
+                    return new About("panel", new Model<>() {
 
                         private static final long serialVersionUID = 6799404673615637845L;
 
@@ -325,14 +325,14 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
         private static final long serialVersionUID = -7709805590497687958L;
 
-        private final IModel<List<String>> recipientProviders = new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> recipientProviders = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157447L;
 
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdRepoImplementationType.RECIPIENTS_PROVIDER).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 

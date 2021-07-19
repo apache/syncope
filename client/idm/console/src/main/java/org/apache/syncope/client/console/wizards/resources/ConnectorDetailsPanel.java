@@ -34,6 +34,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -66,7 +67,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                         : RealmRestClient.list()).
                         stream().filter(realm -> SyncopeConsoleSession.get().getAuthRealms().stream().anyMatch(
                         authRealm -> realm.getFullPath().startsWith(authRealm))).
-                        map(item -> item.getFullPath()).collect(Collectors.toList()).iterator();
+                        map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
             }
         };
 

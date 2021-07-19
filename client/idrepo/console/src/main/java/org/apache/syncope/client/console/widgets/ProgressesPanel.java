@@ -35,7 +35,7 @@ public class ProgressesPanel extends Panel {
 
         add(new Label("lastUpdate", SyncopeConsoleSession.get().getDateFormat().format(lastUpdate)));
 
-        ListView<ProgressBean> progresses = new ListView<ProgressBean>("progresses", progressBeans) {
+        ListView<ProgressBean> progresses = new ListView<>("progresses", progressBeans) {
 
             private static final long serialVersionUID = -9180479401817023838L;
 

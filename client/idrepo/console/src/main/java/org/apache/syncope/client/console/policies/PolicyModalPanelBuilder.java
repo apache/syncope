@@ -75,7 +75,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
         private final T policyTO;
 
-        private final LoadableDetachableModel<List<String>> resources = new LoadableDetachableModel<List<String>>() {
+        private final LoadableDetachableModel<List<String>> resources = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -157,7 +157,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                 default:
             }
 
-            add(new ListView<Component>("fields", fields) {
+            add(new ListView<>("fields", fields) {
 
                 private static final long serialVersionUID = -9180479401817023838L;
 

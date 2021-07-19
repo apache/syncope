@@ -120,7 +120,7 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
                 withOffStyle(BootstrapToggleConfig.Style.danger).
                 withSize(BootstrapToggleConfig.Size.mini);
 
-        return new BootstrapToggle("externalAction", new PropertyModel<Boolean>(property, "overridable"), config) {
+        return new BootstrapToggle("externalAction", new PropertyModel<>(property, "overridable"), config) {
 
             private static final long serialVersionUID = -875219845189261873L;
 
@@ -240,7 +240,7 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
 
             super(id);
 
-            add(new ListView<Attr>("schemas", attrTOs) {
+            add(new ListView<>("schemas", attrTOs) {
 
                 private static final long serialVersionUID = 9101744072914090143L;
 
@@ -250,9 +250,9 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
                     final boolean isMultivalue = schemas.get(attrTO.getSchema()).isMultivalue();
 
                     AbstractFieldPanel<?> panel = setPanel(
-                            schemas,
-                            item,
-                            !linkedAccountTO.getPlainAttr(attrTO.getSchema()).isPresent());
+                        schemas,
+                        item,
+                        !linkedAccountTO.getPlainAttr(attrTO.getSchema()).isPresent());
 
                     panel.showExternAction(checkboxToggle(attrTO, panel, isMultivalue));
                 }

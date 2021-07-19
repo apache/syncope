@@ -137,17 +137,17 @@ public class TypeExtensionDirectoryPanel
         final ActionsPanel<TypeExtensionTO> panel = super.getActions(model);
         final TypeExtensionTO typeExtension = model.getObject();
 
-        panel.add(new ActionLink<TypeExtensionTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final TypeExtensionTO ignore) {
                 send(TypeExtensionDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(typeExtension, target));
+                    new AjaxWizard.EditItemActionEvent<>(typeExtension, target));
             }
         }, ActionLink.ActionType.EDIT, StringUtils.EMPTY);
-        panel.add(new ActionLink<TypeExtensionTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

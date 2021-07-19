@@ -55,7 +55,7 @@ public class ReconQuery implements Serializable {
 
         public Builder moreAttrsToGet(final String... moreAttrsToGet) {
             if (moreAttrsToGet != null) {
-                Set<String> matg = Optional.ofNullable(instance.getMoreAttrsToGet()).orElseGet(() -> new HashSet<>());
+                Set<String> matg = Optional.ofNullable(instance.getMoreAttrsToGet()).orElseGet(HashSet::new);
                 matg.addAll(Stream.of(moreAttrsToGet).collect(Collectors.toSet()));
                 instance.setMoreAttrsToGet(matg);
             }
@@ -64,7 +64,7 @@ public class ReconQuery implements Serializable {
 
         public Builder moreAttrsToGet(final Collection<String> moreAttrsToGet) {
             if (moreAttrsToGet != null) {
-                Set<String> matg = Optional.ofNullable(instance.getMoreAttrsToGet()).orElseGet(() -> new HashSet<>());
+                Set<String> matg = Optional.ofNullable(instance.getMoreAttrsToGet()).orElseGet(HashSet::new);
                 matg.addAll(moreAttrsToGet);
                 instance.setMoreAttrsToGet(matg);
             }

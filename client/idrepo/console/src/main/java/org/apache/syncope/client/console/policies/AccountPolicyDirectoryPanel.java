@@ -65,20 +65,20 @@ public class AccountPolicyDirectoryPanel extends PolicyDirectoryPanel<AccountPol
 
     @Override
     protected void addCustomActions(final ActionsPanel<AccountPolicyTO> panel, final IModel<AccountPolicyTO> model) {
-        panel.add(new ActionLink<AccountPolicyTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AccountPolicyTO ignore) {
                 target.add(ruleCompositionModal.setContent(new PolicyRuleDirectoryPanel<>(
-                        ruleCompositionModal, model.getObject().getKey(), PolicyType.ACCOUNT, pageRef)));
+                    ruleCompositionModal, model.getObject().getKey(), PolicyType.ACCOUNT, pageRef)));
 
                 ruleCompositionModal.header(new StringResourceModel(
-                        "policy.rules", AccountPolicyDirectoryPanel.this, model));
+                    "policy.rules", AccountPolicyDirectoryPanel.this, model));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
-                        ruleCompositionModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
+                    ruleCompositionModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
 
                 ruleCompositionModal.show(true);
             }

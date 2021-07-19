@@ -172,23 +172,23 @@ public class DelegationWizardBuilder extends BaseAjaxWizardBuilder<DelegationTO>
                     setAllowOrder(true).
                     build("roles",
                             new PropertyModel<>(modelObject, "roles"),
-                            new AjaxPalettePanel.Builder.Query<String>() {
+                        new AjaxPalettePanel.Builder.Query<>() {
 
-                        private static final long serialVersionUID = 3900199363626636719L;
+                            private static final long serialVersionUID = 3900199363626636719L;
 
-                        @Override
-                        public List<String> execute(final String filter) {
-                            if (StringUtils.isEmpty(filter) || "*".equals(filter)) {
-                                return allRoles.size() > Constants.MAX_ROLE_LIST_SIZE
+                            @Override
+                            public List<String> execute(final String filter) {
+                                if (StringUtils.isEmpty(filter) || "*".equals(filter)) {
+                                    return allRoles.size() > Constants.MAX_ROLE_LIST_SIZE
                                         ? allRoles.subList(0, Constants.MAX_ROLE_LIST_SIZE)
                                         : allRoles;
 
-                            }
-                            return allRoles.stream().
+                                }
+                                return allRoles.stream().
                                     filter(role -> StringUtils.containsIgnoreCase(role, filter)).
                                     collect(Collectors.toList());
-                        }
-                    }).
+                            }
+                        }).
                     hideLabel().
                     setOutputMarkupId(true));
         }

@@ -101,34 +101,34 @@ public class NotificationDirectoryPanel
     public ActionsPanel<NotificationTO> getActions(final IModel<NotificationTO> model) {
         final ActionsPanel<NotificationTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<NotificationTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
                 send(NotificationDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                new NotificationWrapper(
-                                        NotificationRestClient.read(model.getObject().getKey())), target));
+                    new AjaxWizard.EditItemActionEvent<>(
+                        new NotificationWrapper(
+                            NotificationRestClient.read(model.getObject().getKey())), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.NOTIFICATION_UPDATE);
 
-        panel.add(new ActionLink<NotificationTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
                 target.add(utilityModal.setContent(
-                        new NotificationTasks(model.getObject().getKey(), pageRef)));
+                    new NotificationTasks(model.getObject().getKey(), pageRef)));
                 utilityModal.header(new StringResourceModel("notification.tasks", model));
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
         }, ActionLink.ActionType.NOTIFICATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
-        panel.add(new ActionLink<NotificationTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -191,7 +191,7 @@ public class NotificationDirectoryPanel
 
         @Override
         public IModel<NotificationTO> model(final NotificationTO notification) {
-            return new IModel<NotificationTO>() {
+            return new IModel<>() {
 
                 private static final long serialVersionUID = 774694801558497248L;
 

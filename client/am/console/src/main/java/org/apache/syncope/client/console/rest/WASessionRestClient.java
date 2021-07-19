@@ -67,8 +67,8 @@ public final class WASessionRestClient extends AMSessionRestClient {
                 JsonNode node = MAPPER.readTree((InputStream) response.getEntity());
                 if (node.has("activeSsoSessions")) {
                     return MAPPER.readValue(MAPPER.treeAsTokens(node.get("activeSsoSessions")),
-                            new TypeReference<List<AMSession>>() {
-                    });
+                        new TypeReference<>() {
+                        });
                 }
             } else {
                 LOG.error("Unexpected response for SSO Sessions from {}: {}",

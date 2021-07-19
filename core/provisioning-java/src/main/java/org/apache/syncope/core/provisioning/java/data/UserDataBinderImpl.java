@@ -50,6 +50,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -367,7 +368,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     private boolean isPasswordMapped(final ExternalResource resource) {
         return resource.getProvision(anyTypeDAO.findUser()).
                 filter(provision -> provision.getMapping() != null).
-                map(provision -> provision.getMapping().getItems().stream().anyMatch(item -> item.isPassword())).
+                map(provision -> provision.getMapping().getItems().stream().anyMatch(Item::isPassword)).
                 orElse(false);
     }
 

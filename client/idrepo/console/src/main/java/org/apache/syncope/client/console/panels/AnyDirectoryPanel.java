@@ -142,11 +142,11 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 prefcolumns));
 
         PreferenceManager.getList(DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).stream().
-                filter(name -> pSchemaNames.contains(name)).
+                filter(pSchemaNames::contains).
                 forEach(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.PLAIN)));
 
         PreferenceManager.getList(DisplayAttributesModalPanel.getPrefDerivedAttributeView(type)).stream().
-                filter(name -> (dSchemaNames.contains(name))).
+                filter(dSchemaNames::contains).
                 forEach(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.DERIVED)));
 
         // Add defaults in case of no selection

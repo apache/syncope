@@ -52,7 +52,7 @@ public class AttrReleasePolicyDirectoryPanel extends PolicyDirectoryPanel<AttrRe
             final ActionsPanel<AttrReleasePolicyTO> panel,
             final IModel<AttrReleasePolicyTO> model) {
 
-        panel.add(new ActionLink<AttrReleasePolicyTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -63,7 +63,7 @@ public class AttrReleasePolicyDirectoryPanel extends PolicyDirectoryPanel<AttrRe
                     model.getObject().setConf(new DefaultAttrReleasePolicyConf());
                 }
                 target.add(policySpecModal.setContent(
-                        new AttrReleasePolicyModalPanel(policySpecModal, model, pageRef)));
+                    new AttrReleasePolicyModalPanel(policySpecModal, model, pageRef)));
                 policySpecModal.header(new Model<>(getString("attrReleasePolicyConf.title", model)));
                 policySpecModal.show(true);
             }

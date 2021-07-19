@@ -100,18 +100,18 @@ public class ClientAppPropertiesDirectoryPanel<T extends ClientAppTO> extends At
     protected ActionsPanel<Attr> getActions(final IModel<Attr> model) {
         ActionsPanel<Attr> panel = super.getActions(model);
 
-        panel.add(new ActionLink<Attr>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Attr ignore) {
                 send(ClientAppPropertiesDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.CLIENTAPP_UPDATE);
 
-        panel.add(new ActionLink<Attr>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

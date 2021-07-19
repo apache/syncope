@@ -238,7 +238,7 @@ public class AnyObjectServiceTest {
         InputStream in = list(MediaType.APPLICATION_JSON_TYPE);
 
         PagedResult<AnyObjectTO> list = new SyncopeObjectMapper().
-                readValue(IOUtils.toString(in), new TypeReference<PagedResult<AnyObjectTO>>() {
+                readValue(IOUtils.toString(in), new TypeReference<>() {
                 });
         checkList(list);
     }
@@ -248,7 +248,7 @@ public class AnyObjectServiceTest {
         InputStream in = list(MediaType.APPLICATION_XML_TYPE);
 
         PagedResult<AnyObjectTO> list = new SyncopeXmlMapper().
-                readValue(IOUtils.toString(in), new TypeReference<PagedResult<AnyObjectTO>>() {
+                readValue(IOUtils.toString(in), new TypeReference<>() {
                 });
         checkList(list);
     }
@@ -258,7 +258,7 @@ public class AnyObjectServiceTest {
         InputStream in = list(RESTHeaders.APPLICATION_YAML_TYPE);
 
         PagedResult<AnyObjectTO> list = new SyncopeYAMLMapper().
-                readValue(IOUtils.toString(in), new TypeReference<PagedResult<AnyObjectTO>>() {
+                readValue(IOUtils.toString(in), new TypeReference<>() {
                 });
         checkList(list);
     }

@@ -44,7 +44,7 @@ public final class ActionsPanel<T extends Serializable> extends Panel {
         setOutputMarkupId(true);
         this.model = model;
 
-        add(new ListView<Action<T>>("actionRepeater", actions) {
+        add(new ListView<>("actionRepeater", actions) {
 
             private static final long serialVersionUID = -9180479401817023838L;
 

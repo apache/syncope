@@ -69,7 +69,7 @@ public class CSVConfPanel extends Panel {
                 "lineSeparator", "lineSeparator", new PropertyModel<>(spec, "lineSeparator"), false);
         lineSeparator.setChoices(Stream.of(CSVPullWizardBuilder.LineSeparator.values()).
                 map(CSVPullWizardBuilder.LineSeparator::name).collect(Collectors.toList()));
-        lineSeparator.setChoiceRenderer(new IChoiceRenderer<String>() {
+        lineSeparator.setChoiceRenderer(new IChoiceRenderer<>() {
 
             private static final long serialVersionUID = 8551710814349123350L;
 
@@ -85,7 +85,7 @@ public class CSVConfPanel extends Panel {
 
             @Override
             public String getObject(
-                    final String id, final IModel<? extends List<? extends String>> choices) {
+                final String id, final IModel<? extends List<? extends String>> choices) {
 
                 return CSVPullWizardBuilder.LineSeparator.valueOf(id).getRepr();
             }

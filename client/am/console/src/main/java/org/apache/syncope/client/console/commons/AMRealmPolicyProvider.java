@@ -38,36 +38,36 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
 
     private static final long serialVersionUID = 1671878489700L;
 
-    private final IModel<Map<String, String>> accessPolicies = new LoadableDetachableModel<Map<String, String>>() {
+    private final IModel<Map<String, String>> accessPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ACCESS).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
-    private final IModel<Map<String, String>> attrReleasePolicies = new LoadableDetachableModel<Map<String, String>>() {
+    private final IModel<Map<String, String>> attrReleasePolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ATTR_RELEASE).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
-    private final IModel<Map<String, String>> authPolicies = new LoadableDetachableModel<Map<String, String>>() {
+    private final IModel<Map<String, String>> authPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.AUTH).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 

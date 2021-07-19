@@ -45,7 +45,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
 
     public static ProvisioningResult<GroupTO> create(final GroupCR groupCR) {
         Response response = getService(GroupService.class).create(groupCR);
-        return response.readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
+        return response.readEntity(new GenericType<>() {
         });
     }
 
@@ -53,7 +53,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
         ProvisioningResult<GroupTO> result;
         synchronized (this) {
             result = getService(etag, GroupService.class).update(updateReq).
-                    readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
+                    readEntity(new GenericType<>() {
                     });
             resetClient(getAnyServiceClass());
         }

@@ -198,7 +198,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         this.privilegeNames = privilegeNames;
         this.resourceNames = resourceNames;
 
-        searchButton = new AjaxLink<Void>("search") {
+        searchButton = new AjaxLink<>("search") {
 
             private static final long serialVersionUID = 5538299138211283825L;
 
@@ -217,14 +217,14 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
         operatorFragment = new Fragment("operator", "operatorFragment", this);
 
-        field = new FormComponent<SearchClause>("container", this.clause) {
+        field = new FormComponent<>("container", this.clause) {
 
             private static final long serialVersionUID = -8204140666393922700L;
 
         };
         add(field);
 
-        comparators = new LoadableDetachableModel<List<Comparator>>() {
+        comparators = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -244,15 +244,15 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     case GROUP_MEMBER:
                     case RESOURCE:
                         return List.of(
-                                SearchClause.Comparator.EQUALS,
-                                SearchClause.Comparator.NOT_EQUALS);
+                            SearchClause.Comparator.EQUALS,
+                            SearchClause.Comparator.NOT_EQUALS);
 
                     case RELATIONSHIP:
                         return List.of(
-                                SearchClause.Comparator.IS_NOT_NULL,
-                                SearchClause.Comparator.IS_NULL,
-                                SearchClause.Comparator.EQUALS,
-                                SearchClause.Comparator.NOT_EQUALS);
+                            SearchClause.Comparator.IS_NOT_NULL,
+                            SearchClause.Comparator.IS_NULL,
+                            SearchClause.Comparator.EQUALS,
+                            SearchClause.Comparator.NOT_EQUALS);
 
                     case CUSTOM:
                         return customizer.comparators();
@@ -263,7 +263,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             }
         };
 
-        properties = new LoadableDetachableModel<List<String>>() {
+        properties = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -286,19 +286,19 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     case ROLE_MEMBERSHIP:
                         return roleNames.getObject().stream().
-                                sorted().collect(Collectors.toList());
+                            sorted().collect(Collectors.toList());
 
                     case PRIVILEGE:
                         return privilegeNames.getObject().stream().
-                                sorted().collect(Collectors.toList());
+                            sorted().collect(Collectors.toList());
 
                     case RESOURCE:
                         return resourceNames.getObject().stream().
-                                sorted().collect(Collectors.toList());
+                            sorted().collect(Collectors.toList());
 
                     case RELATIONSHIP:
                         return RelationshipTypeRestClient.list().stream().
-                                map(RelationshipTypeTO::getKey).collect(Collectors.toList());
+                            map(RelationshipTypeTO::getKey).collect(Collectors.toList());
 
                     case CUSTOM:
                         return customizer.properties();
@@ -380,7 +380,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 withOffStyle(BootstrapToggleConfig.Style.warning).
                 withSize(BootstrapToggleConfig.Size.mini);
 
-        operatorFragment.add(new BootstrapToggle("operator", new Model<Boolean>() {
+        operatorFragment.add(new BootstrapToggle("operator", new Model<>() {
 
             private static final long serialVersionUID = -7157802546272668001L;
 
@@ -676,7 +676,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     }
 
     private IChoiceRenderer<SearchClause.Comparator> getComparatorRender(final IModel<SearchClause> clause) {
-        return new IChoiceRenderer<SearchClause.Comparator>() {
+        return new IChoiceRenderer<>() {
 
             private static final long serialVersionUID = -9086043750227867686L;
 
@@ -815,7 +815,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
             @Override
             public SearchClause.Comparator getObject(
-                    final String id, final IModel<? extends List<? extends SearchClause.Comparator>> choices) {
+                final String id, final IModel<? extends List<? extends SearchClause.Comparator>> choices) {
 
                 if (id == null) {
                     return SearchClause.Comparator.EQUALS;

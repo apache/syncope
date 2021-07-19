@@ -33,7 +33,7 @@ public class DomainDropDown extends DropDownChoice<String> {
 
     public DomainDropDown(final String id, final IModel<List<String>> domains) {
         super(id, domains);
-        setModel(new IModel<String>() {
+        setModel(new IModel<>() {
 
             private static final long serialVersionUID = -1124206668056084806L;
 

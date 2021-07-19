@@ -109,7 +109,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                 final ActionsPanel<RealmTO> actionPanel = new ActionsPanel<>("actions", null);
 
                 if (StringUtils.startsWith(realmTO.getFullPath(), SyncopeConstants.ROOT_REALM)) {
-                    actionPanel.add(new ActionLink<RealmTO>(realmTO) {
+                    actionPanel.add(new ActionLink<>(realmTO) {
 
                         private static final long serialVersionUID = 2802988981431379827L;
 
@@ -119,7 +119,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                         }
                     }, ActionLink.ActionType.CREATE, IdRepoEntitlement.REALM_CREATE).hideLabel();
 
-                    actionPanel.add(new ActionLink<RealmTO>(realmTO) {
+                    actionPanel.add(new ActionLink<>(realmTO) {
 
                         private static final long serialVersionUID = 2802988981431379828L;
 
@@ -129,7 +129,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                         }
                     }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REALM_UPDATE).hideLabel();
 
-                    actionPanel.add(new ActionLink<RealmTO>(realmTO) {
+                    actionPanel.add(new ActionLink<>(realmTO) {
 
                         private static final long serialVersionUID = 2802988981431379827L;
 
@@ -139,7 +139,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                         }
                     }, ActionLink.ActionType.TEMPLATE, IdRepoEntitlement.REALM_UPDATE).hideLabel();
 
-                    actionPanel.add(new ActionLink<RealmTO>(realmTO) {
+                    actionPanel.add(new ActionLink<>(realmTO) {
 
                         private static final long serialVersionUID = 2802988981431379829L;
 
@@ -205,8 +205,8 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         propagations.add(syncope);
         propagations.addAll(((ProvisioningResult) result).getPropagationStatuses());
 
-        ListViewPanel.Builder<PropagationStatus> builder = new ListViewPanel.Builder<PropagationStatus>(
-                PropagationStatus.class, pageRef) {
+        ListViewPanel.Builder<PropagationStatus> builder = new ListViewPanel.Builder<>(
+            PropagationStatus.class, pageRef) {
 
             private static final long serialVersionUID = -6809736686861678498L;
 
@@ -215,12 +215,12 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                 if ("afterObj".equalsIgnoreCase(key)) {
                     ConnObjectTO afterObj = bean.getAfterObj();
                     String remoteId = afterObj == null
-                            || afterObj.getAttrs().isEmpty()
-                            || afterObj.getAttr(ConnIdSpecialName.NAME).isEmpty()
-                            || afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues() == null
-                            || afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues().isEmpty()
-                            ? StringUtils.EMPTY
-                            : afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues().get(0);
+                        || afterObj.getAttrs().isEmpty()
+                        || afterObj.getAttr(ConnIdSpecialName.NAME).isEmpty()
+                        || afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues() == null
+                        || afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues().isEmpty()
+                        ? StringUtils.EMPTY
+                        : afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues().get(0);
 
                     return new Label("field", remoteId);
                 } else if ("status".equalsIgnoreCase(key)) {
@@ -237,15 +237,15 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         builder.withChecks(ListViewPanel.CheckAvailability.NONE);
         builder.setReuseItem(false);
 
-        ActionLink<PropagationStatus> connObjectLink = new ActionLink<PropagationStatus>() {
+        ActionLink<PropagationStatus> connObjectLink = new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             protected boolean statusCondition(final PropagationStatus bean) {
                 return !Constants.SYNCOPE.equals(bean.getResource())
-                        && (ExecStatus.CREATED == bean.getStatus()
-                        || ExecStatus.SUCCESS == bean.getStatus());
+                    && (ExecStatus.CREATED == bean.getStatus()
+                    || ExecStatus.SUCCESS == bean.getStatus());
             }
 
             @Override
@@ -255,7 +255,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         };
         SyncopeWebApplication.get().getStatusProvider().addConnObjectLink(builder, connObjectLink);
 
-        builder.addAction(new ActionLink<PropagationStatus>() {
+        builder.addAction(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

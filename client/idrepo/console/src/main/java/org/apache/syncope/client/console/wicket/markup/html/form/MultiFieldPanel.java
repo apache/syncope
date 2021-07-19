@@ -75,7 +75,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
         }
 
         public MultiFieldPanel<E> build(final String id, final String name, final FieldPanel<E> panelTemplate) {
-            return new MultiFieldPanel<E>(id, name, model) {
+            return new MultiFieldPanel<>(id, name, model) {
 
                 private static final long serialVersionUID = 6600411297376841521L;
 

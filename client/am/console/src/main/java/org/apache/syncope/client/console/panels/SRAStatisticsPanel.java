@@ -57,14 +57,14 @@ public class SRAStatisticsPanel extends Panel {
     private final List<Pair<String, String>> selected = new ArrayList<>();
 
     private final LoadableDetachableModel<Map<String, String>> routes =
-            new LoadableDetachableModel<Map<String, String>>() {
+        new LoadableDetachableModel<>() {
 
-        @Override
-        protected Map<String, String> load() {
-            return SRARouteRestClient.list().stream().
+            @Override
+            protected Map<String, String> load() {
+                return SRARouteRestClient.list().stream().
                     collect(Collectors.toMap(SRARouteTO::getKey, SRARouteTO::getName));
-        }
-    };
+            }
+        };
 
     private int current;
 
@@ -91,7 +91,7 @@ public class SRAStatisticsPanel extends Panel {
             protected void populateItem(final ListItem<SRAStatistics.Tag> tag) {
                 String btnCss = next().cssClassName();
                 tag.add(new Label("label", tag.getModelObject().getTag()));
-                tag.add(new ListView<String>("tag", tag.getModelObject().getValues()) {
+                tag.add(new ListView<>("tag", tag.getModelObject().getValues()) {
 
                     @Override
                     protected void populateItem(final ListItem<String> value) {
@@ -100,7 +100,7 @@ public class SRAStatisticsPanel extends Panel {
                             @Override
                             public void onClick(final AjaxRequestTarget target) {
                                 Pair<String, String> selection =
-                                        Pair.of(tag.getModelObject().getTag(), value.getModelObject());
+                                    Pair.of(tag.getModelObject().getTag(), value.getModelObject());
                                 if (selected.contains(selection)) {
                                     selected.remove(selection);
                                 } else {
@@ -126,8 +126,8 @@ public class SRAStatisticsPanel extends Panel {
                         };
 
                         IModel<String> valueLabel = routes.getObject().containsKey(value.getModelObject())
-                                ? Model.of(routes.getObject().get(value.getModelObject()))
-                                : value.getModel();
+                            ? Model.of(routes.getObject().get(value.getModelObject()))
+                            : value.getModel();
                         valueLink.add(new Label("valueLabel", valueLabel));
                         value.add(valueLink);
                     }

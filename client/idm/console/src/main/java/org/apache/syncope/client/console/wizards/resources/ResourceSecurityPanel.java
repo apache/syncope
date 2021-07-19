@@ -39,47 +39,47 @@ public class ResourceSecurityPanel extends WizardStep {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private final IModel<Map<String, String>> passwordPolicies = new LoadableDetachableModel<Map<String, String>>() {
+    private final IModel<Map<String, String>> passwordPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.PASSWORD).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
-    private final IModel<Map<String, String>> accountPolicies = new LoadableDetachableModel<Map<String, String>>() {
+    private final IModel<Map<String, String>> accountPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ACCOUNT).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
-    private final IModel<Map<String, String>> pullPolicies = new LoadableDetachableModel<Map<String, String>>() {
+    private final IModel<Map<String, String>> pullPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.PULL).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
-    private final IModel<Map<String, String>> pushPolicies = new LoadableDetachableModel<Map<String, String>>() {
+    private final IModel<Map<String, String>> pushPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 9089911876466472133L;
 
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.PUSH).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 

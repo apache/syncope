@@ -126,7 +126,7 @@ public class UserRequestDirectoryPanel
     public ActionsPanel<UserRequest> getActions(final IModel<UserRequest> model) {
         ActionsPanel<UserRequest> panel = super.getActions(model);
 
-        panel.add(new ActionLink<UserRequest>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

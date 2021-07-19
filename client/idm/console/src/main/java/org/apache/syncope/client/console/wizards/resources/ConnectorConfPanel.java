@@ -35,7 +35,7 @@ public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInsta
         super(connInstanceTO);
         this.bundles = bundles;
 
-        model = new LoadableDetachableModel<List<ConnConfProperty>>() {
+        model = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = -2965284931860212687L;
 

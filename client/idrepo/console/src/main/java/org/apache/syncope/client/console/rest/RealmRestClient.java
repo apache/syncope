@@ -55,13 +55,13 @@ public class RealmRestClient extends BaseRestClient {
 
     public static ProvisioningResult<RealmTO> create(final String parentPath, final RealmTO realmTO) {
         final Response response = getService(RealmService.class).create(parentPath, realmTO);
-        return response.readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
+        return response.readEntity(new GenericType<>() {
         });
     }
 
     public static ProvisioningResult<RealmTO> update(final RealmTO realmTO) {
         final Response response = getService(RealmService.class).update(realmTO);
-        return response.readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
+        return response.readEntity(new GenericType<>() {
         });
     }
 

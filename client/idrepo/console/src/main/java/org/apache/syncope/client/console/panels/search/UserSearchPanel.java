@@ -54,7 +54,7 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
     protected void populate() {
         super.populate();
 
-        this.roleNames = new LoadableDetachableModel<List<String>>() {
+        this.roleNames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -64,15 +64,15 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
             }
         };
 
-        this.privilegeNames = new LoadableDetachableModel<List<String>>() {
+        this.privilegeNames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
                 return ApplicationRestClient.list().stream().
-                        flatMap(application -> application.getPrivileges().stream()).
-                        map(EntityTO::getKey).collect(Collectors.toList());
+                    flatMap(application -> application.getPrivileges().stream()).
+                    map(EntityTO::getKey).collect(Collectors.toList());
             }
         };
     }

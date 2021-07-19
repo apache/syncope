@@ -64,7 +64,7 @@ public class AjaxSearchFieldPanel extends FieldPanel<String> implements Cloneabl
         this.settings = settings;
         this.renderer = renderer;
 
-        field = new AutoCompleteTextField<String>("textField", model, settings) {
+        field = new AutoCompleteTextField<>("textField", model, settings) {
 
             private static final long serialVersionUID = -6648767303091874219L;
 
@@ -75,11 +75,11 @@ public class AjaxSearchFieldPanel extends FieldPanel<String> implements Cloneabl
 
             @Override
             protected AutoCompleteBehavior<String> newAutoCompleteBehavior(
-                    final IAutoCompleteRenderer<String> renderer, final AutoCompleteSettings settings) {
+                final IAutoCompleteRenderer<String> renderer, final AutoCompleteSettings settings) {
 
-                return new IndicatorAutoCompleteBehavior<String>(
-                        AjaxSearchFieldPanel.this.renderer != null ? AjaxSearchFieldPanel.this.renderer : renderer,
-                        AjaxSearchFieldPanel.this.settings != null ? AjaxSearchFieldPanel.this.settings : settings) {
+                return new IndicatorAutoCompleteBehavior<>(
+                    AjaxSearchFieldPanel.this.renderer != null ? AjaxSearchFieldPanel.this.renderer : renderer,
+                    AjaxSearchFieldPanel.this.settings != null ? AjaxSearchFieldPanel.this.settings : settings) {
 
                     private static final long serialVersionUID = 1070808433195962931L;
 

@@ -84,18 +84,18 @@ public class SAML2IdPEntityDirectoryPanel extends DirectoryPanel<
         columns.add(new PropertyColumn<>(
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this),
                 Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
-        columns.add(new AbstractColumn<SAML2IdPEntityTO, String>(Model.of("URL")) {
+        columns.add(new AbstractColumn<>(Model.of("URL")) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<SAML2IdPEntityTO>> cellItem,
-                    final String componentId,
-                    final IModel<SAML2IdPEntityTO> rowModel) {
+                final Item<ICellPopulator<SAML2IdPEntityTO>> cellItem,
+                final String componentId,
+                final IModel<SAML2IdPEntityTO> rowModel) {
 
                 cellItem.add(new ExternalLink(
-                        componentId,
-                        Model.of(metadataURL),
-                        Model.of(metadataURL)) {
+                    componentId,
+                    Model.of(metadataURL),
+                    Model.of(metadataURL)) {
 
                     @Override
                     protected void onComponentTag(final ComponentTag tag) {
@@ -118,15 +118,15 @@ public class SAML2IdPEntityDirectoryPanel extends DirectoryPanel<
     protected ActionsPanel<SAML2IdPEntityTO> getActions(final IModel<SAML2IdPEntityTO> model) {
         ActionsPanel<SAML2IdPEntityTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<SAML2IdPEntityTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final SAML2IdPEntityTO ignore) {
                 send(SAML2IdPEntityDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                SAML2IdPEntityRestClient.get(model.getObject().getKey()), target));
+                    new AjaxWizard.EditItemActionEvent<>(
+                        SAML2IdPEntityRestClient.get(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.SAML2_IDP_ENTITY_SET);
 

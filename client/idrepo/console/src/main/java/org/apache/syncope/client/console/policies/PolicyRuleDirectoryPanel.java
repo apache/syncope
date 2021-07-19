@@ -113,16 +113,16 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("rule", this), "implementationKey", "implementationKey"));
 
-        columns.add(new AbstractColumn<PolicyRuleWrapper, String>(
-                new StringResourceModel("configuration", this)) {
+        columns.add(new AbstractColumn<>(
+            new StringResourceModel("configuration", this)) {
 
             private static final long serialVersionUID = -4008579357070833846L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<PolicyRuleWrapper>> cellItem,
-                    final String componentId,
-                    final IModel<PolicyRuleWrapper> rowModel) {
+                final Item<ICellPopulator<PolicyRuleWrapper>> cellItem,
+                final String componentId,
+                final IModel<PolicyRuleWrapper> rowModel) {
 
                 if (rowModel.getObject().getConf() == null) {
                     cellItem.add(new Label(componentId, ""));
@@ -138,7 +138,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
     public ActionsPanel<PolicyRuleWrapper> getActions(final IModel<PolicyRuleWrapper> model) {
         final ActionsPanel<PolicyRuleWrapper> panel = super.getActions(model);
 
-        panel.add(new ActionLink<PolicyRuleWrapper>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -150,11 +150,11 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
                     ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 } else {
                     send(PolicyRuleDirectoryPanel.this, Broadcast.EXACT,
-                            new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                 }
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.POLICY_UPDATE);
-        panel.add(new ActionLink<PolicyRuleWrapper>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -185,7 +185,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
     public ActionsPanel<Serializable> getHeader(final String componentId) {
         final ActionsPanel<Serializable> panel = new ActionsPanel<>(componentId, null);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 

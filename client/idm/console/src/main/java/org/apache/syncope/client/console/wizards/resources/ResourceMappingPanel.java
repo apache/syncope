@@ -35,7 +35,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -82,7 +81,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
         super(id,
                 itemTransformers,
                 jexlTransformers,
-                new ListModel<ItemTO>(provision.getItems()),
+            new ListModel<>(provision.getItems()),
                 resourceTO.getConnector() != null,
                 MappingPurpose.BOTH);
 
@@ -90,17 +89,17 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
 
         this.provision = provision;
 
-        extAttrNames = new LoadableDetachableModel<List<String>>() {
+        extAttrNames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
                 return ConnectorRestClient.getExtAttrNames(
-                        adminRealm,
-                        provision.getObjectClass(),
-                        resourceTO.getConnector(),
-                        resourceTO.getConfOverride());
+                    adminRealm,
+                    provision.getObjectClass(),
+                    resourceTO.getConnector(),
+                    resourceTO.getConfOverride());
             }
         };
     }

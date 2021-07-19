@@ -88,7 +88,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         form.setOutputMarkupId(true);
         add(form);
 
-        content = new AbstractModalPanel<T>(this, null) {
+        content = new AbstractModalPanel<>(this, null) {
 
             private static final long serialVersionUID = -6142277554912316095L;
 
@@ -243,7 +243,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         dialog.setMarkupId(this.getId());
 
         footer = (WebMarkupContainer) this.get("dialog:footer");
-        footer.addOrReplace(new ListView<Component>("inputs", components) {
+        footer.addOrReplace(new ListView<>("inputs", components) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 

@@ -128,20 +128,20 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
     public ActionsPanel<RoleTO> getActions(final IModel<RoleTO> model) {
         final ActionsPanel<RoleTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<RoleTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
                 send(RoleDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                new RoleWrapper(RoleRestClient.read(model.getObject().getKey())),
-                                target));
+                    new AjaxWizard.EditItemActionEvent<>(
+                        new RoleWrapper(RoleRestClient.read(model.getObject().getKey())),
+                        target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.ROLE_READ);
 
-        panel.add(new ActionLink<RoleTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -150,11 +150,11 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                 RoleTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(RoleDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.NewItemActionEvent<>(new RoleWrapper(clone), target));
+                    new AjaxWizard.NewItemActionEvent<>(new RoleWrapper(clone), target));
             }
         }, ActionLink.ActionType.CLONE, IdRepoEntitlement.ROLE_CREATE);
 
-        panel.add(new ActionLink<RoleTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -164,36 +164,36 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
                 AnyLayout layout = AnyLayoutUtils.fetch(AnyTypeRestClient.list());
                 ModalPanel anyPanel = AnyLayoutUtils.newAnyPanel(
-                        layout.getAnyPanelClass(),
-                        BaseModal.CONTENT_ID, userType, null, layout, false,
-                        (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
-                            String query = SyncopeClient.getUserSearchConditionBuilder().and(
-                                    SyncopeClient.getUserSearchConditionBuilder().inRoles(model.getObject().getKey()),
-                                    SyncopeClient.getUserSearchConditionBuilder().
-                                            is(Constants.KEY_FIELD_NAME).notNullValue()).
-                                    query();
+                    layout.getAnyPanelClass(),
+                    BaseModal.CONTENT_ID, userType, null, layout, false,
+                    (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
+                        String query = SyncopeClient.getUserSearchConditionBuilder().and(
+                            SyncopeClient.getUserSearchConditionBuilder().inRoles(model.getObject().getKey()),
+                            SyncopeClient.getUserSearchConditionBuilder().
+                                is(Constants.KEY_FIELD_NAME).notNullValue()).
+                            query();
 
-                            Panel panel = new UserDirectoryPanel.Builder(
-                                    AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
-                                    setRealm(SyncopeConstants.ROOT_REALM).
-                                    setFiltered(true).
-                                    setFiql(query).
-                                    disableCheckBoxes().
-                                    addNewItemPanelBuilder(AnyLayoutUtils.newLayoutInfo(
-                                            new UserTO(),
-                                            anyTypeTO.getClasses(),
-                                            anyLayout.getUser(),
-                                            pageRef), false).
-                                    setWizardInModal(false).build(id);
+                        Panel panel = new UserDirectoryPanel.Builder(
+                            AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                            setRealm(SyncopeConstants.ROOT_REALM).
+                            setFiltered(true).
+                            setFiql(query).
+                            disableCheckBoxes().
+                            addNewItemPanelBuilder(AnyLayoutUtils.newLayoutInfo(
+                                new UserTO(),
+                                anyTypeTO.getClasses(),
+                                anyLayout.getUser(),
+                                pageRef), false).
+                            setWizardInModal(false).build(id);
 
-                            MetaDataRoleAuthorizationStrategy.authorize(
-                                    panel,
-                                    WebPage.RENDER,
-                                    IdRepoEntitlement.USER_SEARCH);
+                        MetaDataRoleAuthorizationStrategy.authorize(
+                            panel,
+                            WebPage.RENDER,
+                            IdRepoEntitlement.USER_SEARCH);
 
-                            return panel;
-                        },
-                        pageRef);
+                        return panel;
+                    },
+                    pageRef);
 
                 membersModal.header(new StringResourceModel("role.members", RoleDirectoryPanel.this, model));
                 membersModal.setContent(anyPanel);
@@ -202,20 +202,20 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
             }
         }, ActionLink.ActionType.MEMBERS, IdRepoEntitlement.USER_SEARCH);
 
-        panel.add(new ActionLink<RoleTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
                 AnyLayoutWrapper wrapper = new AnyLayoutWrapper(
-                        model.getObject().getKey(),
-                        AnyLayoutUtils.defaultIfEmpty(
-                                RoleRestClient.readAnyLayout(model.getObject().getKey()), AnyTypeRestClient.list()));
+                    model.getObject().getKey(),
+                    AnyLayoutUtils.defaultIfEmpty(
+                        RoleRestClient.readAnyLayout(model.getObject().getKey()), AnyTypeRestClient.list()));
 
                 utilityModal.header(new ResourceModel("console.layout.info", "JSON Content"));
                 utilityModal.setContent(new JsonEditorPanel(
-                        utilityModal, new PropertyModel<String>(wrapper, "content"), false, pageRef) {
+                    utilityModal, new PropertyModel<>(wrapper, "content"), false, pageRef) {
 
                     private static final long serialVersionUID = -8927036362466990179L;
 
@@ -237,7 +237,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                 target.add(utilityModal);
             }
         }, ActionLink.ActionType.LAYOUT_EDIT, IdRepoEntitlement.ROLE_UPDATE);
-        panel.add(new ActionLink<RoleTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 

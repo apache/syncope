@@ -103,7 +103,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         setWindowClosedReloadCallback(metadataModal);
         metadataModal.size(Modal.Size.Large);
 
-        templateModal = new BaseModal<Serializable>("outer") {
+        templateModal = new BaseModal<>("outer") {
 
             private static final long serialVersionUID = 5787433530654262016L;
 
@@ -121,7 +121,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
         final ImportMetadata importMetadata = new ImportMetadata("importMetadata", container, pageRef);
         addInnerObject(importMetadata);
-        AjaxLink<Void> importMetadataLink = new AjaxLink<Void>("add") {
+        AjaxLink<Void> importMetadataLink = new AjaxLink<>("add") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -140,7 +140,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected ActionLinksTogglePanel<SAML2SP4UIIdPTO> actionTogglePanel() {
-        return new ActionLinksTogglePanel<SAML2SP4UIIdPTO>(Constants.OUTER, pageRef) {
+        return new ActionLinksTogglePanel<>(Constants.OUTER, pageRef) {
 
             private static final long serialVersionUID = -7688359318035249200L;
 
@@ -148,7 +148,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
             public void updateHeader(final AjaxRequestTarget target, final Serializable modelObject) {
                 if (modelObject instanceof SAML2SP4UIIdPTO) {
                     setHeader(target, StringUtils.abbreviate(
-                            ((SAML2SP4UIIdPTO) modelObject).getName(), HEADER_FIRST_ABBREVIATION));
+                        ((SAML2SP4UIIdPTO) modelObject).getName(), HEADER_FIRST_ABBREVIATION));
                 } else {
                     super.updateHeader(target, modelObject);
                 }
@@ -185,7 +185,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
     public ActionsPanel<SAML2SP4UIIdPTO> getActions(final IModel<SAML2SP4UIIdPTO> model) {
         final ActionsPanel<SAML2SP4UIIdPTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<SAML2SP4UIIdPTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
@@ -194,15 +194,15 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                 SAML2SP4UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
                 metadataModal.header(Model.of(object.getName() + " - Metadata"));
                 metadataModal.setContent(new XMLEditorPanel(
-                        metadataModal,
-                        Model.of(new String(Base64.getMimeDecoder().decode(object.getMetadata()))),
-                        true,
-                        pageRef));
+                    metadataModal,
+                    Model.of(new String(Base64.getMimeDecoder().decode(object.getMetadata()))),
+                    true,
+                    pageRef));
                 metadataModal.show(true);
                 target.add(metadataModal);
             }
         }, ActionLink.ActionType.HTML, SAML2SP4UIEntitlement.IDP_READ);
-        panel.add(new ActionLink<SAML2SP4UIIdPTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -210,10 +210,10 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final SAML2SP4UIIdPTO ignore) {
                 SAML2SP4UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
                 send(SAML2IdPsDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(object, target));
+                    new AjaxWizard.EditItemActionEvent<>(object, target));
             }
         }, ActionLink.ActionType.EDIT, SAML2SP4UIEntitlement.IDP_UPDATE);
-        panel.add(new ActionLink<SAML2SP4UIIdPTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -222,10 +222,10 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                 final SAML2SP4UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
 
                 UserTemplateWizardBuilder builder = new UserTemplateWizardBuilder(
-                        object.getUserTemplate(),
-                        AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
-                        new UserFormLayoutInfo(),
-                        pageRef) {
+                    object.getUserTemplate(),
+                    AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
+                    new UserFormLayoutInfo(),
+                    pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770634L;
 
@@ -238,14 +238,14 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                     }
                 };
                 templateModal.header(Model.of(StringUtils.capitalize(
-                        new StringResourceModel("template.title", SAML2IdPsDirectoryPanel.this).getString())));
+                    new StringResourceModel("template.title", SAML2IdPsDirectoryPanel.this).getString())));
                 templateModal.setContent(builder.build(BaseModal.CONTENT_ID));
                 templateModal.show(true);
                 target.add(templateModal);
 
             }
         }, ActionLink.ActionType.TEMPLATE, SAML2SP4UIEntitlement.IDP_UPDATE);
-        panel.add(new ActionLink<SAML2SP4UIIdPTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -5467832321897812767L;
 
@@ -281,9 +281,9 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                 newItemEvent.getTarget().ifPresent(target -> target.add(templateModal.setContent(modalPanel)));
                 templateModal.show(true);
             } else if (newItemEvent instanceof AjaxWizard.NewItemCancelEvent) {
-                newItemEvent.getTarget().ifPresent(target -> templateModal.close(target));
+                newItemEvent.getTarget().ifPresent(templateModal::close);
             } else if (newItemEvent instanceof AjaxWizard.NewItemFinishEvent) {
-                newItemEvent.getTarget().ifPresent(target -> templateModal.close(target));
+                newItemEvent.getTarget().ifPresent(templateModal::close);
             }
         }
     }

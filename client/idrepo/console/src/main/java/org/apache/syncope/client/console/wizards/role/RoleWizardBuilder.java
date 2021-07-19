@@ -134,21 +134,21 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         public Entitlements(final RoleTO modelObject) {
             setTitleModel(new ResourceModel("entitlements"));
             add(new AjaxPalettePanel.Builder<String>().build("entitlements",
-                    new PropertyModel<List<String>>(modelObject, "entitlements") {
+                new PropertyModel<>(modelObject, "entitlements") {
 
-                private static final long serialVersionUID = -7809699384012595307L;
+                    private static final long serialVersionUID = -7809699384012595307L;
 
-                @Override
-                public List<String> getObject() {
-                    return new ArrayList<>(modelObject.getEntitlements());
-                }
+                    @Override
+                    public List<String> getObject() {
+                        return new ArrayList<>(modelObject.getEntitlements());
+                    }
 
-                @Override
-                public void setObject(final List<String> object) {
-                    modelObject.getEntitlements().clear();
-                    modelObject.getEntitlements().addAll(object);
-                }
-            }, new ListModel<>(RoleRestClient.getAllAvailableEntitlements())).
+                    @Override
+                    public void setObject(final List<String> object) {
+                        modelObject.getEntitlements().clear();
+                        modelObject.getEntitlements().addAll(object);
+                    }
+                }, new ListModel<>(RoleRestClient.getAllAvailableEntitlements())).
                     hideLabel().setOutputMarkupId(true));
         }
     }

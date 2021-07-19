@@ -68,7 +68,7 @@ public class SRARoutePredicatePanel extends Panel {
             }
         }));
 
-        ListView<SRARoutePredicate> predicates = new ListView<SRARoutePredicate>("predicates", model) {
+        ListView<SRARoutePredicate> predicates = new ListView<>("predicates", model) {
 
             private static final long serialVersionUID = 1814616131938968887L;
 
@@ -77,25 +77,25 @@ public class SRARoutePredicatePanel extends Panel {
                 SRARoutePredicate predicate = item.getModelObject();
 
                 AjaxCheckBoxPanel negate =
-                        new AjaxCheckBoxPanel("negate", "negate", new PropertyModel<>(predicate, "negate"));
+                    new AjaxCheckBoxPanel("negate", "negate", new PropertyModel<>(predicate, "negate"));
                 item.add(negate.hideLabel());
 
                 AjaxDropDownChoicePanel<SRARoutePredicateFactory> factory =
-                        new AjaxDropDownChoicePanel<>("factory", "factory", new PropertyModel<>(predicate, "factory"));
+                    new AjaxDropDownChoicePanel<>("factory", "factory", new PropertyModel<>(predicate, "factory"));
                 factory.setChoices(List.of(SRARoutePredicateFactory.values()));
                 item.add(factory.hideLabel());
 
                 AjaxTextFieldPanel args =
-                        new AjaxTextFieldPanel("args", "args", new PropertyModel<>(predicate, "args"));
+                    new AjaxTextFieldPanel("args", "args", new PropertyModel<>(predicate, "args"));
                 item.add(args.hideLabel());
 
                 AjaxDropDownChoicePanel<SRARoutePredicateCond> cond =
-                        new AjaxDropDownChoicePanel<>("cond", "cond", new PropertyModel<>(predicate, "cond"));
+                    new AjaxDropDownChoicePanel<>("cond", "cond", new PropertyModel<>(predicate, "cond"));
                 cond.setChoices(List.of(SRARoutePredicateCond.values()));
                 item.add(cond.hideLabel());
 
                 ActionsPanel<Serializable> actions = new ActionsPanel<>("actions", null);
-                actions.add(new ActionLink<Serializable>() {
+                actions.add(new ActionLink<>() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
 
@@ -109,7 +109,7 @@ public class SRARoutePredicatePanel extends Panel {
                 }, ActionLink.ActionType.DELETE, StringUtils.EMPTY, true).hideLabel();
                 if (model.getObject().size() > 1) {
                     if (item.getIndex() > 0) {
-                        actions.add(new ActionLink<Serializable>() {
+                        actions.add(new ActionLink<>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -125,7 +125,7 @@ public class SRARoutePredicatePanel extends Panel {
                         }, ActionLink.ActionType.UP, StringUtils.EMPTY).hideLabel();
                     }
                     if (item.getIndex() < model.getObject().size() - 1) {
-                        actions.add(new ActionLink<Serializable>() {
+                        actions.add(new ActionLink<>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
 

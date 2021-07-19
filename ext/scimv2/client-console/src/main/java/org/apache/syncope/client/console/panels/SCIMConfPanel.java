@@ -61,7 +61,7 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
         tabbedPanel.setSelectedTab(0);
         addInnerObject(tabbedPanel);
 
-        AjaxLink<String> saveButton = new AjaxLink<String>("saveButton") {
+        AjaxLink<String> saveButton = new AjaxLink<>("saveButton") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 

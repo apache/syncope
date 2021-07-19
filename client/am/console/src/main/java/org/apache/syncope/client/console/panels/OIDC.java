@@ -50,7 +50,7 @@ public class OIDC extends Panel {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final BaseModal<String> viewModal = new BaseModal<String>("viewModal") {
+    private final BaseModal<String> viewModal = new BaseModal<>("viewModal") {
 
         private static final long serialVersionUID = 389935548143327858L;
 

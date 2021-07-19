@@ -82,7 +82,7 @@ public abstract class BaseLogin extends WebPage {
 
     protected String notificationLevel;
 
-    private final LoadableDetachableModel<List<String>> domains = new LoadableDetachableModel<List<String>>() {
+    private final LoadableDetachableModel<List<String>> domains = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 4659376149825914247L;
 
@@ -183,7 +183,7 @@ public abstract class BaseLogin extends WebPage {
         form.setDefaultButton(submitButton);
 
         List<Panel> ssoLoginFormPanels = getSSOLoginFormPanels();
-        ListView<Panel> ssoLogins = new ListView<Panel>("ssoLogins", ssoLoginFormPanels) {
+        ListView<Panel> ssoLogins = new ListView<>("ssoLogins", ssoLoginFormPanels) {
 
             private static final long serialVersionUID = -9180479401817023838L;
 
@@ -250,7 +250,7 @@ public abstract class BaseLogin extends WebPage {
             super(id, SUPPORTED_LOCALES);
 
             setChoiceRenderer(new LocaleRenderer());
-            setModel(new IModel<Locale>() {
+            setModel(new IModel<>() {
 
                 private static final long serialVersionUID = -6985170095629312963L;
 

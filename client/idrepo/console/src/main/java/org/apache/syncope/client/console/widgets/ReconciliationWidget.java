@@ -167,7 +167,7 @@ public class ReconciliationWidget extends BaseWidget {
         reportResult.setOutputMarkupId(true);
         container.add(reportResult);
 
-        IndicatorAjaxLink<Void> refresh = new IndicatorAjaxLink<Void>("refresh") {
+        IndicatorAjaxLink<Void> refresh = new IndicatorAjaxLink<>("refresh") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -355,18 +355,18 @@ public class ReconciliationWidget extends BaseWidget {
         protected List<IColumn<Any, String>> getColumns() {
             List<IColumn<Any, String>> columns = new ArrayList<>();
 
-            columns.add(new AbstractColumn<Any, String>(new ResourceModel("reference"), Constants.KEY_FIELD_NAME) {
+            columns.add(new AbstractColumn<>(new ResourceModel("reference"), Constants.KEY_FIELD_NAME) {
 
                 private static final long serialVersionUID = -1822504503325964706L;
 
                 @Override
                 public void populateItem(
-                        final Item<ICellPopulator<Any>> cellItem,
-                        final String componentId,
-                        final IModel<Any> rowModel) {
+                    final Item<ICellPopulator<Any>> cellItem,
+                    final String componentId,
+                    final IModel<Any> rowModel) {
 
                     cellItem.add(new Label(componentId,
-                            rowModel.getObject().getKey()
+                        rowModel.getObject().getKey()
                             + (StringUtils.isBlank(rowModel.getObject().getName())
                             ? StringUtils.EMPTY
                             : ' ' + rowModel.getObject().getName())));
@@ -381,43 +381,43 @@ public class ReconciliationWidget extends BaseWidget {
                         map(Misaligned::getResource).collect(Collectors.toList()));
             });
             for (final String resource : resources) {
-                columns.add(new AbstractColumn<Any, String>(Model.of(resource)) {
+                columns.add(new AbstractColumn<>(Model.of(resource)) {
 
                     private static final long serialVersionUID = -1822504503325964706L;
 
                     @Override
                     public void populateItem(
-                            final Item<ICellPopulator<Any>> cellItem,
-                            final String componentId,
-                            final IModel<Any> rowModel) {
+                        final Item<ICellPopulator<Any>> cellItem,
+                        final String componentId,
+                        final IModel<Any> rowModel) {
 
                         Any any = rowModel.getObject();
 
                         Optional<Missing> missing = any.getMissing().stream().
-                                filter(object -> resource.equals(object.getResource())).findFirst();
+                            filter(object -> resource.equals(object.getResource())).findFirst();
                         List<Misaligned> misaligned = any.getMisaligned().stream().
-                                filter(object -> resource.equals(object.getResource())).collect(Collectors.toList());
+                            filter(object -> resource.equals(object.getResource())).collect(Collectors.toList());
 
                         Component content;
                         if (missing.isEmpty()) {
                             if (misaligned.isEmpty()) {
                                 content = new Label(componentId, StringUtils.EMPTY);
                             } else {
-                                Action<Any> action = new Action<>(new ActionLink<Any>() {
+                                Action<Any> action = new Action<>(new ActionLink<>() {
 
                                     private static final long serialVersionUID = -3722207913631435501L;
 
                                     @Override
                                     public void onClick(final AjaxRequestTarget target, final Any ignore) {
                                         modal.header(Model.of(
-                                                rowModel.getObject().getType()
+                                            rowModel.getObject().getType()
                                                 + ' ' + rowModel.getObject().getKey()
                                                 + ' ' + rowModel.getObject().getName()));
                                         modal.setContent(new ReconDetailsModalPanel(
-                                                modal,
-                                                resource,
-                                                misaligned,
-                                                ReconciliationWidget.this.pageRef));
+                                            modal,
+                                            resource,
+                                            misaligned,
+                                            ReconciliationWidget.this.pageRef));
                                         modal.show(true);
                                         target.add(modal);
                                     }

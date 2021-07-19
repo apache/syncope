@@ -60,20 +60,20 @@ public class PushPolicyDirectoryPanel extends PolicyDirectoryPanel<PushPolicyTO>
 
     @Override
     protected void addCustomActions(final ActionsPanel<PushPolicyTO> panel, final IModel<PushPolicyTO> model) {
-        panel.add(new ActionLink<PushPolicyTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final PushPolicyTO ignore) {
                 target.add(policySpecModal.setContent(
-                        new ProvisioningPolicyModalPanel(model.getObject(), policySpecModal, pageRef)));
+                    new ProvisioningPolicyModalPanel(model.getObject(), policySpecModal, pageRef)));
 
                 policySpecModal.header(new StringResourceModel(
-                        "policy.rules", PushPolicyDirectoryPanel.this, Model.of(model.getObject())));
+                    "policy.rules", PushPolicyDirectoryPanel.this, Model.of(model.getObject())));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
-                        policySpecModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
+                    policySpecModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
 
                 policySpecModal.show(true);
             }

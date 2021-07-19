@@ -94,7 +94,7 @@ public class RestClientExceptionMapper implements ResponseExceptionMapper<Except
         }
         if (errors == null) {
             try {
-                errors = response.readEntity(new GenericType<List<ErrorTO>>() {
+                errors = response.readEntity(new GenericType<>() {
                 });
             } catch (Exception e) {
                 LOG.debug("Could not read {} list, attempting to read headers...", ErrorTO.class.getName(), e);

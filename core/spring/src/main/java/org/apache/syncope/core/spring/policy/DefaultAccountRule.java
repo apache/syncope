@@ -85,14 +85,14 @@ public class DefaultAccountRule implements AccountRule {
 
         // check prefix
         conf.getPrefixesNotPermitted().stream().
-                filter(prefix -> username.startsWith(prefix)).
+                filter(username::startsWith).
                 forEach(item -> {
                     throw new AccountPolicyException("Prefix not permitted");
                 });
 
         // check suffix
         conf.getSuffixesNotPermitted().stream().
-                filter(suffix -> username.endsWith(suffix)).
+                filter(username::endsWith).
                 forEach(item -> {
                     throw new AccountPolicyException("Suffix not permitted");
                 });
@@ -104,7 +104,7 @@ public class DefaultAccountRule implements AccountRule {
         Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
         wordsNotPermitted.addAll(
                 conf.getSchemasNotPermitted().stream().
-                        map(schema -> user.getPlainAttr(schema)).
+                        map(user::getPlainAttr).
                         filter(Optional::isPresent).
                         map(attr -> attr.get().getValuesAsStrings()).
                         filter(values -> !CollectionUtils.isEmpty(values)).
@@ -124,7 +124,7 @@ public class DefaultAccountRule implements AccountRule {
         Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
         wordsNotPermitted.addAll(
                 conf.getSchemasNotPermitted().stream().
-                        map(schema -> account.getPlainAttr(schema)).
+                        map(account::getPlainAttr).
                         filter(Optional::isPresent).
                         map(attr -> attr.get().getValuesAsStrings()).
                         filter(values -> !CollectionUtils.isEmpty(values)).

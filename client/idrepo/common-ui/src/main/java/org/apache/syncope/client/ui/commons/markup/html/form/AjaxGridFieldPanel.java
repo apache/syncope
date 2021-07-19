@@ -44,12 +44,12 @@ public class AjaxGridFieldPanel<K, V, S> extends Panel {
 
         add(new Label(AbstractFieldPanel.LABEL, new ResourceModel(name, name)));
 
-        add(new AjaxGrid<K, V, S>(
-                "grid",
-                getColumns(),
-                new EditableListDataProvider<Pair<K, V>, S>(model.getObject().entrySet().stream().
-                        map(entry -> MutablePair.of(entry.getKey(), entry.getValue())).
-                        collect(Collectors.toList())), 10) {
+        add(new AjaxGrid<>(
+            "grid",
+            getColumns(),
+            new EditableListDataProvider<>(model.getObject().entrySet().stream().
+                map(entry -> MutablePair.of(entry.getKey(), entry.getValue())).
+                collect(Collectors.toList())), 10) {
 
             private static final long serialVersionUID = 1L;
 

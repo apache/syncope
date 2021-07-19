@@ -53,7 +53,7 @@ public abstract class AbstractSAMLSSOLoginFormPanel extends BaseSSOLoginFormPane
         AjaxDropDownChoicePanel<SAML2SP4UIIdPTO> idps =
                 new AjaxDropDownChoicePanel<>("idps", "SAML 2.0", model, false);
         idps.setChoices(available);
-        idps.setChoiceRenderer(new IChoiceRenderer<SAML2SP4UIIdPTO>() {
+        idps.setChoiceRenderer(new IChoiceRenderer<>() {
 
             private static final long serialVersionUID = 1814750973898916102L;
 
@@ -69,10 +69,10 @@ public abstract class AbstractSAMLSSOLoginFormPanel extends BaseSSOLoginFormPane
 
             @Override
             public SAML2SP4UIIdPTO getObject(
-                    final String id, final IModel<? extends List<? extends SAML2SP4UIIdPTO>> choices) {
+                final String id, final IModel<? extends List<? extends SAML2SP4UIIdPTO>> choices) {
 
                 return choices.getObject().stream().
-                        filter(idp -> idp.getEntityID().equals(id)).findFirst().orElse(null);
+                    filter(idp -> idp.getEntityID().equals(id)).findFirst().orElse(null);
             }
         });
         idps.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {

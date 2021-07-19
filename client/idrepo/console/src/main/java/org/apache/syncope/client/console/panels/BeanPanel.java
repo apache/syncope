@@ -96,7 +96,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
         this.excluded.add("serialVersionUID");
         this.excluded.add("class");
 
-        LoadableDetachableModel<List<String>> model = new LoadableDetachableModel<List<String>>() {
+        LoadableDetachableModel<List<String>> model = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -106,19 +106,19 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
                 if (BeanPanel.this.getDefaultModelObject() != null) {
                     ReflectionUtils.doWithFields(BeanPanel.this.getDefaultModelObject().getClass(),
-                            field -> result.add(field.getName()),
-                            field -> !field.isSynthetic() && !BeanPanel.this.excluded.contains(field.getName()));
+                        field -> result.add(field.getName()),
+                        field -> !field.isSynthetic() && !BeanPanel.this.excluded.contains(field.getName()));
                 }
 
                 return result;
             }
         };
 
-        add(new ListView<String>("propView", model) {
+        add(new ListView<>("propView", model) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
-            @SuppressWarnings({ "unchecked", "rawtypes" })
+            @SuppressWarnings({"unchecked", "rawtypes"})
             @Override
             protected void populateItem(final ListItem<String> item) {
                 String fieldName = item.getModelObject();
@@ -146,20 +146,20 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     switch (scondAnnot.type()) {
                         case "USER":
                             panel = new UserSearchPanel.Builder(
-                                    new ListModel<>(clauses)).required(false).build("value");
+                                new ListModel<>(clauses)).required(false).build("value");
                             builder = SyncopeClient.getUserSearchConditionBuilder();
                             break;
 
                         case "GROUP":
                             panel = new GroupSearchPanel.Builder(
-                                    new ListModel<>(clauses)).required(false).build("value");
+                                new ListModel<>(clauses)).required(false).build("value");
                             builder = SyncopeClient.getGroupSearchConditionBuilder();
                             break;
 
                         default:
                             panel = new AnyObjectSearchPanel.Builder(
-                                    scondAnnot.type(),
-                                    new ListModel<>(clauses)).required(false).build("value");
+                                scondAnnot.type(),
+                                new ListModel<>(clauses)).required(false).build("value");
                             builder = SyncopeClient.getAnyObjectSearchConditionBuilder(null);
                     }
 
@@ -170,7 +170,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     Class<?> listItemType = String.class;
                     if (field.getGenericType() instanceof ParameterizedType) {
                         listItemType = (Class<?>) ((ParameterizedType) field.getGenericType()).
-                                getActualTypeArguments()[0];
+                            getActualTypeArguments()[0];
                     }
 
                     if (listItemType.equals(String.class) && schemaAnnot != null) {
@@ -180,17 +180,17 @@ public class BeanPanel<T extends Serializable> extends Panel {
                             switch (type) {
                                 case PLAIN:
                                     choices.addAll(
-                                            SchemaRestClient.getSchemas(SchemaType.PLAIN, schemaAnnot.anyTypeKind()));
+                                        SchemaRestClient.getSchemas(SchemaType.PLAIN, schemaAnnot.anyTypeKind()));
                                     break;
 
                                 case DERIVED:
                                     choices.addAll(
-                                            SchemaRestClient.getSchemas(SchemaType.DERIVED, schemaAnnot.anyTypeKind()));
+                                        SchemaRestClient.getSchemas(SchemaType.DERIVED, schemaAnnot.anyTypeKind()));
                                     break;
 
                                 case VIRTUAL:
                                     choices.addAll(
-                                            SchemaRestClient.getSchemas(SchemaType.VIRTUAL, schemaAnnot.anyTypeKind()));
+                                        SchemaRestClient.getSchemas(SchemaType.VIRTUAL, schemaAnnot.anyTypeKind()));
                                     break;
 
                                 default:
@@ -198,25 +198,25 @@ public class BeanPanel<T extends Serializable> extends Panel {
                         }
 
                         panel = new AjaxPalettePanel.Builder<>().setName(fieldName).build(
-                                "value",
-                                new PropertyModel<>(bean.getObject(), fieldName),
-                                new ListModel<>(choices.stream().map(EntityTO::getKey).collect(Collectors.toList()))).
-                                hideLabel();
+                            "value",
+                            new PropertyModel<>(bean.getObject(), fieldName),
+                            new ListModel<>(choices.stream().map(EntityTO::getKey).collect(Collectors.toList()))).
+                            hideLabel();
                     } else if (listItemType.isEnum()) {
                         panel = new AjaxPalettePanel.Builder<>().setName(fieldName).build(
-                                "value",
-                                new PropertyModel<>(bean.getObject(), fieldName),
-                                new ListModel(List.of(listItemType.getEnumConstants()))).hideLabel();
+                            "value",
+                            new PropertyModel<>(bean.getObject(), fieldName),
+                            new ListModel(List.of(listItemType.getEnumConstants()))).hideLabel();
                     } else {
                         panel = new MultiFieldPanel.Builder<>(
-                                new PropertyModel<>(bean.getObject(), fieldName)).build(
-                                "value",
-                                fieldName,
-                                buildSinglePanel(bean.getObject(), listItemType, fieldName, "panel")).hideLabel();
+                            new PropertyModel<>(bean.getObject(), fieldName)).build(
+                            "value",
+                            fieldName,
+                            buildSinglePanel(bean.getObject(), listItemType, fieldName, "panel")).hideLabel();
                     }
                 } else if (Map.class.equals(field.getType())) {
                     panel = new AjaxGridFieldPanel(
-                            "value", fieldName, new PropertyModel<>(bean, fieldName)).hideLabel();
+                        "value", fieldName, new PropertyModel<>(bean, fieldName)).hideLabel();
                 } else {
                     panel = buildSinglePanel(bean.getObject(), field.getType(), fieldName, "value").hideLabel();
                 }

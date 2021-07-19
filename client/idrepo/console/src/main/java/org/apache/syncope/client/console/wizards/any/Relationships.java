@@ -132,7 +132,7 @@ public class Relationships extends WizardStep implements ICondition {
                 return new ListViewPanel.Builder<>(RelationshipTO.class, pageRef).
                         setItems(relationships.get(relationship)).
                         includes("otherEndType", "otherEndKey", "otherEndName").
-                        addAction(new ActionLink<RelationshipTO>() {
+                        addAction(new ActionLink<>() {
 
                             private static final long serialVersionUID = -6847033126124401556L;
 
@@ -161,7 +161,7 @@ public class Relationships extends WizardStep implements ICondition {
         final ActionsPanel<RelationshipTO> panel = new ActionsPanel<>("actions", null);
         viewFragment.add(panel);
 
-        panel.add(new ActionLink<RelationshipTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 3257738274365467945L;
 
@@ -251,7 +251,7 @@ public class Relationships extends WizardStep implements ICondition {
                     && anyType.getKind() != AnyTypeKind.USER).collect(Collectors.toList());
 
             final AjaxDropDownChoicePanel<AnyTypeTO> otherType = new AjaxDropDownChoicePanel<>(
-                    "otherType", "otherType", new PropertyModel<AnyTypeTO>(rel, "otherType") {
+                    "otherType", "otherType", new PropertyModel<>(rel, "otherType") {
 
                 private static final long serialVersionUID = -5861057041758169508L;
 
@@ -271,7 +271,7 @@ public class Relationships extends WizardStep implements ICondition {
                 }
             }, false);
             otherType.setChoices(availableTypes);
-            otherType.setChoiceRenderer(new IChoiceRenderer<AnyTypeTO>() {
+            otherType.setChoiceRenderer(new IChoiceRenderer<>() {
 
                 private static final long serialVersionUID = -734743540442190178L;
 
@@ -288,7 +288,7 @@ public class Relationships extends WizardStep implements ICondition {
                 @Override
                 public AnyTypeTO getObject(final String id, final IModel<? extends List<? extends AnyTypeTO>> choices) {
                     return choices.getObject().stream().
-                            filter(anyTypeTO -> id.equals(anyTypeTO.getKey())).findAny().orElse(null);
+                        filter(anyTypeTO -> id.equals(anyTypeTO.getKey())).findAny().orElse(null);
                 }
             });
             // enable "otherType" dropdown only if "type" option is selected - SYNCOPE-1140

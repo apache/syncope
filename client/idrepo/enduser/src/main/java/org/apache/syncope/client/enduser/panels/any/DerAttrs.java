@@ -61,7 +61,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
         super(id, modelObject, anyTypeClasses, whichDerAttrs);
 
         add(new DerAttrs.DerSchemas("derSchemas", schemas, attrs).setOutputMarkupId(true));
-        add(new ListView<MembershipTO>("membershipsDerSchemas", membershipTOs) {
+        add(new ListView<>("membershipsDerSchemas", membershipTOs) {
 
             private static final long serialVersionUID = 6741044372185745296L;
 
@@ -69,19 +69,19 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
             protected void populateItem(final ListItem<MembershipTO> item) {
                 MembershipTO membershipTO = item.getModelObject();
                 item.add(new Accordion("membershipDerSchemas", List.of(new AbstractTab(
-                        new StringResourceModel(
-                                "attributes.membership.accordion",
-                                DerAttrs.this,
-                                Model.of(membershipTO))) {
+                    new StringResourceModel(
+                        "attributes.membership.accordion",
+                        DerAttrs.this,
+                        Model.of(membershipTO))) {
 
                     private static final long serialVersionUID = 1037272333056449378L;
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
                         return new DerAttrs.DerSchemas(
-                                panelId,
-                                membershipSchemas.get(membershipTO.getGroupKey()),
-                                new ListModel<>(getAttrsFromTO(membershipTO)));
+                            panelId,
+                            membershipSchemas.get(membershipTO.getGroupKey()),
+                            new ListModel<>(getAttrsFromTO(membershipTO)));
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
@@ -159,7 +159,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
                 final IModel<List<Attr>> attrTOs) {
             super(id);
 
-            add(new ListView<Attr>("schemas", attrTOs) {
+            add(new ListView<>("schemas", attrTOs) {
 
                 private static final long serialVersionUID = 9101744072914090143L;
 
@@ -182,10 +182,10 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
                     }
 
                     AjaxTextFieldPanel panel = new AjaxTextFieldPanel(
-                            "panel",
-                            schemas.get(attrTO.getSchema()).getLabel(SyncopeEnduserSession.get().getLocale()),
-                            model,
-                            false);
+                        "panel",
+                        schemas.get(attrTO.getSchema()).getLabel(SyncopeEnduserSession.get().getLocale()),
+                        model,
+                        false);
                     panel.setEnabled(false);
                     panel.setRequired(true);
                     panel.setOutputMarkupId(true);

@@ -42,8 +42,8 @@ public class JPAWAConfigEntry extends AbstractProvidedKeyEntity implements WACon
     public List<String> getValues() {
         return waConfigValues == null
                 ? List.of()
-                : POJOHelper.deserialize(waConfigValues, new TypeReference<List<String>>() {
-                });
+                : POJOHelper.deserialize(waConfigValues, new TypeReference<>() {
+        });
     }
 
     @Override

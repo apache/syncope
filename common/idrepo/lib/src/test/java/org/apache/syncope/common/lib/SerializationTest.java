@@ -55,8 +55,8 @@ public abstract class SerializationTest {
         objectMapper().writeValue(writer, original);
 
         List<ReportTO> actual = objectMapper().readValue(writer.toString(),
-                new TypeReference<List<ReportTO>>() {
-        });
+            new TypeReference<>() {
+            });
         assertEquals(original, actual);
     }
 
@@ -126,8 +126,8 @@ public abstract class SerializationTest {
         objectMapper().writeValue(writer, original);
 
         PagedResult<GroupTO> actual = objectMapper().readValue(writer.toString(),
-                new TypeReference<PagedResult<GroupTO>>() {
-        });
+            new TypeReference<>() {
+            });
         assertEquals(original, actual);
     }
 
@@ -151,8 +151,8 @@ public abstract class SerializationTest {
         objectMapper().writeValue(writer, original);
 
         ProvisioningResult<GroupTO> actual = objectMapper().readValue(writer.toString(),
-                new TypeReference<ProvisioningResult<GroupTO>>() {
-        });
+            new TypeReference<>() {
+            });
         assertEquals(original, actual);
     }
 }

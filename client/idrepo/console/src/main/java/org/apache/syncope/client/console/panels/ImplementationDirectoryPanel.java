@@ -99,14 +99,14 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
         };
         addInnerObject(engineTogglePanel);
 
-        AjaxLink<Void> replaceAddLink = new AjaxLink<Void>("add") {
+        AjaxLink<Void> replaceAddLink = new AjaxLink<>("add") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 send(ImplementationDirectoryPanel.this, Broadcast.BREADTH,
-                        new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
+                    new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
                 engineTogglePanel.setHeaderLabel(target);
                 engineTogglePanel.toggle(target, true);
             }
@@ -132,20 +132,20 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
     protected ActionsPanel<ImplementationTO> getActions(final IModel<ImplementationTO> model) {
         final ActionsPanel<ImplementationTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<ImplementationTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ImplementationTO ignore) {
                 target.add(modal.setContent(
-                        new ImplementationModalPanel(modal, model.getObject(), pageRef)));
+                    new ImplementationModalPanel(modal, model.getObject(), pageRef)));
                 modal.header(new StringResourceModel("any.edit", Model.of(model.getObject())));
                 modal.show(true);
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.IMPLEMENTATION_UPDATE);
 
-        panel.add(new ActionLink<ImplementationTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -208,7 +208,7 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
 
         @Override
         public IModel<ImplementationTO> model(final ImplementationTO implementation) {
-            return new IModel<ImplementationTO>() {
+            return new IModel<>() {
 
                 private static final long serialVersionUID = 999513782683391483L;
 

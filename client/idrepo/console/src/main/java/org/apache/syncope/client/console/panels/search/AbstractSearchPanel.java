@@ -144,7 +144,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
         Pair<IModel<List<String>>, IModel<Integer>> groupInfo =
                 typeKind != AnyTypeKind.GROUP && SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH)
-                ? Pair.of(groupNames, new LoadableDetachableModel<Integer>() {
+                ? Pair.of(groupNames, new LoadableDetachableModel<>() {
 
                     private static final long serialVersionUID = 7362833782319137329L;
 
@@ -165,7 +165,7 @@ public abstract class AbstractSearchPanel extends Panel {
             searchClausePanel.enableSearch(builder.resultContainer);
         }
 
-        MultiFieldPanel.Builder<SearchClause> searchView = new MultiFieldPanel.Builder<SearchClause>(model) {
+        MultiFieldPanel.Builder<SearchClause> searchView = new MultiFieldPanel.Builder<>(model) {
 
             private static final long serialVersionUID = 1343431509987473047L;
 
@@ -179,7 +179,7 @@ public abstract class AbstractSearchPanel extends Panel {
     }
 
     protected void populate() {
-        dnames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
+        dnames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -187,15 +187,15 @@ public abstract class AbstractSearchPanel extends Panel {
             protected Map<String, PlainSchemaTO> load() {
                 Map<String, PlainSchemaTO> dSchemaNames = new HashMap<>();
                 SearchableFields.get(typeKind.getTOClass()).forEach((key, type) -> {
-                            PlainSchemaTO plain = new PlainSchemaTO();
-                            plain.setType(type);
-                            dSchemaNames.put(key, plain);
-                        });
+                    PlainSchemaTO plain = new PlainSchemaTO();
+                    plain.setType(type);
+                    dSchemaNames.put(key, plain);
+                });
                 return dSchemaNames;
             }
         };
 
-        resourceNames = new LoadableDetachableModel<List<String>>() {
+        resourceNames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 

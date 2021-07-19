@@ -110,7 +110,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
         setup(items, columns);
 
         for (ActionLink.ActionType action : actions) {
-            actionPanel.add(new ActionLink<Serializable>() {
+            actionPanel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
@@ -137,7 +137,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
 
                                 try {
                                     batchExecutor.getClass().getMethod("deleteExecution", String.class).
-                                            invoke(batchExecutor, exec.getKey());
+                                        invoke(batchExecutor, exec.getKey());
                                     results.put(exec.getKey(), ExecStatus.SUCCESS.name());
                                 } catch (Exception e) {
                                     LOG.error("Error deleting execution {}", exec.getKey(), e);
@@ -150,16 +150,16 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                             // Group bean information by anyKey
                             Map<String, List<StatusBean>> beans = new HashMap<>();
                             items.stream().map(StatusBean.class::cast).
-                                    forEachOrdered(sb -> {
-                                        final List<StatusBean> sblist;
-                                        if (beans.containsKey(sb.getKey())) {
-                                            sblist = beans.get(sb.getKey());
-                                        } else {
-                                            sblist = new ArrayList<>();
-                                            beans.put(sb.getKey(), sblist);
-                                        }
-                                        sblist.add(sb);
-                                    });
+                                forEachOrdered(sb -> {
+                                    final List<StatusBean> sblist;
+                                    if (beans.containsKey(sb.getKey())) {
+                                        sblist = beans.get(sb.getKey());
+                                    } else {
+                                        sblist = new ArrayList<>();
+                                        beans.put(sb.getKey(), sblist);
+                                    }
+                                    sblist.add(sb);
+                                });
 
                             results = new HashMap<>();
                             beans.forEach((key, value) -> {
@@ -168,32 +168,32 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                 switch (action) {
                                     case DEPROVISION:
                                         results.putAll(anyRestClient.deassociate(
-                                                ResourceDeassociationAction.DEPROVISION, etag, key, value));
+                                            ResourceDeassociationAction.DEPROVISION, etag, key, value));
                                         break;
 
                                     case UNASSIGN:
                                         results.putAll(anyRestClient.deassociate(
-                                                ResourceDeassociationAction.UNASSIGN, etag, key, value));
+                                            ResourceDeassociationAction.UNASSIGN, etag, key, value));
                                         break;
 
                                     case UNLINK:
                                         results.putAll(anyRestClient.deassociate(
-                                                ResourceDeassociationAction.UNLINK, etag, key, value));
+                                            ResourceDeassociationAction.UNLINK, etag, key, value));
                                         break;
 
                                     case ASSIGN:
                                         results.putAll(anyRestClient.associate(
-                                                ResourceAssociationAction.ASSIGN, etag, key, value));
+                                            ResourceAssociationAction.ASSIGN, etag, key, value));
                                         break;
 
                                     case LINK:
                                         results.putAll(anyRestClient.associate(
-                                                ResourceAssociationAction.LINK, etag, key, value));
+                                            ResourceAssociationAction.LINK, etag, key, value));
                                         break;
 
                                     case PROVISION:
                                         results.putAll(anyRestClient.associate(
-                                                ResourceAssociationAction.PROVISION, etag, key, value));
+                                            ResourceAssociationAction.PROVISION, etag, key, value));
                                         break;
 
                                     case SUSPEND:
@@ -214,10 +214,10 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                             GroupService batchGroupService = batch.getService(GroupService.class);
                             AnyObjectService batchAnyObjectService = batch.getService(AnyObjectService.class);
                             AnyService<?> batchAnyService = singleItem instanceof UserTO
-                                    ? batchUserService
-                                    : singleItem instanceof GroupTO
-                                            ? batchGroupService
-                                            : batchAnyObjectService;
+                                ? batchUserService
+                                : singleItem instanceof GroupTO
+                                ? batchGroupService
+                                : batchAnyObjectService;
                             TaskService batchTaskService = batch.getService(TaskService.class);
                             ReportService batchReportService = batch.getService(ReportService.class);
 
@@ -231,7 +231,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                         UserUR req = new UserUR();
                                         req.setKey(user.getKey());
                                         req.setMustChangePassword(new BooleanReplacePatchItem.Builder().
-                                                value(!user.isMustChangePassword()).build());
+                                            value(!user.isMustChangePassword()).build());
 
                                         batchUserService.update(req);
                                     });
@@ -242,11 +242,11 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                         UserTO user = (UserTO) item;
 
                                         StatusR req = new StatusR.Builder().
-                                                key(user.getKey()).
-                                                type(StatusRType.SUSPEND).
-                                                onSyncope(true).
-                                                resources(user.getResources()).
-                                                build();
+                                            key(user.getKey()).
+                                            type(StatusRType.SUSPEND).
+                                            onSyncope(true).
+                                            resources(user.getResources()).
+                                            build();
 
                                         batchUserService.status(req);
                                     });
@@ -257,11 +257,11 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                         UserTO user = (UserTO) item;
 
                                         StatusR req = new StatusR.Builder().
-                                                key(user.getKey()).
-                                                type(StatusRType.REACTIVATE).
-                                                onSyncope(true).
-                                                resources(user.getResources()).
-                                                build();
+                                            key(user.getKey()).
+                                            type(StatusRType.REACTIVATE).
+                                            onSyncope(true).
+                                            resources(user.getResources()).
+                                            build();
 
                                         batchUserService.status(req);
                                     });
@@ -278,8 +278,8 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                             TaskTO task = (TaskTO) item;
 
                                             batchTaskService.delete(
-                                                    TaskType.fromTOClass(task.getClass()),
-                                                    task.getKey());
+                                                TaskType.fromTOClass(task.getClass()),
+                                                task.getKey());
                                         } else if (singleItem instanceof ReportTO) {
                                             ReportTO report = (ReportTO) item;
 
@@ -296,7 +296,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                         TaskTO task = (TaskTO) item;
 
                                         batchTaskService.execute(
-                                                new ExecuteQuery.Builder().dryRun(true).key(task.getKey()).build());
+                                            new ExecuteQuery.Builder().dryRun(true).key(task.getKey()).build());
                                     });
                                     break;
 
@@ -306,12 +306,12 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                             TaskTO task = (TaskTO) item;
 
                                             batchTaskService.execute(new ExecuteQuery.Builder().
-                                                    dryRun(false).key(task.getKey()).build());
+                                                dryRun(false).key(task.getKey()).build());
                                         } else if (singleItem instanceof ReportTO) {
                                             ReportTO report = (ReportTO) item;
 
                                             batchReportService.execute(new ExecuteQuery.Builder().
-                                                    key(report.getKey()).build());
+                                                key(report.getKey()).build());
                                         }
                                     });
                                     break;
@@ -320,15 +320,15 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                             }
 
                             results = CastUtils.cast(Map.class.cast(
-                                    batchExecutor.getClass().getMethod("batch",
-                                            BatchRequest.class).invoke(batchExecutor, batch)));
+                                batchExecutor.getClass().getMethod("batch",
+                                    BatchRequest.class).invoke(batchExecutor, batch)));
 
                             if (singleItem instanceof AnyTO) {
                                 AbstractAnyRestClient<? extends AnyTO> anyRestClient = singleItem instanceof UserTO
-                                        ? UserRestClient.class.cast(batchExecutor)
-                                        : singleItem instanceof GroupTO
-                                                ? GroupRestClient.class.cast(batchExecutor)
-                                                : AnyObjectRestClient.class.cast(batchExecutor);
+                                    ? UserRestClient.class.cast(batchExecutor)
+                                    : singleItem instanceof GroupTO
+                                    ? GroupRestClient.class.cast(batchExecutor)
+                                    : AnyObjectRestClient.class.cast(batchExecutor);
                                 for (int i = 0; i < items.size(); i++) {
                                     String key = ((AnyTO) items.get(i)).getKey();
                                     if (!deletedAnys.contains(key)) {
@@ -342,10 +342,10 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                         newColumnList.add(newColumnList.size(), new BatchResponseColumn<>(results, keyFieldName));
 
                         container.addOrReplace(new AjaxFallbackDefaultDataTable<>(
-                                "selectedObjects",
-                                newColumnList,
-                                dataProvider,
-                                Integer.MAX_VALUE).setVisible(!items.isEmpty()));
+                            "selectedObjects",
+                            newColumnList,
+                            dataProvider,
+                            Integer.MAX_VALUE).setVisible(!items.isEmpty()));
 
                         actionPanel.setEnabled(false);
                         actionPanel.setVisible(false);
@@ -395,7 +395,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
         container.setOutputMarkupId(true);
         add(container);
 
-        dataProvider = new SortableDataProvider<T, S>() {
+        dataProvider = new SortableDataProvider<>() {
 
             private static final long serialVersionUID = 5291903859908641954L;
 

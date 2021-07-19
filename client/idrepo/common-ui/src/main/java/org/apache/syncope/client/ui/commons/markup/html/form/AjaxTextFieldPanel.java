@@ -60,7 +60,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
         settings.setShowListOnEmptyInput(true);
         settings.setCssClassName("custom-autocomplete-box");
 
-        field = new AutoCompleteTextField<String>("textField", model, settings) {
+        field = new AutoCompleteTextField<>("textField", model, settings) {
 
             private static final long serialVersionUID = -6648767303091874219L;
 
@@ -71,8 +71,8 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
 
             @Override
             protected AutoCompleteBehavior<String> newAutoCompleteBehavior(
-                    final IAutoCompleteRenderer<String> renderer, final AutoCompleteSettings settings) {
-                return new IndicatorAutoCompleteBehavior<String>(renderer, settings) {
+                final IAutoCompleteRenderer<String> renderer, final AutoCompleteSettings settings) {
+                return new IndicatorAutoCompleteBehavior<>(renderer, settings) {
 
                     private static final long serialVersionUID = 1070808433195962931L;
 
