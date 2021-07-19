@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.starter.actuate;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
@@ -92,8 +90,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class SyncopeCoreInfoContributor implements InfoContributor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreInfoContributor.class);
-
-    protected static final ObjectMapper MAPPER = new ObjectMapper().findAndRegisterModules();
 
     protected static final Object MONITOR = new Object();
 
@@ -446,20 +442,11 @@ public class SyncopeCoreInfoContributor implements InfoContributor {
     @Override
     public void contribute(final Info.Builder builder) {
         buildPlatform();
-        builder.withDetail(
-                "platform",
-                MAPPER.convertValue(PLATFORM_INFO, new TypeReference<Map<String, Object>>() {
-                }));
+        builder.withDetail("platform", PLATFORM_INFO);
 
-        builder.withDetail(
-                "numbers",
-                MAPPER.convertValue(buildNumbers(), new TypeReference<Map<String, Object>>() {
-                }));
+        builder.withDetail("numbers", buildNumbers());
 
         buildSystem();
-        builder.withDetail(
-                "system",
-                MAPPER.convertValue(SYSTEM_INFO, new TypeReference<Map<String, Object>>() {
-                }));
+        builder.withDetail("system", SYSTEM_INFO);
     }
 }

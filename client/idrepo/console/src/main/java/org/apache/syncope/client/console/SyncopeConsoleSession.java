@@ -43,7 +43,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.commons.RealmsUtils;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.lib.batch.BatchRequest;
@@ -129,20 +128,13 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         super(request);
 
         clientFactory = SyncopeWebApplication.get().newClientFactory();
-        anonymousClient = clientFactory.create(new AnonymousAuthenticationHandler(
-                SyncopeWebApplication.get().getAnonymousUser(),
-                SyncopeWebApplication.get().getAnonymousKey()));
+        anonymousClient = SyncopeWebApplication.get().newAnonymousClient();
 
         gitAndBuildInfo = anonymousClient.gitAndBuildInfo();
         platformInfo = anonymousClient.platform();
         systemInfo = anonymousClient.system();
 
-        executor = new ThreadPoolTaskExecutor();
-        executor.setWaitForTasksToCompleteOnShutdown(false);
-        executor.setCorePoolSize(SyncopeWebApplication.get().getCorePoolSize());
-        executor.setMaxPoolSize(SyncopeWebApplication.get().getMaxPoolSize());
-        executor.setQueueCapacity(SyncopeWebApplication.get().getQueueCapacity());
-        executor.initialize();
+        executor = SyncopeWebApplication.get().newThreadPoolTaskExecutor();
     }
 
     protected String message(final SyncopeClientException sce) {

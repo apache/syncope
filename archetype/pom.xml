@@ -236,7 +236,6 @@ under the License.
         <directory>../client/idrepo/console/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
         <includes>
-          <include>application.properties</include>
           <include>console.properties</include>
         </includes>
       </resource>
@@ -259,7 +258,6 @@ under the License.
         <directory>../fit/console-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/test/resources</targetPath>
         <includes>
-          <include>console.properties</include>
           <include>keymaster.properties</include>
         </includes>
       </resource>

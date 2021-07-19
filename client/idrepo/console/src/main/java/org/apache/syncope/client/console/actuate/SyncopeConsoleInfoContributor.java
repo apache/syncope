@@ -16,21 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.ui.commons.markup.html.form;
+package org.apache.syncope.client.console.actuate;
 
-import org.apache.wicket.model.IModel;
+import org.apache.syncope.client.console.ConsoleProperties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.info.Info;
+import org.springframework.boot.actuate.info.InfoContributor;
+import org.springframework.security.access.prepost.PreAuthorize;
 
-public abstract class BaseBinaryFieldPanel extends FieldPanel<String> {
+public class SyncopeConsoleInfoContributor implements InfoContributor {
 
-    private static final long serialVersionUID = -198988924922541273L;
+    @Autowired
+    protected ConsoleProperties consoleProperties;
 
-    public BaseBinaryFieldPanel(final String id, final IModel<String> model) {
-        super(id, model);
+    @PreAuthorize("isAuthenticated()")
+    @Override
+    public void contribute(final Info.Builder builder) {
+        builder.withDetail("consoleProperties", consoleProperties);
     }
-
-    public BaseBinaryFieldPanel(final String id, final String name, final IModel<String> model) {
-        super(id, name, model);
-    }
-
-    protected abstract void sendError(Exception exception);
 }

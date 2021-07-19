@@ -41,7 +41,7 @@ public class AnyLayout implements Serializable {
     private final Map<String, AnyObjectFormLayoutInfo> anyObjects = new HashMap<>();
 
     public AnyLayout() {
-        this.anyPanelClass = SyncopeWebApplication.get().getDefaultAnyLayoutClass();
+        this.anyPanelClass = SyncopeWebApplication.get().getDefaultAnyPanelClass();
     }
 
     public String getAnyPanelClass() {

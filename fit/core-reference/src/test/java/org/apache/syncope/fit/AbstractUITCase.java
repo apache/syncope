@@ -19,10 +19,13 @@
 package org.apache.syncope.fit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -35,6 +38,7 @@ import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.tester.WicketTester;
 import org.apache.wicket.util.visit.IVisit;
+import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,9 +56,29 @@ public abstract class AbstractUITCase {
 
     protected static final String SCHEMA = "schema";
 
+    protected static String ANONYMOUS_UNAME;
+
+    protected static String ANONYMOUS_KEY;
+
     protected static WicketTester TESTER;
 
     protected static SyncopeService SYNCOPE_SERVICE;
+
+    @BeforeAll
+    public static void securitySetup() {
+        try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/security.properties")) {
+            Properties props = new Properties();
+            props.load(propStream);
+
+            ANONYMOUS_UNAME = props.getProperty("anonymousUser");
+            ANONYMOUS_KEY = props.getProperty("anonymousKey");
+        } catch (Exception e) {
+            LOG.error("Could not read security.properties", e);
+        }
+
+        assertNotNull(ANONYMOUS_UNAME);
+        assertNotNull(ANONYMOUS_KEY);
+    }
 
     protected static <V extends Serializable> Component findComponentByProp(
             final String property, final String path, final V key) {

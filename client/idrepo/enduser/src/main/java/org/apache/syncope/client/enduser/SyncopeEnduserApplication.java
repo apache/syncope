@@ -24,9 +24,12 @@ import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.actuate.SyncopeCoreHealthIndicator;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -48,6 +51,18 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
         SpringApplication.run(SyncopeEnduserApplication.class, args);
     }
 
+    @Autowired
+    private ServiceOps serviceOps;
+
+    @Value("${anonymousUser}")
+    private String anonymousUser;
+
+    @Value("${anonymousKey}")
+    private String anonymousKey;
+
+    @Value("${useGZIPCompression:false}")
+    private boolean useGZIPCompression;
+
     @Override
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
         builder.properties(WebSocketWicketWebInitializerAutoConfiguration.REGISTER_SERVER_ENDPOINT_ENABLED + "=false");
@@ -62,7 +77,11 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
     @ConditionalOnMissingBean
     @Bean
     public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator() {
-        return new SyncopeCoreHealthIndicator();
+        return new SyncopeCoreHealthIndicator(
+                serviceOps,
+                anonymousUser,
+                anonymousKey,
+                useGZIPCompression);
     }
 
     @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")

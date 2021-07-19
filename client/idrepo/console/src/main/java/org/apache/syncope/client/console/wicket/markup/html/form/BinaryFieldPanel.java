@@ -36,8 +36,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
@@ -111,9 +111,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
 
         previewer = previewUtils.getPreviewer(mimeType);
 
-        maxUploadSize = SyncopeWebApplication.get().getMaxUploadFileSizeMB() == null
-                ? null
-                : Bytes.megabytes(SyncopeWebApplication.get().getMaxUploadFileSizeMB());
+        maxUploadSize = Bytes.megabytes(SyncopeWebApplication.get().getMaxUploadFileSizeMB());
         uploadForm = new StatelessForm<>("uploadForm");
         uploadForm.setMultiPart(true);
         add(uploadForm);
@@ -294,11 +292,6 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
     @Override
     protected void sendError(final Exception exception) {
         SyncopeConsoleSession.get().onException(exception);
-    }
-
-    @Override
-    protected Integer getMaxUploadFileSizeMB() {
-        return SyncopeWebApplication.get().getMaxUploadFileSizeMB();
     }
 
     @Override

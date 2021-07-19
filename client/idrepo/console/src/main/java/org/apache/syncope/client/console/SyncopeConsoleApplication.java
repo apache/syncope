@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console;
 
 import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAutoConfig.WebSocketWicketWebInitializerAutoConfiguration;
+import java.util.Map;
+import org.apache.syncope.client.console.actuate.SyncopeConsoleInfoContributor;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
@@ -44,39 +46,42 @@ import org.apache.syncope.client.console.wizards.any.UserFormFinalizerUtils;
 import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.actuate.SyncopeCoreHealthIndicator;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.PropertySource;
 
-@PropertySource("classpath:console.properties")
-@PropertySource(value = "file:${console.directory}/console.properties", ignoreResourceNotFound = true)
 @SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
     HttpMessageConvertersAutoConfiguration.class })
+@EnableConfigurationProperties(ConsoleProperties.class)
 public class SyncopeConsoleApplication extends SpringBootServletInitializer {
+
+    @Autowired
+    private ServiceOps serviceOps;
+
+    @Autowired
+    private ConsoleProperties props;
 
     @Autowired
     private ApplicationContext ctx;
 
-    public static void main(final String[] args) {
-        SpringApplication.run(SyncopeConsoleApplication.class, args);
-    }
-
     @Override
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
-        builder.properties(WebSocketWicketWebInitializerAutoConfiguration.REGISTER_SERVER_ENDPOINT_ENABLED + "=false");
-        return super.configure(builder);
+        return builder.properties(Map.of(
+                WebSocketWicketWebInitializerAutoConfiguration.REGISTER_SERVER_ENDPOINT_ENABLED, false,
+                "spring.config.name", "console")).
+                sources(SyncopeConsoleApplication.class);
     }
 
     @Bean
@@ -87,7 +92,17 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
     @ConditionalOnMissingBean
     @Bean
     public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator() {
-        return new SyncopeCoreHealthIndicator();
+        return new SyncopeCoreHealthIndicator(
+                serviceOps,
+                props.getAnonymousUser(),
+                props.getAnonymousKey(),
+                props.isUseGZIPCompression());
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SyncopeConsoleInfoContributor syncopeConsoleInfoContributor() {
+        return new SyncopeConsoleInfoContributor();
     }
 
     @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")

@@ -26,6 +26,7 @@ import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import org.apache.syncope.client.console.ConsoleProperties;
 import org.apache.syncope.client.console.SyncopeAMConsoleContext;
 import org.apache.syncope.client.console.SyncopeIdMConsoleContext;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -50,14 +51,24 @@ import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 public abstract class AbstractConsoleITCase extends AbstractUITCase {
 
     @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
-    @PropertySource("classpath:console.properties")
     @Configuration
     public static class SyncopeConsoleWebApplicationTestConfig {
+
+        @Bean
+        public ConsoleProperties consoleProperties() {
+            ConsoleProperties consoleProperties = new ConsoleProperties();
+
+            consoleProperties.setAnonymousUser(ANONYMOUS_UNAME);
+            consoleProperties.setAnonymousKey(ANONYMOUS_KEY);
+
+            consoleProperties.setCsrf(false);
+
+            return consoleProperties;
+        }
 
         @Bean
         public GeneralSettingsProperties generalSettingsProperties() {

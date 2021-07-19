@@ -19,30 +19,19 @@
 package org.apache.syncope.client.console;
 
 import com.giffing.wicket.spring.boot.starter.app.WicketBootSecuredWebApplication;
-import com.google.common.net.HttpHeaders;
 import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
@@ -63,8 +52,10 @@ import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.MustChangePassword;
-import org.apache.syncope.client.console.panels.AnyPanel;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.themes.AdminLTE;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -75,8 +66,8 @@ import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -84,44 +75,18 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
 
-    private static final String CONSOLE_PROPERTIES = "console.properties";
-
     public static SyncopeWebApplication get() {
         return (SyncopeWebApplication) WebApplication.get();
     }
+
+    @Autowired
+    protected ConsoleProperties props;
 
     @Autowired
     protected ClassPathScanImplementationLookup lookup;
 
     @Autowired
     protected ServiceOps serviceOps;
-
-    @Value("${anonymousUser}")
-    protected String anonymousUser;
-
-    @Value("${anonymousKey}")
-    protected String anonymousKey;
-
-    @Value("${useGZIPCompression:false}")
-    protected boolean useGZIPCompression;
-
-    @Value("${maxUploadFileSizeMB:#{null}}")
-    protected Integer maxUploadFileSizeMB;
-
-    @Value("${maxWaitTime:30}")
-    protected Integer maxWaitTime;
-
-    @Value("${corePoolSize:5}")
-    protected Integer corePoolSize;
-
-    @Value("${maxPoolSize:10}")
-    protected Integer maxPoolSize;
-
-    @Value("${queueCapacity:50}")
-    protected Integer queueCapacity;
-
-    @Value("${reconciliationReportKey}")
-    protected String reconciliationReportKey;
 
     @Autowired
     protected ExternalResourceProvider resourceProvider;
@@ -147,55 +112,9 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     @Autowired
     protected ApplicationContext ctx;
 
-    protected Map<String, Class<? extends BasePage>> pageClasses;
-
-    protected String defaultAnyLayoutClass;
-
-    @SuppressWarnings("unchecked")
-    protected void populatePageClasses(final Properties props) {
-        Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
-        while (propNames.hasMoreElements()) {
-            String className = propNames.nextElement();
-            if (className.startsWith("page.")) {
-                try {
-                    Class<?> clazz = ClassUtils.getClass(props.getProperty(className));
-                    if (BasePage.class.isAssignableFrom(clazz)) {
-                        pageClasses.put(
-                                StringUtils.substringAfter(className, "page."), (Class<? extends BasePage>) clazz);
-                    } else {
-                        LOG.warn("{} does not extend {}, ignoring...", clazz.getName(), BasePage.class.getName());
-                    }
-                } catch (ClassNotFoundException e) {
-                    LOG.error("While looking for class identified by property '{}'", className, e);
-                }
-            }
-        }
-    }
-
-    protected static void setSecurityHeaders(final Properties props, final WebResponse response) {
-        @SuppressWarnings("unchecked")
-        Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
-        while (propNames.hasMoreElements()) {
-            String name = propNames.nextElement();
-            if (name.startsWith("security.headers.")) {
-                response.setHeader(StringUtils.substringAfter(name, "security.headers."), props.getProperty(name));
-            }
-        }
-    }
-
     @Override
     protected void init() {
         super.init();
-
-        // read console.properties
-        Properties props = PropertyUtils.read(getClass(), CONSOLE_PROPERTIES, "console.directory");
-
-        // process page properties
-        pageClasses = new HashMap<>();
-        populatePageClasses(props);
-        pageClasses = Collections.unmodifiableMap(pageClasses);
-
-        defaultAnyLayoutClass = props.getProperty("default.any.panel.class", AnyPanel.class.getName());
 
         // Application settings
         IBootstrapSettings settings = new BootstrapSettings();
@@ -236,30 +155,18 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
             }
         });
 
-        if (BooleanUtils.toBoolean(props.getProperty("x-forward"))) {
+        if (props.isxForward()) {
             XForwardedRequestWrapperFactory.Config config = new XForwardedRequestWrapperFactory.Config();
-            config.setProtocolHeader(props.getProperty("x-forward.protocol.header", HttpHeaders.X_FORWARDED_PROTO));
-            try {
-                config.setHttpServerPort(Integer.valueOf(props.getProperty("x-forward.http.port", "80")));
-            } catch (NumberFormatException e) {
-                LOG.error("Invalid value provided for 'x-forward.http.port': {}",
-                        props.getProperty("x-forward.http.port"));
-                config.setHttpServerPort(80);
-            }
-            try {
-                config.setHttpsServerPort(Integer.valueOf(props.getProperty("x-forward.https.port", "443")));
-            } catch (NumberFormatException e) {
-                LOG.error("Invalid value provided for 'x-forward.https.port': {}",
-                        props.getProperty("x-forward.https.port"));
-                config.setHttpsServerPort(443);
-            }
+            config.setProtocolHeader(props.getxForwardProtocolHeader());
+            config.setHttpServerPort(props.getxForwardHttpPort());
+            config.setHttpsServerPort(props.getxForwardHttpsPort());
 
             XForwardedRequestWrapperFactory factory = new XForwardedRequestWrapperFactory();
             factory.setConfig(config);
             getFilterFactoryManager().add(factory);
         }
 
-        if (BooleanUtils.toBoolean(props.getProperty("csrf"))) {
+        if (props.isCsrf()) {
             getRequestCycleListeners().add(new WebSocketAwareResourceIsolationRequestCycleListener());
         }
         getRequestCycleListeners().add(new IRequestCycleListener() {
@@ -267,7 +174,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
             @Override
             public void onEndRequest(final RequestCycle cycle) {
                 if (cycle.getResponse() instanceof WebResponse && !(cycle.getResponse() instanceof WebSocketResponse)) {
-                    setSecurityHeaders(props, (WebResponse) cycle.getResponse());
+                    props.getSecurityHeaders().
+                            forEach((name, value) -> ((WebResponse) cycle.getResponse()).setHeader(name, value));
                 }
             }
         });
@@ -322,50 +230,53 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return lookup;
     }
 
-    public Class<? extends BasePage> getPageClass(final String key) {
-        return pageClasses.get(key);
+    public Class<? extends BasePage> getPageClass(final String name) {
+        return props.getPage().get(name);
     }
 
-    public String getAnonymousUser() {
-        return anonymousUser;
+    public ThreadPoolTaskExecutor newThreadPoolTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setWaitForTasksToCompleteOnShutdown(false);
+        executor.setCorePoolSize(props.getTopology().getCorePoolSize());
+        executor.setMaxPoolSize(props.getTopology().getMaxPoolSize());
+        executor.setQueueCapacity(props.getTopology().getQueueCapacity());
+        executor.initialize();
+        return executor;
     }
 
-    public String getAnonymousKey() {
-        return anonymousKey;
-    }
-
-    public String getReconciliationReportKey() {
-        return reconciliationReportKey;
-    }
-
-    public Integer getMaxUploadFileSizeMB() {
-        return maxUploadFileSizeMB;
-    }
-
-    public Integer getMaxWaitTimeInSeconds() {
-        return maxWaitTime;
-    }
-
-    public Integer getCorePoolSize() {
-        return corePoolSize;
-    }
-
-    public Integer getMaxPoolSize() {
-        return maxPoolSize;
-    }
-
-    public Integer getQueueCapacity() {
-        return queueCapacity;
-    }
-
-    public String getDefaultAnyLayoutClass() {
-        return defaultAnyLayoutClass;
+    public SyncopeClient newAnonymousClient() {
+        return newClientFactory().create(
+                new AnonymousAuthenticationHandler(props.getAnonymousUser(), props.getAnonymousKey()));
     }
 
     public SyncopeClientFactoryBean newClientFactory() {
         return new SyncopeClientFactoryBean().
                 setAddress(serviceOps.get(NetworkService.Type.CORE).getAddress()).
-                setUseCompression(useGZIPCompression);
+                setUseCompression(props.isUseGZIPCompression());
+    }
+
+    public String getDefaultAnyPanelClass() {
+        return props.getDefaultAnyPanelClass();
+    }
+
+    public String getAnonymousUser() {
+        return props.getAnonymousUser();
+    }
+
+    public String getAnonymousKey() {
+        return props.getAnonymousKey();
+    }
+
+    public String getReconciliationReportKey() {
+        return props.getReconciliationReportKey();
+    }
+
+    public long getMaxWaitTimeInSeconds() {
+        return props.getMaxWaitTimeOnApplyChanges();
+    }
+
+    public int getMaxUploadFileSizeMB() {
+        return props.getMaxUploadFileSizeMB();
     }
 
     public ExternalResourceProvider getResourceProvider() {
