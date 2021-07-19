@@ -64,7 +64,7 @@ public class OIDCAuthModuleConf implements AuthModuleConf {
     /**
      * Clock skew in order to account for drift, when validating id tokens.
      */
-    private int maxClockSkew;
+    private String maxClockSkew;
 
     /**
      * Custom parameters to send along in authZ requests, etc.
@@ -139,11 +139,11 @@ public class OIDCAuthModuleConf implements AuthModuleConf {
         this.preferredJwsAlgorithm = preferredJwsAlgorithm;
     }
 
-    public int getMaxClockSkew() {
+    public String getMaxClockSkew() {
         return maxClockSkew;
     }
 
-    public void setMaxClockSkew(final int maxClockSkew) {
+    public void setMaxClockSkew(final String maxClockSkew) {
         this.maxClockSkew = maxClockSkew;
     }
 

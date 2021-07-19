@@ -64,7 +64,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         OidcRegisteredService service = new OidcRegisteredService();
         setCommon(service, rp);
 
-        service.setServiceId(Stream.concat(rp.getRedirectUris().stream(), Stream.of(rp.getLogoutUri())).
+        service.setServiceId(rp.getRedirectUris().stream().
                 filter(Objects::nonNull).
                 collect(Collectors.joining("|")));
         service.setClientId(rp.getClientId());

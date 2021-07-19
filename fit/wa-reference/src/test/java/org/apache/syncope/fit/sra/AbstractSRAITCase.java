@@ -169,7 +169,10 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
         ProcessBuilder processBuilder = new ProcessBuilder(
                 javaHome + "/bin/java",
                 "-Dreactor.netty.http.server.accessLogEnabled=true",
-                "-jar", sraJar);
+                "-jar",
+                "-Xdebug",
+                "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5006",
+                sraJar);
         processBuilder.inheritIO();
 
         Map<String, String> environment = processBuilder.environment();

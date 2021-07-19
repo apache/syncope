@@ -40,6 +40,11 @@ under the License.
     <asyncLogger name="org.apereo.cas" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
+
+    <asyncLogger name="org.apereo.services.persondir" additivity="false" level="INFO">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+
     <asyncLogger name="org.apereo.inspektr.audit.support" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>

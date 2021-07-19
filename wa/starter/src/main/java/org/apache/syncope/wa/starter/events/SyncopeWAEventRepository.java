@@ -58,11 +58,11 @@ public class SyncopeWAEventRepository extends AbstractCasEventRepository {
     }
 
     @Override
-    public void saveInternal(final CasEvent event) {
+    public CasEvent saveInternal(final CasEvent event) {
         SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
         if (syncopeClient == null) {
             LOG.debug("Syncope client is not yet ready to store audit record");
-            return;
+            return null;
         }
 
         LOG.info("Saving Cas events");
@@ -96,6 +96,7 @@ public class SyncopeWAEventRepository extends AbstractCasEventRepository {
         } catch (JsonProcessingException e) {
             LOG.error("During serialization", e);
         }
+        return event;
     }
 
     @Override
