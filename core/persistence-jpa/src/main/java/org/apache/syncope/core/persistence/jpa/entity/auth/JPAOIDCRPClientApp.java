@@ -49,6 +49,8 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     private boolean signIdToken;
 
+    private boolean jwtAccessToken;
+
     @Enumerated(EnumType.STRING)
     private OIDCSubjectType subjectType;
 
@@ -110,6 +112,16 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Override
     public void setSignIdToken(final boolean signIdToken) {
         this.signIdToken = signIdToken;
+    }
+
+    @Override
+    public boolean isJwtAccessToken() {
+        return jwtAccessToken;
+    }
+
+    @Override
+    public void setJwtAccessToken(final boolean jwtAccessToken) {
+        this.jwtAccessToken = jwtAccessToken;
     }
 
     @Override
