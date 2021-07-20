@@ -21,29 +21,13 @@ package org.apache.syncope.client.enduser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giffing.wicket.spring.boot.starter.app.WicketBootStandardWebApplication;
-import com.google.common.net.HttpHeaders;
 import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.monitor.FileAlterationListener;
-import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
-import org.apache.commons.io.monitor.FileAlterationMonitor;
-import org.apache.commons.io.monitor.FileAlterationObserver;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.pages.BasePage;
@@ -52,13 +36,14 @@ import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.pages.MustChangePassword;
 import org.apache.syncope.client.enduser.pages.SelfConfirmPasswordReset;
 import org.apache.syncope.client.enduser.panels.Sidebar;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.themes.AdminLTE;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
-import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
@@ -79,187 +64,40 @@ import org.apache.wicket.request.resource.ResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
-
-    private static final String ENDUSER_PROPERTIES = "enduser.properties";
-
-    private static final String CUSTOM_FORM_LAYOUT_FILE = "customFormLayout.json";
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
 
     public static final List<Locale> SUPPORTED_LOCALES = List.of(
             Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
     public static SyncopeWebApplication get() {
         return (SyncopeWebApplication) WebApplication.get();
     }
 
     @Autowired
-    private ClassPathScanImplementationLookup lookup;
+    protected ResourceLoader resourceLoader;
 
     @Autowired
-    private ServiceOps serviceOps;
+    protected EnduserProperties props;
 
-    @Value("${adminUser}")
-    private String adminUser;
+    @Autowired
+    protected ClassPathScanImplementationLookup lookup;
 
-    @Value("${anonymousUser}")
-    protected String anonymousUser;
+    @Autowired
+    protected ServiceOps serviceOps;
 
-    @Value("${anonymousKey}")
-    protected String anonymousKey;
-
-    @Value("${useGZIPCompression:false}")
-    protected boolean useGZIPCompression;
-
-    @Value("${captchaEnabled:false}")
-    private boolean captchaEnabled;
-
-    @Value("${maxUploadFileSizeMB:#{null}}")
-    protected Integer maxUploadFileSizeMB;
-
-    @Value("${maxWaitTime:30}")
-    protected Integer maxWaitTime;
-
-    @Value("${corePoolSize:5}")
-    protected Integer corePoolSize;
-
-    @Value("${maxPoolSize:10}")
-    protected Integer maxPoolSize;
-
-    @Value("${queueCapacity:50}")
-    protected Integer queueCapacity;
-
-    private FileAlterationMonitor customFormLayoutMonitor;
-
-    private Map<String, Class<? extends BasePage>> pageClasses;
-
-    private Class<? extends Sidebar> sidebar;
-
-    private UserFormLayoutInfo customFormLayout;
-
-    @SuppressWarnings("unchecked")
-    protected void populatePageClasses(final Properties props) {
-        Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
-        while (propNames.hasMoreElements()) {
-            String className = propNames.nextElement();
-            if (className.startsWith("page.")) {
-                try {
-                    Class<?> clazz = ClassUtils.getClass(props.getProperty(className));
-                    if (BasePage.class.isAssignableFrom(clazz)) {
-                        pageClasses.put(
-                                StringUtils.substringAfter(className, "page."), (Class<? extends BasePage>) clazz);
-                    } else {
-                        LOG.warn("{} does not extend {}, ignoring...", clazz.getName(), BasePage.class.getName());
-                    }
-                } catch (ClassNotFoundException e) {
-                    LOG.error("While looking for class identified by property '{}'", className, e);
-                }
-            }
-        }
-    }
-
-    protected static void setSecurityHeaders(final Properties props, final WebResponse response) {
-        @SuppressWarnings("unchecked")
-        Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
-        while (propNames.hasMoreElements()) {
-            String name = propNames.nextElement();
-            if (name.startsWith("security.headers.")) {
-                response.setHeader(StringUtils.substringAfter(name, "security.headers."), props.getProperty(name));
-            }
-        }
-    }
+    protected UserFormLayoutInfo customFormLayout;
 
     @Override
     protected void init() {
         super.init();
-
-        // read enduser.properties
-        Properties props = PropertyUtils.read(getClass(), ENDUSER_PROPERTIES, "enduser.directory");
-
-        // read customFormLayout.json
-        try (InputStream is = SyncopeWebApplication.class.getResourceAsStream('/' + CUSTOM_FORM_LAYOUT_FILE)) {
-            customFormLayout = MAPPER.readValue(is, new TypeReference<UserFormLayoutInfo>() {
-            });
-            File enduserDir = new File(props.getProperty("enduser.directory"));
-            boolean existsEnduserDir = enduserDir.exists() && enduserDir.canRead() && enduserDir.isDirectory();
-            if (existsEnduserDir) {
-                File customFormLayoutFile = FileUtils.getFile(enduserDir, CUSTOM_FORM_LAYOUT_FILE);
-                if (customFormLayoutFile.exists()
-                        && customFormLayoutFile.canRead()
-                        && customFormLayoutFile.isFile()) {
-                    customFormLayout = MAPPER.readValue(FileUtils.openInputStream(customFormLayoutFile),
-                            new TypeReference<UserFormLayoutInfo>() {
-                    });
-                }
-            }
-            FileAlterationObserver observer = existsEnduserDir
-                    ? new FileAlterationObserver(
-                            enduserDir,
-                            pathname -> StringUtils.contains(pathname.getPath(), CUSTOM_FORM_LAYOUT_FILE))
-                    : new FileAlterationObserver(
-                            SyncopeWebApplication.class.getResource('/' + CUSTOM_FORM_LAYOUT_FILE).getFile(),
-                            pathname -> StringUtils.contains(pathname.getPath(), CUSTOM_FORM_LAYOUT_FILE));
-
-            customFormLayoutMonitor = new FileAlterationMonitor(5000);
-
-            FileAlterationListener listener = new FileAlterationListenerAdaptor() {
-
-                @Override
-                public void onFileChange(final File file) {
-                    try {
-                        LOG.trace("{} has changed. Reloading form attributes customization configuration.",
-                                CUSTOM_FORM_LAYOUT_FILE);
-                        customFormLayout = MAPPER.readValue(FileUtils.openInputStream(file),
-                                new TypeReference<UserFormLayoutInfo>() {
-                        });
-                    } catch (IOException e) {
-                        LOG.error("{} While reading app customization configuration.",
-                                CUSTOM_FORM_LAYOUT_FILE, e);
-                    }
-                }
-
-                @Override
-                public void onFileCreate(final File file) {
-                    try {
-                        LOG.trace("{} has been created. Loading form attributes customization configuration.",
-                                CUSTOM_FORM_LAYOUT_FILE);
-                        customFormLayout = MAPPER.readValue(FileUtils.openInputStream(file),
-                                new TypeReference<UserFormLayoutInfo>() {
-                        });
-                    } catch (IOException e) {
-                        LOG.error("{} While reading app customization configuration.",
-                                CUSTOM_FORM_LAYOUT_FILE, e);
-                    }
-                }
-
-                @Override
-                public void onFileDelete(final File file) {
-                    LOG.trace("{} has been deleted. Resetting form attributes customization configuration.",
-                            CUSTOM_FORM_LAYOUT_FILE);
-                    customFormLayout = null;
-                }
-            };
-
-            observer.addListener(listener);
-            customFormLayoutMonitor.addObserver(observer);
-            customFormLayoutMonitor.start();
-        } catch (Exception e) {
-            throw new WicketRuntimeException("Could not read " + CUSTOM_FORM_LAYOUT_FILE, e);
-        }
-
-        // process page properties
-        pageClasses = new HashMap<>();
-        populatePageClasses(props);
-        pageClasses = Collections.unmodifiableMap(pageClasses);
-
-        buildSidebarClass(props);
 
         // Application settings
         IBootstrapSettings settings = new BootstrapSettings();
@@ -295,38 +133,28 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
             }
         });
 
-        if (BooleanUtils.toBoolean(props.getProperty("x-forward"))) {
+        if (props.isxForward()) {
             XForwardedRequestWrapperFactory.Config config = new XForwardedRequestWrapperFactory.Config();
-            config.setProtocolHeader(props.getProperty("x-forward.protocol.header", HttpHeaders.X_FORWARDED_PROTO));
-            try {
-                config.setHttpServerPort(Integer.valueOf(props.getProperty("x-forward.http.port", "80")));
-            } catch (NumberFormatException e) {
-                LOG.error("Invalid value provided for 'x-forward.http.port': {}",
-                        props.getProperty("x-forward.http.port"));
-                config.setHttpServerPort(80);
-            }
-            try {
-                config.setHttpsServerPort(Integer.valueOf(props.getProperty("x-forward.https.port", "443")));
-            } catch (NumberFormatException e) {
-                LOG.error("Invalid value provided for 'x-forward.https.port': {}",
-                        props.getProperty("x-forward.https.port"));
-                config.setHttpsServerPort(443);
-            }
+            config.setProtocolHeader(props.getxForwardProtocolHeader());
+            config.setHttpServerPort(props.getxForwardHttpPort());
+            config.setHttpsServerPort(props.getxForwardHttpsPort());
 
             XForwardedRequestWrapperFactory factory = new XForwardedRequestWrapperFactory();
             factory.setConfig(config);
             getFilterFactoryManager().add(factory);
         }
 
-        if (BooleanUtils.toBoolean(props.getProperty("csrf"))) {
+        if (props.isCsrf()) {
             getRequestCycleListeners().add(new ResourceIsolationRequestCycleListener());
         }
+
         getRequestCycleListeners().add(new IRequestCycleListener() {
 
             @Override
             public void onEndRequest(final RequestCycle cycle) {
                 if (cycle.getResponse() instanceof WebResponse) {
-                    setSecurityHeaders(props, (WebResponse) cycle.getResponse());
+                    props.getSecurityHeaders().
+                            forEach((name, value) -> ((WebResponse) cycle.getResponse()).setHeader(name, value));
                 }
             }
         });
@@ -354,20 +182,16 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
             }
         }
 
+        try (InputStream is = resourceLoader.getResource(props.getCustomFormLayout()).getInputStream()) {
+            customFormLayout = MAPPER.readValue(is, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            throw new WicketRuntimeException("Could not read " + props.getCustomFormLayout(), e);
+        }
+
         // enable component path
         if (getDebugSettings().isAjaxDebugModeEnabled()) {
             getDebugSettings().setComponentPathAttributeName("syncope-path");
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (customFormLayoutMonitor != null) {
-            try {
-                customFormLayoutMonitor.stop(0);
-            } catch (Exception e) {
-                LOG.error("{} While stopping file monitor", CUSTOM_FORM_LAYOUT_FILE, e);
-            }
         }
     }
 
@@ -385,26 +209,12 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         return lookup;
     }
 
-    @SuppressWarnings("unchecked")
-    private void buildSidebarClass(final Properties props) {
-        try {
-            Class<?> clazz = ClassUtils.getClass(props.getProperty("sidebar", Sidebar.class.getCanonicalName()));
-            if (Sidebar.class.isAssignableFrom(clazz)) {
-                sidebar = (Class<? extends Sidebar>) clazz;
-            } else {
-                LOG.warn("{} does not extend {}, ignoring...", clazz.getName(), Sidebar.class.getName());
-            }
-        } catch (ClassNotFoundException e) {
-            LOG.error("While looking for class identified by property 'sidebar'", e);
-        }
-    }
-
     public UserFormLayoutInfo getCustomFormLayout() {
         return customFormLayout;
     }
 
     public Class<? extends Sidebar> getSidebar() {
-        return sidebar;
+        return props.getSidebar();
     }
 
     @Override
@@ -412,18 +222,23 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         return new SyncopeEnduserSession(request);
     }
 
+    public SyncopeClient newAnonymousClient() {
+        return newClientFactory().create(
+                new AnonymousAuthenticationHandler(props.getAnonymousUser(), props.getAnonymousKey()));
+    }
+
     public SyncopeClientFactoryBean newClientFactory() {
         return new SyncopeClientFactoryBean().
                 setAddress(serviceOps.get(NetworkService.Type.CORE).getAddress()).
-                setUseCompression(useGZIPCompression);
+                setUseCompression(props.isUseGZIPCompression());
     }
 
-    public Class<? extends BasePage> getPageClass(final String key) {
-        return pageClasses.get(key);
+    public Class<? extends BasePage> getPageClass(final String name) {
+        return props.getPage().get(name);
     }
 
-    public Class<? extends BasePage> getPageClass(final String key, final Class<? extends BasePage> defaultValue) {
-        return pageClasses.getOrDefault(key, defaultValue);
+    public Class<? extends BasePage> getPageClass(final String name, final Class<? extends BasePage> defaultValue) {
+        return props.getPage().getOrDefault(name, defaultValue);
     }
 
     protected Class<? extends WebPage> getSignInPageClass() {
@@ -431,39 +246,26 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
     }
 
     public String getAdminUser() {
-        return adminUser;
+        return props.getAdminUser();
     }
 
     public String getAnonymousUser() {
-        return anonymousUser;
+        return props.getAnonymousUser();
     }
 
     public String getAnonymousKey() {
-        return anonymousKey;
+        return props.getAnonymousKey();
     }
 
     public boolean isCaptchaEnabled() {
-        return captchaEnabled;
+        return props.isCaptcha();
+    }
+
+    public long getMaxWaitTimeInSeconds() {
+        return props.getMaxWaitTimeOnApplyChanges();
     }
 
     public Integer getMaxUploadFileSizeMB() {
-        return maxUploadFileSizeMB;
+        return props.getMaxUploadFileSizeMB();
     }
-
-    public Integer getCorePoolSize() {
-        return corePoolSize;
-    }
-
-    public Integer getMaxPoolSize() {
-        return maxPoolSize;
-    }
-
-    public Integer getQueueCapacity() {
-        return queueCapacity;
-    }
-
-    public Integer getMaxWaitTimeInSeconds() {
-        return maxWaitTime;
-    }
-
 }

@@ -67,6 +67,12 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(ConsoleProperties.class)
 public class SyncopeConsoleApplication extends SpringBootServletInitializer {
 
+    public static void main(final String[] args) {
+        new SpringApplicationBuilder(SyncopeConsoleApplication.class).
+                properties("spring.config.name:console").
+                build().run(args);
+    }
+
     @Autowired
     private ServiceOps serviceOps;
 

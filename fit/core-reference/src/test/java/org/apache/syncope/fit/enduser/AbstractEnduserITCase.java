@@ -53,14 +53,27 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import org.springframework.context.annotation.PropertySource;
+import org.apache.syncope.client.enduser.EnduserProperties;
 
 public abstract class AbstractEnduserITCase extends AbstractUITCase {
 
     @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
-    @PropertySource("classpath:enduser.properties")
     @Configuration
     public static class SyncopeEnduserWebApplicationTestConfig {
+
+        @Bean
+        public EnduserProperties enduserProperties() {
+            EnduserProperties enduserProperties = new EnduserProperties();
+
+            enduserProperties.setAdminUser(ADMIN_UNAME);
+
+            enduserProperties.setAnonymousUser(ANONYMOUS_UNAME);
+            enduserProperties.setAnonymousKey(ANONYMOUS_KEY);
+
+            enduserProperties.setCsrf(false);
+
+            return enduserProperties;
+        }
 
         @Bean
         public GeneralSettingsProperties generalSettingsProperties() {

@@ -169,6 +169,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         if (props.isCsrf()) {
             getRequestCycleListeners().add(new WebSocketAwareResourceIsolationRequestCycleListener());
         }
+
         getRequestCycleListeners().add(new IRequestCycleListener() {
 
             @Override

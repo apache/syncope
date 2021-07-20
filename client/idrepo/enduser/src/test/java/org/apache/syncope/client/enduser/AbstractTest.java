@@ -29,10 +29,8 @@ import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.Wicket
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
@@ -68,6 +66,23 @@ public abstract class AbstractTest {
     @ImportAutoConfiguration
     @Configuration
     public static class SyncopeEnduserWebApplicationTestConfig {
+
+        @Bean
+        public EnduserProperties enduserProperties() {
+            EnduserProperties enduserProperties = new EnduserProperties();
+
+            enduserProperties.getSecurityHeaders().put("X-XSS-Protection", "1; mode=block");
+            enduserProperties.getSecurityHeaders().
+                    put("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+            enduserProperties.getSecurityHeaders().put("X-Content-Type-Options", "nosniff");
+            enduserProperties.getSecurityHeaders().put("X-Frame-Options", "sameorigin");
+
+            enduserProperties.setAdminUser("admin");
+
+            enduserProperties.setAnonymousUser("anonymousUser");
+
+            return enduserProperties;
+        }
 
         @Bean
         public ServiceOps selfServiceOps() {
@@ -223,17 +238,9 @@ public abstract class AbstractTest {
         }
     }
 
-    protected static Properties PROPS;
+    protected static EnduserProperties PROPS;
 
     protected static WicketTester TESTER;
-
-    @BeforeAll
-    public static void loadProps() throws IOException {
-        PROPS = new Properties();
-        try (InputStream is = AbstractTest.class.getResourceAsStream("/enduser.properties")) {
-            PROPS.load(is);
-        }
-    }
 
     @BeforeAll
     public static void setupTester() throws IOException {
@@ -242,6 +249,7 @@ public abstract class AbstractTest {
         ctx.register(TestSyncopeWebApplication.class);
         ctx.refresh();
 
+        PROPS = ctx.getBean(EnduserProperties.class);
         TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class));
     }
 }
