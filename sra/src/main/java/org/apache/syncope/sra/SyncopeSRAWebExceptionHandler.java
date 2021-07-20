@@ -31,7 +31,6 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
 import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
@@ -59,8 +58,8 @@ public class SyncopeSRAWebExceptionHandler implements WebExceptionHandler, Appli
     @Autowired
     private RouteProvider routeProvider;
 
-    @Value("${global.error}")
-    private URI globalError;
+    @Autowired
+    private SRAProperties props;
 
     @Override
     public void onApplicationEvent(final RefreshRoutesEvent event) {
@@ -68,7 +67,7 @@ public class SyncopeSRAWebExceptionHandler implements WebExceptionHandler, Appli
     }
 
     private URI getError(final ServerWebExchange exchange) {
-        URI error = globalError;
+        URI error = props.getGlobal().getError();
         String routeId = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_PREDICATE_ROUTE_ATTR);
         if (StringUtils.isNotBlank(routeId)) {
             Optional<URI> routeError = Optional.ofNullable(CACHE.get(routeId)).orElseGet(() -> {

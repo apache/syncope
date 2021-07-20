@@ -29,8 +29,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestPropertySource("classpath:sra.properties")
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
 @AutoConfigureWireMock(port = 0)
 public abstract class AbstractTest {
@@ -57,13 +59,11 @@ public abstract class AbstractTest {
     @Value("${wiremock.server.port}")
     protected int wiremockPort;
 
-    @Value("${anonymousUser}")
-    private String anonymousUser;
-
-    @Value("${anonymousKey}")
-    private String anonymousKey;
+    @Autowired
+    private SRAProperties props;
 
     protected String basicAuthHeader() {
-        return "Basic " + Base64.getEncoder().encodeToString((anonymousUser + ":" + anonymousKey).getBytes());
+        return "Basic " + Base64.getEncoder().encodeToString(
+                (props.getAnonymousUser() + ":" + props.getAnonymousKey()).getBytes());
     }
 }

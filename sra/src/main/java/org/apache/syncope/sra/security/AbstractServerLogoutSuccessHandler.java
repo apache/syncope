@@ -25,9 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.apache.syncope.sra.RouteProvider;
+import org.apache.syncope.sra.SRAProperties;
 import org.apache.syncope.sra.security.web.server.DoNothingIfCommittedServerRedirectStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.context.ApplicationListener;
@@ -45,8 +45,8 @@ public abstract class AbstractServerLogoutSuccessHandler
     @Autowired
     private RouteProvider routeProvider;
 
-    @Value("${global.postLogout}")
-    private URI globalPostLogout;
+    @Autowired
+    private SRAProperties props;
 
     @Override
     public void onApplicationEvent(final RefreshRoutesEvent event) {
@@ -54,7 +54,7 @@ public abstract class AbstractServerLogoutSuccessHandler
     }
 
     protected URI getPostLogout(final WebFilterExchange exchange) {
-        URI postLogout = globalPostLogout;
+        URI postLogout = props.getGlobal().getPostLogout();
         String routeId = exchange.getExchange().getAttribute(ServerWebExchangeUtils.GATEWAY_PREDICATE_ROUTE_ATTR);
         if (StringUtils.isNotBlank(routeId)) {
             Optional<URI> routePostLogout = Optional.ofNullable(CACHE.get(routeId)).orElseGet(() -> {

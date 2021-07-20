@@ -18,40 +18,62 @@
  */
 package org.apache.syncope.sra;
 
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.sra.actuate.SRASessions;
 import org.apache.syncope.sra.actuate.SyncopeCoreHealthIndicator;
+import org.apache.syncope.sra.actuate.SyncopeSRAInfoContributor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.PropertySource;
 import reactor.core.publisher.Flux;
 
-@PropertySource("classpath:sra.properties")
-@PropertySource(value = "file:${conf.directory}/sra.properties", ignoreResourceNotFound = true)
 @SpringBootApplication
+@EnableConfigurationProperties(SRAProperties.class)
 public class SyncopeSRAApplication {
 
     public static void main(final String[] args) {
-        SpringApplication.run(SyncopeSRAApplication.class, args);
+        new SpringApplicationBuilder(SyncopeSRAApplication.class).
+                properties("spring.config.name:sra").
+                build().run(args);
     }
 
     @Autowired
-    private RouteProvider provider;
+    private ServiceOps serviceOps;
+
+    @Autowired
+    private SRAProperties props;
 
     @Autowired
     private CacheManager cacheManager;
 
+    @Autowired
+    private ConfigurableApplicationContext ctx;
+
+    @ConditionalOnMissingBean
+    @Bean
+    public RouteProvider routeProvider() {
+        return new RouteProvider(
+                serviceOps,
+                ctx,
+                props.getAnonymousUser(),
+                props.getAnonymousKey(),
+                props.isUseGZIPCompression());
+    }
+
+    @ConditionalOnMissingBean
     @Bean
     public RouteLocator routes() {
-        return () -> Flux.fromIterable(provider.fetch()).map(Route.AbstractBuilder::build);
+        return () -> Flux.fromIterable(routeProvider().fetch()).map(Route.AbstractBuilder::build);
     }
 
     @ConditionalOnMissingBean
@@ -63,7 +85,17 @@ public class SyncopeSRAApplication {
     @ConditionalOnMissingBean
     @Bean
     public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator() {
-        return new SyncopeCoreHealthIndicator();
+        return new SyncopeCoreHealthIndicator(
+                serviceOps,
+                props.getAnonymousUser(),
+                props.getAnonymousKey(),
+                props.isUseGZIPCompression());
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SyncopeSRAInfoContributor syncopeSRAInfoContributor() {
+        return new SyncopeSRAInfoContributor();
     }
 
     @Bean

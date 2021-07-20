@@ -20,7 +20,7 @@ package org.apache.syncope.sra.security.saml2;
 
 import com.google.common.net.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.sra.SecurityConfig;
+import org.apache.syncope.sra.SRAProperties;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.pac4j.saml.client.SAML2Client;
@@ -36,7 +36,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(SAML2MetadataEndpoint.METADATA_URL)
-@ConditionalOnProperty(name = SecurityConfig.AM_TYPE, havingValue = "SAML2")
+@ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "SAML2")
 public class SAML2MetadataEndpoint {
 
     public static final String METADATA_URL = "/saml2/metadata";

@@ -20,14 +20,9 @@ package org.apache.syncope.client.ui.commons;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.syncope.common.lib.SyncopeProperties;
 
-public abstract class CommonUIProperties {
-
-    private String anonymousUser;
-
-    private String anonymousKey;
-
-    private boolean useGZIPCompression = true;
+public abstract class CommonUIProperties extends SyncopeProperties {
 
     private boolean xForward = true;
 
@@ -44,30 +39,6 @@ public abstract class CommonUIProperties {
     private long maxWaitTimeOnApplyChanges = 30L;
 
     private final Map<String, String> securityHeaders = new HashMap<>();
-
-    public String getAnonymousUser() {
-        return anonymousUser;
-    }
-
-    public void setAnonymousUser(final String anonymousUser) {
-        this.anonymousUser = anonymousUser;
-    }
-
-    public String getAnonymousKey() {
-        return anonymousKey;
-    }
-
-    public void setAnonymousKey(final String anonymousKey) {
-        this.anonymousKey = anonymousKey;
-    }
-
-    public boolean isUseGZIPCompression() {
-        return useGZIPCompression;
-    }
-
-    public void setUseGZIPCompression(final boolean useGZIPCompression) {
-        this.useGZIPCompression = useGZIPCompression;
-    }
 
     public boolean isxForward() {
         return xForward;

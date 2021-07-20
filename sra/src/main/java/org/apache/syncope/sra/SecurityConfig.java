@@ -24,7 +24,6 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.util.Map;
-import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
@@ -37,7 +36,6 @@ import org.apache.syncope.sra.security.pac4j.NoOpLogoutHandler;
 import org.apache.syncope.sra.security.saml2.SAML2MetadataEndpoint;
 import org.apache.syncope.sra.security.saml2.SAML2SecurityConfigUtils;
 import org.apache.syncope.sra.security.saml2.SAML2WebSsoAuthenticationWebFilter;
-import org.jasig.cas.client.Protocol;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
@@ -52,7 +50,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileUrlResource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.http.HttpMethod;
@@ -66,7 +63,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter;
@@ -82,25 +78,15 @@ import reactor.core.publisher.Mono;
 @Configuration
 public class SecurityConfig {
 
-    public static final String AM_TYPE = "am.type";
-
-    public enum AMType {
-        OIDC,
-        OAUTH2,
-        SAML2,
-        CAS
-
-    }
-
     @Autowired
     private ResourcePatternResolver resourceResolver;
 
     @Autowired
-    private Environment env;
+    private SRAProperties props;
 
     @Bean
     @Order(0)
-    @ConditionalOnProperty(name = AM_TYPE, havingValue = "SAML2")
+    @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "SAML2")
     public SecurityWebFilterChain saml2SecurityFilterChain(final ServerHttpSecurity http) {
         ServerWebExchangeMatcher metadataMatcher =
                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, SAML2MetadataEndpoint.METADATA_URL);
@@ -124,32 +110,30 @@ public class SecurityConfig {
     @Bean
     public MapReactiveUserDetailsService userDetailsService() {
         UserDetails user = User.builder().
-                username(Objects.requireNonNull(env.getProperty("anonymousUser"))).
-                password("{noop}" + env.getProperty("anonymousKey")).
+                username(props.getAnonymousUser()).
+                password("{noop}" + props.getAnonymousKey()).
                 roles(IdRepoEntitlement.ANONYMOUS).
                 build();
         return new MapReactiveUserDetailsService(user);
     }
 
     @Bean
-    @ConditionalOnProperty(name = AM_TYPE, havingValue = "OIDC")
+    @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OIDC")
     public InMemoryReactiveClientRegistrationRepository oidcClientRegistrationRepository() {
         return new InMemoryReactiveClientRegistrationRepository(
-                ClientRegistrations.fromOidcIssuerLocation(env.getProperty("am.oidc.configuration")).
-                        registrationId("OIDC").
-                        clientId(env.getProperty("am.oidc.client.id")).
-                        clientSecret(env.getProperty("am.oidc.client.secret")).
-                        scope(env.getProperty("am.oidc.scopes", String[].class,
-                                new String[] { OidcScopes.OPENID, OidcScopes.ADDRESS, OidcScopes.EMAIL,
-                                    OidcScopes.PHONE, OidcScopes.PROFILE })).
+                ClientRegistrations.fromOidcIssuerLocation(props.getOidc().getConfiguration()).
+                        registrationId(SRAProperties.AMType.OIDC.name()).
+                        clientId(props.getOidc().getClientId()).
+                        clientSecret(props.getOidc().getClientSecret()).
+                        scope(props.getOidc().getScopes().toArray(new String[0])).
                         build());
     }
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(name = AM_TYPE, havingValue = "OIDC")
+    @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OIDC")
     public OAuth2TokenValidator<Jwt> oidcJWTValidator() {
-        return JwtValidators.createDefaultWithIssuer(env.getProperty("am.oidc.configuration"));
+        return JwtValidators.createDefaultWithIssuer(props.getOidc().getConfiguration());
     }
 
     @Bean
@@ -160,7 +144,7 @@ public class SecurityConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(name = AM_TYPE, havingValue = "OIDC")
+    @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OIDC")
     public ReactiveJwtDecoder oidcJWTDecoder() {
         NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withJwkSetUri(
                 oidcClientRegistrationRepository().iterator().next().getProviderDetails().getJwkSetUri()).build();
@@ -170,36 +154,35 @@ public class SecurityConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(name = AM_TYPE, havingValue = "OAUTH2")
+    @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OAUTH2")
     public InMemoryReactiveClientRegistrationRepository oauth2ClientRegistrationRepository() {
         return new InMemoryReactiveClientRegistrationRepository(
-                ClientRegistration.withRegistrationId("OAUTH2").
+                ClientRegistration.withRegistrationId(SRAProperties.AMType.OAUTH2.name()).
                         redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}").
-                        tokenUri(env.getProperty("am.oauth2.tokenUri")).
-                        authorizationUri(env.getProperty("am.oauth2.authorizationUri")).
-                        userInfoUri(env.getProperty("am.oauth2.userInfoUri")).
-                        userNameAttributeName(env.getProperty("am.oauth2.userNameAttributeName")).
-                        clientId(env.getProperty("am.oauth2.client.id")).
-                        clientSecret(env.getProperty("am.oauth2.client.secret")).
-                        scope(env.getProperty("am.oauth2.scopes", String[].class)).
+                        tokenUri(props.getOauth2().getTokenUri()).
+                        authorizationUri(props.getOauth2().getAuthorizationUri()).
+                        userInfoUri(props.getOauth2().getUserInfoUri()).
+                        userNameAttributeName(props.getOauth2().getUserNameAttributeName()).
+                        clientId(props.getOauth2().getClientId()).
+                        clientSecret(props.getOauth2().getClientSecret()).
+                        scope(props.getOauth2().getScopes().toArray(new String[0])).
                         authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).
-                        jwkSetUri(env.getProperty("am.oauth2.jwkSetUri")).
+                        jwkSetUri(props.getOauth2().getJwkSetUri()).
                         build());
     }
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(name = AM_TYPE, havingValue = "OAUTH2")
+    @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OAUTH2")
     public OAuth2TokenValidator<Jwt> oauth2JWTValidator() {
-        String issuer = env.getProperty("am.oauth2.issuer");
-        return issuer == null
+        return props.getOauth2().getIssuer() == null
                 ? JwtValidators.createDefault()
-                : JwtValidators.createDefaultWithIssuer(env.getProperty("am.oauth2.issuer"));
+                : JwtValidators.createDefaultWithIssuer(props.getOauth2().getIssuer());
     }
 
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(name = AM_TYPE, havingValue = "OAUTH2")
+    @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OAUTH2")
     public ReactiveJwtDecoder oauth2JWTDecoder() {
         String jwkSetUri = oauth2ClientRegistrationRepository().iterator().next().getProviderDetails().getJwkSetUri();
         NimbusReactiveJwtDecoder jwtDecoder;
@@ -220,15 +203,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(name = AM_TYPE, havingValue = "SAML2")
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "SAML2")
     public SAML2Client saml2Client() {
         SAML2Configuration cfg = new SAML2Configuration(
-                resourceResolver.getResource(env.getProperty("am.saml2.keystore")),
-                env.getProperty("am.saml2.keystore.storepass"),
-                env.getProperty("am.saml2.keystore.keypass"),
-                resourceResolver.getResource(env.getProperty("am.saml2.idp")));
+                resourceResolver.getResource(props.getSaml2().getKeystore()),
+                props.getSaml2().getKeystoreStorePass(),
+                props.getSaml2().getKeystoreKeypass(),
+                resourceResolver.getResource(props.getSaml2().getIdpMetadata()));
 
-        cfg.setKeystoreType(env.getProperty("am.saml2.keystore.type"));
+        cfg.setKeystoreType(props.getSaml2().getKeystoreType());
         if (cfg.getKeystoreResource() instanceof FileUrlResource) {
             cfg.setKeystoreGenerator(new BaseSAML2KeystoreGenerator(cfg) {
 
@@ -248,27 +232,24 @@ public class SecurityConfig {
             });
         }
 
-        cfg.setAuthnRequestBindingType(
-                SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.authnrequest.binding")).getUri());
+        cfg.setAuthnRequestBindingType(props.getSaml2().getAuthnRequestBinding().getUri());
         cfg.setResponseBindingType(SAML2BindingType.POST.getUri());
-        cfg.setSpLogoutRequestBindingType(
-                SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.logout.request.binding")).getUri());
-        cfg.setSpLogoutResponseBindingType(
-                SAML2BindingType.valueOf(env.getProperty("am.saml2.sp.logout.response.binding")).getUri());
+        cfg.setSpLogoutRequestBindingType(props.getSaml2().getLogoutRequestBinding().getUri());
+        cfg.setSpLogoutResponseBindingType(props.getSaml2().getLogoutResponseBinding().getUri());
 
-        cfg.setServiceProviderEntityId(env.getProperty("am.saml2.sp.entityId"));
+        cfg.setServiceProviderEntityId(props.getSaml2().getEntityId());
 
         cfg.setWantsAssertionsSigned(true);
         cfg.setAuthnRequestSigned(true);
         cfg.setSpLogoutRequestSigned(true);
-        cfg.setServiceProviderMetadataResourceFilepath(env.getProperty("am.saml2.sp.metadata"));
-        cfg.setAcceptedSkew(env.getProperty("am.saml2.sp.skew", int.class));
+        cfg.setServiceProviderMetadataResourceFilepath(props.getSaml2().getSpMetadataFilePath());
+        cfg.setAcceptedSkew(props.getSaml2().getSkew());
 
         cfg.setLogoutHandler(new NoOpLogoutHandler());
 
         SAML2Client saml2Client = new SAML2Client(cfg);
-        saml2Client.setName(AMType.SAML2.name());
-        saml2Client.setCallbackUrl(env.getProperty("am.saml2.sp.entityId")
+        saml2Client.setName(SRAProperties.AMType.SAML2.name());
+        saml2Client.setCallbackUrl(props.getSaml2().getEntityId()
                 + SAML2WebSsoAuthenticationWebFilter.FILTER_PROCESSES_URI);
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         saml2Client.init();
@@ -278,7 +259,7 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    @ConditionalOnProperty(name = AM_TYPE)
+    @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE)
     public SecurityWebFilterChain routesSecurityFilterChain(
             final ServerHttpSecurity http,
             final CacheManager cacheManager,
@@ -287,17 +268,15 @@ public class SecurityConfig {
             final CsrfRouteMatcher csrfRouteMatcher,
             final ConfigurableApplicationContext ctx) {
 
-        AMType amType = AMType.valueOf(env.getProperty(AM_TYPE));
-
         ServerHttpSecurity.AuthorizeExchangeSpec builder = http.authorizeExchange().
                 matchers(publicRouteMatcher).permitAll().
                 anyExchange().authenticated();
 
-        switch (amType) {
+        switch (props.getAmType()) {
             case OIDC:
             case OAUTH2:
-                OAuth2SecurityConfigUtils.forLogin(http, amType, ctx);
-                OAuth2SecurityConfigUtils.forLogout(builder, amType, cacheManager, logoutRouteMatcher, ctx);
+                OAuth2SecurityConfigUtils.forLogin(http, props.getAmType(), ctx);
+                OAuth2SecurityConfigUtils.forLogout(builder, props.getAmType(), cacheManager, logoutRouteMatcher, ctx);
                 http.oauth2ResourceServer().jwt().jwtDecoder(ctx.getBean(ReactiveJwtDecoder.class));
                 break;
 
@@ -310,14 +289,14 @@ public class SecurityConfig {
             case CAS:
                 CASSecurityConfigUtils.forLogin(
                         http,
-                        env.getProperty("am.cas.server.name"),
-                        Protocol.CAS3,
-                        env.getProperty("am.cas.url.prefix"),
+                        props.getCas().getServerName(),
+                        props.getCas().getProtocol(),
+                        props.getCas().getServerPrefix(),
                         publicRouteMatcher);
                 CASSecurityConfigUtils.forLogout(
                         builder,
                         cacheManager,
-                        env.getProperty("am.cas.url.prefix"),
+                        props.getCas().getServerPrefix(),
                         logoutRouteMatcher,
                         ctx);
                 break;

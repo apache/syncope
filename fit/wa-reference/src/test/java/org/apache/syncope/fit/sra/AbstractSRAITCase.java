@@ -171,7 +171,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
                 "-Dreactor.netty.http.server.accessLogEnabled=true",
                 "-jar",
                 "-Xdebug",
-                "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5006",
+                "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8002",
                 sraJar);
         processBuilder.inheritIO();
 

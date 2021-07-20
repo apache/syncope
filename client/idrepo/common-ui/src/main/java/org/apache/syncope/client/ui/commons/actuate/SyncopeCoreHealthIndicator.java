@@ -33,7 +33,7 @@ public class SyncopeCoreHealthIndicator implements HealthIndicator {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreHealthIndicator.class);
 
-    protected ServiceOps serviceOps;
+    protected final ServiceOps serviceOps;
 
     protected final String anonymousUser;
 
