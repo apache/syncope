@@ -65,7 +65,7 @@ public class ParametersWizardAttrStep extends WizardStep {
         schema.setReadOnly(mode != AjaxWizard.Mode.CREATE);
         content.add(schema);
 
-        LoadableDetachableModel<List<PlainSchemaTO>> schemas = new LoadableDetachableModel<List<PlainSchemaTO>>() {
+        LoadableDetachableModel<List<PlainSchemaTO>> schemas = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 7172461137064525667L;
 
@@ -75,7 +75,7 @@ public class ParametersWizardAttrStep extends WizardStep {
             }
         };
 
-        ListView<PlainSchemaTO> attrs = new ListView<PlainSchemaTO>("attrs", schemas) {
+        ListView<PlainSchemaTO> attrs = new ListView<>("attrs", schemas) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 

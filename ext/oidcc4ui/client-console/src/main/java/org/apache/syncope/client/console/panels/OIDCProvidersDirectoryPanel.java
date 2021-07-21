@@ -91,7 +91,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
         modal.size(Modal.Size.Large);
 
-        templateModal = new BaseModal<Serializable>("outer") {
+        templateModal = new BaseModal<>("outer") {
 
             private static final long serialVersionUID = 5787433530654262016L;
 
@@ -115,7 +115,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected ActionLinksTogglePanel<OIDCC4UIProviderTO> actionTogglePanel() {
-        return new ActionLinksTogglePanel<OIDCC4UIProviderTO>(Constants.OUTER, pageRef) {
+        return new ActionLinksTogglePanel<>(Constants.OUTER, pageRef) {
 
             private static final long serialVersionUID = -7688359318035249200L;
 
@@ -123,7 +123,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
             public void updateHeader(final AjaxRequestTarget target, final Serializable object) {
                 if (object instanceof OIDCC4UIProviderTO) {
                     setHeader(target,
-                            StringUtils.abbreviate(((OIDCC4UIProviderTO) object).getName(), HEADER_FIRST_ABBREVIATION));
+                        StringUtils.abbreviate(((OIDCC4UIProviderTO) object).getName(), HEADER_FIRST_ABBREVIATION));
                 } else {
                     super.updateHeader(target, object);
                 }
@@ -157,7 +157,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
     public ActionsPanel<OIDCC4UIProviderTO> getActions(final IModel<OIDCC4UIProviderTO> model) {
         final ActionsPanel<OIDCC4UIProviderTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<OIDCC4UIProviderTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -165,12 +165,12 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final OIDCC4UIProviderTO ignore) {
                 OIDCC4UIProviderTO object = OIDCProviderRestClient.read(model.getObject().getKey());
                 send(OIDCProvidersDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(object, target));
+                    new AjaxWizard.EditItemActionEvent<>(object, target));
                 modal.header(Model.of(StringUtils.capitalize(("Edit " + object.getName()))));
             }
         }, ActionLink.ActionType.EDIT, OIDC4UIEntitlement.OP_UPDATE);
 
-        panel.add(new ActionLink<OIDCC4UIProviderTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 8557679125857348178L;
 
@@ -179,10 +179,10 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
                 final OIDCC4UIProviderTO object = OIDCProviderRestClient.read(model.getObject().getKey());
 
                 UserTemplateWizardBuilder builder = new UserTemplateWizardBuilder(
-                        object.getUserTemplate(),
-                        AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
-                        new UserFormLayoutInfo(),
-                        pageRef) {
+                    object.getUserTemplate(),
+                    AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
+                    new UserFormLayoutInfo(),
+                    pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770634L;
 
@@ -195,7 +195,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
                     }
                 };
                 templateModal.header(Model.of(StringUtils.capitalize(
-                        new StringResourceModel("template.title", OIDCProvidersDirectoryPanel.this).getString())));
+                    new StringResourceModel("template.title", OIDCProvidersDirectoryPanel.this).getString())));
                 templateModal.setContent(builder.build(BaseModal.CONTENT_ID));
                 templateModal.show(true);
                 target.add(templateModal);
@@ -203,7 +203,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
             }
         }, ActionLink.ActionType.TEMPLATE, OIDC4UIEntitlement.OP_UPDATE);
 
-        panel.add(new ActionLink<OIDCC4UIProviderTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -5467832321897812767L;
 
@@ -238,9 +238,9 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
                 newItemEvent.getTarget().ifPresent(target -> target.add(templateModal.setContent(modalPanel)));
                 templateModal.show(true);
             } else if (newItemEvent instanceof AjaxWizard.NewItemCancelEvent) {
-                newItemEvent.getTarget().ifPresent(target -> templateModal.close(target));
+                newItemEvent.getTarget().ifPresent(templateModal::close);
             } else if (newItemEvent instanceof AjaxWizard.NewItemFinishEvent) {
-                newItemEvent.getTarget().ifPresent(target -> templateModal.close(target));
+                newItemEvent.getTarget().ifPresent(templateModal::close);
             }
         }
     }

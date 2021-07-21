@@ -241,7 +241,7 @@ public abstract class DirectoryPanel<
     protected ActionsPanel<Serializable> getHeader(final String componentId) {
         final ActionsPanel<Serializable> panel = new ActionsPanel<>(componentId, null);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -277,8 +277,8 @@ public abstract class DirectoryPanel<
                 .map(table -> (create ? (int) table.getPageCount() - 1 : (int) table.getCurrentPage())).orElse(0);
 
         // take care of restClient handle: maybe not useful to keep into
-        AjaxDataTablePanel.Builder<T, String> resultTableBuilder = new AjaxDataTablePanel.Builder<T, String>(
-                dataProvider, page.getPageReference()) {
+        AjaxDataTablePanel.Builder<T, String> resultTableBuilder = new AjaxDataTablePanel.Builder<>(
+            dataProvider, page.getPageReference()) {
 
             private static final long serialVersionUID = 2205322679547329123L;
 

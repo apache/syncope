@@ -75,7 +75,7 @@ public class AjaxGrid<K, V, S> extends Panel {
         newCols.addAll(columns);
         newCols.add(new AjaxGridActionsColumn<>(new Model<>("Actions")));
 
-        dataTable = new EditableDataTable<Pair<K, V>, S>("dataTable", newCols, dataProvider, rowsPerPage, null) {
+        dataTable = new EditableDataTable<>("dataTable", newCols, dataProvider, rowsPerPage, null) {
 
             protected static final long serialVersionUID = 1L;
 
@@ -126,7 +126,7 @@ public class AjaxGrid<K, V, S> extends Panel {
             final EditableDataTable<Pair<K, V>, S> dataTable,
             final IEditableDataProvider<Pair<K, V>, S> dataProvider) {
 
-        return new AjaxGridBottomToolbar<Pair<K, V>, S>(dataTable) {
+        return new AjaxGridBottomToolbar<>(dataTable) {
 
             protected static final long serialVersionUID = 1L;
 

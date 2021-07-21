@@ -151,7 +151,7 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
                 withOffStyle(BootstrapToggleConfig.Style.danger).
                 withSize(BootstrapToggleConfig.Size.mini);
 
-        return new BootstrapToggle("externalAction", new PropertyModel<Boolean>(property, "overridable"), config) {
+        return new BootstrapToggle("externalAction", new PropertyModel<>(property, "overridable"), config) {
 
             private static final long serialVersionUID = -875219845189261873L;
 

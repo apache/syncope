@@ -78,7 +78,7 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
 
     @Override
     protected void populate() {
-        this.types = new LoadableDetachableModel<List<SearchClause.Type>>() {
+        this.types = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 22668815812716L;
 
@@ -88,7 +88,7 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
             }
         };
 
-        this.dnames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
+        this.dnames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 2989042618372L;
 
@@ -98,18 +98,18 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
             }
         };
 
-        this.anames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
+        this.anames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 3002350300761L;
 
             @Override
             protected Map<String, PlainSchemaTO> load() {
                 return connectorRestClient.buildObjectClassInfo(
-                        connectorRestClient.read(resource.getConnector()), false).stream().
-                        map(ConnIdObjectClassTO::getAttributes).
-                        flatMap(List::stream).
-                        collect(Collectors.toMap(PlainSchemaTO::getKey, Function.identity(),
-                                (schema1, schema2) -> schema1));
+                    connectorRestClient.read(resource.getConnector()), false).stream().
+                    map(ConnIdObjectClassTO::getAttributes).
+                    flatMap(List::stream).
+                    collect(Collectors.toMap(PlainSchemaTO::getKey, Function.identity(),
+                        (schema1, schema2) -> schema1));
             }
         };
     }

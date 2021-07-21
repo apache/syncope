@@ -62,20 +62,20 @@ public class PasswordPolicyDirectoryPanel extends PolicyDirectoryPanel<PasswordP
 
     @Override
     protected void addCustomActions(final ActionsPanel<PasswordPolicyTO> panel, final IModel<PasswordPolicyTO> model) {
-        panel.add(new ActionLink<PasswordPolicyTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final PasswordPolicyTO ignore) {
                 target.add(ruleCompositionModal.setContent(new PolicyRuleDirectoryPanel<>(
-                        ruleCompositionModal, model.getObject().getKey(), PolicyType.PASSWORD, pageRef)));
+                    ruleCompositionModal, model.getObject().getKey(), PolicyType.PASSWORD, pageRef)));
 
                 ruleCompositionModal.header(new StringResourceModel(
-                        "policy.rules", PasswordPolicyDirectoryPanel.this, Model.of(model.getObject())));
+                    "policy.rules", PasswordPolicyDirectoryPanel.this, Model.of(model.getObject())));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
-                        ruleCompositionModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
+                    ruleCompositionModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
 
                 ruleCompositionModal.show(true);
             }

@@ -46,7 +46,7 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
 
     @Override
     public FieldPanel<Date> setNewModel(final List<Serializable> list) {
-        setNewModel(new Model<Date>() {
+        setNewModel(new Model<>() {
 
             private static final long serialVersionUID = 527651414610325237L;
 
@@ -80,7 +80,7 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
     @SuppressWarnings("rawtypes")
     @Override
     public FieldPanel<Date> setNewModel(final ListItem item) {
-        IModel<Date> model = new Model<Date>() {
+        IModel<Date> model = new Model<>() {
 
             private static final long serialVersionUID = 6799404673615637845L;
 
@@ -123,7 +123,7 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
 
     @Override
     public FieldPanel<Date> setNewModel(final Attributable attributable, final String schema) {
-        field.setModel(new Model<Date>() {
+        field.setModel(new Model<>() {
 
             private static final long serialVersionUID = -4214654722524358000L;
 

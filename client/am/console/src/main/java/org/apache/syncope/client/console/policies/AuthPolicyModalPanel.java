@@ -42,7 +42,7 @@ public class AuthPolicyModalPanel extends AbstractModalPanel<AuthPolicyTO> {
 
     private static final long serialVersionUID = 1L;
 
-    private final IModel<List<String>> allAuthModules = new LoadableDetachableModel<List<String>>() {
+    private final IModel<List<String>> allAuthModules = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 

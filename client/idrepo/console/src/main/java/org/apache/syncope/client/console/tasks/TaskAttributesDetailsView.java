@@ -46,7 +46,7 @@ public class TaskAttributesDetailsView extends MultilevelPanel.SecondLevel {
 
         Pair<String, String> info = Pair.of(taskTO.getEntityKey(), getJSONInfo(taskTO));
         JsonEditorPanel jsonPanel =
-                new JsonEditorPanel(null, new PropertyModel<String>(info, "value"), true, null) {
+                new JsonEditorPanel(null, new PropertyModel<>(info, "value"), true, null) {
 
             private static final long serialVersionUID = -8927036362466990179L;
 

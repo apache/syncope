@@ -31,6 +31,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -226,7 +227,7 @@ public class ElasticsearchUtils {
 
         for (PlainAttr<?> plainAttr : any.getPlainAttrs()) {
             List<Object> values = plainAttr.getValues().stream().
-                    map(value -> value.getValue()).collect(Collectors.toList());
+                    map(PlainAttrValue::getValue).collect(Collectors.toList());
 
             if (plainAttr.getUniqueValue() != null) {
                 values.add(plainAttr.getUniqueValue().getValue());

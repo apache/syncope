@@ -153,7 +153,7 @@ public class SCIMITCase extends AbstractITCase {
                 SCIMConstants.APPLICATION_SCIM_JSON,
                 StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
 
-        List<ResourceType> resourceTypes = response.readEntity(new GenericType<List<ResourceType>>() {
+        List<ResourceType> resourceTypes = response.readEntity(new GenericType<>() {
         });
         assertNotNull(resourceTypes);
         assertEquals(2, resourceTypes.size());
@@ -260,7 +260,7 @@ public class SCIMITCase extends AbstractITCase {
                 SCIMConstants.APPLICATION_SCIM_JSON,
                 StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
 
-        ListResponse<SCIMGroup> result = response.readEntity(new GenericType<ListResponse<SCIMGroup>>() {
+        ListResponse<SCIMGroup> result = response.readEntity(new GenericType<>() {
         });
         assertNotNull(result);
         assertTrue(result.getTotalResults() > 0);
@@ -290,7 +290,7 @@ public class SCIMITCase extends AbstractITCase {
                 SCIMConstants.APPLICATION_SCIM_JSON,
                 StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
 
-        ListResponse<SCIMGroup> groups = response.readEntity(new GenericType<ListResponse<SCIMGroup>>() {
+        ListResponse<SCIMGroup> groups = response.readEntity(new GenericType<>() {
         });
         assertNotNull(groups);
         assertEquals(1, groups.getTotalResults());
@@ -306,7 +306,7 @@ public class SCIMITCase extends AbstractITCase {
                 SCIMConstants.APPLICATION_SCIM_JSON,
                 StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
 
-        groups = response.readEntity(new GenericType<ListResponse<SCIMGroup>>() {
+        groups = response.readEntity(new GenericType<>() {
         });
         assertNotNull(groups);
         assertEquals(1, groups.getTotalResults());
@@ -327,7 +327,7 @@ public class SCIMITCase extends AbstractITCase {
                 SCIMConstants.APPLICATION_SCIM_JSON,
                 StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
 
-        ListResponse<SCIMUser> users = response.readEntity(new GenericType<ListResponse<SCIMUser>>() {
+        ListResponse<SCIMUser> users = response.readEntity(new GenericType<>() {
         });
         assertNotNull(users);
         assertEquals(1, users.getTotalResults());

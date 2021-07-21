@@ -50,7 +50,7 @@ public class ItemTransformerWidget extends AlertWidget<String> {
 
     @Override
     protected IModel<List<String>> getLatestAlerts() {
-        return new ListModel<String>() {
+        return new ListModel<>() {
 
             private static final long serialVersionUID = 1232998477036705088L;
 

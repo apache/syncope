@@ -51,7 +51,7 @@ public abstract class AbstractStatusBeanProvider extends DirectoryDataProvider<S
 
     @Override
     public IModel<StatusBean> model(final StatusBean statusBean) {
-        return new IModel<StatusBean>() {
+        return new IModel<>() {
 
             private static final long serialVersionUID = -7802635613997243712L;
 

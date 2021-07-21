@@ -88,7 +88,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             }
         }), Model.of(0)).setOutputMarkupId(true));
 
-        add(new ListView<MembershipTO>("membershipsPlainSchemas", memberships) {
+        add(new ListView<>("membershipsPlainSchemas", memberships) {
 
             private static final long serialVersionUID = 6741044372185745296L;
 
@@ -96,27 +96,27 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             protected void populateItem(final ListItem<MembershipTO> item) {
                 final MembershipTO membershipTO = item.getModelObject();
                 item.add(new Accordion("membershipPlainSchemas", List.of(new AbstractTab(
-                        new StringResourceModel(
-                                "attributes.membership.accordion",
-                                PlainAttrs.this,
-                                Model.of(membershipTO))) {
+                    new StringResourceModel(
+                        "attributes.membership.accordion",
+                        PlainAttrs.this,
+                        Model.of(membershipTO))) {
 
                     private static final long serialVersionUID = 1037272333056449378L;
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
                         return new PlainSchemasMemberships(
-                                panelId,
-                                membershipSchemas.get(membershipTO.getGroupKey()),
-                                new LoadableDetachableModel<Attributable>() { // SYNCOPE-1439
+                            panelId,
+                            membershipSchemas.get(membershipTO.getGroupKey()),
+                            new LoadableDetachableModel<>() { // SYNCOPE-1439
 
-                            private static final long serialVersionUID = 526768546610546553L;
+                                private static final long serialVersionUID = 526768546610546553L;
 
-                            @Override
-                            protected Attributable load() {
-                                return membershipTO;
-                            }
-                        });
+                                @Override
+                                protected Attributable load() {
+                                    return membershipTO;
+                                }
+                            });
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
@@ -196,7 +196,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             super(id);
 
-            add(new ListView<Attr>("schemas", attrTOs) {
+            add(new ListView<>("schemas", attrTOs) {
 
                 private static final long serialVersionUID = 9101744072914090143L;
 
@@ -220,8 +220,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             super(id);
 
-            add(new ListView<Attr>("schemas", new ListModel<Attr>(attributableTO.getObject().
-                    getPlainAttrs().stream().sorted(attrComparator).collect(Collectors.toList()))) {
+            add(new ListView<>("schemas", new ListModel<>(attributableTO.getObject().
+                getPlainAttrs().stream().sorted(attrComparator).collect(Collectors.toList()))) {
 
                 private static final long serialVersionUID = 5306618783986001008L;
 

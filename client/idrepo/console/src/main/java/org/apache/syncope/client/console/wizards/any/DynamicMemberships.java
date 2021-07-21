@@ -46,15 +46,15 @@ public class DynamicMemberships extends WizardStep {
     public DynamicMemberships(final GroupWrapper groupWrapper) {
         super();
 
-        final LoadableDetachableModel<List<AnyTypeTO>> types = new LoadableDetachableModel<List<AnyTypeTO>>() {
+        final LoadableDetachableModel<List<AnyTypeTO>> types = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<AnyTypeTO> load() {
                 return AnyTypeRestClient.listAnyTypes().stream().
-                        filter(type -> AnyTypeKind.USER != type.getKind() && AnyTypeKind.GROUP != type.getKind()).
-                        collect(Collectors.toList());
+                    filter(type -> AnyTypeKind.USER != type.getKind() && AnyTypeKind.GROUP != type.getKind()).
+                    collect(Collectors.toList());
             }
         };
 
@@ -77,7 +77,7 @@ public class DynamicMemberships extends WizardStep {
         // ------------------------
         // aDynMembershipConds
         // ------------------------
-        add(new ListView<AnyTypeTO>("aDynMembershipCond", types) {
+        add(new ListView<>("aDynMembershipCond", types) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
@@ -85,19 +85,19 @@ public class DynamicMemberships extends WizardStep {
             protected void populateItem(final ListItem<AnyTypeTO> item) {
                 final String key = item.getModelObject().getKey();
                 item.add(new Accordion("aDynMembershipCond", List.of(
-                        new AbstractTab(new StringResourceModel(
-                                "aDynMembershipCond", this, new Model<AnyTypeTO>(item.getModelObject()))) {
+                    new AbstractTab(new StringResourceModel(
+                        "aDynMembershipCond", this, new Model<>(item.getModelObject()))) {
 
-                    private static final long serialVersionUID = 1037272333056449378L;
+                        private static final long serialVersionUID = 1037272333056449378L;
 
-                    @Override
-                    public Panel getPanel(final String panelId) {
-                        return new AnyObjectSearchPanel.Builder(
+                        @Override
+                        public Panel getPanel(final String panelId) {
+                            return new AnyObjectSearchPanel.Builder(
                                 key, new MapOfListModel<>(groupWrapper, "aDynClauses", key)).
                                 required(false).build(panelId);
-                    }
-                }), Model.of(StringUtils.isBlank(groupWrapper.getADynMembershipConds().get(key)) ? -1 : 0)).
-                        setOutputMarkupId(true));
+                        }
+                    }), Model.of(StringUtils.isBlank(groupWrapper.getADynMembershipConds().get(key)) ? -1 : 0)).
+                    setOutputMarkupId(true));
             }
         });
         // ------------------------

@@ -52,7 +52,7 @@ public class OIDCRPDirectoryPanel extends ClientAppDirectoryPanel<OIDCRPClientAp
         columns.add(new PropertyColumn<>(new StringResourceModel("clientId", this), "clientId", "clientId"));
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("redirectUris", this), "redirectUris", "redirectUris"));
-        columns.add(new BooleanConditionColumn<OIDCRPClientAppTO>(new StringResourceModel("logout")) {
+        columns.add(new BooleanConditionColumn<>(new StringResourceModel("logout")) {
 
             @Override
             protected boolean isCondition(final IModel<OIDCRPClientAppTO> rowModel) {

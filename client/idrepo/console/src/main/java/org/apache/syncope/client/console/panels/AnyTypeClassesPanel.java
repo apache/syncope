@@ -131,8 +131,8 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
                     columns.add(new BooleanPropertyColumn<>(
                             new ResourceModel(field.getName()), field.getName(), field.getName()));
                 } else {
-                    columns.add(new PropertyColumn<AnyTypeClassTO, String>(
-                            new ResourceModel(field.getName()), field.getName(), field.getName()) {
+                    columns.add(new PropertyColumn<>(
+                        new ResourceModel(field.getName()), field.getName(), field.getName()) {
 
                         private static final long serialVersionUID = -6902459669035442212L;
 
@@ -141,8 +141,8 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
                             String css = super.getCssClass();
                             if (Constants.KEY_FIELD_NAME.equals(fieldName)) {
                                 css = StringUtils.isBlank(css)
-                                        ? "col-xs-1"
-                                        : css + " col-xs-1";
+                                    ? "col-xs-1"
+                                    : css + " col-xs-1";
                             }
                             return css;
                         }
@@ -158,18 +158,18 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
     public ActionsPanel<AnyTypeClassTO> getActions(final IModel<AnyTypeClassTO> model) {
         final ActionsPanel<AnyTypeClassTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<AnyTypeClassTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AnyTypeClassTO ignore) {
                 send(AnyTypeClassesPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.ANYTYPECLASS_UPDATE);
 
-        panel.add(new ActionLink<AnyTypeClassTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

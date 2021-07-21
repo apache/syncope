@@ -52,14 +52,14 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
 
         super(defaultItem, pageRef);
 
-        authModuleConfs = new LoadableDetachableModel<List<String>>() {
+        authModuleConfs = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
                 return SyncopeWebApplication.get().getLookup().getClasses(AuthModuleConf.class).stream().
-                        map(Class::getName).sorted().collect(Collectors.toList());
+                    map(Class::getName).sorted().collect(Collectors.toList());
             }
         };
     }

@@ -112,16 +112,16 @@ public class MailTemplateDirectoryPanel
     public ActionsPanel<MailTemplateTO> getActions(final IModel<MailTemplateTO> model) {
         final ActionsPanel<MailTemplateTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<MailTemplateTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
                 TemplateContent<MailTemplateFormat> content = new TemplateContent<>(model.getObject().getKey(),
-                        MailTemplateFormat.HTML);
+                    MailTemplateFormat.HTML);
                 content.setContent(
-                        restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.HTML));
+                    restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.HTML));
 
                 utilityModal.header(new ResourceModel("mail.template.html", "HTML Content"));
                 utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
@@ -130,16 +130,16 @@ public class MailTemplateDirectoryPanel
             }
         }, ActionLink.ActionType.HTML, IdRepoEntitlement.MAIL_TEMPLATE_UPDATE);
 
-        panel.add(new ActionLink<MailTemplateTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
                 TemplateContent<MailTemplateFormat> content = new TemplateContent<>(model.getObject().getKey(),
-                        MailTemplateFormat.TEXT);
+                    MailTemplateFormat.TEXT);
                 content.setContent(
-                        restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.TEXT));
+                    restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.TEXT));
 
                 utilityModal.header(new ResourceModel("mail.template.text", "TEXT Content"));
                 utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
@@ -148,7 +148,7 @@ public class MailTemplateDirectoryPanel
             }
         }, ActionLink.ActionType.TEXT, IdRepoEntitlement.MAIL_TEMPLATE_UPDATE);
 
-        panel.add(new ActionLink<MailTemplateTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -210,7 +210,7 @@ public class MailTemplateDirectoryPanel
 
         @Override
         public IModel<MailTemplateTO> model(final MailTemplateTO mailTemplateTO) {
-            return new IModel<MailTemplateTO>() {
+            return new IModel<>() {
 
                 private static final long serialVersionUID = 774694801558497248L;
 
@@ -232,7 +232,7 @@ public class MailTemplateDirectoryPanel
                 final TemplateContent<MailTemplateFormat> content,
                 final PageReference pageRef) {
 
-            super(utilityModal, new PropertyModel<String>(content, "content"), false, pageRef);
+            super(utilityModal, new PropertyModel<>(content, "content"), false, pageRef);
             this.content = content;
         }
 

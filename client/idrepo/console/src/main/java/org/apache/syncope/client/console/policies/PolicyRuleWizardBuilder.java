@@ -176,7 +176,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
         private static final long serialVersionUID = -785981096328637758L;
 
         public Configuration(final PolicyRuleWrapper rule) {
-            LoadableDetachableModel<Serializable> bean = new LoadableDetachableModel<Serializable>() {
+            LoadableDetachableModel<Serializable> bean = new LoadableDetachableModel<>() {
 
                 private static final long serialVersionUID = 2092144708018739371L;
 

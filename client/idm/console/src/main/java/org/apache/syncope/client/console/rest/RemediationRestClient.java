@@ -52,19 +52,19 @@ public class RemediationRestClient extends BaseRestClient {
 
     public static <C extends AnyCR, A extends AnyTO> ProvisioningResult<A> remedy(final String key, final C anyCR) {
         Response response = getService(RemediationService.class).remedy(key, anyCR);
-        return response.readEntity(new GenericType<ProvisioningResult<A>>() {
+        return response.readEntity(new GenericType<>() {
         });
     }
 
     public static <T extends AnyTO> ProvisioningResult<T> remedy(final String key, final AnyUR anyUR) {
         Response response = getService(RemediationService.class).remedy(key, anyUR);
-        return response.readEntity(new GenericType<ProvisioningResult<T>>() {
+        return response.readEntity(new GenericType<>() {
         });
     }
 
     public static ProvisioningResult<? extends AnyTO> remedy(final String key, final String anyKey) {
         Response response = getService(RemediationService.class).remedy(key, anyKey);
-        return response.readEntity(new GenericType<ProvisioningResult<? extends AnyTO>>() {
+        return response.readEntity(new GenericType<>() {
         });
     }
 

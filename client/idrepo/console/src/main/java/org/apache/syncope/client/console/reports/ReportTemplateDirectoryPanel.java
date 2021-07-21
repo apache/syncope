@@ -113,16 +113,16 @@ public class ReportTemplateDirectoryPanel
     public ActionsPanel<ReportTemplateTO> getActions(final IModel<ReportTemplateTO> model) {
         final ActionsPanel<ReportTemplateTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<ReportTemplateTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
                 TemplateContent<ReportTemplateFormat> content = new TemplateContent<>(model.getObject().getKey(),
-                        ReportTemplateFormat.FO);
+                    ReportTemplateFormat.FO);
                 content.setContent(
-                        restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.FO));
+                    restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.FO));
 
                 utilityModal.header(new ResourceModel("report.template.fo", "XSLT for XSL-FO"));
                 utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
@@ -131,16 +131,16 @@ public class ReportTemplateDirectoryPanel
             }
         }, ActionLink.ActionType.FO_EDIT, IdRepoEntitlement.REPORT_TEMPLATE_UPDATE);
 
-        panel.add(new ActionLink<ReportTemplateTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
                 TemplateContent<ReportTemplateFormat> content = new TemplateContent<>(model.getObject().getKey(),
-                        ReportTemplateFormat.HTML);
+                    ReportTemplateFormat.HTML);
                 content.setContent(
-                        restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.HTML));
+                    restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.HTML));
 
                 utilityModal.header(new ResourceModel("report.template.html", "XSLT for HTML"));
                 utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
@@ -149,16 +149,16 @@ public class ReportTemplateDirectoryPanel
             }
         }, ActionLink.ActionType.HTML, IdRepoEntitlement.REPORT_TEMPLATE_UPDATE);
 
-        panel.add(new ActionLink<ReportTemplateTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
                 TemplateContent<ReportTemplateFormat> content = new TemplateContent<>(model.getObject().getKey(),
-                        ReportTemplateFormat.CSV);
+                    ReportTemplateFormat.CSV);
                 content.setContent(
-                        restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.CSV));
+                    restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.CSV));
 
                 utilityModal.header(new ResourceModel("report.template.csv", "XSLT for CSV"));
                 utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
@@ -167,7 +167,7 @@ public class ReportTemplateDirectoryPanel
             }
         }, ActionLink.ActionType.TEXT, IdRepoEntitlement.REPORT_TEMPLATE_UPDATE);
 
-        panel.add(new ActionLink<ReportTemplateTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -243,7 +243,7 @@ public class ReportTemplateDirectoryPanel
                 final TemplateContent<ReportTemplateFormat> content,
                 final PageReference pageRef) {
 
-            super(utilityModal, new PropertyModel<String>(content, "content"), false, pageRef);
+            super(utilityModal, new PropertyModel<>(content, "content"), false, pageRef);
             this.content = content;
         }
 

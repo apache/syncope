@@ -181,7 +181,7 @@ public class SelfPasswordReset extends BasePage {
             notLoading.setVisible(isSecurityQuestionEnabled);
             add(notLoading);
 
-            AjaxLink<Void> reloadLink = new AjaxLink<Void>("reloadLink") {
+            AjaxLink<Void> reloadLink = new AjaxLink<>("reloadLink") {
 
                 private static final long serialVersionUID = -817438685948164787L;
 

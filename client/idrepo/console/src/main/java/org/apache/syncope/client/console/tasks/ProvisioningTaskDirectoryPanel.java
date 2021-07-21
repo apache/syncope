@@ -133,23 +133,23 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
         columns.add(new BooleanPropertyColumn<>(
                 new StringResourceModel("active", this), "active", "active"));
 
-        columns.add(new AbstractColumn<T, String>(new Model<>(""), "running") {
+        columns.add(new AbstractColumn<>(new Model<>(""), "running") {
 
             private static final long serialVersionUID = -4008579357070833846L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<T>> cellItem,
-                    final String componentId,
-                    final IModel<T> rowModel) {
+                final Item<ICellPopulator<T>> cellItem,
+                final String componentId,
+                final IModel<T> rowModel) {
 
                 Component panel;
                 try {
                     JobTO jobTO = TaskRestClient.getJob(rowModel.getObject().getKey());
                     panel = new JobActionPanel(componentId, jobTO, false, ProvisioningTaskDirectoryPanel.this);
                     MetaDataRoleAuthorizationStrategy.authorize(
-                            panel, WebPage.ENABLE,
-                            String.format("%s,%s", IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));
+                        panel, WebPage.ENABLE,
+                        String.format("%s,%s", IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));
                 } catch (Exception e) {
                     LOG.error("Could not get job for task {}", rowModel.getObject().getKey(), e);
                     panel = new Label(componentId, Model.of());

@@ -60,20 +60,20 @@ public class PullPolicyDirectoryPanel extends PolicyDirectoryPanel<PullPolicyTO>
 
     @Override
     protected void addCustomActions(final ActionsPanel<PullPolicyTO> panel, final IModel<PullPolicyTO> model) {
-        panel.add(new ActionLink<PullPolicyTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final PullPolicyTO ignore) {
                 target.add(policySpecModal.setContent(
-                        new ProvisioningPolicyModalPanel(model.getObject(), policySpecModal, pageRef)));
+                    new ProvisioningPolicyModalPanel(model.getObject(), policySpecModal, pageRef)));
 
                 policySpecModal.header(new StringResourceModel(
-                        "policy.rules", PullPolicyDirectoryPanel.this, Model.of(model.getObject())));
+                    "policy.rules", PullPolicyDirectoryPanel.this, Model.of(model.getObject())));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
-                        policySpecModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
+                    policySpecModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
 
                 policySpecModal.show(true);
             }

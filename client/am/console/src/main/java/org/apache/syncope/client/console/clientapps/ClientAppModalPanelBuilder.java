@@ -70,36 +70,36 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private final IModel<Map<String, String>> accessPolicies = new LoadableDetachableModel<Map<String, String>>() {
+    private final IModel<Map<String, String>> accessPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ACCESS).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
-    private final IModel<Map<String, String>> attrReleasePolicies = new LoadableDetachableModel<Map<String, String>>() {
+    private final IModel<Map<String, String>> attrReleasePolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ATTR_RELEASE).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
-    private final IModel<Map<String, String>> authPolicies = new LoadableDetachableModel<Map<String, String>>() {
+    private final IModel<Map<String, String>> authPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.AUTH).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
@@ -332,7 +332,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                 default:
             }
 
-            add(new ListView<Component>("fields", fields) {
+            add(new ListView<>("fields", fields) {
 
                 private static final long serialVersionUID = -9180479401817023838L;
 

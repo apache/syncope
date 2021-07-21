@@ -107,25 +107,25 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
 
         private static final long serialVersionUID = -2747583614435078452L;
 
-        private final IModel<List<String>> propActions = new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> propActions = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 4659376149825914247L;
 
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 
-        private final IModel<List<String>> pushActions = new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> pushActions = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 4659376149825914247L;
 
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 

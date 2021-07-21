@@ -52,7 +52,7 @@ public abstract class AbstractOIDCSSOLoginFormPanel extends BaseSSOLoginFormPane
         AjaxDropDownChoicePanel<OIDCC4UIProviderTO> ops =
                 new AjaxDropDownChoicePanel<>("ops", "OpenID Connect", model, false);
         ops.setChoices(available);
-        ops.setChoiceRenderer(new IChoiceRenderer<OIDCC4UIProviderTO>() {
+        ops.setChoiceRenderer(new IChoiceRenderer<>() {
 
             private static final long serialVersionUID = 1814750973898916102L;
 
@@ -68,10 +68,10 @@ public abstract class AbstractOIDCSSOLoginFormPanel extends BaseSSOLoginFormPane
 
             @Override
             public OIDCC4UIProviderTO getObject(final String id,
-                    final IModel<? extends List<? extends OIDCC4UIProviderTO>> choices) {
+                                                final IModel<? extends List<? extends OIDCC4UIProviderTO>> choices) {
 
                 return choices.getObject().stream().
-                        filter(object -> object.getName().equals(id)).findFirst().orElse(null);
+                    filter(object -> object.getName().equals(id)).findFirst().orElse(null);
             }
         });
 

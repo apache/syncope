@@ -396,7 +396,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         if ( filter == null )
         {
             LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
+            return new EntryFilteringCursorImpl(new EmptyCursor<>(), searchContext, schemaManager );
         }
 
         // Normalize the filter
@@ -405,7 +405,7 @@ public class NormalizationInterceptor extends BaseInterceptor
         if ( filter == null )
         {
             LOG.warn( "undefined filter based on undefined attributeType not evaluted at all.  Returning empty enumeration." );
-            return new EntryFilteringCursorImpl( new EmptyCursor<Entry>(), searchContext, schemaManager );
+            return new EntryFilteringCursorImpl(new EmptyCursor<>(), searchContext, schemaManager );
         }
 
         // We now have to remove the (ObjectClass=*) filter if it's present, and to add the scope filter

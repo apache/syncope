@@ -185,7 +185,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
         // read customFormLayout.json
         try (InputStream is = SyncopeWebApplication.class.getResourceAsStream('/' + CUSTOM_FORM_LAYOUT_FILE)) {
-            customFormLayout = MAPPER.readValue(is, new TypeReference<UserFormLayoutInfo>() {
+            customFormLayout = MAPPER.readValue(is, new TypeReference<>() {
             });
             File enduserDir = new File(props.getProperty("enduser.directory"));
             boolean existsEnduserDir = enduserDir.exists() && enduserDir.canRead() && enduserDir.isDirectory();
@@ -195,8 +195,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                         && customFormLayoutFile.canRead()
                         && customFormLayoutFile.isFile()) {
                     customFormLayout = MAPPER.readValue(FileUtils.openInputStream(customFormLayoutFile),
-                            new TypeReference<UserFormLayoutInfo>() {
-                    });
+                        new TypeReference<>() {
+                        });
                 }
             }
             FileAlterationObserver observer = existsEnduserDir
@@ -217,8 +217,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                         LOG.trace("{} has changed. Reloading form attributes customization configuration.",
                                 CUSTOM_FORM_LAYOUT_FILE);
                         customFormLayout = MAPPER.readValue(FileUtils.openInputStream(file),
-                                new TypeReference<UserFormLayoutInfo>() {
-                        });
+                            new TypeReference<>() {
+                            });
                     } catch (IOException e) {
                         LOG.error("{} While reading app customization configuration.",
                                 CUSTOM_FORM_LAYOUT_FILE, e);
@@ -231,8 +231,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
                         LOG.trace("{} has been created. Loading form attributes customization configuration.",
                                 CUSTOM_FORM_LAYOUT_FILE);
                         customFormLayout = MAPPER.readValue(FileUtils.openInputStream(file),
-                                new TypeReference<UserFormLayoutInfo>() {
-                        });
+                            new TypeReference<>() {
+                            });
                     } catch (IOException e) {
                         LOG.error("{} While reading app customization configuration.",
                                 CUSTOM_FORM_LAYOUT_FILE, e);

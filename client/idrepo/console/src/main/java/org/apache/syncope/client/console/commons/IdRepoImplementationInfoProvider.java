@@ -157,21 +157,21 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
     @Override
     public IModel<List<String>> getTaskJobDelegates() {
-        return new LoadableDetachableModel<List<String>>() {
+        return new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
     }
 
     @Override
     public IModel<List<String>> getReconFilterBuilders() {
-        return new LoadableDetachableModel<List<String>>() {
+        return new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -184,7 +184,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
     @Override
     public IModel<List<String>> getPullActions() {
-        return new LoadableDetachableModel<List<String>>() {
+        return new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -197,7 +197,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
     @Override
     public IModel<List<String>> getPushActions() {
-        return new LoadableDetachableModel<List<String>>() {
+        return new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 

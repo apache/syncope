@@ -107,7 +107,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             model.setCancelVisible(false);
         }
 
-        add(new ListView<Component>("outerObjectsRepeater", outerObjects) {
+        add(new ListView<>("outerObjectsRepeater", outerObjects) {
 
             private static final long serialVersionUID = -9180479401817023838L;
 

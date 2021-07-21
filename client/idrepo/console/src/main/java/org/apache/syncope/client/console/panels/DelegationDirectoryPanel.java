@@ -95,13 +95,13 @@ public class DelegationDirectoryPanel extends
         columns.add(new KeyPropertyColumn<>(
                 new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
 
-        columns.add(new AbstractColumn<DelegationTO, String>(new ResourceModel("delegating"), "delegating") {
+        columns.add(new AbstractColumn<>(new ResourceModel("delegating"), "delegating") {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<DelegationTO>> cellItem,
-                    final String componentId,
-                    final IModel<DelegationTO> rowModel) {
+                final Item<ICellPopulator<DelegationTO>> cellItem,
+                final String componentId,
+                final IModel<DelegationTO> rowModel) {
 
                 String delegating = rowModel.getObject().getDelegating();
                 if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.USER_READ)) {
@@ -114,13 +114,13 @@ public class DelegationDirectoryPanel extends
             }
         });
 
-        columns.add(new AbstractColumn<DelegationTO, String>(new ResourceModel("delegated"), "delegated") {
+        columns.add(new AbstractColumn<>(new ResourceModel("delegated"), "delegated") {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<DelegationTO>> cellItem,
-                    final String componentId,
-                    final IModel<DelegationTO> rowModel) {
+                final Item<ICellPopulator<DelegationTO>> cellItem,
+                final String componentId,
+                final IModel<DelegationTO> rowModel) {
 
                 String delegated = rowModel.getObject().getDelegated();
                 if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.USER_READ)) {
@@ -146,17 +146,17 @@ public class DelegationDirectoryPanel extends
     public ActionsPanel<DelegationTO> getActions(final IModel<DelegationTO> model) {
         ActionsPanel<DelegationTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<DelegationTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final DelegationTO ignore) {
                 send(DelegationDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, StringUtils.EMPTY);
-        panel.add(new ActionLink<DelegationTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

@@ -63,7 +63,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    protected final BaseModal<T> ruleCompositionModal = new BaseModal<T>(Constants.OUTER) {
+    protected final BaseModal<T> ruleCompositionModal = new BaseModal<>(Constants.OUTER) {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -130,19 +130,19 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
     public ActionsPanel<T> getActions(final IModel<T> model) {
         ActionsPanel<T> panel = super.getActions(model);
 
-        panel.add(new ActionLink<T>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
                 send(PolicyDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                PolicyRestClient.read(type, model.getObject().getKey()), target));
+                    new AjaxWizard.EditItemActionEvent<>(
+                        PolicyRestClient.read(type, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.POLICY_UPDATE);
 
-        panel.add(new ActionLink<T>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -151,13 +151,13 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
                 final PolicyTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(PolicyDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(clone, target));
+                    new AjaxWizard.EditItemActionEvent<>(clone, target));
             }
         }, ActionLink.ActionType.CLONE, IdRepoEntitlement.POLICY_CREATE);
 
         addCustomActions(panel, model);
 
-        panel.add(new ActionLink<T>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

@@ -159,8 +159,8 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     public List<Attr> getProperties() {
         return properties == null
                 ? new ArrayList<>(0)
-                : POJOHelper.deserialize(properties, new TypeReference<List<Attr>>() {
-                });
+                : POJOHelper.deserialize(properties, new TypeReference<>() {
+        });
     }
 
     @Override

@@ -133,7 +133,7 @@ public class StatusPanel extends Panel {
         final MultilevelPanel mlp = new MultilevelPanel("resources");
         add(mlp);
 
-        ListViewPanel.Builder<StatusBean> builder = new ListViewPanel.Builder<StatusBean>(StatusBean.class, pageRef) {
+        ListViewPanel.Builder<StatusBean> builder = new ListViewPanel.Builder<>(StatusBean.class, pageRef) {
 
             private static final long serialVersionUID = -6809736686861678498L;
 
@@ -152,14 +152,14 @@ public class StatusPanel extends Panel {
         builder.withChecks(ListViewPanel.CheckAvailability.NONE);
         builder.setReuseItem(false);
 
-        ActionLink<StatusBean> connObjectLink = new ActionLink<StatusBean>() {
+        ActionLink<StatusBean> connObjectLink = new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
                 Pair<ConnObjectTO, ConnObjectTO> pair =
-                        getConnObjectTOs(bean.getKey(), bean.getResource(), connObjects);
+                    getConnObjectTOs(bean.getKey(), bean.getResource(), connObjects);
                 return pair != null && pair.getRight() != null;
             }
 
@@ -173,7 +173,7 @@ public class StatusPanel extends Panel {
         }
         SyncopeWebApplication.get().getStatusProvider().addConnObjectLink(builder, connObjectLink);
 
-        builder.addAction(new ActionLink<StatusBean>() {
+        builder.addAction(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

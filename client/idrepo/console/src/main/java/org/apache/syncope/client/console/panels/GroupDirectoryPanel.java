@@ -188,14 +188,14 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
     public ActionsPanel<Serializable> getHeader(final String componentId) {
         final ActionsPanel<Serializable> panel = super.getHeader(componentId);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 target.add(displayAttributeModal.setContent(new GroupDisplayAttributesModalPanel<>(
-                        displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames)));
+                    displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames)));
                 displayAttributeModal.header(new ResourceModel("any.attr.display"));
                 displayAttributeModal.show(true);
             }
@@ -207,88 +207,88 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
     public ActionsPanel<GroupTO> getActions(final IModel<GroupTO> model) {
         final ActionsPanel<GroupTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<GroupTO>() {
+        panel.add(new ActionLink<>() {
 
-            private static final long serialVersionUID = -7978723352517770644L;
+                      private static final long serialVersionUID = -7978723352517770644L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                send(GroupDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(new GroupWrapper(
-                                restClient.read(model.getObject().getKey())), target));
-            }
-        }, ActionType.EDIT,
+                      @Override
+                      public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                          send(GroupDirectoryPanel.this, Broadcast.EXACT,
+                              new AjaxWizard.EditItemActionEvent<>(new GroupWrapper(
+                                  restClient.read(model.getObject().getKey())), target));
+                      }
+                  }, ActionType.EDIT,
                 String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE)).
                 setRealms(realm, model.getObject().getDynRealms());
 
-        panel.add(new ActionLink<GroupTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 6242834621660352855L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 target.add(typeExtensionsModal.setContent(new TypeExtensionDirectoryPanel(
-                        typeExtensionsModal, model.getObject(), pageRef)));
+                    typeExtensionsModal, model.getObject(), pageRef)));
                 typeExtensionsModal.header(new StringResourceModel("typeExtensions", model));
                 typeExtensionsModal.show(true);
             }
         }, ActionType.TYPE_EXTENSIONS, IdRepoEntitlement.GROUP_UPDATE).
                 setRealms(realm, model.getObject().getDynRealms());
 
-        panel.add(new ActionLink<GroupTO>() {
+        panel.add(new ActionLink<>() {
 
-            private static final long serialVersionUID = -7978723352517770645L;
+                      private static final long serialVersionUID = -7978723352517770645L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                templates.setTargetObject(model.getObject());
-                templates.toggle(target, true);
-            }
+                      @Override
+                      public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                          templates.setTargetObject(model.getObject());
+                          templates.toggle(target, true);
+                      }
 
-            @Override
-            public boolean isIndicatorEnabled() {
-                return false;
-            }
-        }, ActionType.MEMBERS,
+                      @Override
+                      public boolean isIndicatorEnabled() {
+                          return false;
+                      }
+                  }, ActionType.MEMBERS,
                 String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE)).
                 setRealms(realm, model.getObject().getDynRealms());
 
-        panel.add(new ActionLink<GroupTO>() {
+        panel.add(new ActionLink<>() {
 
-            private static final long serialVersionUID = -7978723352517770644L;
+                      private static final long serialVersionUID = -7978723352517770644L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                try {
-                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                    target.add(container);
-                } catch (SyncopeClientException e) {
-                    LOG.error("While provisioning members of group {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().onException(e);
-                }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-            }
-        }, ActionType.PROVISION_MEMBERS,
+                      @Override
+                      public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                          try {
+                              SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                              target.add(container);
+                          } catch (SyncopeClientException e) {
+                              LOG.error("While provisioning members of group {}", model.getObject().getKey(), e);
+                              SyncopeConsoleSession.get().onException(e);
+                          }
+                          ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                      }
+                  }, ActionType.PROVISION_MEMBERS,
                 String.format("%s,%s", IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE)).
                 setRealm(realm);
 
-        panel.add(new ActionLink<GroupTO>() {
+        panel.add(new ActionLink<>() {
 
-            private static final long serialVersionUID = -7978723352517770644L;
+                      private static final long serialVersionUID = -7978723352517770644L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                try {
-                    GroupRestClient.provisionMembers(model.getObject().getKey(), ProvisionAction.DEPROVISION);
-                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                    target.add(container);
-                } catch (SyncopeClientException e) {
-                    LOG.error("While provisioning members of group {}", model.getObject().getKey(), e);
-                    SyncopeConsoleSession.get().onException(e);
-                }
-                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-            }
-        }, ActionType.DEPROVISION_MEMBERS,
+                      @Override
+                      public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                          try {
+                              GroupRestClient.provisionMembers(model.getObject().getKey(), ProvisionAction.DEPROVISION);
+                              SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                              target.add(container);
+                          } catch (SyncopeClientException e) {
+                              LOG.error("While provisioning members of group {}", model.getObject().getKey(), e);
+                              SyncopeConsoleSession.get().onException(e);
+                          }
+                          ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                      }
+                  }, ActionType.DEPROVISION_MEMBERS,
                 String.format("%s,%s", IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE)).
                 setRealm(realm);
 
@@ -300,78 +300,79 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 this,
                 pageRef).forEach(panel::add);
 
-        panel.add(new ActionLink<GroupTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 target.add(utilityModal.setContent(new AnyPropagationTasks(
-                        utilityModal, AnyTypeKind.GROUP, model.getObject().getKey(), pageRef)));
+                    utilityModal, AnyTypeKind.GROUP, model.getObject().getKey(), pageRef)));
                 utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
                 utilityModal.show(true);
             }
         }, ActionType.PROPAGATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
-        panel.add(new ActionLink<GroupTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 target.add(utilityModal.setContent(
-                        new NotificationTasks(AnyTypeKind.GROUP, model.getObject().getKey(), pageRef)));
+                    new NotificationTasks(AnyTypeKind.GROUP, model.getObject().getKey(), pageRef)));
                 utilityModal.header(new StringResourceModel("any.notification.tasks", model));
                 utilityModal.show(true);
             }
         }, ActionType.NOTIFICATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
-        panel.add(new ActionLink<GroupTO>() {
+        panel.add(new ActionLink<>() {
 
-            private static final long serialVersionUID = -2878723352517770644L;
+                  private static final long serialVersionUID = -2878723352517770644L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                model.setObject(restClient.read(model.getObject().getKey()));
-                target.add(altDefaultModal.setContent(new AuditHistoryModal<GroupTO>(
-                        altDefaultModal,
-                        AuditElements.EventCategoryType.LOGIC,
-                        "GroupLogic",
-                        model.getObject(),
-                        IdRepoEntitlement.GROUP_UPDATE,
-                        pageRef) {
+                  @Override
+                  public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
+                      model.setObject(restClient.read(model.getObject().getKey()));
+                      target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
+                          altDefaultModal,
+                          AuditElements.EventCategoryType.LOGIC,
+                          "GroupLogic",
+                          model.getObject(),
+                          IdRepoEntitlement.GROUP_UPDATE,
+                          pageRef) {
 
-                    private static final long serialVersionUID = -5819724478921691835L;
+                          private static final long serialVersionUID = -5819724478921691835L;
 
-                    @Override
-                    protected void restore(final String json, final AjaxRequestTarget target) {
-                        GroupTO original = model.getObject();
-                        try {
-                            GroupTO updated = MAPPER.readValue(json, GroupTO.class);
-                            GroupUR updateReq = AnyOperations.diff(updated, original, false);
-                            ProvisioningResult<GroupTO> result = restClient.update(original.getETagValue(), updateReq);
-                            model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
+                          @Override
+                          protected void restore(final String json, final AjaxRequestTarget target) {
+                              GroupTO original = model.getObject();
+                              try {
+                                  GroupTO updated = MAPPER.readValue(json, GroupTO.class);
+                                  GroupUR updateReq = AnyOperations.diff(updated, original, false);
+                                  ProvisioningResult<GroupTO> result =
+                                      restClient.update(original.getETagValue(), updateReq);
+                                  model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
 
-                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(container);
-                        } catch (Exception e) {
-                            LOG.error("While restoring group {}", model.getObject().getKey(), e);
-                            SyncopeConsoleSession.get().onException(e);
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                    }
-                }));
+                                  SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                                  target.add(container);
+                              } catch (Exception e) {
+                                  LOG.error("While restoring group {}", model.getObject().getKey(), e);
+                                  SyncopeConsoleSession.get().onException(e);
+                              }
+                              ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                          }
+                      }));
 
-                altDefaultModal.header(new Model<>(
-                        getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
+                      altDefaultModal.header(new Model<>(
+                          getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
 
-                altDefaultModal.show(true);
-            }
-        }, ActionType.VIEW_AUDIT_HISTORY,
-                String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.AUDIT_LIST)).
-                setRealms(realm, model.getObject().getDynRealms());
+                      altDefaultModal.show(true);
+                  }
+              }, ActionType.VIEW_AUDIT_HISTORY,
+            String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.AUDIT_LIST)).
+            setRealms(realm, model.getObject().getDynRealms());
 
-        panel.add(new ActionLink<GroupTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 6242834621660352855L;
 
@@ -380,7 +381,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 GroupTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(GroupDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.NewItemActionEvent<>(new GroupWrapper(clone), target));
+                    new AjaxWizard.NewItemActionEvent<>(new GroupWrapper(clone), target));
             }
 
             @Override
@@ -389,7 +390,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             }
         }, ActionType.CLONE, IdRepoEntitlement.GROUP_CREATE).setRealm(realm);
 
-        panel.add(new ActionLink<GroupTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 

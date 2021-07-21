@@ -107,7 +107,7 @@ public abstract class EventCategoryPanel extends Panel {
                 new PropertyModel<>(eventCategoryTO, "type"),
                 false);
         type.setChoices(List.of(EventCategoryType.values()));
-        type.setChoiceRenderer(new IChoiceRenderer<EventCategoryType>() {
+        type.setChoiceRenderer(new IChoiceRenderer<>() {
 
             private static final long serialVersionUID = 2317134950949778735L;
 
@@ -123,7 +123,7 @@ public abstract class EventCategoryPanel extends Panel {
 
             @Override
             public EventCategoryType getObject(
-                    final String id, final IModel<? extends List<? extends EventCategoryType>> choices) {
+                final String id, final IModel<? extends List<? extends EventCategoryType>> choices) {
                 return choices.getObject().stream().filter(object -> object.name().equals(id)).findAny().orElse(null);
             }
         });
@@ -184,7 +184,7 @@ public abstract class EventCategoryPanel extends Panel {
         categoryContainer.add(custom.hideLabel());
 
         actionsPanel = new ActionsPanel<>("customActions", null);
-        actionsPanel.add(new ActionLink<EventCategory>() {
+        actionsPanel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -192,26 +192,26 @@ public abstract class EventCategoryPanel extends Panel {
             public void onClick(final AjaxRequestTarget target, final EventCategory ignore) {
                 if (StringUtils.isNotBlank(custom.getModelObject())) {
                     Pair<EventCategory, AuditElements.Result> parsed = AuditLoggerName.parseEventCategory(custom.
-                            getModelObject());
+                        getModelObject());
 
                     String eventString = AuditLoggerName.buildEvent(
-                            parsed.getKey().getType(),
-                            null,
-                            null,
-                            parsed.getKey().getEvents().isEmpty()
+                        parsed.getKey().getType(),
+                        null,
+                        null,
+                        parsed.getKey().getEvents().isEmpty()
                             ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
-                            parsed.getValue());
+                        parsed.getValue());
 
                     custom.setModelObject(StringUtils.EMPTY);
                     send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
-                            target,
-                            Set.of(eventString),
-                            Set.of()));
+                        target,
+                        Set.of(eventString),
+                        Set.of()));
                     target.add(categoryContainer);
                 }
             }
         }, ActionLink.ActionType.CREATE, StringUtils.EMPTY).hideLabel();
-        actionsPanel.add(new ActionLink<EventCategory>() {
+        actionsPanel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435521L;
 
@@ -219,21 +219,21 @@ public abstract class EventCategoryPanel extends Panel {
             public void onClick(final AjaxRequestTarget target, final EventCategory ignore) {
                 if (StringUtils.isNotBlank(custom.getModelObject())) {
                     Pair<EventCategory, AuditElements.Result> parsed = AuditLoggerName.parseEventCategory(custom.
-                            getModelObject());
+                        getModelObject());
 
                     String eventString = AuditLoggerName.buildEvent(
-                            parsed.getKey().getType(),
-                            null,
-                            null,
-                            parsed.getKey().getEvents().isEmpty()
+                        parsed.getKey().getType(),
+                        null,
+                        null,
+                        parsed.getKey().getEvents().isEmpty()
                             ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
-                            parsed.getValue());
+                        parsed.getValue());
 
                     custom.setModelObject(StringUtils.EMPTY);
                     send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
-                            target,
-                            Set.of(),
-                            Set.of(eventString)));
+                        target,
+                        Set.of(),
+                        Set.of(eventString)));
                     target.add(categoryContainer);
                 }
             }

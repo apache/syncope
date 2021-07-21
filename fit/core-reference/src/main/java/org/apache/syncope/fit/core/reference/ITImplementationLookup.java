@@ -89,66 +89,66 @@ public class ITImplementationLookup implements ImplementationLookup {
             List.of(SyncopeJWTSSOProvider.class, CustomJWTSSOProvider.class));
 
     private static final Map<Class<? extends ReportletConf>, Class<? extends Reportlet>> REPORTLET_CLASSES =
-            new HashMap<Class<? extends ReportletConf>, Class<? extends Reportlet>>() {
+        new HashMap<>() {
 
-        private static final long serialVersionUID = 3109256773218160485L;
+            private static final long serialVersionUID = 3109256773218160485L;
 
-        {
-            put(AuditReportletConf.class, AuditReportlet.class);
-            put(ReconciliationReportletConf.class, ReconciliationReportlet.class);
-            put(GroupReportletConf.class, GroupReportlet.class);
-            put(UserReportletConf.class, UserReportlet.class);
-            put(StaticReportletConf.class, StaticReportlet.class);
-        }
-    };
+            {
+                put(AuditReportletConf.class, AuditReportlet.class);
+                put(ReconciliationReportletConf.class, ReconciliationReportlet.class);
+                put(GroupReportletConf.class, GroupReportlet.class);
+                put(UserReportletConf.class, UserReportlet.class);
+                put(StaticReportletConf.class, StaticReportlet.class);
+            }
+        };
 
     private static final Map<Class<? extends AccountRuleConf>, Class<? extends AccountRule>> ACCOUNT_RULE_CLASSES =
-            new HashMap<Class<? extends AccountRuleConf>, Class<? extends AccountRule>>() {
+        new HashMap<>() {
 
-        private static final long serialVersionUID = 3109256773218160485L;
+            private static final long serialVersionUID = 3109256773218160485L;
 
-        {
-            put(TestAccountRuleConf.class, TestAccountRule.class);
-            put(DefaultAccountRuleConf.class, DefaultAccountRule.class);
-        }
-    };
+            {
+                put(TestAccountRuleConf.class, TestAccountRule.class);
+                put(DefaultAccountRuleConf.class, DefaultAccountRule.class);
+            }
+        };
 
     private static final Map<Class<? extends PasswordRuleConf>, Class<? extends PasswordRule>> PASSWORD_RULE_CLASSES =
-            new HashMap<Class<? extends PasswordRuleConf>, Class<? extends PasswordRule>>() {
+        new HashMap<>() {
 
-        private static final long serialVersionUID = -6624291041977583649L;
+            private static final long serialVersionUID = -6624291041977583649L;
 
-        {
-            put(TestPasswordRuleConf.class, TestPasswordRule.class);
-            put(DefaultPasswordRuleConf.class, DefaultPasswordRule.class);
-            put(HaveIBeenPwnedPasswordRuleConf.class, HaveIBeenPwnedPasswordRule.class);
-        }
-    };
+            {
+                put(TestPasswordRuleConf.class, TestPasswordRule.class);
+                put(DefaultPasswordRuleConf.class, DefaultPasswordRule.class);
+                put(HaveIBeenPwnedPasswordRuleConf.class, HaveIBeenPwnedPasswordRule.class);
+            }
+        };
 
     private static final Map<
             Class<? extends PullCorrelationRuleConf>, Class<? extends PullCorrelationRule>> PULL_CR_CLASSES =
-            new HashMap<Class<? extends PullCorrelationRuleConf>, Class<? extends PullCorrelationRule>>() {
+        new HashMap<>() {
 
-        private static final long serialVersionUID = 3109256773218160485L;
+            private static final long serialVersionUID = 3109256773218160485L;
 
-        {
-            put(DummyPullCorrelationRuleConf.class, DummyPullCorrelationRule.class);
-            put(DefaultPullCorrelationRuleConf.class, DefaultPullCorrelationRule.class);
-            put(LinkedAccountSamplePullCorrelationRuleConf.class, LinkedAccountSamplePullCorrelationRule.class);
-        }
-    };
+            {
+                put(DummyPullCorrelationRuleConf.class, DummyPullCorrelationRule.class);
+                put(DefaultPullCorrelationRuleConf.class, DefaultPullCorrelationRule.class);
+                put(LinkedAccountSamplePullCorrelationRuleConf.class, LinkedAccountSamplePullCorrelationRule.class);
+            }
+        };
 
     private static final Map<
             Class<? extends PushCorrelationRuleConf>, Class<? extends PushCorrelationRule>> PUSH_CR_CLASSES =
-            new HashMap<Class<? extends PushCorrelationRuleConf>, Class<? extends PushCorrelationRule>>() {
+        new HashMap<>() {
 
-        private static final long serialVersionUID = 3109256773218160485L;
+            private static final long serialVersionUID = 3109256773218160485L;
 
-        {
-            put(DummyPushCorrelationRuleConf.class, DummyPushCorrelationRule.class);
-            put(DefaultPushCorrelationRuleConf.class, DefaultPushCorrelationRule.class);
-        }
-    };
+            {
+                put(DummyPushCorrelationRuleConf.class, DummyPushCorrelationRule.class);
+                put(DefaultPushCorrelationRuleConf.class, DefaultPushCorrelationRule.class);
+            }
+        };
 
     private static final Set<Class<?>> AUDITAPPENDER_CLASSES = new HashSet<>(
             List.of(TestFileAuditAppender.class, TestFileRewriteAuditAppender.class));
@@ -156,13 +156,13 @@ public class ITImplementationLookup implements ImplementationLookup {
     private static final Set<Class<?>> PROVISION_SORTER_CLASSES = new HashSet<>(
             List.of(DefaultProvisionSorter.class));
 
-    private static final Map<String, Set<String>> CLASS_NAMES = new HashMap<String, Set<String>>() {
+    private static final Map<String, Set<String>> CLASS_NAMES = new HashMap<>() {
 
         private static final long serialVersionUID = 3109256773218160485L;
 
         {
             Set<String> classNames = ITImplementationLookup.JWTSSOPROVIDER_CLASSES.stream().
-                    map(Class::getName).collect(Collectors.toSet());
+                map(Class::getName).collect(Collectors.toSet());
             put(IdRepoImplementationType.JWT_SSO_PROVIDER, classNames);
 
             classNames = new HashSet<>();
@@ -174,11 +174,11 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(IdRepoImplementationType.REPORTLET, classNames);
 
             classNames = ITImplementationLookup.ACCOUNT_RULE_CLASSES.values().stream().
-                    map(Class::getName).collect(Collectors.toSet());
+                map(Class::getName).collect(Collectors.toSet());
             put(IdRepoImplementationType.ACCOUNT_RULE, classNames);
 
             classNames = ITImplementationLookup.PASSWORD_RULE_CLASSES.values().stream().
-                    map(Class::getName).collect(Collectors.toSet());
+                map(Class::getName).collect(Collectors.toSet());
             put(IdRepoImplementationType.PASSWORD_RULE, classNames);
 
             classNames = new HashSet<>();
@@ -234,11 +234,11 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(IdRepoImplementationType.RECIPIENTS_PROVIDER, classNames);
 
             classNames = ITImplementationLookup.AUDITAPPENDER_CLASSES.stream().
-                    map(Class::getName).collect(Collectors.toSet());
+                map(Class::getName).collect(Collectors.toSet());
             put(IdRepoImplementationType.AUDIT_APPENDER, classNames);
 
             classNames = ITImplementationLookup.PROVISION_SORTER_CLASSES.stream().
-                    map(Class::getName).collect(Collectors.toSet());
+                map(Class::getName).collect(Collectors.toSet());
             put(IdMImplementationType.PROVISION_SORTER, classNames);
         }
     };

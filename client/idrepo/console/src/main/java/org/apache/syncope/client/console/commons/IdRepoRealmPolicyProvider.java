@@ -38,25 +38,25 @@ public class IdRepoRealmPolicyProvider implements RealmPolicyProvider {
 
     private static final long serialVersionUID = 1L;
 
-    private final IModel<Map<String, String>> accountPolicies = new LoadableDetachableModel<Map<String, String>>() {
+    private final IModel<Map<String, String>> accountPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ACCOUNT).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
-    private final IModel<Map<String, String>> passwordPolicies = new LoadableDetachableModel<Map<String, String>>() {
+    private final IModel<Map<String, String>> passwordPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.PASSWORD).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 

@@ -361,7 +361,7 @@ public class CircularFifoQueue<E> extends AbstractCollection<E> implements Queue
      */
     @Override
     public Iterator<E> iterator() {
-        return new Iterator<E>() {
+        return new Iterator<>() {
 
             private int index = start;
 

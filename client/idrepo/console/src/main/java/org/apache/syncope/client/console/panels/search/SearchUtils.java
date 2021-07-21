@@ -54,7 +54,7 @@ public final class SearchUtils implements Serializable {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchUtils.class);
 
-    private static final BidiMap<String, String> ENCODINGS = new DualHashBidiMap<String, String>() {
+    private static final BidiMap<String, String> ENCODINGS = new DualHashBidiMap<>() {
 
         private static final long serialVersionUID = 5636572627689425575L;
 

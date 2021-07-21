@@ -115,7 +115,7 @@ public class AMSessionDirectoryPanel
     protected ActionsPanel<AMSession> getActions(final IModel<AMSession> model) {
         ActionsPanel<AMSession> panel = super.getActions(model);
 
-        panel.add(new ActionLink<AMSession>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 22687128346032L;
 
@@ -123,12 +123,12 @@ public class AMSessionDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final AMSession ignore) {
                 viewModal.header(new ResourceModel("details"));
                 target.add(viewModal.setContent(
-                        new JsonEditorPanel(viewModal, Model.of(model.getObject().getJson()), true, pageRef)));
+                    new JsonEditorPanel(viewModal, Model.of(model.getObject().getJson()), true, pageRef)));
                 viewModal.show(true);
             }
         }, ActionLink.ActionType.VIEW, listEntitlement);
 
-        panel.add(new ActionLink<AMSession>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -4608353559809323466L;
 

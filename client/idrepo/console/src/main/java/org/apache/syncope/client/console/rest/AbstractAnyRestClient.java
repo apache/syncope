@@ -65,7 +65,7 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO> extends BaseRestCl
         ProvisioningResult<TO> result;
         synchronized (this) {
             result = getService(etag, getAnyServiceClass()).delete(key).
-                    readEntity(new GenericType<ProvisioningResult<TO>>() {
+                    readEntity(new GenericType<>() {
                     });
             resetClient(getAnyServiceClass());
         }

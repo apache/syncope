@@ -212,8 +212,8 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             builder.columns.add(0, new CheckGroupColumn<>(group));
         }
 
-        dataTable = new AjaxFallbackDataTable<T, S>(
-                "dataTable", builder.columns, builder.dataProvider, builder.rowsPerPage, builder.container) {
+        dataTable = new AjaxFallbackDataTable<>(
+            "dataTable", builder.columns, builder.dataProvider, builder.rowsPerPage, builder.container) {
 
             private static final long serialVersionUID = -7370603907251344224L;
 

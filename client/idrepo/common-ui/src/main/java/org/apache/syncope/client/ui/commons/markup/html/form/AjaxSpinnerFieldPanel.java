@@ -59,7 +59,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
         super(id, name, model);
 
-        field = new AjaxSpinner<T>("spinner", model, options, reference) {
+        field = new AjaxSpinner<>("spinner", model, options, reference) {
 
             private static final long serialVersionUID = -3624755213720060594L;
 
@@ -93,7 +93,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
     @Override
     public AjaxSpinnerFieldPanel<T> setNewModel(final List<Serializable> list) {
-        setNewModel(new Model<T>() {
+        setNewModel(new Model<>() {
 
             private static final long serialVersionUID = 527651414610325237L;
 
@@ -102,19 +102,19 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
                 T value = null;
 
                 if (list != null && !list.isEmpty()
-                        && list.get(0) != null && StringUtils.isNotBlank(list.get(0).toString())) {
+                    && list.get(0) != null && StringUtils.isNotBlank(list.get(0).toString())) {
 
                     value = reference.equals(Integer.class)
-                            ? reference.cast(NumberUtils.toInt(list.get(0).toString()))
-                            : reference.equals(Long.class)
-                            ? reference.cast(NumberUtils.toLong(list.get(0).toString()))
-                            : reference.equals(Short.class)
-                            ? reference.cast(NumberUtils.toShort(list.get(0).toString()))
-                            : reference.equals(Float.class)
-                            ? reference.cast(NumberUtils.toFloat(list.get(0).toString()))
-                            : reference.equals(byte.class)
-                            ? reference.cast(NumberUtils.toByte(list.get(0).toString()))
-                            : reference.cast(NumberUtils.toDouble(list.get(0).toString()));
+                        ? reference.cast(NumberUtils.toInt(list.get(0).toString()))
+                        : reference.equals(Long.class)
+                        ? reference.cast(NumberUtils.toLong(list.get(0).toString()))
+                        : reference.equals(Short.class)
+                        ? reference.cast(NumberUtils.toShort(list.get(0).toString()))
+                        : reference.equals(Float.class)
+                        ? reference.cast(NumberUtils.toFloat(list.get(0).toString()))
+                        : reference.equals(byte.class)
+                        ? reference.cast(NumberUtils.toByte(list.get(0).toString()))
+                        : reference.cast(NumberUtils.toDouble(list.get(0).toString()));
                 }
 
                 return value;
@@ -135,7 +135,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
     @SuppressWarnings("rawtypes")
     @Override
     public AjaxSpinnerFieldPanel<T> setNewModel(final ListItem item) {
-        field.setModel(new Model<T>() {
+        field.setModel(new Model<>() {
 
             private static final long serialVersionUID = 6799404673615637845L;
 
@@ -149,16 +149,16 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
                     if (obj instanceof String) {
                         try {
                             number = reference.equals(Integer.class)
-                                    ? reference.cast(Integer.valueOf((String) obj))
-                                    : reference.equals(Long.class)
-                                    ? reference.cast(Long.valueOf((String) obj))
-                                    : reference.equals(Short.class)
-                                    ? reference.cast(Short.valueOf((String) obj))
-                                    : reference.equals(Float.class)
-                                    ? reference.cast(Float.valueOf((String) obj))
-                                    : reference.equals(byte.class)
-                                    ? reference.cast(Byte.valueOf((String) obj))
-                                    : reference.cast(Double.valueOf((String) obj));
+                                ? reference.cast(Integer.valueOf((String) obj))
+                                : reference.equals(Long.class)
+                                ? reference.cast(Long.valueOf((String) obj))
+                                : reference.equals(Short.class)
+                                ? reference.cast(Short.valueOf((String) obj))
+                                : reference.equals(Float.class)
+                                ? reference.cast(Float.valueOf((String) obj))
+                                : reference.equals(byte.class)
+                                ? reference.cast(Byte.valueOf((String) obj))
+                                : reference.cast(Double.valueOf((String) obj));
                         } catch (NumberFormatException e) {
                             LOG.error("While attempting to parse {}", obj, e);
                         }

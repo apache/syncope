@@ -129,24 +129,24 @@ public abstract class ReportDirectoryPanel
         columns.add(new BooleanPropertyColumn<>(
                 new StringResourceModel("active", this), "active", "active"));
 
-        columns.add(new AbstractColumn<ReportTO, String>(new Model<>(""), "running") {
+        columns.add(new AbstractColumn<>(new Model<>(""), "running") {
 
             private static final long serialVersionUID = 4209532514416998046L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<ReportTO>> cellItem,
-                    final String componentId,
-                    final IModel<ReportTO> rowModel) {
+                final Item<ICellPopulator<ReportTO>> cellItem,
+                final String componentId,
+                final IModel<ReportTO> rowModel) {
 
                 Component panel;
                 try {
                     JobTO jobTO = ReportRestClient.getJob(rowModel.getObject().getKey());
                     panel = new JobActionPanel(componentId, jobTO, false, ReportDirectoryPanel.this);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
-                            String.format("%s,%s",
-                                    IdRepoEntitlement.REPORT_EXECUTE,
-                                    IdRepoEntitlement.REPORT_UPDATE));
+                        String.format("%s,%s",
+                            IdRepoEntitlement.REPORT_EXECUTE,
+                            IdRepoEntitlement.REPORT_UPDATE));
                 } catch (Exception e) {
                     LOG.error("Could not get job for report {}", rowModel.getObject().getKey(), e);
                     panel = new Label(componentId, Model.of());
@@ -177,19 +177,19 @@ public abstract class ReportDirectoryPanel
     public ActionsPanel<ReportTO> getActions(final IModel<ReportTO> model) {
         final ActionsPanel<ReportTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<ReportTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
                 send(ReportDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                ReportRestClient.read(model.getObject().getKey()), target));
+                    new AjaxWizard.EditItemActionEvent<>(
+                        ReportRestClient.read(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REPORT_UPDATE);
 
-        panel.add(new ActionLink<ReportTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -198,26 +198,26 @@ public abstract class ReportDirectoryPanel
                 final ReportTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(ReportDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(clone, target));
+                    new AjaxWizard.EditItemActionEvent<>(clone, target));
             }
         }, ActionLink.ActionType.CLONE, IdRepoEntitlement.REPORT_CREATE);
 
-        panel.add(new ActionLink<ReportTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
                 target.add(modal.setContent(new ReportletDirectoryPanel(
-                        modal, model.getObject().getKey(), pageRef)));
+                    modal, model.getObject().getKey(), pageRef)));
 
                 modal.header(new StringResourceModel(
-                        "reportlet.conf", ReportDirectoryPanel.this, Model.of(model.getObject())));
+                    "reportlet.conf", ReportDirectoryPanel.this, Model.of(model.getObject())));
                 modal.show(true);
             }
         }, ActionLink.ActionType.COMPOSE, IdRepoEntitlement.REPORT_UPDATE);
 
-        panel.add(new ActionLink<ReportTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -227,19 +227,19 @@ public abstract class ReportDirectoryPanel
             }
         }, ActionLink.ActionType.VIEW_EXECUTIONS, IdRepoEntitlement.REPORT_READ);
 
-        panel.add(new ActionLink<ReportTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
                 startAt.setExecutionDetail(
-                        model.getObject().getKey(), model.getObject().getName(), target);
+                    model.getObject().getKey(), model.getObject().getName(), target);
                 startAt.toggle(target, true);
             }
         }, ActionLink.ActionType.EXECUTE, IdRepoEntitlement.REPORT_EXECUTE);
 
-        panel.add(new ActionLink<ReportTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

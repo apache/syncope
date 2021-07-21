@@ -82,14 +82,14 @@ public class EditSecurityQuestion extends BasePage {
         List<SecurityQuestionTO> securityQuestions = SecurityQuestionRestClient.list();
         securityQuestion.setChoices(securityQuestions.stream().
                 map(SecurityQuestionTO::getKey).collect(Collectors.toList()));
-        securityQuestion.setChoiceRenderer(new IChoiceRenderer<String>() {
+        securityQuestion.setChoiceRenderer(new IChoiceRenderer<>() {
 
             private static final long serialVersionUID = -4421146737845000747L;
 
             @Override
             public Object getDisplayValue(final String value) {
                 return securityQuestions.stream().filter(sq -> value.equals(sq.getKey())).
-                        map(SecurityQuestionTO::getContent).findFirst().orElse(null);
+                    map(SecurityQuestionTO::getContent).findFirst().orElse(null);
             }
 
             @Override

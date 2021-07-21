@@ -108,7 +108,7 @@ public abstract class NotificationTaskDirectoryPanel
         final ActionsPanel<NotificationTaskTO> panel = super.getActions(model);
         final NotificationTaskTO taskTO = model.getObject();
 
-        panel.add(new ActionLink<NotificationTaskTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -117,7 +117,7 @@ public abstract class NotificationTaskDirectoryPanel
                 viewTask(taskTO, target);
             }
         }, ActionLink.ActionType.VIEW, IdRepoEntitlement.TASK_READ);
-        panel.add(new ActionLink<NotificationTaskTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -126,7 +126,7 @@ public abstract class NotificationTaskDirectoryPanel
                 viewMailBody(MailTemplateFormat.TEXT, taskTO.getTextBody(), target);
             }
         }, ActionLink.ActionType.TEXT, IdRepoEntitlement.TASK_READ);
-        panel.add(new ActionLink<NotificationTaskTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -135,7 +135,7 @@ public abstract class NotificationTaskDirectoryPanel
                 viewMailBody(MailTemplateFormat.HTML, taskTO.getHtmlBody(), target);
             }
         }, ActionLink.ActionType.HTML, IdRepoEntitlement.TASK_READ);
-        panel.add(new ActionLink<NotificationTaskTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -152,7 +152,7 @@ public abstract class NotificationTaskDirectoryPanel
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionLink.ActionType.EXECUTE, IdRepoEntitlement.TASK_EXECUTE);
-        panel.add(new ActionLink<NotificationTaskTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

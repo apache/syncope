@@ -101,14 +101,14 @@ public class BasePage extends BaseWebPage {
         addPageTitle(name);
 
         // collapse
-        collapse = new AjaxLink<Void>("collapse") {
+        collapse = new AjaxLink<>("collapse") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 Session.get().setAttribute(Constants.MENU_COLLAPSE,
-                        Session.get().getAttribute(Constants.MENU_COLLAPSE) == null
+                    Session.get().getAttribute(Constants.MENU_COLLAPSE) == null
                         ? true
                         : !(Boolean) Session.get().getAttribute(Constants.MENU_COLLAPSE));
             }

@@ -147,8 +147,8 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
         List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, null, null);
 
-        ListViewPanel.Builder<ConnObjectTO> builder = new ListViewPanel.Builder<ConnObjectTO>(
-                ConnObjectTO.class, pageRef) {
+        ListViewPanel.Builder<ConnObjectTO> builder = new ListViewPanel.Builder<>(
+            ConnObjectTO.class, pageRef) {
 
             private static final long serialVersionUID = -8251750413385566738L;
 
@@ -158,52 +158,52 @@ public abstract class ConnObjectListViewPanel extends Panel {
                     ReconStatus status;
                     try {
                         status = ReconciliationRestClient.status(
-                                new ReconQuery.Builder(anyType, resource.getKey()).fiql(bean.getFiql()).build());
+                            new ReconQuery.Builder(anyType, resource.getKey()).fiql(bean.getFiql()).build());
                     } catch (Exception e) {
                         LOG.error("While requesting for reconciliation status of {} {} with FIQL '{}'",
-                                anyType, resource.getKey(), bean.getFiql(), e);
+                            anyType, resource.getKey(), bean.getFiql(), e);
 
                         status = new ReconStatus();
                     }
 
                     return status.getOnSyncope() == null
-                            ? StatusUtils.getLabel("field", "notfound icon", "Not found", Constants.NOT_FOUND_ICON)
-                            : new Label("field", Model.of()).add(new PopoverBehavior(
-                                    Model.of(),
-                                    Model.of(status.getAnyKey()),
-                                    new PopoverConfig().
-                                            withTitle(status.getMatchType() == MatchType.LINKED_ACCOUNT
-                                                    ? MatchType.LINKED_ACCOUNT.name() + ", " + AnyTypeKind.USER
-                                                    : status.getAnyTypeKind().name()).
-                                            withPlacement(TooltipConfig.Placement.left)) {
+                        ? StatusUtils.getLabel("field", "notfound icon", "Not found", Constants.NOT_FOUND_ICON)
+                        : new Label("field", Model.of()).add(new PopoverBehavior(
+                        Model.of(),
+                        Model.of(status.getAnyKey()),
+                        new PopoverConfig().
+                            withTitle(status.getMatchType() == MatchType.LINKED_ACCOUNT
+                                ? MatchType.LINKED_ACCOUNT.name() + ", " + AnyTypeKind.USER
+                                : status.getAnyTypeKind().name()).
+                            withPlacement(TooltipConfig.Placement.left)) {
 
-                                private static final long serialVersionUID = -7867802555691605021L;
+                        private static final long serialVersionUID = -7867802555691605021L;
 
-                                @Override
-                                protected String createRelAttribute() {
-                                    return "field";
-                                }
+                        @Override
+                        protected String createRelAttribute() {
+                            return "field";
+                        }
 
-                                @Override
-                                public void onComponentTag(final Component component, final ComponentTag tag) {
-                                    super.onComponentTag(component, tag);
-                                    tag.put("class", Constants.ACTIVE_ICON);
-                                }
-                            });
+                        @Override
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
+                            super.onComponentTag(component, tag);
+                            tag.put("class", Constants.ACTIVE_ICON);
+                        }
+                    });
                 } else {
                     Optional<Attr> attr =
-                            bean.getAttrs().stream().filter(object -> object.getSchema().equals(key)).findAny();
+                        bean.getAttrs().stream().filter(object -> object.getSchema().equals(key)).findAny();
 
                     return attr.isEmpty() || attr.get().getValues().isEmpty()
-                            ? new Label("field", StringUtils.EMPTY)
-                            : new CollectionPanel("field", attr.get().getValues());
+                        ? new Label("field", StringUtils.EMPTY)
+                        : new CollectionPanel("field", attr.get().getValues());
                 }
             }
 
         };
 
         builder.setReuseItem(false);
-        builder.addAction(new ActionLink<ConnObjectTO>() {
+        builder.addAction(new ActionLink<>() {
 
             private static final long serialVersionUID = 7511002881490248598L;
 
@@ -220,7 +220,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
                 setReuseItem(false);
 
         if (!StringUtils.equals(anyType, SyncopeConstants.REALM_ANYTYPE)) {
-            builder.addAction(new ActionLink<ConnObjectTO>() {
+            builder.addAction(new ActionLink<>() {
 
                 private static final long serialVersionUID = 6377238742125L;
 
@@ -228,19 +228,19 @@ public abstract class ConnObjectListViewPanel extends Panel {
                 public void onClick(final AjaxRequestTarget target, final ConnObjectTO modelObject) {
                     try {
                         ReconStatus status = ReconciliationRestClient.status(
-                                new ReconQuery.Builder(anyType, resource.getKey()).fiql(modelObject.getFiql()).build());
+                            new ReconQuery.Builder(anyType, resource.getKey()).fiql(modelObject.getFiql()).build());
 
                         pullConnObject(
-                                modelObject.getFiql(),
-                                target,
-                                resource.getKey(),
-                                anyType,
-                                status.getRealm(),
-                                StringUtils.isNotBlank(status.getAnyKey()),
-                                pageRef);
+                            modelObject.getFiql(),
+                            target,
+                            resource.getKey(),
+                            anyType,
+                            status.getRealm(),
+                            StringUtils.isNotBlank(status.getAnyKey()),
+                            pageRef);
                     } catch (Exception e) {
                         LOG.error("While puling single object {} {} with FIQL '{}'",
-                                anyType, resource.getKey(), modelObject.getFiql(), e);
+                            anyType, resource.getKey(), modelObject.getFiql(), e);
 
                         SyncopeConsoleSession.get().onException(e);
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);

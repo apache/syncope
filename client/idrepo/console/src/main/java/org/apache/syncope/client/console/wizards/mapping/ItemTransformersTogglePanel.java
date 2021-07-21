@@ -48,7 +48,7 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
     public ItemTransformersTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
         super(Constants.OUTER, "itemTransformersTogglePanel", pageRef);
 
-        final LoadableDetachableModel<List<String>> model = new LoadableDetachableModel<List<String>>() {
+        final LoadableDetachableModel<List<String>> model = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -56,8 +56,8 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
             protected List<String> load() {
                 // [!] this is required to disable changed with close button
                 return item == null
-                        ? List.of()
-                        : item.getTransformers();
+                    ? List.of()
+                    : item.getTransformers();
             }
         };
 
@@ -67,7 +67,7 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
         List<String> choices = ImplementationRestClient.list(IdRepoImplementationType.ITEM_TRANSFORMER).stream().
                 map(EntityTO::getKey).sorted().collect(Collectors.toList());
 
-        form.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).setRenderer(new IChoiceRenderer<String>() {
+        form.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).setRenderer(new IChoiceRenderer<>() {
 
             private static final long serialVersionUID = 3464376099975468136L;
 

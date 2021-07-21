@@ -54,7 +54,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
 
     public static ProvisioningResult<UserTO> create(final UserCR createReq) {
         Response response = getService(UserService.class).create(createReq);
-        return response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        return response.readEntity(new GenericType<>() {
         });
     }
 
@@ -62,7 +62,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
         ProvisioningResult<UserTO> result;
         synchronized (this) {
             result = getService(etag, UserService.class).update(updateReq).
-                    readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                    readEntity(new GenericType<>() {
                     });
             resetClient(getAnyServiceClass());
         }
@@ -101,7 +101,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
         Map<String, String> results;
         synchronized (this) {
             ProvisioningResult<UserTO> provisioningResult = getService(etag, UserService.class).status(statusR).
-                    readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                    readEntity(new GenericType<>() {
                     });
 
             statuses.forEach(statusBean -> statusBean.setStatus(Status.UNDEFINED));

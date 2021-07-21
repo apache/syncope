@@ -109,7 +109,7 @@ public class ResourceStatusDirectoryPanel
     public ActionsPanel<StatusBean> getActions(final IModel<StatusBean> model) {
         final ActionsPanel<StatusBean> panel = super.getActions(model);
 
-        panel.add(new ActionLink<StatusBean>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
@@ -121,14 +121,14 @@ public class ResourceStatusDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                 multiLevelPanelRef.next(bean.getResource(),
-                        new ReconStatusPanel(bean.getResource(), type, bean.getKey()),
-                        target);
+                    new ReconStatusPanel(bean.getResource(), type, bean.getKey()),
+                    target);
                 target.add(multiLevelPanelRef);
                 getTogglePanel().close(target);
             }
         }, ActionLink.ActionType.VIEW, IdMEntitlement.RESOURCE_GET_CONNOBJECT);
 
-        panel.add(new ActionLink<StatusBean>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
@@ -140,21 +140,21 @@ public class ResourceStatusDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                 multiLevelPanelRef.next("PUSH " + bean.getResource(),
-                        new ReconTaskPanel(
-                                bean.getResource(),
-                                new PushTaskTO(),
-                                type,
-                                bean.getKey(),
-                                true,
-                                multiLevelPanelRef,
-                                pageRef),
-                        target);
+                    new ReconTaskPanel(
+                        bean.getResource(),
+                        new PushTaskTO(),
+                        type,
+                        bean.getKey(),
+                        true,
+                        multiLevelPanelRef,
+                        pageRef),
+                    target);
                 target.add(multiLevelPanelRef);
                 getTogglePanel().close(target);
             }
         }, ActionLink.ActionType.RECONCILIATION_PUSH, IdRepoEntitlement.TASK_EXECUTE);
 
-        panel.add(new ActionLink<StatusBean>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
@@ -166,15 +166,15 @@ public class ResourceStatusDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                 multiLevelPanelRef.next("PULL " + bean.getResource(),
-                        new ReconTaskPanel(
-                                bean.getResource(),
-                                new PullTaskTO(),
-                                type,
-                                bean.getKey(),
-                                true,
-                                multiLevelPanelRef,
-                                pageRef),
-                        target);
+                    new ReconTaskPanel(
+                        bean.getResource(),
+                        new PullTaskTO(),
+                        type,
+                        bean.getKey(),
+                        true,
+                        multiLevelPanelRef,
+                        pageRef),
+                    target);
                 target.add(multiLevelPanelRef);
                 getTogglePanel().close(target);
             }

@@ -369,12 +369,12 @@ public class SyncopeClient {
             return Triple.of(
                     OBJECT_MAPPER.readValue(
                             response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS),
-                            new TypeReference<Map<String, Set<String>>>() {
-                    }),
+                        new TypeReference<>() {
+                        }),
                     OBJECT_MAPPER.readValue(
                             response.getHeaderString(RESTHeaders.DELEGATIONS),
-                            new TypeReference<List<String>>() {
-                    }),
+                        new TypeReference<>() {
+                        }),
                     response.readEntity(UserTO.class));
         } catch (IOException e) {
             throw new IllegalStateException(e);

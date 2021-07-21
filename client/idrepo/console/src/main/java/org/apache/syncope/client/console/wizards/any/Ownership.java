@@ -114,7 +114,7 @@ public class Ownership extends WizardStep implements ICondition {
                 withOffStyle(BootstrapToggleConfig.Style.warning).
                 withSize(BootstrapToggleConfig.Size.mini);
 
-        add(new BootstrapToggle("ownership", new Model<Boolean>() {
+        add(new BootstrapToggle("ownership", new Model<>() {
 
             private static final long serialVersionUID = 6062041315055645807L;
 
@@ -201,7 +201,7 @@ public class Ownership extends WizardStep implements ICondition {
         }
 
         final AjaxTextFieldPanel userOwner = new AjaxTextFieldPanel(
-                "userOwner", "userOwner", new PropertyModel<String>(groupWrapper.getInnerObject(), "userOwner") {
+                "userOwner", "userOwner", new PropertyModel<>(groupWrapper.getInnerObject(), "userOwner") {
 
             private static final long serialVersionUID = -3743432456095828573L;
 
@@ -236,7 +236,7 @@ public class Ownership extends WizardStep implements ICondition {
         userOwner.setReadOnly(true).setOutputMarkupId(true);
         userSearchFragment.add(userOwner);
 
-        final IndicatingAjaxLink<Void> userOwnerReset = new IndicatingAjaxLink<Void>("userOwnerReset") {
+        final IndicatingAjaxLink<Void> userOwnerReset = new IndicatingAjaxLink<>("userOwnerReset") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -254,7 +254,7 @@ public class Ownership extends WizardStep implements ICondition {
         userSearchFragment.add(userOwnerReset);
 
         final AjaxTextFieldPanel groupOwner = new AjaxTextFieldPanel(
-                "groupOwner", "groupOwner", new PropertyModel<String>(groupWrapper.getInnerObject(), "groupOwner") {
+                "groupOwner", "groupOwner", new PropertyModel<>(groupWrapper.getInnerObject(), "groupOwner") {
 
             private static final long serialVersionUID = -3743432456095828573L;
 
@@ -289,7 +289,7 @@ public class Ownership extends WizardStep implements ICondition {
         groupOwner.setReadOnly(true).setOutputMarkupId(true);
         groupSearchFragment.add(groupOwner);
 
-        final IndicatingAjaxLink<Void> groupOwnerReset = new IndicatingAjaxLink<Void>("groupOwnerReset") {
+        final IndicatingAjaxLink<Void> groupOwnerReset = new IndicatingAjaxLink<>("groupOwnerReset") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 

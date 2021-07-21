@@ -96,7 +96,7 @@ public class Realms extends BasePage {
 
         content.add(templates);
 
-        templateModal = new BaseModal<Serializable>("templateModal") {
+        templateModal = new BaseModal<>("templateModal") {
 
             private static final long serialVersionUID = 5787433530654262016L;
 

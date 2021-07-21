@@ -44,7 +44,7 @@ public abstract class DataTablePanel<T extends Serializable, S> extends Panel {
     public DataTablePanel(final String id) {
         super(id);
 
-        model = new IModel<Collection<T>>() {
+        model = new IModel<>() {
 
             private static final long serialVersionUID = 4886729136344643465L;
 

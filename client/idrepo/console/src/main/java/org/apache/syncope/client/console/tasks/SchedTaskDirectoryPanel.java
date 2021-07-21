@@ -155,16 +155,16 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 new StringResourceModel(Constants.NAME_FIELD_NAME, this),
                 Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
 
-        columns.add(new PropertyColumn<T, String>(
-                new StringResourceModel("jobDelegate", this), "jobDelegate", "jobDelegate") {
+        columns.add(new PropertyColumn<>(
+            new StringResourceModel("jobDelegate", this), "jobDelegate", "jobDelegate") {
 
             private static final long serialVersionUID = -3223917055078733093L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<T>> item,
-                    final String componentId,
-                    final IModel<T> rowModel) {
+                final Item<ICellPopulator<T>> item,
+                final String componentId,
+                final IModel<T> rowModel) {
 
                 IModel<?> model = getDataModel(rowModel);
                 if (model != null && model.getObject() instanceof String) {
@@ -192,23 +192,23 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         columns.add(new BooleanPropertyColumn<>(
                 new StringResourceModel("active", this), "active", "active"));
 
-        columns.add(new AbstractColumn<T, String>(new Model<>(""), "running") {
+        columns.add(new AbstractColumn<>(new Model<>(""), "running") {
 
             private static final long serialVersionUID = -4008579357070833846L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<T>> cellItem,
-                    final String componentId,
-                    final IModel<T> rowModel) {
+                final Item<ICellPopulator<T>> cellItem,
+                final String componentId,
+                final IModel<T> rowModel) {
 
                 Component panel;
                 try {
                     JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
                     panel = new JobActionPanel(componentId, jobTO, false, SchedTaskDirectoryPanel.this);
                     MetaDataRoleAuthorizationStrategy.authorize(
-                            panel, WebPage.ENABLE,
-                            String.format("%s,%s", IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));
+                        panel, WebPage.ENABLE,
+                        String.format("%s,%s", IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));
                 } catch (Exception e) {
                     LOG.error("Could not get job for task {}", rowModel.getObject().getKey(), e);
                     panel = new Label(componentId, Model.of());
@@ -238,7 +238,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         final ActionsPanel<T> panel = super.getActions(model);
         final T taskTO = model.getObject();
 
-        panel.add(new ActionLink<T>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -249,7 +249,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             }
         }, ActionLink.ActionType.VIEW_EXECUTIONS, IdRepoEntitlement.TASK_READ);
 
-        panel.add(new ActionLink<T>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -257,16 +257,16 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             public void onClick(final AjaxRequestTarget target, final T ignore) {
                 SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                TaskRestClient.readTask(taskType, model.getObject().getKey()),
-                                target).setResourceModel(
-                                new StringResourceModel("inner.task.edit",
-                                        SchedTaskDirectoryPanel.this,
-                                        Model.of(Pair.of(ActionLink.ActionType.EDIT, model.getObject())))));
+                    new AjaxWizard.EditItemActionEvent<>(
+                        TaskRestClient.readTask(taskType, model.getObject().getKey()),
+                        target).setResourceModel(
+                        new StringResourceModel("inner.task.edit",
+                            SchedTaskDirectoryPanel.this,
+                            Model.of(Pair.of(ActionLink.ActionType.EDIT, model.getObject())))));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.TASK_UPDATE);
 
-        panel.add(new ActionLink<T>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -276,14 +276,14 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 final T clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(clone, target).setResourceModel(
-                                new StringResourceModel("inner.task.clone",
-                                        SchedTaskDirectoryPanel.this,
-                                        Model.of(Pair.of(ActionLink.ActionType.CLONE, model.getObject())))));
+                    new AjaxWizard.EditItemActionEvent<>(clone, target).setResourceModel(
+                        new StringResourceModel("inner.task.clone",
+                            SchedTaskDirectoryPanel.this,
+                            Model.of(Pair.of(ActionLink.ActionType.CLONE, model.getObject())))));
             }
         }, ActionLink.ActionType.CLONE, IdRepoEntitlement.TASK_CREATE);
 
-        panel.add(new ActionLink<T>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -297,7 +297,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         addFurtherActions(panel, model);
 
-        panel.add(new ActionLink<T>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

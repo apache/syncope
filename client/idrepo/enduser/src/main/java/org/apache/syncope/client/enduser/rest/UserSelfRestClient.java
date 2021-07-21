@@ -40,8 +40,8 @@ public class UserSelfRestClient extends BaseRestClient {
     public ProvisioningResult<UserTO> create(final UserCR createReq) {
         ProvisioningResult<UserTO> result;
         result = getService(UserSelfService.class).create(createReq).readEntity(
-                new GenericType<ProvisioningResult<UserTO>>() {
-        });
+            new GenericType<>() {
+            });
         return result;
     }
 
@@ -49,7 +49,7 @@ public class UserSelfRestClient extends BaseRestClient {
         ProvisioningResult<UserTO> result;
         synchronized (this) {
             result = getService(etag, UserSelfService.class).update(userPatch).
-                    readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                    readEntity(new GenericType<>() {
                     });
             resetClient(UserSelfService.class);
         }

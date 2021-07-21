@@ -51,20 +51,20 @@ public class SelectedEventsPanel extends Panel {
         add(selectionContainer);
 
         ListMultipleChoice<String> selectedEvents =
-                new ListMultipleChoice<String>("selectedEvents", new ListModel<String>(), model) {
+            new ListMultipleChoice<>("selectedEvents", new ListModel<>(), model) {
 
-            private static final long serialVersionUID = 1226677544225737338L;
+                private static final long serialVersionUID = 1226677544225737338L;
 
-            @Override
-            protected void onComponentTag(final ComponentTag tag) {
-                super.onComponentTag(tag);
-                tag.remove("size");
-                tag.remove("multiple");
-                tag.put("size", 5);
-            }
-        };
+                @Override
+                protected void onComponentTag(final ComponentTag tag) {
+                    super.onComponentTag(tag);
+                    tag.remove("size");
+                    tag.remove("multiple");
+                    tag.put("size", 5);
+                }
+            };
         selectedEvents.setMaxRows(5);
-        selectedEvents.setChoiceRenderer(new IChoiceRenderer<String>() {
+        selectedEvents.setChoiceRenderer(new IChoiceRenderer<>() {
 
             private static final long serialVersionUID = -4288397951948436434L;
 

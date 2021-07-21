@@ -32,6 +32,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.wicket.Component;
@@ -73,7 +74,7 @@ public class LinkedAccountDetailsPanel extends WizardStep {
                 filter(resource -> resource.getProvision(AnyTypeKind.USER.name()).isPresent()
                 && resource.getProvision(AnyTypeKind.USER.name()).get().getMapping() != null
                 && !resource.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems().isEmpty()).
-                map(resource -> resource.getKey()).
+                map(ResourceTO::getKey).
                 collect(Collectors.toList()));
         dropdownResourceField.setOutputMarkupId(true);
         dropdownResourceField.addRequiredLabel();

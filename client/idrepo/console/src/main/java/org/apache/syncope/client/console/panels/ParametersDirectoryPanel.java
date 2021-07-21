@@ -63,7 +63,7 @@ public class ParametersDirectoryPanel
     private ConfParamOps confParamOps;
 
     public ParametersDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, new Builder<ConfParam, ConfParam, SyncopeRestClient>(new SyncopeRestClient(), pageRef) {
+        super(id, new Builder<>(new SyncopeRestClient(), pageRef) {
 
             private static final long serialVersionUID = 8769126634538601689L;
 
@@ -112,19 +112,19 @@ public class ParametersDirectoryPanel
     protected List<IColumn<ConfParam, String>> getColumns() {
         final List<IColumn<ConfParam, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<>(new ResourceModel("schema"), "schema"));
-        columns.add(new PropertyColumn<ConfParam, String>(new ResourceModel("values"), "values") {
+        columns.add(new PropertyColumn<>(new ResourceModel("values"), "values") {
 
             private static final long serialVersionUID = -1822504503325964706L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<ConfParam>> item,
-                    final String componentId,
-                    final IModel<ConfParam> rowModel) {
+                final Item<ICellPopulator<ConfParam>> item,
+                final String componentId,
+                final IModel<ConfParam> rowModel) {
 
                 if (rowModel.getObject().getValues().toString().length() > 96) {
                     item.add(new Label(componentId, getString("tooLong")).
-                            add(new AttributeModifier("style", "font-style:italic")));
+                        add(new AttributeModifier("style", "font-style:italic")));
                 } else {
                     super.populateItem(item, componentId, rowModel);
                 }
@@ -137,7 +137,7 @@ public class ParametersDirectoryPanel
     public ActionsPanel<ConfParam> getActions(final IModel<ConfParam> model) {
         final ActionsPanel<ConfParam> panel = super.getActions(model);
 
-        panel.add(new ActionLink<ConfParam>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -146,12 +146,12 @@ public class ParametersDirectoryPanel
                 target.add(modal);
                 modal.header(new StringResourceModel("any.edit"));
                 modal.setContent(new ParametersModalPanel(
-                        modal, model.getObject(), confParamOps, AjaxWizard.Mode.EDIT, pageRef));
+                    modal, model.getObject(), confParamOps, AjaxWizard.Mode.EDIT, pageRef));
                 modal.show(true);
             }
         }, ActionLink.ActionType.EDIT, null);
 
-        panel.add(new ActionLink<ConfParam>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

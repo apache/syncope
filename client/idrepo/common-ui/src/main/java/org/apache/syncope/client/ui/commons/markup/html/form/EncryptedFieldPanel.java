@@ -37,13 +37,13 @@ public class EncryptedFieldPanel extends FieldPanel<String> implements Cloneable
             final String id, final String name, final IModel<String> model, final boolean enableOnChange) {
         super(id, name, model);
 
-        field = new TextField<String>("encryptedField", model) {
+        field = new TextField<>("encryptedField", model) {
 
             private static final long serialVersionUID = 7545877620091912863L;
 
             @Override
             protected String[] getInputTypes() {
-                return new String[] { "password" };
+                return new String[]{"password"};
             }
         };
 

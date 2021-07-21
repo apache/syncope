@@ -115,7 +115,7 @@ public abstract class ExecutionsDirectoryPanel
         final ActionsPanel<ExecTO> panel = super.getActions(model);
         final ExecTO taskExecutionTO = model.getObject();
 
-        panel.add(new ActionLink<ExecTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -123,10 +123,10 @@ public abstract class ExecutionsDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                 ExecutionsDirectoryPanel.this.getTogglePanel().close(target);
                 next(new StringResourceModel("execution.view", ExecutionsDirectoryPanel.this, model).
-                        getObject(), new ExecMessage(model.getObject().getMessage()), target);
+                    getObject(), new ExecMessage(model.getObject().getMessage()), target);
             }
         }, ActionLink.ActionType.VIEW, IdRepoEntitlement.TASK_READ);
-        panel.add(new ActionLink<ExecTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -198,7 +198,7 @@ public abstract class ExecutionsDirectoryPanel
         @Override
         public IModel<ExecTO> model(final ExecTO taskExecution) {
 
-            return new IModel<ExecTO>() {
+            return new IModel<>() {
 
                 private static final long serialVersionUID = 7485475149862342421L;
 

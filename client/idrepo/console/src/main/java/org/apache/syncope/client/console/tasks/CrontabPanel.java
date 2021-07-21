@@ -69,7 +69,7 @@ public class CrontabPanel extends Panel {
         cronTemplateChooser.setNullValid(false);
         cronTemplateChooser.setPlaceholder("chooseForTemplate");
 
-        cronTemplateChooser.getField().setModel(new IModel<SelectOption>() {
+        cronTemplateChooser.getField().setModel(new IModel<>() {
 
             private static final long serialVersionUID = 6762568283146531315L;
 
@@ -88,8 +88,8 @@ public class CrontabPanel extends Panel {
             @Override
             public void setObject(final SelectOption object) {
                 cronExpressionModel.setObject(object == null || object.equals(cronTemplates[0])
-                        ? null
-                        : object.toString());
+                    ? null
+                    : object.toString());
             }
 
             @Override

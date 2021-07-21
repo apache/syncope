@@ -93,7 +93,7 @@ public class UserRequestFormsWidget extends ExtAlertWidget<UserRequestForm> {
 
     @Override
     protected IModel<List<UserRequestForm>> getLatestAlerts() {
-        return new ListModel<UserRequestForm>() {
+        return new ListModel<>() {
 
             private static final long serialVersionUID = -2583290457773357445L;
 
@@ -102,7 +102,7 @@ public class UserRequestFormsWidget extends ExtAlertWidget<UserRequestForm> {
                 List<UserRequestForm> updatedForms;
                 if (SyncopeConsoleSession.get().owns(FlowableEntitlement.USER_REQUEST_FORM_LIST)) {
                     updatedForms = UserRequestRestClient.listForms(
-                            null, 1, MAX_SIZE, new SortParam<>("createTime", true));
+                        null, 1, MAX_SIZE, new SortParam<>("createTime", true));
                 } else {
                     updatedForms = Collections.emptyList();
                 }

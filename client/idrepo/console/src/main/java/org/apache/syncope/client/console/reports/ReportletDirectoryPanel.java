@@ -102,16 +102,16 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("reportlet", this), "implementationKey", "implementationKey"));
 
-        columns.add(new AbstractColumn<ReportletWrapper, String>(
-                new StringResourceModel("configuration", this)) {
+        columns.add(new AbstractColumn<>(
+            new StringResourceModel("configuration", this)) {
 
             private static final long serialVersionUID = -4008579357070833846L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<ReportletWrapper>> cellItem,
-                    final String componentId,
-                    final IModel<ReportletWrapper> rowModel) {
+                final Item<ICellPopulator<ReportletWrapper>> cellItem,
+                final String componentId,
+                final IModel<ReportletWrapper> rowModel) {
 
                 if (rowModel.getObject().getConf() == null) {
                     cellItem.add(new Label(componentId, ""));
@@ -128,7 +128,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
     public ActionsPanel<ReportletWrapper> getActions(final IModel<ReportletWrapper> model) {
         final ActionsPanel<ReportletWrapper> panel = super.getActions(model);
 
-        panel.add(new ActionLink<ReportletWrapper>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -139,11 +139,11 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                     SyncopeConsoleSession.get().info(getString("noConf"));
                 } else {
                     send(ReportletDirectoryPanel.this, Broadcast.EXACT,
-                            new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                 }
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REPORT_UPDATE);
-        panel.add(new ActionLink<ReportletWrapper>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -172,7 +172,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
     public ActionsPanel<Serializable> getHeader(final String componentId) {
         final ActionsPanel<Serializable> panel = new ActionsPanel<>(componentId, null);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 

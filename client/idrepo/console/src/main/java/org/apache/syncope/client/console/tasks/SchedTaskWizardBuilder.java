@@ -197,7 +197,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
             final AjaxSearchFieldPanel destinationRealm =
                     new AjaxSearchFieldPanel("destinationRealm", "destinationRealm",
-                            new PropertyModel<String>(taskTO, "destinationRealm"), settings) {
+                        new PropertyModel<>(taskTO, "destinationRealm"), settings) {
 
                 private static final long serialVersionUID = -6390474600233486704L;
 
@@ -233,7 +233,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             }
 
             final AjaxSearchFieldPanel sourceRealm = new AjaxSearchFieldPanel("sourceRealm", "sourceRealm",
-                    new PropertyModel<String>(taskTO, "sourceRealm"), settings) {
+                new PropertyModel<>(taskTO, "sourceRealm"), settings) {
 
                 private static final long serialVersionUID = -6390474600233486704L;
 
@@ -265,7 +265,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
                     setAllowMoveAll(true).setAllowOrder(true).
                     build("actions",
-                            new PropertyModel<List<String>>(taskTO, "actions"),
+                        new PropertyModel<>(taskTO, "actions"),
                             new ListModel<>(taskTO instanceof PushTaskTO
                                     ? pushActions.getObject() : pullActions.getObject()));
             actions.setOutputMarkupId(true);

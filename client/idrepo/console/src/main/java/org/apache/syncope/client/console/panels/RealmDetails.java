@@ -50,18 +50,18 @@ public class RealmDetails extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RealmDetails.class);
 
-    private final IModel<List<String>> logicActions = new LoadableDetachableModel<List<String>>() {
+    private final IModel<List<String>> logicActions = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdRepoImplementationType.LOGIC_ACTIONS).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
-    private final LoadableDetachableModel<List<String>> resources = new LoadableDetachableModel<List<String>>() {
+    private final LoadableDetachableModel<List<String>> resources = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 

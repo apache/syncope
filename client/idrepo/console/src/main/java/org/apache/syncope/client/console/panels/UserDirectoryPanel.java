@@ -101,14 +101,14 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
     public ActionsPanel<Serializable> getHeader(final String componentId) {
         final ActionsPanel<Serializable> panel = super.getHeader(componentId);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 target.add(displayAttributeModal.setContent(new UserDisplayAttributesModalPanel<>(
-                        displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames)));
+                    displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames)));
 
                 displayAttributeModal.header(new ResourceModel("any.attr.display"));
                 displayAttributeModal.addSubmitButton();
@@ -127,22 +127,22 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
     public ActionsPanel<UserTO> getActions(final IModel<UserTO> model) {
         final ActionsPanel<UserTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<UserTO>() {
+        panel.add(new ActionLink<>() {
 
-            private static final long serialVersionUID = -7978723352517770644L;
+                      private static final long serialVersionUID = -7978723352517770644L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                send(UserDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                new UserWrapper(new UserRestClient().read(model.getObject().getKey())),
-                                target));
-            }
-        }, ActionType.EDIT,
+                      @Override
+                      public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                          send(UserDirectoryPanel.this, Broadcast.EXACT,
+                              new AjaxWizard.EditItemActionEvent<>(
+                                  new UserWrapper(new UserRestClient().read(model.getObject().getKey())),
+                                  target));
+                      }
+                  }, ActionType.EDIT,
                 String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE)).
                 setRealms(realm, model.getObject().getDynRealms());
 
-        panel.add(new ActionLink<UserTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -151,9 +151,9 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 try {
                     model.setObject(restClient.read(model.getObject().getKey()));
                     restClient.mustChangePassword(
-                            model.getObject().getETagValue(),
-                            !model.getObject().isMustChangePassword(),
-                            model.getObject().getKey());
+                        model.getObject().getETagValue(),
+                        !model.getObject().isMustChangePassword(),
+                        model.getObject().getKey());
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
@@ -167,7 +167,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 setRealms(realm, model.getObject().getDynRealms());
 
         if (wizardInModal) {
-            panel.add(new ActionLink<UserTO>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -4875218360625971340L;
 
@@ -175,16 +175,16 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                     model.setObject(restClient.read(model.getObject().getKey()));
                     IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                            new AnyWrapper<>(model.getObject()));
+                        new AnyWrapper<>(model.getObject()));
                     displayAttributeModal.setFormModel(formModel);
 
                     target.add(displayAttributeModal.setContent(new ChangePasswordModal(
-                            displayAttributeModal,
-                            pageRef,
-                            new UserWrapper(model.getObject()))));
+                        displayAttributeModal,
+                        pageRef,
+                        new UserWrapper(model.getObject()))));
 
                     displayAttributeModal.header(new Model<>(
-                            getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
+                        getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
 
                     displayAttributeModal.show(true);
                 }
@@ -193,7 +193,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
             PlatformInfo platformInfo = SyncopeConsoleSession.get().getAnonymousClient().platform();
             if (platformInfo.isPwdResetAllowed() && !platformInfo.isPwdResetRequiringSecurityQuestions()) {
-                panel.add(new ActionLink<UserTO>() {
+                panel.add(new ActionLink<>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -201,7 +201,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                         try {
                             SyncopeConsoleSession.get().getAnonymousClient().getService(UserSelfService.class).
-                                    requestPasswordReset(model.getObject().getUsername(), null);
+                                requestPasswordReset(model.getObject().getUsername(), null);
 
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
@@ -223,28 +223,28 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     this,
                     pageRef).forEach(panel::add);
 
-            panel.add(new ActionLink<UserTO>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                     target.add(utilityModal.setContent(new AnyPropagationTasks(
-                            utilityModal, AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
+                        utilityModal, AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
 
                     utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
                     utilityModal.show(true);
                 }
             }, ActionType.PROPAGATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
-            panel.add(new ActionLink<UserTO>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                     target.add(utilityModal.setContent(
-                            new NotificationTasks(AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
+                        new NotificationTasks(AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
                     utilityModal.header(new StringResourceModel("any.notification.tasks", model));
                     utilityModal.show(true);
                     target.add(utilityModal);
@@ -253,64 +253,64 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
         }
 
         if (wizardInModal) {
-            panel.add(new ActionLink<UserTO>() {
+            panel.add(new ActionLink<>() {
 
-                private static final long serialVersionUID = -1978723352517770644L;
+                          private static final long serialVersionUID = -1978723352517770644L;
 
-                @Override
-                public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                    model.setObject(restClient.read(model.getObject().getKey()));
-                    target.add(altDefaultModal.setContent(new AuditHistoryModal<UserTO>(
-                            altDefaultModal,
-                            AuditElements.EventCategoryType.LOGIC,
-                            "UserLogic",
-                            model.getObject(),
-                            IdRepoEntitlement.USER_UPDATE,
-                            pageRef) {
+                          @Override
+                          public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                              model.setObject(restClient.read(model.getObject().getKey()));
+                              target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
+                                  altDefaultModal,
+                                  AuditElements.EventCategoryType.LOGIC,
+                                  "UserLogic",
+                                  model.getObject(),
+                                  IdRepoEntitlement.USER_UPDATE,
+                                  pageRef) {
 
-                        private static final long serialVersionUID = 959378158400669867L;
+                                  private static final long serialVersionUID = 959378158400669867L;
 
-                        @Override
-                        protected void restore(final String json, final AjaxRequestTarget target) {
-                            // The original audit record masks the password and the security
-                            // answer; so we cannot use the audit record to resurrect the entry
-                            // based on mask data.
-                            //
-                            // The method behavior below will reset the audit record such
-                            // that the current security answer and the password for the object
-                            // are always maintained, and such properties for the
-                            // user cannot be restored using audit records.
-                            UserTO original = model.getObject();
-                            try {
-                                UserTO updated = MAPPER.readValue(json, UserTO.class);
-                                UserUR updateReq = AnyOperations.diff(updated, original, false);
-                                updateReq.setPassword(null);
-                                updateReq.setSecurityAnswer(null);
-                                ProvisioningResult<UserTO> result =
-                                        restClient.update(original.getETagValue(), updateReq);
-                                model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
+                                  @Override
+                                  protected void restore(final String json, final AjaxRequestTarget target) {
+                                      // The original audit record masks the password and the security
+                                      // answer; so we cannot use the audit record to resurrect the entry
+                                      // based on mask data.
+                                      //
+                                      // The method behavior below will reset the audit record such
+                                      // that the current security answer and the password for the object
+                                      // are always maintained, and such properties for the
+                                      // user cannot be restored using audit records.
+                                      UserTO original = model.getObject();
+                                      try {
+                                          UserTO updated = MAPPER.readValue(json, UserTO.class);
+                                          UserUR updateReq = AnyOperations.diff(updated, original, false);
+                                          updateReq.setPassword(null);
+                                          updateReq.setSecurityAnswer(null);
+                                          ProvisioningResult<UserTO> result =
+                                              restClient.update(original.getETagValue(), updateReq);
+                                          model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
 
-                                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                                target.add(container);
-                            } catch (Exception e) {
-                                LOG.error("While restoring user {}", model.getObject().getKey(), e);
-                                SyncopeConsoleSession.get().onException(e);
-                            }
-                            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                        }
-                    }));
+                                          SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                                          target.add(container);
+                                      } catch (Exception e) {
+                                          LOG.error("While restoring user {}", model.getObject().getKey(), e);
+                                          SyncopeConsoleSession.get().onException(e);
+                                      }
+                                      ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                                  }
+                              }));
 
-                    altDefaultModal.header(new Model<>(
-                            getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
+                              altDefaultModal.header(new Model<>(
+                                  getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
 
-                    altDefaultModal.show(true);
-                }
-            }, ActionType.VIEW_AUDIT_HISTORY,
+                              altDefaultModal.show(true);
+                          }
+                      }, ActionType.VIEW_AUDIT_HISTORY,
                     String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.AUDIT_LIST)).
                     setRealms(realm, model.getObject().getDynRealms());
         }
 
-        panel.add(new ActionLink<UserTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -320,7 +320,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 clone.setKey(null);
                 clone.setUsername(model.getObject().getUsername() + "_clone");
                 send(UserDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.NewItemActionEvent<>(new UserWrapper(clone), target));
+                    new AjaxWizard.NewItemActionEvent<>(new UserWrapper(clone), target));
             }
 
             @Override
@@ -329,7 +329,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             }
         }, ActionType.CLONE, IdRepoEntitlement.USER_CREATE).setRealm(realm);
 
-        panel.add(new ActionLink<UserTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 

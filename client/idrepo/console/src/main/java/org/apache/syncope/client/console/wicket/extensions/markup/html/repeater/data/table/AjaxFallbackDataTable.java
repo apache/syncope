@@ -64,14 +64,14 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
 
         togglePanel = getTogglePanel();
 
-        addTopToolbar(new AjaxFallbackHeadersToolbar<S>(this, dataProvider) {
+        addTopToolbar(new AjaxFallbackHeadersToolbar<>(this, dataProvider) {
 
             private static final long serialVersionUID = 7406306172424359609L;
 
             @Override
             protected WebMarkupContainer newSortableHeader(
-                    final String borderId, final S property, final ISortStateLocator<S> locator) {
-                return new AjaxFallbackOrderByBorder<S>(borderId, property, locator) {
+                final String borderId, final S property, final ISortStateLocator<S> locator) {
+                return new AjaxFallbackOrderByBorder<>(borderId, property, locator) {
 
                     private static final long serialVersionUID = 8261993963983329775L;
 
@@ -85,14 +85,14 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
             }
         });
 
-        addBottomToolbar(new AjaxFallbackHeadersToolbar<S>(this, dataProvider) {
+        addBottomToolbar(new AjaxFallbackHeadersToolbar<>(this, dataProvider) {
 
             private static final long serialVersionUID = 7406306172424359609L;
 
             @Override
             protected WebMarkupContainer newSortableHeader(
-                    final String borderId, final S property, final ISortStateLocator<S> locator) {
-                return new AjaxFallbackOrderByBorder<S>(borderId, property, locator) {
+                final String borderId, final S property, final ISortStateLocator<S> locator) {
+                return new AjaxFallbackOrderByBorder<>(borderId, property, locator) {
 
                     private static final long serialVersionUID = 985887006636879421L;
 

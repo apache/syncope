@@ -129,8 +129,8 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
     }
 
     protected Palette<T> buildPalette(final IModel<List<T>> model, final Builder<T> builder) {
-        return new NonI18nPalette<T>(
-                "paletteField", model, choicesModel, builder.renderer, 8, builder.allowOrder, builder.allowMoveAll) {
+        return new NonI18nPalette<>(
+            "paletteField", model, choicesModel, builder.renderer, 8, builder.allowOrder, builder.allowMoveAll) {
 
             private static final long serialVersionUID = -3074655279011678437L;
 
@@ -146,7 +146,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
             @Override
             protected Recorder<T> newRecorderComponent() {
-                Recorder<T> recorder = new Recorder<T>("recorder", this) {
+                Recorder<T> recorder = new Recorder<>("recorder", this) {
 
                     private static final long serialVersionUID = -9169109967480083523L;
 
@@ -173,7 +173,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
                         // reduce number of method calls by building a lookup table
                         Map<T, String> idForChoice = choices.stream().collect(Collectors.toMap(
-                                Function.identity(), choice -> renderer.getIdValue(choice, 0), (c1, c2) -> c1));
+                            Function.identity(), choice -> renderer.getIdValue(choice, 0), (c1, c2) -> c1));
 
                         List<T> selected = new ArrayList<>(choices.size());
                         builder.idExtractor.apply(getValue()).forEach(id -> {
@@ -205,8 +205,8 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             @Override
             protected Map<String, String> getAdditionalAttributes(final Object choice) {
                 return builder.additionalAttributes == null
-                        ? super.getAdditionalAttributes(choice)
-                        : builder.additionalAttributes.apply(choice);
+                    ? super.getAdditionalAttributes(choice)
+                    : builder.additionalAttributes.apply(choice);
             }
         };
     }

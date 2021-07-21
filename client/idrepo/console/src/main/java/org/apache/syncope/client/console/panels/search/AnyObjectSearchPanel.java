@@ -29,6 +29,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -68,7 +69,7 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
     protected void populate() {
         super.populate();
 
-        this.types = new LoadableDetachableModel<List<SearchClause.Type>>() {
+        this.types = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -78,31 +79,31 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
             }
         };
 
-        this.groupNames = new LoadableDetachableModel<List<String>>() {
+        this.groupNames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
                 return groupRestClient.search(
-                        SyncopeConstants.ROOT_REALM,
-                        null,
-                        1,
-                        Constants.MAX_GROUP_LIST_SIZE,
-                        new SortParam<>(Constants.NAME_FIELD_NAME, true),
-                        null).stream().map(GroupTO::getName).collect(Collectors.toList());
+                    SyncopeConstants.ROOT_REALM,
+                    null,
+                    1,
+                    Constants.MAX_GROUP_LIST_SIZE,
+                    new SortParam<>(Constants.NAME_FIELD_NAME, true),
+                    null).stream().map(GroupTO::getName).collect(Collectors.toList());
             }
         };
 
-        this.anames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
+        this.anames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected Map<String, PlainSchemaTO> load() {
                 return SchemaRestClient.<PlainSchemaTO>getSchemas(
-                        SchemaType.PLAIN, null, AnyTypeRestClient.read(type).getClasses().toArray(new String[] {})).
-                        stream().collect(Collectors.toMap(schema -> schema.getKey(), Function.identity()));
+                    SchemaType.PLAIN, null, AnyTypeRestClient.read(type).getClasses().toArray(new String[]{})).
+                    stream().collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
             }
         };
     }

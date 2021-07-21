@@ -60,7 +60,7 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
         batchForm = new Form<>("groupForm");
         add(batchForm);
 
-        group = new ActionTableCheckGroup<T>("checkgroup", model) {
+        group = new ActionTableCheckGroup<>("checkgroup", model) {
 
             private static final long serialVersionUID = -8667764190925075389L;
 

@@ -53,20 +53,20 @@ public abstract class AbstractResources extends WizardStep implements ICondition
         this.available = new ListModel<>(List.of());
 
         add(new AjaxPalettePanel.Builder<String>().build("resources",
-                new PropertyModel<List<String>>(entityTO, "resources") {
+            new PropertyModel<>(entityTO, "resources") {
 
-            private static final long serialVersionUID = 3799387950428254072L;
+                private static final long serialVersionUID = 3799387950428254072L;
 
-            @Override
-            public List<String> getObject() {
-                return new ArrayList<>(entityTO.getResources());
-            }
+                @Override
+                public List<String> getObject() {
+                    return new ArrayList<>(entityTO.getResources());
+                }
 
-            @Override
-            public void setObject(final List<String> object) {
-                entityTO.getResources().clear();
-                entityTO.getResources().addAll(object);
-            }
-        }, available).hideLabel().setOutputMarkupId(true));
+                @Override
+                public void setObject(final List<String> object) {
+                    entityTO.getResources().clear();
+                    entityTO.getResources().addAll(object);
+                }
+            }, available).hideLabel().setOutputMarkupId(true));
     }
 }

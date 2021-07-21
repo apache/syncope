@@ -45,25 +45,25 @@ public class ResourceDetailsPanel extends WizardStep {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private final IModel<List<String>> propagationActions = new LoadableDetachableModel<List<String>>() {
+    private final IModel<List<String>> propagationActions = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
-    private final IModel<List<String>> provisionSorters = new LoadableDetachableModel<List<String>>() {
+    private final IModel<List<String>> provisionSorters = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 4659376149825914247L;
 
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdMImplementationType.PROVISION_SORTER).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 

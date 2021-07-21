@@ -338,7 +338,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
                         user.getLinkedAccounts().stream().
                                 filter(account -> account.getPassword() != null).
-                                forEach(account -> rule.enforce(account));
+                                forEach(rule::enforce);
                     });
                 }
 
@@ -416,7 +416,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
                         user.getLinkedAccounts().stream().
                                 filter(account -> account.getUsername() != null).
-                                forEach(account -> rule.enforce(account));
+                                forEach(rule::enforce);
                     });
                 }
 

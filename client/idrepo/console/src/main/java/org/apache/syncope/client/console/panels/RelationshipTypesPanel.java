@@ -134,8 +134,8 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
                     columns.add(new BooleanPropertyColumn<>(
                             new ResourceModel(field.getName()), field.getName(), field.getName()));
                 } else {
-                    columns.add(new PropertyColumn<RelationshipTypeTO, String>(
-                            new ResourceModel(field.getName()), field.getName(), field.getName()) {
+                    columns.add(new PropertyColumn<>(
+                        new ResourceModel(field.getName()), field.getName(), field.getName()) {
 
                         private static final long serialVersionUID = -6902459669035442212L;
 
@@ -144,8 +144,8 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
                             String css = super.getCssClass();
                             if (Constants.KEY_FIELD_NAME.equals(fieldName)) {
                                 css = StringUtils.isBlank(css)
-                                        ? "col-xs-1"
-                                        : css + " col-xs-1";
+                                    ? "col-xs-1"
+                                    : css + " col-xs-1";
                             }
                             return css;
                         }
@@ -161,17 +161,17 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
     public ActionsPanel<RelationshipTypeTO> getActions(final IModel<RelationshipTypeTO> model) {
         final ActionsPanel<RelationshipTypeTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<RelationshipTypeTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
                 send(RelationshipTypesPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.RELATIONSHIPTYPE_UPDATE);
-        panel.add(new ActionLink<RelationshipTypeTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

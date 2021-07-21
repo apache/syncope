@@ -53,7 +53,7 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
 
         setOutputMarkupId(true);
 
-        final LoadableDetachableModel<Integer> size = new LoadableDetachableModel<Integer>() {
+        final LoadableDetachableModel<Integer> size = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 7474274077691068779L;
 

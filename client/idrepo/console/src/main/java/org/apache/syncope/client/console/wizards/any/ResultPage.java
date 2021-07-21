@@ -45,7 +45,7 @@ public abstract class ResultPage<T extends Serializable> extends Panel implement
         add(customResultBody("customResultBody", item, result));
 
         ActionsPanel<T> panel = new ActionsPanel<>(Constants.ACTION, null);
-        panel.add(new ActionLink<T>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 3257738274365467945L;
 

@@ -82,8 +82,8 @@ public class UserRequestRestClient extends BaseRestClient {
 
     public static ProvisioningResult<UserTO> submitForm(final UserRequestForm form) {
         return getService(UserRequestService.class).submitForm(form).readEntity(
-                new GenericType<ProvisioningResult<UserTO>>() {
-        });
+            new GenericType<>() {
+            });
     }
 
     public static void startRequest(final String bpmnProcess, final String user) {

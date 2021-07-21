@@ -31,7 +31,7 @@ public class SCIMConfAccordionContainer extends Panel {
     SCIMConfAccordionContainer(final String id, final List<AjaxTextFieldPanel> fieldPanels) {
         super(id);
 
-        add(new ListView<AjaxTextFieldPanel>("accordionContainer", fieldPanels) {
+        add(new ListView<>("accordionContainer", fieldPanels) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 

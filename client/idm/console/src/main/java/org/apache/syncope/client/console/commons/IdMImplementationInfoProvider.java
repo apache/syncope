@@ -131,42 +131,42 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
 
     @Override
     public IModel<List<String>> getReconFilterBuilders() {
-        return new LoadableDetachableModel<List<String>>() {
+        return new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdMImplementationType.RECON_FILTER_BUILDER).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
     }
 
     @Override
     public IModel<List<String>> getPullActions() {
-        return new LoadableDetachableModel<List<String>>() {
+        return new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
     }
 
     @Override
     public IModel<List<String>> getPushActions() {
-        return new LoadableDetachableModel<List<String>>() {
+        return new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
     }

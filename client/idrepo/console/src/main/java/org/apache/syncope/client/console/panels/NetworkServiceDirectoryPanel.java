@@ -121,7 +121,7 @@ public class NetworkServiceDirectoryPanel extends DirectoryPanel<
 
         @Override
         public IModel<NetworkService> model(final NetworkService service) {
-            return new IModel<NetworkService>() {
+            return new IModel<>() {
 
                 private static final long serialVersionUID = 999513782683391483L;
 

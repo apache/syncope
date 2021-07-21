@@ -42,7 +42,7 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
         SCIMGeneralConf scimGeneralConf = scimConf.getGeneralConf();
 
         AjaxDateTimeFieldPanel creationDatePanel =
-                new AjaxDateTimeFieldPanel("creationDate", "creationDate", new Model<Date>() {
+                new AjaxDateTimeFieldPanel("creationDate", "creationDate", new Model<>() {
 
                     private static final long serialVersionUID = 7075312408615929880L;
 
@@ -59,7 +59,7 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
         creationDatePanel.setEnabled(false);
 
         AjaxDateTimeFieldPanel lastChangeDatePanel =
-                new AjaxDateTimeFieldPanel("lastChangeDate", "lastChangeDate", new Model<Date>() {
+                new AjaxDateTimeFieldPanel("lastChangeDate", "lastChangeDate", new Model<>() {
 
                     private static final long serialVersionUID = 7075312408615929880L;
 
@@ -77,85 +77,85 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
 
         AjaxTextFieldPanel bulkMaxOperationsPanel =
                 new AjaxTextFieldPanel("bulkMaxOperations", "bulkMaxOperations",
-                        new PropertyModel<String>("bulkMaxOperations", "bulkMaxOperations") {
+                    new PropertyModel<>("bulkMaxOperations", "bulkMaxOperations") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+                        private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return String.valueOf(scimGeneralConf.getBulkMaxOperations());
-                    }
-
-                    @Override
-                    public void setObject(final String object) {
-                        try {
-                            scimGeneralConf.setBulkMaxOperations(Integer.parseInt(object));
-                        } catch (NumberFormatException e) {
-                            LOG.error("Invalid value provided for 'bulkMaxOperations': {}", object, e);
+                        @Override
+                        public String getObject() {
+                            return String.valueOf(scimGeneralConf.getBulkMaxOperations());
                         }
-                    }
-                });
+
+                        @Override
+                        public void setObject(final String object) {
+                            try {
+                                scimGeneralConf.setBulkMaxOperations(Integer.parseInt(object));
+                            } catch (NumberFormatException e) {
+                                LOG.error("Invalid value provided for 'bulkMaxOperations': {}", object, e);
+                            }
+                        }
+                    });
         bulkMaxOperationsPanel.setChoices(plainSchemaNames);
 
         AjaxTextFieldPanel bulkMaxMaxPayloadSizePanel =
                 new AjaxTextFieldPanel("bulkMaxMaxPayloadSize", "bulkMaxMaxPayloadSize",
-                        new PropertyModel<String>("bulkMaxMaxPayloadSize", "bulkMaxMaxPayloadSize") {
+                    new PropertyModel<>("bulkMaxMaxPayloadSize", "bulkMaxMaxPayloadSize") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+                        private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return String.valueOf(scimGeneralConf.getBulkMaxPayloadSize());
-                    }
-
-                    @Override
-                    public void setObject(final String object) {
-                        try {
-                            scimGeneralConf.setBulkMaxPayloadSize(Integer.parseInt(object));
-                        } catch (NumberFormatException e) {
-                            LOG.error("Invalid value provided for 'bulkMaxPayloadSize': {}", object, e);
+                        @Override
+                        public String getObject() {
+                            return String.valueOf(scimGeneralConf.getBulkMaxPayloadSize());
                         }
-                    }
-                });
+
+                        @Override
+                        public void setObject(final String object) {
+                            try {
+                                scimGeneralConf.setBulkMaxPayloadSize(Integer.parseInt(object));
+                            } catch (NumberFormatException e) {
+                                LOG.error("Invalid value provided for 'bulkMaxPayloadSize': {}", object, e);
+                            }
+                        }
+                    });
         bulkMaxMaxPayloadSizePanel.setChoices(plainSchemaNames);
 
         AjaxTextFieldPanel filterMaxResultsPanel =
                 new AjaxTextFieldPanel("filterMaxResults", "filterMaxResults",
-                        new PropertyModel<String>("filterMaxResults", "filterMaxResults") {
+                    new PropertyModel<>("filterMaxResults", "filterMaxResults") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+                        private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return String.valueOf(scimGeneralConf.getFilterMaxResults());
-                    }
-
-                    @Override
-                    public void setObject(final String object) {
-                        try {
-                            scimGeneralConf.setFilterMaxResults(Integer.parseInt(object));
-                        } catch (NumberFormatException e) {
-                            LOG.error("Invalid value provided for 'filterMaxResults': {}", object, e);
+                        @Override
+                        public String getObject() {
+                            return String.valueOf(scimGeneralConf.getFilterMaxResults());
                         }
-                    }
-                });
+
+                        @Override
+                        public void setObject(final String object) {
+                            try {
+                                scimGeneralConf.setFilterMaxResults(Integer.parseInt(object));
+                            } catch (NumberFormatException e) {
+                                LOG.error("Invalid value provided for 'filterMaxResults': {}", object, e);
+                            }
+                        }
+                    });
         filterMaxResultsPanel.setChoices(plainSchemaNames);
 
         AjaxTextFieldPanel eTagValuePanel = new AjaxTextFieldPanel("eTagValue", "eTagValue",
-                new PropertyModel<String>("eTagValue", "eTagValue") {
+            new PropertyModel<>("eTagValue", "eTagValue") {
 
-            private static final long serialVersionUID = -6427731218492117883L;
+                private static final long serialVersionUID = -6427731218492117883L;
 
-            @Override
-            public String getObject() {
-                return scimGeneralConf.getETagValue();
-            }
+                @Override
+                public String getObject() {
+                    return scimGeneralConf.getETagValue();
+                }
 
-            @Override
-            public void setObject(final String object) {
-                // nothing to do
-            }
-        });
+                @Override
+                public void setObject(final String object) {
+                    // nothing to do
+                }
+            });
         eTagValuePanel.setEnabled(false);
 
         add(creationDatePanel);

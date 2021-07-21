@@ -50,7 +50,7 @@ public class AuthPolicyDirectoryPanel extends PolicyDirectoryPanel<AuthPolicyTO>
     @Override
     protected void addCustomActions(final ActionsPanel<AuthPolicyTO> panel, final IModel<AuthPolicyTO> model) {
 
-        panel.add(new ActionLink<AuthPolicyTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -61,7 +61,7 @@ public class AuthPolicyDirectoryPanel extends PolicyDirectoryPanel<AuthPolicyTO>
                     model.getObject().setConf(new DefaultAuthPolicyConf());
                 }
                 target.add(policySpecModal.setContent(
-                        new AuthPolicyModalPanel(policySpecModal, model, pageRef)));
+                    new AuthPolicyModalPanel(policySpecModal, model, pageRef)));
                 policySpecModal.header(new Model<>(getString("authPolicyConf.title", model)));
                 policySpecModal.show(true);
             }

@@ -55,7 +55,7 @@ public class JEXLTransformerWidget extends AlertWidget<String> {
 
     @Override
     protected IModel<List<String>> getLatestAlerts() {
-        return new ListModel<String>() {
+        return new ListModel<>() {
 
             private static final long serialVersionUID = -2583290457773357445L;
 
