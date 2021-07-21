@@ -29,12 +29,6 @@ jobs:
   fit_WA_SAML2SP4UI_OIDCC4UI:
     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ['java']
-        java: [ '11' ]
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
