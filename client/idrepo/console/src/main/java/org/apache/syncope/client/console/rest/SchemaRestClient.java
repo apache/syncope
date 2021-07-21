@@ -110,9 +110,8 @@ public class SchemaRestClient extends BaseRestClient {
         return getSchemaNames(SchemaType.VIRTUAL);
     }
 
-    public static PlainSchemaTO read(final SchemaType schemaType, final String key) {
+    public static <T extends SchemaTO> T read(final SchemaType schemaType, final String key) {
         return getService(SchemaService.class).read(schemaType, key);
-
     }
 
     public static void create(final SchemaType schemaType, final SchemaTO modelObject) {
