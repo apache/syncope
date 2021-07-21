@@ -86,7 +86,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
 
     private final List<Component> outerObjects = new ArrayList<>();
 
-    protected final BaseModal<T> modal = new BaseModal<T>(Constants.OUTER) {
+    protected final BaseModal<T> modal = new BaseModal<>(Constants.OUTER) {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -151,7 +151,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
         utilityIcon = new Label("utilityIcon");
         utilityAjaxLink.add(utilityIcon);
 
-        add(new ListView<Component>("outerObjectsRepeater", outerObjects) {
+        add(new ListView<>("outerObjectsRepeater", outerObjects) {
 
             private static final long serialVersionUID = -9180479401817023838L;
 
@@ -238,9 +238,9 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                 }
 
                 if (wizardInModal && showResultPage) {
-                    modal.setContent(new ResultPage<T>(
-                            item,
-                            AjaxWizard.NewItemFinishEvent.class.cast(newItemEvent).getResult()) {
+                    modal.setContent(new ResultPage<>(
+                        item,
+                        AjaxWizard.NewItemFinishEvent.class.cast(newItemEvent).getResult()) {
 
                         private static final long serialVersionUID = -2630573849050255233L;
 

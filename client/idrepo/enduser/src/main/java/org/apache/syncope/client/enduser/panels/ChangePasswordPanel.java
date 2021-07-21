@@ -63,7 +63,7 @@ public abstract class ChangePasswordPanel extends Panel {
 
     public ChangePasswordPanel(final String id, final NotificationPanel notificationPanel) {
         super(id);
-        form = new StatelessForm<Void>("changePassword") {
+        form = new StatelessForm<>("changePassword") {
 
             private static final long serialVersionUID = 418292023846536149L;
 
@@ -75,24 +75,24 @@ public abstract class ChangePasswordPanel extends Panel {
 
                 // div that is not visible (but not display:none either)
                 buffer.append(String.format(
-                        "<div style=\"width:0px;height:0px;position:absolute;"
+                    "<div style=\"width:0px;height:0px;position:absolute;"
                         + "left:-100px;top:-100px;overflow:hidden\" class=\"%s\">",
-                        cssClass));
+                    cssClass));
 
                 // add an empty textfield (otherwise IE doesn't work)
                 buffer.append("<input title=\"text_hidden\" "
-                        + "aria-label=\"text_hidden\" type=\"text\" "
-                        + "tabindex=\"-1\" autocomplete=\"off\"/>");
+                    + "aria-label=\"text_hidden\" type=\"text\" "
+                    + "tabindex=\"-1\" autocomplete=\"off\"/>");
 
                 // add the submitting component
                 final Component submittingComponent = (Component) getDefaultButton();
                 buffer.append("<input title=\"submit_hidden\" aria-label=\"submit_hidden\" "
-                        + "type=\"submit\" tabindex=\"-1\" name=\"");
+                    + "type=\"submit\" tabindex=\"-1\" name=\"");
                 buffer.append(getDefaultButton().getInputName());
                 buffer.append("\" onclick=\" var b=document.getElementById('");
                 buffer.append(submittingComponent.getMarkupId());
                 buffer.append(
-                        "'); if (b!=null&amp;&amp;b.onclick!=null&amp;&amp;typeof(b.onclick) != 'undefined') "
+                    "'); if (b!=null&amp;&amp;b.onclick!=null&amp;&amp;typeof(b.onclick) != 'undefined') "
                         + "{  var r = Wicket.bind(b.onclick, b)(); if (r != false) b.click(); } "
                         + "else { b.click(); };  return false;\" ");
                 buffer.append(" />");

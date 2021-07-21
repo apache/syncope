@@ -108,7 +108,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
     public ActionsPanel<CamelRouteTO> getActions(final IModel<CamelRouteTO> model) {
         final ActionsPanel<CamelRouteTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<CamelRouteTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -118,7 +118,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
                 utilityModal.header(Model.of(route.getKey()));
                 utilityModal.setContent(new XMLEditorPanel(
-                        utilityModal, new PropertyModel<String>(route, "content"), filtered, pageRef) {
+                    utilityModal, new PropertyModel<>(route, "content"), filtered, pageRef) {
 
                     private static final long serialVersionUID = 5488080606102212554L;
 

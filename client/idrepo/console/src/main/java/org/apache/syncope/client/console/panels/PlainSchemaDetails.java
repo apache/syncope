@@ -95,14 +95,14 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         AjaxTextFieldPanel enumerationValuesPanel = new AjaxTextFieldPanel("panel",
                 "enumerationValues", new Model<>(null));
 
-        enumerationValues = new MultiFieldPanel.Builder<String>(
+        enumerationValues = new MultiFieldPanel.Builder<>(
                 new PropertyModel<List<String>>(schemaTO, "enumerationValues") {
 
             private static final long serialVersionUID = -4953564762272833993L;
 
             @Override
             public PropertyList<PlainSchemaTO> getObject() {
-                return new PropertyList<PlainSchemaTO>() {
+                return new PropertyList<>() {
 
                     @Override
                     public String getValues() {

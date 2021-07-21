@@ -84,15 +84,15 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
             public void onEvent(final IEvent<?> event) {
                 if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
                     ((AjaxWizard.NewItemCancelEvent<?>) event.getPayload()).getTarget().
-                            ifPresent(target -> modal.close(target));
+                            ifPresent(modal::close);
                 } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                     AjaxWizard.NewItemFinishEvent<?> payload = (AjaxWizard.NewItemFinishEvent) event.getPayload();
                     Optional<AjaxRequestTarget> target = payload.getTarget();
 
                     if (payload.getResult() instanceof ArrayList) {
-                        modal.setContent(new ResultPage<Serializable>(
-                                null,
-                                payload.getResult()) {
+                        modal.setContent(new ResultPage<>(
+                            null,
+                            payload.getResult()) {
 
                             private static final long serialVersionUID = -2630573849050255233L;
 
@@ -103,7 +103,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
 
                             @Override
                             protected Panel customResultBody(
-                                    final String id, final Serializable item, final Serializable result) {
+                                final String id, final Serializable item, final Serializable result) {
 
                                 @SuppressWarnings("unchecked")
                                 ArrayList<ProvisioningReport> reports = (ArrayList<ProvisioningReport>) result;
@@ -131,7 +131,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
         };
         csvEventSink.add(csvDownloadBehavior);
         panel.addOuterObject(csvEventSink);
-        csvPushLink = new AjaxLink<Void>("csvPush") {
+        csvPushLink = new AjaxLink<>("csvPush") {
 
             private static final long serialVersionUID = -817438685948164787L;
 
@@ -141,8 +141,8 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                 AnyQuery query = csvAnyQuery(realm, fiql, rows, panel.getDataProvider());
 
                 target.add(modal.setContent(new CSVPushWizardBuilder(spec, query, csvDownloadBehavior, pageRef).
-                        setEventSink(csvEventSink).
-                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
+                    setEventSink(csvEventSink).
+                    build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
                 modal.header(new StringResourceModel("csvPush", panel, Model.of(spec)));
                 modal.show(true);
@@ -152,7 +152,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
         MetaDataRoleAuthorizationStrategy.authorize(csvPushLink, Component.RENDER,
                 String.format("%s,%s", IdRepoEntitlement.IMPLEMENTATION_LIST, IdRepoEntitlement.TASK_EXECUTE));
         panel.addInnerObject(csvPushLink.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
-        csvPullLink = new AjaxLink<Void>("csvPull") {
+        csvPullLink = new AjaxLink<>("csvPull") {
 
             private static final long serialVersionUID = -817438685948164787L;
 
@@ -161,8 +161,8 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                 CSVPullSpec spec = csvPullSpec(type, realm);
 
                 target.add(modal.setContent(new CSVPullWizardBuilder(spec, pageRef).
-                        setEventSink(csvEventSink).
-                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
+                    setEventSink(csvEventSink).
+                    build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
                 modal.header(new StringResourceModel("csvPull", panel, Model.of(spec)));
                 modal.show(true);
@@ -186,10 +186,10 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                 collect(Collectors.toList()));
         spec.setPlainAttrs(PreferenceManager.getList(
                 DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
-                stream().filter(name -> pSchemaNames.contains(name)).collect(Collectors.toList()));
+                stream().filter(pSchemaNames::contains).collect(Collectors.toList()));
         spec.setDerAttrs(PreferenceManager.getList(
                 DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
-                stream().filter(name -> dSchemaNames.contains(name)).collect(Collectors.toList()));
+                stream().filter(dSchemaNames::contains).collect(Collectors.toList()));
         return spec;
     }
 

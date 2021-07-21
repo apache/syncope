@@ -48,7 +48,7 @@ public class PreferenceManager implements Serializable {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static final TypeReference<Map<String, String>> MAP_TYPE_REF = new TypeReference<Map<String, String>>() {
+    private static final TypeReference<Map<String, String>> MAP_TYPE_REF = new TypeReference<>() {
     };
 
     private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[] { 10, 25, 50 });

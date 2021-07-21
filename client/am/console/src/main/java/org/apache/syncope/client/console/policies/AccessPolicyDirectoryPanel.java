@@ -62,7 +62,7 @@ public class AccessPolicyDirectoryPanel extends PolicyDirectoryPanel<AccessPolic
 
     @Override
     protected void addCustomActions(final ActionsPanel<AccessPolicyTO> panel, final IModel<AccessPolicyTO> model) {
-        panel.add(new ActionLink<AccessPolicyTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -73,9 +73,9 @@ public class AccessPolicyDirectoryPanel extends PolicyDirectoryPanel<AccessPolic
                     model.getObject().setConf(new DefaultAccessPolicyConf());
                 }
                 target.add(ruleCompositionModal.setContent(new ModalDirectoryPanel<>(
-                        ruleCompositionModal,
-                        new AccessPolicyRequiredAttrsDirectoryPanel("panel", ruleCompositionModal, model, pageRef),
-                        pageRef)));
+                    ruleCompositionModal,
+                    new AccessPolicyRequiredAttrsDirectoryPanel("panel", ruleCompositionModal, model, pageRef),
+                    pageRef)));
                 ruleCompositionModal.header(new Model<>(getString("requiredAttrs.title", model)));
                 ruleCompositionModal.show(true);
             }

@@ -89,20 +89,20 @@ public class AccessTokenDirectoryPanel
 
         columns.add(new PropertyColumn<>(new ResourceModel("owner"), "owner", "owner"));
 
-        columns.add(new AbstractColumn<AccessTokenTO, String>(new ResourceModel("issuedAt", "")) {
+        columns.add(new AbstractColumn<>(new ResourceModel("issuedAt", "")) {
 
             private static final long serialVersionUID = -1822504503325964706L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<AccessTokenTO>> cellItem,
-                    final String componentId,
-                    final IModel<AccessTokenTO> model) {
+                final Item<ICellPopulator<AccessTokenTO>> cellItem,
+                final String componentId,
+                final IModel<AccessTokenTO> model) {
 
                 try {
                     SignedJWT jwt = SignedJWT.parse(model.getObject().getBody());
                     cellItem.add(new Label(componentId,
-                            SyncopeConsoleSession.get().getDateFormat().format(jwt.getJWTClaimsSet().getIssueTime())));
+                        SyncopeConsoleSession.get().getDateFormat().format(jwt.getJWTClaimsSet().getIssueTime())));
                 } catch (ParseException e) {
                     LOG.error("Could not parse JWT {}", model.getObject().getBody(), e);
                     cellItem.add(new Label(componentId, StringUtils.EMPTY));
@@ -119,7 +119,7 @@ public class AccessTokenDirectoryPanel
     public ActionsPanel<AccessTokenTO> getActions(final IModel<AccessTokenTO> model) {
         final ActionsPanel<AccessTokenTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<AccessTokenTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 

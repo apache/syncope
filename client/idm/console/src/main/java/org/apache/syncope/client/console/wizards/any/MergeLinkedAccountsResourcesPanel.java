@@ -111,7 +111,7 @@ public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICo
         @Override
         protected ActionsPanel<ResourceTO> getActions(final IModel<ResourceTO> model) {
             final ActionsPanel<ResourceTO> panel = super.getActions(model);
-            panel.add(new ActionLink<ResourceTO>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
@@ -119,19 +119,19 @@ public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICo
                 public void onClick(final AjaxRequestTarget target, final ResourceTO resource) {
                     MergeLinkedAccountsWizardModel model = MergeLinkedAccountsResourcesPanel.this.wizardModel;
                     String connObjectKeyValue = ResourceRestClient.getConnObjectKeyValue(
-                            resource.getKey(),
-                            model.getMergingUser().getType(),
-                            model.getMergingUser().getKey());
+                        resource.getKey(),
+                        model.getMergingUser().getType(),
+                        model.getMergingUser().getKey());
                     if (connObjectKeyValue != null) {
                         model.setResource(resource);
                         String tableId = MergeLinkedAccountsResourcesPanel.this.
-                                get("resources:container:content:searchContainer:resultTable"
-                                        + ":tablePanel:groupForm:checkgroup:dataTable").
-                                getMarkupId();
+                            get("resources:container:content:searchContainer:resultTable"
+                                + ":tablePanel:groupForm:checkgroup:dataTable").
+                            getMarkupId();
                         String js = "$('#" + tableId + "').removeClass('active');";
                         js += "$('#" + tableId + " tbody tr td div').filter(function() "
-                                + "{return $(this).text() === \"" + resource.getKey() + "\";})"
-                                + ".parent().parent().addClass('active');";
+                            + "{return $(this).text() === \"" + resource.getKey() + "\";})"
+                            + ".parent().parent().addClass('active');";
                         target.prependJavaScript(js);
 
                     } else {

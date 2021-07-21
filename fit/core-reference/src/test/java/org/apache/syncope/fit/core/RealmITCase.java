@@ -381,24 +381,24 @@ public class RealmITCase extends AbstractITCase {
 
         // 2. check propagation
         ProvisioningResult<RealmTO> result = realmService.create("/", realm).readEntity(
-                new GenericType<ProvisioningResult<RealmTO>>() {
-        });
+            new GenericType<>() {
+            });
         assertNotNull(result);
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_LDAP_ORGUNIT, result.getPropagationStatuses().get(0).getResource());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
         ProvisioningResult<RealmTO> resultChild = realmService.create("/test", childRealm).readEntity(
-                new GenericType<ProvisioningResult<RealmTO>>() {
-        });
+            new GenericType<>() {
+            });
         assertNotNull(resultChild);
         assertEquals(1, resultChild.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_LDAP_ORGUNIT, resultChild.getPropagationStatuses().get(0).getResource());
         assertEquals(ExecStatus.SUCCESS, resultChild.getPropagationStatuses().get(0).getStatus());
 
         ProvisioningResult<RealmTO> resultDescendant = realmService.create("/test/child", descendantRealm).readEntity(
-                new GenericType<ProvisioningResult<RealmTO>>() {
-        });
+            new GenericType<>() {
+            });
         assertNotNull(resultDescendant);
         assertEquals(1, resultDescendant.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_LDAP_ORGUNIT, resultDescendant.getPropagationStatuses().get(0).getResource());

@@ -57,97 +57,97 @@ public class SCIMConfEnterpriseUserPanel extends SCIMConfTabPanel {
 
         AjaxTextFieldPanel costCenterPanel =
                 new AjaxTextFieldPanel("costCenter", "costCenter",
-                        new PropertyModel<String>("costCenter", "costCenter") {
+                    new PropertyModel<>("costCenter", "costCenter") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+                        private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimEnterpriseUserConf.getCostCenter();
-                    }
+                        @Override
+                        public String getObject() {
+                            return scimEnterpriseUserConf.getCostCenter();
+                        }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimEnterpriseUserConf.setCostCenter(object);
-                    }
+                        @Override
+                        public void setObject(final String object) {
+                            scimEnterpriseUserConf.setCostCenter(object);
+                        }
 
-                });
+                    });
         costCenterPanel.setChoices(plainSchemaNames);
 
         AjaxTextFieldPanel departmentPanel =
                 new AjaxTextFieldPanel("department", "department",
-                        new PropertyModel<String>("department", "department") {
+                    new PropertyModel<>("department", "department") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+                        private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimEnterpriseUserConf.getDepartment();
-                    }
+                        @Override
+                        public String getObject() {
+                            return scimEnterpriseUserConf.getDepartment();
+                        }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimEnterpriseUserConf.setDepartment(object);
-                    }
+                        @Override
+                        public void setObject(final String object) {
+                            scimEnterpriseUserConf.setDepartment(object);
+                        }
 
-                });
+                    });
         departmentPanel.setChoices(plainSchemaNames);
 
         AjaxTextFieldPanel divisionPanel =
                 new AjaxTextFieldPanel("division", "division",
-                        new PropertyModel<String>("division", "division") {
+                    new PropertyModel<>("division", "division") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+                        private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimEnterpriseUserConf.getDivision();
-                    }
+                        @Override
+                        public String getObject() {
+                            return scimEnterpriseUserConf.getDivision();
+                        }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimEnterpriseUserConf.setDivision(object);
-                    }
+                        @Override
+                        public void setObject(final String object) {
+                            scimEnterpriseUserConf.setDivision(object);
+                        }
 
-                });
+                    });
         divisionPanel.setChoices(plainSchemaNames);
 
         AjaxTextFieldPanel employeeNumberPanel =
                 new AjaxTextFieldPanel("employeeNumber", "employeeNumber",
-                        new PropertyModel<String>("employeeNumber", "employeeNumber") {
+                    new PropertyModel<>("employeeNumber", "employeeNumber") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+                        private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimEnterpriseUserConf.getEmployeeNumber();
-                    }
+                        @Override
+                        public String getObject() {
+                            return scimEnterpriseUserConf.getEmployeeNumber();
+                        }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimEnterpriseUserConf.setEmployeeNumber(object);
-                    }
+                        @Override
+                        public void setObject(final String object) {
+                            scimEnterpriseUserConf.setEmployeeNumber(object);
+                        }
 
-                });
+                    });
         employeeNumberPanel.setChoices(plainSchemaNames);
 
         AjaxTextFieldPanel organizationPanel =
                 new AjaxTextFieldPanel("organization", "organization",
-                        new PropertyModel<String>("organization", "organization") {
+                    new PropertyModel<>("organization", "organization") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+                        private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimEnterpriseUserConf.getOrganization();
-                    }
+                        @Override
+                        public String getObject() {
+                            return scimEnterpriseUserConf.getOrganization();
+                        }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimEnterpriseUserConf.setOrganization(object);
-                    }
+                        @Override
+                        public void setObject(final String object) {
+                            scimEnterpriseUserConf.setOrganization(object);
+                        }
 
-                });
+                    });
         organizationPanel.setChoices(plainSchemaNames);
 
         // manager
@@ -186,40 +186,40 @@ public class SCIMConfEnterpriseUserPanel extends SCIMConfTabPanel {
 
         AjaxTextFieldPanel managerKeyPanel =
                 new AjaxTextFieldPanel("accordionContent", "manager.key",
-                        new PropertyModel<String>(scimEnterpriseUserConf.getManager(), "accordionContent") {
+                    new PropertyModel<>(scimEnterpriseUserConf.getManager(), "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+                        private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimEnterpriseUserConf.getManager().getKey();
-                    }
+                        @Override
+                        public String getObject() {
+                            return scimEnterpriseUserConf.getManager().getKey();
+                        }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimEnterpriseUserConf.getManager().setKey(object);
-                    }
+                        @Override
+                        public void setObject(final String object) {
+                            scimEnterpriseUserConf.getManager().setKey(object);
+                        }
 
-                });
+                    });
         managerKeyPanel.setChoices(plainSchemaNames);
 
         AjaxTextFieldPanel managerDisplaNamePanel =
                 new AjaxTextFieldPanel("accordionContent", "manager.displayName",
-                        new PropertyModel<String>(scimEnterpriseUserConf.getManager(), "accordionContent") {
+                    new PropertyModel<>(scimEnterpriseUserConf.getManager(), "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+                        private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return scimEnterpriseUserConf.getManager().getDisplayName();
-                    }
+                        @Override
+                        public String getObject() {
+                            return scimEnterpriseUserConf.getManager().getDisplayName();
+                        }
 
-                    @Override
-                    public void setObject(final String object) {
-                        scimEnterpriseUserConf.getManager().setDisplayName(object);
-                    }
+                        @Override
+                        public void setObject(final String object) {
+                            scimEnterpriseUserConf.getManager().setDisplayName(object);
+                        }
 
-                });
+                    });
         managerDisplaNamePanel.setChoices(plainSchemaNames);
 
         panelList.add(managerKeyPanel);

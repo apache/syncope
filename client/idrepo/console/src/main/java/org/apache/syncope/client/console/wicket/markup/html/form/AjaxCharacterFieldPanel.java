@@ -59,7 +59,7 @@ public class AjaxCharacterFieldPanel extends FieldPanel<Character> implements Cl
         settings.setShowListOnEmptyInput(true);
         settings.setCssClassName("custom-autocomplete-box");
 
-        field = new AutoCompleteTextField<Character>("textField", model, settings) {
+        field = new AutoCompleteTextField<>("textField", model, settings) {
 
             private static final long serialVersionUID = -6648767303091874219L;
 
@@ -70,8 +70,8 @@ public class AjaxCharacterFieldPanel extends FieldPanel<Character> implements Cl
 
             @Override
             protected AutoCompleteBehavior<Character> newAutoCompleteBehavior(
-                    final IAutoCompleteRenderer<Character> renderer, final AutoCompleteSettings settings) {
-                return new IndicatorAutoCompleteBehavior<Character>(renderer, settings) {
+                final IAutoCompleteRenderer<Character> renderer, final AutoCompleteSettings settings) {
+                return new IndicatorAutoCompleteBehavior<>(renderer, settings) {
 
                     private static final long serialVersionUID = 1070808433195962931L;
 

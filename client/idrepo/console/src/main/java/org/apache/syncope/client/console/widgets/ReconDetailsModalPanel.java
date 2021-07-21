@@ -113,30 +113,30 @@ public class ReconDetailsModalPanel extends AbstractModalPanel<Any> {
             columns.add(new PropertyColumn<>(new ResourceModel(Constants.KEY_FIELD_NAME),
                     Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
 
-            columns.add(new AbstractColumn<Misaligned, String>(Model.of(Constants.SYNCOPE)) {
+            columns.add(new AbstractColumn<>(Model.of(Constants.SYNCOPE)) {
 
                 private static final long serialVersionUID = 2054811145491901166L;
 
                 @Override
                 public void populateItem(
-                        final Item<ICellPopulator<Misaligned>> cellItem,
-                        final String componentId,
-                        final IModel<Misaligned> rowModel) {
+                    final Item<ICellPopulator<Misaligned>> cellItem,
+                    final String componentId,
+                    final IModel<Misaligned> rowModel) {
 
                     cellItem.add(new Label(componentId, rowModel.getObject().getOnSyncope().toString()));
                     cellItem.add(new AttributeModifier("class", "code-deletion"));
                 }
             });
 
-            columns.add(new AbstractColumn<Misaligned, String>(Model.of(resource)) {
+            columns.add(new AbstractColumn<>(Model.of(resource)) {
 
                 private static final long serialVersionUID = 2054811145491901166L;
 
                 @Override
                 public void populateItem(
-                        final Item<ICellPopulator<Misaligned>> cellItem,
-                        final String componentId,
-                        final IModel<Misaligned> rowModel) {
+                    final Item<ICellPopulator<Misaligned>> cellItem,
+                    final String componentId,
+                    final IModel<Misaligned> rowModel) {
 
                     cellItem.add(new Label(componentId, rowModel.getObject().getOnResource().toString()));
                     cellItem.add(new AttributeModifier("class", "code-addition"));

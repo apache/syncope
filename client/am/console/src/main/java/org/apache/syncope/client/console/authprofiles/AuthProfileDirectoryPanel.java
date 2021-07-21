@@ -119,35 +119,35 @@ public class AuthProfileDirectoryPanel
 
         columns.add(new PropertyColumn<>(new ResourceModel("owner"), "owner", "owner"));
 
-        columns.add(new BooleanConditionColumn<AuthProfileTO>(new StringResourceModel("impersonationAccounts")) {
+        columns.add(new BooleanConditionColumn<>(new StringResourceModel("impersonationAccounts")) {
 
             @Override
             protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
                 return !rowModel.getObject().getImpersonationAccounts().isEmpty();
             }
         });
-        columns.add(new BooleanConditionColumn<AuthProfileTO>(new StringResourceModel("googleMfaAuthTokens")) {
+        columns.add(new BooleanConditionColumn<>(new StringResourceModel("googleMfaAuthTokens")) {
 
             @Override
             protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
                 return !rowModel.getObject().getGoogleMfaAuthTokens().isEmpty();
             }
         });
-        columns.add(new BooleanConditionColumn<AuthProfileTO>(new StringResourceModel("googleMfaAuthAccounts")) {
+        columns.add(new BooleanConditionColumn<>(new StringResourceModel("googleMfaAuthAccounts")) {
 
             @Override
             protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
                 return !rowModel.getObject().getGoogleMfaAuthAccounts().isEmpty();
             }
         });
-        columns.add(new BooleanConditionColumn<AuthProfileTO>(new StringResourceModel("u2fRegisteredDevices")) {
+        columns.add(new BooleanConditionColumn<>(new StringResourceModel("u2fRegisteredDevices")) {
 
             @Override
             protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
                 return !rowModel.getObject().getU2FRegisteredDevices().isEmpty();
             }
         });
-        columns.add(new BooleanConditionColumn<AuthProfileTO>(new StringResourceModel("webAuthnAccount")) {
+        columns.add(new BooleanConditionColumn<>(new StringResourceModel("webAuthnAccount")) {
 
             @Override
             protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
@@ -162,7 +162,7 @@ public class AuthProfileDirectoryPanel
     public ActionsPanel<AuthProfileTO> getActions(final IModel<AuthProfileTO> model) {
         ActionsPanel<AuthProfileTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<AuthProfileTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -170,44 +170,44 @@ public class AuthProfileDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
                 model.setObject(AuthProfileRestClient.read(model.getObject().getKey()));
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
-                        authProfileModal,
-                        new AuthProfileItemDirectoryPanel<ImpersonationAccount>(
-                                "panel", authProfileModal, model.getObject(), pageRef) {
+                    authProfileModal,
+                    new AuthProfileItemDirectoryPanel<ImpersonationAccount>(
+                        "panel", authProfileModal, model.getObject(), pageRef) {
 
-                    @Override
-                    protected List<ImpersonationAccount> getItems() {
-                        return model.getObject().getImpersonationAccounts();
-                    }
+                        @Override
+                        protected List<ImpersonationAccount> getItems() {
+                            return model.getObject().getImpersonationAccounts();
+                        }
 
-                    @Override
-                    protected ImpersonationAccount defaultItem() {
-                        return new ImpersonationAccount();
-                    }
+                        @Override
+                        protected ImpersonationAccount defaultItem() {
+                            return new ImpersonationAccount();
+                        }
 
-                    @Override
-                    protected String sortProperty() {
-                        return "impersonated";
-                    }
+                        @Override
+                        protected String sortProperty() {
+                            return "impersonated";
+                        }
 
-                    @Override
-                    protected String paginatorRowsKey() {
-                        return AMConstants.PREF_AUTHPROFILE_IMPERSONATED_PAGINATOR_ROWS;
-                    }
+                        @Override
+                        protected String paginatorRowsKey() {
+                            return AMConstants.PREF_AUTHPROFILE_IMPERSONATED_PAGINATOR_ROWS;
+                        }
 
-                    @Override
-                    protected List<IColumn<ImpersonationAccount, String>> getColumns() {
-                        List<IColumn<ImpersonationAccount, String>> columns = new ArrayList<>();
-                        columns.add(new PropertyColumn<>(new ResourceModel("impersonated"),
+                        @Override
+                        protected List<IColumn<ImpersonationAccount, String>> getColumns() {
+                            List<IColumn<ImpersonationAccount, String>> columns = new ArrayList<>();
+                            columns.add(new PropertyColumn<>(new ResourceModel("impersonated"),
                                 "impersonated", "impersonated"));
-                        return columns;
-                    }
-                }, pageRef)));
+                            return columns;
+                        }
+                    }, pageRef)));
                 authProfileModal.header(new Model<>(getString("impersonationAccounts", model)));
                 authProfileModal.show(true);
             }
         }, ActionLink.ActionType.TYPE_EXTENSIONS, AMEntitlement.AUTH_PROFILE_UPDATE);
 
-        panel.add(new ActionLink<AuthProfileTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -215,44 +215,46 @@ public class AuthProfileDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
                 model.setObject(AuthProfileRestClient.read(model.getObject().getKey()));
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
-                        authProfileModal,
-                        new AuthProfileItemDirectoryPanel<GoogleMfaAuthToken>(
-                                "panel", authProfileModal, model.getObject(), pageRef) {
+                    authProfileModal,
+                    new AuthProfileItemDirectoryPanel<GoogleMfaAuthToken>(
+                        "panel", authProfileModal, model.getObject(), pageRef) {
 
-                    @Override
-                    protected List<GoogleMfaAuthToken> getItems() {
-                        return model.getObject().getGoogleMfaAuthTokens();
-                    }
+                        @Override
+                        protected List<GoogleMfaAuthToken> getItems() {
+                            return model.getObject().getGoogleMfaAuthTokens();
+                        }
 
-                    @Override
-                    protected GoogleMfaAuthToken defaultItem() {
-                        return new GoogleMfaAuthToken();
-                    }
+                        @Override
+                        protected GoogleMfaAuthToken defaultItem() {
+                            return new GoogleMfaAuthToken();
+                        }
 
-                    @Override
-                    protected String sortProperty() {
-                        return "issueDate";
-                    }
+                        @Override
+                        protected String sortProperty() {
+                            return "issueDate";
+                        }
 
-                    @Override
-                    protected String paginatorRowsKey() {
-                        return AMConstants.PREF_AUTHPROFILE_GOOGLEMFAAUTHTOKENS_PAGINATOR_ROWS;
-                    }
+                        @Override
+                        protected String paginatorRowsKey() {
+                            return AMConstants.PREF_AUTHPROFILE_GOOGLEMFAAUTHTOKENS_PAGINATOR_ROWS;
+                        }
 
-                    @Override
-                    protected List<IColumn<GoogleMfaAuthToken, String>> getColumns() {
-                        List<IColumn<GoogleMfaAuthToken, String>> columns = new ArrayList<>();
-                        columns.add(new DatePropertyColumn<>(new ResourceModel("issueDate"), "issueDate", "issueDate"));
-                        columns.add(new PropertyColumn<>(new ResourceModel("otp"), "otp", "otp"));
-                        return columns;
-                    }
-                }, pageRef)));
+                        @Override
+                        protected List<IColumn<GoogleMfaAuthToken, String>> getColumns() {
+                            List<IColumn<GoogleMfaAuthToken, String>> columns = new ArrayList<>();
+                            columns.add(new DatePropertyColumn<>(
+                                new ResourceModel("issueDate"), "issueDate", "issueDate"));
+                            columns.add(new PropertyColumn<>(
+                                new ResourceModel("otp"), "otp", "otp"));
+                            return columns;
+                        }
+                    }, pageRef)));
                 authProfileModal.header(new Model<>(getString("googleMfaAuthTokens", model)));
                 authProfileModal.show(true);
             }
         }, ActionLink.ActionType.EDIT_APPROVAL, AMEntitlement.AUTH_PROFILE_UPDATE);
 
-        panel.add(new ActionLink<AuthProfileTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -260,46 +262,46 @@ public class AuthProfileDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
                 model.setObject(AuthProfileRestClient.read(model.getObject().getKey()));
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
-                        authProfileModal,
-                        new AuthProfileItemDirectoryPanel<GoogleMfaAuthAccount>(
-                                "panel", authProfileModal, model.getObject(), pageRef) {
+                    authProfileModal,
+                    new AuthProfileItemDirectoryPanel<GoogleMfaAuthAccount>(
+                        "panel", authProfileModal, model.getObject(), pageRef) {
 
-                    @Override
-                    protected List<GoogleMfaAuthAccount> getItems() {
-                        return model.getObject().getGoogleMfaAuthAccounts();
-                    }
+                        @Override
+                        protected List<GoogleMfaAuthAccount> getItems() {
+                            return model.getObject().getGoogleMfaAuthAccounts();
+                        }
 
-                    @Override
-                    protected GoogleMfaAuthAccount defaultItem() {
-                        return new GoogleMfaAuthAccount();
-                    }
+                        @Override
+                        protected GoogleMfaAuthAccount defaultItem() {
+                            return new GoogleMfaAuthAccount();
+                        }
 
-                    @Override
-                    protected String sortProperty() {
-                        return "id";
-                    }
+                        @Override
+                        protected String sortProperty() {
+                            return "id";
+                        }
 
-                    @Override
-                    protected String paginatorRowsKey() {
-                        return AMConstants.PREF_AUTHPROFILE_GOOGLEMFAAUTHACCOUNTS_PAGINATOR_ROWS;
-                    }
+                        @Override
+                        protected String paginatorRowsKey() {
+                            return AMConstants.PREF_AUTHPROFILE_GOOGLEMFAAUTHACCOUNTS_PAGINATOR_ROWS;
+                        }
 
-                    @Override
-                    protected List<IColumn<GoogleMfaAuthAccount, String>> getColumns() {
-                        List<IColumn<GoogleMfaAuthAccount, String>> columns = new ArrayList<>();
-                        columns.add(new PropertyColumn<>(new ResourceModel("id"), "id", "id"));
-                        columns.add(new DatePropertyColumn<>(
+                        @Override
+                        protected List<IColumn<GoogleMfaAuthAccount, String>> getColumns() {
+                            List<IColumn<GoogleMfaAuthAccount, String>> columns = new ArrayList<>();
+                            columns.add(new PropertyColumn<>(new ResourceModel("id"), "id", "id"));
+                            columns.add(new DatePropertyColumn<>(
                                 new ResourceModel("registrationDate"), "registrationDate", "registrationDate"));
-                        columns.add(new PropertyColumn<>(new ResourceModel("name"), "name", "name"));
-                        return columns;
-                    }
-                }, pageRef)));
+                            columns.add(new PropertyColumn<>(new ResourceModel("name"), "name", "name"));
+                            return columns;
+                        }
+                    }, pageRef)));
                 authProfileModal.header(new Model<>(getString("googleMfaAuthAccounts", model)));
                 authProfileModal.show(true);
             }
         }, ActionLink.ActionType.EXECUTE, AMEntitlement.AUTH_PROFILE_UPDATE);
 
-        panel.add(new ActionLink<AuthProfileTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -307,46 +309,46 @@ public class AuthProfileDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
                 model.setObject(AuthProfileRestClient.read(model.getObject().getKey()));
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
-                        authProfileModal,
-                        new AuthProfileItemDirectoryPanel<U2FDevice>(
-                                "panel", authProfileModal, model.getObject(), pageRef) {
+                    authProfileModal,
+                    new AuthProfileItemDirectoryPanel<U2FDevice>(
+                        "panel", authProfileModal, model.getObject(), pageRef) {
 
-                    @Override
-                    protected List<U2FDevice> getItems() {
-                        return model.getObject().getU2FRegisteredDevices();
-                    }
+                        @Override
+                        protected List<U2FDevice> getItems() {
+                            return model.getObject().getU2FRegisteredDevices();
+                        }
 
-                    @Override
-                    protected U2FDevice defaultItem() {
-                        return new U2FDevice();
-                    }
+                        @Override
+                        protected U2FDevice defaultItem() {
+                            return new U2FDevice();
+                        }
 
-                    @Override
-                    protected String sortProperty() {
-                        return "id";
-                    }
+                        @Override
+                        protected String sortProperty() {
+                            return "id";
+                        }
 
-                    @Override
-                    protected String paginatorRowsKey() {
-                        return AMConstants.PREF_AUTHPROFILE_U2FDEVICES_PAGINATOR_ROWS;
-                    }
+                        @Override
+                        protected String paginatorRowsKey() {
+                            return AMConstants.PREF_AUTHPROFILE_U2FDEVICES_PAGINATOR_ROWS;
+                        }
 
-                    @Override
-                    protected List<IColumn<U2FDevice, String>> getColumns() {
-                        List<IColumn<U2FDevice, String>> columns = new ArrayList<>();
-                        columns.add(new PropertyColumn<>(new ResourceModel("id"), "id", "id"));
-                        columns.add(new DatePropertyColumn<>(
+                        @Override
+                        protected List<IColumn<U2FDevice, String>> getColumns() {
+                            List<IColumn<U2FDevice, String>> columns = new ArrayList<>();
+                            columns.add(new PropertyColumn<>(new ResourceModel("id"), "id", "id"));
+                            columns.add(new DatePropertyColumn<>(
                                 new ResourceModel("issueDate"), "issueDate", "issueDate"));
-                        columns.add(new PropertyColumn<>(new ResourceModel("record"), "record", "record"));
-                        return columns;
-                    }
-                }, pageRef)));
+                            columns.add(new PropertyColumn<>(new ResourceModel("record"), "record", "record"));
+                            return columns;
+                        }
+                    }, pageRef)));
                 authProfileModal.header(new Model<>(getString("u2fRegisteredDevices", model)));
                 authProfileModal.show(true);
             }
         }, ActionLink.ActionType.FO_EDIT, AMEntitlement.AUTH_PROFILE_UPDATE);
 
-        panel.add(new ActionLink<AuthProfileTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -354,44 +356,46 @@ public class AuthProfileDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
                 model.setObject(AuthProfileRestClient.read(model.getObject().getKey()));
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
-                        authProfileModal,
-                        new AuthProfileItemDirectoryPanel<WebAuthnDeviceCredential>(
-                                "panel", authProfileModal, model.getObject(), pageRef) {
+                    authProfileModal,
+                    new AuthProfileItemDirectoryPanel<WebAuthnDeviceCredential>(
+                        "panel", authProfileModal, model.getObject(), pageRef) {
 
-                    @Override
-                    protected List<WebAuthnDeviceCredential> getItems() {
-                        return model.getObject().getWebAuthnDeviceCredentials();
-                    }
+                        @Override
+                        protected List<WebAuthnDeviceCredential> getItems() {
+                            return model.getObject().getWebAuthnDeviceCredentials();
+                        }
 
-                    @Override
-                    protected WebAuthnDeviceCredential defaultItem() {
-                        return new WebAuthnDeviceCredential();
-                    }
+                        @Override
+                        protected WebAuthnDeviceCredential defaultItem() {
+                            return new WebAuthnDeviceCredential();
+                        }
 
-                    @Override
-                    protected String sortProperty() {
-                        return "identifier";
-                    }
+                        @Override
+                        protected String sortProperty() {
+                            return "identifier";
+                        }
 
-                    @Override
-                    protected String paginatorRowsKey() {
-                        return AMConstants.PREF_AUTHPROFILE_WEBAUTHNDEVICECREDENTIALS_PAGINATOR_ROWS;
-                    }
+                        @Override
+                        protected String paginatorRowsKey() {
+                            return AMConstants.PREF_AUTHPROFILE_WEBAUTHNDEVICECREDENTIALS_PAGINATOR_ROWS;
+                        }
 
-                    @Override
-                    protected List<IColumn<WebAuthnDeviceCredential, String>> getColumns() {
-                        List<IColumn<WebAuthnDeviceCredential, String>> columns = new ArrayList<>();
-                        columns.add(new PropertyColumn<>(new ResourceModel("identifier"), "identifier", "identifier"));
-                        columns.add(new PropertyColumn<>(new ResourceModel("json"), "json", "json"));
-                        return columns;
-                    }
-                }, pageRef)));
+                        @Override
+                        protected List<IColumn<WebAuthnDeviceCredential, String>> getColumns() {
+                            List<IColumn<WebAuthnDeviceCredential, String>> columns = new ArrayList<>();
+                            columns.add(new PropertyColumn<>(
+                                new ResourceModel("identifier"), "identifier", "identifier"));
+                            columns.add(new PropertyColumn<>(
+                                new ResourceModel("json"), "json", "json"));
+                            return columns;
+                        }
+                    }, pageRef)));
                 authProfileModal.header(new Model<>(getString("webAuthnDeviceCredentials", model)));
                 authProfileModal.show(true);
             }
         }, ActionLink.ActionType.HTML, AMEntitlement.AUTH_PROFILE_UPDATE);
 
-        panel.add(new ActionLink<AuthProfileTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

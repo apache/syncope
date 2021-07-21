@@ -116,19 +116,19 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
     public ActionsPanel<T> getActions(final IModel<T> model) {
         ActionsPanel<T> panel = super.getActions(model);
 
-        panel.add(new ActionLink<T>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
                 send(ClientAppDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                ClientAppRestClient.read(type, model.getObject().getKey()), target));
+                    new AjaxWizard.EditItemActionEvent<>(
+                        ClientAppRestClient.read(type, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.CLIENTAPP_UPDATE);
 
-        panel.add(new ActionLink<T>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -136,15 +136,15 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
             public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
                 model.setObject(ClientAppRestClient.read(type, model.getObject().getKey()));
                 target.add(propertiesModal.setContent(new ModalDirectoryPanel<>(
-                        propertiesModal,
-                        new ClientAppPropertiesDirectoryPanel<>("panel", propertiesModal, type, model, pageRef),
-                        pageRef)));
+                    propertiesModal,
+                    new ClientAppPropertiesDirectoryPanel<>("panel", propertiesModal, type, model, pageRef),
+                    pageRef)));
                 propertiesModal.header(new Model<>(getString("properties.title", model)));
                 propertiesModal.show(true);
             }
         }, ActionLink.ActionType.TYPE_EXTENSIONS, AMEntitlement.CLIENTAPP_UPDATE);
 
-        panel.add(new ActionLink<T>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -154,11 +154,11 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
                 clone.setKey(null);
                 clone.setClientAppId(null);
                 send(ClientAppDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(clone, target));
+                    new AjaxWizard.EditItemActionEvent<>(clone, target));
             }
         }, ActionLink.ActionType.CLONE, AMEntitlement.CLIENTAPP_CREATE);
 
-        panel.add(new ActionLink<T>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

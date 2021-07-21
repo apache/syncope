@@ -101,7 +101,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
     protected ActionsPanel<Domain> getActions(final IModel<Domain> model) {
         ActionsPanel<Domain> panel = super.getActions(model);
 
-        panel.add(new ActionLink<Domain>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 7610801302168867641L;
 
@@ -114,7 +114,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.KEYMASTER);
 
-        panel.add(new ActionLink<Domain>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 7610801302168867641L;
 
@@ -127,7 +127,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
             }
         }, ActionLink.ActionType.PASSWORD_MANAGEMENT, IdRepoEntitlement.KEYMASTER);
 
-        panel.add(new ActionLink<Domain>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -191,7 +191,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
 
         @Override
         public IModel<Domain> model(final Domain object) {
-            return new IModel<Domain>() {
+            return new IModel<>() {
 
                 private static final long serialVersionUID = 8093553921710742624L;
 

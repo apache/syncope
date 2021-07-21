@@ -93,7 +93,7 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
 
     @Override
     protected IModel<List<RemediationTO>> getLatestAlerts() {
-        return new ListModel<RemediationTO>() {
+        return new ListModel<>() {
 
             private static final long serialVersionUID = 541491929575585613L;
 
@@ -101,10 +101,10 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
             public List<RemediationTO> getObject() {
                 List<RemediationTO> updatedRemediations;
                 if (SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_LIST)
-                        && SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_READ)) {
+                    && SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_READ)) {
 
                     updatedRemediations = RemediationRestClient.getRemediations(1,
-                            MAX_SIZE, new SortParam<>("instant", true));
+                        MAX_SIZE, new SortParam<>("instant", true));
                 } else {
                     updatedRemediations = List.of();
                 }

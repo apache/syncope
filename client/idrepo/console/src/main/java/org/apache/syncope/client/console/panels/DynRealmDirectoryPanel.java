@@ -71,7 +71,7 @@ public class DynRealmDirectoryPanel extends
         });
         setFooterVisibility(true);
 
-        AjaxLink<Void> newDynRealmlLink = new AjaxLink<Void>("add") {
+        AjaxLink<Void> newDynRealmlLink = new AjaxLink<>("add") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -113,7 +113,7 @@ public class DynRealmDirectoryPanel extends
     public ActionsPanel<DynRealmTO> getActions(final IModel<DynRealmTO> model) {
         final ActionsPanel<DynRealmTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<DynRealmTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -126,7 +126,7 @@ public class DynRealmDirectoryPanel extends
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.DYNREALM_UPDATE);
 
-        panel.add(new ActionLink<DynRealmTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 3766262567901552032L;
 

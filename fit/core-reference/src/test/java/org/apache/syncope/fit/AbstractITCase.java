@@ -557,26 +557,26 @@ public abstract class AbstractITCase {
                 throw (RuntimeException) ex;
             }
         }
-        return response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        return response.readEntity(new GenericType<>() {
         });
     }
 
     protected ProvisioningResult<UserTO> updateUser(final UserUR req) {
         return userService.update(req).
-                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                readEntity(new GenericType<>() {
                 });
     }
 
     protected ProvisioningResult<UserTO> updateUser(final UserTO userTO) {
         UserTO before = userService.read(userTO.getKey());
         return userService.update(AnyOperations.diff(userTO, before, false)).
-                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                readEntity(new GenericType<>() {
                 });
     }
 
     protected ProvisioningResult<UserTO> deleteUser(final String key) {
         return userService.delete(key).
-                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                readEntity(new GenericType<>() {
                 });
     }
 
@@ -588,19 +588,19 @@ public abstract class AbstractITCase {
                 throw (RuntimeException) ex;
             }
         }
-        return response.readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
+        return response.readEntity(new GenericType<>() {
         });
     }
 
     protected ProvisioningResult<AnyObjectTO> updateAnyObject(final AnyObjectUR req) {
         return anyObjectService.update(req).
-                readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
+                readEntity(new GenericType<>() {
                 });
     }
 
     protected ProvisioningResult<AnyObjectTO> deleteAnyObject(final String key) {
         return anyObjectService.delete(key).
-                readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
+                readEntity(new GenericType<>() {
                 });
     }
 
@@ -612,19 +612,19 @@ public abstract class AbstractITCase {
                 throw (RuntimeException) ex;
             }
         }
-        return response.readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
+        return response.readEntity(new GenericType<>() {
         });
     }
 
     protected ProvisioningResult<GroupTO> updateGroup(final GroupUR req) {
         return groupService.update(req).
-                readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
+                readEntity(new GenericType<>() {
                 });
     }
 
     protected ProvisioningResult<GroupTO> deleteGroup(final String key) {
         return groupService.delete(key).
-                readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
+                readEntity(new GenericType<>() {
                 });
     }
 

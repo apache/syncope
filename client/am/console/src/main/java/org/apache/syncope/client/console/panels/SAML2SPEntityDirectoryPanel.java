@@ -92,19 +92,19 @@ public class SAML2SPEntityDirectoryPanel extends DirectoryPanel<
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this),
                 Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
 
-        columns.add(new AbstractColumn<SAML2SPEntityTO, String>(Model.of("URL")) {
+        columns.add(new AbstractColumn<>(Model.of("URL")) {
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<SAML2SPEntityTO>> cellItem,
-                    final String componentId,
-                    final IModel<SAML2SPEntityTO> rowModel) {
+                final Item<ICellPopulator<SAML2SPEntityTO>> cellItem,
+                final String componentId,
+                final IModel<SAML2SPEntityTO> rowModel) {
 
                 String metadataURL = waPrefix + "/sp/" + rowModel.getObject().getKey() + "/metadata";
                 cellItem.add(new ExternalLink(
-                        componentId,
-                        Model.of(metadataURL),
-                        Model.of(metadataURL)) {
+                    componentId,
+                    Model.of(metadataURL),
+                    Model.of(metadataURL)) {
 
                     @Override
                     protected void onComponentTag(final ComponentTag tag) {
@@ -127,19 +127,19 @@ public class SAML2SPEntityDirectoryPanel extends DirectoryPanel<
     protected ActionsPanel<SAML2SPEntityTO> getActions(final IModel<SAML2SPEntityTO> model) {
         ActionsPanel<SAML2SPEntityTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<SAML2SPEntityTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final SAML2SPEntityTO ignore) {
                 send(SAML2SPEntityDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                SAML2SPEntityRestClient.get(model.getObject().getKey()), target));
+                    new AjaxWizard.EditItemActionEvent<>(
+                        SAML2SPEntityRestClient.get(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.SAML2_SP_ENTITY_SET);
 
-        panel.add(new ActionLink<SAML2SPEntityTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

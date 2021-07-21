@@ -80,62 +80,62 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
         @Override
         protected void addFurtherActions(final ActionsPanel<ExecTO> panel, final IModel<ExecTO> model) {
-            panel.add(new ActionLink<ExecTO>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                     downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.CSV)));
+                        model.getObject().getKey(), ReportExecExportFormat.CSV)));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_CSV, IdRepoEntitlement.REPORT_READ);
 
-            panel.add(new ActionLink<ExecTO>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                     downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.HTML)));
+                        model.getObject().getKey(), ReportExecExportFormat.HTML)));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_HTML, IdRepoEntitlement.REPORT_READ);
 
-            panel.add(new ActionLink<ExecTO>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                     downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.PDF)));
+                        model.getObject().getKey(), ReportExecExportFormat.PDF)));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_PDF, IdRepoEntitlement.REPORT_READ);
 
-            panel.add(new ActionLink<ExecTO>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                     downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.RTF)));
+                        model.getObject().getKey(), ReportExecExportFormat.RTF)));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_RTF, IdRepoEntitlement.REPORT_READ);
 
-            panel.add(new ActionLink<ExecTO>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                     downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.XML)));
+                        model.getObject().getKey(), ReportExecExportFormat.XML)));
                     downloadBehavior.initiate(target);
                 }
             }, ActionLink.ActionType.EXPORT_XML, IdRepoEntitlement.REPORT_READ);

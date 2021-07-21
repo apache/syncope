@@ -95,7 +95,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
     protected ActionsPanel<PrivilegeTO> getActions(final IModel<PrivilegeTO> model) {
         ActionsPanel<PrivilegeTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<PrivilegeTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -103,11 +103,11 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final PrivilegeTO ignore) {
                 PrivilegeDirectoryPanel.this.getTogglePanel().close(target);
                 send(PrivilegeDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.APPLICATION_UPDATE);
 
-        panel.add(new ActionLink<PrivilegeTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

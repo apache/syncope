@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.model.IModel;
@@ -57,7 +58,7 @@ public class GroupSearchPanel extends AbstractSearchPanel {
     protected void populate() {
         super.populate();
 
-        this.types = new LoadableDetachableModel<List<SearchClause.Type>>() {
+        this.types = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -71,7 +72,7 @@ public class GroupSearchPanel extends AbstractSearchPanel {
             }
         };
 
-        this.groupNames = new LoadableDetachableModel<List<String>>() {
+        this.groupNames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -81,15 +82,15 @@ public class GroupSearchPanel extends AbstractSearchPanel {
             }
         };
 
-        this.anames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
+        this.anames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected Map<String, PlainSchemaTO> load() {
                 return SchemaRestClient.<PlainSchemaTO>getSchemas(
-                        SchemaType.PLAIN, null, AnyTypeRestClient.read(type).getClasses().toArray(new String[] {})).
-                        stream().collect(Collectors.toMap(schema -> schema.getKey(), Function.identity()));
+                    SchemaType.PLAIN, null, AnyTypeRestClient.read(type).getClasses().toArray(new String[]{})).
+                    stream().collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
             }
         };
     }

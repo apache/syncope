@@ -80,8 +80,8 @@ public abstract class PropagationTaskDirectoryPanel
             columns.add(new PropertyColumn<>(
                     new StringResourceModel("resource", this), "resource", "resource"));
         } else {
-            columns.add(new PropertyColumn<PropagationTaskTO, String>(
-                    new StringResourceModel("anyTypeKind", this), "anyTypeKind", "anyTypeKind") {
+            columns.add(new PropertyColumn<>(
+                new StringResourceModel("anyTypeKind", this), "anyTypeKind", "anyTypeKind") {
 
                 private static final long serialVersionUID = 3344577098912281394L;
 
@@ -118,7 +118,7 @@ public abstract class PropagationTaskDirectoryPanel
         final ActionsPanel<PropagationTaskTO> panel = super.getActions(model);
         final PropagationTaskTO taskTO = model.getObject();
 
-        panel.add(new ActionLink<PropagationTaskTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -130,7 +130,7 @@ public abstract class PropagationTaskDirectoryPanel
         }, ActionLink.ActionType.VIEW_EXECUTIONS, IdRepoEntitlement.TASK_READ);
 
         // [SYNCOPE-1115] - Display attributes for propagation tasks
-        panel.add(new ActionLink<PropagationTaskTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 9206257220553949594L;
 
@@ -141,7 +141,7 @@ public abstract class PropagationTaskDirectoryPanel
             }
         }, ActionLink.ActionType.VIEW_DETAILS, IdRepoEntitlement.TASK_READ);
 
-        panel.add(new ActionLink<PropagationTaskTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -159,7 +159,7 @@ public abstract class PropagationTaskDirectoryPanel
             }
         }, ActionLink.ActionType.EXECUTE, IdRepoEntitlement.TASK_EXECUTE);
 
-        panel.add(new ActionLink<PropagationTaskTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

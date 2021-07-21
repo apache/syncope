@@ -84,22 +84,22 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
         wizard = new ProvisionWizardBuilder(resourceTO, adminRealm, pageRef);
 
-        ListViewPanel.Builder<ResourceProvision> builder = new ListViewPanel.Builder<ResourceProvision>(
-                ResourceProvision.class, pageRef) {
+        ListViewPanel.Builder<ResourceProvision> builder = new ListViewPanel.Builder<>(
+            ResourceProvision.class, pageRef) {
 
             private static final long serialVersionUID = 4907732721283972943L;
 
             @Override
             protected ResourceProvision getActualItem(
-                    final ResourceProvision item, final List<ResourceProvision> list) {
+                final ResourceProvision item, final List<ResourceProvision> list) {
 
                 return Optional.ofNullable(item)
-                        .map(resourceProvision -> list.stream()
+                    .map(resourceProvision -> list.stream()
                         .filter(in -> ((resourceProvision.getKey() == null && in.getKey() == null)
-                        || (in.getKey() != null && in.getKey().equals(resourceProvision.getKey())))
-                        && ((resourceProvision.getAnyType() == null && in.getAnyType() == null)
-                        || (in.getAnyType() != null && in.getAnyType().equals(resourceProvision.getAnyType())))).
-                        findAny().orElse(null)).orElse(null);
+                            || (in.getKey() != null && in.getKey().equals(resourceProvision.getKey())))
+                            && ((resourceProvision.getAnyType() == null && in.getAnyType() == null)
+                            || (in.getAnyType() != null && in.getAnyType().equals(resourceProvision.getAnyType())))).
+                            findAny().orElse(null)).orElse(null);
             }
 
             @Override
@@ -143,7 +143,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         builder.includes("anyType", "objectClass", "auxClasses");
         builder.setReuseItem(false);
 
-        builder.addAction(new ActionLink<ResourceProvision>() {
+        builder.addAction(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435504L;
 
@@ -151,10 +151,10 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
                 try {
                     send(ResourceProvisionPanel.this, Broadcast.DEPTH,
-                            new AjaxWizard.NewItemActionEvent<>(provision, 1, target).setResourceModel(
-                                    new StringResourceModel("inner.provision.mapping",
-                                            ResourceProvisionPanel.this,
-                                            Model.of(provision))));
+                        new AjaxWizard.NewItemActionEvent<>(provision, 1, target).setResourceModel(
+                            new StringResourceModel("inner.provision.mapping",
+                                ResourceProvisionPanel.this,
+                                Model.of(provision))));
                 } catch (SyncopeClientException e) {
                     LOG.error("While contacting resource", e);
                     SyncopeConsoleSession.get().onException(e);
@@ -162,7 +162,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                 }
             }
         }, ActionLink.ActionType.MAPPING, IdMEntitlement.RESOURCE_READ).
-                addAction(new ActionLink<ResourceProvision>() {
+                addAction(new ActionLink<>() {
 
                     private static final long serialVersionUID = -7780999687733432439L;
 
@@ -173,13 +173,13 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While setting latest sync token for {}/{}",
-                                    resourceTO.getKey(), provision.getAnyType(), e);
+                                resourceTO.getKey(), provision.getAnyType(), e);
                             SyncopeConsoleSession.get().onException(e);
                         }
                         ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.SET_LATEST_SYNC_TOKEN, IdMEntitlement.RESOURCE_UPDATE).
-                addAction(new ActionLink<ResourceProvision>() {
+                addAction(new ActionLink<>() {
 
                     private static final long serialVersionUID = -7780999687733432439L;
 
@@ -190,13 +190,13 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While removing sync token for {}/{}",
-                                    resourceTO.getKey(), provision.getAnyType(), e);
+                                resourceTO.getKey(), provision.getAnyType(), e);
                             SyncopeConsoleSession.get().onException(e);
                         }
                         ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.REMOVE_SYNC_TOKEN, IdMEntitlement.RESOURCE_UPDATE).
-                addAction(new ActionLink<ResourceProvision>() {
+                addAction(new ActionLink<>() {
 
                     private static final long serialVersionUID = -3722207913631435544L;
 
@@ -218,14 +218,14 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         list = builder.build("provision");
         list.setReadOnly(!SyncopeConsoleSession.get().owns(IdMEntitlement.RESOURCE_UPDATE, adminRealm));
 
-        addAjaxLink = new AjaxLink<ResourceProvision>("add") {
+        addAjaxLink = new AjaxLink<>("add") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 send(ResourceProvisionPanel.this, Broadcast.BREADTH,
-                        new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
+                    new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
                 objectTypeTogglePanel.setHeaderLabel(target);
                 objectTypeTogglePanel.toggle(target, true);
             }
@@ -299,15 +299,15 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
     }
 
     private LoadableDetachableModel<List<String>> getAnyTypes() {
-        return new LoadableDetachableModel<List<String>>() {
+        return new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
                 List<String> anyTypes = AnyTypeRestClient.list().stream().
-                        filter(anyType -> resourceTO.getProvision(anyType).isEmpty()).
-                        collect(Collectors.toList());
+                    filter(anyType -> resourceTO.getProvision(anyType).isEmpty()).
+                    collect(Collectors.toList());
                 if (resourceTO.getOrgUnit() == null) {
                     anyTypes.add(SyncopeConstants.REALM_ANYTYPE);
                 }

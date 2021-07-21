@@ -140,79 +140,79 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
                     (locale, display) -> translations.getObject().add(MutablePair.of(locale, display)));
 
             ListView<MutablePair<Locale, String>> labels =
-                    new ListView<MutablePair<Locale, String>>("labels", translations) {
+                new ListView<>("labels", translations) {
 
-                private static final long serialVersionUID = -8746795666847966508L;
+                    private static final long serialVersionUID = -8746795666847966508L;
 
-                @Override
-                protected void populateItem(final ListItem<MutablePair<Locale, String>> item) {
-                    MutablePair<Locale, String> entry = item.getModelObject();
+                    @Override
+                    protected void populateItem(final ListItem<MutablePair<Locale, String>> item) {
+                        MutablePair<Locale, String> entry = item.getModelObject();
 
-                    AjaxTextFieldPanel locale = new AjaxTextFieldPanel("locale", "locale", new Model<>(), true);
-                    locale.getField().setModel(new IModel<String>() {
+                        AjaxTextFieldPanel locale = new AjaxTextFieldPanel("locale", "locale", new Model<>(), true);
+                        locale.getField().setModel(new IModel<>() {
 
-                        private static final long serialVersionUID = 1500045101360533133L;
+                            private static final long serialVersionUID = 1500045101360533133L;
 
-                        @Override
-                        public String getObject() {
-                            return entry.getLeft() == null ? null : entry.getLeft().toString();
-                        }
+                            @Override
+                            public String getObject() {
+                                return entry.getLeft() == null ? null : entry.getLeft().toString();
+                            }
 
-                        @Override
-                        public void setObject(final String object) {
-                            entry.setLeft(LocaleUtils.toLocale(object));
-                        }
-                    });
-                    locale.setRequired(true).hideLabel();
-                    locale.setChoices(BaseLogin.SUPPORTED_LOCALES.stream().
+                            @Override
+                            public void setObject(final String object) {
+                                entry.setLeft(LocaleUtils.toLocale(object));
+                            }
+                        });
+                        locale.setRequired(true).hideLabel();
+                        locale.setChoices(BaseLogin.SUPPORTED_LOCALES.stream().
                             map(Objects::toString).collect(Collectors.toList()));
-                    locale.addValidator(validatable -> {
-                        try {
-                            LocaleUtils.toLocale(validatable.getValue());
-                        } catch (Exception e) {
-                            LOG.error("Invalid Locale: {}", validatable.getValue(), e);
-                            validatable.error(new ValidationError("Invalid Locale: " + validatable.getValue()));
+                        locale.addValidator(validatable -> {
+                            try {
+                                LocaleUtils.toLocale(validatable.getValue());
+                            } catch (Exception e) {
+                                LOG.error("Invalid Locale: {}", validatable.getValue(), e);
+                                validatable.error(new ValidationError("Invalid Locale: " + validatable.getValue()));
 
-                            RequestCycle.get().find(AjaxRequestTarget.class).
+                                RequestCycle.get().find(AjaxRequestTarget.class).
                                     ifPresent(target -> target.add(Labels.this));
-                        }
-                    });
-                    item.add(locale);
+                            }
+                        });
+                        item.add(locale);
 
-                    AjaxTextFieldPanel display = new AjaxTextFieldPanel("display", "display", new Model<>());
-                    display.getField().setModel(new IModel<String>() {
+                        AjaxTextFieldPanel display = new AjaxTextFieldPanel("display", "display", new Model<>());
+                        display.getField().setModel(new IModel<>() {
 
-                        private static final long serialVersionUID = 1500045101360533133L;
+                            private static final long serialVersionUID = 1500045101360533133L;
 
-                        @Override
-                        public String getObject() {
-                            return entry.getRight();
-                        }
+                            @Override
+                            public String getObject() {
+                                return entry.getRight();
+                            }
 
-                        @Override
-                        public void setObject(final String object) {
-                            entry.setRight(object);
-                        }
-                    });
-                    display.setRequired(true).hideLabel();
-                    item.add(display);
+                            @Override
+                            public void setObject(final String object) {
+                                entry.setRight(object);
+                            }
+                        });
+                        display.setRequired(true).hideLabel();
+                        item.add(display);
 
-                    ActionsPanel<Serializable> actions = new ActionsPanel<>("toRemove", null);
-                    actions.add(new ActionLink<Serializable>() {
+                        ActionsPanel<Serializable> actions = new ActionsPanel<>("toRemove", null);
+                        actions.add(new ActionLink<>() {
 
-                        private static final long serialVersionUID = -3722207913631435501L;
+                            private static final long serialVersionUID = -3722207913631435501L;
 
-                        @Override
-                        public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                            translations.getObject().remove(item.getIndex());
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                                translations.getObject().remove(item.getIndex());
 
-                            item.getParent().removeAll();
-                            target.add(Labels.this);
-                        }
-                    }, ActionLink.ActionType.DELETE, IdRepoEntitlement.SCHEMA_UPDATE, true).hideLabel();
-                    item.add(actions);
-                }
-            };
+                                item.getParent().removeAll();
+                                target.add(Labels.this);
+                            }
+                        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.SCHEMA_UPDATE, true).hideLabel();
+                        item.add(actions);
+                    }
+                };
             labels.setReuseItems(true);
             add(labels);
 

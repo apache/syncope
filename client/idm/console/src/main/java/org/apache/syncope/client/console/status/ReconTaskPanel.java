@@ -65,25 +65,25 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ReconTaskPanel.class);
 
-    private final IModel<List<String>> pullActions = new LoadableDetachableModel<List<String>>() {
+    private final IModel<List<String>> pullActions = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
-    private final IModel<List<String>> pushActions = new LoadableDetachableModel<List<String>>() {
+    private final IModel<List<String>> pushActions = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
@@ -122,7 +122,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
             settings.setShowListOnEmptyInput(!isSearchEnabled);
 
             AjaxSearchFieldPanel realm = new AjaxSearchFieldPanel(
-                    "realm", "destinationRealm", new PropertyModel<String>(taskTO, "destinationRealm"), settings) {
+                    "realm", "destinationRealm", new PropertyModel<>(taskTO, "destinationRealm"), settings) {
 
                 private static final long serialVersionUID = -6390474600233486704L;
 

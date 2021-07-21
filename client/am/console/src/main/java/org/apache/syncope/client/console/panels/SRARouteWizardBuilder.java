@@ -76,7 +76,7 @@ public class SRARouteWizardBuilder extends BaseAjaxWizardBuilder<SRARouteTO> {
                     new PropertyModel<>(route, Constants.NAME_FIELD_NAME), false).
                     addRequiredLabel().setEnabled(true));
 
-            AjaxTextFieldPanel target = new AjaxTextFieldPanel("target", "target", new IModel<String>() {
+            AjaxTextFieldPanel target = new AjaxTextFieldPanel("target", "target", new IModel<>() {
 
                 private static final long serialVersionUID = 1015030402166681242L;
 
@@ -98,7 +98,7 @@ public class SRARouteWizardBuilder extends BaseAjaxWizardBuilder<SRARouteTO> {
             target.getField().add(new UrlValidator(new String[] { "http", "https" }));
             add(target);
 
-            AjaxTextFieldPanel error = new AjaxTextFieldPanel("error", "error", new IModel<String>() {
+            AjaxTextFieldPanel error = new AjaxTextFieldPanel("error", "error", new IModel<>() {
 
                 private static final long serialVersionUID = 1015030402166681242L;
 
@@ -127,7 +127,7 @@ public class SRARouteWizardBuilder extends BaseAjaxWizardBuilder<SRARouteTO> {
 
             add(new AjaxCheckBoxPanel("logout", "logout", new PropertyModel<>(route, "logout")));
 
-            AjaxTextFieldPanel postLogout = new AjaxTextFieldPanel("postLogout", "postLogout", new IModel<String>() {
+            AjaxTextFieldPanel postLogout = new AjaxTextFieldPanel("postLogout", "postLogout", new IModel<>() {
 
                 private static final long serialVersionUID = 1015030402166681242L;
 

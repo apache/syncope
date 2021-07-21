@@ -65,7 +65,7 @@ public final class JexlUtils {
     private static final String[] IGNORE_FIELDS = { "password", "clearPassword", "serialVersionUID", "class" };
 
     private static final Map<Class<?>, Set<Pair<PropertyDescriptor, Field>>> FIELD_CACHE =
-            Collections.synchronizedMap(new HashMap<Class<?>, Set<Pair<PropertyDescriptor, Field>>>());
+            Collections.synchronizedMap(new HashMap<>());
 
     private static JexlEngine JEXL_ENGINE;
 

@@ -33,7 +33,7 @@ public class CheckGroupColumn<T, S> extends AbstractColumn<T, S> {
     private final CheckGroup<T> group;
 
     public CheckGroupColumn(final CheckGroup<T> checkGroup) {
-        super(new Model<String>());
+        super(new Model<>());
         this.group = checkGroup;
     }
 

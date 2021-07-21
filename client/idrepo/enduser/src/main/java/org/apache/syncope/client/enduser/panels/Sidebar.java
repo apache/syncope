@@ -121,45 +121,45 @@ public class Sidebar extends Panel {
         }
 
         ListView<Class<? extends BasePage>> extPages =
-                new ListView<Class<? extends BasePage>>("extPages", extPageClasses) {
+            new ListView<>("extPages", extPageClasses) {
 
-            private static final long serialVersionUID = 4949588177564901031L;
+                private static final long serialVersionUID = 4949588177564901031L;
 
-            @Override
-            protected void populateItem(final ListItem<Class<? extends BasePage>> item) {
-                WebMarkupContainer containingLI = new WebMarkupContainer("extPageLI");
-                item.add(containingLI);
+                @Override
+                protected void populateItem(final ListItem<Class<? extends BasePage>> item) {
+                    WebMarkupContainer containingLI = new WebMarkupContainer("extPageLI");
+                    item.add(containingLI);
 
-                ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);
+                    ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);
 
-                BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
+                    BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
 
-                link.add(new Label("extPageLabel", ann.label()));
+                    link.add(new Label("extPageLabel", ann.label()));
 
-                if (item.getModelObject().equals(pageRef.getPage().getClass())) {
-                    link.add(new Behavior() {
+                    if (item.getModelObject().equals(pageRef.getPage().getClass())) {
+                        link.add(new Behavior() {
 
-                        private static final long serialVersionUID = 1469628524240283489L;
+                            private static final long serialVersionUID = 1469628524240283489L;
 
-                        @Override
-                        public void renderHead(final Component component, final IHeaderResponse response) {
-                            response.render(OnDomReadyHeaderItem.forScript(
+                            @Override
+                            public void renderHead(final Component component, final IHeaderResponse response) {
+                                response.render(OnDomReadyHeaderItem.forScript(
                                     "$('#extensionsLink').addClass('active')"));
-                        }
+                            }
 
-                        @Override
-                        public void onComponentTag(final Component component, final ComponentTag tag) {
-                            tag.append("class", "active", " ");
-                        }
-                    });
+                            @Override
+                            public void onComponentTag(final Component component, final ComponentTag tag) {
+                                tag.append("class", "active", " ");
+                            }
+                        });
+                    }
+                    containingLI.add(link);
+
+                    Label extPageIcon = new Label("extPageIcon");
+                    extPageIcon.add(new AttributeModifier("class", "nav-icon " + ann.icon()));
+                    link.add(extPageIcon);
                 }
-                containingLI.add(link);
-
-                Label extPageIcon = new Label("extPageIcon");
-                extPageIcon.add(new AttributeModifier("class", "nav-icon " + ann.icon()));
-                link.add(extPageIcon);
-            }
-        };
+            };
 
         add(extPages.setRenderBodyOnly(true).setOutputMarkupId(true));
     }

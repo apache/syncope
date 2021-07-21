@@ -53,7 +53,7 @@ public final class SRASessionRestClient extends AMSessionRestClient {
 
             Response response = client.get();
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-                return response.readEntity(new GenericType<List<AMSession>>() {
+                return response.readEntity(new GenericType<>() {
                 });
             }
 

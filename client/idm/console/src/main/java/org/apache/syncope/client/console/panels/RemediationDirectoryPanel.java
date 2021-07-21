@@ -124,7 +124,7 @@ public class RemediationDirectoryPanel
     protected ActionsPanel<RemediationTO> getActions(final IModel<RemediationTO> model) {
         ActionsPanel<RemediationTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<RemediationTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 6193210574968203299L;
 
@@ -146,7 +146,7 @@ public class RemediationDirectoryPanel
                 ? IdRepoEntitlement.GROUP_DELETE
                 : AnyEntitlement.DELETE.getFor(model.getObject().getAnyType()) }, ",");
 
-            panel.add(new ActionLink<RemediationTO>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = 6193210574968203299L;
 
@@ -180,7 +180,7 @@ public class RemediationDirectoryPanel
                 ? IdRepoEntitlement.GROUP_UPDATE
                 : AnyEntitlement.UPDATE.getFor(model.getObject().getAnyType()) }, ",");
 
-            panel.add(new ActionLink<RemediationTO>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = 6193210574968203299L;
 
@@ -199,20 +199,20 @@ public class RemediationDirectoryPanel
                                 previousUserTO = null;
                             } else {
                                 previousUserTO = new UserRestClient().
-                                        read(remediationTO.getAnyURPayload().getKey());
+                                    read(remediationTO.getAnyURPayload().getKey());
                                 newUserTO = AnyOperations.patch(
-                                        previousUserTO, (UserUR) remediationTO.getAnyURPayload());
+                                    previousUserTO, (UserUR) remediationTO.getAnyURPayload());
                             }
 
                             AjaxWizard.EditItemActionEvent<UserTO> userEvent =
-                                    new AjaxWizard.EditItemActionEvent<>(newUserTO, target);
+                                new AjaxWizard.EditItemActionEvent<>(newUserTO, target);
                             userEvent.forceModalPanel(new RemediationUserWizardBuilder(
-                                    model.getObject(),
-                                    previousUserTO,
-                                    newUserTO,
-                                    AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
-                                    AnyLayoutUtils.fetch(List.of(remediationTO.getAnyType())).getUser(),
-                                    pageRef
+                                model.getObject(),
+                                previousUserTO,
+                                newUserTO,
+                                AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
+                                AnyLayoutUtils.fetch(List.of(remediationTO.getAnyType())).getUser(),
+                                pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, userEvent);
                             break;
@@ -226,20 +226,20 @@ public class RemediationDirectoryPanel
                                 previousGroupTO = null;
                             } else {
                                 previousGroupTO = new GroupRestClient().
-                                        read(remediationTO.getAnyURPayload().getKey());
+                                    read(remediationTO.getAnyURPayload().getKey());
                                 newGroupTO = AnyOperations.patch(
-                                        previousGroupTO, (GroupUR) remediationTO.getAnyURPayload());
+                                    previousGroupTO, (GroupUR) remediationTO.getAnyURPayload());
                             }
 
                             AjaxWizard.EditItemActionEvent<GroupTO> groupEvent =
-                                    new AjaxWizard.EditItemActionEvent<>(newGroupTO, target);
+                                new AjaxWizard.EditItemActionEvent<>(newGroupTO, target);
                             groupEvent.forceModalPanel(new RemediationGroupWizardBuilder(
-                                    model.getObject(),
-                                    previousGroupTO,
-                                    newGroupTO,
-                                    AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
-                                    AnyLayoutUtils.fetch(List.of(remediationTO.getAnyType())).getGroup(),
-                                    pageRef
+                                model.getObject(),
+                                previousGroupTO,
+                                newGroupTO,
+                                AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
+                                AnyLayoutUtils.fetch(List.of(remediationTO.getAnyType())).getGroup(),
+                                pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, groupEvent);
                             break;
@@ -253,21 +253,21 @@ public class RemediationDirectoryPanel
                                 previousAnyObjectTO = null;
                             } else {
                                 previousAnyObjectTO = new AnyObjectRestClient().
-                                        read(remediationTO.getAnyURPayload().getKey());
+                                    read(remediationTO.getAnyURPayload().getKey());
                                 newAnyObjectTO = AnyOperations.patch(
-                                        previousAnyObjectTO, (AnyObjectUR) remediationTO.getAnyURPayload());
+                                    previousAnyObjectTO, (AnyObjectUR) remediationTO.getAnyURPayload());
                             }
 
                             AjaxWizard.EditItemActionEvent<AnyObjectTO> anyObjectEvent =
-                                    new AjaxWizard.EditItemActionEvent<>(newAnyObjectTO, target);
+                                new AjaxWizard.EditItemActionEvent<>(newAnyObjectTO, target);
                             anyObjectEvent.forceModalPanel(new RemediationAnyObjectWizardBuilder(
-                                    model.getObject(),
-                                    previousAnyObjectTO,
-                                    newAnyObjectTO,
-                                    AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
-                                    AnyLayoutUtils.fetch(List.of(remediationTO.getAnyType())).getAnyObjects().
-                                            get(remediationTO.getAnyType()),
-                                    pageRef
+                                model.getObject(),
+                                previousAnyObjectTO,
+                                newAnyObjectTO,
+                                AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
+                                AnyLayoutUtils.fetch(List.of(remediationTO.getAnyType())).getAnyObjects().
+                                    get(remediationTO.getAnyType()),
+                                pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, anyObjectEvent);
                     }
@@ -275,7 +275,7 @@ public class RemediationDirectoryPanel
             }, ActionLink.ActionType.EDIT, entitlements);
         }
 
-        panel.add(new ActionLink<RemediationTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 6193210574968203299L;
 
@@ -335,7 +335,7 @@ public class RemediationDirectoryPanel
 
         @Override
         public IModel<RemediationTO> model(final RemediationTO remediation) {
-            return new IModel<RemediationTO>() {
+            return new IModel<>() {
 
                 private static final long serialVersionUID = -2566070996511906708L;
 

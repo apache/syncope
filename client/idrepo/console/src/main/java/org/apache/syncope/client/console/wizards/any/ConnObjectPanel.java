@@ -58,21 +58,21 @@ public class ConnObjectPanel extends Panel {
 
         super(id);
 
-        final IModel<List<String>> formProps = new LoadableDetachableModel<List<String>>() {
+        final IModel<List<String>> formProps = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
                 List<Attr> right = new ArrayList<>(connObjectTOs == null || connObjectTOs.getRight() == null
-                        ? List.of()
-                        : connObjectTOs.getRight().getAttrs());
+                    ? List.of()
+                    : connObjectTOs.getRight().getAttrs());
                 List<Attr> left = new ArrayList<>(connObjectTOs == null || connObjectTOs.getLeft() == null
-                        ? List.of()
-                        : connObjectTOs.getLeft().getAttrs());
+                    ? List.of()
+                    : connObjectTOs.getLeft().getAttrs());
 
                 List<String> schemas = ListUtils.sum(right.stream().map(Attr::getSchema).collect(Collectors.toList()),
-                        left.stream().map(Attr::getSchema).collect(Collectors.toList()));
+                    left.stream().map(Attr::getSchema).collect(Collectors.toList()));
                 Collections.sort(schemas);
                 return schemas;
             }
@@ -87,7 +87,7 @@ public class ConnObjectPanel extends Panel {
         final Map<String, Attr> rightProfile = connObjectTOs == null || connObjectTOs.getRight() == null
                 ? null
                 : EntityTOUtils.buildAttrMap(connObjectTOs.getRight().getAttrs());
-        ListView<String> propView = new ListView<String>("propView", formProps) {
+        ListView<String> propView = new ListView<>("propView", formProps) {
 
             private static final long serialVersionUID = 3109256773218160485L;
 
@@ -103,20 +103,20 @@ public class ConnObjectPanel extends Panel {
 
                 valueFragment = new Fragment("value", "doubleValue", ConnObjectPanel.this);
                 valueFragment.add(getValuePanel("leftAttribute", prop, left).
-                        setOutputMarkupPlaceholderTag(true).setVisible(!hideLeft));
+                    setOutputMarkupPlaceholderTag(true).setVisible(!hideLeft));
                 valueFragment.add(getValuePanel("rightAttribute", prop, right));
 
                 if (left == null || right == null
-                        || (CollectionUtils.isNotEmpty(right.getValues())
-                        && CollectionUtils.isEmpty(left.getValues()))
-                        || (CollectionUtils.isEmpty(right.getValues())
-                        && CollectionUtils.isNotEmpty(left.getValues()))
-                        || (CollectionUtils.isNotEmpty(right.getValues())
-                        && CollectionUtils.isNotEmpty(left.getValues())
-                        && right.getValues().size() != left.getValues().size())
-                        || (CollectionUtils.isNotEmpty(right.getValues())
-                        && CollectionUtils.isNotEmpty(left.getValues())
-                        && !right.getValues().equals(left.getValues()))) {
+                    || (CollectionUtils.isNotEmpty(right.getValues())
+                    && CollectionUtils.isEmpty(left.getValues()))
+                    || (CollectionUtils.isEmpty(right.getValues())
+                    && CollectionUtils.isNotEmpty(left.getValues()))
+                    || (CollectionUtils.isNotEmpty(right.getValues())
+                    && CollectionUtils.isNotEmpty(left.getValues())
+                    && right.getValues().size() != left.getValues().size())
+                    || (CollectionUtils.isNotEmpty(right.getValues())
+                    && CollectionUtils.isNotEmpty(left.getValues())
+                    && !right.getValues().equals(left.getValues()))) {
 
                     valueFragment.add(new Behavior() {
 

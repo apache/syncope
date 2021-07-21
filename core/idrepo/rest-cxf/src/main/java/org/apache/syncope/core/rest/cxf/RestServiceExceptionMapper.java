@@ -74,7 +74,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
 
     private static final String UNIQUE_MSG_KEY = "UniqueConstraintViolation";
 
-    private static final Map<String, String> EXCEPTION_CODE_MAP = new HashMap<String, String>() {
+    private static final Map<String, String> EXCEPTION_CODE_MAP = new HashMap<>() {
 
         private static final long serialVersionUID = -7688359318035249200L;
 

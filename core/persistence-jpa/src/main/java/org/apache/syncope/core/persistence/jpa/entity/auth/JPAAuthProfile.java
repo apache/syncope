@@ -76,8 +76,8 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
         return googleMfaAuthTokens == null
                 ? new ArrayList<>(0)
-                : POJOHelper.deserialize(googleMfaAuthTokens, new TypeReference<List<GoogleMfaAuthToken>>() {
-                });
+                : POJOHelper.deserialize(googleMfaAuthTokens, new TypeReference<>() {
+        });
     }
 
     @Override
@@ -89,8 +89,8 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     public List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts() {
         return googleMfaAuthAccounts == null
                 ? new ArrayList<>(0)
-                : POJOHelper.deserialize(googleMfaAuthAccounts, new TypeReference<List<GoogleMfaAuthAccount>>() {
-                });
+                : POJOHelper.deserialize(googleMfaAuthAccounts, new TypeReference<>() {
+        });
     }
 
     @Override
@@ -102,8 +102,8 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     public List<U2FDevice> getU2FRegisteredDevices() {
         return u2fRegisteredDevices == null
                 ? new ArrayList<>(0)
-                : POJOHelper.deserialize(u2fRegisteredDevices, new TypeReference<List<U2FDevice>>() {
-                });
+                : POJOHelper.deserialize(u2fRegisteredDevices, new TypeReference<>() {
+        });
     }
 
     @Override
@@ -115,8 +115,8 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     public List<ImpersonationAccount> getImpersonationAccounts() {
         return impersonatedAccounts == null
                 ? new ArrayList<>(0)
-                : POJOHelper.deserialize(impersonatedAccounts, new TypeReference<List<ImpersonationAccount>>() {
-                });
+                : POJOHelper.deserialize(impersonatedAccounts, new TypeReference<>() {
+        });
     }
 
     @Override
@@ -129,8 +129,8 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
         return webAuthnDeviceCredentials == null
                 ? new ArrayList<>(0)
                 : POJOHelper.deserialize(webAuthnDeviceCredentials,
-                        new TypeReference<List<WebAuthnDeviceCredential>>() {
-                });
+            new TypeReference<>() {
+            });
     }
 
     @Override

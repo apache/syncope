@@ -82,7 +82,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
         Collections.sort(pSchemaNames);
         Collections.sort(dSchemaNames);
 
-        final IModel<List<String>> fnames = new LoadableDetachableModel<List<String>>() {
+        final IModel<List<String>> fnames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -92,7 +92,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
             }
         };
 
-        final IModel<List<String>> psnames = new LoadableDetachableModel<List<String>>() {
+        final IModel<List<String>> psnames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -102,7 +102,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
             }
         };
 
-        final IModel<List<String>> dsnames = new LoadableDetachableModel<List<String>>() {
+        final IModel<List<String>> dsnames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 

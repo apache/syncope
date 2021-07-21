@@ -98,14 +98,14 @@ public class DefaultPasswordRule implements PasswordRule {
 
         // check prefix
         conf.getPrefixesNotPermitted().stream().
-                filter(prefix -> clear.startsWith(prefix)).
+                filter(clear::startsWith).
                 forEach(item -> {
                     throw new PasswordPolicyException("Prefix not permitted");
                 });
 
         // check suffix
         conf.getSuffixesNotPermitted().stream().
-                filter(suffix -> clear.endsWith(suffix)).
+                filter(clear::endsWith).
                 forEach(item -> {
                     throw new PasswordPolicyException("Suffix not permitted");
                 });
@@ -182,7 +182,7 @@ public class DefaultPasswordRule implements PasswordRule {
             Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
             wordsNotPermitted.addAll(
                     conf.getSchemasNotPermitted().stream().
-                            map(schema -> user.getPlainAttr(schema)).
+                            map(user::getPlainAttr).
                             filter(Optional::isPresent).
                             map(attr -> attr.get().getValuesAsStrings()).
                             filter(values -> !CollectionUtils.isEmpty(values)).
@@ -198,7 +198,7 @@ public class DefaultPasswordRule implements PasswordRule {
     public void enforce(final LinkedAccount account) {
         conf.getWordsNotPermitted().addAll(
                 conf.getSchemasNotPermitted().stream().
-                        map(schema -> account.getPlainAttr(schema)).
+                        map(account::getPlainAttr).
                         filter(Optional::isPresent).
                         map(attr -> attr.get().getValuesAsStrings()).
                         filter(values -> !CollectionUtils.isEmpty(values)).
@@ -219,7 +219,7 @@ public class DefaultPasswordRule implements PasswordRule {
                 Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
                 wordsNotPermitted.addAll(
                         conf.getSchemasNotPermitted().stream().
-                                map(schema -> account.getPlainAttr(schema)).
+                                map(account::getPlainAttr).
                                 filter(Optional::isPresent).
                                 map(attr -> attr.get().getValuesAsStrings()).
                                 filter(values -> !CollectionUtils.isEmpty(values)).

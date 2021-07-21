@@ -124,17 +124,17 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
     public ActionsPanel<SecurityQuestionTO> getActions(final IModel<SecurityQuestionTO> model) {
         ActionsPanel<SecurityQuestionTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<SecurityQuestionTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
                 send(SecurityQuestionsPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.SECURITY_QUESTION_UPDATE);
-        panel.add(new ActionLink<SecurityQuestionTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

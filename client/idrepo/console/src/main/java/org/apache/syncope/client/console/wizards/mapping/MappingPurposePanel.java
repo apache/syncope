@@ -44,7 +44,7 @@ public class MappingPurposePanel extends Panel {
 
         super(componentId, model);
 
-        propagation = new AjaxLink<Void>("propagationPurposeLink") {
+        propagation = new AjaxLink<>("propagationPurposeLink") {
 
             private static final long serialVersionUID = -6957616042924610305L;
 
@@ -56,7 +56,7 @@ public class MappingPurposePanel extends Panel {
             }
         };
 
-        pull = new AjaxLink<Void>("pullPurposeLink") {
+        pull = new AjaxLink<>("pullPurposeLink") {
 
             private static final long serialVersionUID = -6957616042924610305L;
 
@@ -68,7 +68,7 @@ public class MappingPurposePanel extends Panel {
             }
         };
 
-        both = new AjaxLink<Void>("bothPurposeLink") {
+        both = new AjaxLink<>("bothPurposeLink") {
 
             private static final long serialVersionUID = -6957616042924610305L;
 
@@ -80,7 +80,7 @@ public class MappingPurposePanel extends Panel {
             }
         };
 
-        none = new AjaxLink<Void>("nonePurposeLink") {
+        none = new AjaxLink<>("nonePurposeLink") {
 
             private static final long serialVersionUID = -6957616042924610305L;
 

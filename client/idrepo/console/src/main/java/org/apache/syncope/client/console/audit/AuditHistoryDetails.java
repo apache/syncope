@@ -84,7 +84,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Multil
             }
         });
 
-        AjaxLink<Void> restore = new AjaxLink<Void>("restore") {
+        AjaxLink<Void> restore = new AjaxLink<>("restore") {
 
             private static final long serialVersionUID = -817438685948164787L;
 
@@ -92,8 +92,8 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Multil
             public void onClick(final AjaxRequestTarget target) {
                 try {
                     String json = selected.getBefore() == null
-                            ? MAPPER.readTree(selected.getOutput()).get("entity").toPrettyString()
-                            : selected.getBefore();
+                        ? MAPPER.readTree(selected.getOutput()).get("entity").toPrettyString()
+                        : selected.getBefore();
                     restore(json, target);
 
                     mlp.prev(target);

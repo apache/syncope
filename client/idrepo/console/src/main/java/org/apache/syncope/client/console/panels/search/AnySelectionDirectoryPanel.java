@@ -54,14 +54,14 @@ public abstract class AnySelectionDirectoryPanel<A extends AnyTO, E extends Abst
     public ActionsPanel<A> getActions(final IModel<A> model) {
         final ActionsPanel<A> panel = super.getActions(model);
 
-        panel.add(new ActionLink<A>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final A ignore) {
                 send(AnySelectionDirectoryPanel.this,
-                        Broadcast.BUBBLE, new ItemSelection<>(target, model.getObject()));
+                    Broadcast.BUBBLE, new ItemSelection<>(target, model.getObject()));
             }
         }, ActionType.SELECT, AnyEntitlement.READ.getFor(type));
 

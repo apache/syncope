@@ -61,6 +61,6 @@ public class SyncopeWASAML2ClientKeystoreGeneratorTest extends BaseSyncopeWASAML
     public void generate() throws Exception {
         SAML2Client client = getSAML2Client();
         SAML2KeystoreGenerator generator = new SyncopeWASAML2ClientKeystoreGenerator(getWaRestClient(), client);
-        assertDoesNotThrow(() -> generator.generate());
+        assertDoesNotThrow(generator::generate);
     }
 }

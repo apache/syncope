@@ -94,7 +94,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         propTaskModal.size(Modal.Size.Large);
         addOuterObject(propTaskModal);
 
-        schedTaskModal = new BaseModal<Serializable>(Constants.OUTER) {
+        schedTaskModal = new BaseModal<>(Constants.OUTER) {
 
             private static final long serialVersionUID = 389935548143327858L;
 
@@ -174,7 +174,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     private Fragment getSyncopeFragment(final PageReference pageRef) {
         Fragment fragment = new Fragment("actions", "syncopeActions", this);
 
-        AjaxLink<String> reload = new IndicatingOnConfirmAjaxLink<String>("reload", "connectors.confirm.reload", true) {
+        AjaxLink<String> reload = new IndicatingOnConfirmAjaxLink<>("reload", "connectors.confirm.reload", true) {
 
             private static final long serialVersionUID = -2075933173666007020L;
 
@@ -193,7 +193,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         fragment.add(reload);
         MetaDataRoleAuthorizationStrategy.authorize(reload, RENDER, IdMEntitlement.CONNECTOR_RELOAD);
 
-        AjaxLink<String> tasks = new IndicatingAjaxLink<String>("tasks") {
+        AjaxLink<String> tasks = new IndicatingAjaxLink<>("tasks") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -218,7 +218,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     private Fragment getLocationFragment(final TopologyNode node, final PageReference pageRef) {
         Fragment fragment = new Fragment("actions", "locationActions", this);
 
-        AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
+        AjaxLink<String> create = new IndicatingAjaxLink<>("create") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -231,7 +231,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.setFormModel(model);
 
                 target.add(modal.setContent(new ConnectorWizardBuilder(modelObject, pageRef).
-                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
+                    build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("connector.new"), node.getKey())));
                 modal.show(true);
@@ -251,7 +251,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     private Fragment getConnectorFragment(final TopologyNode node, final PageReference pageRef) {
         Fragment fragment = new Fragment("actions", "connectorActions", this);
 
-        AjaxLink<String> delete = new IndicatingOnConfirmAjaxLink<String>("delete", true) {
+        AjaxLink<String> delete = new IndicatingOnConfirmAjaxLink<>("delete", true) {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -272,7 +272,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(delete, RENDER, IdMEntitlement.CONNECTOR_DELETE);
         fragment.add(delete);
 
-        AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
+        AjaxLink<String> create = new IndicatingAjaxLink<>("create") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -286,7 +286,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.setFormModel(model);
 
                 target.add(modal.setContent(new ResourceWizardBuilder(modelObject, pageRef).
-                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
+                    build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("resource.new"), node.getKey())));
                 modal.show(true);
@@ -301,7 +301,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(create, RENDER, IdMEntitlement.RESOURCE_CREATE);
         fragment.add(create);
 
-        AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
+        AjaxLink<String> edit = new IndicatingAjaxLink<>("edit") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -313,14 +313,14 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.setFormModel(model);
 
                 target.add(modal.setContent(new ConnectorWizardBuilder(connInstance, pageRef).
-                        build(BaseModal.CONTENT_ID,
-                                SyncopeConsoleSession.get().
-                                        owns(IdMEntitlement.CONNECTOR_UPDATE, connInstance.getAdminRealm())
-                                ? AjaxWizard.Mode.EDIT
-                                : AjaxWizard.Mode.READONLY)));
+                    build(BaseModal.CONTENT_ID,
+                        SyncopeConsoleSession.get().
+                            owns(IdMEntitlement.CONNECTOR_UPDATE, connInstance.getAdminRealm())
+                            ? AjaxWizard.Mode.EDIT
+                            : AjaxWizard.Mode.READONLY)));
 
                 modal.header(
-                        new Model<>(MessageFormat.format(getString("connector.edit"), connInstance.getDisplayName())));
+                    new Model<>(MessageFormat.format(getString("connector.edit"), connInstance.getDisplayName())));
                 modal.show(true);
             }
 
@@ -332,7 +332,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, IdMEntitlement.CONNECTOR_READ);
         fragment.add(edit);
 
-        AjaxLink<String> history = new IndicatingAjaxLink<String>("history") {
+        AjaxLink<String> history = new IndicatingAjaxLink<>("history") {
 
             private static final long serialVersionUID = -1876519166660008562L;
 
@@ -340,13 +340,13 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public void onClick(final AjaxRequestTarget target) {
                 ConnInstanceTO modelObject = ConnectorRestClient.read(node.getKey());
 
-                target.add(historyModal.setContent(new AuditHistoryModal<ConnInstanceTO>(
-                        historyModal,
-                        AuditElements.EventCategoryType.LOGIC,
-                        "ConnectorLogic",
-                        modelObject,
-                        IdMEntitlement.CONNECTOR_UPDATE,
-                        pageRef) {
+                target.add(historyModal.setContent(new AuditHistoryModal<>(
+                    historyModal,
+                    AuditElements.EventCategoryType.LOGIC,
+                    "ConnectorLogic",
+                    modelObject,
+                    IdMEntitlement.CONNECTOR_UPDATE,
+                    pageRef) {
 
                     private static final long serialVersionUID = -3225348282675513648L;
 
@@ -367,7 +367,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 }));
 
                 historyModal.header(
-                        new Model<>(MessageFormat.format(getString("connector.menu.history"), node.getDisplayName())));
+                    new Model<>(MessageFormat.format(getString("connector.menu.history"), node.getDisplayName())));
 
                 historyModal.show(true);
             }
@@ -387,7 +387,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     private Fragment getResourceFragment(final TopologyNode node, final PageReference pageRef) {
         Fragment fragment = new Fragment("actions", "resourceActions", this);
 
-        AjaxLink<String> delete = new IndicatingOnConfirmAjaxLink<String>("delete", true) {
+        AjaxLink<String> delete = new IndicatingOnConfirmAjaxLink<>("delete", true) {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -408,7 +408,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(delete, RENDER, IdMEntitlement.RESOURCE_DELETE);
         fragment.add(delete);
 
-        AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
+        AjaxLink<String> edit = new IndicatingAjaxLink<>("edit") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -421,11 +421,11 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.setFormModel(model);
 
                 target.add(modal.setContent(new ResourceWizardBuilder(resource, pageRef).
-                        build(BaseModal.CONTENT_ID,
-                                SyncopeConsoleSession.get().
-                                        owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())
-                                ? AjaxWizard.Mode.EDIT
-                                : AjaxWizard.Mode.READONLY)));
+                    build(BaseModal.CONTENT_ID,
+                        SyncopeConsoleSession.get().
+                            owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())
+                            ? AjaxWizard.Mode.EDIT
+                            : AjaxWizard.Mode.READONLY)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
                 modal.show(true);
@@ -439,7 +439,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, IdMEntitlement.RESOURCE_READ);
         fragment.add(edit);
 
-        AjaxLink<String> status = new IndicatingAjaxLink<String>("reconciliation") {
+        AjaxLink<String> status = new IndicatingAjaxLink<>("reconciliation") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -447,9 +447,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public void onClick(final AjaxRequestTarget target) {
                 ResourceTO modelObject = ResourceRestClient.read(node.getKey());
                 target.add(propTaskModal.setContent(
-                        new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
+                    new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
                 propTaskModal.header(
-                        new Model<>(MessageFormat.format(getString("resource.reconciliation"), node.getKey())));
+                    new Model<>(MessageFormat.format(getString("resource.reconciliation"), node.getKey())));
                 propTaskModal.show(true);
             }
 
@@ -461,7 +461,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(status, RENDER, IdRepoEntitlement.USER_UPDATE);
         fragment.add(status);
 
-        AjaxLink<String> provision = new IndicatingAjaxLink<String>("provision") {
+        AjaxLink<String> provision = new IndicatingAjaxLink<>("provision") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -471,7 +471,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ConnInstanceTO connInstance = ConnectorRestClient.read(resource.getConnector());
 
                 if (SyncopeConsoleSession.get().
-                        owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())) {
+                    owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())) {
 
                     provisionModal.addSubmitButton();
                 } else {
@@ -482,7 +482,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 provisionModal.setFormModel(model);
 
                 target.add(provisionModal.setContent(
-                        new ResourceProvisionPanel(provisionModal, resource, connInstance.getAdminRealm(), pageRef)));
+                    new ResourceProvisionPanel(provisionModal, resource, connInstance.getAdminRealm(), pageRef)));
 
                 provisionModal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
                 provisionModal.show(true);
@@ -496,7 +496,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, IdMEntitlement.RESOURCE_READ);
         fragment.add(provision);
 
-        AjaxLink<String> explore = new IndicatingAjaxLink<String>("explore") {
+        AjaxLink<String> explore = new IndicatingAjaxLink<>("explore") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -517,7 +517,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(explore, RENDER, IdMEntitlement.RESOURCE_LIST_CONNOBJECT);
         fragment.add(explore);
 
-        AjaxLink<String> propagation = new IndicatingAjaxLink<String>("propagation") {
+        AjaxLink<String> propagation = new IndicatingAjaxLink<>("propagation") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -525,9 +525,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @SuppressWarnings("unchecked")
             public void onClick(final AjaxRequestTarget target) {
                 target.add(propTaskModal.setContent(
-                        new PropagationTasks(propTaskModal, node.getKey(), pageRef)));
+                    new PropagationTasks(propTaskModal, node.getKey(), pageRef)));
                 propTaskModal.header(
-                        new Model<>(MessageFormat.format(getString("task.propagation.list"), node.getKey())));
+                    new Model<>(MessageFormat.format(getString("task.propagation.list"), node.getKey())));
                 propTaskModal.show(true);
             }
 
@@ -539,7 +539,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(propagation, RENDER, IdRepoEntitlement.TASK_LIST);
         fragment.add(propagation);
 
-        AjaxLink<String> pull = new IndicatingAjaxLink<String>("pull") {
+        AjaxLink<String> pull = new IndicatingAjaxLink<>("pull") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -558,7 +558,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(pull, RENDER, IdRepoEntitlement.TASK_LIST);
         fragment.add(pull);
 
-        AjaxLink<String> push = new IndicatingAjaxLink<String>("push") {
+        AjaxLink<String> push = new IndicatingAjaxLink<>("push") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -577,7 +577,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(push, RENDER, IdRepoEntitlement.TASK_LIST);
         fragment.add(push);
 
-        AjaxLink<String> history = new IndicatingAjaxLink<String>("history") {
+        AjaxLink<String> history = new IndicatingAjaxLink<>("history") {
 
             private static final long serialVersionUID = -1876519166660008562L;
 
@@ -585,13 +585,13 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public void onClick(final AjaxRequestTarget target) {
                 ResourceTO modelObject = ResourceRestClient.read(node.getKey());
 
-                target.add(historyModal.setContent(new AuditHistoryModal<ResourceTO>(
-                        historyModal,
-                        AuditElements.EventCategoryType.LOGIC,
-                        "ResourceLogic",
-                        modelObject,
-                        IdMEntitlement.RESOURCE_UPDATE,
-                        pageRef) {
+                target.add(historyModal.setContent(new AuditHistoryModal<>(
+                    historyModal,
+                    AuditElements.EventCategoryType.LOGIC,
+                    "ResourceLogic",
+                    modelObject,
+                    IdMEntitlement.RESOURCE_UPDATE,
+                    pageRef) {
 
                     private static final long serialVersionUID = -3712506022627033811L;
 
@@ -612,7 +612,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 }));
 
                 historyModal.header(
-                        new Model<>(MessageFormat.format(getString("resource.menu.history"), node.getDisplayName())));
+                    new Model<>(MessageFormat.format(getString("resource.menu.history"), node.getDisplayName())));
 
                 historyModal.show(true);
             }
@@ -627,7 +627,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         fragment.add(history);
 
         // [SYNCOPE-1161] - Option to clone a resource
-        AjaxLink<String> clone = new IndicatingOnConfirmAjaxLink<String>("clone", "confirmClone", true) {
+        AjaxLink<String> clone = new IndicatingOnConfirmAjaxLink<>("clone", "confirmClone", true) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -657,11 +657,11 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
                     // refresh Topology
                     send(pageRef.getPage(), Broadcast.DEPTH, new AbstractResourceWizardBuilder.CreateEvent(
-                            resource.getKey(),
-                            resource.getKey(),
-                            TopologyNode.Kind.RESOURCE,
-                            resource.getConnector(),
-                            target));
+                        resource.getKey(),
+                        resource.getKey(),
+                        TopologyNode.Kind.RESOURCE,
+                        resource.getConnector(),
+                        target));
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);

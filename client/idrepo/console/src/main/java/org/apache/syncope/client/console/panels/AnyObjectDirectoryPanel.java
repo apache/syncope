@@ -77,14 +77,14 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
     public ActionsPanel<Serializable> getHeader(final String componentId) {
         final ActionsPanel<Serializable> panel = super.getHeader(componentId);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 target.add(displayAttributeModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
-                        displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
+                    displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
                 displayAttributeModal.addSubmitButton();
                 displayAttributeModal.header(new ResourceModel("any.attr.display"));
                 displayAttributeModal.show(true);
@@ -102,18 +102,18 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
     public ActionsPanel<AnyObjectTO> getActions(final IModel<AnyObjectTO> model) {
         final ActionsPanel<AnyObjectTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<AnyObjectTO>() {
+        panel.add(new ActionLink<>() {
 
-            private static final long serialVersionUID = -7978723352517770644L;
+                      private static final long serialVersionUID = -7978723352517770644L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                new AnyWrapper<>(new AnyObjectRestClient().read(model.getObject().getKey())),
-                                target));
-            }
-        }, ActionType.EDIT,
+                      @Override
+                      public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                          send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
+                              new AjaxWizard.EditItemActionEvent<>(
+                                  new AnyWrapper<>(new AnyObjectRestClient().read(model.getObject().getKey())),
+                                  target));
+                      }
+                  }, ActionType.EDIT,
                 String.format("%s,%s", AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type))).
                 setRealms(realm, model.getObject().getDynRealms());
 
@@ -127,81 +127,81 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                     this,
                     pageRef).forEach(panel::add);
 
-            panel.add(new ActionLink<AnyObjectTO>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                     target.add(utilityModal.setContent(new AnyPropagationTasks(
-                            utilityModal, AnyTypeKind.ANY_OBJECT, model.getObject().getKey(), pageRef)));
+                        utilityModal, AnyTypeKind.ANY_OBJECT, model.getObject().getKey(), pageRef)));
 
                     utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
                     utilityModal.show(true);
                 }
             }, ActionType.PROPAGATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
-            panel.add(new ActionLink<AnyObjectTO>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                     target.add(utilityModal.setContent(
-                            new NotificationTasks(AnyTypeKind.ANY_OBJECT, model.getObject().getKey(),
-                                    pageRef)));
+                        new NotificationTasks(AnyTypeKind.ANY_OBJECT, model.getObject().getKey(),
+                            pageRef)));
                     utilityModal.header(new StringResourceModel("any.notification.tasks", model));
                     utilityModal.show(true);
                     target.add(utilityModal);
                 }
             }, ActionType.NOTIFICATION_TASKS, IdRepoEntitlement.TASK_LIST);
         }
-        panel.add(new ActionLink<AnyObjectTO>() {
+        panel.add(new ActionLink<>() {
 
-            private static final long serialVersionUID = -2878723352517770644L;
+                      private static final long serialVersionUID = -2878723352517770644L;
 
-            @Override
-            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                model.setObject(restClient.read(model.getObject().getKey()));
-                target.add(altDefaultModal.setContent(new AuditHistoryModal<AnyObjectTO>(
-                        altDefaultModal,
-                        AuditElements.EventCategoryType.LOGIC,
-                        "AnyObjectLogic",
-                        model.getObject(),
-                        AnyEntitlement.UPDATE.getFor(type),
-                        pageRef) {
+                      @Override
+                      public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                          model.setObject(restClient.read(model.getObject().getKey()));
+                          target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
+                              altDefaultModal,
+                              AuditElements.EventCategoryType.LOGIC,
+                              "AnyObjectLogic",
+                              model.getObject(),
+                              AnyEntitlement.UPDATE.getFor(type),
+                              pageRef) {
 
-                    private static final long serialVersionUID = -7440902560249531201L;
+                              private static final long serialVersionUID = -7440902560249531201L;
 
-                    @Override
-                    protected void restore(final String json, final AjaxRequestTarget target) {
-                        AnyObjectTO original = model.getObject();
-                        try {
-                            AnyObjectTO updated = MAPPER.readValue(json, AnyObjectTO.class);
-                            AnyObjectUR updateReq = AnyOperations.diff(updated, original, false);
-                            ProvisioningResult<AnyObjectTO> result =
-                                    restClient.update(original.getETagValue(), updateReq);
-                            model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
+                              @Override
+                              protected void restore(final String json, final AjaxRequestTarget target) {
+                                  AnyObjectTO original = model.getObject();
+                                  try {
+                                      AnyObjectTO updated = MAPPER.readValue(json, AnyObjectTO.class);
+                                      AnyObjectUR updateReq = AnyOperations.diff(updated, original, false);
+                                      ProvisioningResult<AnyObjectTO> result =
+                                          restClient.update(original.getETagValue(), updateReq);
+                                      model.getObject().setLastChangeDate(result.getEntity().getLastChangeDate());
 
-                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(container);
-                        } catch (Exception e) {
-                            LOG.error("While restoring any object {}", model.getObject().getKey(), e);
-                            SyncopeConsoleSession.get().onException(e);
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                    }
-                }));
+                                      SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                                      target.add(container);
+                                  } catch (Exception e) {
+                                      LOG.error("While restoring any object {}", model.getObject().getKey(), e);
+                                      SyncopeConsoleSession.get().onException(e);
+                                  }
+                                  ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                              }
+                          }));
 
-                altDefaultModal.header(new StringResourceModel("auditHistory.title", model));
+                          altDefaultModal.header(new StringResourceModel("auditHistory.title", model));
 
-                altDefaultModal.show(true);
-            }
-        }, ActionType.VIEW_AUDIT_HISTORY,
+                          altDefaultModal.show(true);
+                      }
+                  }, ActionType.VIEW_AUDIT_HISTORY,
                 String.format("%s,%s", AnyEntitlement.READ.getFor(type), IdRepoEntitlement.AUDIT_LIST)).
                 setRealms(realm, model.getObject().getDynRealms());
 
-        panel.add(new ActionLink<AnyObjectTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
@@ -210,7 +210,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                 final AnyObjectTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.NewItemActionEvent<>(new AnyWrapper<>(clone), target));
+                    new AjaxWizard.NewItemActionEvent<>(new AnyWrapper<>(clone), target));
             }
 
             @Override
@@ -219,7 +219,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             }
         }, ActionType.CLONE, AnyEntitlement.CREATE.getFor(type)).setRealm(realm);
 
-        panel.add(new ActionLink<AnyObjectTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770646L;
 

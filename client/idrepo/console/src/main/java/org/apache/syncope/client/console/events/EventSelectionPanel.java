@@ -95,7 +95,7 @@ public abstract class EventSelectionPanel extends Panel {
         successSelector.setVisible(!events.isEmpty());
         add(successSelector);
 
-        ListView<String> categoryView = new ListView<String>("categoryView", events) {
+        ListView<String> categoryView = new ListView<>("categoryView", events) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
@@ -106,20 +106,20 @@ public abstract class EventSelectionPanel extends Panel {
         };
         add(categoryView);
 
-        ListView<String> successView = new ListView<String>("successView", events) {
+        ListView<String> successView = new ListView<>("successView", events) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
             protected void populateItem(final ListItem<String> item) {
                 item.add(new Check<>("successCheck",
-                        new Model<>(AuditLoggerName.buildEvent(
-                                eventCategoryTO.getType(),
-                                eventCategoryTO.getCategory(),
-                                eventCategoryTO.getSubcategory(),
-                                item.getModelObject(),
-                                AuditElements.Result.SUCCESS)),
-                        successGroup));
+                    new Model<>(AuditLoggerName.buildEvent(
+                        eventCategoryTO.getType(),
+                        eventCategoryTO.getCategory(),
+                        eventCategoryTO.getSubcategory(),
+                        item.getModelObject(),
+                        AuditElements.Result.SUCCESS)),
+                    successGroup));
             }
         };
         successGroup.add(successView);
@@ -162,20 +162,20 @@ public abstract class EventSelectionPanel extends Panel {
         failureSelector.setVisible(!events.isEmpty());
         add(failureSelector);
 
-        ListView<String> failureView = new ListView<String>("failureView", events) {
+        ListView<String> failureView = new ListView<>("failureView", events) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
             protected void populateItem(final ListItem<String> item) {
                 item.add(new Check<>("failureCheck",
-                        new Model<>(AuditLoggerName.buildEvent(
-                                eventCategoryTO.getType(),
-                                eventCategoryTO.getCategory(),
-                                eventCategoryTO.getSubcategory(),
-                                item.getModelObject(),
-                                AuditElements.Result.FAILURE)),
-                        failureGroup));
+                    new Model<>(AuditLoggerName.buildEvent(
+                        eventCategoryTO.getType(),
+                        eventCategoryTO.getCategory(),
+                        eventCategoryTO.getSubcategory(),
+                        item.getModelObject(),
+                        AuditElements.Result.FAILURE)),
+                    failureGroup));
             }
         };
         failureGroup.add(failureView);

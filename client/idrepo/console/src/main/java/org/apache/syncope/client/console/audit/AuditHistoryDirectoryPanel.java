@@ -123,7 +123,7 @@ public abstract class AuditHistoryDirectoryPanel<T extends Serializable> extends
     protected ActionsPanel<AuditEntry> getActions(final IModel<AuditEntry> model) {
         final ActionsPanel<AuditEntry> panel = super.getActions(model);
 
-        panel.add(new ActionLink<AuditEntry>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -6745431735457245600L;
 
@@ -132,16 +132,16 @@ public abstract class AuditHistoryDirectoryPanel<T extends Serializable> extends
                 AuditHistoryDirectoryPanel.this.getTogglePanel().close(target);
 
                 mlp.next(
-                        new StringResourceModel("audit.diff.view", AuditHistoryDirectoryPanel.this).getObject(),
-                        new AuditHistoryDetails<T>(mlp, modelObject, entity, auditRestoreEntitlement) {
+                    new StringResourceModel("audit.diff.view", AuditHistoryDirectoryPanel.this).getObject(),
+                    new AuditHistoryDetails<T>(mlp, modelObject, entity, auditRestoreEntitlement) {
 
-                    private static final long serialVersionUID = -5311898419151367494L;
+                        private static final long serialVersionUID = -5311898419151367494L;
 
-                    @Override
-                    protected void restore(final String json, final AjaxRequestTarget target) {
-                        AuditHistoryDirectoryPanel.this.restore(json, target);
-                    }
-                }, target);
+                        @Override
+                        protected void restore(final String json, final AjaxRequestTarget target) {
+                            AuditHistoryDirectoryPanel.this.restore(json, target);
+                        }
+                    }, target);
 
                 target.add(modal);
             }

@@ -47,14 +47,14 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
 
     protected final Model<String> typeModel = new Model<>();
 
-    private final LoadableDetachableModel<List<String>> anyTypes = new LoadableDetachableModel<List<String>>() {
+    private final LoadableDetachableModel<List<String>> anyTypes = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
             return AnyTypeRestClient.list().stream().
-                    filter(anyType -> !AnyTypeKind.GROUP.name().equals(anyType)).collect(Collectors.toList());
+                filter(anyType -> !AnyTypeKind.GROUP.name().equals(anyType)).collect(Collectors.toList());
         }
     };
 

@@ -343,7 +343,7 @@ public class XMLContentExporter implements ContentExporter {
 
             String outputTableName = entity.isPresent()
                     ? entities.getKey(entity.get())
-                    : relationTables.keySet().stream().filter(key -> tableName.equalsIgnoreCase(key)).findFirst().
+                    : relationTables.keySet().stream().filter(tableName::equalsIgnoreCase).findFirst().
                             orElse(tableName);
             if (isTask(tableName)) {
                 outputTableName = "Task";

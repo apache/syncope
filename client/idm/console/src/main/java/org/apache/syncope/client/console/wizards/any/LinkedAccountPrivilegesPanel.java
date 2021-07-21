@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
+import org.apache.syncope.common.lib.to.PrivilegeTO;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
@@ -38,18 +39,18 @@ public class LinkedAccountPrivilegesPanel extends WizardStep {
         super();
         setOutputMarkupId(true);
 
-        final LoadableDetachableModel<List<String>> availablePrivilges = new LoadableDetachableModel<List<String>>() {
+        final LoadableDetachableModel<List<String>> availablePrivilges = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
                 return applicationRestClient.list().stream().
-                        flatMap(app -> app.getPrivileges().stream()).
-                        map(privilege -> privilege.getKey()).
-                        distinct().
-                        sorted().
-                        collect(Collectors.toList());
+                    flatMap(app -> app.getPrivileges().stream()).
+                    map(PrivilegeTO::getKey).
+                    distinct().
+                    sorted().
+                    collect(Collectors.toList());
             }
         };
         AjaxPalettePanel<String> privilegesPanel = new AjaxPalettePanel.Builder<String>().

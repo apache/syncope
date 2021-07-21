@@ -73,8 +73,8 @@ public abstract class SerializationTest {
         objectMapper().writeValue(writer, original);
 
         PagedResult<UserRequestForm> actual = objectMapper().readValue(writer.toString(),
-                new TypeReference<PagedResult<UserRequestForm>>() {
-        });
+            new TypeReference<>() {
+            });
         assertEquals(original, actual);
     }
 }

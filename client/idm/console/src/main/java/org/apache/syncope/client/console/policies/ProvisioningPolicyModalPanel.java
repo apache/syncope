@@ -83,31 +83,31 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
         super((BaseModal<ProvisioningPolicyTO>) modal, pageRef);
         ((BaseModal<ProvisioningPolicyTO>) modal).setFormModel(policyTO);
 
-        implementations = new LoadableDetachableModel<Map<String, ImplementationTO>>() {
+        implementations = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected Map<String, ImplementationTO> load() {
                 return ImplementationRestClient.list(policyTO instanceof PullPolicyTO
-                        ? IdMImplementationType.PULL_CORRELATION_RULE
-                        : IdMImplementationType.PUSH_CORRELATION_RULE).stream().
-                        collect(Collectors.toMap(EntityTO::getKey, Function.identity()));
+                    ? IdMImplementationType.PULL_CORRELATION_RULE
+                    : IdMImplementationType.PUSH_CORRELATION_RULE).stream().
+                    collect(Collectors.toMap(EntityTO::getKey, Function.identity()));
             }
         };
 
-        model = new PropertyModel<List<CorrelationRule>>(policyTO, "correlationRules") {
+        model = new PropertyModel<>(policyTO, "correlationRules") {
 
             private static final long serialVersionUID = -8168676563540297301L;
 
             private final List<CorrelationRule> rules = policyTO.getCorrelationRules().keySet().stream().
-                    map(anyType -> new CorrelationRule(
+                map(anyType -> new CorrelationRule(
                     policyTO instanceof PullPolicyTO
-                            ? DefaultPullCorrelationRuleConf.class
-                            : DefaultPushCorrelationRuleConf.class,
+                        ? DefaultPullCorrelationRuleConf.class
+                        : DefaultPushCorrelationRuleConf.class,
                     anyType,
                     implementations.getObject().get(policyTO.getCorrelationRules().get(anyType)))).
-                    collect(Collectors.toList());
+                collect(Collectors.toList());
 
             @Override
             public List<CorrelationRule> getObject() {
@@ -121,15 +121,15 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
             }
         };
 
-        add(new MultiPanel<CorrelationRule>("correlationRules", "correlationRules", model) {
+        add(new MultiPanel<>("correlationRules", "correlationRules", model) {
 
             private static final long serialVersionUID = -2481579077338205547L;
 
             @Override
             protected CorrelationRule newModelObject() {
                 return new CorrelationRule(policyTO instanceof PullPolicyTO
-                        ? DefaultPullCorrelationRuleConf.class
-                        : DefaultPushCorrelationRuleConf.class);
+                    ? DefaultPullCorrelationRuleConf.class
+                    : DefaultPushCorrelationRuleConf.class);
             }
 
             @Override
@@ -196,76 +196,76 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
             add(rule);
 
             PropertyModel<Boolean> orSchemasModel =
-                    new PropertyModel<Boolean>(correlationRule.getObject().getDefaultRuleConf(), "orSchemas") {
+                new PropertyModel<>(correlationRule.getObject().getDefaultRuleConf(), "orSchemas") {
 
-                private static final long serialVersionUID = 807008909842554829L;
+                    private static final long serialVersionUID = 807008909842554829L;
 
-                @Override
-                public Boolean getObject() {
-                    AbstractCorrelationRuleConf conf = correlationRule.getObject().getDefaultRuleConf();
-                    return conf instanceof DefaultPullCorrelationRuleConf
+                    @Override
+                    public Boolean getObject() {
+                        AbstractCorrelationRuleConf conf = correlationRule.getObject().getDefaultRuleConf();
+                        return conf instanceof DefaultPullCorrelationRuleConf
                             ? DefaultPullCorrelationRuleConf.class.cast(conf).isOrSchemas()
                             : conf instanceof DefaultPushCorrelationRuleConf
-                                    ? DefaultPushCorrelationRuleConf.class.cast(conf).isOrSchemas()
-                                    : false;
-                }
-
-                @Override
-                public void setObject(final Boolean object) {
-                    AbstractCorrelationRuleConf conf = correlationRule.getObject().getDefaultRuleConf();
-                    if (conf instanceof DefaultPullCorrelationRuleConf) {
-                        DefaultPullCorrelationRuleConf.class.cast(conf).setOrSchemas(object);
-                    } else if (conf instanceof DefaultPushCorrelationRuleConf) {
-                        DefaultPushCorrelationRuleConf.class.cast(conf).setOrSchemas(object);
+                            ? DefaultPushCorrelationRuleConf.class.cast(conf).isOrSchemas()
+                            : false;
                     }
-                }
-            };
+
+                    @Override
+                    public void setObject(final Boolean object) {
+                        AbstractCorrelationRuleConf conf = correlationRule.getObject().getDefaultRuleConf();
+                        if (conf instanceof DefaultPullCorrelationRuleConf) {
+                            DefaultPullCorrelationRuleConf.class.cast(conf).setOrSchemas(object);
+                        } else if (conf instanceof DefaultPushCorrelationRuleConf) {
+                            DefaultPushCorrelationRuleConf.class.cast(conf).setOrSchemas(object);
+                        }
+                    }
+                };
             AjaxCheckBoxPanel orSchemas = new AjaxCheckBoxPanel("orSchemas", "orSchemas", orSchemasModel, false);
             orSchemas.setOutputMarkupPlaceholderTag(true);
             add(orSchemas.setVisible(correlationRule.getObject().getDefaultRuleConf() != null));
 
             PropertyModel<List<String>> defaultRuleConfModel =
-                    new PropertyModel<List<String>>(correlationRule.getObject().getDefaultRuleConf(), "schemas") {
+                new PropertyModel<>(correlationRule.getObject().getDefaultRuleConf(), "schemas") {
 
-                private static final long serialVersionUID = 3799387950428254072L;
+                    private static final long serialVersionUID = 3799387950428254072L;
 
-                private List<String> schemas() {
-                    AbstractCorrelationRuleConf conf = correlationRule.getObject().getDefaultRuleConf();
-                    return conf instanceof DefaultPullCorrelationRuleConf
+                    private List<String> schemas() {
+                        AbstractCorrelationRuleConf conf = correlationRule.getObject().getDefaultRuleConf();
+                        return conf instanceof DefaultPullCorrelationRuleConf
                             ? DefaultPullCorrelationRuleConf.class.cast(conf).getSchemas()
                             : conf instanceof DefaultPushCorrelationRuleConf
-                                    ? DefaultPushCorrelationRuleConf.class.cast(conf).getSchemas()
-                                    : List.of();
-                }
-
-                @Override
-                public List<String> getObject() {
-                    List<String> schemas = new ArrayList<>();
-                    if (correlationRule.getObject().getDefaultRuleConf() != null) {
-                        schemas.addAll(schemas());
+                            ? DefaultPushCorrelationRuleConf.class.cast(conf).getSchemas()
+                            : List.of();
                     }
-                    return schemas;
-                }
 
-                @Override
-                public void setObject(final List<String> object) {
-                    if (correlationRule.getObject().getDefaultRuleConf() != null) {
-                        schemas().clear();
-                        schemas().addAll(object);
+                    @Override
+                    public List<String> getObject() {
+                        List<String> schemas = new ArrayList<>();
+                        if (correlationRule.getObject().getDefaultRuleConf() != null) {
+                            schemas.addAll(schemas());
+                        }
+                        return schemas;
                     }
-                }
-            };
+
+                    @Override
+                    public void setObject(final List<String> object) {
+                        if (correlationRule.getObject().getDefaultRuleConf() != null) {
+                            schemas().clear();
+                            schemas().addAll(object);
+                        }
+                    }
+                };
             AjaxPalettePanel<String> defaultRuleConf = new AjaxPalettePanel.Builder<String>().
                     setName("defaultRuleConf").build("defaultRuleConf",
-                    defaultRuleConfModel, new AjaxPalettePanel.Builder.Query<String>() {
+                    defaultRuleConfModel, new AjaxPalettePanel.Builder.Query<>() {
 
-                private static final long serialVersionUID = -7223078772249308813L;
+                    private static final long serialVersionUID = -7223078772249308813L;
 
-                @Override
-                public List<String> execute(final String filter) {
-                    return getSchemas(correlationRule.getObject());
-                }
-            });
+                    @Override
+                    public List<String> execute(final String filter) {
+                        return getSchemas(correlationRule.getObject());
+                    }
+                });
             defaultRuleConf.hideLabel().setOutputMarkupPlaceholderTag(true);
             add(defaultRuleConf.setVisible(correlationRule.getObject().getDefaultRuleConf() != null));
 

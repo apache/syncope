@@ -63,7 +63,7 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
 
     protected final Model<String> typeModel = new Model<>();
 
-    private final LoadableDetachableModel<List<String>> anyTypes = new LoadableDetachableModel<List<String>>() {
+    private final LoadableDetachableModel<List<String>> anyTypes = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 

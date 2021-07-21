@@ -164,7 +164,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
 
         add(fileDownload);
 
-        downloadLink = new AjaxLink<Void>("downloadLink") {
+        downloadLink = new AjaxLink<>("downloadLink") {
 
             private static final long serialVersionUID = -4331619903296515985L;
 
@@ -227,7 +227,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         });
         uploadForm.add(fileUpload);
 
-        resetLink = new IndicatingAjaxLink<Void>("resetLink") {
+        resetLink = new IndicatingAjaxLink<>("resetLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 

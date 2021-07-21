@@ -113,18 +113,18 @@ public abstract class AuthProfileItemDirectoryPanel<I extends BaseBean>
     public ActionsPanel<I> getActions(final IModel<I> model) {
         ActionsPanel<I> panel = super.getActions(model);
 
-        panel.add(new ActionLink<I>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final I ignore) {
                 send(AuthProfileItemDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.AUTH_PROFILE_UPDATE);
 
-        panel.add(new ActionLink<I>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

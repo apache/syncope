@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ReportTemplateITCase extends AbstractITCase {
@@ -52,7 +53,7 @@ public class ReportTemplateITCase extends AbstractITCase {
         List<ReportTemplateTO> reportTemplateTOs = reportTemplateService.list();
         assertNotNull(reportTemplateTOs);
         assertFalse(reportTemplateTOs.isEmpty());
-        reportTemplateTOs.forEach(instance -> assertNotNull(instance));
+        reportTemplateTOs.forEach(Assertions::assertNotNull);
     }
 
     @Test

@@ -70,7 +70,7 @@ public class WAConfigDirectoryPanel extends AttrListDirectoryPanel {
     public ActionsPanel<Attr> getActions(final IModel<Attr> model) {
         ActionsPanel<Attr> panel = super.getActions(model);
 
-        panel.add(new ActionLink<Attr>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -83,7 +83,7 @@ public class WAConfigDirectoryPanel extends AttrListDirectoryPanel {
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.WA_CONFIG_SET);
 
-        panel.add(new ActionLink<Attr>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

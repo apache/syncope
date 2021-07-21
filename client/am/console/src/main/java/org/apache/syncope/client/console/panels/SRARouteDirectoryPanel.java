@@ -93,19 +93,19 @@ public class SRARouteDirectoryPanel
     protected ActionsPanel<SRARouteTO> getActions(final IModel<SRARouteTO> model) {
         ActionsPanel<SRARouteTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<SRARouteTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -4608353559809323466L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final SRARouteTO ignore) {
                 send(SRARouteDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                SRARouteRestClient.read(model.getObject().getKey()), target));
+                    new AjaxWizard.EditItemActionEvent<>(
+                        SRARouteRestClient.read(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.SRA_ROUTE_UPDATE);
 
-        panel.add(new ActionLink<SRARouteTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -4608353559809323466L;
 
@@ -114,11 +114,11 @@ public class SRARouteDirectoryPanel
                 SRARouteTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(SRARouteDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(clone, target));
+                    new AjaxWizard.EditItemActionEvent<>(clone, target));
             }
         }, ActionLink.ActionType.CLONE, AMEntitlement.SRA_ROUTE_CREATE);
 
-        panel.add(new ActionLink<SRARouteTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -4608353559809323466L;
 

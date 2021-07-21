@@ -127,16 +127,16 @@ public class AnyStatusDirectoryPanel
     protected List<IColumn<StatusBean, String>> getColumns() {
         final List<IColumn<StatusBean, String>> columns = new ArrayList<>();
 
-        columns.add(new AbstractColumn<StatusBean, String>(
-                new StringResourceModel("resource", this), "resource") {
+        columns.add(new AbstractColumn<>(
+            new StringResourceModel("resource", this), "resource") {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<StatusBean>> cellItem,
-                    final String componentId,
-                    final IModel<StatusBean> model) {
+                final Item<ICellPopulator<StatusBean>> cellItem,
+                final String componentId,
+                final IModel<StatusBean> model) {
 
                 cellItem.add(new Label(componentId, model.getObject().getResource()) {
 
@@ -145,7 +145,7 @@ public class AnyStatusDirectoryPanel
                     @Override
                     protected void onComponentTag(final ComponentTag tag) {
                         if (anyTO.getResources().contains(model.getObject().getResource())
-                                || Constants.SYNCOPE.equalsIgnoreCase(model.getObject().getResource())) {
+                            || Constants.SYNCOPE.equalsIgnoreCase(model.getObject().getResource())) {
 
                             super.onComponentTag(tag);
                         } else {
@@ -160,15 +160,15 @@ public class AnyStatusDirectoryPanel
             columns.add(new PropertyColumn<>(
                     new StringResourceModel("connObjectLink", this), "connObjectLink", "connObjectLink"));
 
-            columns.add(new AbstractColumn<StatusBean, String>(new StringResourceModel("status", this)) {
+            columns.add(new AbstractColumn<>(new StringResourceModel("status", this)) {
 
                 private static final long serialVersionUID = -3503023501954863131L;
 
                 @Override
                 public void populateItem(
-                        final Item<ICellPopulator<StatusBean>> cellItem,
-                        final String componentId,
-                        final IModel<StatusBean> model) {
+                    final Item<ICellPopulator<StatusBean>> cellItem,
+                    final String componentId,
+                    final IModel<StatusBean> model) {
 
                     if (model.getObject().isLinked()) {
                         cellItem.add(StatusUtils.getStatusImage(componentId, model.getObject().getStatus()));
@@ -187,15 +187,15 @@ public class AnyStatusDirectoryPanel
         final ActionsPanel<StatusBean> panel = super.getActions(model);
 
         if (!Constants.SYNCOPE.equalsIgnoreCase(model.getObject().getResource())) {
-            panel.add(new ActionLink<StatusBean>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -7978723352517770645L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                     multiLevelPanelRef.next(bean.getResource(),
-                            new ReconStatusPanel(bean.getResource(), anyTO.getType(), anyTO.getKey()),
-                            target);
+                        new ReconStatusPanel(bean.getResource(), anyTO.getType(), anyTO.getKey()),
+                        target);
                     target.add(multiLevelPanelRef);
                     AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
                 }
@@ -203,43 +203,43 @@ public class AnyStatusDirectoryPanel
         }
 
         if (!statusOnly) {
-            panel.add(new ActionLink<StatusBean>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -7978723352517770645L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                     multiLevelPanelRef.next("PUSH " + bean.getResource(),
-                            new ReconTaskPanel(
-                                    bean.getResource(),
-                                    new PushTaskTO(),
-                                    anyTO.getType(),
-                                    anyTO.getKey(),
-                                    true,
-                                    multiLevelPanelRef,
-                                    pageRef),
-                            target);
+                        new ReconTaskPanel(
+                            bean.getResource(),
+                            new PushTaskTO(),
+                            anyTO.getType(),
+                            anyTO.getKey(),
+                            true,
+                            multiLevelPanelRef,
+                            pageRef),
+                        target);
                     target.add(multiLevelPanelRef);
                     AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
                 }
             }, ActionLink.ActionType.RECONCILIATION_PUSH, IdRepoEntitlement.TASK_EXECUTE);
 
-            panel.add(new ActionLink<StatusBean>() {
+            panel.add(new ActionLink<>() {
 
                 private static final long serialVersionUID = -7978723352517770645L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                     multiLevelPanelRef.next("PULL " + bean.getResource(),
-                            new ReconTaskPanel(
-                                    bean.getResource(),
-                                    new PullTaskTO(),
-                                    anyTO.getType(),
-                                    anyTO.getKey(),
-                                    true,
-                                    multiLevelPanelRef,
-                                    pageRef),
-                            target);
+                        new ReconTaskPanel(
+                            bean.getResource(),
+                            new PullTaskTO(),
+                            anyTO.getType(),
+                            anyTO.getKey(),
+                            true,
+                            multiLevelPanelRef,
+                            pageRef),
+                        target);
                     target.add(multiLevelPanelRef);
                     AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
                 }
@@ -254,19 +254,19 @@ public class AnyStatusDirectoryPanel
                         return linkedAccountTO.getResource().equals(model.getObject().getResource());
                     })) {
 
-                panel.add(new ActionLink<StatusBean>() {
+                panel.add(new ActionLink<>() {
 
-                    private static final long serialVersionUID = 5168094747477174155L;
+                              private static final long serialVersionUID = 5168094747477174155L;
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
-                        multiLevelPanelRef.next("ACCOUNTS",
-                                new LinkedAccountsStatusModalPanel(Model.of(UserTO.class.cast(anyTO)), pageRef),
-                                target);
-                        target.add(multiLevelPanelRef);
-                        AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
-                    }
-                }, ActionLink.ActionType.MANAGE_ACCOUNTS,
+                              @Override
+                              public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
+                                  multiLevelPanelRef.next("ACCOUNTS",
+                                      new LinkedAccountsStatusModalPanel(Model.of(UserTO.class.cast(anyTO)), pageRef),
+                                      target);
+                                  target.add(multiLevelPanelRef);
+                                  AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
+                              }
+                          }, ActionLink.ActionType.MANAGE_ACCOUNTS,
                         String.format("%s,%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE,
                                 IdMEntitlement.RESOURCE_GET_CONNOBJECT));
             }

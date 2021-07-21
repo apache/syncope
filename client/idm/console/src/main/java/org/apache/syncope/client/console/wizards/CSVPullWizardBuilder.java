@@ -179,7 +179,7 @@ public class CSVPullWizardBuilder extends BaseAjaxWizardBuilder<CSVPullSpec> {
             keyColumn.setRequired(true);
             add(keyColumn);
 
-            keyColumn.add(new ListView<String>("columns", columnsModel) {
+            keyColumn.add(new ListView<>("columns", columnsModel) {
 
                 private static final long serialVersionUID = -9112553137618363167L;
 
@@ -229,25 +229,25 @@ public class CSVPullWizardBuilder extends BaseAjaxWizardBuilder<CSVPullSpec> {
 
         private static final long serialVersionUID = -8954789648303078732L;
 
-        private final IModel<List<String>> pullActions = new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> pullActions = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 4659376149825914247L;
 
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 
-        private final IModel<List<String>> pullCorrelationRules = new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> pullCorrelationRules = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 4659376149825914247L;
 
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdMImplementationType.PULL_CORRELATION_RULE).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 

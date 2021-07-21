@@ -63,7 +63,7 @@ public class ApplicationDirectoryPanel extends
 
     private static final long serialVersionUID = -5491515010207202168L;
 
-    protected final BaseModal<PrivilegeTO> privilegeModal = new BaseModal<PrivilegeTO>(Constants.OUTER) {
+    protected final BaseModal<PrivilegeTO> privilegeModal = new BaseModal<>(Constants.OUTER) {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -97,7 +97,7 @@ public class ApplicationDirectoryPanel extends
         });
         addOuterObject(privilegeModal);
 
-        AjaxLink<Void> newApplLink = new AjaxLink<Void>("add") {
+        AjaxLink<Void> newApplLink = new AjaxLink<>("add") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -133,18 +133,18 @@ public class ApplicationDirectoryPanel extends
                 new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(new ResourceModel(Constants.DESCRIPTION_FIELD_NAME),
                 Constants.DESCRIPTION_FIELD_NAME, Constants.DESCRIPTION_FIELD_NAME));
-        columns.add(new AbstractColumn<ApplicationTO, String>(new ResourceModel("privileges")) {
+        columns.add(new AbstractColumn<>(new ResourceModel("privileges")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<ApplicationTO>> item,
-                    final String componentId,
-                    final IModel<ApplicationTO> rowModel) {
+                final Item<ICellPopulator<ApplicationTO>> item,
+                final String componentId,
+                final IModel<ApplicationTO> rowModel) {
 
                 item.add(new Label(componentId, '[' + rowModel.getObject().getPrivileges().stream().
-                        map(EntityTO::getKey).collect(Collectors.joining(", ")) + ']'));
+                    map(EntityTO::getKey).collect(Collectors.joining(", ")) + ']'));
             }
         });
 
@@ -155,7 +155,7 @@ public class ApplicationDirectoryPanel extends
     public ActionsPanel<ApplicationTO> getActions(final IModel<ApplicationTO> model) {
         final ActionsPanel<ApplicationTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<ApplicationTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -168,26 +168,26 @@ public class ApplicationDirectoryPanel extends
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.APPLICATION_UPDATE);
 
-        panel.add(new ActionLink<ApplicationTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ApplicationTO ignore) {
                 target.add(privilegeModal.setContent(new PrivilegeDirectoryPanel(
-                        privilegeModal, model.getObject(), pageRef)));
+                    privilegeModal, model.getObject(), pageRef)));
 
                 privilegeModal.header(new StringResourceModel(
-                        "application.privileges", ApplicationDirectoryPanel.this, Model.of(model.getObject())));
+                    "application.privileges", ApplicationDirectoryPanel.this, Model.of(model.getObject())));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
-                        privilegeModal.getForm(), ENABLE, IdRepoEntitlement.APPLICATION_UPDATE);
+                    privilegeModal.getForm(), ENABLE, IdRepoEntitlement.APPLICATION_UPDATE);
 
                 privilegeModal.show(true);
             }
         }, ActionLink.ActionType.COMPOSE, IdRepoEntitlement.APPLICATION_UPDATE);
 
-        panel.add(new ActionLink<ApplicationTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 3766262567901552032L;
 

@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class RoleITCase extends AbstractITCase {
@@ -55,7 +56,7 @@ public class RoleITCase extends AbstractITCase {
         List<RoleTO> roleTOs = roleService.list();
         assertNotNull(roleTOs);
         assertFalse(roleTOs.isEmpty());
-        roleTOs.forEach(instance -> assertNotNull(instance));
+        roleTOs.forEach(Assertions::assertNotNull);
     }
 
     @Test

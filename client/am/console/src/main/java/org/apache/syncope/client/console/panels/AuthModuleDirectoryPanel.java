@@ -94,20 +94,20 @@ public class AuthModuleDirectoryPanel
                 Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
         columns.add(new PropertyColumn<>(new ResourceModel(Constants.DESCRIPTION_FIELD_NAME),
                 Constants.DESCRIPTION_FIELD_NAME, Constants.DESCRIPTION_FIELD_NAME));
-        columns.add(new PropertyColumn<AuthModuleTO, String>(new ResourceModel("type"), "conf") {
+        columns.add(new PropertyColumn<>(new ResourceModel("type"), "conf") {
 
             private static final long serialVersionUID = -1822504503325964706L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<AuthModuleTO>> item,
-                    final String componentId,
-                    final IModel<AuthModuleTO> rowModel) {
+                final Item<ICellPopulator<AuthModuleTO>> item,
+                final String componentId,
+                final IModel<AuthModuleTO> rowModel) {
 
                 item.add(new Label(componentId, rowModel.getObject().getConf() == null
-                        ? StringUtils.EMPTY
-                        : StringUtils.substringBefore(
-                                rowModel.getObject().getConf().getClass().getSimpleName(), "AuthModuleConf")));
+                    ? StringUtils.EMPTY
+                    : StringUtils.substringBefore(
+                    rowModel.getObject().getConf().getClass().getSimpleName(), "AuthModuleConf")));
             }
         });
         return columns;
@@ -117,18 +117,18 @@ public class AuthModuleDirectoryPanel
     public ActionsPanel<AuthModuleTO> getActions(final IModel<AuthModuleTO> model) {
         ActionsPanel<AuthModuleTO> panel = super.getActions(model);
 
-        panel.add(new ActionLink<AuthModuleTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AuthModuleTO ignore) {
                 send(AuthModuleDirectoryPanel.this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<>(
-                        AuthModuleRestClient.read(model.getObject().getKey()), target));
+                    AuthModuleRestClient.read(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.AUTH_MODULE_UPDATE);
 
-        panel.add(new ActionLink<AuthModuleTO>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 

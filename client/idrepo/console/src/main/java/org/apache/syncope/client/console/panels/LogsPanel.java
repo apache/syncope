@@ -55,7 +55,7 @@ public class LogsPanel extends Panel {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogsPanel.class);
 
-    private final IModel<List<LoggerConf>> loggerConfs = new LoadableDetachableModel<List<LoggerConf>>() {
+    private final IModel<List<LoggerConf>> loggerConfs = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
@@ -99,7 +99,7 @@ public class LogsPanel extends Panel {
         WebMarkupContainer loggerContainer = new WebMarkupContainer("loggerContainer");
         add(loggerContainer.setOutputMarkupId(true));
 
-        ListViewPanel.Builder<LoggerConf> builder = new ListViewPanel.Builder<LoggerConf>(LoggerConf.class, pageRef) {
+        ListViewPanel.Builder<LoggerConf> builder = new ListViewPanel.Builder<>(LoggerConf.class, pageRef) {
 
             private static final long serialVersionUID = 6957788356709885298L;
 
@@ -107,7 +107,7 @@ public class LogsPanel extends Panel {
             protected Component getValueComponent(final String key, final LoggerConf loggerConf) {
                 if ("level".equalsIgnoreCase(key)) {
                     AjaxDropDownChoicePanel<LogLevel> loggerLevel = new AjaxDropDownChoicePanel<>(
-                            "field", getString("level"), Model.of(loggerConf.getLevel()), false);
+                        "field", getString("level"), Model.of(loggerConf.getLevel()), false);
                     MetaDataRoleAuthorizationStrategy.authorize(loggerLevel, ENABLE, IdRepoEntitlement.LOGGER_UPDATE);
 
                     loggerLevel.hideLabel();

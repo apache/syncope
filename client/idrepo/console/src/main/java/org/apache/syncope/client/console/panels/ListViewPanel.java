@@ -165,21 +165,21 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         addInnerObject(header(toBeIncluded));
 
-        beans = new ListView<T>("beans", listOfItems) {
+        beans = new ListView<>("beans", listOfItems) {
 
             private static final long serialVersionUID = -9112553137618363167L;
 
             @Override
             protected void populateItem(final ListItem<T> beanItem) {
                 beanItem.add(new Check<>("check", beanItem.getModel(), checkGroup).setOutputMarkupId(true).
-                        setOutputMarkupPlaceholderTag(true).
-                        setVisible(ListViewPanel.this.check.getObject() == CheckAvailability.AVAILABLE
-                                || ListViewPanel.this.check.getObject() == CheckAvailability.DISABLED).
-                        setEnabled(ListViewPanel.this.check.getObject() == CheckAvailability.AVAILABLE));
+                    setOutputMarkupPlaceholderTag(true).
+                    setVisible(ListViewPanel.this.check.getObject() == CheckAvailability.AVAILABLE
+                        || ListViewPanel.this.check.getObject() == CheckAvailability.DISABLED).
+                    setEnabled(ListViewPanel.this.check.getObject() == CheckAvailability.AVAILABLE));
 
                 final T bean = beanItem.getModelObject();
 
-                final ListView<String> fields = new ListView<String>("fields", toBeIncluded) {
+                final ListView<String> fields = new ListView<>("fields", toBeIncluded) {
 
                     private static final long serialVersionUID = -9112553137618363167L;
 
@@ -200,9 +200,9 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                                 @Override
                                 protected void onEvent(final AjaxRequestTarget target) {
                                     togglePanel.toggleWithContent(
-                                            target,
-                                            actions.cloneWithLabels("actions", new Model<>(bean)),
-                                            bean);
+                                        target,
+                                        actions.cloneWithLabels("actions", new Model<>(bean)),
+                                        bean);
                                 }
                             });
                         }
@@ -225,14 +225,14 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
     }
 
     private static ListView<String> header(final List<String> labels) {
-        return new ListView<String>("names", labels) {
+        return new ListView<>("names", labels) {
 
             private static final long serialVersionUID = -9112553137618363167L;
 
             @Override
             protected void populateItem(final ListItem<String> item) {
                 item.add(new Label(Constants.NAME_FIELD_NAME,
-                        new ResourceModel(item.getModelObject(), item.getModelObject())));
+                    new ResourceModel(item.getModelObject(), item.getModelObject())));
             }
         };
     }
@@ -423,8 +423,8 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         @Override
         protected WizardMgtPanel<T> newInstance(final String id, final boolean wizardInModal) {
-            return new ListViewPanel<T>(
-                    id, items, reference, includes, actions, check, reuseItem, wizardInModal, captionVisible, model) {
+            return new ListViewPanel<>(
+                id, items, reference, includes, actions, check, reuseItem, wizardInModal, captionVisible, model) {
 
                 private static final long serialVersionUID = -1715389337530657988L;
 

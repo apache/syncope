@@ -879,8 +879,8 @@ public class UserITCase extends AbstractITCase {
         userCR.getResources().add(RESOURCE_NAME_LDAP);
 
         ProvisioningResult<UserTO> result = asyncService.create(userCR).readEntity(
-                new GenericType<ProvisioningResult<UserTO>>() {
-        });
+            new GenericType<>() {
+            });
         assertNotNull(result);
         verifyAsyncResult(result.getPropagationStatuses());
 
@@ -891,14 +891,14 @@ public class UserITCase extends AbstractITCase {
                 value("password321").build());
 
         result = asyncService.update(userUR).readEntity(
-                new GenericType<ProvisioningResult<UserTO>>() {
-        });
+            new GenericType<>() {
+            });
         assertNotNull(result);
         verifyAsyncResult(result.getPropagationStatuses());
 
         result = asyncService.delete(result.getEntity().getKey()).readEntity(
-                new GenericType<ProvisioningResult<UserTO>>() {
-        });
+            new GenericType<>() {
+            });
         assertNotNull(result);
         verifyAsyncResult(result.getPropagationStatuses());
     }

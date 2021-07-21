@@ -96,8 +96,8 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
                 try {
                     authorities = POJOHelper.deserialize(
                             ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
-                            new TypeReference<Set<SyncopeGrantedAuthority>>() {
-                    });
+                        new TypeReference<>() {
+                        });
                 } catch (Throwable t) {
                     LOG.error("Could not read stored authorities", t);
                 }

@@ -61,14 +61,14 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
 
     private final OIDCProvidersDirectoryPanel directoryPanel;
 
-    private final IModel<List<String>> opActions = new LoadableDetachableModel<List<String>>() {
+    private final IModel<List<String>> opActions = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(OIDCClientImplementationType.OP_ACTIONS).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 

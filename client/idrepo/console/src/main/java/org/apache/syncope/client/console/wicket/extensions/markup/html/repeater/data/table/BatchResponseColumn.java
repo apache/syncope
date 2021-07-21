@@ -48,7 +48,7 @@ public class BatchResponseColumn<T, S> extends AbstractColumn<T, S> {
     private final String keyFieldName;
 
     public BatchResponseColumn(final Map<String, String> results, final String keyFieldName) {
-        super(new Model<String>());
+        super(new Model<>());
         this.results = results;
         this.keyFieldName = keyFieldName;
     }

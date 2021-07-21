@@ -61,22 +61,22 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
 
         List<Action<UserTO>> actions = new ArrayList<>();
 
-        Action<UserTO> enable = new Action<>(new ActionLink<UserTO>() {
+        Action<UserTO> enable = new Action<>(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                        new AnyWrapper<>(model.getObject()));
+                    new AnyWrapper<>(model.getObject()));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
-                        modal,
-                        pageRef,
-                        formModel.getObject().getInnerObject(),
-                        "resource",
-                        true)));
+                    modal,
+                    pageRef,
+                    formModel.getObject().getInnerObject(),
+                    "resource",
+                    true)));
 
                 modal.header(new Model<>(header));
 
@@ -88,7 +88,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
         enable.setRealms(realm, model.getObject().getDynRealms());
         actions.add(enable);
 
-        Action<UserTO> manageResources = new Action<>(new ActionLink<UserTO>() {
+        Action<UserTO> manageResources = new Action<>(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -96,15 +96,15 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 model.setObject(new UserRestClient().read(model.getObject().getKey()));
                 IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                        new AnyWrapper<>(model.getObject()));
+                    new AnyWrapper<>(model.getObject()));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
-                        modal,
-                        pageRef,
-                        formModel.getObject().getInnerObject(),
-                        "resource",
-                        false)));
+                    modal,
+                    pageRef,
+                    formModel.getObject().getInnerObject(),
+                    "resource",
+                    false)));
 
                 modal.header(new Model<>(header));
 
@@ -117,7 +117,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
         manageResources.setRealms(realm, model.getObject().getDynRealms());
         actions.add(manageResources);
 
-        Action<UserTO> manageAccounts = new Action<>(new ActionLink<UserTO>() {
+        Action<UserTO> manageAccounts = new Action<>(new ActionLink<>() {
 
             private static final long serialVersionUID = 8011039414597736111L;
 
@@ -138,7 +138,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
         manageAccounts.setRealms(realm, model.getObject().getDynRealms());
         actions.add(manageAccounts);
 
-        Action<UserTO> mergeAccounts = new Action<>(new ActionLink<UserTO>() {
+        Action<UserTO> mergeAccounts = new Action<>(new ActionLink<>() {
 
             private static final long serialVersionUID = 8011039414597736111L;
 
@@ -146,7 +146,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 model.setObject(new UserRestClient().read(model.getObject().getKey()));
                 MergeLinkedAccountsWizardBuilder builder =
-                        new MergeLinkedAccountsWizardBuilder(model, pageRef, parentPanel, modal);
+                    new MergeLinkedAccountsWizardBuilder(model, pageRef, parentPanel, modal);
                 builder.setEventSink(builder);
                 target.add(modal.setContent(builder.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
                 modal.header(new StringResourceModel("mergeLinkedAccounts.title", model));
@@ -172,22 +172,22 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
 
         List<Action<GroupTO>> actions = new ArrayList<>();
 
-        Action<GroupTO> manageResources = new Action<>(new ActionLink<GroupTO>() {
+        Action<GroupTO> manageResources = new Action<>(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 IModel<AnyWrapper<GroupTO>> formModel = new CompoundPropertyModel<>(
-                        new AnyWrapper<>(modelObject));
+                    new AnyWrapper<>(modelObject));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
-                        modal,
-                        pageRef,
-                        formModel.getObject().getInnerObject(),
-                        "resource",
-                        false)));
+                    modal,
+                    pageRef,
+                    formModel.getObject().getInnerObject(),
+                    "resource",
+                    false)));
 
                 modal.header(new Model<>(header));
 
@@ -215,22 +215,22 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
 
         List<Action<AnyObjectTO>> actions = new ArrayList<>();
 
-        Action<AnyObjectTO> manageResources = new Action<>(new ActionLink<AnyObjectTO>() {
+        Action<AnyObjectTO> manageResources = new Action<>(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                 final IModel<AnyWrapper<AnyObjectTO>> formModel = new CompoundPropertyModel<>(
-                        new AnyWrapper<>(modelObject));
+                    new AnyWrapper<>(modelObject));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
-                        modal,
-                        pageRef,
-                        formModel.getObject().getInnerObject(),
-                        "resource",
-                        false)));
+                    modal,
+                    pageRef,
+                    formModel.getObject().getInnerObject(),
+                    "resource",
+                    false)));
 
                 modal.header(new Model<>(header));
 
