@@ -29,12 +29,6 @@ jobs:
   fit_Tomcat_H2_XML:
     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ['java']
-        java: [ '11' ]
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
