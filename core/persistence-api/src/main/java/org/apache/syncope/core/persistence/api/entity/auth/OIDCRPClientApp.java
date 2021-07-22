@@ -43,6 +43,10 @@ public interface OIDCRPClientApp extends ClientApp {
 
     void setSignIdToken(boolean signIdToken);
 
+    boolean isJwtAccessToken();
+
+    void setJwtAccessToken(boolean jwtAccessToken);
+
     OIDCSubjectType getSubjectType();
 
     void setSubjectType(OIDCSubjectType subjectType);

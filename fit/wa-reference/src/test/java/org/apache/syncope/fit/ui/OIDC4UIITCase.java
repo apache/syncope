@@ -83,6 +83,7 @@ public class OIDC4UIITCase extends AbstractUIITCase {
         clientApp.getRedirectUris().add(baseAddress + OIDCC4UIConstants.URL_CONTEXT + "/code-consumer");
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setSignIdToken(true);
+        clientApp.setJwtAccessToken(true);
         clientApp.setLogoutUri(baseAddress + OIDCC4UIConstants.URL_CONTEXT + "/logout");
 
         clientAppService.update(ClientAppType.OIDCRP, clientApp);
