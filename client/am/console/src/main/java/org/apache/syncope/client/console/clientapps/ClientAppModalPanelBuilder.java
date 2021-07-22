@@ -205,6 +205,8 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
                     fields.add(new AjaxCheckBoxPanel(
                             "field", "signIdToken", new PropertyModel<>(clientAppTO, "signIdToken")));
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "jwtAccessToken", new PropertyModel<>(clientAppTO, "jwtAccessToken")));
 
                     AjaxDropDownChoicePanel<OIDCSubjectType> subjectType = new AjaxDropDownChoicePanel<>(
                             "field", "subjectType", new PropertyModel<>(clientAppTO, "subjectType"), false);

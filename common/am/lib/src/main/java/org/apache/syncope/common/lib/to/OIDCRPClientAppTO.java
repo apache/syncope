@@ -41,6 +41,8 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private boolean signIdToken;
 
+    private boolean jwtAccessToken;
+
     private OIDCSubjectType subjectType;
 
     private final List<String> redirectUris = new ArrayList<>();
@@ -117,6 +119,14 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.logoutUri = logoutUri;
     }
 
+    public boolean isJwtAccessToken() {
+        return jwtAccessToken;
+    }
+
+    public void setJwtAccessToken(final boolean jwtAccessToken) {
+        this.jwtAccessToken = jwtAccessToken;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (obj == null) {
@@ -139,6 +149,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(this.supportedGrantTypes, rhs.supportedGrantTypes)
                 .append(this.supportedResponseTypes, rhs.supportedResponseTypes)
                 .append(this.logoutUri, rhs.logoutUri)
+                .append(this.jwtAccessToken, rhs.jwtAccessToken)
                 .isEquals();
     }
 
@@ -154,6 +165,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(supportedGrantTypes)
                 .append(supportedResponseTypes)
                 .append(logoutUri)
+                .append(jwtAccessToken)
                 .toHashCode();
     }
 }

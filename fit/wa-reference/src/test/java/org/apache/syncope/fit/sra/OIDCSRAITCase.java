@@ -106,6 +106,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
                             ClientAppType.OIDCRP, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 });
 
+        clientApp.setJwtAccessToken(true);
         clientApp.setClientId(clientId);
         clientApp.setClientSecret(clientSecret);
         clientApp.setSubjectType(OIDCSubjectType.PUBLIC);

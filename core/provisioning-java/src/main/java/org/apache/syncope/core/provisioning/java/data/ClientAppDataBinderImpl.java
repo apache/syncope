@@ -207,6 +207,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setClientSecret(clientAppTO.getClientSecret());
         clientApp.setClientId(clientAppTO.getClientId());
         clientApp.setSignIdToken(clientAppTO.isSignIdToken());
+        clientApp.setJwtAccessToken(clientAppTO.isJwtAccessToken());
         clientApp.setSubjectType(clientAppTO.getSubjectType());
         clientApp.getRedirectUris().clear();
         clientApp.getRedirectUris().addAll(clientAppTO.getRedirectUris());
@@ -230,7 +231,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.getSupportedGrantTypes().addAll(clientApp.getSupportedGrantTypes());
         clientAppTO.getSupportedResponseTypes().addAll(clientApp.getSupportedResponseTypes());
         clientAppTO.setLogoutUri(clientApp.getLogoutUri());
-
+        clientAppTO.setJwtAccessToken(clientApp.isJwtAccessToken());
         return clientAppTO;
     }
 
