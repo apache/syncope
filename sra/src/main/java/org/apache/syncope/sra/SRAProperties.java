@@ -28,7 +28,7 @@ import org.jasig.cas.client.Protocol;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 
-@ConfigurationProperties("sra")
+@ConfigurationProperties(SRAProperties.PREFIX)
 public class SRAProperties extends SyncopeProperties {
 
     public static final String PREFIX = "sra";

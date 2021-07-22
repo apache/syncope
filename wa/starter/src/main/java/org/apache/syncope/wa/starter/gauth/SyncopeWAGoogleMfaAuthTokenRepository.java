@@ -38,10 +38,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
 
     private final long expireTokensInSeconds;
 
-    public SyncopeWAGoogleMfaAuthTokenRepository(
-            final WARestClient waRestClient,
-            final long expireTokensInSeconds) {
-
+    public SyncopeWAGoogleMfaAuthTokenRepository(final WARestClient waRestClient, final long expireTokensInSeconds) {
         this.waRestClient = waRestClient;
         this.expireTokensInSeconds = expireTokensInSeconds;
     }

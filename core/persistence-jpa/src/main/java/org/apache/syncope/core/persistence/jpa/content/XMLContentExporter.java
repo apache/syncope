@@ -66,6 +66,7 @@ import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.openjpa.lib.util.collections.BidiMap;
 import org.apache.openjpa.lib.util.collections.DualHashBidiMap;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -90,7 +91,6 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.tika.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -216,14 +216,14 @@ public class XMLContentExporter implements ContentExporter {
                 case Types.LONGVARBINARY:
                     InputStream is = rs.getBinaryStream(columnName);
                     if (is != null) {
-                        res = DatatypeConverter.printHexBinary(IOUtils.toByteArray(is));
+                        res = DatatypeConverter.printHexBinary(IOUtils.toString(is).getBytes());
                     }
                     break;
 
                 case Types.BLOB:
                     Blob blob = rs.getBlob(columnName);
                     if (blob != null) {
-                        res = DatatypeConverter.printHexBinary(IOUtils.toByteArray(blob.getBinaryStream()));
+                        res = DatatypeConverter.printHexBinary(IOUtils.toString(blob.getBinaryStream()).getBytes());
                     }
                     break;
 

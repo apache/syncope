@@ -184,12 +184,21 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
         // 2. click on the SAML 2.0 IdP
-        get = new HttpGet(baseURL + SAML2SP4UIConstants.URL_CONTEXT 
+        get = new HttpGet(baseURL + SAML2SP4UIConstants.URL_CONTEXT
                 + "/login?idp=http%3A//localhost%3A9080/syncope-wa/saml");
         response = httpclient.execute(get, context);
 
         // 2a. post SAML request
         String responseBody = EntityUtils.toString(response.getEntity());
+        if (responseBody.contains("Session expired: please login again")) {
+            idpSetup();
+
+            List<SAML2SP4UIIdPTO> idps = saml2sp4UIIdPService.list();
+            assertEquals(1, idps.size());
+
+            response = httpclient.execute(get, context);
+            responseBody = EntityUtils.toString(response.getEntity());
+        }
         Triple<String, String, String> parsed = parseSAMLRequestForm(responseBody);
 
         HttpPost post = new HttpPost(parsed.getLeft());

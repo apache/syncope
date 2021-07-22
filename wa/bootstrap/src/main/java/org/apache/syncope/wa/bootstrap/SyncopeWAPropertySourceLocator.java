@@ -72,7 +72,7 @@ import org.springframework.core.env.PropertySource;
 @Order
 public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWABootstrapConfiguration.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAPropertySourceLocator.class);
 
     private final WARestClient waRestClient;
 
@@ -207,7 +207,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             final GoogleMfaAuthModuleConf conf) {
 
         GoogleAuthenticatorMultifactorProperties props =
-            new GoogleAuthenticatorMultifactorProperties();
+                new GoogleAuthenticatorMultifactorProperties();
         props.setName(authModule);
         props.getCore().setIssuer(conf.getIssuer());
         props.getCore().setCodeDigits(conf.getCodeDigits());

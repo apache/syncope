@@ -163,8 +163,8 @@ under the License.
       <artifactId>cas-server-support-themes</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-radius-core</artifactId>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-radius-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>

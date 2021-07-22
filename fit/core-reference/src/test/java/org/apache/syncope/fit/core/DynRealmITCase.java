@@ -25,9 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AttrPatch;
@@ -53,7 +55,6 @@ import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.ElasticsearchDetector;
-import org.apache.tika.io.IOUtils;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.InputStreamContentProvider;
@@ -224,7 +225,7 @@ public class DynRealmITCase extends AbstractITCase {
 
     private static ArrayNode fetchDynRealmsFromElasticsearch(final String userKey) throws Exception {
         String body =
-            '{'
+                '{'
                 + "    \"query\": {"
                 + "        \"match\": {\"_id\": \"" + userKey + "\"}"
                 + "    }"
@@ -235,7 +236,7 @@ public class DynRealmITCase extends AbstractITCase {
         ContentResponse response = httpClient.newRequest("http://localhost:9200/master_user/_search").
                 method(HttpMethod.GET).
                 header(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON).
-                content(new InputStreamContentProvider(IOUtils.toInputStream(body))).
+                content(new InputStreamContentProvider(IOUtils.toInputStream(body, StandardCharsets.UTF_8))).
                 send();
         assertEquals(HttpStatus.OK_200, response.getStatus());
 

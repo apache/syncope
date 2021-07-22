@@ -36,17 +36,19 @@ under the License.
   </appenders>
 
   <loggers>
-    <asyncLogger name="org.apereo.cas" additivity="false" level="DEBUG">
+    <asyncLogger name="org.apereo.cas" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
-    <asyncLogger name="org.apereo.services.persondir" additivity="false" level="DEBUG">
+
+    <asyncLogger name="org.apereo.services.persondir" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
+
     <asyncLogger name="org.apereo.inspektr.audit.support" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
 
-    <asyncLogger name="org.pac4j" additivity="false" level="INFO">
+    <asyncLogger name="org.pac4j" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
     </asyncLogger>
 
@@ -68,7 +70,6 @@ under the License.
     <root level="INFO">
       <appender-ref ref="main"/>
     </root>
-  
   </loggers>
   
 </configuration>
