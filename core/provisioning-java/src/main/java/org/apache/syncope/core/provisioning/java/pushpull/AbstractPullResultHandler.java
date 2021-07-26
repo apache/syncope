@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import static org.apache.syncope.core.provisioning.java.pushpull.AbstractSyncopeResultHandler.LOG;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
