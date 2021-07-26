@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
+import static org.apache.syncope.core.provisioning.java.pushpull.AbstractSyncopeResultHandler.LOG;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -246,9 +248,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                 LOG.error("Could not create {} {} ", anyTO.getType(), delta.getUid().getUidValue(), e);
                 output = e;
-                resultStatus = Result.FAILURE;
 
                 if (profile.getTask().isRemediation()) {
+                    // set to SUCCESS to let the incremental flow go on in case of errors
+                    resultStatus = Result.SUCCESS;
                     Remediation entity = entityFactory.newEntity(Remediation.class);
                     entity.setAnyType(provision.getAnyType());
                     entity.setOperation(ResourceOperation.CREATE);
@@ -261,6 +264,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     }
 
                     remediationDAO.save(entity);
+                } else {
+                    resultStatus = Result.FAILURE;
                 }
             }
 
@@ -371,9 +376,11 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                         LOG.error("Could not update {} {}",
                                 provision.getAnyType().getKey(), delta.getUid().getUidValue(), e);
                         output = e;
-                        resultStatus = Result.FAILURE;
 
                         if (profile.getTask().isRemediation()) {
+                            // set to SUCCESS to let the incremental flow go on in case of errors
+                            resultStatus = Result.SUCCESS;
+
                             Remediation entity = entityFactory.newEntity(Remediation.class);
                             entity.setAnyType(provision.getAnyType());
                             entity.setOperation(ResourceOperation.UPDATE);
@@ -384,6 +391,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             entity.setPullTask(profile.getTask());
 
                             remediationDAO.save(entity);
+                        } else {
+                            resultStatus = Result.FAILURE;
                         }
                     }
                 }
@@ -673,6 +682,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                         output = e;
 
                         if (profile.getTask().isRemediation()) {
+                            // set to SUCCESS to let the incremental flow go on in case of errors
+                            resultStatus = Result.SUCCESS;
                             Remediation entity = entityFactory.newEntity(Remediation.class);
                             entity.setAnyType(provision.getAnyType());
                             entity.setOperation(ResourceOperation.DELETE);
