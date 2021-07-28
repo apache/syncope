@@ -483,7 +483,7 @@ under the License.
 
     <antlr4.version>4.9.2</antlr4.version>
 
-    <curator.version>5.1.0</curator.version>
+    <curator.version>5.2.0</curator.version>
     <zookeeper.version>3.7.0</zookeeper.version>
 
     <testds.port>1389</testds.port>
