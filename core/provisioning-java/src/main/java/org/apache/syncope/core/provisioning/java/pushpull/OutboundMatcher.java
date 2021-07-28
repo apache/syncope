@@ -128,14 +128,13 @@ public class OutboundMatcher {
                         Optional.of(moreAttrsToGet.toArray(new String[0])),
                         Optional.empty()));
             } else {
-                MappingUtils.getConnObjectKeyItem(provision).ifPresent(connObjectKeyItem -> matchByConnObjectKeyValue(
-                        connector,
-                        connObjectKeyItem,
-                        connObjectKeyValue,
-                        provision,
-                        Optional.of(moreAttrsToGet.toArray(new String[0])),
-                        Optional.empty()).
-                        ifPresent(result::add));
+                MappingUtils.getConnObjectKeyItem(provision).flatMap(connObjectKeyItem -> matchByConnObjectKeyValue(
+                    connector,
+                    connObjectKeyItem,
+                    connObjectKeyValue,
+                    provision,
+                    Optional.of(moreAttrsToGet.toArray(new String[0])),
+                    Optional.empty())).ifPresent(result::add);
             }
         } catch (RuntimeException e) {
             LOG.error("Could not match {} with any existing {}", any, provision.getObjectClass(), e);
@@ -167,7 +166,7 @@ public class OutboundMatcher {
             }
         });
         Optional<String[]> effectiveMATG = Optional.of(Stream.concat(
-                moreAttrsToGet.map(Stream::of).orElse(Stream.empty()),
+            moreAttrsToGet.stream().flatMap(Stream::of),
                 matgFromPropagationActions.stream()).toArray(String[]::new));
 
         Optional<PushCorrelationRule> rule = rule(provision);

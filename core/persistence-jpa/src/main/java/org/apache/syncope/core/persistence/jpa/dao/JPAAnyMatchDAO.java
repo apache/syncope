@@ -165,13 +165,9 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
 
                 if (match == null) {
                     Optional<AnyCond> anyCond = cond.getLeaf(AnyCond.class);
-                    if (anyCond.isPresent()) {
-                        match = matches(any, anyCond.get(), not);
-                    } else {
-                        match = cond.getLeaf(AttrCond.class).
-                                map(leaf -> matches(any, leaf, not)).
-                                orElse(null);
-                    }
+                    match = anyCond.map(value -> matches(any, value, not)).orElseGet(() -> cond.getLeaf(AttrCond.class).
+                        map(leaf -> matches(any, leaf, not)).
+                        orElse(null));
                 }
 
                 if (match == null) {

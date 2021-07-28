@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
                 filter(meta -> !meta.isDeleted() && username.equals(meta.getUser().getUsername())).
                 findFirst().map(UserMetadata::getUser);
 
-        if (!user.isPresent()) {
+        if (user.isEmpty()) {
             throw new NotFoundException(username);
         }
         if (!password.equals(user.get().getPassword())) {

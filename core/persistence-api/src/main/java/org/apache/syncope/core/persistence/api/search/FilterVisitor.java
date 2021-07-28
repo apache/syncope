@@ -83,7 +83,7 @@ public class FilterVisitor extends AbstractSearchConditionVisitor<SearchBean, Fi
         switch (ct) {
             case EQUALS:
             case NOT_EQUALS:
-                if (!specialAttrName.isPresent()) {
+                if (specialAttrName.isEmpty()) {
                     if (specialAttrValue.isPresent() && specialAttrValue.get() == SpecialAttr.NULL) {
                         Filter empty = FilterBuilder.startsWith(AttributeBuilder.build(name, StringUtils.EMPTY));
                         if (ct == ConditionType.NOT_EQUALS) {

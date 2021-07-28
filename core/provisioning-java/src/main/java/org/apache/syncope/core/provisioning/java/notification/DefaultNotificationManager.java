@@ -343,7 +343,7 @@ public class DefaultNotificationManager implements NotificationManager {
                 if (!notification.getEvents().contains(currentEvent)) {
                     LOG.debug("No events found about {}", any);
                 } else if (anyType == null || any == null
-                        || !notification.getAbout(anyType).isPresent()
+                        || notification.getAbout(anyType).isEmpty()
                         || anyMatchDAO.matches(any, SearchCondConverter.convert(
                                 searchCondVisitor, notification.getAbout(anyType).get().get()))) {
 

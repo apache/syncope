@@ -66,9 +66,7 @@ public class SAML2ClientCache {
     public static Optional<String> getSPMetadataPath(final String spEntityID) {
         String entityIDPath = StringUtils.replaceChars(
                 StringUtils.removeStart(StringUtils.removeStart(spEntityID, "https://"), "http://"), ":/", "__");
-        return Optional.ofNullable(METADATA_PATH).
-                map(path -> Optional.of(path.resolve(entityIDPath).toAbsolutePath().toString())).
-                orElse(Optional.empty());
+        return Optional.ofNullable(METADATA_PATH).map(path -> path.resolve(entityIDPath).toAbsolutePath().toString());
     }
 
     private final List<SAML2Client> cache = Collections.synchronizedList(new ArrayList<>());

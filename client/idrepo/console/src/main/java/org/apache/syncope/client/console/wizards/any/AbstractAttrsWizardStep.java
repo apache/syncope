@@ -425,7 +425,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                     ? Optional.empty()
                     : previousObject.getPlainAttr(attr.getSchema());
             if (previousObject != null
-                    && ((!prevAttr.isPresent() && attr.getValues().stream().anyMatch(StringUtils::isNotBlank))
+                    && ((prevAttr.isEmpty() && attr.getValues().stream().anyMatch(StringUtils::isNotBlank))
                     || (prevAttr.isPresent() && !ListUtils.isEqualList(
                     prevAttr.get().getValues().stream().
                             filter(StringUtils::isNotBlank).collect(Collectors.toList()),

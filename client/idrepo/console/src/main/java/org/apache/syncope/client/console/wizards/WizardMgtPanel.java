@@ -217,25 +217,18 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                     fragment.add(Component.class.cast(modalPanel));
                     container.addOrReplace(fragment);
                 }
-                if (target.isPresent()) {
-                    customActionCallback(target.get());
-                }
+                target.ifPresent(this::customActionCallback);
             } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
                 if (wizardInModal) {
-                    if (target.isPresent()) {
-                        modal.close(target.get());
-                    }
+                    target.ifPresent(modal::close);
                 } else {
                     container.addOrReplace(initialFragment);
                 }
-                if (target.isPresent()) {
-                    customActionOnCancelCallback(target.get());
-                }
+                target.ifPresent(this::customActionOnCancelCallback);
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                if (target.isPresent()) {
-                    ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
-                }
+                target.ifPresent(ajaxRequestTarget ->
+                    ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
 
                 if (wizardInModal && showResultPage) {
                     modal.setContent(new ResultPage<>(
@@ -256,15 +249,11 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                     });
                     target.ifPresent(t -> t.add(modal.getForm()));
                 } else if (wizardInModal) {
-                    if (target.isPresent()) {
-                        modal.close(target.get());
-                    }
+                    target.ifPresent(modal::close);
                 } else {
                     container.addOrReplace(initialFragment);
                 }
-                if (target.isPresent()) {
-                    customActionOnFinishCallback(target.get());
-                }
+                target.ifPresent(this::customActionOnFinishCallback);
             }
 
             if (containerAutoRefresh) {

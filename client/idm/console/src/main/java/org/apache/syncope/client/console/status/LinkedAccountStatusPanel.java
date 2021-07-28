@@ -59,8 +59,6 @@ public class LinkedAccountStatusPanel extends RemoteObjectPanel {
     protected Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs() {
         Optional<ReconStatus> status = ReconStatusUtils.getReconStatus(anyTypeKey, connObjectKeyValue, resource);
 
-        return status.isPresent()
-                ? Pair.of(status.get().getOnSyncope(), status.get().getOnResource())
-                : null;
+        return status.map(reconStatus -> Pair.of(reconStatus.getOnSyncope(), reconStatus.getOnResource())).orElse(null);
     }
 }

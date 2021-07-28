@@ -595,7 +595,7 @@ public class SearchITCase extends AbstractITCase {
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("homePhone").nullValue().query()).build());
         assertTrue(matches.getResult().stream().
-                anyMatch(connObject -> !connObject.getAttr("homePhone").isPresent()));
+                anyMatch(connObject -> connObject.getAttr("homePhone").isEmpty()));
     }
 
     @Test
