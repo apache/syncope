@@ -407,7 +407,7 @@ under the License.
 
     <cxf.version>3.4.4</cxf.version>
     <bouncycastle.version>1.69</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.11.1</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.11.2</nimbus-jose-jwt.version>
 
     <jackson.version>2.12.4</jackson.version>
 
