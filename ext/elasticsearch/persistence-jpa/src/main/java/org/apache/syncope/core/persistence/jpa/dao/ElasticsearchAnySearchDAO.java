@@ -85,7 +85,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     protected static final QueryBuilder MATCH_ALL_QUERY_BUILDER = new MatchAllQueryBuilder();
 
     protected static final char[] ELASTICSEARCH_REGEX_CHARS = new char[] {
-        '.', '?', '+', '*', '|', '{', '}', '[', ']', '(', ')', '"', '\\' };
+        '.', '?', '+', '*', '|', '{', '}', '[', ']', '(', ')', '"', '\\', '&' };
 
     protected static String escapeForLikeRegex(final char c) {
         StringBuilder output = new StringBuilder();
