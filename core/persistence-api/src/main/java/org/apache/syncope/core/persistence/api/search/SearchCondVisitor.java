@@ -128,7 +128,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         switch (ct) {
             case EQUALS:
             case NOT_EQUALS:
-                if (!specialAttrName.isPresent()) {
+                if (specialAttrName.isEmpty()) {
                     if (specialAttrValue.isPresent() && specialAttrValue.get() == SpecialAttr.NULL) {
                         attrCond.setType(AttrCond.Type.ISNULL);
                         attrCond.setExpression(null);

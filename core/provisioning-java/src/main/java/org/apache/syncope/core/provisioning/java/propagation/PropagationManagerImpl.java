@@ -455,8 +455,7 @@ public class PropagationManagerImpl implements PropagationManager {
         propByRes.asMap().forEach((resourceKey, operation) -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
             Provision provision = Optional.ofNullable(resource).
-                    map(externalResource -> externalResource.getProvision(any.getType()).
-                    orElse(null)).orElse(null);
+                flatMap(externalResource -> externalResource.getProvision(any.getType())).orElse(null);
             Stream<? extends Item> mappingItems = provision == null
                     ? Stream.empty()
                     : MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());

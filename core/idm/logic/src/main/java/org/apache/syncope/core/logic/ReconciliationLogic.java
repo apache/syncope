@@ -468,7 +468,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         Any<?> any = getAny(provision, anyKey);
 
-        if (!provision.getMapping().getConnObjectKeyItem().isPresent()) {
+        if (provision.getMapping().getConnObjectKeyItem().isEmpty()) {
             throw new NotFoundException(
                     "ConnObjectKey cannot be determined for mapping " + provision.getMapping().getKey());
         }

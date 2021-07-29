@@ -224,17 +224,16 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
 
         // Try to read remote object BEFORE any actual operation
         Optional<ConnectorObject> connObj = MappingUtils.getConnObjectKeyItem(provision).
-                map(connObjectKeyItem -> outboundMatcher.matchByConnObjectKeyValue(
-                profile.getConnector(),
-                connObjectKeyItem,
-                account.getConnObjectKeyValue(),
-                provision,
-                Optional.empty(),
-                Optional.empty())).
-                orElse(Optional.empty());
+            flatMap(connObjectKeyItem -> outboundMatcher.matchByConnObjectKeyValue(
+            profile.getConnector(),
+            connObjectKeyItem,
+            account.getConnObjectKeyValue(),
+            provision,
+            Optional.empty(),
+            Optional.empty()));
         LOG.debug("Match found for linked account {} as {}: {}", account, provision.getObjectClass(), connObj);
 
-        ConnectorObject beforeObj = connObj.isPresent() ? connObj.get() : null;
+        ConnectorObject beforeObj = connObj.orElse(null);
 
         if (profile.isDryRun()) {
             if (beforeObj == null) {
