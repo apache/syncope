@@ -102,10 +102,8 @@ public class ConnectorRestClient extends BaseRestClient {
                 filter(object -> object.getType().equalsIgnoreCase(objectClass)).
                 findAny();
 
-        return connIdObjectClass.isPresent()
-                ? connIdObjectClass.get().getAttributes().stream().
-                        map(PlainSchemaTO::getKey).collect(Collectors.toList())
-                : List.of();
+        return connIdObjectClass.map(connIdObjectClassTO -> connIdObjectClassTO.getAttributes().stream().
+            map(PlainSchemaTO::getKey).collect(Collectors.toList())).orElseGet(List::of);
     }
 
     /**

@@ -139,7 +139,7 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
         Optional<Parameter> delegatedByHeaderParameter = parameters.stream().
                 filter(p -> p instanceof HeaderParameter && RESTHeaders.DELEGATED_BY.equals(p.getName())).findFirst();
-        if (!delegatedByHeaderParameter.isPresent()) {
+        if (delegatedByHeaderParameter.isEmpty()) {
             HeaderParameter parameter = new HeaderParameter();
             parameter.setName(RESTHeaders.DELEGATED_BY);
             parameter.setRequired(false);

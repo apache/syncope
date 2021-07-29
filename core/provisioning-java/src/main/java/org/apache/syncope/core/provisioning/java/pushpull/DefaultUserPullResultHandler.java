@@ -478,7 +478,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     attrsToRemove.add(connObjectAttr.getSchema());
                 } else {
                     Optional<Attr> updateAttr = update.getPlainAttr(connObjectAttr.getSchema());
-                    if (!updateAttr.isPresent() || !updateAttr.get().getValues().equals(connObjectAttr.getValues())) {
+                    if (updateAttr.isEmpty() || !updateAttr.get().getValues().equals(connObjectAttr.getValues())) {
                         attrsToRemove.add(connObjectAttr.getSchema());
                         update.getPlainAttrs().add(connObjectAttr);
                     }

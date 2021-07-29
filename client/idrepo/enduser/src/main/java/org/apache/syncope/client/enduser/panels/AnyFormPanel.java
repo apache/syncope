@@ -142,12 +142,12 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
         // re-add to the updated object any missing plain or virtual attribute (compared to original): this to cope with
         // form layout, which might have not included some plain or virtual attributes
         for (Attr plainAttr : original.getPlainAttrs()) {
-            if (!updated.getPlainAttr(plainAttr.getSchema()).isPresent()) {
+            if (updated.getPlainAttr(plainAttr.getSchema()).isEmpty()) {
                 updated.getPlainAttrs().add(plainAttr);
             }
         }
         for (Attr virAttr : original.getVirAttrs()) {
-            if (!updated.getVirAttr(virAttr.getSchema()).isPresent()) {
+            if (updated.getVirAttr(virAttr.getSchema()).isEmpty()) {
                 updated.getVirAttrs().add(virAttr);
             }
         }
@@ -159,11 +159,11 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
                         .cast(updated).getMembership(oMemb.getGroupKey()).ifPresent(uMemb -> {
                     oMemb.getPlainAttrs()
                             .stream().
-                            filter(attr -> !uMemb.getPlainAttr(attr.getSchema()).isPresent()).
+                            filter(attr -> uMemb.getPlainAttr(attr.getSchema()).isEmpty()).
                             forEach(attr -> uMemb.getPlainAttrs().add(attr));
                     oMemb.getVirAttrs()
                             .stream().
-                            filter(attr -> !uMemb.getVirAttr(attr.getSchema()).isPresent()).
+                            filter(attr -> uMemb.getVirAttr(attr.getSchema()).isEmpty()).
                             forEach(attr -> uMemb.getVirAttrs().add(attr));
                 }
                 );

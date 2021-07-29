@@ -345,7 +345,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             provision = task.getResource().getProvision(new ObjectClass(task.getObjectClassName())).orElse(null);
             orgUnit = task.getResource().getOrgUnit();
 
-            if (taskInfo.getBeforeObj() == null || !taskInfo.getBeforeObj().isPresent()) {
+            if (taskInfo.getBeforeObj() == null || taskInfo.getBeforeObj().isEmpty()) {
                 // Try to read remote object BEFORE any actual operation
                 beforeObj = provision == null && orgUnit == null
                         ? null

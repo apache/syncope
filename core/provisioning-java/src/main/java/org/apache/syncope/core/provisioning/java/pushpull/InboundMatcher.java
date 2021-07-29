@@ -174,9 +174,7 @@ public class InboundMatcher {
                     }
 
                     result = matches.stream().filter(match -> match.getAny() != null).findFirst();
-                    if (result.isPresent()) {
-                        virAttrHandler.setValues(result.get().getAny(), connObj);
-                    }
+                    result.ifPresent(pullMatch -> virAttrHandler.setValues(pullMatch.getAny(), connObj));
                 }
             } catch (IllegalArgumentException e) {
                 LOG.warn(e.getMessage());

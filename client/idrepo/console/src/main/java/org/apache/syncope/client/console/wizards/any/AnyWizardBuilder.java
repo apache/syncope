@@ -186,10 +186,10 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
                     forEach(oMemb -> GroupableRelatableTO.class.cast(updated).getMembership(oMemb.getGroupKey()).
                     ifPresent(uMemb -> {
                         oMemb.getPlainAttrs().stream().
-                                filter(attr -> !uMemb.getPlainAttr(attr.getSchema()).isPresent()).
+                                filter(attr -> uMemb.getPlainAttr(attr.getSchema()).isEmpty()).
                                 forEach(attr -> uMemb.getPlainAttrs().add(attr));
                         oMemb.getVirAttrs().stream().
-                                filter(attr -> !uMemb.getVirAttr(attr.getSchema()).isPresent()).
+                                filter(attr -> uMemb.getVirAttr(attr.getSchema()).isEmpty()).
                                 forEach(attr -> uMemb.getVirAttrs().add(attr));
                     }));
         }

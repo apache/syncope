@@ -407,7 +407,7 @@ under the License.
 
     <cxf.version>3.4.4</cxf.version>
     <bouncycastle.version>1.69</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.11.1</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.11.2</nimbus-jose-jwt.version>
 
     <jackson.version>2.12.4</jackson.version>
 
@@ -483,7 +483,7 @@ under the License.
 
     <antlr4.version>4.9.2</antlr4.version>
 
-    <curator.version>5.1.0</curator.version>
+    <curator.version>5.2.0</curator.version>
     <zookeeper.version>3.7.0</zookeeper.version>
 
     <testds.port>1389</testds.port>
@@ -511,7 +511,7 @@ under the License.
 
     <tomcat.version>9.0.50</tomcat.version>
     <wildfly.version>24.0.0.Final</wildfly.version>
-    <payara.version>5.2021.4</payara.version>
+    <payara.version>5.2021.5</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
     <docker.postgresql.version>13</docker.postgresql.version>
@@ -2757,7 +2757,7 @@ under the License.
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>2.2.0</version>
+            <version>2.2.1</version>
             <dependencies>
               <dependency>
                 <groupId>org.asciidoctor</groupId>

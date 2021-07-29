@@ -252,7 +252,7 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
                     AbstractFieldPanel<?> panel = setPanel(
                         schemas,
                         item,
-                        !linkedAccountTO.getPlainAttr(attrTO.getSchema()).isPresent());
+                        linkedAccountTO.getPlainAttr(attrTO.getSchema()).isEmpty());
 
                     panel.showExternAction(checkboxToggle(attrTO, panel, isMultivalue));
                 }
