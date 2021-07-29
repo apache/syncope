@@ -202,7 +202,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
             profile = new ProvisioningProfile<>(connector, pullTask);
             profile.setDryRun(false);
-            profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
+            profile.setConflictResolutionAction(conflictResolutionAction);
             profile.getActions().addAll(actions);
 
             for (PullActions action : actions) {
