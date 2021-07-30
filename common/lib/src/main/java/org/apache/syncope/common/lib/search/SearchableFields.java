@@ -35,7 +35,8 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 public final class SearchableFields {
 
     private static final String[] ATTRIBUTES_NOTINCLUDED = {
-        "serialVersionUID", "password", "type", "udynMembershipCond", "securityAnswer", "token", "tokenExpireTime"
+        "serialVersionUID", "discriminator", "password", "type", "udynMembershipCond", "securityAnswer",
+        "token", "tokenExpireTime"
     };
 
     private static final Set<String> ANY_FIELDS = new HashSet<>();
