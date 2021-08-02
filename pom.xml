@@ -407,7 +407,7 @@ under the License.
 
     <cxf.version>3.4.4</cxf.version>
     <bouncycastle.version>1.69</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.11.2</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.11.3</nimbus-jose-jwt.version>
 
     <jackson.version>2.12.4</jackson.version>
 
@@ -2320,7 +2320,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.44</version>
+              <version>8.45</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2383,7 +2383,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.0.0-M3</version>
+        <version>3.0.0</version>
         <executions>
           <execution>
             <id>default-cli</id>
