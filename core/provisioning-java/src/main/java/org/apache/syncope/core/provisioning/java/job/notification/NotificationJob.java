@@ -19,13 +19,13 @@
 package org.apache.syncope.core.provisioning.java.job.notification;
 
 import java.util.Optional;
-import javax.annotation.Resource;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.api.job.JobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -48,12 +48,12 @@ public class NotificationJob extends AbstractInterruptableJob {
 
     }
 
-    public static final String DEFAULT_CRON_EXP = "0 0/5 * * * ?";
-
     private static final Logger LOG = LoggerFactory.getLogger(NotificationJob.class);
 
-    @Resource(name = "adminUser")
-    private String adminUser;
+    public static final String DEFAULT_CRON_EXP = "0 0/5 * * * ?";
+
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @Autowired
     private DomainHolder domainHolder;
@@ -70,7 +70,7 @@ public class NotificationJob extends AbstractInterruptableJob {
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         LOG.debug("Waking up...");
         String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
-                orElse(adminUser);
+                orElse(securityProperties.getAdminUser());
         for (String domain : domainHolder.getDomains().keySet()) {
             try {
                 AuthContextUtils.callAsAdmin(domain, () -> {

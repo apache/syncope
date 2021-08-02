@@ -517,9 +517,13 @@ public class XMLContentExporter implements ContentExporter {
             throw new IllegalArgumentException("Could not find DataSource for domain " + domain);
         }
 
-        String schema = ApplicationContextProvider.getBeanFactory().containsBean(domain + "DatabaseSchema")
-                ? ApplicationContextProvider.getBeanFactory().getBean(domain + "DatabaseSchema", String.class)
-                : null;
+        String schema = null;
+        if (ApplicationContextProvider.getBeanFactory().containsBean(domain + "DatabaseSchema")) {
+            Object schemaBean = ApplicationContextProvider.getBeanFactory().getBean(domain + "DatabaseSchema");
+            if (schemaBean instanceof String) {
+                schema = (String) schemaBean;
+            }
+        }
 
         Connection conn = null;
         ResultSet rs = null;
@@ -527,10 +531,9 @@ public class XMLContentExporter implements ContentExporter {
             conn = DataSourceUtils.getConnection(dataSource);
             final DatabaseMetaData meta = conn.getMetaData();
 
-            rs = meta.getTables(null, StringUtils.isBlank(schema) ? null : schema, null,
-                    new String[] { "TABLE" });
+            rs = meta.getTables(null, StringUtils.isBlank(schema) ? null : schema, null, new String[] { "TABLE" });
 
-            final Set<String> tableNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            Set<String> tableNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
             while (rs.next()) {
                 String tableName = rs.getString("TABLE_NAME");

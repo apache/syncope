@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
@@ -49,7 +50,7 @@ public class XMLContentExporterTest extends AbstractTest {
     public void issueSYNCOPE1128() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        exporter.export("Master", baos, null, null, null);
+        exporter.export(SyncopeConstants.MASTER_DOMAIN, baos, null, null, null);
 
         String exported = baos.toString(Charset.defaultCharset());
         assertTrue(StringUtils.isNotBlank(exported));

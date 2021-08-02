@@ -76,23 +76,31 @@ public class ConnectorITCase extends AbstractITCase {
 
     @BeforeAll
     public static void setUpConnIdBundles() throws IOException {
-        try (InputStream propStream = ConnectorITCase.class.getResourceAsStream("/connid.properties")) {
+        try (InputStream propStream = ConnectorITCase.class.getResourceAsStream("/test.properties")) {
             Properties props = new Properties();
             props.load(propStream);
-
-            for (String location : props.getProperty("connid.locations").split(",")) {
-                if (!location.startsWith("file")) {
-                    connectorServerLocation = location;
-                }
-            }
 
             connIdSoapVersion = props.getProperty("connid.soap.version");
             connIdDbVersion = props.getProperty("connid.database.version");
 
             testJDBCURL = props.getProperty("testdb.url");
         } catch (Exception e) {
-            LOG.error("Could not load /connid.properties", e);
+            LOG.error("Could not load /test.properties", e);
         }
+
+        try (InputStream propStream = ConnectorITCase.class.getResourceAsStream("/core-it.properties")) {
+            Properties props = new Properties();
+            props.load(propStream);
+
+            for (String location : props.getProperty("provisioning.connIdLocation").split(",")) {
+                if (!location.startsWith("file")) {
+                    connectorServerLocation = location;
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Could not load /core-it.properties", e);
+        }
+
         assertNotNull(connectorServerLocation);
         assertNotNull(connIdSoapVersion);
         assertNotNull(connIdDbVersion);

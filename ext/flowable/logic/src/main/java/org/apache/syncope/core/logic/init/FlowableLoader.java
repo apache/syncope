@@ -22,7 +22,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
@@ -31,13 +30,13 @@ import org.apache.syncope.core.flowable.impl.FlowableDeployUtils;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
-import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.impl.db.DbIdGenerator;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -45,8 +44,8 @@ public class FlowableLoader implements SyncopeCoreLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlowableLoader.class);
 
-    @Resource(name = "userWorkflowDef")
-    private ResourceWithFallbackLoader userWorkflowDef;
+    @javax.annotation.Resource(name = "userWorkflowDef")
+    private Resource userWorkflowDef;
 
     @Autowired
     private DomainProcessEngine dpEngine;
@@ -65,10 +64,10 @@ public class FlowableLoader implements SyncopeCoreLoader {
     public void load(final String domain, final DataSource datasource) {
         byte[] wfDef = new byte[0];
 
-        try (InputStream wfIn = userWorkflowDef.getResource().getInputStream()) {
+        try (InputStream wfIn = userWorkflowDef.getInputStream()) {
             wfDef = IOUtils.toByteArray(wfIn);
         } catch (IOException e) {
-            LOG.error("While loading " + userWorkflowDef.getResource().getFilename(), e);
+            LOG.error("While loading " + userWorkflowDef.getFilename(), e);
         }
 
         ProcessEngine processEngine = dpEngine.getEngines().get(domain);
@@ -83,7 +82,7 @@ public class FlowableLoader implements SyncopeCoreLoader {
             // Only loads process definition from file if not found in repository
             if (processes.isEmpty()) {
                 processEngine.getRepositoryService().createDeployment().addInputStream(
-                        userWorkflowDef.getResource().getFilename(), new ByteArrayInputStream(wfDef)).deploy();
+                        userWorkflowDef.getFilename(), new ByteArrayInputStream(wfDef)).deploy();
 
                 ProcessDefinition procDef = processEngine.getRepositoryService().createProcessDefinitionQuery().
                         processDefinitionKey(FlowableRuntimeUtils.WF_PROCESS_ID).latestVersion().

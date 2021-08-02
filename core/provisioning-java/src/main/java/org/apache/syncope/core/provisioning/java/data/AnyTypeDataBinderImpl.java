@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -42,6 +41,7 @@ import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +55,8 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 
     private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
-    @Resource(name = "adminUser")
-    private String adminUser;
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -77,7 +77,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 
         Set<String> added = EntitlementsHolder.getInstance().addFor(anyType.getKey());
 
-        if (!adminUser.equals(AuthContextUtils.getUsername())) {
+        if (!securityProperties.getAdminUser().equals(AuthContextUtils.getUsername())) {
             AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername());
             try {
                 Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(
@@ -134,7 +134,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 
         final Set<String> removed = EntitlementsHolder.getInstance().removeFor(deleted.getKey());
 
-        if (!adminUser.equals(AuthContextUtils.getUsername())) {
+        if (!securityProperties.getAdminUser().equals(AuthContextUtils.getUsername())) {
             AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername());
             try {
                 Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(

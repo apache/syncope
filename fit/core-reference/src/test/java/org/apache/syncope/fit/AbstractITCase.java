@@ -355,23 +355,31 @@ public abstract class AbstractITCase {
 
     @BeforeAll
     public static void securitySetup() {
-        try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/security.properties")) {
+        try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/core.properties")) {
             Properties props = new Properties();
             props.load(propStream);
 
-            ANONYMOUS_UNAME = props.getProperty("anonymousUser");
-            ANONYMOUS_KEY = props.getProperty("anonymousKey");
-            JWT_ISSUER = props.getProperty("jwtIssuer");
-            JWS_ALGORITHM = JWSAlgorithm.parse(props.getProperty("jwsAlgorithm"));
-            JWS_KEY = props.getProperty("jwsKey");
+            ANONYMOUS_UNAME = props.getProperty("security.anonymousUser");
+            ANONYMOUS_KEY = props.getProperty("security.anonymousKey");
+            JWT_ISSUER = props.getProperty("security.jwtIssuer");
+            JWS_ALGORITHM = JWSAlgorithm.parse(props.getProperty("security.jwsAlgorithm"));
+            JWS_KEY = props.getProperty("security.jwsKey");
         } catch (Exception e) {
-            LOG.error("Could not read security.properties", e);
+            LOG.error("Could not read core.properties", e);
         }
 
         assertNotNull(ANONYMOUS_UNAME);
         assertNotNull(ANONYMOUS_KEY);
         assertNotNull(JWS_KEY);
         assertNotNull(JWT_ISSUER);
+
+        anonymusClient = clientFactory.create(new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
+
+        googleMfaAuthTokenService = anonymusClient.getService(GoogleMfaAuthTokenService.class);
+        googleMfaAuthAccountService = anonymusClient.getService(GoogleMfaAuthAccountService.class);
+        u2fRegistrationService = anonymusClient.getService(U2FRegistrationService.class);
+        webAuthnRegistrationService = anonymusClient.getService(WebAuthnRegistrationService.class);
+        impersonationService = anonymusClient.getService(ImpersonationService.class);
     }
 
     @BeforeAll
@@ -430,14 +438,6 @@ public abstract class AbstractITCase {
         authProfileService = adminClient.getService(AuthProfileService.class);
         oidcJWKSService = adminClient.getService(OIDCJWKSService.class);
         waConfigService = adminClient.getService(WAConfigService.class);
-
-        anonymusClient = clientFactory.create(new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
-
-        googleMfaAuthTokenService = anonymusClient.getService(GoogleMfaAuthTokenService.class);
-        googleMfaAuthAccountService = anonymusClient.getService(GoogleMfaAuthAccountService.class);
-        u2fRegistrationService = anonymusClient.getService(U2FRegistrationService.class);
-        webAuthnRegistrationService = anonymusClient.getService(WebAuthnRegistrationService.class);
-        impersonationService = anonymusClient.getService(ImpersonationService.class);
     }
 
     protected static String getUUIDString() {

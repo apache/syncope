@@ -42,7 +42,7 @@ import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
-import org.apache.syncope.fit.AbstractUITCase;
+import org.apache.syncope.fit.AbstractUIITCase;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
@@ -52,7 +52,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-public abstract class AbstractConsoleITCase extends AbstractUITCase {
+public abstract class AbstractConsoleITCase extends AbstractUIITCase {
 
     @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
     @Configuration

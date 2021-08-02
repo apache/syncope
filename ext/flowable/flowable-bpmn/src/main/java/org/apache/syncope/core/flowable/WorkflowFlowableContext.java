@@ -26,38 +26,39 @@ import org.apache.syncope.core.flowable.support.ShellServiceTaskDisablingBpmnPar
 import org.apache.syncope.core.flowable.support.SyncopeEntitiesVariableType;
 import org.apache.syncope.core.flowable.support.SyncopeFormHandlerHelper;
 import org.apache.syncope.core.flowable.support.SyncopeIdmIdentityService;
-import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.workflow.java.WorkflowContext;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
 import org.flowable.common.engine.impl.cfg.IdGenerator;
-import org.flowable.common.engine.impl.history.HistoryLevel;
 import org.flowable.common.engine.impl.persistence.StrongUuidGenerator;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.idm.spring.configurator.SpringIdmEngineConfigurator;
 import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
 @Import(WorkflowContext.class)
 @ComponentScan("org.apache.syncope.core.flowable")
+@EnableConfigurationProperties(WorkflowFlowableProperties.class)
 @Configuration
 public class WorkflowFlowableContext {
 
     @Autowired
+    private WorkflowFlowableProperties props;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
+
+    @Autowired
     private ConfigurableApplicationContext ctx;
-
-    @Value("${wf.directory}")
-    private String wfDirectory;
-
-    @Value("${historyLevel:ACTIVITY}")
-    private HistoryLevel historyLevel;
 
     @ConditionalOnMissingBean
     @Bean
@@ -119,7 +120,7 @@ public class WorkflowFlowableContext {
         conf.setDatabaseSchemaUpdate(AbstractEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
         conf.setJpaHandleTransaction(true);
         conf.setJpaCloseEntityManager(false);
-        conf.setHistoryLevel(historyLevel);
+        conf.setHistoryLevel(props.getHistoryLevel());
         conf.setIdmEngineConfigurator(syncopeIdmEngineConfigurator());
         conf.setCustomPreVariableTypes(List.of(syncopeEntitiesVariableType()));
         conf.setFormHandlerHelper(syncopeFormHandlerHelper());
@@ -129,10 +130,7 @@ public class WorkflowFlowableContext {
     }
 
     @Bean
-    public ResourceWithFallbackLoader userWorkflowDef() {
-        ResourceWithFallbackLoader userWorkflowDef = new ResourceWithFallbackLoader();
-        userWorkflowDef.setPrimary("file:" + wfDirectory + "/userWorkflow.bpmn20.xml");
-        userWorkflowDef.setFallback("classpath:userWorkflow.bpmn20.xml");
-        return userWorkflowDef;
+    public Resource userWorkflowDef() {
+        return resourceLoader.getResource(props.getUserWorkflowDef());
     }
 }

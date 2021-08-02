@@ -19,66 +19,61 @@
 package org.apache.syncope.core.spring.security;
 
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.KeyLengthException;
+import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.EnvironmentAware;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
-@PropertySource("classpath:security.properties")
-@PropertySource(value = "file:${conf.directory}/security.properties", ignoreResourceNotFound = true)
+@EnableConfigurationProperties(SecurityProperties.class)
 @Configuration
-public class SecurityContext implements EnvironmentAware {
+public class SecurityContext {
 
-    private Environment env;
-
-    @Override
-    public void setEnvironment(final Environment env) {
-        this.env = env;
-    }
+    @Autowired
+    private SecurityProperties props;
 
     @Bean
     public String adminUser() {
-        return env.getProperty("adminUser");
+        return props.getAdminUser();
     }
 
     @Bean
     public String adminPassword() {
-        return env.getProperty("adminPassword");
+        return props.getAdminPassword();
     }
 
     @Bean
-    public String adminPasswordAlgorithm() {
-        return env.getProperty("adminPasswordAlgorithm");
+    public CipherAlgorithm adminPasswordAlgorithm() {
+        return props.getAdminPasswordAlgorithm();
     }
 
     @Bean
     public String anonymousUser() {
-        return env.getProperty("anonymousUser");
+        return props.getAnonymousUser();
     }
 
     @Bean
     public String anonymousKey() {
-        return env.getProperty("anonymousKey");
+        return props.getAnonymousKey();
     }
 
     @Bean
     public String jwtIssuer() {
-        return env.getProperty("jwtIssuer");
+        return props.getJwtIssuer();
     }
 
     @Bean
     public String jwsKey() {
-        return env.getProperty("jwsKey");
+        return props.getJwsKey();
     }
 
     @ConditionalOnMissingBean
@@ -92,9 +87,7 @@ public class SecurityContext implements EnvironmentAware {
     public AccessTokenJWSVerifier accessTokenJWSVerifier()
             throws JOSEException, NoSuchAlgorithmException, InvalidKeySpecException {
 
-        return new AccessTokenJWSVerifier(
-                JWSAlgorithm.parse(env.getProperty("jwsAlgorithm")),
-                jwsKey());
+        return new AccessTokenJWSVerifier(props.getJwsAlgorithm(), jwsKey());
     }
 
     @ConditionalOnMissingBean
@@ -102,15 +95,14 @@ public class SecurityContext implements EnvironmentAware {
     public AccessTokenJWSSigner accessTokenJWSSigner()
             throws KeyLengthException, NoSuchAlgorithmException, InvalidKeySpecException {
 
-        return new AccessTokenJWSSigner(
-                JWSAlgorithm.parse(env.getProperty("jwsAlgorithm")),
-                jwsKey());
+        return new AccessTokenJWSSigner(props.getJwsAlgorithm(), jwsKey());
     }
 
-    @ConditionalOnMissingBean
     @Bean
-    public PasswordGenerator passwordGenerator() {
-        return new DefaultPasswordGenerator();
+    public PasswordGenerator passwordGenerator() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+        return props.getPasswordGenerator().getDeclaredConstructor().newInstance();
     }
 
     @Bean

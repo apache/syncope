@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.job.report;
 
 import java.util.Optional;
-import javax.annotation.Resource;
 import org.apache.syncope.core.provisioning.api.job.JobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
@@ -28,6 +27,7 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +38,8 @@ public class ReportJob extends AbstractInterruptableJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportJob.class);
 
-    @Resource(name = "adminUser")
-    private String adminUser;
+    @Autowired
+    private SecurityProperties securityProperties;
 
     /**
      * Key, set by the caller, for identifying the report to be executed.
@@ -68,7 +68,7 @@ public class ReportJob extends AbstractInterruptableJob {
         try {
             String domainKey = context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY);
             String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
-                    orElse(adminUser);
+                    orElse(securityProperties.getAdminUser());
 
             AuthContextUtils.callAsAdmin(domainKey, () -> {
                 try {

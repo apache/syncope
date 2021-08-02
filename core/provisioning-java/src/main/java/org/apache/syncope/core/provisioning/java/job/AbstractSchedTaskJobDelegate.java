@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.job;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.annotation.Resource;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
@@ -34,6 +33,7 @@ import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -45,8 +45,8 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
 
     protected static final Logger LOG = LoggerFactory.getLogger(SchedTaskJobDelegate.class);
 
-    @Resource(name = "adminUser")
-    protected String adminUser;
+    @Autowired
+    private SecurityProperties securityProperties;
 
     /**
      * The actual task to be executed.
@@ -117,7 +117,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         }
 
         String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
-                orElse(adminUser);
+                orElse(securityProperties.getAdminUser());
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStart(new Date());
         execution.setTask(task);

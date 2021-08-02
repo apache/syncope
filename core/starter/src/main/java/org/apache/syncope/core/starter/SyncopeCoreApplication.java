@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.starter;
 
-import java.io.IOException;
+import java.util.Map;
 import org.apache.cxf.spring.boot.autoconfigure.openapi.OpenApiAutoConfiguration;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
@@ -26,7 +26,6 @@ import org.apache.syncope.core.starter.actuate.DomainsHealthIndicator;
 import org.apache.syncope.core.starter.actuate.ExternalResourcesHealthIndicator;
 import org.apache.syncope.core.starter.actuate.SyncopeCoreInfoContributor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.mail.MailHealthIndicator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -37,9 +36,9 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -56,20 +55,18 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class SyncopeCoreApplication extends SpringBootServletInitializer {
 
     public static void main(final String[] args) {
-        SpringApplication.run(SyncopeCoreApplication.class, args);
-    }
-
-    @ConditionalOnMissingBean(name = "propertySourcesPlaceholderConfigurer")
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
-        PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
-        pspc.setIgnoreResourceNotFound(true);
-        pspc.setIgnoreUnresolvablePlaceholders(true);
-        return pspc;
+        new SpringApplicationBuilder(SyncopeCoreApplication.class).
+                properties("spring.config.name:core").
+                build().run(args);
     }
 
     @Autowired
     protected JavaMailSender mailSender;
+
+    @Override
+    protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
+        return builder.properties(Map.of("spring.config.name", "core")).sources(SyncopeCoreApplication.class);
+    }
 
     @ConditionalOnMissingBean
     @Bean

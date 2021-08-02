@@ -24,13 +24,21 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class EncryptorTest {
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     private static final String PASSWORD_VALUE = "password";
+
+    private static Encryptor ENCRYPTOR;
+
+    @BeforeAll
+    public static void setUp() {
+        ApplicationContextProvider.getBeanFactory().registerSingleton("securityProperties", new SecurityProperties());
+        ENCRYPTOR = Encryptor.getInstance();
+    }
 
     @Test
     public void encoder() throws Exception {

@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
@@ -38,6 +37,7 @@ import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -47,8 +47,8 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
 
     private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
-    @Resource(name = "anonymousUser")
-    private String anonymousUser;
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @Autowired
     private AccessTokenDataBinder binder;
@@ -71,9 +71,9 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
 
     @PreAuthorize("isAuthenticated()")
     public Pair<String, Date> login() {
-        if (anonymousUser.equals(AuthContextUtils.getUsername())) {
+        if (securityProperties.getAnonymousUser().equals(AuthContextUtils.getUsername())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
-            sce.getElements().add(anonymousUser + " cannot be granted an access token");
+            sce.getElements().add(securityProperties.getAnonymousUser() + " cannot be granted an access token");
             throw sce;
         }
 

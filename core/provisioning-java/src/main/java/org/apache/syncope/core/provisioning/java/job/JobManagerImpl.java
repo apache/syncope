@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -77,6 +76,7 @@ import org.apache.syncope.core.provisioning.java.job.notification.NotificationJo
 import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 
 public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
 
@@ -100,8 +100,8 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
     @Autowired
     private ConfParamOps confParamOps;
 
-    @Resource(name = "adminUser")
-    private String adminUser;
+    @Autowired
+    private SecurityProperties securityProperties;
 
     private boolean disableQuartzInstance;
 
@@ -347,7 +347,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
             for (Iterator<SchedTask> it = tasks.iterator(); it.hasNext() && !loadException;) {
                 SchedTask task = it.next();
                 try {
-                    register(task, task.getStartAt(), conf.getRight(), adminUser);
+                    register(task, task.getStartAt(), conf.getRight(), securityProperties.getAdminUser());
                 } catch (Exception e) {
                     LOG.error("While loading job instance for task " + task.getKey(), e);
                     loadException = true;
@@ -361,7 +361,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
                 for (Iterator<Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
                     Report report = it.next();
                     try {
-                        register(report, null, conf.getRight(), adminUser);
+                        register(report, null, conf.getRight(), securityProperties.getAdminUser());
                     } catch (Exception e) {
                         LOG.error("While loading job instance for report " + report.getName(), e);
                         loadException = true;
@@ -387,7 +387,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
 
                 try {
                     NotificationJob job = createSpringBean(NotificationJob.class);
-                    Map<String, Object> jobData = createJobMapForExecutionContext(adminUser);
+                    Map<String, Object> jobData = createJobMapForExecutionContext(securityProperties.getAdminUser());
                     registerJob(
                             NOTIFICATION_JOB.getName(),
                             job,
@@ -403,7 +403,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
             LOG.debug("Registering {}", SystemLoadReporterJob.class);
             try {
                 SystemLoadReporterJob job = createSpringBean(SystemLoadReporterJob.class);
-                Map<String, Object> jobData = createJobMapForExecutionContext(adminUser);
+                Map<String, Object> jobData = createJobMapForExecutionContext(securityProperties.getAdminUser());
                 registerJob(
                         StringUtils.uncapitalize(SystemLoadReporterJob.class.getSimpleName()),
                         job,

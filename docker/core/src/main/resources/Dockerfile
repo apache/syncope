@@ -40,6 +40,8 @@ COPY jpa-json/*.jar /opt/syncope/jpa-json/
 
 COPY lib/syncope-docker-core-*war /opt/syncope/lib/syncope.war
 
+ENV SPRING_PROFILES_ACTIVE=docker
+
 COPY startup.sh /opt/syncope/bin
 RUN chmod 755 /opt/syncope/bin/startup.sh
 CMD ["/opt/syncope/bin/startup.sh"]

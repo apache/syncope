@@ -18,35 +18,43 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
-import java.io.IOException;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.core.spring.security.DefaultPasswordGenerator;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
 
-@PropertySource("classpath:security.properties")
 @Import(PersistenceContext.class)
 @Configuration
 public class PersistenceTestContext {
 
-    @Value("${adminUser}")
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
+        PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
+
+        DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
+
+        List<Resource> locations = new ArrayList<>();
+        for (String location : System.getProperty("CORE_PROPERTIES").split(",")) {
+            locations.add(resourceLoader.getResource(location));
+        }
+        ppc.setLocations(locations.toArray(new Resource[0]));
+
+        return ppc;
+    }
+
+    @Value("${security.adminUser}")
     private String adminUser;
 
-    @Value("${anonymousUser}")
+    @Value("${security.anonymousUser}")
     private String anonymousUser;
-
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
-        PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
-        pspc.setIgnoreResourceNotFound(true);
-        pspc.setIgnoreUnresolvablePlaceholders(true);
-        return pspc;
-    }
 
     @Bean
     public String adminUser() {
@@ -59,8 +67,8 @@ public class PersistenceTestContext {
     }
 
     @Bean
-    public ApplicationContextProvider applicationContextProvider() {
-        return new ApplicationContextProvider();
+    public SecurityProperties securityProperties() {
+        return new SecurityProperties();
     }
 
     @Bean

@@ -53,43 +53,31 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnIdBundleManager.class);
 
-    private String stringLocations;
-
     /**
      * ConnId Locations.
      */
-    private List<URI> locations;
+    private final List<URI> locations;
 
     /**
      * ConnectorInfoManager instances.
      */
     private final Map<URI, ConnectorInfoManager> connInfoManagers = Collections.synchronizedMap(new LinkedHashMap<>());
 
+    public ConnIdBundleManagerImpl(final List<String> stringLocations) {
+        locations = new ArrayList<>();
+        stringLocations.forEach(location -> {
+            try {
+                locations.add(URIUtils.buildForConnId(location));
+                LOG.info("Valid ConnId location: {}", location.trim());
+            } catch (Exception e) {
+                LOG.error("Invalid ConnId location: {}", location.trim(), e);
+            }
+        });
+    }
+
     @Override
     public List<URI> getLocations() {
-        init();
-
         return locations;
-    }
-
-    @Override
-    public void setStringLocations(final String stringLocations) {
-        this.stringLocations = stringLocations;
-    }
-
-    private void init() {
-        if (locations == null) {
-            locations = new ArrayList<>();
-            for (String location : StringUtils.isBlank(stringLocations) ? new String[0] : stringLocations.split(",")) {
-                try {
-                    locations.add(URIUtils.buildForConnId(location));
-                    LOG.info("Valid ConnId location: {}", location.trim());
-                } catch (Exception e) {
-                    LOG.error("Invalid ConnId location: {}", location.trim(), e);
-                }
-            }
-            locations = Collections.unmodifiableList(locations);
-        }
     }
 
     private void initLocal(final URI location) {
@@ -191,8 +179,6 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
 
     @Override
     public Map<URI, ConnectorInfoManager> getConnManagers() {
-        init();
-
         if (connInfoManagers.isEmpty()) {
             locations.forEach(location -> {
                 try {

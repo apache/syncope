@@ -473,7 +473,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                                 null,
                                 null),
                                 false,
-                                adminUser);
+                                securityProperties.getAdminUser());
 
                         AnyUR anyUR = null;
                         if (matchingRule == MatchingRule.UNASSIGN) {

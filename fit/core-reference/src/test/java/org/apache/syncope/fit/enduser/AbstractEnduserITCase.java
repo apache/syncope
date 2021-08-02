@@ -41,7 +41,7 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.common.rest.api.service.UserService;
-import org.apache.syncope.fit.AbstractUITCase;
+import org.apache.syncope.fit.AbstractUIITCase;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.AfterAll;
@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.Locale;
 import org.apache.syncope.client.enduser.EnduserProperties;
 
-public abstract class AbstractEnduserITCase extends AbstractUITCase {
+public abstract class AbstractEnduserITCase extends AbstractUIITCase {
 
     @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
     @Configuration

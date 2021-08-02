@@ -25,6 +25,7 @@ import javax.persistence.ValidationMode;
 import javax.validation.Validator;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
@@ -35,39 +36,36 @@ import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
 import org.apache.syncope.core.persistence.jpa.spring.DomainTransactionInterceptorInjector;
 import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUnitPostProcessor;
-import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.EnvironmentAware;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 
-@PropertySource("classpath:persistence.properties")
-@PropertySource(value = "file:${conf.directory}/persistence.properties", ignoreResourceNotFound = true)
 @ComponentScan("org.apache.syncope.core.persistence.jpa")
+@EnableConfigurationProperties(PersistenceProperties.class)
 @Configuration
-public class PersistenceContext implements EnvironmentAware {
+public class PersistenceContext {
 
     private static final Logger OPENJPA_LOG = LoggerFactory.getLogger("org.apache.openjpa");
-
-    private Environment env;
-
-    @Override
-    public void setEnvironment(final Environment env) {
-        this.env = env;
-    }
 
     @Bean
     public static BeanFactoryPostProcessor domainTransactionInterceptorInjector() {
         return new DomainTransactionInterceptorInjector();
     }
+
+    @Autowired
+    private PersistenceProperties props;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     @ConditionalOnMissingBean
     @Bean
@@ -96,99 +94,80 @@ public class PersistenceContext implements EnvironmentAware {
         jpaPropertyMap.put("openjpa.DataCache", "true");
         jpaPropertyMap.put("openjpa.QueryCache", "true");
 
-        jpaPropertyMap.put("openjpa.RemoteCommitProvider", env.getProperty("openjpa.RemoteCommitProvider", "sjvm"));
+        jpaPropertyMap.put("openjpa.RemoteCommitProvider", props.getRemoteCommitProvider());
 
         commonEMFConf.setJpaPropertyMap(jpaPropertyMap);
         return commonEMFConf;
     }
 
     @Bean
-    public EntityFactory entityFactory()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public EntityFactory entityFactory() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (EntityFactory) Class.forName(env.getProperty("entity.factory")).getConstructor().newInstance();
+        return props.getEntityFactory().getDeclaredConstructor().newInstance();
     }
 
-    @ConditionalOnMissingBean(name = "plainSchemaDAO")
     @Bean
-    public PlainSchemaDAO plainSchemaDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public PlainSchemaDAO plainSchemaDAO() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (PlainSchemaDAO) Class.forName(env.getProperty("plainSchema.dao")).getConstructor().newInstance();
+        return props.getPlainSchemaDAO().getDeclaredConstructor().newInstance();
     }
 
-    @ConditionalOnMissingBean(name = "plainAttrDAO")
     @Bean
-    public PlainAttrDAO plainAttrDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public PlainAttrDAO plainAttrDAO() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (PlainAttrDAO) Class.forName(env.getProperty("plainAttr.dao")).getConstructor().newInstance();
+        return props.getPlainAttrDAO().getDeclaredConstructor().newInstance();
     }
 
-    @ConditionalOnMissingBean(name = "plainAttrValueDAO")
     @Bean
-    public PlainAttrValueDAO plainAttrValueDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public PlainAttrValueDAO plainAttrValueDAO() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (PlainAttrValueDAO) Class.forName(env.getProperty("plainAttrValue.dao")).getConstructor().newInstance();
+        return props.getPlainAttrValueDAO().getDeclaredConstructor().newInstance();
     }
 
-    @ConditionalOnMissingBean(name = "anySearchDAO")
     @Bean
-    public AnySearchDAO anySearchDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public AnySearchDAO anySearchDAO() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (AnySearchDAO) Class.forName(env.getProperty("any.search.dao")).getConstructor().newInstance();
+        return props.getAnySearchDAO().getDeclaredConstructor().newInstance();
     }
 
-    @ConditionalOnMissingBean(name = "anySearchVisitor")
     @Bean
-    public SearchCondVisitor anySearchVisitor()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public SearchCondVisitor searchCondVisitor() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (SearchCondVisitor) Class.forName(env.getProperty("any.search.visitor")).getConstructor().newInstance();
+        return props.getSearchCondVisitor().getDeclaredConstructor().newInstance();
     }
 
-    @ConditionalOnMissingBean(name = "userDAO")
     @Bean
-    public UserDAO userDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public UserDAO userDAO() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (UserDAO) Class.forName(env.getProperty("user.dao")).getConstructor().newInstance();
+        return props.getUserDAO().getDeclaredConstructor().newInstance();
     }
 
-    @ConditionalOnMissingBean(name = "groupDAO")
     @Bean
-    public GroupDAO groupDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public GroupDAO groupDAO() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (GroupDAO) Class.forName(env.getProperty("group.dao")).getConstructor().newInstance();
+        return props.getGroupDAO().getDeclaredConstructor().newInstance();
     }
 
-    @ConditionalOnMissingBean(name = "anyObjectDAO")
     @Bean
-    public AnyObjectDAO anyObjectDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public AnyObjectDAO anyObjectDAO() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (AnyObjectDAO) Class.forName(env.getProperty("anyObject.dao")).getConstructor().newInstance();
+        return props.getAnyObjectDAO().getDeclaredConstructor().newInstance();
     }
 
-    @ConditionalOnMissingBean(name = "auditDAO")
     @Bean
-    public AuditConfDAO auditDAO()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public AuditConfDAO auditConfDAO() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (AuditConfDAO) Class.forName(env.getProperty("audit.dao")).getConstructor().newInstance();
+        return props.getAuditConfDAO().getDeclaredConstructor().newInstance();
     }
 
     @Bean
@@ -196,21 +175,13 @@ public class PersistenceContext implements EnvironmentAware {
         return new LocalValidatorFactoryBean();
     }
 
-    @ConditionalOnMissingBean(name = "viewsXML")
     @Bean
-    public ResourceWithFallbackLoader viewsXML() {
-        ResourceWithFallbackLoader viewsXML = new ResourceWithFallbackLoader();
-        viewsXML.setPrimary("file:" + env.getProperty("content.directory") + "/views.xml");
-        viewsXML.setFallback("classpath:views.xml");
-        return viewsXML;
+    public Resource viewsXML() {
+        return resourceLoader.getResource(props.getViewsXML());
     }
 
-    @ConditionalOnMissingBean(name = "indexesXML")
     @Bean
-    public ResourceWithFallbackLoader indexesXML() {
-        ResourceWithFallbackLoader indexesXML = new ResourceWithFallbackLoader();
-        indexesXML.setPrimary("file:" + env.getProperty("content.directory") + "/indexes.xml");
-        indexesXML.setFallback("classpath:indexes.xml");
-        return indexesXML;
+    public Resource indexesXML() {
+        return resourceLoader.getResource(props.getIndexesXML());
     }
 }

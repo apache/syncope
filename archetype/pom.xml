@@ -129,7 +129,7 @@ under the License.
       <resource>
         <directory>../core/starter/src/main/resources</directory>
         <includes>
-          <include>application.properties</include>
+          <include>core.properties</include>
         </includes>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
       </resource>

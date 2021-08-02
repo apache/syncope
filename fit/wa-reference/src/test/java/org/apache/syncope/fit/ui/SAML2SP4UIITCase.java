@@ -174,6 +174,11 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
     @Override
     protected void sso(final String baseURL, final String username, final String password) throws IOException {
+        // 0. ensure IdP is set up
+        List<SAML2SP4UIIdPTO> idps = saml2sp4UIIdPService.list();
+        assertEquals(1, idps.size());
+        assertEquals("http://localhost:9080/syncope-wa/saml", idps.get(0).getEntityID());
+
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpClientContext context = HttpClientContext.create();
         context.setCookieStore(new BasicCookieStore());
@@ -190,15 +195,6 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
         // 2a. post SAML request
         String responseBody = EntityUtils.toString(response.getEntity());
-        if (responseBody.contains("Session expired: please login again")) {
-            idpSetup();
-
-            List<SAML2SP4UIIdPTO> idps = saml2sp4UIIdPService.list();
-            assertEquals(1, idps.size());
-
-            response = httpclient.execute(get, context);
-            responseBody = EntityUtils.toString(response.getEntity());
-        }
         Triple<String, String, String> parsed = parseSAMLRequestForm(responseBody);
 
         HttpPost post = new HttpPost(parsed.getLeft());

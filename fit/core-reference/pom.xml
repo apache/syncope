@@ -34,6 +34,8 @@ under the License.
   <packaging>war</packaging>
   
   <properties>
+    <spring.profiles.active>embedded</spring.profiles.active>
+
     <ianal.phase>none</ianal.phase>
 
     <jdbcdriver.groupId>com.h2database</jdbcdriver.groupId>
@@ -313,7 +315,8 @@ under the License.
           <configuration>
             <properties>
               <cargo.jvmargs>
-                -Dspring.profiles.active=embedded
+                -Dspring.profiles.active=${spring.profiles.active}
+                -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
                 -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
           </configuration>
@@ -377,27 +380,13 @@ under the License.
       <resource>
         <directory>${basedir}/../../core/starter/src/main/resources</directory>
         <includes>
-          <include>application.properties</include>
-        </includes>
-        <filtering>true</filtering>
-      </resource>
-      <resource>
-        <directory>${basedir}/../../core/persistence-jpa/src/main/resources</directory>
-        <includes>
-          <include>persistence.properties</include>
+          <include>core.properties</include>
         </includes>
         <filtering>true</filtering>
       </resource>
       <resource>
         <directory>${basedir}/../../core/persistence-jpa/src/test/resources/domains</directory>
         <targetPath>${project.build.outputDirectory}/domains</targetPath>
-        <filtering>true</filtering>
-      </resource>
-      <resource>
-        <directory>${basedir}/../../core/spring/src/main/resources</directory>
-        <includes>
-          <include>security.properties</include>
-        </includes>
         <filtering>true</filtering>
       </resource>
     </resources>
@@ -434,6 +423,10 @@ under the License.
   <profiles>
     <profile>
       <id>zookeeper-it</id>
+
+      <properties>
+        <spring.profiles.active>test,it,zookeeper</spring.profiles.active>
+      </properties>
 
       <build>
         <plugins>
@@ -512,6 +505,10 @@ under the License.
     <profile>
       <id>elasticsearch-it</id>
       
+      <properties>
+        <spring.profiles.active>test,it,elasticsearch</spring.profiles.active>
+      </properties>
+
       <dependencies>
         <dependency>
           <groupId>org.apache.syncope.ext.elasticsearch</groupId>
@@ -606,10 +603,6 @@ under the License.
               <include>errorMessages.properties</include>
             </includes>
           </testResource>
-          <testResource>
-            <directory>src/main/resources/elasticsearch</directory>
-            <filtering>true</filtering>
-          </testResource>
         </testResources>
       </build>
     </profile>
@@ -620,6 +613,8 @@ under the License.
       <properties>
         <jdbcdriver.groupId>org.postgresql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
+
+        <spring.profiles.active>test,it,pgjsonb</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -661,28 +656,6 @@ under the License.
           </plugin>
 
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>remove-domain-Two</id>
-                <phase>prepare-package</phase>
-                <configuration>
-                  <target>
-                    <delete>
-                      <fileset dir="${project.build.outputDirectory}/domains" includes="Two*"/>
-                    </delete>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
             <configuration>
@@ -742,34 +715,11 @@ under the License.
 
         <resources>
           <resource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <excludes>
-              <exclude>provisioning.properties</exclude>
-              <exclude>indexes.xml</exclude>
-              <exclude>views.xml</exclude>
-            </excludes>
-          </resource>
-          <resource>
-            <directory>src/main/resources/pgjsonb</directory>
-            <filtering>true</filtering>
-          </resource>
-          <resource>
             <directory>${basedir}/../../core/persistence-jpa-json/src/test/resources/domains</directory>
             <targetPath>${project.build.outputDirectory}/domains</targetPath>
             <filtering>true</filtering>
           </resource>
         </resources>
-        <testResources>
-          <testResource>
-            <directory>${basedir}/../../core/persistence-jpa-json/src/main/resources/pgjsonb</directory>
-            <includes>
-              <include>persistence.properties</include>
-              <include>indexes.xml</include>
-              <include>views.xml</include>
-            </includes>            
-          </testResource>
-        </testResources>
       </build>
     </profile>
 
@@ -779,6 +729,8 @@ under the License.
       <properties>
         <jdbcdriver.groupId>org.postgresql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
+
+        <spring.profiles.active>test,it,postgres</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -872,31 +824,6 @@ under the License.
             </configuration>
           </plugin>
         </plugins>
-
-        <resources>
-          <resource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <excludes>
-              <exclude>provisioning.properties</exclude>
-              <exclude>views.xml</exclude>
-            </excludes>
-          </resource>
-          <resource>
-            <directory>src/main/resources/postgres</directory>
-            <filtering>true</filtering>
-          </resource>
-        </resources>
-        <!-- Views need to be customized, so the PostgreSQL-specific views.xml need to be copied to target/test-classes,
-        e.g. the conf directory, in order to override classpath:views.xml -->
-        <testResources>
-          <testResource>
-            <directory>src/main/resources/postgres</directory>
-            <includes>
-              <include>views.xml</include>
-            </includes>            
-          </testResource>
-        </testResources>
       </build>
     </profile>
 
@@ -906,6 +833,8 @@ under the License.
       <properties>
         <jdbcdriver.groupId>mysql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>
+
+        <spring.profiles.active>test,it,myjson</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -944,28 +873,6 @@ under the License.
                 <include>**/org/apache/syncope/fit/core/*ITCase.java</include>
               </includes>
             </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>remove-domain-Two</id>
-                <phase>prepare-package</phase>
-                <configuration>
-                  <target>
-                    <delete>
-                      <fileset dir="${project.build.directory}/classes/domains" includes="Two*"/>
-                    </delete>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
 
           <plugin>
@@ -1030,34 +937,11 @@ under the License.
 
         <resources>
           <resource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <excludes>
-              <exclude>provisioning.properties</exclude>
-              <exclude>indexes.xml</exclude>
-              <exclude>views.xml</exclude>
-            </excludes>
-          </resource>
-          <resource>
-            <directory>src/main/resources/myjson</directory>
-            <filtering>true</filtering>
-          </resource>
-          <resource>
             <directory>${basedir}/../../core/persistence-jpa-json/src/test/resources/domains</directory>
-            <targetPath>${project.build.directory}/classes/domains</targetPath>
+            <targetPath>${project.build.outputDirectory}/domains</targetPath>
             <filtering>true</filtering>
           </resource>
         </resources>
-        <testResources>
-          <testResource>
-            <directory>${basedir}/../../core/persistence-jpa-json/src/main/resources/myjson</directory>
-            <includes>
-              <include>persistence.properties</include>
-              <include>indexes.xml</include>
-              <include>views.xml</include>
-            </includes>            
-          </testResource>
-        </testResources>
       </build>
     </profile>
 
@@ -1067,6 +951,8 @@ under the License.
       <properties>
         <jdbcdriver.groupId>mysql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>
+
+        <spring.profiles.active>test,it,mysql</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -1162,20 +1048,6 @@ under the License.
             </configuration>
           </plugin>
         </plugins>
-
-        <resources>
-          <resource>
-            <directory>src/main/resources</directory>
-            <excludes>
-              <exclude>provisioning.properties</exclude>
-            </excludes>
-            <filtering>true</filtering>
-          </resource>
-          <resource>
-            <directory>src/main/resources/mysql</directory>
-            <filtering>true</filtering>
-          </resource>
-        </resources>
       </build>
     </profile>
     
@@ -1185,6 +1057,8 @@ under the License.
       <properties>
         <jdbcdriver.groupId>org.mariadb.jdbc</jdbcdriver.groupId>
         <jdbcdriver.artifactId>mariadb-java-client</jdbcdriver.artifactId>
+
+        <spring.profiles.active>test,it,mariadb</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -1269,20 +1143,6 @@ under the License.
             </configuration>
           </plugin>
         </plugins>
-
-        <resources>
-          <resource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <excludes>
-              <exclude>provisioning.properties</exclude>
-            </excludes>
-          </resource>
-          <resource>
-            <directory>src/main/resources/mariadb</directory>
-            <filtering>true</filtering>
-          </resource>
-        </resources>
       </build>
     </profile>
     
@@ -1291,14 +1151,16 @@ under the License.
       
       <properties>
         <jdbcdriver.groupId>com.oracle.database.jdbc</jdbcdriver.groupId>
-        <jdbcdriver.artifactId>ojdbc10</jdbcdriver.artifactId>
+        <jdbcdriver.artifactId>ojdbc11</jdbcdriver.artifactId>
         <cargo.deployable.ping.timeout>120000</cargo.deployable.ping.timeout>
+
+        <spring.profiles.active>test,it,oracle</spring.profiles.active>
       </properties>
 
       <dependencies>
         <dependency>
           <groupId>com.oracle.database.jdbc</groupId>
-          <artifactId>ojdbc10</artifactId>
+          <artifactId>ojdbc11</artifactId>
           <version>${jdbc.oracle.version}</version>
           <scope>test</scope>
         </dependency>
@@ -1326,10 +1188,7 @@ under the License.
               <images>
                 <image>
                   <alias>oracle</alias>
-                  <name>database-enterprise</name>
-                  <build>
-                    <dockerFileDir>${project.basedir}/src/main/resources/oracle</dockerFileDir>
-                  </build>
+                  <name>oracleinanutshell/oracle-xe-11g:latest</name>
                   <run>
                     <env>
                       <ORACLE_ALLOW_REMOTE>true</ORACLE_ALLOW_REMOTE>
@@ -1337,8 +1196,13 @@ under the License.
                     </env>
                     <wait>
                       <log>Disconnected from Oracle Database 11g Express Edition</log>
-                      <time>30000</time>
+                      <time>120000</time>
                     </wait>                
+                    <volumes>
+                      <bind>
+                        <volume>${project.build.outputDirectory}/oracle/:/docker-entrypoint-initdb.d/</volume>
+                      </bind>
+                    </volumes>
                   </run>
                 </image>
               </images>
@@ -1385,13 +1249,6 @@ under the License.
 
         <resources>
           <resource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <excludes>
-              <exclude>provisioning.properties</exclude>
-            </excludes>
-          </resource>
-          <resource>
             <directory>src/main/resources/oracle</directory>
             <filtering>true</filtering>
           </resource>
@@ -1405,6 +1262,8 @@ under the License.
       <properties>
         <jdbcdriver.groupId>com.microsoft.sqlserver</jdbcdriver.groupId>
         <jdbcdriver.artifactId>mssql-jdbc</jdbcdriver.artifactId>
+
+        <spring.profiles.active>test,it,sqlserver</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -1487,31 +1346,6 @@ under the License.
             </configuration>
           </plugin>
         </plugins>
-
-        <resources>
-          <resource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <excludes>
-              <exclude>provisioning.properties</exclude>
-              <exclude>views.xml</exclude>
-            </excludes>
-          </resource>
-          <resource>
-            <directory>src/main/resources/sqlserver</directory>
-            <filtering>true</filtering>
-          </resource>
-        </resources>
-        <!-- Views need to be customized, so the SQL Server-specific views.xml need to be copied to target/test-classes,
-        e.g. the conf directory, in order to override classpath:views.xml -->
-        <testResources>
-          <testResource>
-            <directory>src/main/resources/sqlserver</directory>
-            <includes>
-              <include>views.xml</include>
-            </includes>            
-          </testResource>
-        </testResources>
       </build>
     </profile>
     
@@ -1584,7 +1418,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.glassfish.removeDefaultDatasource>false</cargo.glassfish.removeDefaultDatasource>
-                  <cargo.jvmargs>-Dspring.profiles.active=embedded
+                  <cargo.jvmargs>-Dspring.profiles.active=test,it,payara
                     -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
@@ -1687,7 +1521,7 @@ under the License.
               </container>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-Djava.net.preferIPv4Stack=true -Dspring.profiles.active=wildfly,embedded
+                  <cargo.jvmargs>-Djava.net.preferIPv4Stack=true -Dspring.profiles.active=test,it,wildfly
                     -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
@@ -1733,7 +1567,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>
-                    -Dspring.profiles.active=embedded
+                    -Dspring.profiles.active=test,it
                     -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
                     -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
@@ -1764,7 +1598,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>
-                    -Dspring.profiles.active=embedded
+                    -Dspring.profiles.active=test,it
                     -javaagent:${java.home}/lib/hotswap/hotswap-agent.jar=autoHotswap=true,disablePlugin=Spring,disablePlugin=Hibernate
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
                     -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
@@ -1788,10 +1622,15 @@ under the License.
 
     <profile>
       <id>all</id>
+
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
       
+      <properties>
+        <spring.profiles.active>test,it,all</spring.profiles.active> 
+      </properties>
+
       <dependencies>
         <dependency>
           <groupId>org.apache.syncope.ext.flowable</groupId>
@@ -1869,23 +1708,8 @@ under the License.
                 </configuration>
               </execution>
             </executions>
-          </plugin>                    
+          </plugin>     
         </plugins>
-        
-        <resources>
-          <resource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <excludes>
-              <exclude>workflow.properties</exclude>
-              <exclude>provisioning.properties</exclude>
-            </excludes>
-          </resource>
-          <resource>
-            <directory>src/main/resources/all</directory>
-            <filtering>true</filtering>
-          </resource>
-        </resources>
       </build>
     </profile>
     

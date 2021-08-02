@@ -70,7 +70,7 @@ public class UserRequestDetails extends Panel {
         } else {
             Form<Void> form = new Form<>("userRequestWrapForm");
 
-            form.add(new UserRequestFormPanel("userRequestFormPanel", pageRef, formTO, false) {
+            form.add(new UserRequestFormPanel("userRequestFormPanel", formTO, false) {
 
                 private static final long serialVersionUID = 3617895525072546591L;
 
