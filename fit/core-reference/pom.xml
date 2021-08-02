@@ -425,7 +425,7 @@ under the License.
       <id>zookeeper-it</id>
 
       <properties>
-        <spring.profiles.active>test,it,zookeeper</spring.profiles.active>
+        <spring.profiles.active>embedded,zookeeper</spring.profiles.active>
       </properties>
 
       <build>
@@ -506,7 +506,7 @@ under the License.
       <id>elasticsearch-it</id>
       
       <properties>
-        <spring.profiles.active>test,it,elasticsearch</spring.profiles.active>
+        <spring.profiles.active>embedded,elasticsearch</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -614,7 +614,7 @@ under the License.
         <jdbcdriver.groupId>org.postgresql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
 
-        <spring.profiles.active>test,it,pgjsonb</spring.profiles.active>
+        <spring.profiles.active>embedded,pgjsonb</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -730,7 +730,7 @@ under the License.
         <jdbcdriver.groupId>org.postgresql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
 
-        <spring.profiles.active>test,it,postgres</spring.profiles.active>
+        <spring.profiles.active>embedded,postgres</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -834,7 +834,7 @@ under the License.
         <jdbcdriver.groupId>mysql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>
 
-        <spring.profiles.active>test,it,myjson</spring.profiles.active>
+        <spring.profiles.active>embedded,myjson</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -952,7 +952,7 @@ under the License.
         <jdbcdriver.groupId>mysql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>
 
-        <spring.profiles.active>test,it,mysql</spring.profiles.active>
+        <spring.profiles.active>embedded,mysql</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -1058,7 +1058,7 @@ under the License.
         <jdbcdriver.groupId>org.mariadb.jdbc</jdbcdriver.groupId>
         <jdbcdriver.artifactId>mariadb-java-client</jdbcdriver.artifactId>
 
-        <spring.profiles.active>test,it,mariadb</spring.profiles.active>
+        <spring.profiles.active>embedded,mariadb</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -1154,7 +1154,7 @@ under the License.
         <jdbcdriver.artifactId>ojdbc11</jdbcdriver.artifactId>
         <cargo.deployable.ping.timeout>120000</cargo.deployable.ping.timeout>
 
-        <spring.profiles.active>test,it,oracle</spring.profiles.active>
+        <spring.profiles.active>embedded,oracle</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -1263,7 +1263,7 @@ under the License.
         <jdbcdriver.groupId>com.microsoft.sqlserver</jdbcdriver.groupId>
         <jdbcdriver.artifactId>mssql-jdbc</jdbcdriver.artifactId>
 
-        <spring.profiles.active>test,it,sqlserver</spring.profiles.active>
+        <spring.profiles.active>embedded,sqlserver</spring.profiles.active>
       </properties>
 
       <dependencies>
@@ -1418,7 +1418,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.glassfish.removeDefaultDatasource>false</cargo.glassfish.removeDefaultDatasource>
-                  <cargo.jvmargs>-Dspring.profiles.active=test,it,payara
+                  <cargo.jvmargs>-Dspring.profiles.active=embedded,payara
                     -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
@@ -1521,7 +1521,7 @@ under the License.
               </container>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-Djava.net.preferIPv4Stack=true -Dspring.profiles.active=test,it,wildfly
+                  <cargo.jvmargs>-Djava.net.preferIPv4Stack=true -Dspring.profiles.active=embedded,wildfly
                     -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
                 </properties>
               </configuration>
@@ -1628,7 +1628,7 @@ under the License.
       </activation>
       
       <properties>
-        <spring.profiles.active>test,it,all</spring.profiles.active> 
+        <spring.profiles.active>embedded,all</spring.profiles.active> 
       </properties>
 
       <dependencies>
