@@ -132,7 +132,7 @@ under the License.
           <configuration>
             <properties>
               <cargo.jvmargs>
-                -Dspring.profiles.active=embedded,all 
+                -Dspring.profiles.active=embedded,all
                 -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
           </configuration>

@@ -119,6 +119,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         assertEquals(1, idps.size());
 
         SAML2SP4UIIdPTO cas = idps.get(0);
+        cas.setEntityID(WA_ADDRESS + "/saml");
         cas.setName("CAS");
         cas.setCreateUnmatching(true);
         cas.setSelfRegUnmatching(false);
@@ -174,11 +175,6 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
     @Override
     protected void sso(final String baseURL, final String username, final String password) throws IOException {
-        // 0. ensure IdP is set up
-        List<SAML2SP4UIIdPTO> idps = saml2sp4UIIdPService.list();
-        assertEquals(1, idps.size());
-        assertEquals("http://localhost:9080/syncope-wa/saml", idps.get(0).getEntityID());
-
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpClientContext context = HttpClientContext.create();
         context.setCookieStore(new BasicCookieStore());

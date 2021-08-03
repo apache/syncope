@@ -88,7 +88,7 @@ public class ConnectorITCase extends AbstractITCase {
             LOG.error("Could not load /test.properties", e);
         }
 
-        try (InputStream propStream = ConnectorITCase.class.getResourceAsStream("/core-it.properties")) {
+        try (InputStream propStream = ConnectorITCase.class.getResourceAsStream("/core-embedded.properties")) {
             Properties props = new Properties();
             props.load(propStream);
 
@@ -98,7 +98,7 @@ public class ConnectorITCase extends AbstractITCase {
                 }
             }
         } catch (Exception e) {
-            LOG.error("Could not load /core-it.properties", e);
+            LOG.error("Could not load /core-embedded.properties", e);
         }
 
         assertNotNull(connectorServerLocation);

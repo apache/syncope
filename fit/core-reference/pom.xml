@@ -316,7 +316,6 @@ under the License.
             <properties>
               <cargo.jvmargs>
                 -Dspring.profiles.active=${spring.profiles.active}
-                -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
                 -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
           </configuration>
@@ -1567,7 +1566,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>
-                    -Dspring.profiles.active=test,it
+                    -Dspring.profiles.active=${spring.profiles.active}
                     -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
                     -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
@@ -1598,7 +1597,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>
-                    -Dspring.profiles.active=test,it
+                    -Dspring.profiles.active=${spring.profiles.active}
                     -javaagent:${java.home}/lib/hotswap/hotswap-agent.jar=autoHotswap=true,disablePlugin=Spring,disablePlugin=Hibernate
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
                     -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
