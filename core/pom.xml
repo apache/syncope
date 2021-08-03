@@ -89,5 +89,6 @@ under the License.
     <module>workflow-api</module>
     <module>workflow-java</module>
     <module>starter</module>
+    <module>self-keymaster-starter</module>
   </modules>
 </project>

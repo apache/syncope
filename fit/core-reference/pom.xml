@@ -70,24 +70,20 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-self-keymaster-starter</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.syncope.ext.self-keymaster</groupId>
-      <artifactId>syncope-ext-self-keymaster-rest-cxf</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.ext.self-keymaster</groupId>
-      <artifactId>syncope-ext-self-keymaster-persistence-jpa</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.apache.syncope.common.keymaster</groupId>
       <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
     </dependency>
 
     <!-- TEST -->
@@ -99,8 +95,8 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope.ext.self-keymaster</groupId>
-      <artifactId>syncope-ext-self-keymaster-client</artifactId>
+      <groupId>org.apache.syncope.common.keymaster.self</groupId>
+      <artifactId>syncope-common-keymaster-client-self</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

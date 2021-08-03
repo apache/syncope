@@ -29,6 +29,8 @@ import java.util.List;
 import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class", "key" })
@@ -126,6 +128,18 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
                 append(executions, other.executions).
                 append(latestExecStatus, other.latestExecStatus).
                 append(lastExecutor, other.lastExecutor).
+                build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).
+                appendSuper(super.toString()).
+                append(key).
+                append(discriminator).
+                append(executions).
+                append(latestExecStatus).
+                append(lastExecutor).
                 build();
     }
 }
