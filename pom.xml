@@ -459,7 +459,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.0.10</swagger-core.version>    
-    <swagger-ui.version>3.51.1</swagger-ui.version>
+    <swagger-ui.version>3.51.2</swagger-ui.version>
     <guava.version>29.0-jre</guava.version>
 
     <jquery.version>3.4.1</jquery.version>
