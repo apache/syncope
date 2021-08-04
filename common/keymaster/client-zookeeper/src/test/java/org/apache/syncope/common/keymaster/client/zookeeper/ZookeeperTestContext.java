@@ -21,7 +21,9 @@ package org.apache.syncope.common.keymaster.client.zookeeper;
 import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
+@PropertySource("classpath:test.properties")
 @Configuration
 public class ZookeeperTestContext {
 

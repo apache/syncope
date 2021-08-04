@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-@SpringJUnitConfig(locations = { "classpath:springTest.xml" })
+@SpringJUnitConfig(classes = { SpringTestConfiguration.class })
 public class ImplementationManagerTest {
 
     private static DefaultPasswordRuleConf createBaseDefaultPasswordRuleConf() {
@@ -98,7 +98,7 @@ public class ImplementationManagerTest {
 
             assertTrue(
                     errorMessages.isEmpty(),
-                () -> errorMessages.stream().collect(Collectors.joining(System.lineSeparator())));
+                    () -> errorMessages.stream().collect(Collectors.joining(System.lineSeparator())));
         });
     }
 }

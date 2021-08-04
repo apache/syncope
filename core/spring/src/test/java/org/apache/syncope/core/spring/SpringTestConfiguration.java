@@ -16,14 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.keymaster.client.zookeeper;
+package org.apache.syncope.core.spring;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.core.spring.security.DummyImplementationLookup;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
-public class ZookeeperDomainOpsTest extends ZookeeperDomainOpsITCase {
+@Configuration
+public class SpringTestConfiguration {
 
-    @BeforeAll
-    public static void setUp() throws Exception {
-        ZookeeperTestingServer.start();
+    @Bean
+    public ApplicationContextProvider applicationContextProvider() {
+        return new ApplicationContextProvider();
+    }
+
+    @Primary
+    @Bean
+    public ImplementationLookup implementationLookup() {
+        return new DummyImplementationLookup();
     }
 }

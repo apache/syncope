@@ -24,12 +24,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.core.logic.ConfParamLogic;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
 
@@ -40,24 +40,23 @@ public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
     @Autowired
     private ConfParamLogic logic;
 
-    @Value("${keymaster.username}")
-    private String keymasterUser;
+    @Autowired
+    private KeymasterProperties props;
 
     @Override
     public Map<String, Object> list(final String domain) {
         return AuthContextUtils.callAs(
                 domain,
-                keymasterUser,
+                props.getUsername(),
                 List.of(),
                 () -> logic.list());
     }
 
     @Override
     public <T> T get(final String domain, final String key, final T defaultValue, final Class<T> reference) {
-
         JsonNode valueNode = AuthContextUtils.callAs(
                 domain,
-                keymasterUser,
+                props.getUsername(),
                 List.of(),
                 () -> logic.get(key));
         if (valueNode == null) {
@@ -79,7 +78,7 @@ public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
         } else {
             JsonNode valueNode = MAPPER.valueToTree(value);
 
-            AuthContextUtils.callAs(domain, keymasterUser, List.of(), () -> {
+            AuthContextUtils.callAs(domain, props.getUsername(), List.of(), () -> {
                 logic.set(key, valueNode);
                 return null;
             });
@@ -88,7 +87,7 @@ public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
 
     @Override
     public void remove(final String domain, final String key) {
-        AuthContextUtils.callAs(domain, keymasterUser, List.of(), () -> {
+        AuthContextUtils.callAs(domain, props.getUsername(), List.of(), () -> {
             logic.remove(key);
             return null;
         });

@@ -32,7 +32,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource("classpath:sra.properties")
+@TestPropertySource(locations = { "classpath:sra.properties", "classpath:test.properties" })
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
 @AutoConfigureWireMock(port = 0)
 public abstract class AbstractTest {

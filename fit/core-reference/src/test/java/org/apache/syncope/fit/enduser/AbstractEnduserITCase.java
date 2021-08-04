@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.fit.enduser;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.giffing.wicket.spring.boot.context.extensions.WicketApplicationInitConfiguration;
 import com.giffing.wicket.spring.boot.context.extensions.boot.actuator.WicketEndpointRepository;
 import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.WicketClassCandidatesHolder;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
+import java.io.InputStream;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.PreviewUtils;
@@ -53,7 +56,10 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import org.apache.syncope.client.enduser.EnduserProperties;
+import org.apache.syncope.fit.console.AbstractConsoleITCase;
+import org.springframework.test.context.support.TestPropertySourceUtils;
 
 public abstract class AbstractEnduserITCase extends AbstractUIITCase {
 
@@ -133,8 +139,33 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
         Locale.setDefault(Locale.ENGLISH);
 
         AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+
         ctx.register(SyncopeEnduserWebApplicationTestConfig.class);
         ctx.register(SyncopeWebApplication.class);
+
+        String springActiveProfiles = null;
+        try (InputStream propStream = AbstractConsoleITCase.class.getResourceAsStream("/test.properties")) {
+            Properties props = new Properties();
+            props.load(propStream);
+
+            springActiveProfiles = props.getProperty("springActiveProfiles");
+        } catch (Exception e) {
+            LOG.error("Could not load /test.properties", e);
+        }
+        assertNotNull(springActiveProfiles);
+
+        if (springActiveProfiles.contains("zookeeper")) {
+            TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                    ctx, "keymaster.address=127.0.0.1:2181");
+        } else {
+            TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                    ctx, "keymaster.address=http://localhost:9080/syncope/rest/keymaster");
+        }
+        TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                ctx, "keymaster.username=" + ANONYMOUS_UNAME);
+        TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                ctx, "keymaster.password=" + ANONYMOUS_KEY);
+
         ctx.refresh();
 
         TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class));

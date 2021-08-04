@@ -20,27 +20,27 @@ package org.apache.syncope.core.keymaster.internal;
 
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
+import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.logic.NetworkServiceLogic;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 public class SelfKeymasterInternalServiceOps implements ServiceOps {
 
     @Autowired
     private NetworkServiceLogic logic;
 
-    @Value("${keymaster.username}")
-    private String keymasterUser;
+    @Autowired
+    private KeymasterProperties props;
 
     @Override
     public List<NetworkService> list(final NetworkService.Type serviceType) {
         return AuthContextUtils.callAs(
                 SyncopeConstants.MASTER_DOMAIN,
-                keymasterUser,
+                props.getUsername(),
                 List.of(),
                 () -> logic.list(serviceType));
     }
@@ -50,7 +50,7 @@ public class SelfKeymasterInternalServiceOps implements ServiceOps {
         try {
             return AuthContextUtils.callAs(
                     SyncopeConstants.MASTER_DOMAIN,
-                    keymasterUser,
+                    props.getUsername(),
                     List.of(),
                     () -> logic.get(serviceType));
         } catch (Exception e) {
@@ -62,7 +62,7 @@ public class SelfKeymasterInternalServiceOps implements ServiceOps {
     public void register(final NetworkService service) {
         AuthContextUtils.callAs(
                 SyncopeConstants.MASTER_DOMAIN,
-                keymasterUser,
+                props.getUsername(),
                 List.of(),
                 () -> {
                     logic.register(service);
@@ -74,7 +74,7 @@ public class SelfKeymasterInternalServiceOps implements ServiceOps {
     public void unregister(final NetworkService service) {
         AuthContextUtils.callAs(
                 SyncopeConstants.MASTER_DOMAIN,
-                keymasterUser,
+                props.getUsername(),
                 List.of(),
                 () -> {
                     logic.unregister(service);

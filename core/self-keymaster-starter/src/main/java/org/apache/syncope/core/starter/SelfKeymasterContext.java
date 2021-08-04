@@ -21,6 +21,7 @@ package org.apache.syncope.core.starter;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
@@ -29,6 +30,7 @@ import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalConfParamOps;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalDomainOps;
@@ -39,19 +41,35 @@ import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationPro
 import org.apache.syncope.core.spring.security.WebSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
+import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 
-@PropertySource("classpath:keymaster.properties")
-@PropertySource(value = "file:${conf.directory}/keymaster.properties", ignoreResourceNotFound = true)
+@EnableConfigurationProperties(KeymasterProperties.class)
 @ComponentScan("org.apache.syncope.core.keymaster.rest.cxf.service")
 @Configuration
 @AutoConfigureBefore(WebSecurityContext.class)
 public class SelfKeymasterContext {
+
+    private static final Pattern HTTP = Pattern.compile("^http.+");
+
+    static class SelfKeymasterCondition extends SpringBootCondition {
+
+        @Override
+        public ConditionOutcome getMatchOutcome(final ConditionContext context, final AnnotatedTypeMetadata metadata) {
+            String keymasterAddress = context.getEnvironment().getProperty("keymaster.address");
+            return new ConditionOutcome(
+                    keymasterAddress != null && HTTP.matcher(keymasterAddress).matches(),
+                    "Keymaster address not set for Self: " + keymasterAddress);
+        }
+    }
 
     @Autowired
     private Bus bus;
@@ -59,7 +77,7 @@ public class SelfKeymasterContext {
     @Autowired
     private ApplicationContext ctx;
 
-    @ConditionalOnExpression("#{'${keymaster.address}' matches '^http.+'}")
+    @Conditional(SelfKeymasterCondition.class)
     @Bean
     public Server selfKeymasterContainer(final JacksonJsonProvider jsonProvider) {
         SpringJAXRSServerFactoryBean selfKeymasterContainer = new SpringJAXRSServerFactoryBean();
@@ -86,25 +104,25 @@ public class SelfKeymasterContext {
         return selfKeymasterContainer.create();
     }
 
-    @ConditionalOnExpression("#{'${keymaster.address}' matches '^http.+'}")
+    @Conditional(SelfKeymasterCondition.class)
     @Bean
     public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider() {
         return new SelfKeymasterUsernamePasswordAuthenticationProvider();
     }
 
-    @ConditionalOnExpression("#{'${keymaster.address}' matches '^http.+'}")
+    @Conditional(SelfKeymasterCondition.class)
     @Bean
     public ConfParamOps internalConfParamOps() {
         return new SelfKeymasterInternalConfParamOps();
     }
 
-    @ConditionalOnExpression("#{'${keymaster.address}' matches '^http.+'}")
+    @Conditional(SelfKeymasterCondition.class)
     @Bean
     public ServiceOps internalServiceOps() {
         return new SelfKeymasterInternalServiceOps();
     }
 
-    @ConditionalOnExpression("#{'${keymaster.address}' matches '^http.+'}")
+    @Conditional(SelfKeymasterCondition.class)
     @Bean
     public DomainOps domainOps() {
         return new SelfKeymasterInternalDomainOps();

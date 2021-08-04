@@ -29,12 +29,13 @@ import java.util.List;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.SpringTestConfiguration;
 import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.spring.policy.PolicyPattern;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@SpringJUnitConfig(locations = { "classpath:springTest.xml" })
+@SpringJUnitConfig(classes = { SpringTestConfiguration.class })
 public class PasswordGeneratorTest {
 
     private final DefaultPasswordGenerator passwordGenerator = new DefaultPasswordGenerator();

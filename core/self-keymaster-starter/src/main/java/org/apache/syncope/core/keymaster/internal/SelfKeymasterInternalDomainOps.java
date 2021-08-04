@@ -20,35 +20,43 @@ package org.apache.syncope.core.keymaster.internal;
 
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.logic.DomainLogic;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 public class SelfKeymasterInternalDomainOps implements DomainOps {
 
     @Autowired
     private DomainLogic logic;
 
-    @Value("${keymaster.username}")
-    private String keymasterUser;
+    @Autowired
+    private KeymasterProperties props;
 
     @Override
     public List<Domain> list() {
-        return AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, keymasterUser, List.of(), () -> logic.list());
+        return AuthContextUtils.callAs(
+                SyncopeConstants.MASTER_DOMAIN,
+                props.getUsername(),
+                List.of(),
+                () -> logic.list());
     }
 
     @Override
     public Domain read(final String key) {
-        return AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, keymasterUser, List.of(), () -> logic.read(key));
+        return AuthContextUtils.callAs(
+                SyncopeConstants.MASTER_DOMAIN,
+                props.getUsername(),
+                List.of(),
+                () -> logic.read(key));
     }
 
     @Override
     public void create(final Domain domain) {
-        AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, keymasterUser, List.of(), () -> {
+        AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, props.getUsername(), List.of(), () -> {
             logic.create(domain);
             return null;
         });
@@ -56,7 +64,7 @@ public class SelfKeymasterInternalDomainOps implements DomainOps {
 
     @Override
     public void changeAdminPassword(final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
-        AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, keymasterUser, List.of(), () -> {
+        AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, props.getUsername(), List.of(), () -> {
             logic.changeAdminPassword(key, password, cipherAlgorithm);
             return null;
         });
@@ -64,15 +72,15 @@ public class SelfKeymasterInternalDomainOps implements DomainOps {
 
     @Override
     public void adjustPoolSize(final String key, final int maxPoolSize, final int minIdle) {
-        AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, keymasterUser, List.of(), () -> {
-            logic.adjustPoolSize(keymasterUser, maxPoolSize, minIdle);
+        AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, props.getUsername(), List.of(), () -> {
+            logic.adjustPoolSize(props.getUsername(), maxPoolSize, minIdle);
             return null;
         });
     }
 
     @Override
     public void delete(final String key) {
-        AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, keymasterUser, List.of(), () -> {
+        AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, props.getUsername(), List.of(), () -> {
             logic.delete(key);
             return null;
         });

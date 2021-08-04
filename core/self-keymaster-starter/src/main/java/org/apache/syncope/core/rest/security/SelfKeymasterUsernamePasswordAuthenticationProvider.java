@@ -18,28 +18,26 @@
  */
 package org.apache.syncope.core.rest.security;
 
+import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 
 @Configurable
 public class SelfKeymasterUsernamePasswordAuthenticationProvider extends UsernamePasswordAuthenticationProvider {
 
-    @Value("${keymaster.username}")
-    private String keymasterUsername;
-
-    @Value("${keymaster.password}")
-    private String keymasterPassword;
+    @Autowired
+    private KeymasterProperties props;
 
     @Override
     public Authentication authenticate(final Authentication authentication) {
-        if (keymasterUsername.equals(authentication.getName())) {
+        if (props.getUsername().equals(authentication.getName())) {
             return finalizeAuthentication(
-                    authentication.getCredentials().toString().equals(keymasterPassword),
+                    authentication.getCredentials().toString().equals(props.getPassword()),
                     SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain(),
-                    keymasterUsername,
+                    props.getUsername(),
                     null,
                     authentication);
         }

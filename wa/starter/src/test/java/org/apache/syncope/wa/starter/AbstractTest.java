@@ -35,7 +35,7 @@ import org.springframework.test.context.TestPropertySource;
             "cas.authn.syncope.url=http://localhost:8080",
             "cas.sso.allow-missing-service-parameter=true"
         })
-@TestPropertySource("classpath:wa.properties")
+@TestPropertySource(locations = { "classpath:wa.properties", "classpath:test.properties" })
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
 public abstract class AbstractTest {
 

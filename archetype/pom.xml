@@ -176,13 +176,6 @@ under the License.
         </includes>
       </resource>
       <resource>
-        <directory>../ext/self-keymaster/client/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
-        <includes>
-          <include>keymaster.properties</include>
-        </includes>
-      </resource>
-      <resource>
         <directory>../fit/core-reference/src/main/resources/all</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources/all</targetPath>
         <excludes>
@@ -196,13 +189,6 @@ under the License.
           <include>provisioning.properties</include>
         </includes>
       </resource>      
-      <resource>
-        <directory>../fit/core-reference/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
-        <includes>
-          <include>keymaster.properties</include>
-        </includes>
-      </resource>
       <resource>
         <directory>../fit/core-reference/src/test/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
@@ -240,24 +226,10 @@ under the License.
         </includes>
       </resource>
       <resource>
-        <directory>../ext/self-keymaster/client/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
-        <includes>
-          <include>keymaster.properties</include>
-        </includes>
-      </resource>
-      <resource>
         <directory>../fit/console-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
         <includes>
           <include>log4j2.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../fit/console-reference/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/test/resources</targetPath>
-        <includes>
-          <include>keymaster.properties</include>
         </includes>
       </resource>
       <resource>
@@ -274,24 +246,10 @@ under the License.
         </includes>
       </resource>
       <resource>
-        <directory>../ext/self-keymaster/client/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources</targetPath>
-        <includes>
-          <include>keymaster.properties</include>
-        </includes>
-      </resource>
-      <resource>
         <directory>../fit/enduser-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources</targetPath>
         <includes>
           <include>log4j2.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../fit/enduser-reference/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/test/resources</targetPath>
-        <includes>
-          <include>keymaster.properties</include>
         </includes>
       </resource>
       <resource>
@@ -303,13 +261,6 @@ under the License.
         <directory>../sra/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/sra/src/main/resources</targetPath>
       </resource>
-      <resource>
-        <directory>../sra/src/test/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/sra/src/main/resources</targetPath>
-        <includes>
-          <include>keymaster.properties</include>          
-        </includes>
-      </resource>
 
       <resource>
         <directory>../wa/starter/src/main/resources</directory>
@@ -318,13 +269,6 @@ under the License.
           <include>wa.properties</include>
         </includes>
         <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/main/resources</targetPath>
-      </resource>
-      <resource>
-        <directory>../fit/wa-reference/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/main/resources</targetPath>
-        <includes>
-          <include>keymaster.properties</include>
-        </includes>
       </resource>
       <resource>
         <directory>../fit/wa-reference/src/main/webapp/WEB-INF</directory>

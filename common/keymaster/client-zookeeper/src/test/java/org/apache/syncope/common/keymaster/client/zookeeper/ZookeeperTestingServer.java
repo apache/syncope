@@ -30,7 +30,7 @@ import javax.security.auth.login.Configuration;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingServer;
 
-public class ZookeeperTestServer {
+public class ZookeeperTestingServer {
 
     private static TestingServer ZK_SERVER;
 
@@ -38,14 +38,14 @@ public class ZookeeperTestServer {
         if (ZK_SERVER == null) {
             AtomicReference<String> username = new AtomicReference<>();
             AtomicReference<String> password = new AtomicReference<>();
-            try (InputStream propStream = ZookeeperServiceOpsTest.class.getResourceAsStream("/keymaster.properties")) {
+            try (InputStream propStream = ZookeeperServiceOpsTest.class.getResourceAsStream("/test.properties")) {
                 Properties props = new Properties();
                 props.load(propStream);
 
                 username.set(props.getProperty("keymaster.username"));
                 password.set(props.getProperty("keymaster.password"));
             } catch (Exception e) {
-                fail("Could not load /keymaster.properties", e);
+                fail("Could not load /test.properties", e);
             }
 
             Configuration.setConfiguration(new Configuration() {
