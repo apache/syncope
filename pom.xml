@@ -428,7 +428,7 @@ under the License.
 
     <flowable.version>6.6.0</flowable.version>
 
-    <camel.version>3.11.0</camel.version>
+    <camel.version>3.11.1</camel.version>
 
     <slf4j.version>2.0.0-alpha2</slf4j.version>
 
