@@ -248,9 +248,6 @@ under the License.
       <resource>
         <directory>../sra/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/sra/src/main/resources</targetPath>
-        <includes>
-          <include>log4j2.xml</include>
-        </includes>
       </resource>
       <resource>
         <directory>../fit/wa-reference/src/test/resources</directory>
