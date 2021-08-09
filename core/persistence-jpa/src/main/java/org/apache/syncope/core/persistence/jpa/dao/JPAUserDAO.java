@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
@@ -74,6 +73,7 @@ import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.Encryptor;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,8 +82,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     protected static final Pattern USERNAME_PATTERN =
             Pattern.compile('^' + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     @Autowired
     protected RoleDAO roleDAO;
@@ -100,11 +98,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Autowired
     protected DelegationDAO delegationDAO;
 
-    @Resource(name = "adminUser")
-    protected String adminUser;
-
-    @Resource(name = "anonymousUser")
-    protected String anonymousUser;
+    @Autowired
+    protected SecurityProperties securityProperties;
 
     @Override
     protected AnyUtils init() {
@@ -201,7 +196,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     protected void securityChecks(final User user) {
         // Allows anonymous (during self-registration) and self (during self-update) to read own user,
         // otherwise goes through security checks to see if required entitlements are owned
-        if (!AuthContextUtils.getUsername().equals(anonymousUser)
+        if (!AuthContextUtils.getUsername().equals(securityProperties.getAnonymousUser())
                 && !AuthContextUtils.getUsername().equals(user.getUsername())) {
 
             Set<String> authRealms = AuthContextUtils.getAuthorizations().
@@ -348,7 +343,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                     matching = pwdHistory.subList(policy.getHistoryLength() >= pwdHistory.size()
                             ? 0
                             : pwdHistory.size() - policy.getHistoryLength(), pwdHistory.size()).stream().
-                            map(old -> ENCRYPTOR.verify(user.getClearPassword(), user.getCipherAlgorithm(), old)).
+                            map(old -> Encryptor.getInstance().verify(
+                            user.getClearPassword(), user.getCipherAlgorithm(), old)).
                             reduce(matching, (accumulator, item) -> accumulator | item);
                 }
                 if (matching) {
@@ -394,7 +390,9 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 throw new AccountPolicyException("Null username");
             }
 
-            if (adminUser.equals(user.getUsername()) || anonymousUser.equals(user.getUsername())) {
+            if (securityProperties.getAdminUser().equals(user.getUsername())
+                    || securityProperties.getAnonymousUser().equals(user.getUsername())) {
+
                 throw new AccountPolicyException("Not allowed: " + user.getUsername());
             }
 

@@ -18,10 +18,18 @@
  */
 package org.apache.syncope.core.logic.init;
 
+import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.fit.core.reference.ITImplementationLookup;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @ComponentScan("org.apache.syncope.fit.core.reference")
 @Configuration
 public class CoreReferenceLoader {
+
+    @Bean
+    public ImplementationLookup implementationLookup() {
+        return new ITImplementationLookup();
+    }
 }

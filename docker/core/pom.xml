@@ -60,15 +60,11 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.apache.syncope.ext.self-keymaster</groupId>
-      <artifactId>syncope-ext-self-keymaster-rest-cxf</artifactId>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-self-keymaster-starter</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.ext.self-keymaster</groupId>
-      <artifactId>syncope-ext-self-keymaster-persistence-jpa</artifactId>
-      <version>${project.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.syncope.common.keymaster</groupId>
       <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
@@ -161,6 +157,12 @@ under the License.
       <version>${jdbc.mssql.version}11</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.oracle.database.jdbc</groupId>
+      <artifactId>ojdbc11</artifactId>
+      <version>${jdbc.oracle.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -197,6 +199,7 @@ under the License.
                 <copy file="${settings.localRepository}/mysql/mysql-connector-java/${jdbc.mysql.version}/mysql-connector-java-${jdbc.mysql.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
                 <copy file="${settings.localRepository}/org/mariadb/jdbc/mariadb-java-client/${jdbc.mariadb.version}/mariadb-java-client-${jdbc.mariadb.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
                 <copy file="${settings.localRepository}/com/microsoft/sqlserver/mssql-jdbc/${jdbc.mssql.version}11/mssql-jdbc-${jdbc.mssql.version}11.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
+                <copy file="${settings.localRepository}/com/oracle/database/jdbc/ojdbc11/${jdbc.oracle.version}/ojdbc11-${jdbc.oracle.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
 
                 <copy file="${basedir}/../../core/persistence-jpa-json/target/syncope-core-persistence-jpa-json-${project.version}.jar" todir="${project.build.outputDirectory}/jpa-json" overwrite="true"/>
               </target>
@@ -286,43 +289,6 @@ under the License.
         <filtering>true</filtering>
       </resource>
 
-      <resource>
-        <directory>${basedir}/../../core/spring/src/main/resources</directory>
-        <includes>
-          <include>security.properties</include>
-        </includes>
-        <filtering>true</filtering>
-      </resource>
-      <resource>
-        <directory>${basedir}/../../ext/flowable/flowable-bpmn/src/main/resources</directory>
-        <includes>
-          <include>workflow.properties</include>
-          <include>userWorkflow.bpmn20.xml</include>
-        </includes>
-        <filtering>true</filtering>
-      </resource>
-      <resource>
-        <directory>${basedir}/../../core/provisioning-java/src/main/resources</directory>
-        <includes>
-          <include>mail.properties</include>
-          <include>connid.properties</include>
-        </includes>
-        <filtering>true</filtering>
-      </resource>
-      <resource>
-        <directory>${basedir}/../../core/idrepo/logic/src/main/resources</directory>
-        <includes>
-          <include>logic.properties</include>
-        </includes>
-        <filtering>true</filtering>
-      </resource>
-      <resource>
-        <directory>${project.basedir}/../../ext/saml2sp4ui/logic/src/main/resources</directory>
-        <includes>
-          <include>saml2sp4ui-logic.properties</include>
-        </includes>
-        <filtering>true</filtering>
-      </resource>
       <resource>
         <directory>${basedir}/../../fit/core-reference/src/test/resources</directory>
         <includes>

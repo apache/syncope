@@ -29,6 +29,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.rewrite.RewriteAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.core.logic.LogicProperties;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.audit.JdbcAuditAppender;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -37,7 +38,6 @@ import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Component;
 
@@ -50,8 +50,8 @@ public class AuditLoader implements SyncopeCoreLoader {
     @Autowired
     private ImplementationLookup implementationLookup;
 
-    @Value("${enable.jdbcAuditAppender:true}")
-    private boolean enableJdbcAuditAppender;
+    @Autowired
+    private LogicProperties props;
 
     @Override
     public int getOrder() {
@@ -62,7 +62,7 @@ public class AuditLoader implements SyncopeCoreLoader {
     public void load(final String domain, final DataSource datasource) {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
-        if (enableJdbcAuditAppender) {
+        if (props.isEnableJDBCAuditAppender()) {
             JdbcAuditAppender jdbcAuditAppender = (JdbcAuditAppender) ApplicationContextProvider.getBeanFactory().
                     createBean(JdbcAuditAppender.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
             jdbcAuditAppender.init(domain);

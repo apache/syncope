@@ -186,8 +186,8 @@ public class MembershipTO implements BaseBean, Attributable {
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).
-                append(this.groupKey).
-                append(this.groupName).
+                append(groupKey).
+                append(groupName).
                 build();
     }
 }

@@ -25,8 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.security.AccessControlException;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.ws.rs.BadRequestException;
@@ -42,24 +40,9 @@ import org.junit.jupiter.api.Test;
 
 public class SyncopeConsoleApplicationTest extends AbstractTest {
 
-    private Map<String, String> getConfiguredSecurityHeaders() throws IOException {
-        Map<String, String> securityHeaders = new HashMap<>();
-
-        @SuppressWarnings("unchecked")
-        Enumeration<String> propNames = (Enumeration<String>) PROPS.propertyNames();
-        while (propNames.hasMoreElements()) {
-            String name = propNames.nextElement();
-            if (name.startsWith("security.headers.")) {
-                securityHeaders.put(StringUtils.substringAfter(name, "security.headers."), PROPS.getProperty(name));
-            }
-        }
-
-        return securityHeaders;
-    }
-
     @Test
     public void securityHeaders() throws IOException {
-        Map<String, String> securityHeaders = getConfiguredSecurityHeaders();
+        Map<String, String> securityHeaders = PROPS.getSecurityHeaders();
         assertEquals(4, securityHeaders.size());
 
         // 1. anonymous

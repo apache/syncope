@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import javax.security.auth.login.AccountNotFoundException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -96,11 +95,8 @@ public class AuthDataAccessor {
     protected static final Set<SyncopeGrantedAuthority> MUST_CHANGE_PASSWORD_AUTHORITIES =
             Set.of(new SyncopeGrantedAuthority(IdRepoEntitlement.MUST_CHANGE_PASSWORD));
 
-    @Resource(name = "adminUser")
-    protected String adminUser;
-
-    @Resource(name = "anonymousUser")
-    protected String anonymousUser;
+    @Autowired
+    protected SecurityProperties securityProperties;
 
     @Autowired
     protected RealmDAO realmDAO;
@@ -404,9 +400,9 @@ public class AuthDataAccessor {
     public Set<SyncopeGrantedAuthority> getAuthorities(final String username, final String delegationKey) {
         Set<SyncopeGrantedAuthority> authorities;
 
-        if (anonymousUser.equals(username)) {
+        if (securityProperties.getAnonymousUser().equals(username)) {
             authorities = ANONYMOUS_AUTHORITIES;
-        } else if (adminUser.equals(username)) {
+        } else if (securityProperties.getAdminUser().equals(username)) {
             authorities = getAdminAuthorities();
         } else if (delegationKey != null) {
             Delegation delegation = Optional.ofNullable(delegationDAO.find(delegationKey)).
@@ -432,14 +428,14 @@ public class AuthDataAccessor {
         String username;
         Set<SyncopeGrantedAuthority> authorities;
 
-        if (adminUser.equals(authentication.getClaims().getSubject())) {
+        if (securityProperties.getAdminUser().equals(authentication.getClaims().getSubject())) {
             AccessToken accessToken = accessTokenDAO.find(authentication.getClaims().getJWTID());
             if (accessToken == null) {
                 throw new AuthenticationCredentialsNotFoundException(
                         "Could not find an Access Token for JWT " + authentication.getClaims().getJWTID());
             }
 
-            username = adminUser;
+            username = securityProperties.getAdminUser();
             authorities = getAdminAuthorities();
         } else {
             JWTSSOProvider jwtSSOProvider = getJWTSSOProvider(authentication.getClaims().getIssuer());

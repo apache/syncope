@@ -20,53 +20,36 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.InvocationTargetException;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
-import org.springframework.context.EnvironmentAware;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 
-@PropertySource("classpath:logic.properties")
-@PropertySource(value = "file:${conf.directory}/logic.properties", ignoreResourceNotFound = true)
 @ComponentScan("org.apache.syncope.core.logic")
 @EnableAspectJAutoProxy
+@EnableConfigurationProperties(LogicProperties.class)
 @Configuration
-public class LogicContext implements EnvironmentAware {
+public class LogicContext {
 
-    private Environment env;
+    @Autowired
+    private LogicProperties props;
 
-    @Override
-    public void setEnvironment(final Environment env) {
-        this.env = env;
+    @ConditionalOnMissingBean
+    @Bean
+    public LogicInvocationHandler logicInvocationHandler() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+        return props.getInvocationHandler().getDeclaredConstructor().newInstance();
     }
 
+    @ConditionalOnMissingBean
     @Bean
-    public String version() {
-        return env.getProperty("version");
-    }
+    public ImplementationLookup implementationLookup() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-    @Bean
-    public String buildNumber() {
-        return env.getProperty("buildNumber");
-    }
-
-    @Bean
-    public LogicInvocationHandler logicInvocationHandler()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, 
-            NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
-
-        return (LogicInvocationHandler) Class.forName(env.getProperty("logicInvocationHandler")).
-                getDeclaredConstructor().newInstance();
-    }
-
-    @Bean
-    public ImplementationLookup classPathScanImplementationLookup()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, 
-            NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
-
-        return (ImplementationLookup) Class.forName(env.getProperty("classPathScanImplementationLookup")).
-                getDeclaredConstructor().newInstance();
+        return props.getImplementationLookup().getDeclaredConstructor().newInstance();
     }
 }

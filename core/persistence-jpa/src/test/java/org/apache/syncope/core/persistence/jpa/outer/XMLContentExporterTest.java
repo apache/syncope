@@ -26,10 +26,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.tika.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,13 +50,13 @@ public class XMLContentExporterTest extends AbstractTest {
     public void issueSYNCOPE1128() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        exporter.export("Master", baos, null, null, null);
+        exporter.export(SyncopeConstants.MASTER_DOMAIN, baos, null, null, null);
 
         String exported = baos.toString(Charset.defaultCharset());
         assertTrue(StringUtils.isNotBlank(exported));
 
         List<String> realms = IOUtils.readLines(
-                IOUtils.toInputStream(exported), StandardCharsets.UTF_8.name()).stream().
+                IOUtils.toInputStream(exported, StandardCharsets.UTF_8), StandardCharsets.UTF_8.name()).stream().
                 filter(row -> row.trim().startsWith("<Realm")).collect(Collectors.toList());
         assertEquals(4, realms.size());
         assertTrue(realms.get(0).contains("name=\"/\""));

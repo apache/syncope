@@ -44,8 +44,6 @@ import org.apache.syncope.sra.filters.QueryParamToRequestHeaderFilterFactory;
 import org.apache.syncope.sra.predicates.CustomRoutePredicateFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AddRequestHeaderGatewayFilterFactory;
@@ -88,7 +86,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.server.ServerWebExchange;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
@@ -98,32 +95,40 @@ import org.springframework.cloud.gateway.filter.factory.RewriteLocationResponseH
 import org.springframework.cloud.gateway.filter.factory.SetRequestHostHeaderGatewayFilterFactory;
 import org.springframework.cloud.gateway.handler.predicate.WeightRoutePredicateFactory;
 
-@Component
 public class RouteProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RouteProvider.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(RouteProvider.class);
 
-    @Autowired
-    private ServiceOps serviceOps;
+    protected final ServiceOps serviceOps;
 
-    @Autowired
-    private ConfigurableApplicationContext ctx;
+    protected final ConfigurableApplicationContext ctx;
 
-    @Value("${anonymousUser}")
-    private String anonymousUser;
+    protected final String anonymousUser;
 
-    @Value("${anonymousKey}")
-    private String anonymousKey;
+    protected final String anonymousKey;
 
-    @Value("${useGZIPCompression}")
-    private boolean useGZIPCompression;
+    protected final boolean useGZIPCompression;
 
-    private SyncopeClient client;
+    protected SyncopeClient client;
 
-    private final List<SRARouteTO> routeTOs = new ArrayList<>();
+    protected final List<SRARouteTO> routeTOs = new ArrayList<>();
+
+    public RouteProvider(
+            final ServiceOps serviceOps,
+            final ConfigurableApplicationContext ctx,
+            final String anonymousUser,
+            final String anonymousKey,
+            final boolean useGZIPCompression) {
+
+        this.serviceOps = serviceOps;
+        this.ctx = ctx;
+        this.anonymousUser = anonymousUser;
+        this.anonymousKey = anonymousKey;
+        this.useGZIPCompression = useGZIPCompression;
+    }
 
     @SuppressWarnings("unchecked")
-    private GatewayFilter toFilter(final SRARouteTO route, final SRARouteFilter gwfilter)
+    protected GatewayFilter toFilter(final SRARouteTO route, final SRARouteFilter gwfilter)
             throws ClassNotFoundException, NumberFormatException {
 
         GatewayFilter filter;
@@ -399,7 +404,7 @@ public class RouteProvider {
         return filter instanceof Ordered ? filter : new OrderedGatewayFilter(filter, 0);
     }
 
-    private AsyncPredicate<ServerWebExchange> toPredicate(final SRARoutePredicate gwpredicate, final boolean negate)
+    protected AsyncPredicate<ServerWebExchange> toPredicate(final SRARoutePredicate gwpredicate, final boolean negate)
             throws ClassNotFoundException, NumberFormatException {
 
         AsyncPredicate<ServerWebExchange> predicate;
@@ -504,7 +509,7 @@ public class RouteProvider {
         return negate ? predicate.negate() : predicate;
     }
 
-    private Route.AsyncBuilder toRoute(final SRARouteTO gwroute) {
+    protected Route.AsyncBuilder toRoute(final SRARouteTO gwroute) {
         Route.AsyncBuilder builder = new Route.AsyncBuilder().
                 id(gwroute.getKey()).order(gwroute.getOrder()).uri(gwroute.getTarget());
 

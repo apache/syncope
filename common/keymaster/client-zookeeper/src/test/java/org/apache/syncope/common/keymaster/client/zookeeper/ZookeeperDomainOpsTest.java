@@ -24,6 +24,6 @@ public class ZookeeperDomainOpsTest extends ZookeeperDomainOpsITCase {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        ZookeeperTestServer.start();
+        ZookeeperTestingServer.start();
     }
 }

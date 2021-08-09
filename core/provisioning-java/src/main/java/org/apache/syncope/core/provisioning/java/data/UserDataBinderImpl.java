@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -76,6 +75,7 @@ import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,11 +105,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     @Autowired
     private ConfParamOps confParamOps;
 
-    @Resource(name = "adminUser")
-    private String adminUser;
-
-    @Resource(name = "anonymousUser")
-    private String anonymousUser;
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @Transactional(readOnly = true)
     @Override
@@ -127,14 +124,14 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         UserTO authUserTO;
 
         String authUsername = AuthContextUtils.getUsername();
-        if (anonymousUser.equals(authUsername)) {
+        if (securityProperties.getAnonymousUser().equals(authUsername)) {
             authUserTO = new UserTO();
             authUserTO.setKey(null);
-            authUserTO.setUsername(anonymousUser);
-        } else if (adminUser.equals(authUsername)) {
+            authUserTO.setUsername(securityProperties.getAnonymousUser());
+        } else if (securityProperties.getAdminUser().equals(authUsername)) {
             authUserTO = new UserTO();
             authUserTO.setKey(null);
-            authUserTO.setUsername(adminUser);
+            authUserTO.setUsername(securityProperties.getAdminUser());
         } else {
             User authUser = userDAO.findByUsername(authUsername);
             authUserTO = getUserTO(authUser, true);

@@ -72,6 +72,11 @@ under the License.
       </dependency>
 
       <dependency>
+        <groupId>org.apache.syncope.client.am</groupId>
+        <artifactId>syncope-client-am-console</artifactId>
+        <version>${syncope.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.syncope.client.idm</groupId>
         <artifactId>syncope-client-idm-console</artifactId>
         <version>${syncope.version}</version>
@@ -96,23 +101,19 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.apache.syncope.ext.self-keymaster</groupId>
-        <artifactId>syncope-ext-self-keymaster-rest-cxf</artifactId>
+        <groupId>org.apache.syncope.core</groupId>
+        <artifactId>syncope-core-self-keymaster-starter</artifactId>
         <version>${syncope.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.apache.syncope.ext.self-keymaster</groupId>
-        <artifactId>syncope-ext-self-keymaster-persistence-jpa</artifactId>
-        <version>${syncope.version}</version>
-      </dependency>
+
       <dependency>
         <groupId>org.apache.syncope.common.keymaster</groupId>
         <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
         <version>${syncope.version}</version>
       </dependency>        
       <dependency>
-        <groupId>org.apache.syncope.ext.self-keymaster</groupId>
-        <artifactId>syncope-ext-self-keymaster-client</artifactId>
+        <groupId>org.apache.syncope.common.keymaster.self</groupId>
+        <artifactId>syncope-common-keymaster-client-self</artifactId>
         <version>${syncope.version}</version>
       </dependency>
     </dependencies>

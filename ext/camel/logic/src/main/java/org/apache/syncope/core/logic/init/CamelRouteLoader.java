@@ -32,7 +32,6 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CamelEntitlement;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
-import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 import org.slf4j.Logger;
@@ -74,13 +73,13 @@ public class CamelRouteLoader implements SyncopeCoreLoader {
     }
 
     @javax.annotation.Resource(name = "userRoutes")
-    private ResourceWithFallbackLoader userRoutesLoader;
+    private Resource userRoutes;
 
     @javax.annotation.Resource(name = "groupRoutes")
-    private ResourceWithFallbackLoader groupRoutesLoader;
+    private Resource groupRoutes;
 
     @javax.annotation.Resource(name = "anyObjectRoutes")
-    private ResourceWithFallbackLoader anyObjectRoutesLoader;
+    private Resource anyObjectRoutes;
 
     @Override
     public int getOrder() {
@@ -94,9 +93,9 @@ public class CamelRouteLoader implements SyncopeCoreLoader {
 
     @Override
     public void load(final String domain, final DataSource datasource) {
-        loadRoutes(domain, datasource, userRoutesLoader.getResource(), AnyTypeKind.USER);
-        loadRoutes(domain, datasource, groupRoutesLoader.getResource(), AnyTypeKind.GROUP);
-        loadRoutes(domain, datasource, anyObjectRoutesLoader.getResource(), AnyTypeKind.ANY_OBJECT);
+        loadRoutes(domain, datasource, userRoutes, AnyTypeKind.USER);
+        loadRoutes(domain, datasource, groupRoutes, AnyTypeKind.GROUP);
+        loadRoutes(domain, datasource, anyObjectRoutes, AnyTypeKind.ANY_OBJECT);
     }
 
     private static String nodeToString(final Node content, final DOMImplementationLS domImpl) {
@@ -130,7 +129,7 @@ public class CamelRouteLoader implements SyncopeCoreLoader {
     }
 
     private static void loadRoutes(
-        final String domain, final DataSource dataSource, final Resource resource, final AnyTypeKind anyTypeKind) {
+            final String domain, final DataSource dataSource, final Resource resource, final AnyTypeKind anyTypeKind) {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         boolean shouldLoadRoutes = jdbcTemplate.queryForList(

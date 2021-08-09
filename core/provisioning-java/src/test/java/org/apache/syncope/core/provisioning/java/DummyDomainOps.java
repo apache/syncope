@@ -22,10 +22,15 @@ import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.DomainRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DummyDomainOps implements DomainOps {
+
+    @Autowired
+    private DomainRegistry domainRegistry;
 
     @Override
     public List<Domain> list() {
@@ -39,7 +44,7 @@ public class DummyDomainOps implements DomainOps {
 
     @Override
     public void create(final Domain domain) {
-        // nothing to do
+        domainRegistry.register(domain);
     }
 
     @Override

@@ -83,7 +83,6 @@ under the License.
     <module>oidcc4ui</module>
     <module>elasticsearch</module>
     <module>scimv2</module>
-    <module>self-keymaster</module>
   </modules>
 
 </project>

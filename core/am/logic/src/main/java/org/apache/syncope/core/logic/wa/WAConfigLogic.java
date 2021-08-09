@@ -27,7 +27,6 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +43,7 @@ import org.apache.syncope.core.logic.UnresolvedReferenceException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
 import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -61,11 +61,8 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
     @Autowired
     private WAConfigDAO waConfigDAO;
 
-    @Resource(name = "anonymousUser")
-    private String anonymousUser;
-
-    @Resource(name = "anonymousKey")
-    private String anonymousKey;
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_LIST + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
@@ -98,8 +95,8 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
             HttpClient.newBuilder().build().send(
                     HttpRequest.newBuilder(URI.create(
                             StringUtils.appendIfMissing(wa.getAddress(), "/") + "actuator/refresh")).
-                            header(HttpHeaders.AUTHORIZATION,
-                                    DefaultBasicAuthSupplier.getBasicAuthHeader(anonymousUser, anonymousKey)).
+                            header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
+                                    securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey())).
                             POST(HttpRequest.BodyPublishers.noBody()).build(),
                     HttpResponse.BodyHandlers.discarding());
         } catch (KeymasterException e) {

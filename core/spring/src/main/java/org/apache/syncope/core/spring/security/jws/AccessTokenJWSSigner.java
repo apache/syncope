@@ -44,13 +44,10 @@ public class AccessTokenJWSSigner implements JWSSigner {
     public AccessTokenJWSSigner(final JWSAlgorithm jwsAlgorithm, final String jwsKey)
             throws KeyLengthException, NoSuchAlgorithmException, InvalidKeySpecException {
 
-        if (jwsAlgorithm == null) {
-            throw new IllegalArgumentException("An instance of " + JWSAlgorithm.class + " is required");
-        }
         this.jwsAlgorithm = jwsAlgorithm;
 
         if (JWSAlgorithm.Family.RSA.contains(jwsAlgorithm)) {
-            if (jwsKey == null || jwsKey.indexOf(':') == -1) {
+            if (jwsKey.indexOf(':') == -1) {
                 throw new IllegalArgumentException("A key pair is required, in the 'private:public' format");
             }
 
@@ -59,10 +56,6 @@ public class AccessTokenJWSSigner implements JWSSigner {
                     Base64.getDecoder().decode(StringUtils.substringBefore(jwsKey, ":").getBytes()));
             delegate = new RSASSASigner(kf.generatePrivate(keySpecPKCS8));
         } else if (JWSAlgorithm.Family.HMAC_SHA.contains(jwsAlgorithm)) {
-            if (jwsKey == null) {
-                throw new IllegalArgumentException("A shared key is required");
-            }
-
             delegate = new MACSigner(jwsKey);
         } else {
             throw new IllegalArgumentException("Unsupported JWS algorithm: " + jwsAlgorithm.getName());

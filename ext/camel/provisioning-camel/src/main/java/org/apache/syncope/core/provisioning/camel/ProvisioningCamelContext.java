@@ -18,40 +18,28 @@
  */
 package org.apache.syncope.core.provisioning.camel;
 
-import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 @ComponentScan("org.apache.syncope.core.provisioning.camel")
 @Configuration
 public class ProvisioningCamelContext {
 
-    @Value("${camel.directory}")
-    private String camelDirectory;
-
     @Bean
-    public ResourceWithFallbackLoader userRoutes() {
-        ResourceWithFallbackLoader routes = new ResourceWithFallbackLoader();
-        routes.setPrimary("file:" + camelDirectory + "/userRoutes.xml");
-        routes.setFallback("classpath:userRoutes.xml");
-        return routes;
+    public Resource userRoutes() {
+        return new ClassPathResource("userRoutes.xml");
     }
 
     @Bean
-    public ResourceWithFallbackLoader groupRoutes() {
-        ResourceWithFallbackLoader routes = new ResourceWithFallbackLoader();
-        routes.setPrimary("file:" + camelDirectory + "/groupRoutes.xml");
-        routes.setFallback("classpath:groupRoutes.xml");
-        return routes;
+    public Resource groupRoutes() {
+        return new ClassPathResource("groupRoutes.xml");
     }
 
     @Bean
-    public ResourceWithFallbackLoader anyObjectRoutes() {
-        ResourceWithFallbackLoader routes = new ResourceWithFallbackLoader();
-        routes.setPrimary("file:" + camelDirectory + "/anyObjectRoutes.xml");
-        routes.setFallback("classpath:anyObjectRoutes.xml");
-        return routes;
+    public Resource anyObjectRoutes() {
+        return new ClassPathResource("anyObjectRoutes.xml");
     }
 }

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.jpa.PersistenceContext;
 import org.apache.syncope.core.provisioning.java.ProvisioningContext;
@@ -30,27 +28,17 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.context.annotation.PropertySource;
 
+@PropertySource("classpath:core-test.properties")
 @Import({ SecurityContext.class, PersistenceContext.class, ProvisioningContext.class, WorkflowContext.class })
 @ComponentScan("org.apache.syncope.core.logic")
 @Configuration
 public class IdMLogicTestContext {
 
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() throws IOException {
-        PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
-        pspc.setIgnoreResourceNotFound(true);
-        pspc.setIgnoreUnresolvablePlaceholders(true);
-        return pspc;
-    }
-
     @Primary
     @Bean
-    public ImplementationLookup classPathScanImplementationLookup()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException,
-            NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
-
+    public ImplementationLookup implementationLookup() {
         return new DummyImplementationLookup();
     }
 }

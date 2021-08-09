@@ -24,6 +24,6 @@ public class ZookeeperConfParamOpsTest extends ZookeeperConfParamOpsITCase {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        ZookeeperTestServer.start();
+        ZookeeperTestingServer.start();
     }
 }

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
@@ -42,9 +41,9 @@ import org.springframework.security.web.firewall.HttpFirewall;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityContext extends WebSecurityConfigurerAdapter {
 
-    @Resource(name = "anonymousUser")
-    private String anonymousUser;
-
+    @Autowired
+    private SecurityProperties securityProperties;
+    
     @Autowired
     private ApplicationContext ctx;
 
@@ -106,7 +105,7 @@ public class WebSecurityContext extends WebSecurityConfigurerAdapter {
                 antMatchers("/**").permitAll().and().
                 sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().
                 securityContext().securityContextRepository(new NullSecurityContextRepository()).and().
-                anonymous().principal(anonymousUser).and().
+                anonymous().principal(securityProperties.getAnonymousUser()).and().
                 httpBasic().authenticationEntryPoint(basicAuthenticationEntryPoint).
                 authenticationDetailsSource(authenticationDetailsSource).and().
                 exceptionHandling().accessDeniedHandler(accessDeniedHandler()).and().

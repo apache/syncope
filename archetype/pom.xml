@@ -129,7 +129,7 @@ under the License.
       <resource>
         <directory>../core/starter/src/main/resources</directory>
         <includes>
-          <include>application.properties</include>
+          <include>core.properties</include>
         </includes>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
       </resource>
@@ -157,50 +157,10 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources/domains</targetPath>
       </resource>
       <resource>
-        <directory>../core/logic/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
-      </resource>
-      <resource>
-        <directory>../core/spring/src/main/resources</directory>
-        <includes>
-          <include>security.properties</include>
-        </includes>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
-      </resource>
-      <resource>
         <directory>../fit/core-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
         <includes>
-          <include>application-embedded.properties</include>
           <include>log4j2.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../ext/self-keymaster/client/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
-        <includes>
-          <include>keymaster.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../fit/core-reference/src/main/resources/all</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources/all</targetPath>
-        <excludes>
-          <exclude>provisioning.properties</exclude>
-        </excludes>
-      </resource>
-      <resource>
-        <directory>../ext/camel/provisioning-camel/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources/all</targetPath>
-        <includes>
-          <include>provisioning.properties</include>
-        </includes>
-      </resource>      
-      <resource>
-        <directory>../fit/core-reference/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
-        <includes>
-          <include>keymaster.properties</include>
         </includes>
       </resource>
       <resource>
@@ -208,7 +168,6 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
         <includes>
           <include>keystore</include>
-          <include>mail.properties</include>
         </includes>
       </resource>
       <resource>
@@ -220,92 +179,70 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources/rest</targetPath>
       </resource>
       <resource>
+        <directory>../fit/core-reference/src/main/webapp/WEB-INF</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/webapp/WEB-INF</targetPath>
+      </resource>
+      <resource>
         <directory>../fit/core-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
         <includes>
-          <include>connid.properties</include>
+          <include>core-embedded.properties</include>
+          <include>core-all.properties</include>
           <include>userWorkflow.bpmn20.xml</include>
         </includes>
-      </resource>
-      <resource>
-        <directory>../fit/core-reference/src/main/webapp/WEB-INF</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/webapp/WEB-INF</targetPath>
       </resource>
             
       <resource>
         <directory>../client/idrepo/console/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
         <includes>
-          <include>application.properties</include>
           <include>console.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../ext/self-keymaster/client/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
-        <includes>
-          <include>keymaster.properties</include>
         </includes>
       </resource>
       <resource>
         <directory>../fit/console-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
         <includes>
-          <include>application-embedded.properties</include>
           <include>log4j2.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../fit/console-reference/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/test/resources</targetPath>
-        <includes>
-          <include>console.properties</include>
-          <include>keymaster.properties</include>
         </includes>
       </resource>
       <resource>
         <directory>../fit/console-reference/src/main/webapp/WEB-INF</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/webapp/WEB-INF</targetPath>
       </resource>
+      <resource>
+        <directory>../fit/console-reference/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/test/resources</targetPath>
+        <includes>
+          <include>console-embedded.properties</include>
+        </includes>
+      </resource>
       
       <resource>
         <directory>../client/idrepo/enduser/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources</targetPath>
         <includes>
-          <include>application.properties</include>
           <include>enduser.properties</include>
-          <include>customFormAttributes.json</include>
-          <include>customTemplate.json</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../ext/self-keymaster/client/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources</targetPath>
-        <includes>
-          <include>keymaster.properties</include>
+          <include>customFormLayout.json</include>
         </includes>
       </resource>
       <resource>
         <directory>../fit/enduser-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources</targetPath>
         <includes>
-          <include>application-embedded.properties</include>
           <include>log4j2.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../fit/enduser-reference/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/test/resources</targetPath>
-        <includes>
-          <include>enduser.properties</include>
-          <include>customFormAttributes.json</include>
-          <include>customTemplate.json</include>
-          <include>keymaster.properties</include>
         </includes>
       </resource>
       <resource>
         <directory>../fit/enduser-reference/src/main/webapp/WEB-INF</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/webapp/WEB-INF</targetPath>
+      </resource>
+      <resource>
+        <directory>../fit/enduser-reference/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/test/resources</targetPath>
+        <includes>
+          <include>enduser-embedded.properties</include>
+        </includes>
       </resource>
       
       <resource>
@@ -313,34 +250,38 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/sra/src/main/resources</targetPath>
       </resource>
       <resource>
-        <directory>../sra/src/test/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/sra/src/main/resources</targetPath>
+        <directory>../fit/wa-reference/src/test/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/sra/src/test/resources</targetPath>
         <includes>
-          <include>keymaster.properties</include>          
+          <include>sra-*.properties</include>
         </includes>
       </resource>
 
       <resource>
         <directory>../wa/starter/src/main/resources</directory>
         <includes>
-          <include>application.properties</include>
           <include>cas-theme-default.properties</include>
           <include>wa.properties</include>
-          <include>log4j2.xml</include>
         </includes>
         <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/main/resources</targetPath>
+      </resource>
+      <resource>
+        <directory>../fit/wa-reference/src/main/webapp/WEB-INF</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/main/webapp/WEB-INF</targetPath>
       </resource>
       <resource>
         <directory>../fit/wa-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/main/resources</targetPath>
         <includes>
-          <include>application-embedded.properties</include>
-          <include>keymaster.properties</include>
+          <include>log4j2.xml</include>
         </includes>
       </resource>
       <resource>
-        <directory>../fit/wa-reference/src/main/webapp/WEB-INF</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/main/webapp/WEB-INF</targetPath>
+        <directory>../fit/wa-reference/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/test/resources</targetPath>
+        <includes>
+          <include>wa-embedded.properties</include>
+        </includes>
       </resource>
     </resources>
   </build>

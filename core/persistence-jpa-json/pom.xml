@@ -216,7 +216,7 @@ under the License.
     </profile>
 
     <profile>
-      <id>postgres</id>
+      <id>pgjsonb</id>
       
       <dependencies>
         <dependency>
@@ -266,7 +266,8 @@ under the License.
               </includes>
               <excludedGroups>multitenancy,plainAttrTable</excludedGroups>
               <systemProperties>
-                <DB_CONTAINER_IP>${docker.container.postgres.ip}</DB_CONTAINER_IP>                
+                <CORE_PROPERTIES>classpath:core-pgjsonb.properties,classpath:core-pgjsonb-test.properties</CORE_PROPERTIES>
+                <DB_CONTAINER_IP>${docker.container.postgres.ip}</DB_CONTAINER_IP>
               </systemProperties>
             </configuration>
           </plugin>
@@ -318,22 +319,15 @@ under the License.
         
         <testResources>
           <testResource>
-            <directory>src/test/resources/pgjsonb</directory>
+            <directory>src/test/resources</directory>
             <filtering>true</filtering>
-          </testResource>
-          <testResource>
-            <directory>src/main/resources/pgjsonb</directory>
-            <filtering>true</filtering>
-            <excludes>
-              <exclude>domains/Master.properties</exclude>
-            </excludes>
           </testResource>
         </testResources>
       </build>
     </profile>
     
     <profile>
-      <id>mysql</id>
+      <id>myjson</id>
       
       <dependencies>
         <dependency>
@@ -346,7 +340,7 @@ under the License.
 
       <build>
         <defaultGoal>clean verify</defaultGoal>
-        
+
         <plugins>
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
@@ -383,7 +377,8 @@ under the License.
               </includes>
               <excludedGroups>multitenancy,plainAttrTable</excludedGroups>
               <systemProperties>
-                <DB_CONTAINER_IP>${docker.container.mysql.ip}</DB_CONTAINER_IP>                
+                <CORE_PROPERTIES>classpath:core-myjson.properties,classpath:core-myjson-test.properties</CORE_PROPERTIES>
+                <DB_CONTAINER_IP>${docker.container.mysql.ip}</DB_CONTAINER_IP>
               </systemProperties>
             </configuration>
           </plugin>
@@ -437,15 +432,8 @@ under the License.
         
         <testResources>
           <testResource>
-            <directory>src/test/resources/myjson</directory>
+            <directory>src/test/resources</directory>
             <filtering>true</filtering>
-          </testResource>
-          <testResource>
-            <directory>src/main/resources/myjson</directory>
-            <filtering>true</filtering>
-            <excludes>
-              <exclude>domains/Master.properties</exclude>
-            </excludes>
           </testResource>
         </testResources>
       </build>

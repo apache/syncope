@@ -100,9 +100,7 @@ public class CSVPullWizardBuilder extends BaseAjaxWizardBuilder<CSVPullSpec> {
     public CSVPullWizardBuilder(final CSVPullSpec defaultItem, final PageReference pageRef) {
         super(defaultItem, pageRef);
 
-        this.maxUploadSize = SyncopeWebApplication.get().getMaxUploadFileSizeMB() == null
-                ? null
-                : Bytes.megabytes(SyncopeWebApplication.get().getMaxUploadFileSizeMB());
+        this.maxUploadSize = Bytes.megabytes(SyncopeWebApplication.get().getMaxUploadFileSizeMB());
     }
 
     @Override

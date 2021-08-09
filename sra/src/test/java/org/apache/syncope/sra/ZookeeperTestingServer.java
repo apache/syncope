@@ -42,7 +42,7 @@ public class ZookeeperTestingServer implements ApplicationContextInitializer<Con
         AtomicReference<Integer> port = new AtomicReference<>();
         AtomicReference<String> username = new AtomicReference<>();
         AtomicReference<String> password = new AtomicReference<>();
-        try (InputStream propStream = getClass().getResourceAsStream("/keymaster.properties")) {
+        try (InputStream propStream = getClass().getResourceAsStream("/test.properties")) {
             Properties props = new Properties();
             props.load(propStream);
 
@@ -50,7 +50,7 @@ public class ZookeeperTestingServer implements ApplicationContextInitializer<Con
             username.set(props.getProperty("keymaster.username"));
             password.set(props.getProperty("keymaster.password"));
         } catch (Exception e) {
-            throw new IllegalStateException("Could not load /keymaster.properties", e);
+            throw new IllegalStateException("Could not load /test.properties", e);
         }
 
         if (AbstractTest.available(port.get())) {

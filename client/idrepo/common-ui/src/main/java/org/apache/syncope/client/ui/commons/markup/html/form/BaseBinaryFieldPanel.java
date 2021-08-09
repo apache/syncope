@@ -33,6 +33,4 @@ public abstract class BaseBinaryFieldPanel extends FieldPanel<String> {
     }
 
     protected abstract void sendError(Exception exception);
-
-    protected abstract Integer getMaxUploadFileSizeMB();
 }

@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.BaseBean;
 
 public class AbstractStartEndBean implements BaseBean {
@@ -74,6 +76,14 @@ public class AbstractStartEndBean implements BaseBean {
         return new EqualsBuilder().
                 append(start, other.start).
                 append(end, other.end).
+                build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).
+                append(start).
+                append(end).
                 build();
     }
 }

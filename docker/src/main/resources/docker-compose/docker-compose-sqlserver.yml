@@ -1,0 +1,86 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Full deployment (Core, Console, Enduser) on MS SQL Server
+
+version: '3.3'
+
+services:
+   db:
+     image: mcmoe/mssqldocker:latest
+     restart: always
+     environment:
+       ACCEPT_EULA: Y
+       SA_PASSWORD: 2astazeY
+       MSSQL_DB: syncope
+       MSSQL_USER: syncope
+       MSSQL_PASSWORD: Syncope123
+
+   syncope:
+     depends_on:
+       - db
+     image: apache/syncope:${SYNCOPE_VERSION}
+     ports:
+       - "18080:8080"
+     restart: always
+     environment:
+       SPRING_PROFILES_ACTIVE: docker,sqlserver
+       DB_URL: jdbc:sqlserver://db:1433;databaseName=syncope
+       DB_SCHEMA: dbo
+       DB_USER: syncope
+       DB_PASSWORD: Syncope123
+       DB_POOL_MAX: 10
+       DB_POOL_MIN: 2
+       OPENJPA_REMOTE_COMMIT: sjvm
+       KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
+       SERVICE_DISCOVERY_ADDRESS: http://syncope:8080/syncope/rest/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}
+
+   syncope-console:
+     depends_on:
+       - syncope
+     image: apache/syncope-console:${SYNCOPE_VERSION}
+     ports:
+       - "28080:8080"
+     restart: always
+     environment:
+       SPRING_PROFILES_ACTIVE: docker
+       KEYMASTER_ADDRESS: http://syncope:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
+       SERVICE_DISCOVERY_ADDRESS: http://syncope-console:8080/syncope-console/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}
+
+   syncope-enduser:
+     depends_on:
+       - syncope
+     image: apache/syncope-enduser:${SYNCOPE_VERSION}
+     ports:
+       - "38080:8080"
+     restart: always
+     environment:
+       SPRING_PROFILES_ACTIVE: docker
+       KEYMASTER_ADDRESS: http://syncope:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
+       SERVICE_DISCOVERY_ADDRESS: http://syncope-enduser:8080/syncope-enduser/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}

@@ -125,14 +125,14 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         assumeTrue(OIDCSRAITCase.class.equals(MethodHandles.lookup().lookupClass()));
 
         Properties props = new Properties();
-        try (InputStream propStream = OIDCSRAITCase.class.getResourceAsStream("/application-oidc.properties")) {
+        try (InputStream propStream = OIDCSRAITCase.class.getResourceAsStream("/sra-oidc.properties")) {
             props.load(propStream);
         } catch (Exception e) {
-            fail("Could not load /application-oidc.properties", e);
+            fail("Could not load /sra-oidc.properties", e);
         }
-        CLIENT_ID = props.getProperty("am.oidc.client.id");
+        CLIENT_ID = props.getProperty("sra.oidc.client-id");
         assertNotNull(CLIENT_ID);
-        CLIENT_SECRET = props.getProperty("am.oidc.client.secret");
+        CLIENT_SECRET = props.getProperty("sra.oidc.client-secret");
         assertNotNull(CLIENT_SECRET);
         TOKEN_URI = WA_ADDRESS + "/oidc/accessToken";
 

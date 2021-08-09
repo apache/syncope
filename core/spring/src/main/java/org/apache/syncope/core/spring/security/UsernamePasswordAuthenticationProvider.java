@@ -19,7 +19,6 @@
 package org.apache.syncope.core.spring.security;
 
 import java.util.concurrent.atomic.AtomicReference;
-import javax.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
@@ -27,7 +26,6 @@ import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
@@ -59,41 +57,8 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
     @Autowired
     protected DefaultCredentialChecker credentialChecker;
 
-    @Resource(name = "adminUser")
-    protected String adminUser;
-
-    @Resource(name = "adminPassword")
-    protected String adminPassword;
-
-    @Resource(name = "adminPasswordAlgorithm")
-    protected String adminPasswordAlgorithm;
-
-    @Resource(name = "anonymousUser")
-    protected String anonymousUser;
-
-    @Resource(name = "anonymousKey")
-    protected String anonymousKey;
-
-    /**
-     * @param adminPassword the adminPassword to set
-     */
-    public void setAdminPassword(final String adminPassword) {
-        this.adminPassword = adminPassword;
-    }
-
-    /**
-     * @param adminPasswordAlgorithm the adminPasswordAlgorithm to set
-     */
-    public void setAdminPasswordAlgorithm(final String adminPasswordAlgorithm) {
-        this.adminPasswordAlgorithm = adminPasswordAlgorithm;
-    }
-
-    /**
-     * @param anonymousKey the anonymousKey to set
-     */
-    public void setAnonymousKey(final String anonymousKey) {
-        this.anonymousKey = anonymousKey;
-    }
+    @Autowired
+    protected SecurityProperties securityProperties;
 
     @Override
     public Authentication authenticate(final Authentication authentication) {
@@ -116,18 +81,18 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
         Boolean authenticated;
         AtomicReference<String> delegationKey = new AtomicReference<>();
 
-        if (anonymousUser.equals(authentication.getName())) {
-            username.set(anonymousUser);
+        if (securityProperties.getAnonymousUser().equals(authentication.getName())) {
+            username.set(securityProperties.getAnonymousUser());
             credentialChecker.checkIsDefaultAnonymousKeyInUse();
-            authenticated = authentication.getCredentials().toString().equals(anonymousKey);
-        } else if (adminUser.equals(authentication.getName())) {
-            username.set(adminUser);
+            authenticated = authentication.getCredentials().toString().equals(securityProperties.getAnonymousKey());
+        } else if (securityProperties.getAdminUser().equals(authentication.getName())) {
+            username.set(securityProperties.getAdminUser());
             if (SyncopeConstants.MASTER_DOMAIN.equals(domain.getKey())) {
                 credentialChecker.checkIsDefaultAdminPasswordInUse();
                 authenticated = ENCRYPTOR.verify(
                         authentication.getCredentials().toString(),
-                        CipherAlgorithm.valueOf(adminPasswordAlgorithm),
-                        adminPassword);
+                        securityProperties.getAdminPasswordAlgorithm(),
+                        securityProperties.getAdminPassword());
             } else {
                 authenticated = ENCRYPTOR.verify(
                         authentication.getCredentials().toString(),
@@ -144,7 +109,9 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                 if (!authenticated) {
                     AuthContextUtils.callAsAdmin(domain.getKey(), () -> {
                         provisioningManager.internalSuspend(
-                                authResult.getLeft().getKey(), adminUser, "Failed authentication");
+                                authResult.getLeft().getKey(),
+                                securityProperties.getAdminUser(),
+                                "Failed authentication");
                         return null;
                     });
                 }

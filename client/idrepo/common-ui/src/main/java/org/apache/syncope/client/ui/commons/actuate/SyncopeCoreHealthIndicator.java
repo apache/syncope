@@ -25,8 +25,6 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
@@ -35,17 +33,25 @@ public class SyncopeCoreHealthIndicator implements HealthIndicator {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreHealthIndicator.class);
 
-    @Autowired
-    protected ServiceOps serviceOps;
+    protected final ServiceOps serviceOps;
 
-    @Value("${anonymousUser}")
-    protected String anonymousUser;
+    protected final String anonymousUser;
 
-    @Value("${anonymousKey}")
-    protected String anonymousKey;
+    protected final String anonymousKey;
 
-    @Value("${useGZIPCompression:false}")
-    protected boolean useGZIPCompression;
+    protected final boolean useGZIPCompression;
+
+    public SyncopeCoreHealthIndicator(
+            final ServiceOps serviceOps,
+            final String anonymousUser,
+            final String anonymousKey,
+            final boolean useGZIPCompression) {
+
+        this.serviceOps = serviceOps;
+        this.anonymousUser = anonymousUser;
+        this.anonymousKey = anonymousKey;
+        this.useGZIPCompression = useGZIPCompression;
+    }
 
     @Override
     public Health health() {

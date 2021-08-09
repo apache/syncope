@@ -411,7 +411,7 @@ under the License.
 
     <jackson.version>2.12.4</jackson.version>
 
-    <spring-boot.version>2.5.2</spring-boot.version>
+    <spring-boot.version>2.5.3</spring-boot.version>
     <spring-cloud-gateway.version>3.0.3</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.0</openjpa.version>
@@ -518,11 +518,11 @@ under the License.
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10.6</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.2.22</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.2.23</jdbc.postgresql.version>
     <jdbc.mysql.version>8.0.22</jdbc.mysql.version>
     <jdbc.mariadb.version>2.7.3</jdbc.mariadb.version>
     <jdbc.mssql.version>9.2.1.jre</jdbc.mssql.version>
-    <jdbc.oracle.version>19.11.0.0</jdbc.oracle.version>
+    <jdbc.oracle.version>21.1.0.0</jdbc.oracle.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -925,6 +925,18 @@ under the License.
 
       <dependency>
         <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-validation</artifactId>
+        <version>${spring-boot.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-logging</artifactId>
         <exclusions>
           <exclusion>
@@ -1035,7 +1047,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>1.27</version>
+        <version>2.0.0</version>
       </dependency>
 
       <dependency>

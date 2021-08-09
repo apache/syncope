@@ -21,6 +21,7 @@ package org.apache.syncope.common.keymaster.client.zookeeper;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import javax.security.auth.login.AppConfigurationEntry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
@@ -29,41 +30,46 @@ import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.server.auth.DigestLoginModule;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
+import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 
-@PropertySource("classpath:keymaster.properties")
-@PropertySource(value = "file:${conf.directory}/keymaster.properties", ignoreResourceNotFound = true)
+@EnableConfigurationProperties(KeymasterProperties.class)
 @Configuration
 public class ZookeeperKeymasterClientContext {
 
-    @Value("${keymaster.address}")
-    private String address;
+    private static final Pattern IPV4 = Pattern.compile(
+            "^((\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})|[a-z\\.]+):[0-9]+$");
 
-    @Value("${keymaster.username}")
-    private String username;
+    static class ZookeeperCondition extends SpringBootCondition {
 
-    @Value("${keymaster.password}")
-    private String password;
+        @Override
+        public ConditionOutcome getMatchOutcome(final ConditionContext context, final AnnotatedTypeMetadata metadata) {
+            String keymasterAddress = context.getEnvironment().getProperty("keymaster.address");
+            return new ConditionOutcome(
+                    keymasterAddress != null && IPV4.matcher(keymasterAddress).matches(),
+                    "Keymaster address not set for Zookeeper: " + keymasterAddress);
+        }
+    }
 
-    @Value("${keymaster.baseSleepTimeMs:100}")
-    private Integer baseSleepTimeMs;
+    @Autowired
+    private KeymasterProperties props;
 
-    @Value("${keymaster.maxRetries:3}")
-    private Integer maxRetries;
-
-    @ConditionalOnExpression("#{'${keymaster.address}' "
-            + "matches '^((\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})|[a-z\\.]+):[0-9]+$'}")
+    @Conditional(ZookeeperCondition.class)
     @Bean
     public CuratorFramework curatorFramework() throws InterruptedException {
-        if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+        if (StringUtils.isNotBlank(props.getUsername()) && StringUtils.isNotBlank(props.getPassword())) {
             javax.security.auth.login.Configuration.setConfiguration(new javax.security.auth.login.Configuration() {
 
                 private final AppConfigurationEntry[] entries = {
@@ -71,8 +77,8 @@ public class ZookeeperKeymasterClientContext {
                     DigestLoginModule.class.getName(),
                     AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
                     Map.of(
-                    "username", username,
-                    "password", password
+                    "username", props.getUsername(),
+                    "password", props.getPassword()
                     ))
                 };
 
@@ -84,10 +90,10 @@ public class ZookeeperKeymasterClientContext {
         }
 
         CuratorFrameworkFactory.Builder clientBuilder = CuratorFrameworkFactory.builder().
-                connectString(address).
-                retryPolicy(new ExponentialBackoffRetry(baseSleepTimeMs, maxRetries));
-        if (StringUtils.isNotBlank(username)) {
-            clientBuilder.authorization("digest", username.getBytes()).aclProvider(new ACLProvider() {
+                connectString(props.getAddress()).
+                retryPolicy(new ExponentialBackoffRetry(props.getBaseSleepTimeMs(), props.getMaxRetries()));
+        if (StringUtils.isNotBlank(props.getUsername())) {
+            clientBuilder.authorization("digest", props.getUsername().getBytes()).aclProvider(new ACLProvider() {
 
                 @Override
                 public List<ACL> getDefaultAcl() {
@@ -107,23 +113,20 @@ public class ZookeeperKeymasterClientContext {
         return client;
     }
 
-    @ConditionalOnExpression("#{'${keymaster.address}' "
-            + "matches '^((\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})|[a-z\\.]+):[0-9]+$'}")
+    @Conditional(ZookeeperCondition.class)
     @Bean
     public ConfParamOps selfConfParamOps() {
         return new ZookeeperConfParamOps();
     }
 
-    @ConditionalOnExpression("#{'${keymaster.address}' "
-            + "matches '^((\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})|[a-z\\.]+):[0-9]+$'}")
+    @Conditional(ZookeeperCondition.class)
     @Bean
     public ServiceOps serviceOps() {
         return new ZookeeperServiceDiscoveryOps();
         //return new ZookeeperServiceOps();
     }
 
-    @ConditionalOnExpression("#{'${keymaster.address}' "
-            + "matches '^((\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})|[a-z\\.]+):[0-9]+$'}")
+    @Conditional(ZookeeperCondition.class)
     @Bean
     public DomainOps domainOps() {
         return new ZookeeperDomainOps();

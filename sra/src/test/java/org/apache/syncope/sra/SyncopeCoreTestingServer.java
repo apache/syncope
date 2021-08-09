@@ -41,7 +41,9 @@ import org.apache.syncope.common.rest.api.service.SRARouteService;
 @Component
 public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefreshedEvent> {
 
-    public static final String ADDRESS = "http://localhost:9080/syncope/rest";
+    private static final int PORT = 9999;
+
+    public static final String ADDRESS = "http://localhost:" + PORT + "/syncope/rest";
 
     public static final Map<String, SRARouteTO> ROUTES = new ConcurrentHashMap<>();
 
@@ -53,7 +55,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
 
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {
-        if (AbstractTest.available(9080)) {
+        if (AbstractTest.available(PORT)) {
             // 1. start (mocked) Core as embedded CXF
             JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
             sf.setAddress(ADDRESS);

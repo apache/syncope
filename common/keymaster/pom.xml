@@ -40,5 +40,6 @@ under the License.
   <modules>
     <module>client-api</module>
     <module>client-zookeeper</module>
+    <module>self</module>
   </modules>
 </project>

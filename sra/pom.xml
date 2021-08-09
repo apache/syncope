@@ -111,6 +111,11 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>org.apache.bval</groupId>
+      <artifactId>bval-jsr</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.gaul</groupId>
       <artifactId>modernizer-maven-annotations</artifactId>
     </dependency>
@@ -197,18 +202,23 @@ under the License.
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <layout>ZIP</layout>
-        </configuration>
         <executions>
           <execution>
+            <id>build-info</id>
             <goals>
               <goal>build-info</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>repackage</id>
+            <configuration>
+              <layout>ZIP</layout>
+              <classifier>exec</classifier>
+              <attach>false</attach>
+            </configuration>
+            <goals>
               <goal>repackage</goal>
             </goals>
-            <configuration>
-              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -264,8 +274,8 @@ under the License.
 
       <dependencies>
         <dependency>
-          <groupId>org.apache.syncope.ext.self-keymaster</groupId>
-          <artifactId>syncope-ext-self-keymaster-client</artifactId>
+          <groupId>org.apache.syncope.common.keymaster.self</groupId>
+          <artifactId>syncope-common-keymaster-client-self</artifactId>
           <version>${project.version}</version>
         </dependency>
       </dependencies>

@@ -20,7 +20,7 @@ package org.apache.syncope.sra.security.oauth2;
 
 import java.util.Set;
 import org.apache.syncope.sra.ApplicationContextUtils;
-import org.apache.syncope.sra.SecurityConfig.AMType;
+import org.apache.syncope.sra.SRAProperties;
 import org.apache.syncope.sra.security.LogoutRouteMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,13 +60,13 @@ public final class OAuth2SecurityConfigUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(OAuth2SecurityConfigUtils.class);
 
-    private static ReactiveAuthenticationManager authenticationManager(final AMType amType) {
+    private static ReactiveAuthenticationManager authenticationManager(final SRAProperties.AMType amType) {
         WebClientReactiveAuthorizationCodeTokenResponseClient client =
                 new WebClientReactiveAuthorizationCodeTokenResponseClient();
         ReactiveAuthenticationManager authenticationManager =
                 new OAuth2LoginReactiveAuthenticationManager(client, new DefaultReactiveOAuth2UserService());
 
-        if (AMType.OIDC == amType) {
+        if (SRAProperties.AMType.OIDC == amType) {
             OidcAuthorizationCodeReactiveAuthenticationManager oidc =
                     new OidcAuthorizationCodeReactiveAuthenticationManager(client, new OidcReactiveOAuth2UserService());
             authenticationManager = new DelegatingReactiveAuthenticationManager(oidc, authenticationManager);
@@ -77,7 +77,7 @@ public final class OAuth2SecurityConfigUtils {
 
     public static void forLogin(
             final ServerHttpSecurity http,
-            final AMType amType,
+            final SRAProperties.AMType amType,
             final ApplicationContext ctx) {
 
         ReactiveClientRegistrationRepository clientRegistrationRepository =
@@ -112,7 +112,7 @@ public final class OAuth2SecurityConfigUtils {
 
     public static void forLogout(
             final ServerHttpSecurity.AuthorizeExchangeSpec builder,
-            final AMType amType,
+            final SRAProperties.AMType amType,
             final CacheManager cacheManager,
             final LogoutRouteMatcher logoutRouteMatcher,
             final ConfigurableApplicationContext ctx) {
@@ -121,7 +121,7 @@ public final class OAuth2SecurityConfigUtils {
         logoutWebFilter.setRequiresLogoutMatcher(logoutRouteMatcher);
         logoutWebFilter.setLogoutHandler(new OAuth2SessionRemovalServerLogoutHandler(cacheManager));
 
-        if (AMType.OIDC == amType) {
+        if (SRAProperties.AMType.OIDC == amType) {
             try {
                 OidcClientInitiatedServerLogoutSuccessHandler handler = ApplicationContextUtils.getOrCreateBean(
                         ctx,

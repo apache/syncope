@@ -19,48 +19,39 @@ under the License.
 -->
 <configuration status="WARN">
 
-  <Properties>
-    <Property name="LOG_EXCEPTION_CONVERSION_WORD">%xwEx</Property>
-    <Property name="LOG_LEVEL_PATTERN">%5p</Property>
-    <Property name="LOG_DATEFORMAT_PATTERN">yyyy-MM-dd HH:mm:ss.SSS</Property>
-    <Property name="CONSOLE_LOG_PATTERN">%clr{%d{${LOG_DATEFORMAT_PATTERN}}}{faint} %clr{${LOG_LEVEL_PATTERN}} %clr{%pid}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
-    <Property name="FILE_LOG_PATTERN">%d{${LOG_DATEFORMAT_PATTERN}} ${LOG_LEVEL_PATTERN} %pid --- [%t] %-40.40c{1.} : %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
-  </Properties>
-  <Appenders>
-    <Console name="main" target="SYSTEM_OUT" follow="true">
-      <PatternLayout pattern="${sys:CONSOLE_LOG_PATTERN}" />
-    </Console>
-    <Console name="access" target="SYSTEM_OUT" follow="true">
-      <PatternLayout pattern="${sys:CONSOLE_LOG_PATTERN}" />
-    </Console>
-  </Appenders>
-    
-  <loggers>
+  <appenders>
 
+    <Console name="console" target="SYSTEM_OUT" follow="true">
+      <PatternLayout pattern="%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} %highlight{${LOG_LEVEL_PATTERN:-%5p}}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=green bold, TRACE=blue} [%11.11t] %style{%-60.60c{60}}{cyan} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+    </Console>
+    
+  </appenders>
+  
+  <loggers>
+    
     <asyncLogger name="org.apache.syncope.client.lib" additivity="false" level="OFF">
-      <appender-ref ref="main"/>
+      <appender-ref ref="console"/>
     </asyncLogger>
     <asyncLogger name="org.apache.syncope.sra" additivity="false" level="INFO">
-      <appender-ref ref="main"/>
+      <appender-ref ref="console"/>
     </asyncLogger>
 
     <asyncLogger name="org.apache.cxf" additivity="false" level="ERROR">
-      <appender-ref ref="main"/>
+      <appender-ref ref="console"/>
     </asyncLogger>
 
     <asyncLogger name="org.springframework.cloud.gateway" additivity="false" level="INFO">
-      <appender-ref ref="main"/>
+      <appender-ref ref="console"/>
     </asyncLogger>
 
     <!-- Requires -Dreactor.netty.http.server.accessLogEnabled=true to work-->
     <asyncLogger name="reactor.netty.http.server.AccessLog" additivity="false" level="INFO">
-      <appender-ref ref="access"/>
+      <appender-ref ref="console"/>
     </asyncLogger>
 
     <root level="INFO">
-      <appender-ref ref="main"/>
+      <appender-ref ref="console"/>
     </root>
-  
+    
   </loggers>
-  
 </configuration>

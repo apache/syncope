@@ -25,6 +25,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest(
         classes = { SyncopeWAApplication.class, AbstractTest.SyncopeTestConfiguration.class },
@@ -34,6 +35,7 @@ import org.springframework.test.context.ContextConfiguration;
             "cas.authn.syncope.url=http://localhost:8080",
             "cas.sso.allow-missing-service-parameter=true"
         })
+@TestPropertySource(locations = { "classpath:wa.properties", "classpath:test.properties" })
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
 public abstract class AbstractTest {
 
