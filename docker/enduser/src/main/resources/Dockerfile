@@ -34,6 +34,7 @@ COPY log4j2.xml /opt/syncope/conf/
 COPY syncope-docker-enduser-*war /opt/syncope/lib/syncope-enduser.war
 
 ENV SPRING_PROFILES_ACTIVE=docker
+ENV LOADER_PATH="/opt/syncope/conf,/opt/syncope/lib"
 
 COPY startup.sh /opt/syncope/bin
 RUN chmod 755 /opt/syncope/bin/startup.sh

@@ -38,7 +38,7 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       DBMS: mssql
+       SPRING_PROFILES_ACTIVE: docker,sqlserver
        DB_URL: jdbc:sqlserver://db:1433;databaseName=syncope
        DB_SCHEMA: dbo
        DB_USER: syncope
@@ -50,6 +50,8 @@ services:
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
        SERVICE_DISCOVERY_ADDRESS: http://syncope:8080/syncope/rest/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}
 
    syncope-console:
      depends_on:
@@ -59,10 +61,13 @@ services:
        - "28080:8080"
      restart: always
      environment:
+       SPRING_PROFILES_ACTIVE: docker
        KEYMASTER_ADDRESS: http://syncope:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
        SERVICE_DISCOVERY_ADDRESS: http://syncope-console:8080/syncope-console/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}
 
    syncope-enduser:
      depends_on:
@@ -72,7 +77,10 @@ services:
        - "38080:8080"
      restart: always
      environment:
+       SPRING_PROFILES_ACTIVE: docker
        KEYMASTER_ADDRESS: http://syncope:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
        SERVICE_DISCOVERY_ADDRESS: http://syncope-enduser:8080/syncope-enduser/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}

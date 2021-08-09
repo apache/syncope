@@ -24,7 +24,7 @@ version: '3.3'
 
 services:
    keymaster:
-     image: zookeeper:3.5.6
+     image: zookeeper:3.7.0
      restart: always
 
    db:
@@ -44,7 +44,7 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       DBMS: postgresql
+       SPRING_PROFILES_ACTIVE: docker,postgresql
        DB_URL: jdbc:postgresql://db:5432/syncope
        DB_USER: syncope
        DB_PASSWORD: syncope
@@ -65,6 +65,7 @@ services:
        - "28080:8080"
      restart: always
      environment:
+       SPRING_PROFILES_ACTIVE: docker
        KEYMASTER_ADDRESS: keymaster:2181
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
@@ -79,6 +80,7 @@ services:
        - "38080:8080"
      restart: always
      environment:
+       SPRING_PROFILES_ACTIVE: docker
        KEYMASTER_ADDRESS: keymaster:2181
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
@@ -93,10 +95,12 @@ services:
        - "48080:8080"
      restart: always
      environment:
+       SPRING_PROFILES_ACTIVE: docker
        KEYMASTER_ADDRESS: keymaster:2181
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
        SERVICE_DISCOVERY_ADDRESS: http://syncope-wa:8080/syncope-wa/
+       CAS_SERVER_NAME: http://localhost:48080
 
    syncope-sra:
      depends_on:
@@ -107,6 +111,7 @@ services:
        - "58080:8080"
      restart: always
      environment:
+       SPRING_PROFILES_ACTIVE: docker
        KEYMASTER_ADDRESS: keymaster:2181
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
