@@ -50,6 +50,7 @@ import org.springframework.util.unit.DataSize;
  */
 @ConfigurationProperties("spring.cloud.gateway.httpclient")
 //@Validated
+@SuppressWarnings("deprecation")
 public class HttpClientProperties {
 
 	/** The connect timeout in millis, the default is 45s. */

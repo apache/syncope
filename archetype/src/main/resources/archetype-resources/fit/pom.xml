@@ -33,10 +33,17 @@ under the License.
   <packaging>war</packaging>
 
   <properties>
+    <spring.profiles.active>embedded</spring.profiles.active>
     <exec.skip>true</exec.skip>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.syncope.fit</groupId>
       <artifactId>syncope-fit-build-tools</artifactId>
@@ -128,28 +135,22 @@ under the License.
                 <copy todir="../core/target/syncope/WEB-INF/classes/domains">
                   <fileset dir="../core/target/test-classes/domains"/>
                 </copy>
-                <copy file="../core/target/test-classes/connid.properties" 
+                <copy file="../core/target/test-classes/core-embedded.properties" 
                       todir="../core/target/syncope/WEB-INF/classes" 
                       overwrite="true"/>
-                <copy file="../core/target/test-classes/keymaster.properties" 
+                <copy file="../core/target/test-classes/core-all.properties" 
                       todir="../core/target/syncope/WEB-INF/classes" 
                       overwrite="true"/>
 
-                <copy file="../console/target/test-classes/keymaster.properties" 
+                <copy file="../console/target/test-classes/console-embedded.properties" 
                       todir="../console/target/syncope-console/WEB-INF/classes" 
                       overwrite="true"/>
 
-                <copy file="../enduser/target/test-classes/keymaster.properties" 
+                <copy file="../enduser/target/test-classes/enduser-embedded.properties" 
                       todir="../enduser/target/syncope-enduser/WEB-INF/classes" 
                       overwrite="true"/>                
-                <copy file="../enduser/target/test-classes/customFormAttributes.json" 
-                      todir="../enduser/target/syncope-enduser/WEB-INF/classes" 
-                      overwrite="true"/>
-                <copy file="../enduser/target/test-classes/customTemplate.json" 
-                      todir="../enduser/target/syncope-enduser/WEB-INF/classes" 
-                      overwrite="true"/>
 
-                <copy file="../wa/target/test-classes/keymaster.properties" 
+                <copy file="../wa/target/test-classes/wa-embedded.properties" 
                       todir="../wa/target/syncope-wa/WEB-INF/classes" 
                       overwrite="true"/>
               </target>
@@ -188,6 +189,7 @@ under the License.
               </arguments>
               <environmentVariables>
                 <LOADER_PATH>${basedir}/../sra/target/test-classes</LOADER_PATH>
+                <SPRING_PROFILES_ACTIVE>cas</SPRING_PROFILES_ACTIVE>
               </environmentVariables>
               <async>true</async>
               <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
@@ -211,11 +213,17 @@ under the License.
             <timeout>300000</timeout>
             <log>${cargo.log}</log>
             <output>${cargo.output}</output> 
+            <dependencies>
+              <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+              </dependency>
+            </dependencies>
           </container>
           <configuration>
             <properties>
               <cargo.jvmargs>
-                -Dspring.profiles.active=embedded
+                -Dspring.profiles.active=${spring.profiles.active}
                 -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
           </configuration>
@@ -264,6 +272,18 @@ under the License.
 
       <properties>
         <exec.skip>false</exec.skip>
+      </properties>
+
+      <build>
+        <defaultGoal>clean verify cargo:run</defaultGoal>  
+      </build>
+    </profile>
+
+    <profile>
+      <id>all</id>
+
+      <properties>
+        <spring.profiles.active>embedded,all</spring.profiles.active>
       </properties>
 
       <build>

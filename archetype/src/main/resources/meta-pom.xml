@@ -72,6 +72,11 @@ under the License.
       </dependency>
 
       <dependency>
+        <groupId>org.apache.syncope.client.am</groupId>
+        <artifactId>syncope-client-am-console</artifactId>
+        <version>${syncope.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.syncope.client.idm</groupId>
         <artifactId>syncope-client-idm-console</artifactId>
         <version>${syncope.version}</version>

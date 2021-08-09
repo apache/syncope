@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.InvocationTargetException;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -36,6 +37,7 @@ public class LogicContext {
     @Autowired
     private LogicProperties props;
 
+    @ConditionalOnMissingBean
     @Bean
     public LogicInvocationHandler logicInvocationHandler() throws NoSuchMethodException,
             InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -43,6 +45,7 @@ public class LogicContext {
         return props.getInvocationHandler().getDeclaredConstructor().newInstance();
     }
 
+    @ConditionalOnMissingBean
     @Bean
     public ImplementationLookup implementationLookup() throws NoSuchMethodException,
             InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {

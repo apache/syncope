@@ -202,18 +202,23 @@ under the License.
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <layout>ZIP</layout>
-        </configuration>
         <executions>
           <execution>
+            <id>build-info</id>
             <goals>
               <goal>build-info</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>repackage</id>
+            <configuration>
+              <layout>ZIP</layout>
+              <classifier>exec</classifier>
+              <attach>false</attach>
+            </configuration>
+            <goals>
               <goal>repackage</goal>
             </goals>
-            <configuration>
-              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
-            </configuration>
           </execution>
         </executions>
       </plugin>

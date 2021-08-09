@@ -96,7 +96,7 @@ public class SecurityProperties {
 
     private String jwsKey;
 
-    private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS512;
+    private String jwsAlgorithm = JWSAlgorithm.HS512.getName();
 
     private String secretKey;
 
@@ -160,11 +160,11 @@ public class SecurityProperties {
         this.jwsKey = jwsKey;
     }
 
-    public JWSAlgorithm getJwsAlgorithm() {
+    public String getJwsAlgorithm() {
         return jwsAlgorithm;
     }
 
-    public void setJwsAlgorithm(final JWSAlgorithm jwsAlgorithm) {
+    public void setJwsAlgorithm(final String jwsAlgorithm) {
         this.jwsAlgorithm = jwsAlgorithm;
     }
 

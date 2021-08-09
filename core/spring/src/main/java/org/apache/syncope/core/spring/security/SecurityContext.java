@@ -19,6 +19,7 @@
 package org.apache.syncope.core.spring.security;
 
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.KeyLengthException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
@@ -27,6 +28,8 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -37,6 +40,8 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
 @EnableConfigurationProperties(SecurityProperties.class)
 @Configuration
 public class SecurityContext {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SecurityContext.class);
 
     @Autowired
     private SecurityProperties props;
@@ -72,8 +77,33 @@ public class SecurityContext {
     }
 
     @Bean
+    public JWSAlgorithm jwsAlgorithm() {
+        return JWSAlgorithm.parse(props.getJwsAlgorithm().toUpperCase());
+    }
+
+    @Bean
     public String jwsKey() {
-        return props.getJwsKey();
+        String jwsKey = props.getJwsKey();
+        if (jwsKey == null) {
+            throw new IllegalArgumentException("No JWS key provided");
+        }
+
+        JWSAlgorithm jwsAlgorithm = jwsAlgorithm();
+        if (JWSAlgorithm.Family.HMAC_SHA.contains(jwsAlgorithm)) {
+            int minLength = jwsAlgorithm.equals(JWSAlgorithm.HS256)
+                    ? 256 / 8
+                    : jwsAlgorithm.equals(JWSAlgorithm.HS384)
+                    ? 384 / 8
+                    : 512 / 8;
+            if (jwsKey.length() < minLength) {
+                jwsKey = SecureRandomUtils.generateRandomPassword(minLength);
+                props.setJwsKey(jwsKey);
+                LOG.warn("The configured key for {} must be at least {} bits, generating random: {}",
+                        jwsAlgorithm, minLength * 8, jwsKey);
+            }
+        }
+
+        return jwsKey;
     }
 
     @ConditionalOnMissingBean
@@ -87,7 +117,7 @@ public class SecurityContext {
     public AccessTokenJWSVerifier accessTokenJWSVerifier()
             throws JOSEException, NoSuchAlgorithmException, InvalidKeySpecException {
 
-        return new AccessTokenJWSVerifier(props.getJwsAlgorithm(), jwsKey());
+        return new AccessTokenJWSVerifier(jwsAlgorithm(), jwsKey());
     }
 
     @ConditionalOnMissingBean
@@ -95,7 +125,7 @@ public class SecurityContext {
     public AccessTokenJWSSigner accessTokenJWSSigner()
             throws KeyLengthException, NoSuchAlgorithmException, InvalidKeySpecException {
 
-        return new AccessTokenJWSSigner(props.getJwsAlgorithm(), jwsKey());
+        return new AccessTokenJWSSigner(jwsAlgorithm(), jwsKey());
     }
 
     @Bean
