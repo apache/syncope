@@ -47,8 +47,8 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.apache.syncope.ext.self-keymaster</groupId>
-      <artifactId>syncope-ext-self-keymaster-client</artifactId>
+      <groupId>org.apache.syncope.common.keymaster.self</groupId>
+      <artifactId>syncope-common-keymaster-client-self</artifactId>
       <version>${project.version}</version>
     </dependency>
     
@@ -114,7 +114,7 @@ under the License.
           <configuration>
             <properties>
               <cargo.jvmargs>
-                -Dspring.profiles.active=embedded
+                -Dspring.profiles.active=embedded,all
                 -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
           </configuration>
@@ -198,7 +198,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>
-                    -Dspring.profiles.active=embedded
+                    -Dspring.profiles.active=embedded,all
                     -Dwicket.core.settings.general.configuration-type=development
                     -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
                     -XX:+CMSClassUnloadingEnabled -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
@@ -270,7 +270,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>
-                    -Dspring.profiles.active=embedded
+                    -Dspring.profiles.active=embedded,all
                     -Dwicket.core.settings.general.configuration-type=development
                     -javaagent:${java.home}/lib/hotswap/hotswap-agent.jar=autoHotswap=true,disablePlugin=Spring,disablePlugin=Hibernate,disablePlugin=CxfJAXRS
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000

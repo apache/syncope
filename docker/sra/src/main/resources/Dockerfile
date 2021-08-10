@@ -31,6 +31,8 @@ COPY log4j2.xml /opt/syncope/conf/
 
 COPY syncope-docker-sra-*jar /opt/syncope/lib/syncope-sra.jar
 
+ENV SPRING_PROFILES_ACTIVE=docker
+
 COPY startup.sh /opt/syncope/bin
 RUN chmod 755 /opt/syncope/bin/startup.sh
 CMD ["/opt/syncope/bin/startup.sh"]

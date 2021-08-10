@@ -49,16 +49,16 @@ public class OAUTH2SRAITCase extends OIDCSRAITCase {
         assumeTrue(OAUTH2SRAITCase.class.equals(MethodHandles.lookup().lookupClass()));
 
         Properties props = new Properties();
-        try (InputStream propStream = OAUTH2SRAITCase.class.getResourceAsStream("/application-oauth2.properties")) {
+        try (InputStream propStream = OAUTH2SRAITCase.class.getResourceAsStream("/sra-oauth2.properties")) {
             props.load(propStream);
         } catch (Exception e) {
-            fail("Could not load /application-oauth2.properties", e);
+            fail("Could not load /sra-oauth2.properties", e);
         }
-        CLIENT_ID = props.getProperty("am.oauth2.client.id");
+        CLIENT_ID = props.getProperty("sra.oauth2.client-id");
         assertNotNull(CLIENT_ID);
-        CLIENT_SECRET = props.getProperty("am.oauth2.client.secret");
+        CLIENT_SECRET = props.getProperty("sra.oauth2.client-secret");
         assertNotNull(CLIENT_SECRET);
-        TOKEN_URI = props.getProperty("am.oauth2.tokenUri");
+        TOKEN_URI = props.getProperty("sra.oauth2.tokenUri");
         assertNotNull(TOKEN_URI);
 
         oidcClientAppSetup(OAUTH2SRAITCase.class.getName(), "OAUTH2", 2L, CLIENT_ID, CLIENT_SECRET);

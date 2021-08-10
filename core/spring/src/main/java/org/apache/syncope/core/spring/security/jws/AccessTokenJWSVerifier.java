@@ -42,12 +42,8 @@ public class AccessTokenJWSVerifier implements JWSVerifier {
     public AccessTokenJWSVerifier(final JWSAlgorithm jwsAlgorithm, final String jwsKey)
             throws JOSEException, NoSuchAlgorithmException, InvalidKeySpecException {
 
-        if (jwsAlgorithm == null) {
-            throw new IllegalArgumentException("An instance of " + JWSAlgorithm.class + " is required");
-        }
-
         if (JWSAlgorithm.Family.RSA.contains(jwsAlgorithm)) {
-            if (jwsKey == null || jwsKey.indexOf(':') == -1) {
+            if (jwsKey.indexOf(':') == -1) {
                 throw new IllegalArgumentException("A key pair is required, in the 'private:public' format");
             }
 
@@ -56,10 +52,6 @@ public class AccessTokenJWSVerifier implements JWSVerifier {
                     Base64.getDecoder().decode(StringUtils.substringAfter(jwsKey, ":").getBytes()));
             delegate = new RSASSAVerifier((RSAPublicKey) kf.generatePublic(keySpecX509));
         } else if (JWSAlgorithm.Family.HMAC_SHA.contains(jwsAlgorithm)) {
-            if (jwsKey == null) {
-                throw new IllegalArgumentException("A shared key is required");
-            }
-
             delegate = new MACVerifier(jwsKey);
         } else {
             throw new IllegalArgumentException("Unsupported JWS algorithm: " + jwsAlgorithm.getName());

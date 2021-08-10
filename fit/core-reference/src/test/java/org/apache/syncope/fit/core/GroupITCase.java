@@ -98,6 +98,7 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.ElasticsearchDetector;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -977,6 +978,14 @@ public class GroupITCase extends AbstractITCase {
             assertEquals(TaskJob.Status.SUCCESS.name(), execs.get().get(0).getStatus());
 
             // 6. verify that the user above is now fond on LDAP
+            if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+
             ConnObjectTO userOnLdap =
                     resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(userOnLdap);

@@ -97,7 +97,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 before.getVirAttrs(),
                 noPropResources),
                 false,
-                adminUser);
+                securityProperties.getAdminUser());
         reportPropagation(result, reporter);
     }
 
@@ -136,7 +136,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, adminUser);
+            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
             reportPropagation(result, reporter);
         }
     }
@@ -167,7 +167,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, adminUser);
+            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
             reportPropagation(result, reporter);
         }
     }
@@ -375,7 +375,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.empty());
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, adminUser);
+            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
             reportPropagation(result, reporter);
         }
     }
@@ -402,7 +402,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.empty());
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, adminUser);
+            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
             reportPropagation(result, reporter);
         }
     }

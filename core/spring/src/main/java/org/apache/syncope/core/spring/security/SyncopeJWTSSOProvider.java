@@ -26,7 +26,6 @@ import com.nimbusds.jose.jca.JCAContext;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import java.util.Set;
-import javax.annotation.Resource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
@@ -49,8 +48,8 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
     private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
-    @Resource(name = "jwtIssuer")
-    private String jwtIssuer;
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @Autowired
     private AccessTokenJWSVerifier delegate;
@@ -63,7 +62,7 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
     @Override
     public String getIssuer() {
-        return jwtIssuer;
+        return securityProperties.getJwtIssuer();
     }
 
     @Override
@@ -96,8 +95,8 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
                 try {
                     authorities = POJOHelper.deserialize(
                             ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
-                        new TypeReference<>() {
-                        });
+                            new TypeReference<>() {
+                    });
                 } catch (Throwable t) {
                     LOG.error("Could not read stored authorities", t);
                 }

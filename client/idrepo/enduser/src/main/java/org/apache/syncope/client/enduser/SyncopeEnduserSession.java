@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.BaseSession;
@@ -39,8 +38,6 @@ import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.task.TaskRejectedException;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.EntityTag;
@@ -97,8 +94,6 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
 
-    private final ThreadPoolTaskExecutor executor;
-
     private String domain;
 
     private SyncopeClient client;
@@ -113,17 +108,10 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         super(request);
 
         clientFactory = SyncopeWebApplication.get().newClientFactory();
-        anonymousClient = clientFactory.
-                create(new AnonymousAuthenticationHandler(
-                        SyncopeWebApplication.get().getAnonymousUser(),
-                        SyncopeWebApplication.get().getAnonymousKey()));
+        anonymousClient = SyncopeWebApplication.get().newAnonymousClient();
 
         platformInfo = anonymousClient.platform();
         systemInfo = anonymousClient.system();
-
-        executor = new ThreadPoolTaskExecutor();
-        executor.setWaitForTasksToCompleteOnShutdown(false);
-        executor.initialize();
     }
 
     protected String message(final SyncopeClientException sce) {
@@ -176,23 +164,14 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         return clientFactory.getContentType().getMediaType();
     }
 
-    public void execute(final Runnable command) {
-        try {
-            executor.execute(command);
-        } catch (TaskRejectedException e) {
-            LOG.error("Could not execute {}", command, e);
-        }
-    }
-
     @Override
     public <T> Future<T> execute(final Callable<T> command) {
         try {
-            return executor.submit(command);
-        } catch (TaskRejectedException e) {
+            return CompletableFuture.completedFuture(command.call());
+        } catch (Exception e) {
             LOG.error("Could not execute {}", command, e);
-
-            return new CompletableFuture<>();
         }
+        return new CompletableFuture<>();
     }
 
     @Override

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.starter.actuate;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
@@ -42,6 +40,7 @@ import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.logic.LogicProperties;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -64,6 +63,7 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -72,11 +72,14 @@ import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.provisioning.java.ProvisioningProperties;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
+import org.apache.syncope.core.workflow.java.WorkflowProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
@@ -92,8 +95,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class SyncopeCoreInfoContributor implements InfoContributor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreInfoContributor.class);
-
-    protected static final ObjectMapper MAPPER = new ObjectMapper().findAndRegisterModules();
 
     protected static final Object MONITOR = new Object();
 
@@ -164,6 +165,21 @@ public class SyncopeCoreInfoContributor implements InfoContributor {
             SYSTEM_INFO.getLoad().add(event.getPayload());
         }
     }
+
+    @Autowired
+    protected SecurityProperties securityProperties;
+
+    @Autowired
+    protected PersistenceProperties persistenceProperties;
+
+    @Autowired
+    protected ProvisioningProperties provisioningProperties;
+
+    @Autowired
+    protected LogicProperties logicProperties;
+
+    @Autowired
+    protected WorkflowProperties workflowProperties;
 
     @Autowired
     protected AnyTypeDAO anyTypeDAO;
@@ -286,10 +302,8 @@ public class SyncopeCoreInfoContributor implements InfoContributor {
                 PLATFORM_INFO.setKeymasterConfParamOps(AopUtils.getTargetClass(confParamOps).getName());
                 PLATFORM_INFO.setKeymasterServiceOps(AopUtils.getTargetClass(serviceOps).getName());
 
-                if (bundleManager.getLocations() != null) {
-                    PLATFORM_INFO.getConnIdLocations().addAll(bundleManager.getLocations().stream().
-                            map(URI::toASCIIString).collect(Collectors.toList()));
-                }
+                PLATFORM_INFO.getConnIdLocations().addAll(bundleManager.getLocations().stream().
+                        map(URI::toASCIIString).collect(Collectors.toList()));
 
                 PLATFORM_INFO.getWorkflowInfo().
                         setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
@@ -446,20 +460,17 @@ public class SyncopeCoreInfoContributor implements InfoContributor {
     @Override
     public void contribute(final Info.Builder builder) {
         buildPlatform();
-        builder.withDetail(
-                "platform",
-                MAPPER.convertValue(PLATFORM_INFO, new TypeReference<Map<String, Object>>() {
-                }));
+        builder.withDetail("platform", PLATFORM_INFO);
 
-        builder.withDetail(
-                "numbers",
-                MAPPER.convertValue(buildNumbers(), new TypeReference<Map<String, Object>>() {
-                }));
+        builder.withDetail("numbers", buildNumbers());
 
         buildSystem();
-        builder.withDetail(
-                "system",
-                MAPPER.convertValue(SYSTEM_INFO, new TypeReference<Map<String, Object>>() {
-                }));
+        builder.withDetail("system", SYSTEM_INFO);
+
+        builder.withDetail("securityProperties", securityProperties);
+        builder.withDetail("persistenceProperties", persistenceProperties);
+        builder.withDetail("provisioningProperties", provisioningProperties);
+        builder.withDetail("logicProperties", logicProperties);
+        builder.withDetail("workflowProperties", workflowProperties);
     }
 }

@@ -29,10 +29,8 @@ import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.Wicket
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -89,6 +87,21 @@ public abstract class AbstractTest {
     @ImportAutoConfiguration
     @Configuration
     public static class SyncopeConsoleWebApplicationTestConfig {
+
+        @Bean
+        public ConsoleProperties consoleProperties() {
+            ConsoleProperties consoleProperties = new ConsoleProperties();
+
+            consoleProperties.getSecurityHeaders().put("X-XSS-Protection", "1; mode=block");
+            consoleProperties.getSecurityHeaders().
+                    put("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+            consoleProperties.getSecurityHeaders().put("X-Content-Type-Options", "nosniff");
+            consoleProperties.getSecurityHeaders().put("X-Frame-Options", "sameorigin");
+
+            consoleProperties.setAnonymousUser("anonymousUser");
+
+            return consoleProperties;
+        }
 
         @Bean
         public ServiceOps selfServiceOps() {
@@ -294,17 +307,9 @@ public abstract class AbstractTest {
         }
     }
 
-    protected static Properties PROPS;
+    protected static ConsoleProperties PROPS;
 
     protected static WicketTester TESTER;
-
-    @BeforeAll
-    public static void loadProps() throws IOException {
-        PROPS = new Properties();
-        try (InputStream is = AbstractTest.class.getResourceAsStream("/console.properties")) {
-            PROPS.load(is);
-        }
-    }
 
     @BeforeAll
     public static void setupTester() throws IOException {
@@ -313,6 +318,7 @@ public abstract class AbstractTest {
         ctx.register(TestSyncopeWebApplication.class);
         ctx.refresh();
 
+        PROPS = ctx.getBean(ConsoleProperties.class);
         TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class));
     }
 }

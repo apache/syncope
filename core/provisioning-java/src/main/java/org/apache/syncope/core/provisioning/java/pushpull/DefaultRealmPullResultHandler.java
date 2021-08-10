@@ -239,7 +239,7 @@ public class DefaultRealmPullResultHandler
             propByRes.addAll(ResourceOperation.CREATE, realm.getResourceKeys());
             if (unmatchingRule == UnmatchingRule.ASSIGN) {
                 List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-                taskExecutor.execute(taskInfos, false, adminUser);
+                taskExecutor.execute(taskInfos, false, securityProperties.getAdminUser());
             }
 
             RealmTO actual = binder.getRealmTO(realm, true);
@@ -314,7 +314,7 @@ public class DefaultRealmPullResultHandler
                     RealmTO updated = binder.getRealmTO(realm, true);
 
                     List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-                    taskExecutor.execute(taskInfos, false, adminUser);
+                    taskExecutor.execute(taskInfos, false, securityProperties.getAdminUser());
 
                     for (PullActions action : profile.getActions()) {
                         action.after(profile, delta, updated, result);
@@ -393,7 +393,9 @@ public class DefaultRealmPullResultHandler
 
                     PropagationByResource<String> propByRes = new PropagationByResource<>();
                     propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
-                    taskExecutor.execute(propagationManager.createTasks(realm, propByRes, null), false, adminUser);
+                    taskExecutor.execute(
+                            propagationManager.createTasks(realm, propByRes, null),
+                            false, securityProperties.getAdminUser());
 
                     RealmTO realmTO;
                     if (unlink) {
@@ -572,7 +574,7 @@ public class DefaultRealmPullResultHandler
                         PropagationByResource<String> propByRes = new PropagationByResource<>();
                         propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
                         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
-                        taskExecutor.execute(taskInfos, false, adminUser);
+                        taskExecutor.execute(taskInfos, false, securityProperties.getAdminUser());
 
                         realmDAO.delete(realm);
 

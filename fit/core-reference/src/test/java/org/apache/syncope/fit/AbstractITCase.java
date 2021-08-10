@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.fit;
 
+import static org.apache.syncope.fit.AbstractUIITCase.ANONYMOUS_KEY;
+import static org.apache.syncope.fit.AbstractUIITCase.ANONYMOUS_UNAME;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -108,6 +110,7 @@ import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.ApplicationService;
+import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
@@ -152,18 +155,44 @@ import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
+import org.apache.syncope.fit.AbstractITCase.KeymasterInitializer;
 import org.apache.syncope.fit.core.CoreITContext;
 import org.apache.syncope.fit.core.UserITCase;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.apache.syncope.common.rest.api.service.AuditService;
+import org.springframework.test.context.support.TestPropertySourceUtils;
 
-@SpringJUnitConfig({ CoreITContext.class, SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
+@SpringJUnitConfig(
+        classes = { CoreITContext.class, SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class },
+        initializers = KeymasterInitializer.class)
+@TestPropertySource("classpath:test.properties")
 public abstract class AbstractITCase {
+
+    static class KeymasterInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+        @Override
+        public void initialize(final ConfigurableApplicationContext ctx) {
+            String profiles = ctx.getEnvironment().getProperty("springActiveProfiles");
+            if (profiles.contains("zookeeper")) {
+                TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                        ctx, "keymaster.address=127.0.0.1:2181");
+            } else {
+                TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                        ctx, "keymaster.address=http://localhost:9080/syncope/rest/keymaster");
+            }
+            TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                    ctx, "keymaster.username=" + ANONYMOUS_UNAME);
+            TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                    ctx, "keymaster.password=" + ANONYMOUS_KEY);
+        }
+    }
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
 
@@ -355,23 +384,31 @@ public abstract class AbstractITCase {
 
     @BeforeAll
     public static void securitySetup() {
-        try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/security.properties")) {
+        try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/core.properties")) {
             Properties props = new Properties();
             props.load(propStream);
 
-            ANONYMOUS_UNAME = props.getProperty("anonymousUser");
-            ANONYMOUS_KEY = props.getProperty("anonymousKey");
-            JWT_ISSUER = props.getProperty("jwtIssuer");
-            JWS_ALGORITHM = JWSAlgorithm.parse(props.getProperty("jwsAlgorithm"));
-            JWS_KEY = props.getProperty("jwsKey");
+            ANONYMOUS_UNAME = props.getProperty("security.anonymousUser");
+            ANONYMOUS_KEY = props.getProperty("security.anonymousKey");
+            JWT_ISSUER = props.getProperty("security.jwtIssuer");
+            JWS_ALGORITHM = JWSAlgorithm.parse(props.getProperty("security.jwsAlgorithm"));
+            JWS_KEY = props.getProperty("security.jwsKey");
         } catch (Exception e) {
-            LOG.error("Could not read security.properties", e);
+            LOG.error("Could not read core.properties", e);
         }
 
         assertNotNull(ANONYMOUS_UNAME);
         assertNotNull(ANONYMOUS_KEY);
         assertNotNull(JWS_KEY);
         assertNotNull(JWT_ISSUER);
+
+        anonymusClient = clientFactory.create(new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
+
+        googleMfaAuthTokenService = anonymusClient.getService(GoogleMfaAuthTokenService.class);
+        googleMfaAuthAccountService = anonymusClient.getService(GoogleMfaAuthAccountService.class);
+        u2fRegistrationService = anonymusClient.getService(U2FRegistrationService.class);
+        webAuthnRegistrationService = anonymusClient.getService(WebAuthnRegistrationService.class);
+        impersonationService = anonymusClient.getService(ImpersonationService.class);
     }
 
     @BeforeAll
@@ -430,14 +467,6 @@ public abstract class AbstractITCase {
         authProfileService = adminClient.getService(AuthProfileService.class);
         oidcJWKSService = adminClient.getService(OIDCJWKSService.class);
         waConfigService = adminClient.getService(WAConfigService.class);
-
-        anonymusClient = clientFactory.create(new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
-
-        googleMfaAuthTokenService = anonymusClient.getService(GoogleMfaAuthTokenService.class);
-        googleMfaAuthAccountService = anonymusClient.getService(GoogleMfaAuthAccountService.class);
-        u2fRegistrationService = anonymusClient.getService(U2FRegistrationService.class);
-        webAuthnRegistrationService = anonymusClient.getService(WebAuthnRegistrationService.class);
-        impersonationService = anonymusClient.getService(ImpersonationService.class);
     }
 
     protected static String getUUIDString() {

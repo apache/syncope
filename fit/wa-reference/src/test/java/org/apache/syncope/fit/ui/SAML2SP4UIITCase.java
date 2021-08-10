@@ -119,6 +119,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         assertEquals(1, idps.size());
 
         SAML2SP4UIIdPTO cas = idps.get(0);
+        cas.setEntityID(WA_ADDRESS + "/saml");
         cas.setName("CAS");
         cas.setCreateUnmatching(true);
         cas.setSelfRegUnmatching(false);
@@ -184,7 +185,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
         // 2. click on the SAML 2.0 IdP
-        get = new HttpGet(baseURL + SAML2SP4UIConstants.URL_CONTEXT 
+        get = new HttpGet(baseURL + SAML2SP4UIConstants.URL_CONTEXT
                 + "/login?idp=http%3A//localhost%3A9080/syncope-wa/saml");
         response = httpclient.execute(get, context);
 

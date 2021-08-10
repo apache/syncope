@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<dataset>
+  <Realm id="ea696a4f-e77a-4ef1-be67-8f8093bc8686" name="/"/>  
+
+  <AnyType id="USER" kind="USER"/>
+  <AnyTypeClass id="BaseUser"/>
+  <AnyType_AnyTypeClass anyType_id="USER" anyTypeClass_id="BaseUser"/>
+
+  <AnyType id="GROUP" kind="GROUP"/>
+  <AnyTypeClass id="BaseGroup"/>
+  <AnyType_AnyTypeClass anyType_id="GROUP" anyTypeClass_id="BaseGroup"/>
+        
+  <!-- Actual plain schemas -->
+  <Implementation id="EmailAddressValidator" type="VALIDATOR" engine="JAVA"
+                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+  <SyncopeSchema id="email"/>
+  <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               validator_id="EmailAddressValidator"/>
+  
+  <Implementation id="BinaryValidator" type="VALIDATOR" engine="JAVA"
+                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator"/>
+
+  <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
+  <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate"/>
+
+
+  <Implementation id="ExpiredAccessTokenCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"/>
+  <Task DTYPE="SchedTask" id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task"  active="1"
+        jobDelegate_id="ExpiredAccessTokenCleanup" cronExpression="0 0/5 * * * ?"/>
+  <Implementation id="ExpiredBatchCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup"/>
+  <Task DTYPE="SchedTask" id="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" name="Expired Batch Operations Cleanup Task"  active="1"
+        jobDelegate_id="ExpiredBatchCleanup" cronExpression="0 0/5 * * * ?"/>
+
+  <!-- Password reset notifications -->
+  <MailTemplate id="requestPasswordReset"
+                textTemplate="Hi,
+a password reset was requested for ${user.getUsername()}.
+
+In order to complete this request, you need to visit this link:
+
+http://localhost:9080/syncope-enduser/confirmpasswordreset?token=${input.get(0).replaceAll(' ', '%20')}
+
+If you did not request this reset, just ignore the present e-mail.
+
+Best regards."
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Hi,
+a password reset was requested for ${user.getUsername()}.&lt;/p&gt;
+
+&lt;p&gt;In order to complete this request, you need to visit this 
+&lt;a href=&quot;http://localhost:9080/syncope-enduser/confirmpasswordreset?token=${input.get(0).replaceAll(' ', '%20')}&quot;&gt;link&lt;/a&gt;&lt;/p&gt;.
+
+&lt;p&gt;If you did not request this reset, just ignore the present e-mail.&lt;/p&gt;
+
+&lt;p&gt;Best regards.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+  <MailTemplate id="confirmPasswordReset"
+                textTemplate="Hi,
+we are happy to inform you that the password request was successfully executed for your account.
+
+Best regards."
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Hi,&lt;/br&gt;
+we are happy to inform you that the password request was successfully executed for your account.&lt;/p&gt;
+
+&lt;p&gt;Best regards.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+
+  <Notification id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" active="1" recipientAttrName="email" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset request" template_id="requestPasswordReset" 
+                traceLevel="FAILURES"/> 
+  <AnyAbout id="a328f2e6-25e9-4cc1-badf-7425d7be4b39" anyType_id="USER" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" filter="token!=$null"/>
+  <Notification_events notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
+  
+  <Notification id="bef0c250-e8a7-4848-bb63-2564fc409ce2" active="1" recipientAttrName="email" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset successful" template_id="confirmPasswordReset" 
+                traceLevel="FAILURES"/> 
+  <Notification_events notification_id="bef0c250-e8a7-4848-bb63-2564fc409ce2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
+
+  <ReportTemplate id="empty"/>  
+
+  <Report id="c3520ad9-179f-49e7-b315-d684d216dd97" name="reconciliation" active="1" template_id="empty"/>
+  <Implementation id="ReconciliationReportletConf" type="REPORTLET" engine="JAVA"
+                  body='{"_class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
+  <ReportReportlet report_id="c3520ad9-179f-49e7-b315-d684d216dd97" implementation_id="ReconciliationReportletConf"/>
+
+  <SyncopeRole id="GROUP_OWNER"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_SEARCH"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_READ"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_CREATE"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_UPDATE"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_DELETE"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPECLASS_READ"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPE_LIST"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPECLASS_LIST"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="RELATIONSHIPTYPE_LIST"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPE_READ"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="REALM_LIST"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_SEARCH"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_READ"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_UPDATE"/>
+  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_DELETE"/>
+</dataset>

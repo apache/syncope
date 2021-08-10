@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console;
 
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -31,17 +31,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Value("${anonymousUser}")
-    private String anonymousUser;
-
-    @Value("${anonymousKey}")
-    private String anonymousKey;
+    @Autowired
+    private ConsoleProperties props;
 
     @Override
     protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication().
-                withUser(anonymousUser).
-                password("{noop}" + anonymousKey).
+                withUser(props.getAnonymousUser()).
+                password("{noop}" + props.getAnonymousKey()).
                 roles(IdRepoEntitlement.ANONYMOUS);
     }
 

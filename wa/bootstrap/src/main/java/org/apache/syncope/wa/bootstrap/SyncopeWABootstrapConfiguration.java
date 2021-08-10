@@ -30,13 +30,13 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource(value = "file:${conf.directory}/wa.properties", ignoreResourceNotFound = true)
 public class SyncopeWABootstrapConfiguration {
 
-    @Value("${anonymousUser}")
+    @Value("${wa.anonymousUser}")
     private String anonymousUser;
 
-    @Value("${anonymousKey}")
+    @Value("${wa.anonymousKey}")
     private String anonymousKey;
 
-    @Value("${useGZIPCompression}")
+    @Value("${wa.useGZIPCompression:true}")
     private boolean useGZIPCompression;
 
     @Bean

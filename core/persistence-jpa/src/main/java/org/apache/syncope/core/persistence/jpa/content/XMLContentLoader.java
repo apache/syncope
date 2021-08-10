@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.content;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
@@ -30,11 +29,11 @@ import javax.xml.parsers.SAXParserFactory;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -50,11 +49,11 @@ public class XMLContentLoader implements ContentLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(XMLContentLoader.class);
 
-    @Resource(name = "viewsXML")
-    private ResourceWithFallbackLoader viewsXML;
+    @javax.annotation.Resource(name = "viewsXML")
+    private Resource viewsXML;
 
-    @Resource(name = "indexesXML")
-    private ResourceWithFallbackLoader indexesXML;
+    @javax.annotation.Resource(name = "indexesXML")
+    private Resource indexesXML;
 
     @Autowired
     private Environment env;
@@ -125,8 +124,8 @@ public class XMLContentLoader implements ContentLoader {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        Properties views = PropertiesLoaderUtils.loadProperties(viewsXML.getResource());
-        views.stringPropertyNames().stream().sorted().forEachOrdered(idx -> {
+        Properties views = PropertiesLoaderUtils.loadProperties(viewsXML);
+        views.stringPropertyNames().stream().sorted().forEach(idx -> {
             LOG.debug("[{}] Creating view {}", domain, views.get(idx).toString());
             try {
                 jdbcTemplate.execute(views.getProperty(idx).replaceAll("\\n", " "));
@@ -143,8 +142,8 @@ public class XMLContentLoader implements ContentLoader {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        Properties indexes = PropertiesLoaderUtils.loadProperties(indexesXML.getResource());
-        indexes.stringPropertyNames().stream().sorted().forEachOrdered(idx -> {
+        Properties indexes = PropertiesLoaderUtils.loadProperties(indexesXML);
+        indexes.stringPropertyNames().stream().sorted().forEach(idx -> {
             LOG.debug("[{}] Creating index {}", domain, indexes.get(idx).toString());
             try {
                 jdbcTemplate.execute(indexes.getProperty(idx));

@@ -22,48 +22,36 @@ import java.lang.reflect.InvocationTargetException;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
-import org.springframework.context.EnvironmentAware;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 
-@PropertySource("classpath:workflow.properties")
-@PropertySource(value = "file:${conf.directory}/workflow.properties", ignoreResourceNotFound = true)
+@EnableConfigurationProperties(WorkflowProperties.class)
 @Configuration
-public class WorkflowContext implements EnvironmentAware {
+public class WorkflowContext {
 
-    private Environment env;
+    @Autowired
+    private WorkflowProperties props;
 
-    @Override
-    public void setEnvironment(final Environment env) {
-        this.env = env;
+    @Bean
+    public UserWorkflowAdapter uwfAdapter() throws NoSuchMethodException, InstantiationException,
+            IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+        return props.getUwfAdapter().getDeclaredConstructor().newInstance();
     }
 
     @Bean
-    public UserWorkflowAdapter uwfAdapter()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException,
-            NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
+    public GroupWorkflowAdapter gwfAdapter() throws NoSuchMethodException, InstantiationException,
+            IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (UserWorkflowAdapter) Class.forName(env.getProperty("uwfAdapter")).
-                getDeclaredConstructor().newInstance();
+        return props.getGwfAdapter().getDeclaredConstructor().newInstance();
     }
 
     @Bean
-    public GroupWorkflowAdapter gwfAdapter()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException,
-            NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
+    public AnyObjectWorkflowAdapter awfAdapter() throws NoSuchMethodException, InstantiationException,
+            IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (GroupWorkflowAdapter) Class.forName(env.getProperty("gwfAdapter")).
-                getDeclaredConstructor().newInstance();
-    }
-
-    @Bean
-    public AnyObjectWorkflowAdapter awfAdapter()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException,
-            NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
-
-        return (AnyObjectWorkflowAdapter) Class.forName(env.getProperty("awfAdapter")).
-                getDeclaredConstructor().newInstance();
+        return props.getAwfAdapter().getDeclaredConstructor().newInstance();
     }
 }

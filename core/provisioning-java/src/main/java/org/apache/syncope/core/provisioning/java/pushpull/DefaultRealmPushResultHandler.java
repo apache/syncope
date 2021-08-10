@@ -111,7 +111,7 @@ public class DefaultRealmPushResultHandler
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.ofNullable(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, adminUser);
+            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
             reportPropagation(result, reporter);
         }
 
@@ -129,7 +129,7 @@ public class DefaultRealmPushResultHandler
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.ofNullable(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, adminUser);
+            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
             reportPropagation(result, reporter);
         }
     }
@@ -142,7 +142,8 @@ public class DefaultRealmPushResultHandler
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
         PropagationReporter reporter = taskExecutor.execute(
-                propagationManager.createTasks(realm, propByRes, noPropResources), false, adminUser);
+                propagationManager.createTasks(realm, propByRes, noPropResources),
+                false, securityProperties.getAdminUser());
         reportPropagation(result, reporter);
     }
 

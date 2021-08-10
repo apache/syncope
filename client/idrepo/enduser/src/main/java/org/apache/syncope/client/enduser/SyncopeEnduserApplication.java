@@ -19,39 +19,51 @@
 package org.apache.syncope.client.enduser;
 
 import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAutoConfig.WebSocketWicketWebInitializerAutoConfiguration;
+import java.util.Map;
+import org.apache.syncope.client.enduser.actuate.SyncopeEnduserInfoContributor;
 import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.actuate.SyncopeCoreHealthIndicator;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
-import org.springframework.boot.SpringApplication;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.PropertySource;
 
-@PropertySource("classpath:enduser.properties")
-@PropertySource(value = "file:${console.directory}/enduser.properties", ignoreResourceNotFound = true)
 @SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
     HttpMessageConvertersAutoConfiguration.class })
+@EnableConfigurationProperties(EnduserProperties.class)
 public class SyncopeEnduserApplication extends SpringBootServletInitializer {
 
     public static void main(final String[] args) {
-        SpringApplication.run(SyncopeEnduserApplication.class, args);
+        new SpringApplicationBuilder(SyncopeEnduserApplication.class).
+                properties("spring.config.name:enduser").
+                build().run(args);
     }
+
+    @Autowired
+    private ServiceOps serviceOps;
+
+    @Autowired
+    private EnduserProperties props;
 
     @Override
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
-        builder.properties(WebSocketWicketWebInitializerAutoConfiguration.REGISTER_SERVER_ENDPOINT_ENABLED + "=false");
-        return super.configure(builder);
+        return builder.properties(Map.of(
+                WebSocketWicketWebInitializerAutoConfiguration.REGISTER_SERVER_ENDPOINT_ENABLED, false,
+                "spring.config.name", "enduser")).
+                sources(SyncopeEnduserApplication.class);
     }
 
     @Bean
@@ -62,7 +74,17 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
     @ConditionalOnMissingBean
     @Bean
     public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator() {
-        return new SyncopeCoreHealthIndicator();
+        return new SyncopeCoreHealthIndicator(
+                serviceOps,
+                props.getAnonymousUser(),
+                props.getAnonymousKey(),
+                props.isUseGZIPCompression());
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SyncopeEnduserInfoContributor syncopeEnduserInfoContributor() {
+        return new SyncopeEnduserInfoContributor();
     }
 
     @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")

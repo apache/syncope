@@ -18,14 +18,19 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.giffing.wicket.spring.boot.context.extensions.WicketApplicationInitConfiguration;
 import com.giffing.wicket.spring.boot.context.extensions.boot.actuator.WicketEndpointRepository;
 import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.WicketClassCandidatesHolder;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Set;
+import org.apache.syncope.client.console.ConsoleProperties;
 import org.apache.syncope.client.console.SyncopeAMConsoleContext;
 import org.apache.syncope.client.console.SyncopeIdMConsoleContext;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -41,7 +46,7 @@ import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
-import org.apache.syncope.fit.AbstractUITCase;
+import org.apache.syncope.fit.AbstractUIITCase;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
@@ -50,14 +55,25 @@ import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.test.context.support.TestPropertySourceUtils;
 
-public abstract class AbstractConsoleITCase extends AbstractUITCase {
+public abstract class AbstractConsoleITCase extends AbstractUIITCase {
 
     @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
-    @PropertySource("classpath:console.properties")
     @Configuration
     public static class SyncopeConsoleWebApplicationTestConfig {
+
+        @Bean
+        public ConsoleProperties consoleProperties() {
+            ConsoleProperties consoleProperties = new ConsoleProperties();
+
+            consoleProperties.setAnonymousUser(ANONYMOUS_UNAME);
+            consoleProperties.setAnonymousKey(ANONYMOUS_KEY);
+
+            consoleProperties.setCsrf(false);
+
+            return consoleProperties;
+        }
 
         @Bean
         public GeneralSettingsProperties generalSettingsProperties() {
@@ -125,10 +141,35 @@ public abstract class AbstractConsoleITCase extends AbstractUITCase {
         Locale.setDefault(Locale.ENGLISH);
 
         AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+
         ctx.register(SyncopeConsoleWebApplicationTestConfig.class);
         ctx.register(SyncopeWebApplication.class);
         ctx.register(SyncopeAMConsoleContext.class);
         ctx.register(SyncopeIdMConsoleContext.class);
+
+        String springActiveProfiles = null;
+        try (InputStream propStream = AbstractConsoleITCase.class.getResourceAsStream("/test.properties")) {
+            Properties props = new Properties();
+            props.load(propStream);
+
+            springActiveProfiles = props.getProperty("springActiveProfiles");
+        } catch (Exception e) {
+            LOG.error("Could not load /test.properties", e);
+        }
+        assertNotNull(springActiveProfiles);
+
+        if (springActiveProfiles.contains("zookeeper")) {
+            TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                    ctx, "keymaster.address=127.0.0.1:2181");
+        } else {
+            TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                    ctx, "keymaster.address=http://localhost:9080/syncope/rest/keymaster");
+        }
+        TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                ctx, "keymaster.username=" + ANONYMOUS_UNAME);
+        TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                ctx, "keymaster.password=" + ANONYMOUS_KEY);
+
         ctx.refresh();
 
         TESTER = new WicketTester(ctx.getBean(SyncopeWebApplication.class));

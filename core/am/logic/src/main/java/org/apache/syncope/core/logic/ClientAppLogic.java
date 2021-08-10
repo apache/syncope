@@ -27,7 +27,6 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Resource;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.ArrayUtils;
@@ -56,6 +55,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 
 @Component
 public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
@@ -78,11 +78,8 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
     @Autowired
     private CASSPDAO casspDAO;
 
-    @Resource(name = "anonymousUser")
-    private String anonymousUser;
-
-    @Resource(name = "anonymousKey")
-    private String anonymousKey;
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_LIST + "')")
     public <T extends ClientAppTO> List<T> list(final ClientAppType type) {
@@ -260,8 +257,8 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
             HttpClient.newBuilder().build().send(
                     HttpRequest.newBuilder(URI.create(
                             StringUtils.appendIfMissing(wa.getAddress(), "/") + "actuator/registeredServices")).
-                            header(HttpHeaders.AUTHORIZATION,
-                                    DefaultBasicAuthSupplier.getBasicAuthHeader(anonymousUser, anonymousKey)).
+                            header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
+                                    securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey())).
                             GET().build(),
                     HttpResponse.BodyHandlers.discarding());
         } catch (KeymasterException e) {

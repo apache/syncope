@@ -43,7 +43,4 @@ public interface ConnIdBundleManager {
     void resetConnManagers();
 
     List<URI> getLocations();
-
-    void setStringLocations(String stringLocations);
-
 }

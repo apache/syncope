@@ -26,7 +26,6 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
-import javax.annotation.Resource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -39,6 +38,7 @@ import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -46,11 +46,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
-    @Resource(name = "adminUser")
-    private String adminUser;
-
-    @Resource(name = "jwtIssuer")
-    private String jwtIssuer;
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @Autowired
     private AccessTokenJWSSigner jwsSigner;
@@ -86,7 +83,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
                 jwtID(tokenId).
                 subject(subject).
                 issueTime(currentTime).
-                issuer(jwtIssuer).
+                issuer(securityProperties.getJwtIssuer()).
                 expirationTime(expiration.getTime()).
                 notBeforeTime(currentTime);
         claims.forEach(claimsSet::claim);
@@ -118,7 +115,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         accessToken.setExpirationTime(generated.getRight());
         accessToken.setOwner(subject);
 
-        if (!adminUser.equals(accessToken.getOwner())) {
+        if (!securityProperties.getAdminUser().equals(accessToken.getOwner())) {
             accessToken.setAuthorities(authorities);
         }
 
@@ -179,7 +176,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         accessToken.setBody(body);
         accessToken.setExpirationTime(expiration.getTime());
 
-        if (!adminUser.equals(accessToken.getOwner())) {
+        if (!securityProperties.getAdminUser().equals(accessToken.getOwner())) {
             accessToken.setAuthorities(authorities);
         }
 

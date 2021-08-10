@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.wa.starter;
 
+import org.apache.syncope.wa.bootstrap.WAProperties;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Map;
 import org.apache.syncope.wa.starter.config.SyncopeWARefreshContextJob;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.CasConfigurationPropertiesValidator;
@@ -33,7 +35,6 @@ import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -52,15 +53,12 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@PropertySource("classpath:wa.properties")
-@PropertySource(value = "file:${conf.directory}/wa.properties", ignoreResourceNotFound = true)
 @SpringBootApplication(exclude = {
     HibernateJpaAutoConfiguration.class,
     JerseyAutoConfiguration.class,
@@ -75,27 +73,30 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
     DataSourceTransactionManagerAutoConfiguration.class,
     RedisRepositoriesAutoConfiguration.class
 })
-@EnableConfigurationProperties({ CasConfigurationProperties.class })
+@EnableConfigurationProperties({ WAProperties.class, CasConfigurationProperties.class })
 @EnableAsync
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableScheduling
 public class SyncopeWAApplication extends SpringBootServletInitializer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAApplication.class);
-
-    @Autowired
-    private SchedulerFactoryBean scheduler;
-
-    @Value("${contextRefreshDelay:15}")
-    private long contextRefreshDelay;
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeWAApplication.class);
 
     public static void main(final String[] args) {
-        new SpringApplicationBuilder(SyncopeWAApplication.class).run(args);
+        new SpringApplicationBuilder(SyncopeWAApplication.class).
+                properties("spring.config.name:wa").
+                build().run(args);
     }
 
-    private static void validateConfiguration(final ApplicationReadyEvent event) {
-        new CasConfigurationPropertiesValidator(event.getApplicationContext()).validate();
+    @Autowired
+    protected WAProperties waProperties;
+
+    @Autowired
+    protected SchedulerFactoryBean scheduler;
+
+    @Override
+    protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
+        return builder.properties(Map.of("spring.config.name", "wa")).sources(SyncopeWAApplication.class);
     }
 
     /**
@@ -105,13 +106,13 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
      */
     @EventListener
     public void handleApplicationReadyEvent(final ApplicationReadyEvent event) {
-        validateConfiguration(event);
+        new CasConfigurationPropertiesValidator(event.getApplicationContext()).validate();
         scheduleJobToRefreshContext();
     }
 
-    private void scheduleJobToRefreshContext() {
+    protected void scheduleJobToRefreshContext() {
         try {
-            Date date = Date.from(LocalDateTime.now().plusSeconds(this.contextRefreshDelay).
+            Date date = Date.from(LocalDateTime.now().plusSeconds(waProperties.getContextRefreshDelay()).
                     atZone(ZoneId.systemDefault()).toInstant());
             Trigger trigger = TriggerBuilder.newTrigger().startAt(date).build();
             JobKey jobKey = new JobKey(getClass().getSimpleName());

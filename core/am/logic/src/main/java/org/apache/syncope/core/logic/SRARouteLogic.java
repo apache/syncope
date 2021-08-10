@@ -26,7 +26,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.ArrayUtils;
@@ -42,6 +41,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SRARoute;
 import org.apache.syncope.core.provisioning.api.data.SRARouteDataBinder;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -61,11 +61,8 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
     @Autowired
     private ServiceOps serviceOps;
 
-    @Resource(name = "anonymousUser")
-    private String anonymousUser;
-
-    @Resource(name = "anonymousKey")
-    private String anonymousKey;
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @PreAuthorize("isAuthenticated()")
     public List<SRARouteTO> list() {
@@ -120,8 +117,8 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
             HttpClient.newBuilder().build().send(
                     HttpRequest.newBuilder(URI.create(
                             StringUtils.appendIfMissing(sra.getAddress(), "/") + "actuator/gateway/refresh")).
-                            header(HttpHeaders.AUTHORIZATION,
-                                    DefaultBasicAuthSupplier.getBasicAuthHeader(anonymousUser, anonymousKey)).
+                            header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
+                                    securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey())).
                             POST(HttpRequest.BodyPublishers.noBody()).build(),
                     HttpResponse.BodyHandlers.discarding());
         } catch (KeymasterException e) {

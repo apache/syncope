@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import javax.annotation.Resource;
 import javax.servlet.ServletRequestListener;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
@@ -64,9 +63,6 @@ public class RESTCXFContext {
 
     @Autowired
     private ApplicationContext ctx;
-
-    @Resource(name = "version")
-    private String version;
 
     @Bean
     public Executor batchExecutor() {
@@ -153,12 +149,16 @@ public class RESTCXFContext {
         return new AddETagFilter();
     }
 
+    private String version() {
+        return ctx.getEnvironment().getProperty("version");
+    }
+
     @Bean
     public OpenApiFeature openapiFeature() {
         OpenApiFeature openapiFeature = new OpenApiFeature();
         openapiFeature.setTitle("Apache Syncope");
-        openapiFeature.setVersion(version);
-        openapiFeature.setDescription("Apache Syncope " + version);
+        openapiFeature.setVersion(version());
+        openapiFeature.setDescription("Apache Syncope " + version());
         openapiFeature.setContactName("The Apache Syncope community");
         openapiFeature.setContactEmail("dev@syncope.apache.org");
         openapiFeature.setContactUrl("http://syncope.apache.org");

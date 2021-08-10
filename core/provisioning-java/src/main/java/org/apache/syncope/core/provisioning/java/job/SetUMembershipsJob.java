@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Resource;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.PatchOperation;
@@ -31,6 +30,7 @@ import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -51,8 +51,8 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
 
     public static final String CONTEXT = "context";
 
-    @Resource(name = "adminUser")
-    private String adminUser;
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @Autowired
     private UserProvisioningManager userProvisioningManager;
@@ -60,7 +60,7 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
-                orElse(adminUser);
+                orElse(securityProperties.getAdminUser());
 
         try {
             AuthContextUtils.callAsAdmin(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY), () -> {

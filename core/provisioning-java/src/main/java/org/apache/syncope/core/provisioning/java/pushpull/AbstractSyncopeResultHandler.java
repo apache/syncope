@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import javax.annotation.Resource;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -34,6 +33,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopeResultHandler;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningActions;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -85,8 +85,8 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
 
-    @Resource(name = "adminUser")
-    protected String adminUser;
+    @Autowired
+    protected SecurityProperties securityProperties;
 
     /**
      * Provisioning profile.

@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -32,10 +32,8 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.LogOutputStream;
-import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -51,21 +49,18 @@ import org.apache.syncope.core.provisioning.java.job.AutowiringSpringBeanJobFact
 import org.apache.syncope.core.provisioning.java.job.JobManagerImpl;
 import org.apache.syncope.core.provisioning.java.job.SchedulerDBInit;
 import org.apache.syncope.core.provisioning.java.job.SchedulerShutdown;
-import org.apache.syncope.core.provisioning.java.propagation.PropagationManagerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jndi.JndiObjectFactoryBean;
@@ -77,16 +72,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
-@PropertySource("classpath:connid.properties")
-@PropertySource("classpath:mail.properties")
-@PropertySource("classpath:provisioning.properties")
-@PropertySource(value = "file:${conf.directory}/connid.properties", ignoreResourceNotFound = true)
-@PropertySource(value = "file:${conf.directory}/mail.properties", ignoreResourceNotFound = true)
-@PropertySource(value = "file:${conf.directory}/provisioning.properties", ignoreResourceNotFound = true)
 @ComponentScan("org.apache.syncope.core.provisioning.java")
 @EnableAsync
+@EnableConfigurationProperties(ProvisioningProperties.class)
 @Configuration
-public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
+public class ProvisioningContext implements AsyncConfigurer {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProvisioningContext.class);
 
@@ -97,14 +87,10 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
     private PlatformTransactionManager masterTransactionManager;
 
     @Autowired
+    private ProvisioningProperties props;
+
+    @Autowired
     private ApplicationContext ctx;
-
-    private Environment env;
-
-    @Override
-    public void setEnvironment(final Environment env) {
-        this.env = env;
-    }
 
     /**
      * Annotated as {@code @Primary} because it will be used by {@code @Async} in {@link AsyncConnectorFacade}.
@@ -115,9 +101,9 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
     @Primary
     public Executor asyncConnectorFacadeExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(env.getProperty("asyncConnectorFacadeExecutor.corePoolSize", Integer.class));
-        executor.setMaxPoolSize(env.getProperty("asyncConnectorFacadeExecutor.maxPoolSize", Integer.class));
-        executor.setQueueCapacity(env.getProperty("asyncConnectorFacadeExecutor.queueCapacity", Integer.class));
+        executor.setCorePoolSize(props.getAsyncConnectorFacadeExecutor().getCorePoolSize());
+        executor.setMaxPoolSize(props.getAsyncConnectorFacadeExecutor().getMaxPoolSize());
+        executor.setQueueCapacity(props.getAsyncConnectorFacadeExecutor().getQueueCapacity());
         executor.setThreadNamePrefix("AsyncConnectorFacadeExecutor-");
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         executor.initialize();
@@ -137,9 +123,9 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
     @Bean
     public Executor propagationTaskExecutorAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(env.getProperty("propagationTaskExecutorAsyncExecutor.corePoolSize", Integer.class));
-        executor.setMaxPoolSize(env.getProperty("propagationTaskExecutorAsyncExecutor.maxPoolSize", Integer.class));
-        executor.setQueueCapacity(env.getProperty("propagationTaskExecutorAsyncExecutor.queueCapacity", Integer.class));
+        executor.setCorePoolSize(props.getPropagationTaskExecutorAsyncExecutor().getCorePoolSize());
+        executor.setMaxPoolSize(props.getPropagationTaskExecutorAsyncExecutor().getMaxPoolSize());
+        executor.setQueueCapacity(props.getPropagationTaskExecutorAsyncExecutor().getQueueCapacity());
         executor.setThreadNamePrefix("PropagationTaskExecutor-");
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         executor.initialize();
@@ -147,7 +133,7 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
     }
 
     @Bean
-    public SchedulerDBInit quartzDataSourceInit() {
+    public SchedulerDBInit quartzDataSourceInit() throws JsonProcessingException {
         SchedulerDBInit init = new SchedulerDBInit();
         init.setDataSource(masterDataSource);
 
@@ -155,7 +141,7 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
         databasePopulator.setContinueOnError(true);
         databasePopulator.setIgnoreFailedDrops(true);
         databasePopulator.setSqlScriptEncoding(StandardCharsets.UTF_8.name());
-        databasePopulator.setScripts(new ClassPathResource("/quartz/" + env.getProperty("quartz.sql")));
+        databasePopulator.setScripts(new ClassPathResource("/quartz/" + props.getQuartz().getSql()));
         init.setDatabasePopulator(databasePopulator);
 
         return init;
@@ -176,10 +162,14 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
 
         Properties quartzProperties = new Properties();
         quartzProperties.setProperty(
-                "org.quartz.scheduler.idleWaitTime", env.getProperty("quartz.scheduler.idleWaitTime", "30000"));
+                "org.quartz.scheduler.idleWaitTime",
+                String.valueOf(props.getQuartz().getIdleWaitTime()));
         quartzProperties.setProperty(
-                "org.quartz.jobStore.misfireThreshold", env.getProperty("quartz.misfireThreshold", "60000"));
-        quartzProperties.setProperty("org.quartz.jobStore.driverDelegateClass", env.getProperty("quartz.jobstore"));
+                "org.quartz.jobStore.misfireThreshold",
+                String.valueOf(props.getQuartz().getMisfireThreshold()));
+        quartzProperties.setProperty(
+                "org.quartz.jobStore.driverDelegateClass",
+                props.getQuartz().getDelegate().getName());
         quartzProperties.setProperty("org.quartz.jobStore.isClustered", "true");
         quartzProperties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
         quartzProperties.setProperty("org.quartz.scheduler.instanceName", "ClusteredScheduler");
@@ -198,7 +188,7 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
     @Bean
     public JobManager jobManager() {
         JobManagerImpl jobManager = new JobManagerImpl();
-        jobManager.setDisableQuartzInstance(env.getProperty("quartz.disableInstance", Boolean.class, false));
+        jobManager.setDisableQuartzInstance(props.getQuartz().isDisableInstance());
         return jobManager;
     }
 
@@ -219,12 +209,12 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
                 return super.connectTransport();
             }
         };
-        mailSender.setDefaultEncoding(env.getProperty("smtpEncoding"));
-        mailSender.setHost(env.getProperty("smtpHost"));
-        mailSender.setPort(env.getProperty("smtpPort", Integer.class));
-        mailSender.setUsername(env.getProperty("smtpUsername"));
-        mailSender.setPassword(env.getProperty("smtpPassword"));
-        mailSender.setProtocol(env.getProperty("smtpProtocol"));
+        mailSender.setDefaultEncoding(props.getSmtp().getDefaultEncoding());
+        mailSender.setHost(props.getSmtp().getHost());
+        mailSender.setPort(props.getSmtp().getPort());
+        mailSender.setUsername(props.getSmtp().getUsername());
+        mailSender.setPassword(props.getSmtp().getPassword());
+        mailSender.setProtocol(props.getSmtp().getProtocol());
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("[Mail] host:port = {}:{}", mailSender.getHost(), mailSender.getPort());
@@ -245,13 +235,8 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
         if (session == null) {
             Properties javaMailProperties = mailSender.getJavaMailProperties();
 
-            Properties props = PropertyUtils.read(ProvisioningContext.class, "mail.properties", "conf.directory");
-            for (Enumeration<?> e = props.propertyNames(); e.hasMoreElements();) {
-                String prop = (String) e.nextElement();
-                if (prop.startsWith("mail.smtp.")) {
-                    javaMailProperties.setProperty(prop, props.getProperty(prop));
-                }
-            }
+            props.getSmtp().getJavamailProperties().
+                    forEach((key, value) -> javaMailProperties.setProperty(key, value));
 
             if (StringUtils.isNotBlank(mailSender.getUsername())) {
                 javaMailProperties.setProperty("mail.smtp.auth", "true");
@@ -262,8 +247,7 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
                         forEach((key, value) -> LOG.debug("[Mail] property: {} = {}", key, value));
             }
 
-            String mailDebug = props.getProperty("mail.debug", "false");
-            if (BooleanUtils.toBoolean(mailDebug)) {
+            if (props.getSmtp().isDebug()) {
                 session = mailSender.getSession();
                 session.setDebug(true);
                 try (LogOutputStream los = new LogOutputStream(LOG)) {
@@ -279,16 +263,16 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    public PropagationManager propagationManager() {
-        return new PropagationManagerImpl();
+    public PropagationManager propagationManager() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+        return props.getPropagationManager().getDeclaredConstructor().newInstance();
     }
 
     @ConditionalOnMissingBean
     @Bean
     public ConnIdBundleManager connIdBundleManager() {
-        ConnIdBundleManagerImpl connIdBundleManager = new ConnIdBundleManagerImpl();
-        connIdBundleManager.setStringLocations(env.getProperty("connid.locations"));
-        return connIdBundleManager;
+        return new ConnIdBundleManagerImpl(props.getConnIdLocation());
     }
 
     @Bean
@@ -297,67 +281,53 @@ public class ProvisioningContext implements EnvironmentAware, AsyncConfigurer {
     }
 
     @Bean
-    public PropagationTaskExecutor propagationTaskExecutor()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public PropagationTaskExecutor propagationTaskExecutor() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (PropagationTaskExecutor) Class.forName(env.getProperty("propagationTaskExecutor")).
-                getConstructor().newInstance();
+        return props.getPropagationTaskExecutor().getDeclaredConstructor().newInstance();
     }
 
     @Bean
-    public UserProvisioningManager userProvisioningManager()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public UserProvisioningManager userProvisioningManager() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (UserProvisioningManager) Class.forName(env.getProperty("userProvisioningManager")).
-                getConstructor().newInstance();
+        return props.getUserProvisioningManager().getDeclaredConstructor().newInstance();
     }
 
     @Bean
-    public GroupProvisioningManager groupProvisioningManager()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public GroupProvisioningManager groupProvisioningManager() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (GroupProvisioningManager) Class.forName(env.getProperty("groupProvisioningManager")).
-                getConstructor().newInstance();
+        return props.getGroupProvisioningManager().getDeclaredConstructor().newInstance();
     }
 
     @Bean
-    public AnyObjectProvisioningManager anyObjectProvisioningManager()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public AnyObjectProvisioningManager anyObjectProvisioningManager() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (AnyObjectProvisioningManager) Class.forName(env.getProperty("anyObjectProvisioningManager")).
-                getConstructor().newInstance();
+        return props.getAnyObjectProvisioningManager().getDeclaredConstructor().newInstance();
     }
 
     @Bean
-    public VirAttrCache virAttrCache()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public VirAttrCache virAttrCache() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        VirAttrCache virAttrCache = (VirAttrCache) Class.forName(env.getProperty("virAttrCache")).
-                getConstructor().newInstance();
-        virAttrCache.setCacheSpec(env.getProperty("virAttrCacheSpec", "maximumSize=5000,expireAfterAccess=1m"));
+        VirAttrCache virAttrCache = props.getVirAttrCache().getDeclaredConstructor().newInstance();
+        virAttrCache.setCacheSpec(props.getVirAttrCacheSpec());
         return virAttrCache;
     }
 
     @Bean
-    public NotificationManager notificationManager()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public NotificationManager notificationManager() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (NotificationManager) Class.forName(env.getProperty("notificationManager")).
-                getConstructor().newInstance();
+        return props.getNotifcationManager().getDeclaredConstructor().newInstance();
     }
 
     @Bean
-    public AuditManager auditManager()
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException,
-            IllegalArgumentException, InvocationTargetException {
+    public AuditManager auditManager() throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
-        return (AuditManager) Class.forName(env.getProperty("auditManager")).
-                getConstructor().newInstance();
+        return props.getAuditManager().getDeclaredConstructor().newInstance();
     }
 }

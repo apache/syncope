@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import javax.annotation.Resource;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.AuditManager;
@@ -29,6 +28,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeResultHandler;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,8 +68,8 @@ public abstract class AbstractRealmResultHandler<T extends ProvisioningTask, A e
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
 
-    @Resource(name = "adminUser")
-    protected String adminUser;
+    @Autowired
+    protected SecurityProperties securityProperties;
 
     /**
      * Provisioning profile.

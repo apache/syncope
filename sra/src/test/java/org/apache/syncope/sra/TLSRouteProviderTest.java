@@ -50,10 +50,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.netty.http.client.HttpClient;
 
 @ActiveProfiles({ "tls" })
+@TestPropertySource("classpath:sra-tls.properties")
 public class TLSRouteProviderTest extends AbstractTest {
 
     private WebTestClient webClient() throws SSLException {

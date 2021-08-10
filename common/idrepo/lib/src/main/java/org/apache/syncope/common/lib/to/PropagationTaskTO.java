@@ -23,6 +23,8 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 
@@ -176,6 +178,22 @@ public class PropagationTaskTO extends TaskTO {
                 append(anyTypeKind, other.anyTypeKind).
                 append(anyType, other.anyType).
                 append(entityKey, other.entityKey).
+                build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).
+                appendSuper(super.toString()).
+                append(operation).
+                append(connObjectKey).
+                append(oldConnObjectKey).
+                append(attributes).
+                append(resource).
+                append(objectClassName).
+                append(anyTypeKind).
+                append(anyType).
+                append(entityKey).
                 build();
     }
 }

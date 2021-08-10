@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.ext.client.common.ui.panels.UserRequestFormPanel;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -52,8 +51,7 @@ public class UserRequestDetails extends Panel {
             final String id,
             final UserRequest userRequest,
             final WebMarkupContainer container,
-            final NotificationPanel notificationPanel,
-            final PageReference pageRef) {
+            final NotificationPanel notificationPanel) {
 
         super(id);
 
@@ -70,7 +68,7 @@ public class UserRequestDetails extends Panel {
         } else {
             Form<Void> form = new Form<>("userRequestWrapForm");
 
-            form.add(new UserRequestFormPanel("userRequestFormPanel", pageRef, formTO, false) {
+            form.add(new UserRequestFormPanel("userRequestFormPanel", formTO, false) {
 
                 private static final long serialVersionUID = 3617895525072546591L;
 

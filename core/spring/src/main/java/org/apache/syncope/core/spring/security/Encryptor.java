@@ -24,7 +24,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -33,8 +32,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.jasypt.commons.CommonUtils;
 import org.jasypt.digest.StandardStringDigester;
 import org.slf4j.Logger;
@@ -49,85 +48,8 @@ public final class Encryptor {
 
     private static final String DEFAULT_SECRET_KEY = "1abcdefghilmnopqrstuvz2!";
 
-    /**
-     * Default value for salted {@link StandardStringDigester#setIterations(int)}.
-     */
-    private static final int DEFAULT_SALT_ITERATIONS = 1;
-
-    /**
-     * Default value for {@link StandardStringDigester#setSaltSizeBytes(int)}.
-     */
-    private static final int DEFAULT_SALT_SIZE_BYTES = 8;
-
-    /**
-     * Default value for {@link StandardStringDigester#setInvertPositionOfPlainSaltInEncryptionResults(boolean)}.
-     */
-    private static final boolean DEFAULT_IPOPSIER = true;
-
-    /**
-     * Default value for salted {@link StandardStringDigester#setInvertPositionOfSaltInMessageBeforeDigesting(boolean)}.
-     */
-    private static final boolean DEFAULT_IPOSIMBD = true;
-
-    /**
-     * Default value for salted {@link StandardStringDigester#setUseLenientSaltSizeCheck(boolean)}.
-     */
-    private static final boolean DEFAULT_ULSSC = true;
-
-    private static String SECRET_KEY;
-
-    private static Integer SALT_ITERATIONS;
-
-    private static Integer SALT_SIZE_BYTES;
-
-    private static Boolean IPOPSIER;
-
-    private static Boolean IPOSIMBD;
-
-    private static Boolean ULSSC;
-
-    static {
-        try {
-            Properties props = PropertyUtils.read(Encryptor.class, "security.properties", "conf.directory");
-
-            SECRET_KEY = props.getProperty("secretKey");
-            SALT_ITERATIONS = Integer.valueOf(props.getProperty("digester.saltIterations"));
-            SALT_SIZE_BYTES = Integer.valueOf(props.getProperty("digester.saltSizeBytes"));
-            IPOPSIER = Boolean.valueOf(props.getProperty("digester.invertPositionOfPlainSaltInEncryptionResults"));
-            IPOSIMBD = Boolean.valueOf(props.getProperty("digester.invertPositionOfSaltInMessageBeforeDigesting"));
-            ULSSC = Boolean.valueOf(props.getProperty("digester.useLenientSaltSizeCheck"));
-        } catch (Exception e) {
-            LOG.error("Could not read security parameters", e);
-        }
-
-        if (SECRET_KEY == null) {
-            SECRET_KEY = DEFAULT_SECRET_KEY;
-            LOG.debug("secretKey not found, reverting to default");
-        }
-        if (SALT_ITERATIONS == null) {
-            SALT_ITERATIONS = DEFAULT_SALT_ITERATIONS;
-            LOG.debug("digester.saltIterations not found, reverting to default");
-        }
-        if (SALT_SIZE_BYTES == null) {
-            SALT_SIZE_BYTES = DEFAULT_SALT_SIZE_BYTES;
-            LOG.debug("digester.saltSizeBytes not found, reverting to default");
-        }
-        if (IPOPSIER == null) {
-            IPOPSIER = DEFAULT_IPOPSIER;
-            LOG.debug("digester.invertPositionOfPlainSaltInEncryptionResults not found, reverting to default");
-        }
-        if (IPOSIMBD == null) {
-            IPOSIMBD = DEFAULT_IPOSIMBD;
-            LOG.debug("digester.invertPositionOfSaltInMessageBeforeDigesting not found, reverting to default");
-        }
-        if (ULSSC == null) {
-            ULSSC = DEFAULT_ULSSC;
-            LOG.debug("digester.useLenientSaltSizeCheck not found, reverting to default");
-        }
-    }
-
     public static Encryptor getInstance() {
-        return getInstance(SECRET_KEY);
+        return getInstance(null);
     }
 
     public static Encryptor getInstance(final String secretKey) {
@@ -233,13 +155,19 @@ public final class Encryptor {
             digester = new StandardStringDigester();
 
             if (cipherAlgorithm.getAlgorithm().startsWith("S-")) {
+                SecurityProperties securityProperties =
+                        ApplicationContextProvider.getApplicationContext().getBean(SecurityProperties.class);
+
                 // Salted ...
                 digester.setAlgorithm(cipherAlgorithm.getAlgorithm().replaceFirst("S\\-", ""));
-                digester.setIterations(SALT_ITERATIONS);
-                digester.setSaltSizeBytes(SALT_SIZE_BYTES);
-                digester.setInvertPositionOfPlainSaltInEncryptionResults(IPOPSIER);
-                digester.setInvertPositionOfSaltInMessageBeforeDigesting(IPOSIMBD);
-                digester.setUseLenientSaltSizeCheck(ULSSC);
+                digester.setIterations(securityProperties.getDigester().getSaltIterations());
+                digester.setSaltSizeBytes(securityProperties.getDigester().getSaltSizeBytes());
+                digester.setInvertPositionOfPlainSaltInEncryptionResults(
+                        securityProperties.getDigester().isInvertPositionOfPlainSaltInEncryptionResults());
+                digester.setInvertPositionOfSaltInMessageBeforeDigesting(
+                        securityProperties.getDigester().isInvertPositionOfSaltInMessageBeforeDigesting());
+                digester.setUseLenientSaltSizeCheck(
+                        securityProperties.getDigester().isUseLenientSaltSizeCheck());
             } else {
                 // Not salted ...
                 digester.setAlgorithm(cipherAlgorithm.getAlgorithm());

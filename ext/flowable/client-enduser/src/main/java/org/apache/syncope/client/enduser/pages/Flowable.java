@@ -78,15 +78,14 @@ public class Flowable extends BasePage {
             protected void populateItem(final Item<UserRequest> item) {
                 final UserRequest userRequest = item.getModelObject();
                 item.add(new Accordion("userRequestDetails", Collections.<ITab>singletonList(new AbstractTab(
-                    new StringResourceModel("user.requests.accordion", container, Model.of(userRequest))) {
+                        new StringResourceModel("user.requests.accordion", container, Model.of(userRequest))) {
 
                     private static final long serialVersionUID = 1037272333056449378L;
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
                         // find the form associated to the current request, if any
-                        return new UserRequestDetails(
-                            panelId, userRequest, container, notificationPanel, getPageReference());
+                        return new UserRequestDetails(panelId, userRequest, container, notificationPanel);
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
@@ -109,7 +108,7 @@ public class Flowable extends BasePage {
                     } catch (Exception e) {
                         LOG.error("Unable to start bpmnProcess [{}]", bpmnProcessModel.getObject(), e);
                         SyncopeEnduserSession.get()
-                            .error(String.format("Unable to start bpmnProcess [%s]", e.getMessage()));
+                                .error(String.format("Unable to start bpmnProcess [%s]", e.getMessage()));
                         notificationPanel.refresh(target);
                     }
                     target.add(container);
