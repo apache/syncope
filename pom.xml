@@ -479,8 +479,6 @@ under the License.
     <wicket-bootstrap.version>5.0.5</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
 
-    <netbeans.version>RELEASE124</netbeans.version>
-
     <antlr4.version>4.9.2</antlr4.version>
 
     <curator.version>5.2.0</curator.version>
@@ -1825,89 +1823,6 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-netbeans-api-annotations-common</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-windows</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-util</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-util-ui</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-util-lookup</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-awt</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-netbeans-modules-settings</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-io</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-nodes</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-text</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-filesystems</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-loaders</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-netbeans-core-multiview</artifactId>
-        <version>${netbeans.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-netbeans-modules-editor-lib2</artifactId>
-        <version>${netbeans.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-netbeans-api-progress</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-netbeans-api-progress-nb</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-runtime</artifactId>
         <version>${antlr4.version}</version>
@@ -2988,7 +2903,6 @@ under the License.
     <module>ext</module>
     <module>archetype</module>
     <module>standalone</module>
-    <module>ide</module>
   </modules>
 
 </project>
