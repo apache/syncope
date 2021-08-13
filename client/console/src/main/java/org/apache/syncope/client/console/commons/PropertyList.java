@@ -174,13 +174,11 @@ public abstract class PropertyList<T> implements List<String> {
         final StringBuilder builder = new StringBuilder();
         int index = 0;
         for (String str : enumerationValues) {
-            if (str != null) {
-                if (index > 0) {
-                    builder.append(SyncopeConstants.ENUM_VALUES_SEPARATOR);
-                }
-                index++;
-                builder.append(str.trim());
+            if (index > 0) {
+                builder.append(SyncopeConstants.ENUM_VALUES_SEPARATOR);
             }
+            index++;
+            builder.append(StringUtils.isEmpty(str) ? StringUtils.EMPTY : str.trim());
         }
         return builder.toString();
     }

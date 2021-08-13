@@ -176,7 +176,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         }.build(
                 "enumerationKeys",
                 "enumerationKeys",
-                new AjaxTextFieldPanel("panel", "enumerationKeys", new Model<String>()));
+                new AjaxTextFieldPanel("panel", "enumerationKeys", new Model<>(null)));
 
         WebMarkupContainer enumParams = new WebMarkupContainer("enumParams");
         enumParams.setOutputMarkupPlaceholderTag(true);
