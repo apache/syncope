@@ -20,8 +20,8 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -45,7 +45,7 @@ public class NotificationTaskTO extends TaskTO {
 
     private String entityKey;
 
-    private final Set<String> recipients = new HashSet<>();
+    private final Set<String> recipients = new TreeSet<>();
 
     private String sender;
 

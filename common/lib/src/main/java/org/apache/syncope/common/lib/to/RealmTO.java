@@ -21,10 +21,8 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -59,7 +57,7 @@ public class RealmTO extends BaseBean implements EntityTO, TemplatableTO {
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     private final Map<String, AnyTO> templates = new HashMap<>();
 
-    private final Set<String> resources = new HashSet<>();
+    private final List<String> resources = new ArrayList<>();
 
     @Override
     public String getKey() {
@@ -128,7 +126,7 @@ public class RealmTO extends BaseBean implements EntityTO, TemplatableTO {
     @XmlElementWrapper(name = "resources")
     @XmlElement(name = "resource")
     @JsonProperty("resources")
-    public Set<String> getResources() {
+    public List<String> getResources() {
         return resources;
     }
 

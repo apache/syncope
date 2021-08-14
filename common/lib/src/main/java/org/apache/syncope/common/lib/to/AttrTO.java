@@ -29,12 +29,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement(name = "attribute")
 @XmlType
-public class AttrTO implements Serializable {
+public class AttrTO implements Comparable<AttrTO>, Serializable {
 
     private static final long serialVersionUID = 4941691338796323623L;
 
@@ -103,6 +104,16 @@ public class AttrTO implements Serializable {
     @JsonProperty(value = "values", required = true)
     public List<String> getValues() {
         return values;
+    }
+
+    @Override
+    public int compareTo(final AttrTO other) {
+        return equals(other)
+                ? 0
+                : new CompareToBuilder().
+                        append(schema, other.schema).
+                        append(values, other.values).
+                        toComparison();
     }
 
     @Override
