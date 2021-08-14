@@ -18,10 +18,23 @@
  */
 package org.apache.syncope.client.console.audit;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonDiffPanel;
@@ -44,7 +57,68 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Multil
 
     private static final Logger LOG = LoggerFactory.getLogger(AuditHistoryDetails.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static class SortingNodeFactory extends JsonNodeFactory {
+
+        private static final long serialVersionUID = 1870252010670L;
+
+        @Override
+        public ObjectNode objectNode() {
+            return new ObjectNode(this, new TreeMap<>());
+        }
+    }
+
+    private static class SortedSetJsonSerializer extends StdSerializer<Set<?>> {
+
+        private static final long serialVersionUID = 3849059774309L;
+
+        SortedSetJsonSerializer(final Class<Set<?>> clazz) {
+            super(clazz);
+        }
+
+        @Override
+        public void serialize(
+                final Set<?> set,
+                final JsonGenerator gen,
+                final SerializerProvider sp) throws IOException {
+
+            if (set == null) {
+                gen.writeNull();
+                return;
+            }
+
+            gen.writeStartArray();
+
+            if (!set.isEmpty()) {
+                Set<?> sorted = set;
+
+                // create sorted set only if it itself is not already SortedSet
+                if (!SortedSet.class.isAssignableFrom(set.getClass())) {
+                    Object item = set.iterator().next();
+                    if (Comparable.class.isAssignableFrom(item.getClass())) {
+                        // and only if items are Comparable
+                        sorted = new TreeSet<>(set);
+                    } else {
+                        LOG.debug("Cannot sort items of type {}", item.getClass());
+                    }
+                }
+
+                for (Object item : sorted) {
+                    gen.writeObject(item);
+                }
+            }
+
+            gen.writeEndArray();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Class<T> cast(final Class<?> aClass) {
+        return (Class<T>) aClass;
+    }
+
+    private static final ObjectMapper MAPPER = JsonMapper.builder().
+            nodeFactory(new SortingNodeFactory()).build().
+            registerModule(new SimpleModule().addSerializer(new SortedSetJsonSerializer(cast(Set.class))));
 
     public AuditHistoryDetails(
             final MultilevelPanel mlp,
@@ -114,7 +188,9 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Multil
                     ? MAPPER.readTree(auditEntry.getOutput()).get("entity").toPrettyString()
                     : auditEntry.getBefore();
 
-            T entity = MAPPER.readValue(content, reference);
+            T entity = MAPPER.reader().
+                    with(StreamReadFeature.STRICT_DUPLICATE_DETECTION).
+                    readValue(content, reference);
             if (entity instanceof UserTO) {
                 UserTO userTO = (UserTO) entity;
                 userTO.setPassword(null);

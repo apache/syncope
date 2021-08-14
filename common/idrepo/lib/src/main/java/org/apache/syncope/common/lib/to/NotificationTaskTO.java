@@ -22,8 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -40,7 +40,7 @@ public class NotificationTaskTO extends TaskTO {
 
     private String entityKey;
 
-    private final Set<String> recipients = new HashSet<>();
+    private final Set<String> recipients = new TreeSet<>();
 
     private String sender;
 

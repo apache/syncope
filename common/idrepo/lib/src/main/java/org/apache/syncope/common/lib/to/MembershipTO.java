@@ -26,10 +26,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
@@ -90,11 +90,11 @@ public class MembershipTO implements BaseBean, Attributable {
 
     private String groupName;
 
-    private final Set<Attr> plainAttrs = new HashSet<>();
+    private final Set<Attr> plainAttrs = new TreeSet<>();
 
-    private final Set<Attr> derAttrs = new HashSet<>();
+    private final Set<Attr> derAttrs = new TreeSet<>();
 
-    private final Set<Attr> virAttrs = new HashSet<>();
+    private final Set<Attr> virAttrs = new TreeSet<>();
 
     public String getGroupKey() {
         return groupKey;

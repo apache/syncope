@@ -25,10 +25,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.ws.rs.PathParam;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class Attr implements BaseBean {
+public class Attr implements Comparable<Attr>, BaseBean {
 
     private static final long serialVersionUID = 4941691338796323623L;
 
@@ -95,6 +96,16 @@ public class Attr implements BaseBean {
     @JsonProperty(required = true)
     public List<String> getValues() {
         return values;
+    }
+
+    @Override
+    public int compareTo(final Attr other) {
+        return equals(other)
+                ? 0
+                : new CompareToBuilder().
+                        append(schema, other.schema).
+                        append(values, other.values).
+                        toComparison();
     }
 
     @Override

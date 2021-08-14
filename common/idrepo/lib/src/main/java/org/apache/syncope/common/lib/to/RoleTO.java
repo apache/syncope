@@ -21,9 +21,9 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -34,7 +34,7 @@ public class RoleTO implements EntityTO {
 
     private String key;
 
-    private final Set<String> entitlements = new HashSet<>();
+    private final Set<String> entitlements = new TreeSet<>();
 
     private final List<String> realms = new ArrayList<>();
 
@@ -42,7 +42,7 @@ public class RoleTO implements EntityTO {
 
     private String dynMembershipCond;
 
-    private final Set<String> privileges = new HashSet<>();
+    private final Set<String> privileges = new TreeSet<>();
 
     @Override
     public String getKey() {
