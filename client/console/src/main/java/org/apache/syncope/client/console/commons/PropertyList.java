@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 
@@ -171,18 +172,9 @@ public abstract class PropertyList<T> implements List<String> {
     }
 
     public static String getEnumValuesAsString(final List<String> enumerationValues) {
-        final StringBuilder builder = new StringBuilder();
-        int index = 0;
-        for (String str : enumerationValues) {
-            if (str != null) {
-                if (index > 0) {
-                    builder.append(SyncopeConstants.ENUM_VALUES_SEPARATOR);
-                }
-                index++;
-                builder.append(str.trim());
-            }
-        }
-        return builder.toString();
+        return enumerationValues.stream().
+                map(v -> StringUtils.isEmpty(v) ? StringUtils.EMPTY : v.trim()).
+                collect(Collectors.joining(SyncopeConstants.ENUM_VALUES_SEPARATOR));
     }
 
     public static List<String> getEnumValuesAsList(final String enumerationValues) {
