@@ -21,9 +21,9 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -63,11 +63,11 @@ public class MembershipTO implements Serializable, AttributableTO {
 
     private String groupName;
 
-    private final Set<AttrTO> plainAttrs = new HashSet<>();
+    private final Set<AttrTO> plainAttrs = new TreeSet<>();
 
-    private final Set<AttrTO> derAttrs = new HashSet<>();
+    private final Set<AttrTO> derAttrs = new TreeSet<>();
 
-    private final Set<AttrTO> virAttrs = new HashSet<>();
+    private final Set<AttrTO> virAttrs = new TreeSet<>();
 
     public String getGroupKey() {
         return groupKey;
@@ -162,8 +162,8 @@ public class MembershipTO implements Serializable, AttributableTO {
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).
-            append(this.groupKey).
-            append(this.groupName).
-            build();
+                append(this.groupKey).
+                append(this.groupName).
+                build();
     }
 }

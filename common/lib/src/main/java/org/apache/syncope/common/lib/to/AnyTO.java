@@ -24,10 +24,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlSeeAlso;
@@ -61,13 +61,13 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
 
     private final List<String> auxClasses = new ArrayList<>();
 
-    private final Set<AttrTO> plainAttrs = new HashSet<>();
+    private final Set<AttrTO> plainAttrs = new TreeSet<>();
 
-    private final Set<AttrTO> derAttrs = new HashSet<>();
+    private final Set<AttrTO> derAttrs = new TreeSet<>();
 
-    private final Set<AttrTO> virAttrs = new HashSet<>();
+    private final Set<AttrTO> virAttrs = new TreeSet<>();
 
-    private final Set<String> resources = new HashSet<>();
+    private final Set<String> resources = new TreeSet<>();
 
     @Schema(name = "@class", required = true)
     public abstract String getDiscriminator();

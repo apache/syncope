@@ -21,9 +21,9 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
-import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -39,7 +39,7 @@ public class ConnObjectTO implements Serializable {
 
     private String fiql;
 
-    private final Set<AttrTO> attrs = new LinkedHashSet<>();
+    private final Set<AttrTO> attrs = new TreeSet<>();
 
     public String getFiql() {
         return fiql;

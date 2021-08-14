@@ -23,10 +23,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -48,7 +48,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private final List<String> dynRoles = new ArrayList<>();
 
-    private final Set<String> privileges = new HashSet<>();
+    private final Set<String> privileges = new TreeSet<>();
 
     private String token;
 

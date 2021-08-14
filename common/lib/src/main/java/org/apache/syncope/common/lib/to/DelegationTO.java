@@ -21,8 +21,8 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -43,7 +43,7 @@ public class DelegationTO extends AbstractStartEndBean implements EntityTO {
 
     private String delegated;
 
-    private final Set<String> roles = new HashSet<>();
+    private final Set<String> roles = new TreeSet<>();
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @Override
