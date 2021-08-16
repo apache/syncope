@@ -25,10 +25,10 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -70,7 +70,7 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private final List<String> dynRoles = new ArrayList<>();
 
-    private final Set<String> privileges = new HashSet<>();
+    private final Set<String> privileges = new TreeSet<>();
 
     private final List<LinkedAccountTO> linkedAccounts = new ArrayList<>();
 

@@ -21,9 +21,9 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
@@ -78,9 +78,9 @@ public class LinkedAccountTO implements EntityTO {
 
     private boolean suspended;
 
-    private final Set<Attr> plainAttrs = new HashSet<>();
+    private final Set<Attr> plainAttrs = new TreeSet<>();
 
-    private final Set<String> privileges = new HashSet<>();
+    private final Set<String> privileges = new TreeSet<>();
 
     @Override
     public String getKey() {

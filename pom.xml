@@ -407,7 +407,7 @@ under the License.
 
     <cxf.version>3.4.4</cxf.version>
     <bouncycastle.version>1.69</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.11.3</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.12.1</nimbus-jose-jwt.version>
 
     <jackson.version>2.12.4</jackson.version>
 
@@ -430,7 +430,7 @@ under the License.
 
     <camel.version>3.11.1</camel.version>
 
-    <slf4j.version>2.0.0-alpha2</slf4j.version>
+    <slf4j.version>2.0.0-alpha4</slf4j.version>
 
     <elasticsearch.version>7.14.0</elasticsearch.version>
 
@@ -478,8 +478,6 @@ under the License.
     <wicket-jqueryui.version>9.3.2</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.5</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
-
-    <netbeans.version>RELEASE124</netbeans.version>
 
     <antlr4.version>4.9.2</antlr4.version>
 
@@ -1825,89 +1823,6 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-netbeans-api-annotations-common</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-windows</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-util</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-util-ui</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-util-lookup</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-awt</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-netbeans-modules-settings</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-io</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-nodes</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-text</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-filesystems</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-openide-loaders</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-netbeans-core-multiview</artifactId>
-        <version>${netbeans.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-netbeans-modules-editor-lib2</artifactId>
-        <version>${netbeans.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-netbeans-api-progress</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.netbeans.api</groupId>
-        <artifactId>org-netbeans-api-progress-nb</artifactId>
-        <version>${netbeans.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-runtime</artifactId>
         <version>${antlr4.version}</version>
@@ -2320,7 +2235,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.45</version>
+              <version>8.45.1</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2339,12 +2254,6 @@ under the License.
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
           <version>3.3.0</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>nbm-maven-plugin</artifactId>
-          <version>4.1</version>
         </plugin>
 
         <plugin>
@@ -2988,7 +2897,6 @@ under the License.
     <module>ext</module>
     <module>archetype</module>
     <module>standalone</module>
-    <module>ide</module>
   </modules>
 
 </project>

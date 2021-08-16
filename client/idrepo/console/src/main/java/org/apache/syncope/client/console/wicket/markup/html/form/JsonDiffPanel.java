@@ -30,10 +30,6 @@ public class JsonDiffPanel extends AbstractModalPanel<String> {
 
     private static final long serialVersionUID = -5110368813584745668L;
 
-    private final IModel<String> first;
-
-    private final IModel<String> second;
-
     public JsonDiffPanel(
             final BaseModal<String> modal,
             final IModel<String> first,
@@ -41,13 +37,13 @@ public class JsonDiffPanel extends AbstractModalPanel<String> {
             final PageReference pageRef) {
 
         super(modal, pageRef);
-        this.second = second;
-        this.first = first;
-        TextArea<String> jsonEditorInfoDefArea1 = new TextArea<>("jsonEditorInfo1", this.first);
-        TextArea<String> jsonEditorInfoDefArea2 = new TextArea<>("jsonEditorInfo2", this.second);
+
+        TextArea<String> jsonEditorInfoDefArea1 = new TextArea<>("jsonEditorInfo1", first);
         jsonEditorInfoDefArea1.setMarkupId("jsonEditorInfo1").setOutputMarkupPlaceholderTag(true);
-        jsonEditorInfoDefArea2.setMarkupId("jsonEditorInfo2").setOutputMarkupPlaceholderTag(true);
         add(jsonEditorInfoDefArea1);
+
+        TextArea<String> jsonEditorInfoDefArea2 = new TextArea<>("jsonEditorInfo2", second);
+        jsonEditorInfoDefArea2.setMarkupId("jsonEditorInfo2").setOutputMarkupPlaceholderTag(true);
         add(jsonEditorInfoDefArea2);
     }
 

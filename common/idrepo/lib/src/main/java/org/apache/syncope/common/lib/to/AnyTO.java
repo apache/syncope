@@ -28,7 +28,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -82,15 +82,15 @@ public abstract class AnyTO implements EntityTO, RealmMember {
 
     private String status;
 
-    private final Set<String> auxClasses = new HashSet<>();
+    private final Set<String> auxClasses = new TreeSet<>();
 
-    private final Set<Attr> plainAttrs = new HashSet<>();
+    private final Set<Attr> plainAttrs = new TreeSet<>();
 
-    private final Set<Attr> derAttrs = new HashSet<>();
+    private final Set<Attr> derAttrs = new TreeSet<>();
 
-    private final Set<Attr> virAttrs = new HashSet<>();
+    private final Set<Attr> virAttrs = new TreeSet<>();
 
-    private final Set<String> resources = new HashSet<>();
+    private final Set<String> resources = new TreeSet<>();
 
     @Schema(name = "_class", required = true)
     public abstract String getDiscriminator();

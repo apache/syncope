@@ -22,10 +22,8 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -56,7 +54,7 @@ public class RealmTO implements NamedEntityTO, TemplatableTO {
 
     private final Map<String, AnyTO> templates = new HashMap<>();
 
-    private final Set<String> resources = new HashSet<>();
+    private final List<String> resources = new ArrayList<>();
 
     @Override
     public String getKey() {
@@ -148,7 +146,7 @@ public class RealmTO implements NamedEntityTO, TemplatableTO {
 
     @JacksonXmlElementWrapper(localName = "resources")
     @JacksonXmlProperty(localName = "resource")
-    public Set<String> getResources() {
+    public List<String> getResources() {
         return resources;
     }
 
