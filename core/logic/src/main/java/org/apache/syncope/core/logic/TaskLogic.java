@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -450,6 +451,11 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         }
 
         doActionJob(JobNamer.getJobKey(task), action);
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
+    public List<PropagationTaskTO> purgePropagations(final Date since, final List<ExecStatus> statuses) {
+        return taskDAO.purgePropagations(since, statuses);
     }
 
     @Override

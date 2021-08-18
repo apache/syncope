@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
@@ -26,6 +27,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
@@ -34,6 +36,7 @@ import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.logic.TaskLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class TaskServiceImpl extends AbstractExecutableService implements TaskService {
@@ -90,5 +93,14 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     @Override
     public void update(final TaskType type, final SchedTaskTO taskTO) {
         logic.updateSchedTask(type, taskTO);
+    }
+
+    @Override
+    public Response purgePropagations(final Date since, final List<ExecStatus> statuses) {
+        if (since == null && CollectionUtils.isEmpty(statuses)) {
+            return Response.status(Response.Status.PRECONDITION_FAILED).build();
+        }
+
+        return Response.ok(logic.purgePropagations(since, statuses)).build();
     }
 }

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -39,6 +40,8 @@ import org.apache.syncope.client.lib.batch.BatchRequest;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.ws.rs.core.GenericType;
+import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -265,6 +268,26 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         } finally {
             resourceService.delete(ldap.getKey());
         }
+    }
+
+    @Test
+    public void purgePropagations() {
+        try {
+            taskService.purgePropagations(null, null);
+            fail();
+        } catch (WebServiceException e) {
+            assertNotNull(e);
+        }
+
+        Calendar oneWeekAgo = Calendar.getInstance();
+        oneWeekAgo.add(Calendar.WEEK_OF_YEAR, -1);
+        Response response = taskService.purgePropagations(
+                oneWeekAgo.getTime(), Collections.singletonList(ExecStatus.SUCCESS));
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        List<PropagationTaskTO> deleted = response.readEntity(new GenericType<List<PropagationTaskTO>>() {
+        });
+        assertNotNull(deleted);
     }
 
     @Test

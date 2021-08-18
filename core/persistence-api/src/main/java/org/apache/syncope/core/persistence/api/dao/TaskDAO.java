@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.Date;
 import java.util.List;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -73,4 +76,5 @@ public interface TaskDAO extends DAO<Task> {
 
     void deleteAll(ExternalResource resource, TaskType type);
 
+    List<PropagationTaskTO> purgePropagations(Date since, List<ExecStatus> statuses);
 }
