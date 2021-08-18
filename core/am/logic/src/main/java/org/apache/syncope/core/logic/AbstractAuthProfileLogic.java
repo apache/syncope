@@ -23,15 +23,17 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractAuthProfileLogic extends AbstractTransactionalLogic<AuthProfileTO> {
 
-    @Autowired
-    protected AuthProfileDAO authProfileDAO;
+    protected final AuthProfileDAO authProfileDAO;
 
-    @Autowired
-    protected AuthProfileDataBinder binder;
+    protected final AuthProfileDataBinder binder;
+
+    public AbstractAuthProfileLogic(final AuthProfileDAO authProfileDAO, final AuthProfileDataBinder binder) {
+        this.authProfileDAO = authProfileDAO;
+        this.binder = binder;
+    }
 
     @Override
     protected AuthProfileTO resolveReference(final Method method, final Object... args)

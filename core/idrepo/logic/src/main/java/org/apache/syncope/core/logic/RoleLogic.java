@@ -32,19 +32,19 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
 
-    @Autowired
-    private RoleDataBinder binder;
+    protected final RoleDataBinder binder;
 
-    @Autowired
-    private RoleDAO roleDAO;
+    protected final RoleDAO roleDAO;
+
+    public RoleLogic(final RoleDataBinder binder, final RoleDAO roleDAO) {
+        this.binder = binder;
+        this.roleDAO = roleDAO;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_READ + "')")
     @Transactional(readOnly = true)

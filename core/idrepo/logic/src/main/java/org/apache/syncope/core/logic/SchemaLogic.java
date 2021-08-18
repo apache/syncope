@@ -45,30 +45,36 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
+    protected final PlainSchemaDAO plainSchemaDAO;
 
-    @Autowired
-    private DerSchemaDAO derSchemaDAO;
+    protected final DerSchemaDAO derSchemaDAO;
 
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    private AnyTypeClassDAO anyTypeClassDAO;
+    protected final AnyTypeClassDAO anyTypeClassDAO;
 
-    @Autowired
-    private SchemaDataBinder binder;
+    protected final SchemaDataBinder binder;
 
-    private boolean doesSchemaExist(final SchemaType schemaType, final String name) {
+    public SchemaLogic(
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
+            final SchemaDataBinder binder) {
+
+        this.plainSchemaDAO = plainSchemaDAO;
+        this.derSchemaDAO = derSchemaDAO;
+        this.virSchemaDAO = virSchemaDAO;
+        this.anyTypeClassDAO = anyTypeClassDAO;
+        this.binder = binder;
+    }
+
+    protected boolean doesSchemaExist(final SchemaType schemaType, final String name) {
         boolean found;
 
         switch (schemaType) {

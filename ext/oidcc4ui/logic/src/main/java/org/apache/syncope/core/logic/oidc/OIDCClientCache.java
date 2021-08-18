@@ -40,19 +40,17 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * Basic in-memory cache for available {@link OidcClient} instances.
  */
-@Component
 public class OIDCClientCache {
 
     protected static final Logger LOG = LoggerFactory.getLogger(OIDCClientCache.class);
 
-    private final List<OidcClient> cache = Collections.synchronizedList(new ArrayList<>());
+    protected final List<OidcClient> cache = Collections.synchronizedList(new ArrayList<>());
 
-    private static OIDCProviderMetadata getDiscoveryDocument(final String issuer) {
+    protected static OIDCProviderMetadata getDiscoveryDocument(final String issuer) {
         String discoveryDocumentURL = issuer + "/.well-known/openid-configuration";
         try {
             HttpResponse<String> response = HttpClient.newBuilder().build().send(

@@ -29,19 +29,19 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class AuthModuleLogic extends AbstractTransactionalLogic<AuthModuleTO> {
 
-    @Autowired
-    private AuthModuleDataBinder binder;
+    protected final AuthModuleDataBinder binder;
 
-    @Autowired
-    private AuthModuleDAO authModuleDAO;
+    protected final AuthModuleDAO authModuleDAO;
+
+    public AuthModuleLogic(final AuthModuleDataBinder binder, final AuthModuleDAO authModuleDAO) {
+        this.binder = binder;
+        this.authModuleDAO = authModuleDAO;
+    }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_MODULE_CREATE + "')")
     public AuthModuleTO create(final AuthModuleTO authModuleTO) {

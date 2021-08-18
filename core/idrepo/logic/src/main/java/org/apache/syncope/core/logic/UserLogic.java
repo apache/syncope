@@ -46,9 +46,11 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -59,45 +61,61 @@ import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Note that this controller does not extend {@link AbstractTransactionalLogic}, hence does not provide any
  * Spring's Transactional logic at class level.
  */
-@Component
 public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
-    @Autowired
-    protected UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    protected GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    protected AnySearchDAO searchDAO;
+    protected final AnySearchDAO searchDAO;
 
-    @Autowired
-    protected AccessTokenDAO accessTokenDAO;
+    protected final AccessTokenDAO accessTokenDAO;
 
-    @Autowired
-    protected DelegationDAO delegationDAO;
+    protected final DelegationDAO delegationDAO;
 
-    @Autowired
-    protected ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
 
-    @Autowired
-    protected UserDataBinder binder;
+    protected final UserDataBinder binder;
 
-    @Autowired
-    protected UserProvisioningManager provisioningManager;
+    protected final UserProvisioningManager provisioningManager;
 
-    @Autowired
-    protected SyncopeLogic syncopeLogic;
+    protected final SyncopeLogic syncopeLogic;
+
+    public UserLogic(
+            final RealmDAO realmDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final TemplateUtils templateUtils,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnySearchDAO searchDAO,
+            final AccessTokenDAO accessTokenDAO,
+            final DelegationDAO delegationDAO,
+            final ConfParamOps confParamOps,
+            final UserDataBinder binder,
+            final UserProvisioningManager provisioningManager,
+            final SyncopeLogic syncopeLogic) {
+
+        super(realmDAO, anyTypeDAO, templateUtils);
+
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.searchDAO = searchDAO;
+        this.accessTokenDAO = accessTokenDAO;
+        this.delegationDAO = delegationDAO;
+        this.confParamOps = confParamOps;
+        this.binder = binder;
+        this.provisioningManager = provisioningManager;
+        this.syncopeLogic = syncopeLogic;
+    }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
     @Transactional(readOnly = true)

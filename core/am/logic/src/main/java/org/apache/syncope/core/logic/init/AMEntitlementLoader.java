@@ -21,9 +21,7 @@ package org.apache.syncope.core.logic.init;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AMEntitlementLoader implements SyncopeCoreLoader {
 
     @Override

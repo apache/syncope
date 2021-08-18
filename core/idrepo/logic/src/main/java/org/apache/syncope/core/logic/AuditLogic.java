@@ -54,7 +54,6 @@ import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -70,37 +69,46 @@ import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 
-@Component
 public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
-    @Autowired
-    private AuditLoader auditLoader;
+    protected final AuditLoader auditLoader;
 
-    @Autowired
-    private AuditConfDAO auditDAO;
+    protected final AuditConfDAO auditConfDAO;
 
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private AuditDataBinder binder;
+    protected final AuditDataBinder binder;
 
-    @Autowired
-    private AuditManager auditManager;
+    protected final AuditManager auditManager;
+
+    public AuditLogic(
+            final AuditLoader auditLoader,
+            final AuditConfDAO auditConfDAO,
+            final ExternalResourceDAO resourceDAO,
+            final EntityFactory entityFactory,
+            final AuditDataBinder binder,
+            final AuditManager auditManager) {
+
+        this.auditLoader = auditLoader;
+        this.auditConfDAO = auditConfDAO;
+        this.resourceDAO = resourceDAO;
+        this.entityFactory = entityFactory;
+        this.binder = binder;
+        this.auditManager = auditManager;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_LIST + "')")
     @Transactional(readOnly = true)
     public List<AuditConfTO> list() {
-        return auditDAO.findAll().stream().map(binder::getAuditTO).collect(Collectors.toList());
+        return auditConfDAO.findAll().stream().map(binder::getAuditTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_READ + "')")
     @Transactional(readOnly = true)
     public AuditConfTO read(final String key) {
-        return Optional.ofNullable(auditDAO.find(key)).map(binder::getAuditTO).
+        return Optional.ofNullable(auditConfDAO.find(key)).map(binder::getAuditTO).
                 orElseThrow(() -> new NotFoundException("Audit " + key));
     }
 
@@ -109,7 +117,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
         AuditConf audit = entityFactory.newEntity(AuditConf.class);
         audit.setKey(auditTO.getKey());
         audit.setActive(auditTO.isActive());
-        audit = auditDAO.save(audit);
+        audit = auditConfDAO.save(audit);
 
         if (audit.isActive()) {
             setLevel(audit.getKey(), Level.DEBUG);
@@ -118,10 +126,10 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_UPDATE + "')")
     public void update(final AuditConfTO auditTO) {
-        AuditConf audit = Optional.ofNullable(auditDAO.find(auditTO.getKey())).
+        AuditConf audit = Optional.ofNullable(auditConfDAO.find(auditTO.getKey())).
                 orElseThrow(() -> new NotFoundException("Audit " + auditTO.getKey()));
         audit.setActive(auditTO.isActive());
-        audit = auditDAO.save(audit);
+        audit = auditConfDAO.save(audit);
 
         if (audit.isActive()) {
             setLevel(audit.getKey(), Level.OFF);
@@ -130,14 +138,14 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_DELETE + "')")
     public void delete(final String key) {
-        AuditConf audit = Optional.ofNullable(auditDAO.find(key)).
+        AuditConf audit = Optional.ofNullable(auditConfDAO.find(key)).
                 orElseThrow(() -> new NotFoundException("Audit " + key));
-        auditDAO.delete(audit);
+        auditConfDAO.delete(audit);
 
         setLevel(audit.getKey(), Level.OFF);
     }
 
-    private void setLevel(final String key, final Level level) {
+    protected void setLevel(final String key, final Level level) {
         String auditLoggerName = AuditLoggerName.getAuditEventLoggerName(AuthContextUtils.getDomain(), key);
 
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
@@ -264,8 +272,8 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             final AuditElements.Result result,
             final List<OrderByClause> orderByClauses) {
 
-        int count = auditDAO.countEntries(entityKey, type, category, subcategory, events, result);
-        List<AuditEntry> matching = auditDAO.searchEntries(
+        int count = auditConfDAO.countEntries(entityKey, type, category, subcategory, events, result);
+        List<AuditEntry> matching = auditConfDAO.searchEntries(
                 entityKey, page, size, type, category, subcategory, events, result, orderByClauses);
         return Pair.of(count, matching);
     }
@@ -312,7 +320,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
         if (key != null) {
             try {
-                return binder.getAuditTO(auditDAO.find(key));
+                return binder.getAuditTO(auditConfDAO.find(key));
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

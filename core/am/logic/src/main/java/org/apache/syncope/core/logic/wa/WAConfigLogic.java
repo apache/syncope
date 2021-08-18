@@ -44,25 +44,30 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
 import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
 
-    @Autowired
-    private ServiceOps serviceOps;
+    protected final ServiceOps serviceOps;
 
-    @Autowired
-    private WAConfigDataBinder binder;
+    protected final WAConfigDataBinder binder;
 
-    @Autowired
-    private WAConfigDAO waConfigDAO;
+    protected final WAConfigDAO waConfigDAO;
 
-    @Autowired
-    private SecurityProperties securityProperties;
+    protected final SecurityProperties securityProperties;
+
+    public WAConfigLogic(
+            final ServiceOps serviceOps,
+            final WAConfigDataBinder binder,
+            final WAConfigDAO waConfigDAO,
+            final SecurityProperties securityProperties) {
+
+        this.serviceOps = serviceOps;
+        this.binder = binder;
+        this.waConfigDAO = waConfigDAO;
+        this.securityProperties = securityProperties;
+    }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_LIST + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)

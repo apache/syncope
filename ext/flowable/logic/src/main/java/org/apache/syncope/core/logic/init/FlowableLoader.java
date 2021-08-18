@@ -35,20 +35,20 @@ import org.flowable.engine.impl.db.DbIdGenerator;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 
-@Component
 public class FlowableLoader implements SyncopeCoreLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FlowableLoader.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(FlowableLoader.class);
 
-    @javax.annotation.Resource(name = "userWorkflowDef")
-    private Resource userWorkflowDef;
+    protected final Resource userWorkflowDef;
 
-    @Autowired
-    private DomainProcessEngine dpEngine;
+    protected final DomainProcessEngine dpEngine;
+
+    public FlowableLoader(final Resource userWorkflowDef, final DomainProcessEngine dpEngine) {
+        this.userWorkflowDef = userWorkflowDef;
+        this.dpEngine = dpEngine;
+    }
 
     @Override
     public int getOrder() {

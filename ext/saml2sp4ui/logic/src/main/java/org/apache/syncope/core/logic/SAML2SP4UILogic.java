@@ -56,9 +56,7 @@ import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.pac4j.core.context.session.SessionStore;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -90,40 +88,49 @@ import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 
-@Component
 public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
-    private static final String JWT_CLAIM_IDP_ENTITYID = "IDP_ENTITYID";
+    protected static final String JWT_CLAIM_IDP_ENTITYID = "IDP_ENTITYID";
 
-    private static final String JWT_CLAIM_NAMEID_FORMAT = "NAMEID_FORMAT";
+    protected static final String JWT_CLAIM_NAMEID_FORMAT = "NAMEID_FORMAT";
 
-    private static final String JWT_CLAIM_NAMEID_VALUE = "NAMEID_VALUE";
+    protected static final String JWT_CLAIM_NAMEID_VALUE = "NAMEID_VALUE";
 
-    private static final String JWT_CLAIM_SESSIONINDEX = "SESSIONINDEX";
+    protected static final String JWT_CLAIM_SESSIONINDEX = "SESSIONINDEX";
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
-    @Autowired
-    private SAML2SP4UILoader loader;
+    protected final SAML2SP4UILoader loader;
 
-    @Autowired
-    private AccessTokenDataBinder accessTokenDataBinder;
+    protected final AccessTokenDataBinder accessTokenDataBinder;
 
-    @Autowired
-    private SAML2ClientCache saml2ClientCache;
+    protected final SAML2ClientCache saml2ClientCache;
 
-    @Autowired
-    private SAML2SP4UIUserManager userManager;
+    protected final SAML2SP4UIUserManager userManager;
 
-    @Autowired
-    private SAML2SP4UIIdPDAO idpDAO;
+    protected final SAML2SP4UIIdPDAO idpDAO;
 
-    @Autowired
-    private AuthDataAccessor authDataAccessor;
+    protected final AuthDataAccessor authDataAccessor;
 
-    private final Map<String, String> metadataCache = new ConcurrentHashMap<>();
+    protected final Map<String, String> metadataCache = new ConcurrentHashMap<>();
 
-    private static String validateUrl(final String url) {
+    public SAML2SP4UILogic(
+            final SAML2SP4UILoader loader,
+            final AccessTokenDataBinder accessTokenDataBinder,
+            final SAML2ClientCache saml2ClientCache,
+            final SAML2SP4UIUserManager userManager,
+            final SAML2SP4UIIdPDAO idpDAO,
+            final AuthDataAccessor authDataAccessor) {
+
+        this.loader = loader;
+        this.accessTokenDataBinder = accessTokenDataBinder;
+        this.saml2ClientCache = saml2ClientCache;
+        this.userManager = userManager;
+        this.idpDAO = idpDAO;
+        this.authDataAccessor = authDataAccessor;
+    }
+
+    protected static String validateUrl(final String url) {
         boolean isValid = true;
         if (url.contains("..")) {
             isValid = false;
@@ -141,7 +148,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         return url;
     }
 
-    private static String getCallbackUrl(final String spEntityID, final String urlContext) {
+    protected static String getCallbackUrl(final String spEntityID, final String urlContext) {
         return validateUrl(spEntityID + urlContext + "/assertion-consumer");
     }
 
@@ -195,13 +202,13 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         }
     }
 
-    private SAML2Client getSAML2Client(final SAML2SP4UIIdP idp, final String spEntityID, final String urlContext) {
+    protected SAML2Client getSAML2Client(final SAML2SP4UIIdP idp, final String spEntityID, final String urlContext) {
         return saml2ClientCache.get(idp.getEntityID(), spEntityID).
                 orElseGet(() -> saml2ClientCache.add(
                 idp, loader.newSAML2Configuration(), spEntityID, getCallbackUrl(spEntityID, urlContext)));
     }
 
-    private SAML2Client getSAML2Client(final String idpEntityID, final String spEntityID, final String urlContext) {
+    protected SAML2Client getSAML2Client(final String idpEntityID, final String spEntityID, final String urlContext) {
         SAML2SP4UIIdP idp = idpDAO.findByEntityID(idpEntityID);
         if (idp == null) {
             throw new NotFoundException("SAML 2.0 IdP '" + idpEntityID + '\'');
@@ -210,7 +217,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         return getSAML2Client(idp, spEntityID, urlContext);
     }
 
-    private static SAML2Request buildRequest(final String idpEntityID, final RedirectionAction action) {
+    protected static SAML2Request buildRequest(final String idpEntityID, final RedirectionAction action) {
         SAML2Request requestTO = new SAML2Request();
         requestTO.setIdpEntityID(idpEntityID);
         if (action instanceof WithLocationAction) {

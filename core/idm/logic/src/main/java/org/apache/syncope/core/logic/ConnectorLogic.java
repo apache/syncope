@@ -52,30 +52,36 @@ import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
-    @Autowired
-    private ConnIdBundleManager connIdBundleManager;
+    protected final ConnIdBundleManager connIdBundleManager;
 
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    private ConnInstanceDAO connInstanceDAO;
+    protected final ConnInstanceDAO connInstanceDAO;
 
-    @Autowired
-    private ConnInstanceDataBinder binder;
+    protected final ConnInstanceDataBinder binder;
 
-    @Autowired
-    private ConnectorFactory connFactory;
+    protected final ConnectorFactory connFactory;
 
-    protected static void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
+    public ConnectorLogic(
+            final ConnIdBundleManager connIdBundleManager,
+            final ExternalResourceDAO resourceDAO,
+            final ConnInstanceDAO connInstanceDAO,
+            final ConnInstanceDataBinder binder,
+            final ConnectorFactory connFactory) {
+
+        this.connIdBundleManager = connIdBundleManager;
+        this.resourceDAO = resourceDAO;
+        this.connInstanceDAO = connInstanceDAO;
+        this.binder = binder;
+        this.connFactory = connFactory;
+    }
+
+    protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
         boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
         if (!authorized) {
             throw new DelegatedAdministrationException(realm, ConnInstance.class.getSimpleName(), key);

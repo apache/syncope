@@ -30,11 +30,19 @@ import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
 import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalConfParamOps;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalDomainOps;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalServiceOps;
+import org.apache.syncope.core.logic.ConfParamLogic;
+import org.apache.syncope.core.logic.DomainLogic;
+import org.apache.syncope.core.logic.NetworkServiceLogic;
+import org.apache.syncope.core.persistence.api.dao.ConfParamDAO;
+import org.apache.syncope.core.persistence.api.dao.DomainDAO;
+import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
+import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
 import org.apache.syncope.core.rest.security.SelfKeymasterUsernamePasswordAuthenticationProvider;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
@@ -42,6 +50,7 @@ import org.apache.syncope.core.spring.security.WebSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -70,6 +79,9 @@ public class SelfKeymasterContext {
                     "Keymaster address not set for Self: " + keymasterAddress);
         }
     }
+
+    @Autowired
+    private SelfKeymasterEntityFactory entityFactory;
 
     @Autowired
     private Bus bus;
@@ -126,5 +138,32 @@ public class SelfKeymasterContext {
     @Bean
     public DomainOps domainOps() {
         return new SelfKeymasterInternalDomainOps();
+    }
+
+    @Conditional(SelfKeymasterCondition.class)
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public ConfParamLogic confParamLogic(final ConfParamDAO confParamDAO) {
+        return new ConfParamLogic(confParamDAO, entityFactory);
+    }
+
+    @Conditional(SelfKeymasterCondition.class)
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public DomainLogic domainLogic(
+            final DomainDAO domainDAO,
+            final DomainWatcher domainWatcher) {
+
+        return new DomainLogic(domainDAO, entityFactory, domainWatcher);
+    }
+
+    @Conditional(SelfKeymasterCondition.class)
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public NetworkServiceLogic networkServiceLogic(final NetworkServiceDAO serviceDAO) {
+        return new NetworkServiceLogic(serviceDAO, entityFactory);
     }
 }

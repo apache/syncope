@@ -42,27 +42,33 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SRARoute;
 import org.apache.syncope.core.provisioning.api.data.SRARouteDataBinder;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
 
-    @Autowired
-    private SRARouteDAO routeDAO;
+    protected final SRARouteDAO routeDAO;
 
-    @Autowired
-    private SRARouteDataBinder binder;
+    protected final SRARouteDataBinder binder;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private ServiceOps serviceOps;
+    protected final ServiceOps serviceOps;
 
-    @Autowired
-    private SecurityProperties securityProperties;
+    protected final SecurityProperties securityProperties;
+
+    public SRARouteLogic(
+            final SRARouteDAO routeDAO,
+            final SRARouteDataBinder binder,
+            final EntityFactory entityFactory,
+            final ServiceOps serviceOps,
+            final SecurityProperties securityProperties) {
+
+        this.routeDAO = routeDAO;
+        this.binder = binder;
+        this.entityFactory = entityFactory;
+        this.serviceOps = serviceOps;
+        this.securityProperties = securityProperties;
+    }
 
     @PreAuthorize("isAuthenticated()")
     public List<SRARouteTO> list() {

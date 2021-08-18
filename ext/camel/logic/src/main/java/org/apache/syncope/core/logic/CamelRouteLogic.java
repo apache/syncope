@@ -39,22 +39,26 @@ import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 import org.apache.syncope.core.provisioning.api.data.CamelRouteDataBinder;
 import org.apache.syncope.core.provisioning.camel.CamelException;
 import org.apache.syncope.core.provisioning.camel.SyncopeCamelContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
 
-    @Autowired
-    private CamelRouteDAO routeDAO;
+    protected final CamelRouteDAO routeDAO;
 
-    @Autowired
-    private CamelRouteDataBinder binder;
+    protected final CamelRouteDataBinder binder;
 
-    @Autowired
-    private SyncopeCamelContext context;
+    protected final SyncopeCamelContext context;
+
+    public CamelRouteLogic(
+            final CamelRouteDAO routeDAO,
+            final CamelRouteDataBinder binder,
+            final SyncopeCamelContext context) {
+
+        this.routeDAO = routeDAO;
+        this.binder = binder;
+        this.context = context;
+    }
 
     @PreAuthorize("hasRole('" + CamelEntitlement.ROUTE_LIST + "')")
     @Transactional(readOnly = true)
@@ -133,7 +137,7 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
             }).forEachOrdered(meanRate -> metrics.getResponseMeanRates().add(meanRate));
 
             metrics.getResponseMeanRates().sort((o1, o2) -> Collections.reverseOrder(Comparator.<Double>naturalOrder()).
-                compare(o1.getValue(), o2.getValue()));
+                    compare(o1.getValue(), o2.getValue()));
         }
 
         return metrics;

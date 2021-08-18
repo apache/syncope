@@ -65,34 +65,46 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
-    @Autowired
-    private ReportDAO reportDAO;
+    protected final ReportDAO reportDAO;
 
-    @Autowired
-    private ReportExecDAO reportExecDAO;
+    protected final ReportExecDAO reportExecDAO;
 
-    @Autowired
-    private ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
 
-    @Autowired
-    private ReportDataBinder binder;
+    protected final ReportDataBinder binder;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public ReportLogic(
+            final JobManager jobManager,
+            final SchedulerFactoryBean scheduler,
+            final ReportDAO reportDAO,
+            final ReportExecDAO reportExecDAO,
+            final ConfParamOps confParamOps,
+            final ReportDataBinder binder,
+            final EntityFactory entityFactory) {
+
+        super(jobManager, scheduler);
+
+        this.reportDAO = reportDAO;
+        this.reportExecDAO = reportExecDAO;
+        this.confParamOps = confParamOps;
+        this.binder = binder;
+        this.entityFactory = entityFactory;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_CREATE + "')")
     public ReportTO create(final ReportTO reportTO) {

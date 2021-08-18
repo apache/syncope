@@ -37,21 +37,24 @@ import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AuditLoader implements SyncopeCoreLoader {
 
-    @Autowired
-    private AuditAccessor auditAccessor;
+    protected final AuditAccessor auditAccessor;
 
-    @Autowired
-    private ImplementationLookup implementationLookup;
+    protected final ImplementationLookup implementationLookup;
 
-    @Autowired
-    private LogicProperties props;
+    protected final LogicProperties props;
+
+    public AuditLoader(
+            final AuditAccessor auditAccessor,
+            final ImplementationLookup implementationLookup,
+            final LogicProperties props) {
+        this.auditAccessor = auditAccessor;
+        this.implementationLookup = implementationLookup;
+        this.props = props;
+    }
 
     @Override
     public int getOrder() {

@@ -30,28 +30,33 @@ import org.apache.syncope.common.lib.types.SAML2SP4UIEntitlement;
 import org.apache.syncope.core.logic.init.SAML2SP4UILoader;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.provisioning.api.data.SAML2SP4UIIdPDataBinder;
 
-@Component
 public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML2SP4UIIdPTO> {
 
-    @Autowired
-    private SAML2SP4UILoader loader;
+    protected final SAML2SP4UILoader loader;
 
-    @Autowired
-    private SAML2ClientCache saml2ClientCache;
+    protected final SAML2ClientCache saml2ClientCache;
 
-    @Autowired
-    private SAML2SP4UIIdPDataBinder binder;
+    protected final SAML2SP4UIIdPDataBinder binder;
 
-    @Autowired
-    private SAML2SP4UIIdPDAO idpDAO;
+    protected final SAML2SP4UIIdPDAO idpDAO;
+
+    public SAML2SP4UIIdPLogic(
+            final SAML2SP4UILoader loader,
+            final SAML2ClientCache saml2ClientCache,
+            final SAML2SP4UIIdPDataBinder binder,
+            final SAML2SP4UIIdPDAO idpDAO) {
+
+        this.loader = loader;
+        this.saml2ClientCache = saml2ClientCache;
+        this.binder = binder;
+        this.idpDAO = idpDAO;
+    }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)

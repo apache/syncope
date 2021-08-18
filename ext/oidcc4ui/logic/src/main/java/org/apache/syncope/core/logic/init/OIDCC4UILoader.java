@@ -23,9 +23,7 @@ import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.common.lib.types.OIDC4UIEntitlement;
 import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
-import org.springframework.stereotype.Component;
 
-@Component
 public class OIDCC4UILoader implements SyncopeCoreLoader {
 
     @Override

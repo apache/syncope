@@ -41,31 +41,31 @@ import org.apache.syncope.ext.scimv2.api.data.ResourceType;
 import org.apache.syncope.ext.scimv2.api.data.SchemaExtension;
 import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SCIMLogic extends AbstractLogic<EntityTO> {
 
-    private static final String SCHEMAS_JSON = "schemas.json";
+    protected static final String SCHEMAS_JSON = "schemas.json";
 
-    private static final Object MONITOR = new Object();
+    protected static final Object MONITOR = new Object();
 
-    private static ServiceProviderConfig SERVICE_PROVIDER_CONFIG;
+    protected static ServiceProviderConfig SERVICE_PROVIDER_CONFIG;
 
-    private static ResourceType USER;
+    protected static ResourceType USER;
 
-    private static ResourceType GROUP;
+    protected static ResourceType GROUP;
 
-    private static String SCHEMAS;
+    protected static String SCHEMAS;
 
-    private static final Map<String, String> SCHEMA_MAP = new HashMap<>();
+    protected static final Map<String, String> SCHEMA_MAP = new HashMap<>();
 
-    @Autowired
-    private SCIMConfManager confManager;
+    protected final SCIMConfManager confManager;
 
-    private void init() {
+    public SCIMLogic(final SCIMConfManager confManager) {
+        this.confManager = confManager;
+    }
+
+    protected void init() {
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode tree = mapper.readTree(SCIMLogic.class.getResourceAsStream('/' + SCHEMAS_JSON));

@@ -67,48 +67,60 @@ import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private ConnInstanceDAO connInstanceDAO;
+    protected final ConnInstanceDAO connInstanceDAO;
 
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    private VirAttrHandler virAttrHandler;
+    protected final VirAttrHandler virAttrHandler;
 
-    @Autowired
-    private ResourceDataBinder binder;
+    protected final ResourceDataBinder binder;
 
-    @Autowired
-    private ConnInstanceDataBinder connInstanceDataBinder;
+    protected final ConnInstanceDataBinder connInstanceDataBinder;
 
-    @Autowired
-    private OutboundMatcher outboundMatcher;
+    protected final OutboundMatcher outboundMatcher;
 
-    @Autowired
-    private MappingManager mappingManager;
+    protected final MappingManager mappingManager;
 
-    @Autowired
-    private ConnectorFactory connFactory;
+    protected final ConnectorFactory connFactory;
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    protected final AnyUtilsFactory anyUtilsFactory;
 
-    protected static void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
+    public ResourceLogic(
+            final ExternalResourceDAO resourceDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final ConnInstanceDAO connInstanceDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final VirAttrHandler virAttrHandler,
+            final ResourceDataBinder binder,
+            final ConnInstanceDataBinder connInstanceDataBinder,
+            final OutboundMatcher outboundMatcher,
+            final MappingManager mappingManager,
+            final ConnectorFactory connFactory,
+            final AnyUtilsFactory anyUtilsFactory) {
+
+        this.resourceDAO = resourceDAO;
+        this.anyTypeDAO = anyTypeDAO;
+        this.connInstanceDAO = connInstanceDAO;
+        this.virSchemaDAO = virSchemaDAO;
+        this.virAttrHandler = virAttrHandler;
+        this.binder = binder;
+        this.connInstanceDataBinder = connInstanceDataBinder;
+        this.outboundMatcher = outboundMatcher;
+        this.mappingManager = mappingManager;
+        this.connFactory = connFactory;
+        this.anyUtilsFactory = anyUtilsFactory;
+    }
+
+    protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
         boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
         if (!authorized) {
             throw new DelegatedAdministrationException(realm, ExternalResource.class.getSimpleName(), key);
@@ -269,7 +281,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return resourceDAO.findAll().stream().map(binder::getResourceTO).collect(Collectors.toList());
     }
 
-    private Provision getProvision(final String resourceKey, final String anyTypeKey) {
+    protected Provision getProvision(final String resourceKey, final String anyTypeKey) {
         ExternalResource resource = resourceDAO.find(resourceKey);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceKey + '\'');

@@ -33,21 +33,25 @@ import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.DomainEntity;
 import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 
-@Component
 public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
 
-    @Autowired
-    private DomainDAO domainDAO;
+    protected final DomainDAO domainDAO;
 
-    @Autowired
-    private SelfKeymasterEntityFactory entityFactory;
+    protected final SelfKeymasterEntityFactory entityFactory;
 
-    @Autowired
-    private DomainWatcher domainWatcher;
+    protected final DomainWatcher domainWatcher;
+
+    public DomainLogic(
+            final DomainDAO domainDAO,
+            final SelfKeymasterEntityFactory entityFactory,
+            final DomainWatcher domainWatcher) {
+
+        this.domainDAO = domainDAO;
+        this.entityFactory = entityFactory;
+        this.domainWatcher = domainWatcher;
+    }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
     public List<Domain> list() {

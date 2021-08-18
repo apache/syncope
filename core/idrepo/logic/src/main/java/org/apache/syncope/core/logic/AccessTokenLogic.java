@@ -38,25 +38,13 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> {
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
-    @Autowired
-    private SecurityProperties securityProperties;
-
-    @Autowired
-    private AccessTokenDataBinder binder;
-
-    @Autowired
-    private AccessTokenDAO accessTokenDAO;
-
-    private static byte[] getAuthorities() {
+    protected static byte[] getAuthorities() {
         byte[] authorities = null;
         try {
             authorities = ENCRYPTOR.encode(POJOHelper.serialize(
@@ -67,6 +55,22 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
         }
 
         return authorities;
+    }
+
+    protected final SecurityProperties securityProperties;
+
+    protected final AccessTokenDataBinder binder;
+
+    protected final AccessTokenDAO accessTokenDAO;
+
+    public AccessTokenLogic(
+            final SecurityProperties securityProperties,
+            final AccessTokenDataBinder binder,
+            final AccessTokenDAO accessTokenDAO) {
+
+        this.securityProperties = securityProperties;
+        this.binder = binder;
+        this.accessTokenDAO = accessTokenDAO;
     }
 
     @PreAuthorize("isAuthenticated()")

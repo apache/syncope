@@ -34,20 +34,20 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SCIMConfManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SCIMConfManager.class);
 
-    @Autowired
-    private ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
 
-    @Autowired
-    private SchemaLogic schemaLogic;
+    protected final SchemaLogic schemaLogic;
+
+    public SCIMConfManager(final ConfParamOps confParamOps, final SchemaLogic schemaLogic) {
+        this.confParamOps = confParamOps;
+        this.schemaLogic = schemaLogic;
+    }
 
     @PreAuthorize("hasRole('" + SCIMEntitlement.SCIM_CONF_GET + "')")
     public SCIMConf get() {

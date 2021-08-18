@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.init;
+package org.apache.syncope.fit.core.reference;
 
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -26,23 +26,27 @@ import org.apache.syncope.core.logic.TaskLogic;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class ElasticsearchInit {
 
     private static final String ES_REINDEX = "org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex";
 
-    @Autowired
-    private ImplementationDAO implementationDAO;
+    private final ImplementationDAO implementationDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    private final EntityFactory entityFactory;
 
-    @Autowired
-    private TaskLogic taskLogic;
+    private final TaskLogic taskLogic;
+
+    public ElasticsearchInit(
+            final ImplementationDAO implementationDAO,
+            final EntityFactory entityFactory,
+            final TaskLogic taskLogic) {
+
+        this.implementationDAO = implementationDAO;
+        this.entityFactory = entityFactory;
+        this.taskLogic = taskLogic;
+    }
 
     @Transactional
     public void init() {

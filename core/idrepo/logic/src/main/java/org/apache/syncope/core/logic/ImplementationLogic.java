@@ -42,42 +42,52 @@ import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.data.ImplementationDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class ImplementationLogic extends AbstractTransactionalLogic<ImplementationTO> {
 
-    @Autowired
-    private ImplementationDataBinder binder;
+    protected final ImplementationDataBinder binder;
 
-    @Autowired
-    private ImplementationDAO implementationDAO;
+    protected final ImplementationDAO implementationDAO;
 
-    @Autowired
-    private ReportDAO reportDAO;
+    protected final ReportDAO reportDAO;
 
-    @Autowired
-    private PolicyDAO policyDAO;
+    protected final PolicyDAO policyDAO;
 
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    private TaskDAO taskDAO;
+    protected final TaskDAO taskDAO;
 
-    @Autowired
-    private RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
+    protected final PlainSchemaDAO plainSchemaDAO;
 
-    @Autowired
-    private NotificationDAO notificationDAO;
+    protected final NotificationDAO notificationDAO;
 
-    private static void checkType(final String type) {
+    public ImplementationLogic(
+            final ImplementationDataBinder binder,
+            final ImplementationDAO implementationDAO,
+            final ReportDAO reportDAO,
+            final PolicyDAO policyDAO,
+            final ExternalResourceDAO resourceDAO,
+            final TaskDAO taskDAO,
+            final RealmDAO realmDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final NotificationDAO notificationDAO) {
+
+        this.binder = binder;
+        this.implementationDAO = implementationDAO;
+        this.reportDAO = reportDAO;
+        this.policyDAO = policyDAO;
+        this.resourceDAO = resourceDAO;
+        this.taskDAO = taskDAO;
+        this.realmDAO = realmDAO;
+        this.plainSchemaDAO = plainSchemaDAO;
+        this.notificationDAO = notificationDAO;
+    }
+
+    protected void checkType(final String type) {
         if (!ImplementationTypesHolder.getInstance().getValues().containsKey(type)) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidImplementationType);
             sce.getElements().add("Implementation type not found: ");

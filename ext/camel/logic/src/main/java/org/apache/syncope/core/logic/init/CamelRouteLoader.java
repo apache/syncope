@@ -38,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -50,18 +49,17 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSParser;
 import org.w3c.dom.ls.LSSerializer;
 
-@Component
 public class CamelRouteLoader implements SyncopeCoreLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CamelRouteLoader.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(CamelRouteLoader.class);
 
-    private static final boolean IS_JBOSS;
+    protected static final boolean IS_JBOSS;
 
     static {
         IS_JBOSS = isJBoss();
     }
 
-    private static boolean isJBoss() {
+    protected static boolean isJBoss() {
         try {
             Class.forName("org.jboss.vfs.VirtualFile");
             LOG.debug("Running in JBoss AS / Wildfly, disabling {}", DOMImplementationRegistry.class.getName());
@@ -72,14 +70,17 @@ public class CamelRouteLoader implements SyncopeCoreLoader {
         }
     }
 
-    @javax.annotation.Resource(name = "userRoutes")
-    private Resource userRoutes;
+    protected final Resource userRoutes;
 
-    @javax.annotation.Resource(name = "groupRoutes")
-    private Resource groupRoutes;
+    protected final Resource groupRoutes;
 
-    @javax.annotation.Resource(name = "anyObjectRoutes")
-    private Resource anyObjectRoutes;
+    protected final Resource anyObjectRoutes;
+
+    public CamelRouteLoader(final Resource userRoutes, final Resource groupRoutes, final Resource anyObjectRoutes) {
+        this.userRoutes = userRoutes;
+        this.groupRoutes = groupRoutes;
+        this.anyObjectRoutes = anyObjectRoutes;
+    }
 
     @Override
     public int getOrder() {
@@ -98,7 +99,7 @@ public class CamelRouteLoader implements SyncopeCoreLoader {
         loadRoutes(domain, datasource, anyObjectRoutes, AnyTypeKind.ANY_OBJECT);
     }
 
-    private static String nodeToString(final Node content, final DOMImplementationLS domImpl) {
+    protected static String nodeToString(final Node content, final DOMImplementationLS domImpl) {
         StringWriter writer = new StringWriter();
         try {
             LSSerializer serializer = domImpl.createLSSerializer();
@@ -112,7 +113,7 @@ public class CamelRouteLoader implements SyncopeCoreLoader {
         return writer.toString();
     }
 
-    private static String nodeToString(final Node content, final TransformerFactory tf) {
+    protected static String nodeToString(final Node content, final TransformerFactory tf) {
         String output = StringUtils.EMPTY;
 
         try {
@@ -128,7 +129,7 @@ public class CamelRouteLoader implements SyncopeCoreLoader {
         return output;
     }
 
-    private static void loadRoutes(
+    protected static void loadRoutes(
             final String domain, final DataSource dataSource, final Resource resource, final AnyTypeKind anyTypeKind) {
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);

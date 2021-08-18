@@ -47,31 +47,38 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.flowable.engine.runtime.ProcessInstance;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
 
-    @Autowired
-    protected BpmnProcessManager bpmnProcessManager;
+    protected final BpmnProcessManager bpmnProcessManager;
 
-    @Autowired
-    protected UserRequestHandler userRequestHandler;
+    protected final UserRequestHandler userRequestHandler;
 
-    @Autowired
-    protected PropagationManager propagationManager;
+    protected final PropagationManager propagationManager;
 
-    @Autowired
-    protected PropagationTaskExecutor taskExecutor;
+    protected final PropagationTaskExecutor taskExecutor;
 
-    @Autowired
-    protected UserDataBinder binder;
+    protected final UserDataBinder binder;
 
-    @Autowired
-    protected UserDAO userDAO;
+    protected final UserDAO userDAO;
+
+    public UserRequestLogic(
+            final BpmnProcessManager bpmnProcessManager,
+            final UserRequestHandler userRequestHandler,
+            final PropagationManager propagationManager,
+            final PropagationTaskExecutor taskExecutor,
+            final UserDataBinder binder,
+            final UserDAO userDAO) {
+
+        this.bpmnProcessManager = bpmnProcessManager;
+        this.userRequestHandler = userRequestHandler;
+        this.propagationManager = propagationManager;
+        this.taskExecutor = taskExecutor;
+        this.binder = binder;
+        this.userDAO = userDAO;
+    }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
@@ -163,7 +170,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
         return form;
     }
 
-    private void evaluateKey(final String userKey) {
+    protected void evaluateKey(final String userKey) {
         if (userKey == null) {
             securityChecks(null,
                     FlowableEntitlement.USER_REQUEST_FORM_LIST,

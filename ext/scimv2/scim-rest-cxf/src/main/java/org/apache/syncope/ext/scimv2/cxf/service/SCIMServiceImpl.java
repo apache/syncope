@@ -64,5 +64,4 @@ public class SCIMServiceImpl extends AbstractService<SCIMResource> implements SC
     public Response schema(final String schema) {
         return Response.ok(scimLogic().schema(schema)).build();
     }
-
 }

@@ -58,6 +58,7 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
@@ -69,41 +70,56 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
-    @Autowired
-    private TaskDAO taskDAO;
+    protected final TaskDAO taskDAO;
 
-    @Autowired
-    private TaskExecDAO taskExecDAO;
+    protected final TaskExecDAO taskExecDAO;
 
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    private NotificationDAO notificationDAO;
+    protected final NotificationDAO notificationDAO;
 
-    @Autowired
-    private ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
 
-    @Autowired
-    private TaskDataBinder binder;
+    protected final TaskDataBinder binder;
 
-    @Autowired
-    private PropagationTaskExecutor taskExecutor;
+    protected final PropagationTaskExecutor taskExecutor;
 
-    @Autowired
-    private NotificationJobDelegate notificationJobDelegate;
+    protected final NotificationJobDelegate notificationJobDelegate;
 
-    @Autowired
-    private TaskUtilsFactory taskUtilsFactory;
+    protected final TaskUtilsFactory taskUtilsFactory;
+
+    public TaskLogic(
+            final JobManager jobManager,
+            final SchedulerFactoryBean scheduler,
+            final TaskDAO taskDAO,
+            final TaskExecDAO taskExecDAO,
+            final ExternalResourceDAO resourceDAO,
+            final NotificationDAO notificationDAO,
+            final ConfParamOps confParamOps,
+            final TaskDataBinder binder,
+            final PropagationTaskExecutor taskExecutor,
+            final NotificationJobDelegate notificationJobDelegate,
+            final TaskUtilsFactory taskUtilsFactory) {
+
+        super(jobManager, scheduler);
+
+        this.taskDAO = taskDAO;
+        this.taskExecDAO = taskExecDAO;
+        this.resourceDAO = resourceDAO;
+        this.notificationDAO = notificationDAO;
+        this.confParamOps = confParamOps;
+        this.binder = binder;
+        this.taskExecutor = taskExecutor;
+        this.notificationJobDelegate = notificationJobDelegate;
+        this.taskUtilsFactory = taskUtilsFactory;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_CREATE + "')")
     public <T extends SchedTaskTO> T createSchedTask(final TaskType type, final T taskTO) {

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.init;
+package org.apache.syncope.fit.core.reference;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,18 +24,18 @@ import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class EnableFlowableForTestUsers {
 
     private static final Logger LOG = LoggerFactory.getLogger(EnableFlowableForTestUsers.class);
 
-    @Autowired
-    private UserDAO userDAO;
+    private final UserDAO userDAO;
+
+    public EnableFlowableForTestUsers(final UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
 
     @Transactional
     public void init(final DataSource datasource) {

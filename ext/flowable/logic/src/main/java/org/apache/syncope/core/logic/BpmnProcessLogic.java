@@ -24,17 +24,17 @@ import java.util.List;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.syncope.common.lib.types.BpmnProcessFormat;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.flowable.api.BpmnProcessManager;
 
-@Component
 public class BpmnProcessLogic extends AbstractTransactionalLogic<BpmnProcess> {
 
-    @Autowired
-    private BpmnProcessManager bpmnProcessManager;
+    protected final BpmnProcessManager bpmnProcessManager;
+
+    public BpmnProcessLogic(final BpmnProcessManager bpmnProcessManager) {
+        this.bpmnProcessManager = bpmnProcessManager;
+    }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)

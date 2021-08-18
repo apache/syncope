@@ -36,24 +36,28 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.apache.syncope.core.persistence.api.entity.Report;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTemplateTO> {
 
-    @Autowired
-    private ReportTemplateDAO reportTemplateDAO;
+    protected final ReportTemplateDAO reportTemplateDAO;
 
-    @Autowired
-    private ReportDAO reportDAO;
+    protected final ReportDAO reportDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    private static ReportTemplateTO getReportTemplateTO(final String key) {
+    public ReportTemplateLogic(
+            final ReportTemplateDAO reportTemplateDAO,
+            final ReportDAO reportDAO,
+            final EntityFactory entityFactory) {
+
+        this.reportTemplateDAO = reportTemplateDAO;
+        this.reportDAO = reportDAO;
+        this.entityFactory = entityFactory;
+    }
+
+    protected ReportTemplateTO getReportTemplateTO(final String key) {
         ReportTemplateTO reportTemplateTO = new ReportTemplateTO();
         reportTemplateTO.setKey(key);
         return reportTemplateTO;

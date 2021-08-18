@@ -31,19 +31,19 @@ import org.apache.syncope.core.logic.saml2.NoOpLogoutHandler;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileUrlResource;
 import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SAML2SP4UILoader implements SyncopeCoreLoader {
 
-    @Autowired
-    private SAML2SP4UIProperties props;
+    protected final SAML2SP4UIProperties props;
 
-    @Autowired
-    private ResourcePatternResolver resourceResolver;
+    protected final ResourcePatternResolver resourceResolver;
+
+    public SAML2SP4UILoader(final SAML2SP4UIProperties props, final ResourcePatternResolver resourceResolver) {
+        this.props = props;
+        this.resourceResolver = resourceResolver;
+    }
 
     @Override
     public int getOrder() {

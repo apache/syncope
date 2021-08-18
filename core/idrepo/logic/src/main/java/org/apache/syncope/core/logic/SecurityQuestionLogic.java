@@ -30,22 +30,26 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.SecurityQuestionDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQuestionTO> {
 
-    @Autowired
-    private SecurityQuestionDAO securityQuestionDAO;
+    protected final SecurityQuestionDAO securityQuestionDAO;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private SecurityQuestionDataBinder binder;
+    protected final SecurityQuestionDataBinder binder;
+
+    public SecurityQuestionLogic(
+            final SecurityQuestionDAO securityQuestionDAO,
+            final UserDAO userDAO,
+            final SecurityQuestionDataBinder binder) {
+
+        this.securityQuestionDAO = securityQuestionDAO;
+        this.userDAO = userDAO;
+        this.binder = binder;
+    }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)

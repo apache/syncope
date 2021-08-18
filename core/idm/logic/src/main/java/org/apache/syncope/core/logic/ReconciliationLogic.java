@@ -100,55 +100,69 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    protected final AnyUtilsFactory anyUtilsFactory;
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    private RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
+    protected final PlainSchemaDAO plainSchemaDAO;
 
-    @Autowired
-    private DerSchemaDAO derSchemaDAO;
+    protected final DerSchemaDAO derSchemaDAO;
 
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    private AnySearchDAO searchDAO;
+    protected final AnySearchDAO anySearchDAO;
 
-    @Autowired
-    private VirAttrHandler virAttrHandler;
+    protected final VirAttrHandler virAttrHandler;
 
-    @Autowired
-    private MappingManager mappingManager;
+    protected final MappingManager mappingManager;
 
-    @Autowired
-    private InboundMatcher inboundMatcher;
+    protected final InboundMatcher inboundMatcher;
 
-    @Autowired
-    private OutboundMatcher outboundMatcher;
+    protected final OutboundMatcher outboundMatcher;
 
-    @Autowired
-    private ConnectorFactory connFactory;
+    protected final ConnectorFactory connFactory;
 
-    private Provision getProvision(final String anyTypeKey, final String resourceKey) {
+    public ReconciliationLogic(
+            final AnyUtilsFactory anyUtilsFactory,
+            final AnyTypeDAO anyTypeDAO,
+            final ExternalResourceDAO resourceDAO,
+            final RealmDAO realmDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final AnySearchDAO anySearchDAO,
+            final VirAttrHandler virAttrHandler,
+            final MappingManager mappingManager,
+            final InboundMatcher inboundMatcher,
+            final OutboundMatcher outboundMatcher,
+            final ConnectorFactory connFactory) {
+
+        this.anyUtilsFactory = anyUtilsFactory;
+        this.anyTypeDAO = anyTypeDAO;
+        this.resourceDAO = resourceDAO;
+        this.realmDAO = realmDAO;
+        this.plainSchemaDAO = plainSchemaDAO;
+        this.derSchemaDAO = derSchemaDAO;
+        this.virSchemaDAO = virSchemaDAO;
+        this.anySearchDAO = anySearchDAO;
+        this.virAttrHandler = virAttrHandler;
+        this.mappingManager = mappingManager;
+        this.inboundMatcher = inboundMatcher;
+        this.outboundMatcher = outboundMatcher;
+        this.connFactory = connFactory;
+    }
+
+    protected Provision getProvision(final String anyTypeKey, final String resourceKey) {
         AnyType anyType = anyTypeDAO.find(anyTypeKey);
         if (anyType == null) {
             throw new NotFoundException("AnyType '" + anyTypeKey + "'");
@@ -168,7 +182,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return provision;
     }
 
-    private ConnObjectTO getOnSyncope(
+    protected ConnObjectTO getOnSyncope(
             final MappingItem connObjectKeyItem,
             final String connObjectKeyValue,
             final Set<Attribute> attrs) {
@@ -182,7 +196,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return connObjectTO;
     }
 
-    private ConnObjectTO getOnSyncope(
+    protected ConnObjectTO getOnSyncope(
             final Any<?> any,
             final MappingItem connObjectKeyItem,
             final Provision provision) {
@@ -192,7 +206,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return getOnSyncope(connObjectKeyItem, prepared.getLeft(), prepared.getRight());
     }
 
-    private ConnObjectTO getOnSyncope(
+    protected ConnObjectTO getOnSyncope(
             final LinkedAccount account,
             final MappingItem connObjectKeyItem,
             final Provision provision) {
@@ -202,7 +216,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return getOnSyncope(connObjectKeyItem, account.getConnObjectKeyValue(), attrs);
     }
 
-    private Any<?> getAny(final Provision provision, final String anyKey) {
+    protected Any<?> getAny(final Provision provision, final String anyKey) {
         AnyDAO<Any<?>> dao = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).dao();
         Any<?> any = SyncopeConstants.UUID_PATTERN.matcher(anyKey).matches()
                 ? dao.authFind(anyKey)
@@ -252,7 +266,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return status;
     }
 
-    private SyncDeltaBuilder syncDeltaBuilder(
+    protected SyncDeltaBuilder syncDeltaBuilder(
             final Provision provision,
             final Filter filter,
             final Set<String> moreAttrsToGet) {
@@ -330,7 +344,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return status;
     }
 
-    private SyncopeSinglePushExecutor singlePushExecutor() {
+    protected SyncopeSinglePushExecutor singlePushExecutor() {
         return (SyncopeSinglePushExecutor) ApplicationContextProvider.getBeanFactory().
                 createBean(SinglePushJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }
@@ -418,7 +432,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return results;
     }
 
-    private List<ProvisioningReport> pull(
+    protected List<ProvisioningReport> pull(
             final Provision provision,
             final ReconFilterBuilder reconFilterBuilder,
             final Set<String> moreAttrsToGet,
@@ -504,7 +518,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 pullTask);
     }
 
-    private CsvSchema.Builder csvSchema(final AbstractCSVSpec spec) {
+    protected CsvSchema.Builder csvSchema(final AbstractCSVSpec spec) {
         CsvSchema.Builder schemaBuilder = new CsvSchema.Builder().setUseHeader(true).
                 setColumnSeparator(spec.getColumnSeparator()).
                 setArrayElementSeparator(spec.getArrayElementSeparator()).
@@ -557,15 +571,15 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         if (spec.getIgnorePaging()) {
             matching = new ArrayList<>();
 
-            int count = searchDAO.count(adminRealms, effectiveCond, anyType.getKind());
+            int count = anySearchDAO.count(adminRealms, effectiveCond, anyType.getKind());
             int pages = (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
             for (int p = 1; p <= pages; p++) {
-                matching.addAll(searchDAO.search(adminRealms, effectiveCond,
+                matching.addAll(anySearchDAO.search(adminRealms, effectiveCond,
                         p, AnyDAO.DEFAULT_PAGE_SIZE, orderBy, anyType.getKind()));
             }
         } else {
-            matching = searchDAO.search(adminRealms, effectiveCond, page, size, orderBy, anyType.getKind());
+            matching = anySearchDAO.search(adminRealms, effectiveCond, page, size, orderBy, anyType.getKind());
         }
 
         List<String> columns = new ArrayList<>();

@@ -48,28 +48,34 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
-    @Autowired
-    private RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    private AnySearchDAO searchDAO;
+    protected final AnySearchDAO searchDAO;
 
-    @Autowired
-    private RealmDataBinder binder;
+    protected final RealmDataBinder binder;
 
-    @Autowired
-    private PropagationManager propagationManager;
+    protected final PropagationManager propagationManager;
 
-    @Autowired
-    private PropagationTaskExecutor taskExecutor;
+    protected final PropagationTaskExecutor taskExecutor;
+
+    public RealmLogic(
+            final RealmDAO realmDAO,
+            final AnySearchDAO searchDAO,
+            final RealmDataBinder binder,
+            final PropagationManager propagationManager,
+            final PropagationTaskExecutor taskExecutor) {
+
+        this.realmDAO = realmDAO;
+        this.searchDAO = searchDAO;
+        this.binder = binder;
+        this.propagationManager = propagationManager;
+        this.taskExecutor = taskExecutor;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REALM_LIST + "')")
     @Transactional(readOnly = true)

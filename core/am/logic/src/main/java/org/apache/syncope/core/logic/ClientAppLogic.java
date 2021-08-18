@@ -48,38 +48,46 @@ import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtils;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 
-@Component
 public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
 
-    @Autowired
-    private ServiceOps serviceOps;
+    protected final ServiceOps serviceOps;
 
-    @Autowired
-    private ClientAppUtilsFactory clientAppUtilsFactory;
+    protected final ClientAppUtilsFactory clientAppUtilsFactory;
 
-    @Autowired
-    private ClientAppDataBinder binder;
+    protected final ClientAppDataBinder binder;
 
-    @Autowired
-    private SAML2SPDAO saml2spDAO;
+    protected final SAML2SPDAO saml2spDAO;
 
-    @Autowired
-    private OIDCRPDAO oidcrpDAO;
+    protected final OIDCRPDAO oidcrpDAO;
 
-    @Autowired
-    private CASSPDAO casspDAO;
+    protected final CASSPDAO casspDAO;
 
-    @Autowired
-    private SecurityProperties securityProperties;
+    protected final SecurityProperties securityProperties;
+
+    public ClientAppLogic(
+            final ServiceOps serviceOps,
+            final ClientAppUtilsFactory clientAppUtilsFactory,
+            final ClientAppDataBinder binder,
+            final SAML2SPDAO saml2spDAO,
+            final OIDCRPDAO oidcrpDAO,
+            final CASSPDAO casspDAO,
+            final SecurityProperties securityProperties) {
+
+        this.serviceOps = serviceOps;
+        this.clientAppUtilsFactory = clientAppUtilsFactory;
+        this.binder = binder;
+        this.saml2spDAO = saml2spDAO;
+        this.oidcrpDAO = oidcrpDAO;
+        this.casspDAO = casspDAO;
+        this.securityProperties = securityProperties;
+    }
 
     @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_LIST + "')")
     public <T extends ClientAppTO> List<T> list(final ClientAppType type) {
@@ -100,7 +108,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
         return stream.collect(Collectors.toList());
     }
 
-    private static void checkType(final ClientAppType type, final ClientAppUtils clientAppUtils) {
+    protected void checkType(final ClientAppType type, final ClientAppUtils clientAppUtils) {
         if (clientAppUtils.getType() != type) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
             sce.getElements().add("Found " + type + ", expected " + clientAppUtils.getType());

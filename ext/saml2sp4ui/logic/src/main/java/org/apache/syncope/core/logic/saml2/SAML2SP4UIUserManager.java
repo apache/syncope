@@ -49,41 +49,49 @@ import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.provisioning.api.SAML2SP4UIIdPActions;
 
-@Component
 public class SAML2SP4UIUserManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(SAML2SP4UIUserManager.class);
 
     private static final String SAML2SP_CONTEXT = "SAML 2.0 SP";
 
-    @Autowired
-    private SAML2SP4UIIdPDAO idpDAO;
+    protected final SAML2SP4UIIdPDAO idpDAO;
 
-    @Autowired
-    private InboundMatcher inboundMatcher;
+    protected final InboundMatcher inboundMatcher;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private IntAttrNameParser intAttrNameParser;
+    protected final IntAttrNameParser intAttrNameParser;
 
-    @Autowired
-    private TemplateUtils templateUtils;
+    protected final TemplateUtils templateUtils;
 
-    @Autowired
-    private UserProvisioningManager provisioningManager;
+    protected final UserProvisioningManager provisioningManager;
 
-    @Autowired
-    private UserDataBinder binder;
+    protected final UserDataBinder binder;
+
+    public SAML2SP4UIUserManager(
+            final SAML2SP4UIIdPDAO idpDAO,
+            final InboundMatcher inboundMatcher,
+            final UserDAO userDAO,
+            final IntAttrNameParser intAttrNameParser,
+            final TemplateUtils templateUtils,
+            final UserProvisioningManager provisioningManager,
+            final UserDataBinder binder) {
+
+        this.idpDAO = idpDAO;
+        this.inboundMatcher = inboundMatcher;
+        this.userDAO = userDAO;
+        this.intAttrNameParser = intAttrNameParser;
+        this.templateUtils = templateUtils;
+        this.provisioningManager = provisioningManager;
+        this.binder = binder;
+    }
 
     @Transactional(readOnly = true)
     public List<String> findMatchingUser(final String connObjectKeyValue, final String idpKey) {

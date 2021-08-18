@@ -18,38 +18,42 @@
  */
 package org.apache.syncope.core.logic;
 
-import java.lang.reflect.InvocationTargetException;
-import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.core.logic.init.CamelRouteLoader;
+import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
+import org.apache.syncope.core.provisioning.api.data.CamelRouteDataBinder;
+import org.apache.syncope.core.provisioning.camel.SyncopeCamelContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.core.io.Resource;
 
-@ComponentScan("org.apache.syncope.core.logic")
-@EnableAspectJAutoProxy
-@EnableConfigurationProperties(LogicProperties.class)
 @Configuration
-public class LogicContext {
+public class CamelLogicContext {
 
-    @Autowired
-    private LogicProperties props;
+    @javax.annotation.Resource(name = "userRoutes")
+    private Resource userRoutes;
+
+    @javax.annotation.Resource(name = "groupRoutes")
+    private Resource groupRoutes;
+
+    @javax.annotation.Resource(name = "anyObjectRoutes")
+    private Resource anyObjectRoutes;
 
     @ConditionalOnMissingBean
     @Bean
-    public LogicInvocationHandler logicInvocationHandler() throws NoSuchMethodException,
-            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-        return props.getInvocationHandler().getDeclaredConstructor().newInstance();
+    public CamelRouteLoader camelRouteLoader() {
+        return new CamelRouteLoader(userRoutes, groupRoutes, anyObjectRoutes);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public ImplementationLookup implementationLookup() throws NoSuchMethodException,
-            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    @Autowired
+    public CamelRouteLogic camelRouteLogic(
+            final CamelRouteDAO routeDAO,
+            final CamelRouteDataBinder binder,
+            final SyncopeCamelContext context) {
 
-        return props.getImplementationLookup().getDeclaredConstructor().newInstance();
+        return new CamelRouteLogic(routeDAO, binder, context);
     }
 }

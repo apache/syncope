@@ -33,23 +33,27 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
 
-    @Autowired
-    private AnyTypeDataBinder binder;
+    protected final AnyTypeDataBinder binder;
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private AnyObjectDAO anyObjectDAO;
+    protected final AnyObjectDAO anyObjectDAO;
+
+    public AnyTypeLogic(
+            final AnyTypeDataBinder binder,
+            final AnyTypeDAO anyTypeDAO,
+            final AnyObjectDAO anyObjectDAO) {
+
+        this.binder = binder;
+        this.anyTypeDAO = anyTypeDAO;
+        this.anyObjectDAO = anyObjectDAO;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_READ + "')")
     @Transactional(readOnly = true)
