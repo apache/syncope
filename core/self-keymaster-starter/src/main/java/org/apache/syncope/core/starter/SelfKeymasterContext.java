@@ -140,7 +140,6 @@ public class SelfKeymasterContext {
         return new SelfKeymasterInternalDomainOps();
     }
 
-    @Conditional(SelfKeymasterCondition.class)
     @ConditionalOnMissingBean
     @Bean
     @Autowired
@@ -148,7 +147,6 @@ public class SelfKeymasterContext {
         return new ConfParamLogic(confParamDAO, entityFactory);
     }
 
-    @Conditional(SelfKeymasterCondition.class)
     @ConditionalOnMissingBean
     @Bean
     @Autowired
@@ -159,7 +157,6 @@ public class SelfKeymasterContext {
         return new DomainLogic(domainDAO, entityFactory, domainWatcher);
     }
 
-    @Conditional(SelfKeymasterCondition.class)
     @ConditionalOnMissingBean
     @Bean
     @Autowired

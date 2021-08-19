@@ -61,7 +61,6 @@ import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.SystemPropertyUtils;
@@ -70,6 +69,8 @@ import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 
 public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
+
+    protected static final List<EventCategory> EVENTS = new ArrayList<>();
 
     protected final AuditLoader auditLoader;
 
@@ -164,6 +165,12 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_LIST + "') "
             + "or hasRole('" + IdRepoEntitlement.NOTIFICATION_LIST + "')")
     public List<EventCategory> events() {
+        synchronized (EVENTS) {
+            if (!EVENTS.isEmpty()) {
+                return EVENTS;
+            }
+        }
+
         // use set to avoid duplications or null elements
         Set<EventCategory> events = new HashSet<>();
 
@@ -179,10 +186,10 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             Resource[] resources = resourcePatternResolver.getResources(packageSearchPath);
             for (Resource resource : resources) {
                 if (resource.isReadable()) {
-                    final MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
-                    final Class<?> clazz = Class.forName(metadataReader.getClassMetadata().getClassName());
+                    MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
+                    Class<?> clazz = Class.forName(metadataReader.getClassMetadata().getClassName());
 
-                    if (clazz.isAnnotationPresent(Component.class) && AbstractLogic.class.isAssignableFrom(clazz)) {
+                    if (AbstractLogic.class.isAssignableFrom(clazz)) {
                         EventCategory eventCategory = new EventCategory();
                         eventCategory.setCategory(clazz.getSimpleName());
                         for (Method method : clazz.getDeclaredMethods()) {
@@ -256,7 +263,8 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             LOG.error("Failure retrieving audit/notification events", e);
         }
 
-        return new ArrayList<>(events);
+        EVENTS.addAll(events);
+        return EVENTS;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_SEARCH + "')")

@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.logic;
 
-import java.lang.reflect.InvocationTargetException;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.logic.init.AuditAccessor;
 import org.apache.syncope.core.logic.init.AuditLoader;
+import org.apache.syncope.core.logic.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.core.logic.init.EntitlementAccessor;
 import org.apache.syncope.core.logic.init.IdRepoEntitlementLoader;
 import org.apache.syncope.core.logic.init.IdRepoImplementationTypeLoader;
@@ -84,6 +84,7 @@ import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
+import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
@@ -168,6 +169,9 @@ public class IdRepoLogicContext {
     private VirSchemaDAO virSchemaDAO;
 
     @Autowired
+    private AuditManager auditManager;
+
+    @Autowired
     private TemplateUtils templateUtils;
 
     @Autowired
@@ -196,18 +200,15 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public LogicInvocationHandler logicInvocationHandler() throws NoSuchMethodException,
-            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-        return logicProperties.getInvocationHandler().getDeclaredConstructor().newInstance();
+    @Autowired
+    public LogicInvocationHandler logicInvocationHandler(final NotificationManager notificationManager) {
+        return new LogicInvocationHandler(notificationManager, auditManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public ImplementationLookup implementationLookup() throws NoSuchMethodException,
-            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-        return logicProperties.getImplementationLookup().getDeclaredConstructor().newInstance();
+    public ImplementationLookup implementationLookup() {
+        return new ClassPathScanImplementationLookup();
     }
 
     @ConditionalOnMissingBean
@@ -294,8 +295,7 @@ public class IdRepoLogicContext {
     @Autowired
     public AuditLogic auditLogic(
             final AuditLoader auditLoader,
-            final AuditDataBinder binder,
-            final AuditManager auditManager) {
+            final AuditDataBinder binder) {
 
         return new AuditLogic(
                 auditLoader,
