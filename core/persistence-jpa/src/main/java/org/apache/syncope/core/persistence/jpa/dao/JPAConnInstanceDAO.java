@@ -25,15 +25,12 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
-import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,11 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements ConnInstanceDAO {
 
     @Autowired
-    @Lazy
     private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private ConnectorRegistry connRegistry;
 
     @Transactional(readOnly = true)
     @Override
@@ -92,17 +85,7 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
 
     @Override
     public ConnInstance save(final ConnInstance connector) {
-        final ConnInstance merged = entityManager().merge(connector);
-
-        merged.getResources().forEach(resource -> {
-            try {
-                connRegistry.registerConnector(resource);
-            } catch (NotFoundException e) {
-                LOG.error("While registering connector for resource", e);
-            }
-        });
-
-        return merged;
+        return entityManager().merge(connector);
     }
 
     @Override
@@ -117,7 +100,5 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
                 forEach(resource -> resourceDAO.delete(resource));
 
         entityManager().remove(connInstance);
-
-        connRegistry.unregisterConnector(key);
     }
 }

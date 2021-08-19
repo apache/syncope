@@ -41,26 +41,31 @@ import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ReportDataBinderImpl implements ReportDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ReportDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ReportDataBinder.class);
 
-    @Autowired
-    private ReportTemplateDAO reportTemplateDAO;
+    protected final ReportTemplateDAO reportTemplateDAO;
 
-    @Autowired
-    private ReportExecDAO reportExecDAO;
+    protected final ReportExecDAO reportExecDAO;
 
-    @Autowired
-    private ImplementationDAO implementationDAO;
+    protected final ImplementationDAO implementationDAO;
 
-    @Autowired
-    private SchedulerFactoryBean scheduler;
+    protected final SchedulerFactoryBean scheduler;
+
+    public ReportDataBinderImpl(
+            final ReportTemplateDAO reportTemplateDAO,
+            final ReportExecDAO reportExecDAO,
+            final ImplementationDAO implementationDAO,
+            final SchedulerFactoryBean scheduler) {
+
+        this.reportTemplateDAO = reportTemplateDAO;
+        this.reportExecDAO = reportExecDAO;
+        this.implementationDAO = implementationDAO;
+        this.scheduler = scheduler;
+    }
 
     @Override
     public void getReport(final Report report, final ReportTO reportTO) {

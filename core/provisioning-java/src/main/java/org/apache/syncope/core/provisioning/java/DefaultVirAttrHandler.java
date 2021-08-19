@@ -33,7 +33,7 @@ import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
@@ -43,27 +43,32 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
-@Component
-public class VirAttrHandlerImpl implements VirAttrHandler {
+public class DefaultVirAttrHandler implements VirAttrHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(VirAttrHandler.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(VirAttrHandler.class);
 
-    @Autowired
-    private ConnectorFactory connFactory;
+    protected final ConnectorManager connectorManager;
 
-    @Autowired
-    private VirAttrCache virAttrCache;
+    protected final VirAttrCache virAttrCache;
 
-    @Autowired
-    private OutboundMatcher outboundMatcher;
+    protected final OutboundMatcher outboundMatcher;
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    protected final AnyUtilsFactory anyUtilsFactory;
+
+    public DefaultVirAttrHandler(
+            final ConnectorManager connectorManager,
+            final VirAttrCache virAttrCache,
+            final OutboundMatcher outboundMatcher,
+            final AnyUtilsFactory anyUtilsFactory) {
+
+        this.connectorManager = connectorManager;
+        this.virAttrCache = virAttrCache;
+        this.outboundMatcher = outboundMatcher;
+        this.anyUtilsFactory = anyUtilsFactory;
+    }
 
     @Override
     public void setValues(final Any<?> any, final ConnectorObject connObj) {
@@ -92,7 +97,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
         });
     }
 
-    private Map<VirSchema, List<String>> getValues(final Any<?> any, final Set<VirSchema> schemas) {
+    protected Map<VirSchema, List<String>> getValues(final Any<?> any, final Set<VirSchema> schemas) {
         Set<ExternalResource> resources = anyUtilsFactory.getInstance(any).getAllResources(any);
 
         Map<VirSchema, List<String>> result = new HashMap<>();
@@ -120,7 +125,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
             LOG.debug("About to read from {}: {}", provision, schemasToRead);
 
             outboundMatcher.match(
-                    connFactory.getConnector(provision.getResource()),
+                    connectorManager.getConnector(provision.getResource()),
                     any,
                     provision,
                     Optional.empty(),

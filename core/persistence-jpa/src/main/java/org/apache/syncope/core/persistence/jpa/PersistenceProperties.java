@@ -29,7 +29,6 @@ import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyObjectDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAuditConfDAO;
@@ -58,8 +57,6 @@ public class PersistenceProperties {
     private Class<? extends PlainAttrValueDAO> plainAttrValueDAO = JPAPlainAttrValueDAO.class;
 
     private Class<? extends AnySearchDAO> anySearchDAO = JPAAnySearchDAO.class;
-
-    private Class<? extends SearchCondVisitor> searchCondVisitor = SearchCondVisitor.class;
 
     private Class<? extends UserDAO> userDAO = JPAUserDAO.class;
 
@@ -130,14 +127,6 @@ public class PersistenceProperties {
 
     public void setAnySearchDAO(final Class<? extends AnySearchDAO> anySearchDAO) {
         this.anySearchDAO = anySearchDAO;
-    }
-
-    public Class<? extends SearchCondVisitor> getSearchCondVisitor() {
-        return searchCondVisitor;
-    }
-
-    public void setSearchCondVisitor(final Class<? extends SearchCondVisitor> searchCondVisitor) {
-        this.searchCondVisitor = searchCondVisitor;
     }
 
     public Class<? extends UserDAO> getUserDAO() {

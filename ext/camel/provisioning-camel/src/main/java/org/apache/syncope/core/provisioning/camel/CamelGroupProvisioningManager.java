@@ -29,6 +29,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
+import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,8 +37,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class CamelGroupProvisioningManager
         extends AbstractCamelProvisioningManager implements GroupProvisioningManager {
 
-    @Override
+    public CamelGroupProvisioningManager(final CamelRouteDAO routeDAO, final SyncopeCamelContext contextFactory) {
+        super(routeDAO, contextFactory);
+    }
+
     @SuppressWarnings("unchecked")
+    @Override
     public Pair<String, List<PropagationStatus>> create(
             final GroupCR req, final boolean nullPriorityAsync, final String creator, final String context) {
 

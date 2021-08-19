@@ -49,21 +49,22 @@ import org.identityconnectors.framework.api.RemoteFrameworkConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
+public class DefaultConnIdBundleManager implements ConnIdBundleManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConnIdBundleManager.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ConnIdBundleManager.class);
 
     /**
      * ConnId Locations.
      */
-    private final List<URI> locations;
+    protected final List<URI> locations;
 
     /**
      * ConnectorInfoManager instances.
      */
-    private final Map<URI, ConnectorInfoManager> connInfoManagers = Collections.synchronizedMap(new LinkedHashMap<>());
+    protected final Map<URI, ConnectorInfoManager> connInfoManagers =
+            Collections.synchronizedMap(new LinkedHashMap<>());
 
-    public ConnIdBundleManagerImpl(final List<String> stringLocations) {
+    public DefaultConnIdBundleManager(final List<String> stringLocations) {
         locations = new ArrayList<>();
         stringLocations.forEach(location -> {
             try {
@@ -80,7 +81,7 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
         return locations;
     }
 
-    private void initLocal(final URI location) {
+    protected void initLocal(final URI location) {
         // 1. Find bundles inside local directory
         File bundleDirectory = new File(location);
         String[] bundleFiles = bundleDirectory.list();
@@ -114,7 +115,7 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
         connInfoManagers.put(location, manager);
     }
 
-    private void initRemote(final URI location) {
+    protected void initRemote(final URI location) {
         // 1. Extract conf params for remote connection from given URI
         String host = location.getHost();
         int port = location.getPort();

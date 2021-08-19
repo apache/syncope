@@ -38,8 +38,6 @@ import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIEntityFactory;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
@@ -47,25 +45,33 @@ import org.apache.syncope.core.persistence.api.entity.OIDCC4UIUserTemplate;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.provisioning.api.data.OIDCC4UIProviderDataBinder;
 
-@Component
 public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(OIDCC4UIProviderDataBinder.class);
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private OIDCC4UIProviderDAO oidcOPDAO;
+    protected final OIDCC4UIProviderDAO oidcOPDAO;
 
-    @Autowired
-    private ImplementationDAO implementationDAO;
+    protected final ImplementationDAO implementationDAO;
 
-    @Autowired
-    private OIDCC4UIEntityFactory entityFactory;
+    protected final OIDCC4UIEntityFactory entityFactory;
 
-    @Autowired
-    private IntAttrNameParser intAttrNameParser;
+    protected final IntAttrNameParser intAttrNameParser;
+
+    public OIDCC4UIProviderDataBinderImpl(
+            final AnyTypeDAO anyTypeDAO,
+            final OIDCC4UIProviderDAO oidcOPDAO,
+            final ImplementationDAO implementationDAO,
+            final OIDCC4UIEntityFactory entityFactory,
+            final IntAttrNameParser intAttrNameParser) {
+
+        this.anyTypeDAO = anyTypeDAO;
+        this.oidcOPDAO = oidcOPDAO;
+        this.implementationDAO = implementationDAO;
+        this.entityFactory = entityFactory;
+        this.intAttrNameParser = intAttrNameParser;
+    }
 
     @Override
     public OIDCC4UIProvider create(final OIDCC4UIProviderTO opTO) {

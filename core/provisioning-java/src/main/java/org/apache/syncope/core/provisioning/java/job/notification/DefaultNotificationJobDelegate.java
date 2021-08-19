@@ -38,37 +38,43 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NotificationJobDelegate.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(NotificationJobDelegate.class);
 
-    @Autowired
-    private TaskDAO taskDAO;
+    protected final TaskDAO taskDAO;
 
-    @Autowired
-    private JavaMailSender mailSender;
+    protected final JavaMailSender mailSender;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private AuditManager auditManager;
+    protected final AuditManager auditManager;
 
-    @Autowired
-    private NotificationManager notificationManager;
+    protected final NotificationManager notificationManager;
 
-    private final AtomicReference<String> status = new AtomicReference<>();
+    protected final AtomicReference<String> status = new AtomicReference<>();
 
-    private boolean interrupt;
+    protected boolean interrupt;
 
-    private boolean interrupted;
+    protected boolean interrupted;
+
+    public DefaultNotificationJobDelegate(
+            final TaskDAO taskDAO,
+            final JavaMailSender mailSender,
+            final EntityFactory entityFactory,
+            final AuditManager auditManager,
+            final NotificationManager notificationManager) {
+
+        this.taskDAO = taskDAO;
+        this.mailSender = mailSender;
+        this.entityFactory = entityFactory;
+        this.auditManager = auditManager;
+        this.notificationManager = notificationManager;
+    }
 
     @Override
     public String currentStatus() {
@@ -226,7 +232,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
         }
     }
 
-    private static boolean hasToBeRegistered(final TaskExec execution) {
+    protected static boolean hasToBeRegistered(final TaskExec execution) {
         NotificationTask task = (NotificationTask) execution.getTask();
 
         // True if either failed and failures have to be registered, or if ALL
@@ -236,7 +242,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
                 || task.getTraceLevel() == TraceLevel.ALL;
     }
 
-    private void handleRetries(final TaskExec execution) {
+    protected void handleRetries(final TaskExec execution) {
         if (notificationManager.getMaxRetries() <= 0) {
             return;
         }

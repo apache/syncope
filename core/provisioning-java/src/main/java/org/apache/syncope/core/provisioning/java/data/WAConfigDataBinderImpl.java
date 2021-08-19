@@ -24,17 +24,17 @@ import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class WAConfigDataBinderImpl implements WAConfigDataBinder {
 
-    @Autowired
-    private WAConfigDAO waConfigDAO;
+    protected final WAConfigDAO waConfigDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public WAConfigDataBinderImpl(final WAConfigDAO waConfigDAO, final EntityFactory entityFactory) {
+        this.waConfigDAO = waConfigDAO;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public Attr get(final WAConfigEntry waConfigEntry) {

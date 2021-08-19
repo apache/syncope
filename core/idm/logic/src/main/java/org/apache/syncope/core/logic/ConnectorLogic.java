@@ -42,7 +42,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -59,26 +59,26 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     protected final ConnIdBundleManager connIdBundleManager;
 
+    protected final ConnectorManager connectorManager;
+
     protected final ExternalResourceDAO resourceDAO;
 
     protected final ConnInstanceDAO connInstanceDAO;
 
     protected final ConnInstanceDataBinder binder;
 
-    protected final ConnectorFactory connFactory;
-
     public ConnectorLogic(
             final ConnIdBundleManager connIdBundleManager,
+            final ConnectorManager connectorManager,
             final ExternalResourceDAO resourceDAO,
             final ConnInstanceDAO connInstanceDAO,
-            final ConnInstanceDataBinder binder,
-            final ConnectorFactory connFactory) {
+            final ConnInstanceDataBinder binder) {
 
         this.connIdBundleManager = connIdBundleManager;
+        this.connectorManager = connectorManager;
         this.resourceDAO = resourceDAO;
         this.connInstanceDAO = connInstanceDAO;
         this.binder = binder;
-        this.connFactory = connFactory;
     }
 
     protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
@@ -86,6 +86,18 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         if (!authorized) {
             throw new DelegatedAdministrationException(realm, ConnInstance.class.getSimpleName(), key);
         }
+    }
+
+    protected ConnInstance doSave(final ConnInstance connInstance) {
+        ConnInstance merged = connInstanceDAO.save(connInstance);
+        merged.getResources().forEach(resource -> {
+            try {
+                connectorManager.registerConnector(resource);
+            } catch (NotFoundException e) {
+                LOG.error("While registering connector {} for resource {}", merged, resource, e);
+            }
+        });
+        return merged;
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_CREATE + "')")
@@ -99,7 +111,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                 connInstanceTO.getAdminRealm());
         securityChecks(effectiveRealms, connInstanceTO.getAdminRealm(), null);
 
-        return binder.getConnInstanceTO(connInstanceDAO.save(binder.getConnInstance(connInstanceTO)));
+        return binder.getConnInstanceTO(doSave(binder.getConnInstance(connInstanceTO)));
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_UPDATE + "')")
@@ -115,7 +127,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                 connInstanceTO.getAdminRealm());
         securityChecks(effectiveRealms, connInstanceTO.getAdminRealm(), connInstanceTO.getKey());
 
-        return binder.getConnInstanceTO(binder.update(connInstanceTO));
+        return binder.getConnInstanceTO(doSave(binder.update(connInstanceTO)));
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_DELETE + "')")
@@ -139,6 +151,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
         ConnInstanceTO deleted = binder.getConnInstanceTO(connInstance);
         connInstanceDAO.delete(key);
+        connectorManager.unregisterConnector(key);
         return deleted;
     }
 
@@ -207,8 +220,8 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
             actual = binder.getConnInstanceTO(existing);
         }
 
-        Set<ObjectClassInfo> objectClassInfo = connFactory.createConnector(
-                connFactory.buildConnInstanceOverride(actual, connInstanceTO.getConf(), Optional.empty())).
+        Set<ObjectClassInfo> objectClassInfo = connectorManager.createConnector(
+                connectorManager.buildConnInstanceOverride(actual, connInstanceTO.getConf(), Optional.empty())).
                 getObjectClassInfo();
 
         return objectClassInfo.stream().map(info -> {
@@ -240,7 +253,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
             throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
         }
 
-        connFactory.createConnector(binder.getConnInstance(connInstanceTO)).test();
+        connectorManager.createConnector(binder.getConnInstance(connInstanceTO)).test();
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
@@ -252,7 +265,8 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceName + '\'');
         }
-        ConnInstanceTO connInstance = binder.getConnInstanceTO(connFactory.getConnector(resource).getConnInstance());
+        ConnInstanceTO connInstance = binder.
+                getConnInstanceTO(connectorManager.getConnector(resource).getConnInstance());
         connInstance.setKey(resource.getConnector().getKey());
         return connInstance;
     }
@@ -260,8 +274,8 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_RELOAD + "')")
     @Transactional(readOnly = true)
     public void reload() {
-        connFactory.unload();
-        connFactory.load();
+        connectorManager.unload();
+        connectorManager.load();
     }
 
     @Override

@@ -39,13 +39,13 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class DefaultPasswordGenerator implements PasswordGenerator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PasswordGenerator.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(PasswordGenerator.class);
 
-    private static final int VERY_MIN_LENGTH = 0;
+    protected static final int VERY_MIN_LENGTH = 0;
 
-    private static final int VERY_MAX_LENGTH = 64;
+    protected static final int VERY_MAX_LENGTH = 64;
 
-    private static final int MIN_LENGTH_IF_ZERO = 8;
+    protected static final int MIN_LENGTH_IF_ZERO = 8;
 
     @Transactional(readOnly = true)
     @Override
@@ -80,7 +80,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
         return generate(ruleConf);
     }
 
-    private static DefaultPasswordRuleConf merge(final List<DefaultPasswordRuleConf> defaultRuleConfs) {
+    protected static DefaultPasswordRuleConf merge(final List<DefaultPasswordRuleConf> defaultRuleConfs) {
         DefaultPasswordRuleConf result = new DefaultPasswordRuleConf();
         result.setMinLength(VERY_MIN_LENGTH);
         result.setMaxLength(VERY_MAX_LENGTH);
@@ -162,7 +162,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
         return result;
     }
 
-    private static void check(final DefaultPasswordRuleConf defaultPasswordRuleConf)
+    protected static void check(final DefaultPasswordRuleConf defaultPasswordRuleConf)
             throws InvalidPasswordRuleConf {
 
         if (defaultPasswordRuleConf.isMustEndWithAlpha() && defaultPasswordRuleConf.isMustntEndWithAlpha()) {
@@ -204,7 +204,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
         }
     }
 
-    private static String generate(final DefaultPasswordRuleConf ruleConf) {
+    protected static String generate(final DefaultPasswordRuleConf ruleConf) {
         String[] generatedPassword = new String[ruleConf.getMinLength()];
 
         for (int i = 0; i < generatedPassword.length; i++) {
@@ -228,7 +228,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
         return StringUtils.join(generatedPassword);
     }
 
-    private static void checkStartChar(final String[] generatedPassword, final DefaultPasswordRuleConf ruleConf) {
+    protected static void checkStartChar(final String[] generatedPassword, final DefaultPasswordRuleConf ruleConf) {
         if (ruleConf.isMustStartWithAlpha()) {
             generatedPassword[0] = SecureRandomUtils.generateRandomLetter();
         }
@@ -250,7 +250,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
         }
     }
 
-    private static void checkEndChar(final String[] generatedPassword, final DefaultPasswordRuleConf ruleConf) {
+    protected static void checkEndChar(final String[] generatedPassword, final DefaultPasswordRuleConf ruleConf) {
         if (ruleConf.isMustEndWithAlpha()) {
             generatedPassword[ruleConf.getMinLength() - 1] = SecureRandomUtils.generateRandomLetter();
         }
@@ -273,7 +273,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
         }
     }
 
-    private static int firstEmptyChar(final String[] generatedPStrings) {
+    protected static int firstEmptyChar(final String[] generatedPStrings) {
         int index = 0;
         while (!generatedPStrings[index].isEmpty()) {
             index++;
@@ -281,7 +281,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
         return index;
     }
 
-    private static void checkRequired(final String[] generatedPassword, final DefaultPasswordRuleConf ruleConf) {
+    protected static void checkRequired(final String[] generatedPassword, final DefaultPasswordRuleConf ruleConf) {
         if (ruleConf.isDigitRequired()
                 && !PolicyPattern.DIGIT.matcher(StringUtils.join(generatedPassword)).matches()) {
 
@@ -311,7 +311,9 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
         }
     }
 
-    private static void checkPrefixAndSuffix(final String[] generatedPassword, final DefaultPasswordRuleConf ruleConf) {
+    protected static void checkPrefixAndSuffix(
+            final String[] generatedPassword, final DefaultPasswordRuleConf ruleConf) {
+
         ruleConf.getPrefixesNotPermitted().forEach(prefix -> {
             if (StringUtils.join(generatedPassword).startsWith(prefix)) {
                 checkStartChar(generatedPassword, ruleConf);
@@ -324,5 +326,4 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
             }
         });
     }
-
 }

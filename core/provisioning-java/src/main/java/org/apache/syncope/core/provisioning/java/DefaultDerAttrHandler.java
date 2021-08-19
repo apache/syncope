@@ -32,20 +32,14 @@ import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
-@Component
-public class DerAttrHandlerImpl implements DerAttrHandler {
+public class DefaultDerAttrHandler implements DerAttrHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DerAttrHandler.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DerAttrHandler.class);
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
-
-    private static Map<DerSchema, String> getValues(final Any<?> any, final Set<DerSchema> schemas) {
+    protected static Map<DerSchema, String> getValues(final Any<?> any, final Set<DerSchema> schemas) {
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
@@ -57,6 +51,12 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
         });
 
         return result;
+    }
+
+    protected final AnyUtilsFactory anyUtilsFactory;
+
+    public DefaultDerAttrHandler(final AnyUtilsFactory anyUtilsFactory) {
+        this.anyUtilsFactory = anyUtilsFactory;
     }
 
     @Override
@@ -90,8 +90,8 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
                 anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).getForSelf());
     }
 
-    private static Map<DerSchema, String> getValues(
-        final GroupableRelatable<?, ?, ?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
+    protected static Map<DerSchema, String> getValues(
+            final GroupableRelatable<?, ?, ?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
 
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 

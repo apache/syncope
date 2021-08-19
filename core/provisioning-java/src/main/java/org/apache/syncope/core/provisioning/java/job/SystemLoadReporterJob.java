@@ -22,20 +22,20 @@ import java.lang.management.ManagementFactory;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
 
 /**
  * Reports about system load.
  */
-@Component
 public class SystemLoadReporterJob extends AbstractInterruptableJob {
 
-    private static final Integer MB = 1024 * 1024;
+    protected static final Integer MB = 1024 * 1024;
 
-    @Autowired
-    private ApplicationEventPublisher publisher;
+    protected final ApplicationEventPublisher publisher;
+
+    public SystemLoadReporterJob(final ApplicationEventPublisher publisher) {
+        this.publisher = publisher;
+    }
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {

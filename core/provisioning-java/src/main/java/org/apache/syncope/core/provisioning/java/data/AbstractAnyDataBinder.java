@@ -48,6 +48,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlain
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
@@ -93,62 +94,86 @@ import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 abstract class AbstractAnyDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAnyDataBinder.class);
 
-    @Autowired
-    protected RealmDAO realmDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    protected AnyTypeClassDAO anyTypeClassDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
+    protected final AnyTypeClassDAO anyTypeClassDAO;
 
-    @Autowired
-    protected UserDAO userDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
-    @Autowired
-    protected GroupDAO groupDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    protected PlainSchemaDAO plainSchemaDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    protected PlainAttrDAO plainAttrDAO;
+    protected final PlainSchemaDAO plainSchemaDAO;
 
-    @Autowired
-    protected PlainAttrValueDAO plainAttrValueDAO;
+    protected final PlainAttrDAO plainAttrDAO;
 
-    @Autowired
-    protected ExternalResourceDAO resourceDAO;
+    protected final PlainAttrValueDAO plainAttrValueDAO;
 
-    @Autowired
-    protected RelationshipTypeDAO relationshipTypeDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    protected EntityFactory entityFactory;
+    protected final RelationshipTypeDAO relationshipTypeDAO;
 
-    @Autowired
-    protected AnyUtilsFactory anyUtilsFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    protected DerAttrHandler derAttrHandler;
+    protected final AnyUtilsFactory anyUtilsFactory;
 
-    @Autowired
-    protected VirAttrHandler virAttrHandler;
+    protected final DerAttrHandler derAttrHandler;
 
-    @Autowired
-    protected MappingManager mappingManager;
+    protected final VirAttrHandler virAttrHandler;
 
-    @Autowired
-    protected IntAttrNameParser intAttrNameParser;
+    protected final MappingManager mappingManager;
 
-    @Autowired
-    protected OutboundMatcher outboundMatcher;
+    protected final IntAttrNameParser intAttrNameParser;
+
+    protected final OutboundMatcher outboundMatcher;
+
+    protected AbstractAnyDataBinder(
+            final AnyTypeDAO anyTypeDAO,
+            final RealmDAO realmDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final PlainAttrDAO plainAttrDAO,
+            final PlainAttrValueDAO plainAttrValueDAO,
+            final ExternalResourceDAO resourceDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory,
+            final DerAttrHandler derAttrHandler,
+            final VirAttrHandler virAttrHandler,
+            final MappingManager mappingManager,
+            final IntAttrNameParser intAttrNameParser,
+            final OutboundMatcher outboundMatcher) {
+
+        this.anyTypeDAO = anyTypeDAO;
+        this.realmDAO = realmDAO;
+        this.anyTypeClassDAO = anyTypeClassDAO;
+        this.anyObjectDAO = anyObjectDAO;
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.plainSchemaDAO = plainSchemaDAO;
+        this.plainAttrDAO = plainAttrDAO;
+        this.plainAttrValueDAO = plainAttrValueDAO;
+        this.resourceDAO = resourceDAO;
+        this.relationshipTypeDAO = relationshipTypeDAO;
+        this.entityFactory = entityFactory;
+        this.anyUtilsFactory = anyUtilsFactory;
+        this.derAttrHandler = derAttrHandler;
+        this.virAttrHandler = virAttrHandler;
+        this.mappingManager = mappingManager;
+        this.intAttrNameParser = intAttrNameParser;
+        this.outboundMatcher = outboundMatcher;
+    }
 
     protected void setRealm(final Any<?> any, final AnyUR anyUR) {
         if (anyUR.getRealm() != null && StringUtils.isNotBlank(anyUR.getRealm().getValue())) {

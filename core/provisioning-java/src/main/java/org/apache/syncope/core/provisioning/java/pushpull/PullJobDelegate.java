@@ -64,7 +64,6 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
-import org.apache.syncope.core.provisioning.java.DefaultProvisionSorter;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.quartz.JobExecutionContext;
 

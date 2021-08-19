@@ -72,40 +72,50 @@ import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ResourceDataBinderImpl implements ResourceDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ResourceDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ResourceDataBinder.class);
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private ConnInstanceDAO connInstanceDAO;
+    protected final ConnInstanceDAO connInstanceDAO;
 
-    @Autowired
-    private PolicyDAO policyDAO;
+    protected final PolicyDAO policyDAO;
 
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    private AnyTypeClassDAO anyTypeClassDAO;
+    protected final AnyTypeClassDAO anyTypeClassDAO;
 
-    @Autowired
-    private ImplementationDAO implementationDAO;
+    protected final ImplementationDAO implementationDAO;
 
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
+    protected final PlainSchemaDAO plainSchemaDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private IntAttrNameParser intAttrNameParser;
+    protected final IntAttrNameParser intAttrNameParser;
+
+    public ResourceDataBinderImpl(
+            final AnyTypeDAO anyTypeDAO,
+            final ConnInstanceDAO connInstanceDAO,
+            final PolicyDAO policyDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
+            final ImplementationDAO implementationDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final EntityFactory entityFactory,
+            final IntAttrNameParser intAttrNameParser) {
+
+        this.anyTypeDAO = anyTypeDAO;
+        this.connInstanceDAO = connInstanceDAO;
+        this.policyDAO = policyDAO;
+        this.virSchemaDAO = virSchemaDAO;
+        this.anyTypeClassDAO = anyTypeClassDAO;
+        this.implementationDAO = implementationDAO;
+        this.plainSchemaDAO = plainSchemaDAO;
+        this.entityFactory = entityFactory;
+        this.intAttrNameParser = intAttrNameParser;
+    }
 
     @Override
     public ExternalResource create(final ResourceTO resourceTO) {
@@ -387,7 +397,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         return resource;
     }
 
-    private void populateMapping(
+    protected void populateMapping(
             final MappingTO mappingTO,
             final Mapping mapping,
             final AnyTypeClassTO allowedSchemas) {
@@ -566,7 +576,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         }
     }
 
-    private static void populateItems(final List<? extends Item> items, final ItemContainerTO containerTO) {
+    protected static void populateItems(final List<? extends Item> items, final ItemContainerTO containerTO) {
         items.forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());

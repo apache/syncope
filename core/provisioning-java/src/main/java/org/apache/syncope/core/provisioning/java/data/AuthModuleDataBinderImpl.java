@@ -21,8 +21,6 @@ package org.apache.syncope.core.provisioning.java.data;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -34,15 +32,17 @@ import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component
 public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AuthModuleDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AuthModuleDataBinder.class);
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    private void populateItems(final AuthModuleTO authModuleTO, final AuthModule authModule) {
+    public AuthModuleDataBinderImpl(final EntityFactory entityFactory) {
+        this.entityFactory = entityFactory;
+    }
+
+    protected void populateItems(final AuthModuleTO authModuleTO, final AuthModule authModule) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
         SyncopeClientException invalidMapping =
                 SyncopeClientException.build(ClientExceptionType.InvalidMapping);
@@ -106,7 +106,7 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
         return authModule;
     }
 
-    private static void populateItems(final AuthModule authModule, final AuthModuleTO authModuleTO) {
+    protected static void populateItems(final AuthModule authModule, final AuthModuleTO authModuleTO) {
         authModule.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());

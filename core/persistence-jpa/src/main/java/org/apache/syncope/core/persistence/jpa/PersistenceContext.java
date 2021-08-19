@@ -135,11 +135,10 @@ public class PersistenceContext {
         return props.getAnySearchDAO().getDeclaredConstructor().newInstance();
     }
 
+    @ConditionalOnMissingBean
     @Bean
-    public SearchCondVisitor searchCondVisitor() throws NoSuchMethodException,
-            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-        return props.getSearchCondVisitor().getDeclaredConstructor().newInstance();
+    public SearchCondVisitor searchCondVisitor() {
+        return new SearchCondVisitor();
     }
 
     @Bean

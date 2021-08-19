@@ -35,8 +35,8 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.quartz.JobExecutionContext;
@@ -86,7 +86,7 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
      * ConnInstance loader.
      */
     @Autowired
-    protected ConnectorFactory connFactory;
+    protected ConnectorManager connectorManager;
 
     /**
      * AnyTypeDAO DAO
@@ -629,7 +629,7 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
     protected Connector getConnector(final T provisioningTask) throws JobExecutionException {
         Connector connector;
         try {
-            connector = connFactory.getConnector(provisioningTask.getResource());
+            connector = connectorManager.getConnector(provisioningTask.getResource());
         } catch (Exception e) {
             String msg = String.format("Connector instance bean for resource %s and connInstance %s not found",
                     provisioningTask.getResource(), provisioningTask.getResource().getConnector());

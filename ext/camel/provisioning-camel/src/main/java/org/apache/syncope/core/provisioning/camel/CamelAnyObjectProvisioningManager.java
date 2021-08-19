@@ -29,12 +29,17 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
+import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class CamelAnyObjectProvisioningManager
         extends AbstractCamelProvisioningManager implements AnyObjectProvisioningManager {
+
+    public CamelAnyObjectProvisioningManager(final CamelRouteDAO routeDAO, final SyncopeCamelContext contextFactory) {
+        super(routeDAO, contextFactory);
+    }
 
     @Override
     public Pair<String, List<PropagationStatus>> create(
@@ -44,8 +49,8 @@ public class CamelAnyObjectProvisioningManager
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public Pair<String, List<PropagationStatus>> create(
             final AnyObjectCR req,
             final Set<String> excludedResources,

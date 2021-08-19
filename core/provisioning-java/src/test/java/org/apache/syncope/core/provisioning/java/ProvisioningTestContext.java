@@ -18,15 +18,52 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.core.persistence.api.DomainHolder;
+import org.apache.syncope.core.persistence.api.DomainRegistry;
+import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.persistence.jpa.PersistenceContext;
+import org.apache.syncope.core.persistence.jpa.StartupDomainLoader;
 import org.apache.syncope.core.spring.security.SecurityContext;
 import org.apache.syncope.core.workflow.java.WorkflowContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 
 @PropertySource("classpath:core-test.properties")
-@Import({ SecurityContext.class, PersistenceContext.class, ProvisioningContext.class, WorkflowContext.class })
+@Import({ ProvisioningContext.class, SecurityContext.class, PersistenceContext.class, WorkflowContext.class })
 @Configuration
 public class ProvisioningTestContext {
+
+    @Bean
+    @Autowired
+    public TestInitializer testInitializer(
+            final StartupDomainLoader domainLoader,
+            final DomainHolder domainHolder,
+            final ContentLoader contentLoader,
+            final ConfigurableApplicationContext ctx) {
+
+        return new TestInitializer(domainLoader, domainHolder, contentLoader, ctx);
+    }
+
+    @Bean
+    public ImplementationLookup implementationLookup() {
+        return new DummyImplementationLookup();
+    }
+
+    @Bean
+    public ConfParamOps confParamOps() {
+        return new DummyConfParamOps();
+    }
+
+    @Bean
+    @Autowired
+    public DomainOps domainOps(final DomainRegistry domainRegistry) {
+        return new DummyDomainOps(domainRegistry);
+    }
 }

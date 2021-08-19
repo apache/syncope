@@ -43,7 +43,6 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -59,6 +58,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.AuditManager;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
@@ -79,7 +79,6 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = { Throwable.class })
@@ -87,74 +86,65 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     protected static final Logger LOG = LoggerFactory.getLogger(PropagationTaskExecutor.class);
 
-    /**
-     * Connector factory.
-     */
-    @Autowired
-    protected ConnectorFactory connFactory;
+    protected final ConnectorManager connectorManager;
 
-    /**
-     * ConnObjectUtils.
-     */
-    @Autowired
-    protected ConnObjectUtils connObjectUtils;
+    protected final ConnObjectUtils connObjectUtils;
 
-    /**
-     * User DAO.
-     */
-    @Autowired
-    protected UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    /**
-     * Group DAO.
-     */
-    @Autowired
-    protected GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    /**
-     * Any object DAO.
-     */
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
-    /**
-     * Task DAO.
-     */
-    @Autowired
-    protected TaskDAO taskDAO;
+    protected final TaskDAO taskDAO;
 
-    @Autowired
-    protected ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    /**
-     * Notification Manager.
-     */
-    @Autowired
-    protected NotificationManager notificationManager;
+    protected final NotificationManager notificationManager;
 
-    /**
-     * Audit Manager.
-     */
-    @Autowired
-    protected AuditManager auditManager;
+    protected final AuditManager auditManager;
 
-    /**
-     * Task data binder.
-     */
-    @Autowired
-    protected TaskDataBinder taskDataBinder;
+    protected final TaskDataBinder taskDataBinder;
 
-    @Autowired
-    protected AnyUtilsFactory anyUtilsFactory;
+    protected final AnyUtilsFactory anyUtilsFactory;
 
-    @Autowired
-    protected TaskUtilsFactory taskUtilsFactory;
+    protected final TaskUtilsFactory taskUtilsFactory;
 
-    @Autowired
-    protected EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    protected OutboundMatcher outboundMatcher;
+    protected final OutboundMatcher outboundMatcher;
+
+    public AbstractPropagationTaskExecutor(
+            final ConnectorManager connectorManager,
+            final ConnObjectUtils connObjectUtils,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final TaskDAO taskDAO,
+            final ExternalResourceDAO resourceDAO,
+            final NotificationManager notificationManager,
+            final AuditManager auditManager,
+            final TaskDataBinder taskDataBinder,
+            final AnyUtilsFactory anyUtilsFactory,
+            final TaskUtilsFactory taskUtilsFactory,
+            final EntityFactory entityFactory,
+            final OutboundMatcher outboundMatcher) {
+
+        this.connectorManager = connectorManager;
+        this.connObjectUtils = connObjectUtils;
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.anyObjectDAO = anyObjectDAO;
+        this.taskDAO = taskDAO;
+        this.resourceDAO = resourceDAO;
+        this.notificationManager = notificationManager;
+        this.auditManager = auditManager;
+        this.taskDataBinder = taskDataBinder;
+        this.anyUtilsFactory = anyUtilsFactory;
+        this.taskUtilsFactory = taskUtilsFactory;
+        this.entityFactory = entityFactory;
+        this.outboundMatcher = outboundMatcher;
+    }
 
     protected List<PropagationActions> getPropagationActions(final ExternalResource resource) {
         List<PropagationActions> result = new ArrayList<>();
@@ -317,7 +307,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         PropagationTask task = buildTask(taskInfo);
 
         Connector connector = taskInfo.getConnector() == null
-                ? connFactory.getConnector(task.getResource())
+                ? connectorManager.getConnector(task.getResource())
                 : taskInfo.getConnector();
 
         List<PropagationActions> actions = getPropagationActions(task.getResource());

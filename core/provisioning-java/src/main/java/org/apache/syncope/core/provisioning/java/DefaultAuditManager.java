@@ -36,7 +36,6 @@ import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
@@ -45,9 +44,9 @@ import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 @Transactional(readOnly = true)
 public class DefaultAuditManager implements AuditManager {
 
-    private static final String MASKED_VALUE = "<MASKED>";
+    protected static final String MASKED_VALUE = "<MASKED>";
 
-    private static Object maskSensitive(final Object object) {
+    protected static Object maskSensitive(final Object object) {
         Object masked;
 
         if (object instanceof UserTO) {
@@ -76,8 +75,11 @@ public class DefaultAuditManager implements AuditManager {
         return masked;
     }
 
-    @Autowired
-    private AuditConfDAO auditDAO;
+    protected final AuditConfDAO auditConfDAO;
+
+    public DefaultAuditManager(final AuditConfDAO auditConfDAO) {
+        this.auditConfDAO = auditConfDAO;
+    }
 
     @Override
     public boolean auditRequested(
@@ -92,8 +94,8 @@ public class DefaultAuditManager implements AuditManager {
         auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS));
         auditEntry.setDate(new Date());
 
-        AuditConf audit = auditDAO.find(auditEntry.getLogger().toAuditKey());
-        boolean auditRequested = audit != null && audit.isActive();
+        AuditConf auditConf = auditConfDAO.find(auditEntry.getLogger().toAuditKey());
+        boolean auditRequested = auditConf != null && auditConf.isActive();
 
         if (auditRequested) {
             return true;
@@ -101,8 +103,8 @@ public class DefaultAuditManager implements AuditManager {
 
         auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.FAILURE));
 
-        audit = auditDAO.find(auditEntry.getLogger().toAuditKey());
-        auditRequested = audit != null && audit.isActive();
+        auditConf = auditConfDAO.find(auditEntry.getLogger().toAuditKey());
+        auditRequested = auditConf != null && auditConf.isActive();
 
         return auditRequested;
     }
@@ -137,7 +139,7 @@ public class DefaultAuditManager implements AuditManager {
 
         AuditLoggerName auditLoggerName = new AuditLoggerName(type, category, subcategory, event, condition);
 
-        AuditConf audit = auditDAO.find(auditLoggerName.toAuditKey());
+        AuditConf audit = auditConfDAO.find(auditLoggerName.toAuditKey());
         if (audit != null && audit.isActive()) {
             Throwable throwable = null;
             if (output instanceof Throwable) {

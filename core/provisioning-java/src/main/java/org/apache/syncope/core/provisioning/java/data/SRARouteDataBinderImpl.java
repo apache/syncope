@@ -22,11 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.SRARoute;
 import org.apache.syncope.core.provisioning.api.data.SRARouteDataBinder;
 
-@Component
 public class SRARouteDataBinderImpl implements SRARouteDataBinder {
 
     @Override

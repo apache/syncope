@@ -31,20 +31,20 @@ import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class SyncopeCamelContext {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeCamelContext.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeCamelContext.class);
 
-    @Autowired
-    private CamelRouteDAO routeDAO;
+    protected final CamelRouteDAO routeDAO;
 
-    private SpringCamelContext camelContext;
+    public SyncopeCamelContext(final CamelRouteDAO routeDAO) {
+        this.routeDAO = routeDAO;
+    }
+
+    protected SpringCamelContext camelContext;
 
     public SpringCamelContext getCamelContext() {
         synchronized (this) {
@@ -64,7 +64,7 @@ public class SyncopeCamelContext {
         return camelContext;
     }
 
-    private void loadRouteDefinitions(final List<String> routes) {
+    protected void loadRouteDefinitions(final List<String> routes) {
         try {
             RoutesDefinition routeDefs = JaxbHelper.loadRoutesDefinition(
                     camelContext,

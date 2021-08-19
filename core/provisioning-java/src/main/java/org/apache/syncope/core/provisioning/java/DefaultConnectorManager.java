@@ -36,46 +36,51 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
-import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
-public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
+public class DefaultConnectorManager implements ConnectorManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConnectorManager.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ConnectorManager.class);
 
-    @Autowired
-    private ConnIdBundleManager connIdBundleManager;
-
-    @Autowired
-    private RealmDAO realmDAO;
-
-    @Autowired
-    @Lazy
-    private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private ConnInstanceDataBinder connInstanceDataBinder;
-
-    @Autowired
-    private AsyncConnectorFacade asyncFacade;
-
-    private EntityFactory entityFactory;
-
-    private static String getBeanName(final ExternalResource resource) {
+    protected static String getBeanName(final ExternalResource resource) {
         return String.format("connInstance-%s-%S-%s",
                 AuthContextUtils.getDomain(), resource.getConnector().getKey(), resource.getKey());
+    }
+
+    protected final ConnIdBundleManager connIdBundleManager;
+
+    protected final RealmDAO realmDAO;
+
+    protected final ExternalResourceDAO resourceDAO;
+
+    protected final ConnInstanceDataBinder connInstanceDataBinder;
+
+    protected final AsyncConnectorFacade asyncFacade;
+
+    protected final EntityFactory entityFactory;
+
+    public DefaultConnectorManager(
+            final ConnIdBundleManager connIdBundleManager,
+            final RealmDAO realmDAO,
+            final ExternalResourceDAO resourceDAO,
+            final ConnInstanceDataBinder connInstanceDataBinder,
+            final AsyncConnectorFacade asyncFacade,
+            final EntityFactory entityFactory) {
+
+        this.connIdBundleManager = connIdBundleManager;
+        this.realmDAO = realmDAO;
+        this.resourceDAO = resourceDAO;
+        this.connInstanceDataBinder = connInstanceDataBinder;
+        this.asyncFacade = asyncFacade;
+        this.entityFactory = entityFactory;
     }
 
     @Override
@@ -98,12 +103,6 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
             final ConnInstanceTO connInstance,
             final Collection<ConnConfProperty> confOverride,
             final Optional<Collection<ConnectorCapability>> capabilitiesOverride) {
-
-        synchronized (this) {
-            if (entityFactory == null) {
-                entityFactory = ApplicationContextProvider.getApplicationContext().getBean(EntityFactory.class);
-            }
-        }
 
         ConnInstance override = entityFactory.newEntity(ConnInstance.class);
         override.setAdminRealm(realmDAO.findByFullPath(connInstance.getAdminRealm()));

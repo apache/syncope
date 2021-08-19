@@ -27,15 +27,28 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.TaskDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Exec;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
+import org.apache.syncope.core.provisioning.api.AuditManager;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
+import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
+import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskCallable;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
+import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
+import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -47,9 +60,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  * the whole process, resulting in a global failure.
  */
 public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExecutor {
-
-    @Resource(name = "propagationTaskExecutorAsyncExecutor")
-    protected ThreadPoolTaskExecutor taskExecutor;
 
     /**
      * Creates new instances of {@link PropagationTaskCallable} for usage with
@@ -71,6 +81,42 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         callable.setExecutor(executor);
 
         return callable;
+    }
+
+    protected final ThreadPoolTaskExecutor taskExecutor;
+
+    public PriorityPropagationTaskExecutor(
+            final ConnectorManager connectorManager,
+            final ConnObjectUtils connObjectUtils,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final TaskDAO taskDAO,
+            final ExternalResourceDAO resourceDAO,
+            final NotificationManager notificationManager,
+            final AuditManager auditManager,
+            final TaskDataBinder taskDataBinder,
+            final AnyUtilsFactory anyUtilsFactory,
+            final TaskUtilsFactory taskUtilsFactory,
+            final EntityFactory entityFactory,
+            final OutboundMatcher outboundMatcher,
+            final ThreadPoolTaskExecutor taskExecutor) {
+
+        super(connectorManager,
+                connObjectUtils,
+                userDAO,
+                groupDAO,
+                anyObjectDAO,
+                taskDAO,
+                resourceDAO,
+                notificationManager,
+                auditManager,
+                taskDataBinder,
+                anyUtilsFactory,
+                taskUtilsFactory,
+                entityFactory,
+                outboundMatcher);
+        this.taskExecutor = taskExecutor;
     }
 
     @Override

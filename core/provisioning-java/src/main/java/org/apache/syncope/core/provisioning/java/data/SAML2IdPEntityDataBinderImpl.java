@@ -20,17 +20,17 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Base64;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPEntity;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPEntityDataBinder;
 
-@Component
 public class SAML2IdPEntityDataBinderImpl implements SAML2IdPEntityDataBinder {
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public SAML2IdPEntityDataBinderImpl(final EntityFactory entityFactory) {
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public SAML2IdPEntity create(final SAML2IdPEntityTO entityTO) {

@@ -49,16 +49,16 @@ import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ImplementationDataBinderImpl implements ImplementationDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ImplementationDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ImplementationDataBinder.class);
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public ImplementationDataBinderImpl(final EntityFactory entityFactory) {
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public Implementation create(final ImplementationTO implementationTO) {

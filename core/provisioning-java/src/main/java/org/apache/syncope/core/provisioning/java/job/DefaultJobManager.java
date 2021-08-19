@@ -62,7 +62,6 @@ import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,43 +77,54 @@ import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 
-public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
+public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JobManager.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(JobManager.class);
 
-    @Autowired
-    private DomainHolder domainHolder;
+    protected final DomainHolder domainHolder;
 
-    @Autowired
-    private SchedulerFactoryBean scheduler;
+    protected final SchedulerFactoryBean scheduler;
 
-    @Autowired
-    private TaskDAO taskDAO;
+    protected final TaskDAO taskDAO;
 
-    @Autowired
-    private ReportDAO reportDAO;
+    protected final ReportDAO reportDAO;
 
-    @Autowired
-    private ImplementationDAO implementationDAO;
+    protected final ImplementationDAO implementationDAO;
 
-    @Autowired
-    private ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
 
-    @Autowired
-    private SecurityProperties securityProperties;
+    protected final SecurityProperties securityProperties;
 
-    private boolean disableQuartzInstance;
+    protected boolean disableQuartzInstance;
+
+    public DefaultJobManager(
+            final DomainHolder domainHolder,
+            final SchedulerFactoryBean scheduler,
+            final TaskDAO taskDAO,
+            final ReportDAO reportDAO,
+            final ImplementationDAO implementationDAO,
+            final ConfParamOps confParamOps,
+            final SecurityProperties securityProperties) {
+
+        this.domainHolder = domainHolder;
+        this.scheduler = scheduler;
+        this.taskDAO = taskDAO;
+        this.reportDAO = reportDAO;
+        this.implementationDAO = implementationDAO;
+        this.confParamOps = confParamOps;
+        this.securityProperties = securityProperties;
+    }
 
     public void setDisableQuartzInstance(final boolean disableQuartzInstance) {
         this.disableQuartzInstance = disableQuartzInstance;
     }
 
-    private boolean isRunningHere(final JobKey jobKey) throws SchedulerException {
+    protected boolean isRunningHere(final JobKey jobKey) throws SchedulerException {
         return scheduler.getScheduler().getCurrentlyExecutingJobs().stream().
                 anyMatch(jec -> jobKey.equals(jec.getJobDetail().getKey()));
     }
 
-    private boolean isRunningElsewhere(final JobKey jobKey) throws SchedulerException {
+    protected boolean isRunningElsewhere(final JobKey jobKey) throws SchedulerException {
         if (!scheduler.getScheduler().getMetaData().isJobStoreClustered()) {
             return false;
         }
@@ -146,7 +156,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
         return isRunningHere(jobKey) || isRunningElsewhere(jobKey);
     }
 
-    private void registerJob(
+    protected void registerJob(
             final String jobName, final Job jobInstance,
             final String cronExpression, final Date startAt,
             final Map<String, Object> jobMap)
@@ -196,7 +206,7 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T createSpringBean(final Class<T> jobClass) {
+    protected static <T> T createSpringBean(final Class<T> jobClass) {
         T jobInstance = null;
         for (int i = 0; i < 5 && jobInstance == null; i++) {
             LOG.debug("{} attempt to create Spring bean for {}", i, jobClass);
@@ -268,14 +278,14 @@ public class JobManagerImpl implements JobManager, SyncopeCoreLoader {
         registerJob(JobNamer.getJobKey(report).getName(), job, report.getCronExpression(), startAt, jobMap);
     }
 
-    private static Map<String, Object> createJobMapForExecutionContext(final String executor) {
+    protected static Map<String, Object> createJobMapForExecutionContext(final String executor) {
         Map<String, Object> jobMap = new HashMap<>();
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
         jobMap.put(JobManager.EXECUTOR_KEY, executor);
         return jobMap;
     }
 
-    private void unregisterJob(final String jobName) {
+    protected void unregisterJob(final String jobName) {
         try {
             scheduler.getScheduler().unscheduleJob(new TriggerKey(jobName, Scheduler.DEFAULT_GROUP));
             scheduler.getScheduler().deleteJob(new JobKey(jobName, Scheduler.DEFAULT_GROUP));

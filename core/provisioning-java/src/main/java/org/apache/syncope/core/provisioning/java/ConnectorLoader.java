@@ -20,16 +20,16 @@ package org.apache.syncope.core.provisioning.java;
 
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ConnectorLoader implements SyncopeCoreLoader {
 
-    @Autowired
-    private ConnectorFactory connectorFactory;
+    protected final ConnectorManager connectorManager;
+
+    public ConnectorLoader(final ConnectorManager connectorManager) {
+        this.connectorManager = connectorManager;
+    }
 
     @Override
     public int getOrder() {
@@ -39,7 +39,7 @@ public class ConnectorLoader implements SyncopeCoreLoader {
     @Override
     public void load(final String domain, final DataSource datasource) {
         AuthContextUtils.callAsAdmin(domain, () -> {
-            connectorFactory.load();
+            connectorManager.load();
             return null;
         });
     }

@@ -61,38 +61,14 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-@Component
 public class ConnObjectUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtils.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtils.class);
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
-    @Autowired
-    private TemplateUtils templateUtils;
-
-    @Autowired
-    private RealmDAO realmDAO;
-
-    @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private PasswordGenerator passwordGenerator;
-
-    @Autowired
-    private MappingManager mappingManager;
-
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     /**
      * Extract password value from passed value (if instance of GuardedString or GuardedByteArray).
@@ -149,6 +125,38 @@ public class ConnObjectUtils {
         }
 
         return connObjectTO;
+    }
+
+    protected final TemplateUtils templateUtils;
+
+    protected final RealmDAO realmDAO;
+
+    protected final UserDAO userDAO;
+
+    protected final ExternalResourceDAO resourceDAO;
+
+    protected final PasswordGenerator passwordGenerator;
+
+    protected final MappingManager mappingManager;
+
+    protected final AnyUtilsFactory anyUtilsFactory;
+
+    public ConnObjectUtils(
+            final TemplateUtils templateUtils,
+            final RealmDAO realmDAO,
+            final UserDAO userDAO,
+            final ExternalResourceDAO resourceDAO,
+            final PasswordGenerator passwordGenerator,
+            final MappingManager mappingManager,
+            final AnyUtilsFactory anyUtilsFactory) {
+
+        this.templateUtils = templateUtils;
+        this.realmDAO = realmDAO;
+        this.userDAO = userDAO;
+        this.resourceDAO = resourceDAO;
+        this.passwordGenerator = passwordGenerator;
+        this.mappingManager = mappingManager;
+        this.anyUtilsFactory = anyUtilsFactory;
     }
 
     /**
@@ -307,7 +315,7 @@ public class ConnObjectUtils {
         return anyUR;
     }
 
-    private <T extends AnyTO> T getAnyTOFromConnObject(
+    protected <T extends AnyTO> T getAnyTOFromConnObject(
             final ConnectorObject obj, final PullTask pullTask, final Provision provision) {
 
         T anyTO = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).newAnyTO();

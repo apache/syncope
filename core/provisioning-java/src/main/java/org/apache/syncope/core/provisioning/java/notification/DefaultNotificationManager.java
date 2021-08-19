@@ -78,85 +78,88 @@ import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = { Throwable.class })
 public class DefaultNotificationManager implements NotificationManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NotificationManager.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(NotificationManager.class);
 
-    @Autowired
-    private DerSchemaDAO derSchemaDAO;
+    protected final DerSchemaDAO derSchemaDAO;
 
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    /**
-     * Notification DAO.
-     */
-    @Autowired
-    private NotificationDAO notificationDAO;
+    protected final NotificationDAO notificationDAO;
 
-    /**
-     * AnyObject DAO.
-     */
-    @Autowired
-    private AnyObjectDAO anyObjectDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
-    /**
-     * User DAO.
-     */
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    /**
-     * Group DAO.
-     */
-    @Autowired
-    private GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    /**
-     * Search DAO.
-     */
-    @Autowired
-    private AnySearchDAO searchDAO;
+    protected final AnySearchDAO anySearchDAO;
 
-    @Autowired
-    private AnyMatchDAO anyMatchDAO;
+    protected final AnyMatchDAO anyMatchDAO;
 
-    /**
-     * Task DAO.
-     */
-    @Autowired
-    private TaskDAO taskDAO;
+    protected final TaskDAO taskDAO;
 
-    @Autowired
-    private DerAttrHandler derAttrHander;
+    protected final DerAttrHandler derAttrHandler;
 
-    @Autowired
-    private VirAttrHandler virAttrHander;
+    protected final VirAttrHandler virAttrHandler;
 
-    @Autowired
-    private UserDataBinder userDataBinder;
+    protected final UserDataBinder userDataBinder;
 
-    @Autowired
-    private GroupDataBinder groupDataBinder;
+    protected final GroupDataBinder groupDataBinder;
 
-    @Autowired
-    private AnyObjectDataBinder anyObjectDataBinder;
+    protected final AnyObjectDataBinder anyObjectDataBinder;
 
-    @Autowired
-    private ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private IntAttrNameParser intAttrNameParser;
+    protected final IntAttrNameParser intAttrNameParser;
 
-    @Autowired
-    private SearchCondVisitor searchCondVisitor;
+    protected final SearchCondVisitor searchCondVisitor;
+
+    public DefaultNotificationManager(
+            final DerSchemaDAO derSchemaDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final NotificationDAO notificationDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnySearchDAO anySearchDAO,
+            final AnyMatchDAO anyMatchDAO,
+            final TaskDAO taskDAO,
+            final DerAttrHandler derAttrHandler,
+            final VirAttrHandler virAttrHandler,
+            final UserDataBinder userDataBinder,
+            final GroupDataBinder groupDataBinder,
+            final AnyObjectDataBinder anyObjectDataBinder,
+            final ConfParamOps confParamOps,
+            final EntityFactory entityFactory,
+            final IntAttrNameParser intAttrNameParser,
+            final SearchCondVisitor searchCondVisitor) {
+
+        this.derSchemaDAO = derSchemaDAO;
+        this.virSchemaDAO = virSchemaDAO;
+        this.notificationDAO = notificationDAO;
+        this.anyObjectDAO = anyObjectDAO;
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.anySearchDAO = anySearchDAO;
+        this.anyMatchDAO = anyMatchDAO;
+        this.taskDAO = taskDAO;
+        this.derAttrHandler = derAttrHandler;
+        this.virAttrHandler = virAttrHandler;
+        this.userDataBinder = userDataBinder;
+        this.groupDataBinder = groupDataBinder;
+        this.anyObjectDataBinder = anyObjectDataBinder;
+        this.confParamOps = confParamOps;
+        this.entityFactory = entityFactory;
+        this.intAttrNameParser = intAttrNameParser;
+        this.searchCondVisitor = searchCondVisitor;
+    }
 
     @Transactional(readOnly = true)
     @Override
@@ -172,19 +175,19 @@ public class DefaultNotificationManager implements NotificationManager {
      * @param jexlVars JEXL variables
      * @return notification task, fully populated
      */
-    private NotificationTask getNotificationTask(
+    protected NotificationTask getNotificationTask(
             final Notification notification,
             final Any<?> any,
             final Map<String, Object> jexlVars) {
 
         if (any != null) {
-            virAttrHander.getValues(any);
+            virAttrHandler.getValues(any);
         }
 
         List<User> recipients = new ArrayList<>();
 
         if (notification.getRecipientsFIQL() != null) {
-            recipients.addAll(searchDAO.<User>search(
+            recipients.addAll(anySearchDAO.<User>search(
                     SearchCondConverter.convert(searchCondVisitor, notification.getRecipientsFIQL()),
                     List.of(), AnyTypeKind.USER));
         }
@@ -196,7 +199,7 @@ public class DefaultNotificationManager implements NotificationManager {
         Set<String> recipientEmails = new HashSet<>();
         List<UserTO> recipientTOs = new ArrayList<>(recipients.size());
         recipients.forEach(recipient -> {
-            virAttrHander.getValues(recipient);
+            virAttrHandler.getValues(recipient);
 
             String email = getRecipientEmail(notification.getRecipientAttrName(), recipient);
             if (email == null) {
@@ -246,7 +249,7 @@ public class DefaultNotificationManager implements NotificationManager {
         return task;
     }
 
-    private static String evaluate(final String template, final Map<String, Object> jexlVars) {
+    protected static String evaluate(final String template, final Map<String, Object> jexlVars) {
         StringWriter writer = new StringWriter();
         JexlUtils.newJxltEngine().
                 createTemplate(template).
@@ -379,7 +382,7 @@ public class DefaultNotificationManager implements NotificationManager {
         return notifications;
     }
 
-    private String getRecipientEmail(final String recipientAttrName, final User user) {
+    protected String getRecipientEmail(final String recipientAttrName, final User user) {
         String email = null;
 
         IntAttrName intAttrName;
@@ -419,8 +422,8 @@ public class DefaultNotificationManager implements NotificationManager {
                         LOG.warn("Ignoring non existing {} {}", DerSchema.class.getSimpleName(), recipientAttrName);
                     } else {
                         email = membership == null
-                                ? derAttrHander.getValue(user, schema)
-                                : derAttrHander.getValue(user, membership, schema);
+                                ? derAttrHandler.getValue(user, schema)
+                                : derAttrHandler.getValue(user, membership, schema);
                     }
                     break;
 
@@ -430,8 +433,8 @@ public class DefaultNotificationManager implements NotificationManager {
                         LOG.warn("Ignoring non existing {} {}", VirSchema.class.getSimpleName(), recipientAttrName);
                     } else {
                         List<String> virAttrValues = membership == null
-                                ? virAttrHander.getValues(user, virSchema)
-                                : virAttrHander.getValues(user, membership, virSchema);
+                                ? virAttrHandler.getValues(user, virSchema)
+                                : virAttrHandler.getValues(user, membership, virSchema);
                         email = virAttrValues.isEmpty() ? null : virAttrValues.get(0);
                     }
                     break;

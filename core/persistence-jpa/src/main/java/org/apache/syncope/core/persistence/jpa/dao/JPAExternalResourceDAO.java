@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -50,7 +49,6 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
-import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,9 +57,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implements ExternalResourceDAO {
-
-    @Autowired
-    private ConnectorRegistry connRegistry;
 
     @Autowired
     private TaskDAO taskDAO;
@@ -194,13 +189,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public ExternalResource save(final ExternalResource resource) {
-        ExternalResource merged = entityManager().merge(resource);
-        try {
-            connRegistry.registerConnector(merged);
-        } catch (NotFoundException e) {
-            LOG.error("While registering connector for resource", e);
-        }
-        return merged;
+        return entityManager().merge(resource);
     }
 
     @Override

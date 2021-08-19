@@ -39,28 +39,34 @@ import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class NotificationDataBinderImpl implements NotificationDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NotificationDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(NotificationDataBinder.class);
 
-    @Autowired
-    private MailTemplateDAO mailTemplateDAO;
+    protected final MailTemplateDAO mailTemplateDAO;
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private ImplementationDAO implementationDAO;
+    protected final ImplementationDAO implementationDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private IntAttrNameParser intAttrNameParser;
+    protected final IntAttrNameParser intAttrNameParser;
+
+    public NotificationDataBinderImpl(
+            final MailTemplateDAO mailTemplateDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final ImplementationDAO implementationDAO,
+            final EntityFactory entityFactory,
+            final IntAttrNameParser intAttrNameParser) {
+
+        this.mailTemplateDAO = mailTemplateDAO;
+        this.anyTypeDAO = anyTypeDAO;
+        this.implementationDAO = implementationDAO;
+        this.entityFactory = entityFactory;
+        this.intAttrNameParser = intAttrNameParser;
+    }
 
     @Override
     public NotificationTO getNotificationTO(final Notification notification) {

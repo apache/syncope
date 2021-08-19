@@ -31,7 +31,7 @@ import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
@@ -66,7 +66,7 @@ public class IdMLogicContext {
     private ConnInstanceDataBinder connInstanceDataBinder;
 
     @Autowired
-    private ConnectorFactory connectorFactory;
+    private ConnectorManager connectorManager;
 
     @Autowired
     private InboundMatcher inboundMatcher;
@@ -98,10 +98,10 @@ public class IdMLogicContext {
     public ConnectorLogic connectorLogic(final ConnIdBundleManager connIdBundleManager) {
         return new ConnectorLogic(
                 connIdBundleManager,
+                connectorManager,
                 resourceDAO,
                 connInstanceDAO,
-                connInstanceDataBinder,
-                connectorFactory);
+                connInstanceDataBinder);
     }
 
     @ConditionalOnMissingBean
@@ -126,7 +126,7 @@ public class IdMLogicContext {
                 mappingManager,
                 inboundMatcher,
                 outboundMatcher,
-                connectorFactory);
+                connectorManager);
     }
 
     @ConditionalOnMissingBean
@@ -156,7 +156,7 @@ public class IdMLogicContext {
                 connInstanceDataBinder,
                 outboundMatcher,
                 mappingManager,
-                connectorFactory,
+                connectorManager,
                 anyUtilsFactory);
     }
 }

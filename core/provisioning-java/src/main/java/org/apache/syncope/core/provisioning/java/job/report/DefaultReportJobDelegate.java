@@ -49,17 +49,14 @@ import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.helpers.AttributesImpl;
 
-@Component
 public class DefaultReportJobDelegate implements ReportJobDelegate {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ReportJobDelegate.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ReportJobDelegate.class);
 
-    private static final SAXTransformerFactory TRANSFORMER_FACTORY;
+    protected static final SAXTransformerFactory TRANSFORMER_FACTORY;
 
     static {
         TRANSFORMER_FACTORY = (SAXTransformerFactory) TransformerFactory.newInstance();
@@ -71,26 +68,27 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
         }
     }
 
-    /**
-     * Report DAO.
-     */
-    @Autowired
-    private ReportDAO reportDAO;
+    protected final ReportDAO reportDAO;
 
-    /**
-     * Report execution DAO.
-     */
-    @Autowired
-    private ReportExecDAO reportExecDAO;
+    protected final ReportExecDAO reportExecDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    private final AtomicReference<String> status = new AtomicReference<>();
+    protected final AtomicReference<String> status = new AtomicReference<>();
 
-    private boolean interrupt;
+    protected boolean interrupt;
 
-    private boolean interrupted;
+    protected boolean interrupted;
+
+    public DefaultReportJobDelegate(
+            final ReportDAO reportDAO,
+            final ReportExecDAO reportExecDAO,
+            final EntityFactory entityFactory) {
+
+        this.reportDAO = reportDAO;
+        this.reportExecDAO = reportExecDAO;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public String currentStatus() {

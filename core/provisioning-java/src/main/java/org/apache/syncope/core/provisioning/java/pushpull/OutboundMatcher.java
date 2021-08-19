@@ -52,31 +52,37 @@ import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class OutboundMatcher {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OutboundMatcher.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(OutboundMatcher.class);
 
-    @Autowired
-    private MappingManager mappingManager;
+    protected final MappingManager mappingManager;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    protected final AnyUtilsFactory anyUtilsFactory;
 
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    private VirAttrHandler virAttrHandler;
+    protected final VirAttrHandler virAttrHandler;
 
-    private Optional<PushCorrelationRule> rule(final Provision provision) {
+    public OutboundMatcher(
+            final MappingManager mappingManager,
+            final UserDAO userDAO,
+            final AnyUtilsFactory anyUtilsFactory,
+            final VirSchemaDAO virSchemaDAO,
+            final VirAttrHandler virAttrHandler) {
+
+        this.mappingManager = mappingManager;
+        this.userDAO = userDAO;
+        this.anyUtilsFactory = anyUtilsFactory;
+        this.virSchemaDAO = virSchemaDAO;
+        this.virAttrHandler = virAttrHandler;
+    }
+
+    protected Optional<PushCorrelationRule> rule(final Provision provision) {
         Optional<? extends PushCorrelationRuleEntity> correlationRule = provision.getResource().getPushPolicy() == null
                 ? Optional.empty()
                 : provision.getResource().getPushPolicy().getCorrelationRule(provision.getAnyType());
@@ -129,12 +135,12 @@ public class OutboundMatcher {
                         Optional.empty()));
             } else {
                 MappingUtils.getConnObjectKeyItem(provision).flatMap(connObjectKeyItem -> matchByConnObjectKeyValue(
-                    connector,
-                    connObjectKeyItem,
-                    connObjectKeyValue,
-                    provision,
-                    Optional.of(moreAttrsToGet.toArray(new String[0])),
-                    Optional.empty())).ifPresent(result::add);
+                        connector,
+                        connObjectKeyItem,
+                        connObjectKeyValue,
+                        provision,
+                        Optional.of(moreAttrsToGet.toArray(new String[0])),
+                        Optional.empty())).ifPresent(result::add);
             }
         } catch (RuntimeException e) {
             LOG.error("Could not match {} with any existing {}", any, provision.getObjectClass(), e);
@@ -166,7 +172,7 @@ public class OutboundMatcher {
             }
         });
         Optional<String[]> effectiveMATG = Optional.of(Stream.concat(
-            moreAttrsToGet.stream().flatMap(Stream::of),
+                moreAttrsToGet.stream().flatMap(Stream::of),
                 matgFromPropagationActions.stream()).toArray(String[]::new));
 
         Optional<PushCorrelationRule> rule = rule(provision);
@@ -208,7 +214,7 @@ public class OutboundMatcher {
         return result;
     }
 
-    private List<ConnectorObject> matchByCorrelationRule(
+    protected List<ConnectorObject> matchByCorrelationRule(
             final Connector connector,
             final Filter filter,
             final Provision provision,

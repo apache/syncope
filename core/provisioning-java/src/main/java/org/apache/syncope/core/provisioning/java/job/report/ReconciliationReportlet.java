@@ -54,7 +54,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -92,7 +92,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
     private MappingManager mappingManager;
 
     @Autowired
-    private ConnectorFactory connFactory;
+    private ConnectorManager connectorManager;
 
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
@@ -287,7 +287,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                         : StringUtils.EMPTY;
                 if (provision != null && connObjectKeyItem.isPresent() && StringUtils.isNotBlank(connObjectKeyValue)) {
                     // 1. read from the underlying connector
-                    Connector connector = connFactory.getConnector(resource);
+                    Connector connector = connectorManager.getConnector(resource);
                     ConnectorObject connectorObject = connector.getObject(
                             provision.getObjectClass(),
                             AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue),

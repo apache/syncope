@@ -45,25 +45,30 @@ import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConnInstanceDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ConnInstanceDataBinder.class);
 
-    @Autowired
-    private ConnIdBundleManager connIdBundleManager;
+    protected final ConnIdBundleManager connIdBundleManager;
 
-    @Autowired
-    private ConnInstanceDAO connInstanceDAO;
+    protected final ConnInstanceDAO connInstanceDAO;
 
-    @Autowired
-    private RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public ConnInstanceDataBinderImpl(
+            final ConnIdBundleManager connIdBundleManager,
+            final ConnInstanceDAO connInstanceDAO,
+            final RealmDAO realmDAO,
+            final EntityFactory entityFactory) {
+
+        this.connIdBundleManager = connIdBundleManager;
+        this.connInstanceDAO = connInstanceDAO;
+        this.realmDAO = realmDAO;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public ConnInstance getConnInstance(final ConnInstanceTO connInstanceTO) {
@@ -174,14 +179,6 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         } else {
             connInstance.setPoolConf(
                     ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf(), entityFactory.newConnPoolConf()));
-        }
-
-        try {
-            connInstance = connInstanceDAO.save(connInstance);
-        } catch (Exception e) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
-            sce.getElements().add(e.getMessage());
-            throw sce;
         }
 
         return connInstance;

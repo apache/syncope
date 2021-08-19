@@ -18,13 +18,19 @@
  */
 package org.apache.syncope.core.provisioning.camel;
 
+import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
+import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
+import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
+import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
+import org.apache.syncope.core.provisioning.api.data.CamelRouteDataBinder;
+import org.apache.syncope.core.provisioning.camel.data.CamelRouteDataBinderImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-@ComponentScan("org.apache.syncope.core.provisioning.camel")
 @Configuration
 public class ProvisioningCamelContext {
 
@@ -41,5 +47,46 @@ public class ProvisioningCamelContext {
     @Bean
     public Resource anyObjectRoutes() {
         return new ClassPathResource("anyObjectRoutes.xml");
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public SyncopeCamelContext syncopeCamelContext(final CamelRouteDAO routeDAO) {
+        return new SyncopeCamelContext(routeDAO);
+    }
+
+    @Bean
+    @Autowired
+    public UserProvisioningManager userProvisioningManager(
+            final CamelRouteDAO routeDAO,
+            final SyncopeCamelContext contextFactory) {
+
+        return new CamelUserProvisioningManager(routeDAO, contextFactory);
+    }
+
+    @Bean
+    @Autowired
+    public GroupProvisioningManager groupProvisioningManager(
+            final CamelRouteDAO routeDAO,
+            final SyncopeCamelContext contextFactory) {
+
+        return new CamelGroupProvisioningManager(routeDAO, contextFactory);
+    }
+
+    @Bean
+    @Autowired
+    public AnyObjectProvisioningManager anyObjectProvisioningManager(
+            final CamelRouteDAO routeDAO,
+            final SyncopeCamelContext contextFactory) {
+
+        return new CamelAnyObjectProvisioningManager(routeDAO, contextFactory);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public CamelRouteDataBinder camelRouteDataBinder(final CamelRouteDAO routeDAO) {
+        return new CamelRouteDataBinderImpl(routeDAO);
     }
 }

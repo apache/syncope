@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java;
+package org.apache.syncope.core.provisioning.java.pushpull;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -41,5 +41,4 @@ public class DefaultProvisionSorter implements ProvisionSorter {
         }
         return ObjectUtils.compare(provision1.getAnyType().getKey(), provision2.getAnyType().getKey());
     }
-
 }

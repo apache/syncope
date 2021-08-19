@@ -18,13 +18,20 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import java.util.Collection;
+import java.util.Optional;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
+import org.apache.syncope.core.provisioning.api.Connector;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DummyConnectorRegistry implements ConnectorRegistry {
+public class DummyConnectorManager implements ConnectorManager {
 
     @Override
     public void registerConnector(final ExternalResource resource) throws NotFoundException {
@@ -32,5 +39,37 @@ public class DummyConnectorRegistry implements ConnectorRegistry {
 
     @Override
     public void unregisterConnector(final String id) {
+    }
+
+    @Override
+    public ConnInstance buildConnInstanceOverride(
+            final ConnInstanceTO connInstance,
+            final Collection<ConnConfProperty> confOverride,
+            final Optional<Collection<ConnectorCapability>> capabilitiesOverride) {
+
+        return null;
+    }
+
+    @Override
+    public Connector createConnector(final ConnInstance connInstance) {
+        return null;
+    }
+
+    @Override
+    public Connector getConnector(final ExternalResource resource) {
+        return null;
+    }
+
+    @Override
+    public Optional<Connector> readConnector(final ExternalResource resource) {
+        return Optional.empty();
+    }
+
+    @Override
+    public void load() {
+    }
+
+    @Override
+    public void unload() {
     }
 }

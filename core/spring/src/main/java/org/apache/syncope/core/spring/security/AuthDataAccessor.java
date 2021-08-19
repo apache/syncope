@@ -61,7 +61,7 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -126,7 +126,7 @@ public class AuthDataAccessor {
     protected DelegationDAO delegationDAO;
 
     @Autowired
-    protected ConnectorFactory connFactory;
+    protected ConnectorManager connectorManager;
 
     @Autowired
     protected AuditManager auditManager;
@@ -268,7 +268,7 @@ public class AuthDataAccessor {
                 connObjectKey = mappingManager.getConnObjectKeyValue(user, provision).
                         orElseThrow(() -> new AccountNotFoundException(
                         "Unable to locate conn object key value for " + userType.getKey()));
-                Uid uid = connFactory.getConnector(resource).authenticate(connObjectKey, password, null);
+                Uid uid = connectorManager.getConnector(resource).authenticate(connObjectKey, password, null);
                 if (uid != null) {
                     authenticated = true;
                 }

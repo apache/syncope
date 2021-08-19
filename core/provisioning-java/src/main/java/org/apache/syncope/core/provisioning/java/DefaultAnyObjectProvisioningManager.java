@@ -39,26 +39,34 @@ import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisioningManager {
 
-    @Autowired
-    protected AnyObjectWorkflowAdapter awfAdapter;
+    protected final AnyObjectWorkflowAdapter awfAdapter;
 
-    @Autowired
-    protected PropagationManager propagationManager;
+    protected final PropagationManager propagationManager;
 
-    @Autowired
-    protected PropagationTaskExecutor taskExecutor;
+    protected final PropagationTaskExecutor taskExecutor;
 
-    @Autowired
-    protected VirAttrHandler virtAttrHandler;
+    protected final VirAttrHandler virtAttrHandler;
 
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
+    protected final AnyObjectDAO anyObjectDAO;
+
+    public DefaultAnyObjectProvisioningManager(
+            final AnyObjectWorkflowAdapter awfAdapter,
+            final PropagationManager propagationManager,
+            final PropagationTaskExecutor taskExecutor,
+            final VirAttrHandler virtAttrHandler,
+            final AnyObjectDAO anyObjectDAO) {
+
+        this.awfAdapter = awfAdapter;
+        this.propagationManager = propagationManager;
+        this.taskExecutor = taskExecutor;
+        this.virtAttrHandler = virtAttrHandler;
+        this.anyObjectDAO = anyObjectDAO;
+    }
 
     @Override
     public Pair<String, List<PropagationStatus>> create(

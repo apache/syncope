@@ -101,59 +101,73 @@ import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.Uid;
 
-@Component
-public class MappingManagerImpl implements MappingManager {
+public class DefaultMappingManager implements MappingManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MappingManager.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(MappingManager.class);
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private AnyObjectDAO anyObjectDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
-    @Autowired
-    private GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    private RelationshipTypeDAO relationshipTypeDAO;
+    protected final RelationshipTypeDAO relationshipTypeDAO;
 
-    @Autowired
-    private RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    private ApplicationDAO applicationDAO;
+    protected final ApplicationDAO applicationDAO;
 
-    @Autowired
-    private DerAttrHandler derAttrHandler;
+    protected final DerAttrHandler derAttrHandler;
 
-    @Autowired
-    private VirAttrHandler virAttrHandler;
+    protected final VirAttrHandler virAttrHandler;
 
-    @Autowired
-    private VirAttrCache virAttrCache;
+    protected final VirAttrCache virAttrCache;
 
-    @Autowired
-    private PasswordGenerator passwordGenerator;
+    protected final PasswordGenerator passwordGenerator;
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    protected final AnyUtilsFactory anyUtilsFactory;
 
-    @Autowired
-    private IntAttrNameParser intAttrNameParser;
+    protected final IntAttrNameParser intAttrNameParser;
+
+    public DefaultMappingManager(
+            final AnyTypeDAO anyTypeDAO,
+            final UserDAO userDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final GroupDAO groupDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
+            final RealmDAO realmDAO,
+            final ApplicationDAO applicationDAO,
+            final DerAttrHandler derAttrHandler,
+            final VirAttrHandler virAttrHandler,
+            final VirAttrCache virAttrCache,
+            final PasswordGenerator passwordGenerator,
+            final AnyUtilsFactory anyUtilsFactory,
+            final IntAttrNameParser intAttrNameParser) {
+
+        this.anyTypeDAO = anyTypeDAO;
+        this.userDAO = userDAO;
+        this.anyObjectDAO = anyObjectDAO;
+        this.groupDAO = groupDAO;
+        this.relationshipTypeDAO = relationshipTypeDAO;
+        this.realmDAO = realmDAO;
+        this.applicationDAO = applicationDAO;
+        this.derAttrHandler = derAttrHandler;
+        this.virAttrHandler = virAttrHandler;
+        this.virAttrCache = virAttrCache;
+        this.passwordGenerator = passwordGenerator;
+        this.anyUtilsFactory = anyUtilsFactory;
+        this.intAttrNameParser = intAttrNameParser;
+    }
 
     protected String processPreparedAttr(final Pair<String, Attribute> preparedAttr, final Set<Attribute> attributes) {
         String connObjectKey = null;
@@ -188,7 +202,7 @@ public class MappingManagerImpl implements MappingManager {
         return connObjectKey;
     }
 
-    private static Name getName(final String evalConnObjectLink, final String connObjectKey) {
+    protected static Name getName(final String evalConnObjectLink, final String connObjectKey) {
         // If connObjectLink evaluates to an empty string, just use the provided connObjectKey as Name(),
         // otherwise evaluated connObjectLink expression is taken as Name().
         Name name;
@@ -217,7 +231,7 @@ public class MappingManagerImpl implements MappingManager {
      * @param connObjectKey connector object key
      * @return the value to be propagated as __NAME__
      */
-    private Name evaluateNAME(final Any<?> any, final Provision provision, final String connObjectKey) {
+    protected Name evaluateNAME(final Any<?> any, final Provision provision, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
             // LOG error but avoid to throw exception: leave it to the external resource
             LOG.warn("Missing ConnObjectKey value for {}: ", provision.getResource());
@@ -249,7 +263,7 @@ public class MappingManagerImpl implements MappingManager {
      * @param connObjectKey connector object key
      * @return the value to be propagated as __NAME__
      */
-    private Name evaluateNAME(final Realm realm, final OrgUnit orgUnit, final String connObjectKey) {
+    protected Name evaluateNAME(final Realm realm, final OrgUnit orgUnit, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
             // LOG error but avoid to throw exception: leave it to the external resource
             LOG.warn("Missing ConnObjectKey value for {}: ", orgUnit.getResource());
@@ -405,7 +419,7 @@ public class MappingManagerImpl implements MappingManager {
         return attributes;
     }
 
-    private String getIntValue(final Realm realm, final Item orgUnitItem) {
+    protected String getIntValue(final Realm realm, final Item orgUnitItem) {
         String value = null;
         switch (orgUnitItem.getIntAttrName()) {
             case "key":
@@ -854,7 +868,7 @@ public class MappingManagerImpl implements MappingManager {
         return trans;
     }
 
-    private String getGroupOwnerValue(final Provision provision, final Any<?> any) {
+    protected String getGroupOwnerValue(final Provision provision, final Any<?> any) {
         Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
 
         Pair<String, Attribute> preparedAttr = null;

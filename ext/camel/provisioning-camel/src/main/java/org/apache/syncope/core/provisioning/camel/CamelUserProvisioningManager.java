@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
@@ -43,6 +44,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class CamelUserProvisioningManager extends AbstractCamelProvisioningManager implements UserProvisioningManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(CamelUserProvisioningManager.class);
+
+    public CamelUserProvisioningManager(final CamelRouteDAO routeDAO, final SyncopeCamelContext contextFactory) {
+        super(routeDAO, contextFactory);
+    }
 
     @Override
     public Pair<String, List<PropagationStatus>> create(

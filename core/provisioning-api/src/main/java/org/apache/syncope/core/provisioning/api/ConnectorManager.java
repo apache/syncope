@@ -31,7 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
  *
  * @see Connector
  */
-public interface ConnectorFactory {
+public interface ConnectorManager {
 
     /**
      * Builds connector instance override over base connector instance, configuration and capabilities.
@@ -83,4 +83,18 @@ public interface ConnectorFactory {
      * @see ExternalResource
      */
     void unload();
+
+    /**
+     * Create and register into Spring context a bean for the given resource.
+     *
+     * @param resource external resource
+     */
+    void registerConnector(ExternalResource resource);
+
+    /**
+     * Removes the Spring bean for the given id from the context.
+     *
+     * @param id Spring bean id
+     */
+    void unregisterConnector(String id);
 }

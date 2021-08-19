@@ -69,45 +69,51 @@ import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 
-@Component
 public class TaskDataBinderImpl implements TaskDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
-    @Autowired
-    private RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    private TaskExecDAO taskExecDAO;
+    protected final TaskExecDAO taskExecDAO;
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private ImplementationDAO implementationDAO;
+    protected final ImplementationDAO implementationDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private TemplateUtils templateUtils;
+    protected final SchedulerFactoryBean scheduler;
 
-    @Autowired
-    private SchedulerFactoryBean scheduler;
+    protected final TaskUtilsFactory taskUtilsFactory;
 
-    @Autowired
-    private TaskUtilsFactory taskUtilsFactory;
+    public TaskDataBinderImpl(
+            final RealmDAO realmDAO,
+            final ExternalResourceDAO resourceDAO,
+            final TaskExecDAO taskExecDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final ImplementationDAO implementationDAO,
+            final EntityFactory entityFactory,
+            final SchedulerFactoryBean scheduler,
+            final TaskUtilsFactory taskUtilsFactory) {
 
-    private void fill(final ProvisioningTask provisioningTask, final ProvisioningTaskTO provisioningTaskTO) {
+        this.realmDAO = realmDAO;
+        this.resourceDAO = resourceDAO;
+        this.taskExecDAO = taskExecDAO;
+        this.anyTypeDAO = anyTypeDAO;
+        this.implementationDAO = implementationDAO;
+        this.entityFactory = entityFactory;
+        this.scheduler = scheduler;
+        this.taskUtilsFactory = taskUtilsFactory;
+    }
+
+    protected void fill(final ProvisioningTask provisioningTask, final ProvisioningTaskTO provisioningTaskTO) {
         if (provisioningTask instanceof PushTask && provisioningTaskTO instanceof PushTaskTO) {
             PushTask pushTask = (PushTask) provisioningTask;
             PushTaskTO pushTaskTO = (PushTaskTO) provisioningTaskTO;
@@ -313,7 +319,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         execTO.setStart(execution.getStart());
         execTO.setEnd(execution.getEnd());
         execTO.setExecutor(execution.getExecutor());
-        
+
         if (execution.getTask() != null && execution.getTask().getKey() != null) {
             execTO.setJobType(JobType.TASK);
             execTO.setRefKey(execution.getTask().getKey());
@@ -323,14 +329,14 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         return execTO;
     }
 
-    private void fill(final SchedTaskTO schedTaskTO, final SchedTask schedTask) {
+    protected void fill(final SchedTaskTO schedTaskTO, final SchedTask schedTask) {
         schedTaskTO.setName(schedTask.getName());
         schedTaskTO.setDescription(schedTask.getDescription());
         schedTaskTO.setCronExpression(schedTask.getCronExpression());
         schedTaskTO.setActive(schedTask.isActive());
 
         schedTaskTO.setLastExec(schedTaskTO.getStart());
-       
+
         String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(schedTask).getName());
         try {
             Trigger trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));

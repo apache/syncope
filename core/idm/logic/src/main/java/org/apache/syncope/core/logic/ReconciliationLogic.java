@@ -53,7 +53,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
@@ -70,6 +69,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.pushpull.ConstantReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.KeyValueReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
@@ -130,7 +130,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected final OutboundMatcher outboundMatcher;
 
-    protected final ConnectorFactory connFactory;
+    protected final ConnectorManager connectorManager;
 
     public ReconciliationLogic(
             final AnyUtilsFactory anyUtilsFactory,
@@ -145,7 +145,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final MappingManager mappingManager,
             final InboundMatcher inboundMatcher,
             final OutboundMatcher outboundMatcher,
-            final ConnectorFactory connFactory) {
+            final ConnectorManager connectorManager) {
 
         this.anyUtilsFactory = anyUtilsFactory;
         this.anyTypeDAO = anyTypeDAO;
@@ -159,7 +159,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         this.mappingManager = mappingManager;
         this.inboundMatcher = inboundMatcher;
         this.outboundMatcher = outboundMatcher;
-        this.connFactory = connFactory;
+        this.connectorManager = connectorManager;
     }
 
     protected Provision getProvision(final String anyTypeKey, final String resourceKey) {
@@ -250,7 +250,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         status.setRealm(any.getRealm().getFullPath());
         status.setOnSyncope(getOnSyncope(any, connObjectKeyItem, provision));
 
-        List<ConnectorObject> connObjs = outboundMatcher.match(connFactory.getConnector(
+        List<ConnectorObject> connObjs = outboundMatcher.match(connectorManager.getConnector(
                 provision.getResource()), any, provision, Optional.of(moreAttrsToGet.toArray(new String[] {})));
         if (!connObjs.isEmpty()) {
             status.setOnResource(ConnObjectUtils.getConnObjectTO(
@@ -280,7 +280,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 setToken(new SyncToken("")).
                 setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
                 setObjectClass(provision.getObjectClass());
-        connFactory.getConnector(provision.getResource()).
+        connectorManager.getConnector(provision.getResource()).
                 search(provision.getObjectClass(), filter, new SearchResultsHandler() {
 
                     @Override
@@ -363,7 +363,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         try {
             results.addAll(singlePushExecutor().push(
                     provision,
-                    connFactory.getConnector(provision.getResource()),
+                    connectorManager.getConnector(provision.getResource()),
                     getAny(provision, anyKey),
                     pushTask));
             if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
@@ -401,7 +401,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     if (match.getMatchTarget() == MatchType.ANY) {
                         results.addAll(singlePushExecutor().push(
                                 provision,
-                                connFactory.getConnector(provision.getResource()),
+                                connectorManager.getConnector(provision.getResource()),
                                 match.getAny(),
                                 pushTask));
                         if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
@@ -410,7 +410,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     } else {
                         ProvisioningReport result = singlePushExecutor().push(
                                 provision,
-                                connFactory.getConnector(provision.getResource()),
+                                connectorManager.getConnector(provision.getResource()),
                                 match.getLinkedAccount(),
                                 pushTask);
                         if (result.getStatus() == ProvisioningReport.Status.FAILURE) {
@@ -451,7 +451,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
             results.addAll(executor.pull(
                     provision,
-                    connFactory.getConnector(provision.getResource()),
+                    connectorManager.getConnector(provision.getResource()),
                     reconFilterBuilder,
                     moreAttrsToGet,
                     pullTask));
