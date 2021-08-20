@@ -27,6 +27,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Date;
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -45,6 +47,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
@@ -138,4 +141,21 @@ public interface TaskService extends ExecutableService {
     @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("type") TaskType type, @NotNull @PathParam("key") String key);
+
+    /**
+     * Deletes all the propagation tasks whose latest execution is matching the given conditions.
+     * At least one matching condition must be specified.
+     *
+     * @param since
+     * @param statuses execution status(es) to match
+     * @return deleted propagation tasks
+     */
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "List of deleted propagation tasks, as Entity"),
+        @ApiResponse(responseCode = "412", description = "At least one matching condition must be specified") })
+    @DELETE
+    @Path("PROPAGATION/purge")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    Response purgePropagations(
+            @QueryParam("since") Date since, @QueryParam("statuses") List<ExecStatus> statuses);
 }
