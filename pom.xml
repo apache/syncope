@@ -451,7 +451,7 @@ under the License.
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.7.2</junit.version>
-    <mockito.version>3.11.2</mockito.version>
+    <mockito.version>3.12.4</mockito.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -475,7 +475,7 @@ under the License.
     <font-awesome.filename>font-awesome.min.css</font-awesome.filename>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>10.1.2</highlightjs.version>
-    <codemirror.version>5.62.0</codemirror.version>
+    <codemirror.version>5.62.2</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
@@ -2228,7 +2228,7 @@ under the License.
       <plugin>
         <groupId>org.gaul</groupId>
         <artifactId>modernizer-maven-plugin</artifactId>
-        <version>2.0.0</version>
+        <version>2.3.0</version>
         <configuration>
           <javaVersion>${targetJdk}</javaVersion>
           <ignorePackages>
