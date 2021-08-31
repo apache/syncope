@@ -27,9 +27,9 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.flowable.common.engine.impl.cfg.SpringBeanFactoryProxyMap;
 import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.impl.el.ProcessExpressionManager;
 import org.flowable.engine.impl.util.EngineServiceUtil;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
-import org.flowable.spring.SpringExpressionManager;
 import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +79,7 @@ public class DomainProcessEngineFactoryBean
             conf.setBeans(new SpringBeanFactoryProxyMap(ctx));
         }
         if (conf.getExpressionManager() == null) {
-            conf.setExpressionManager(new SpringExpressionManager(ctx, conf.getBeans()));
+            conf.setExpressionManager(new ProcessExpressionManager(conf.getBeans()));
         }
         if (EngineServiceUtil.getIdmEngineConfiguration(conf) == null) {
             SpringIdmEngineConfiguration spiec = ctx.getBean(SpringIdmEngineConfiguration.class);
