@@ -33,11 +33,13 @@ public interface SyncopeSinglePushExecutor {
             Provision provision,
             Connector connector,
             Any<?> any,
-            PushTaskTO pushTaskTO) throws JobExecutionException;
+            PushTaskTO pushTaskTO,
+            String executor) throws JobExecutionException;
 
     ProvisioningReport push(
             Provision provision,
             Connector connector,
             LinkedAccount account,
-            PushTaskTO pushTaskTO) throws JobExecutionException;
+            PushTaskTO pushTaskTO,
+            String executor) throws JobExecutionException;
 }

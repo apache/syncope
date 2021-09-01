@@ -87,7 +87,6 @@ import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -132,7 +131,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
-            final SearchCondVisitor searchCondVisitor,
             final RoleDAO roleDAO,
             final SecurityQuestionDAO securityQuestionDAO,
             final ApplicationDAO applicationDAO,

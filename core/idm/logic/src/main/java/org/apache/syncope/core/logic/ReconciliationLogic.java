@@ -365,7 +365,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     provision,
                     connectorManager.getConnector(provision.getResource()),
                     getAny(provision, anyKey),
-                    pushTask));
+                    pushTask,
+                    AuthContextUtils.getUsername()));
             if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
                 sce.getElements().add(results.get(0).getMessage());
             }
@@ -403,7 +404,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                                 provision,
                                 connectorManager.getConnector(provision.getResource()),
                                 match.getAny(),
-                                pushTask));
+                                pushTask,
+                                AuthContextUtils.getUsername()));
                         if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
                             sce.getElements().add(results.get(0).getMessage());
                         }
@@ -412,7 +414,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                                 provision,
                                 connectorManager.getConnector(provision.getResource()),
                                 match.getLinkedAccount(),
-                                pushTask);
+                                pushTask,
+                                AuthContextUtils.getUsername());
                         if (result.getStatus() == ProvisioningReport.Status.FAILURE) {
                             sce.getElements().add(result.getMessage());
                         } else {

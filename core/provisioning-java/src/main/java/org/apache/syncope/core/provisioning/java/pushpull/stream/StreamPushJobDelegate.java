@@ -56,33 +56,22 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
     @Autowired
     private ImplementationDAO implementationDAO;
 
-    private String executor;
-
     @Override
     protected AnyObjectPushResultHandler buildAnyObjectHandler() {
-        StreamAnyObjectPushResultHandler handler =
-                (StreamAnyObjectPushResultHandler) ApplicationContextProvider.getBeanFactory().createBean(
-                        StreamAnyObjectPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        handler.setExecutor(executor);
-        return handler;
+        return (AnyObjectPushResultHandler) ApplicationContextProvider.getBeanFactory().createBean(
+                StreamAnyObjectPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }
 
     @Override
     protected UserPushResultHandler buildUserHandler() {
-        StreamUserPushResultHandler handler =
-                (StreamUserPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                        createBean(StreamUserPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        handler.setExecutor(executor);
-        return handler;
+        return (UserPushResultHandler) ApplicationContextProvider.getBeanFactory().
+                createBean(StreamUserPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }
 
     @Override
     protected GroupPushResultHandler buildGroupHandler() {
-        StreamGroupPushResultHandler handler = (StreamGroupPushResultHandler) ApplicationContextProvider.
-                getBeanFactory().
+        return (GroupPushResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(StreamGroupPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        handler.setExecutor(executor);
-        return handler;
     }
 
     private ExternalResource externalResource(
@@ -141,7 +130,6 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             final String executor) throws JobExecutionException {
 
         LOG.debug("Executing stream push as {}", executor);
-        this.executor = executor;
 
         List<PushActions> pushActions = new ArrayList<>();
         pushTaskTO.getActions().forEach(key -> {
@@ -171,6 +159,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             pushTask.setSyncStatus(false);
 
             profile = new ProvisioningProfile<>(connector, pushTask);
+            profile.setExecutor(executor);
             profile.getActions().addAll(pushActions);
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
 

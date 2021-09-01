@@ -437,8 +437,7 @@ public class ProvisioningContext implements AsyncConfigurer {
             final RealmDAO realmDAO,
             final ExternalResourceDAO resourceDAO,
             final ConnInstanceDataBinder connInstanceDataBinder,
-            final AsyncConnectorFacade asyncConnectorFacade,
-            final EntityFactory entityFactory) {
+            final AsyncConnectorFacade asyncConnectorFacade) {
 
         return new DefaultConnectorManager(
                 connIdBundleManager,
@@ -1216,7 +1215,6 @@ public class ProvisioningContext implements AsyncConfigurer {
                 mappingManager,
                 intAttrNameParser,
                 outboundMatcher,
-                searchCondVisitor,
                 roleDAO,
                 securityQuestionDAO,
                 applicationDAO,
