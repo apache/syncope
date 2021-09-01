@@ -44,14 +44,17 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
 
+    @Lazy
     @Autowired
     private RealmDAO realmDAO;
 
+    @Lazy
     @Autowired
     private ExternalResourceDAO resourceDAO;
 

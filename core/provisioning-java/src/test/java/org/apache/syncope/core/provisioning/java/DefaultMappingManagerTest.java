@@ -53,7 +53,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
-public class MappingManagerImplTest extends AbstractTest {
+public class DefaultMappingManagerTest extends AbstractTest {
 
     @Autowired
     private MappingManager mappingManager;
