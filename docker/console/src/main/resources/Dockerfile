@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM debian:oldstable-slim
+FROM debian:oldoldstable-slim
 MAINTAINER dev@syncope.apache.org
 
 RUN set -x
