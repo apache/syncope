@@ -473,7 +473,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         return adminUser.equals(authUser)
                 ? getForm(getTask(taskId))
-                : getForm(query.taskCandidateOrAssigned(authUser).singleResult());
+                : getForm(query.or().taskCandidateUser(authUser).taskAssignee(authUser).endOr().singleResult());
     }
 
     @Transactional(readOnly = true)
@@ -482,7 +482,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             final String userKey,
             final int page,
             final int size,
-            final List<OrderByClause> orderByClauses) {
+            final List<OrderByClause> ob) {
 
         TaskQuery query = engine.getTaskService().createTaskQuery().taskWithFormKey();
         if (userKey != null) {
@@ -491,8 +491,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         String authUser = AuthContextUtils.getUsername();
         return adminUser.equals(authUser)
-                ? getForms(query, page, size, orderByClauses)
-                : getForms(query.taskCandidateOrAssigned(authUser), page, size, orderByClauses);
+                ? getForms(query, page, size, ob)
+                : getForms(query.or().taskCandidateUser(authUser).taskAssignee(authUser).endOr(), page, size, ob);
     }
 
     protected Pair<Integer, List<UserRequestForm>> getForms(
@@ -580,7 +580,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         String authUser = AuthContextUtils.getUsername();
         if (!adminUser.equals(authUser)) {
             List<Task> tasksForUser = engine.getTaskService().createTaskQuery().
-                    taskWithFormKey().taskId(taskId).taskCandidateOrAssigned(authUser).list();
+                    taskWithFormKey().taskId(taskId).
+                    or().taskCandidateUser(authUser).taskAssignee(authUser).endOr().list();
             if (tasksForUser.isEmpty()) {
                 throw new WorkflowException(
                         new IllegalArgumentException(authUser + " is not candidate nor assignee of task " + taskId));
