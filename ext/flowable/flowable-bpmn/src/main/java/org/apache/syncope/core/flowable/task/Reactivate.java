@@ -19,9 +19,7 @@
 package org.apache.syncope.core.flowable.task;
 
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.stereotype.Component;
 
-@Component
 public class Reactivate extends FlowableServiceTask {
 
     @Override

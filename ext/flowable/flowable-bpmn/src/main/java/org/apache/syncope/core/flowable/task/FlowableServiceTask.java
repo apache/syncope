@@ -22,13 +22,11 @@ import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Abstract base class for Flowable's service tasks in Syncope, with Spring support.
  */
-@Component
 public abstract class FlowableServiceTask implements JavaDelegate {
 
     protected static final Logger LOG = LoggerFactory.getLogger(FlowableServiceTask.class);

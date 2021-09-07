@@ -33,36 +33,31 @@ import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * Spring factory for {@link DomainProcessEngine} which takes the provided {@link SpringProcessEngineConfiguration} as
  * template for each of the configured Syncope domains.
  */
-@Component
 public class DomainProcessEngineFactoryBean
-        implements FactoryBean<DomainProcessEngine>, DisposableBean, ApplicationContextAware, SyncopeCoreLoader {
+        implements FactoryBean<DomainProcessEngine>, DisposableBean, SyncopeCoreLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(DomainProcessEngineFactoryBean.class);
 
-    private ApplicationContext ctx;
+    private final ApplicationContext ctx;
 
     private DomainProcessEngine engine;
+
+    public DomainProcessEngineFactoryBean(final ApplicationContext ctx) {
+        this.ctx = ctx;
+    }
 
     @Override
     public int getOrder() {
         return 300;
-    }
-
-    @Override
-    public void setApplicationContext(final ApplicationContext ctx) throws BeansException {
-        this.ctx = ctx;
     }
 
     private ProcessEngine build(final String domain, final DataSource datasource) {

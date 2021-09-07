@@ -19,13 +19,28 @@
 package org.apache.syncope.core.flowable;
 
 import java.util.List;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.flowable.impl.FlowableBpmnProcessManager;
 import org.apache.syncope.core.flowable.impl.FlowableUserRequestHandler;
 import org.apache.syncope.core.flowable.impl.FlowableWorkflowUtils;
+import org.apache.syncope.core.flowable.support.DomainProcessEngineFactoryBean;
 import org.apache.syncope.core.flowable.support.ShellServiceTaskDisablingBpmnParseHandler;
 import org.apache.syncope.core.flowable.support.SyncopeEntitiesVariableType;
 import org.apache.syncope.core.flowable.support.SyncopeFormHandlerHelper;
 import org.apache.syncope.core.flowable.support.SyncopeIdmIdentityService;
+import org.apache.syncope.core.flowable.task.AutoActivate;
+import org.apache.syncope.core.flowable.task.Create;
+import org.apache.syncope.core.flowable.task.Delete;
+import org.apache.syncope.core.flowable.task.GenerateToken;
+import org.apache.syncope.core.flowable.task.Notify;
+import org.apache.syncope.core.flowable.task.PasswordReset;
+import org.apache.syncope.core.flowable.task.Reactivate;
+import org.apache.syncope.core.flowable.task.Suspend;
+import org.apache.syncope.core.flowable.task.Update;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.workflow.java.WorkflowContext;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
 import org.flowable.common.engine.impl.cfg.IdGenerator;
@@ -38,7 +53,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
@@ -46,7 +60,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
 @Import(WorkflowContext.class)
-@ComponentScan("org.apache.syncope.core.flowable")
 @EnableConfigurationProperties(WorkflowFlowableProperties.class)
 @Configuration
 public class WorkflowFlowableContext {
@@ -127,6 +140,72 @@ public class WorkflowFlowableContext {
         conf.setIdGenerator(idGenerator());
         conf.setPreBpmnParseHandlers(List.of(new ShellServiceTaskDisablingBpmnParseHandler()));
         return conf;
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public DomainProcessEngineFactoryBean domainProcessEngineFactoryBean() {
+        return new DomainProcessEngineFactoryBean(ctx);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public AutoActivate autoActivate(final UserDataBinder userDataBinder, final UserDAO userDAO) {
+        return new AutoActivate(userDataBinder, userDAO);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public Create create(final UserDataBinder userDataBinder, final EntityFactory entityFactory) {
+        return new Create(userDataBinder, entityFactory);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public Delete delete() {
+        return new Delete();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public GenerateToken generateToken(final ConfParamOps confParamOps) {
+        return new GenerateToken(confParamOps);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public Notify notify(final NotificationManager notificationManager) {
+        return new Notify(notificationManager);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public PasswordReset passwordReset(final UserDataBinder userDataBinder, final UserDAO userDAO) {
+        return new PasswordReset(userDataBinder, userDAO);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public Reactivate reactivate() {
+        return new Reactivate();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public Suspend suspend() {
+        return new Suspend();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public Update update(final UserDataBinder userDataBinder, final UserDAO userDAO) {
+        return new Update(userDataBinder, userDAO);
     }
 
     @Bean

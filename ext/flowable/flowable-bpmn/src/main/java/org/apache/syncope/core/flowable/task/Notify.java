@@ -25,19 +25,19 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * General-purpose notification task for usage within workflow.
  * It requires a pre-existing Notification with category {@code CUSTOM} and result {@code SUCCESS}.
  * An {@code event} workflow variable needs to be provided as well.
  */
-@Component
 public class Notify extends FlowableServiceTask {
 
-    @Autowired
-    private NotificationManager notificationManager;
+    protected final NotificationManager notificationManager;
+
+    public Notify(final NotificationManager notificationManager) {
+        this.notificationManager = notificationManager;
+    }
 
     @Override
     protected void doExecute(final DelegateExecution execution) {

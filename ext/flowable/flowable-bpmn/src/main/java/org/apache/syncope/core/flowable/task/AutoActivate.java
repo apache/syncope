@@ -26,17 +26,17 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AutoActivate extends FlowableServiceTask {
 
-    @Autowired
-    private UserDataBinder dataBinder;
+    protected final UserDataBinder dataBinder;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
+
+    public AutoActivate(final UserDataBinder dataBinder, final UserDAO userDAO) {
+        this.dataBinder = dataBinder;
+        this.userDAO = userDAO;
+    }
 
     @Override
     protected void doExecute(final DelegateExecution execution) {
