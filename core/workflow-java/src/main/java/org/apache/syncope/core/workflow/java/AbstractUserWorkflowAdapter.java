@@ -33,7 +33,6 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,14 +41,21 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
     protected static final Logger LOG = LoggerFactory.getLogger(UserWorkflowAdapter.class);
 
-    @Autowired
-    protected UserDataBinder dataBinder;
+    protected final UserDataBinder dataBinder;
 
-    @Autowired
-    protected UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    protected EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public AbstractUserWorkflowAdapter(
+            final UserDataBinder dataBinder,
+            final UserDAO userDAO,
+            final EntityFactory entityFactory) {
+
+        this.dataBinder = dataBinder;
+        this.userDAO = userDAO;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public String getPrefix() {

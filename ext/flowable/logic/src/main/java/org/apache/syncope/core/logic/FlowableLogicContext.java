@@ -57,8 +57,8 @@ public class FlowableLogicContext {
     @ConditionalOnMissingBean
     @Bean
     @Autowired
-    public FlowableLoader flowableLoader(final DomainProcessEngine dpEngine) {
-        return new FlowableLoader(userWorkflowDef, dpEngine);
+    public FlowableLoader flowableLoader(final DomainProcessEngine engine) {
+        return new FlowableLoader(userWorkflowDef, engine);
     }
 
     @ConditionalOnMissingBean

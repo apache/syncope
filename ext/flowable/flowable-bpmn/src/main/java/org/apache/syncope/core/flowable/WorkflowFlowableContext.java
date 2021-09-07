@@ -20,9 +20,12 @@ package org.apache.syncope.core.flowable;
 
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.flowable.impl.FlowableBpmnProcessManager;
 import org.apache.syncope.core.flowable.impl.FlowableUserRequestHandler;
+import org.apache.syncope.core.flowable.impl.FlowableUserWorkflowAdapter;
 import org.apache.syncope.core.flowable.impl.FlowableWorkflowUtils;
+import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.flowable.support.DomainProcessEngineFactoryBean;
 import org.apache.syncope.core.flowable.support.ShellServiceTaskDisablingBpmnParseHandler;
 import org.apache.syncope.core.flowable.support.SyncopeEntitiesVariableType;
@@ -41,7 +44,8 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
-import org.apache.syncope.core.workflow.java.WorkflowContext;
+import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
 import org.flowable.common.engine.impl.cfg.IdGenerator;
 import org.flowable.common.engine.impl.persistence.StrongUuidGenerator;
@@ -54,12 +58,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
-@Import(WorkflowContext.class)
 @EnableConfigurationProperties(WorkflowFlowableProperties.class)
 @Configuration
 public class WorkflowFlowableContext {
@@ -72,6 +74,9 @@ public class WorkflowFlowableContext {
 
     @Autowired
     private ConfigurableApplicationContext ctx;
+
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @ConditionalOnMissingBean
     @Bean
@@ -97,20 +102,34 @@ public class WorkflowFlowableContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public FlowableBpmnProcessManager bpmnProcessManager() {
-        return new FlowableBpmnProcessManager();
+    @Autowired
+    public FlowableBpmnProcessManager bpmnProcessManager(final DomainProcessEngine engine) {
+        return new FlowableBpmnProcessManager(engine);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public FlowableUserRequestHandler userRequestHandler() {
-        return new FlowableUserRequestHandler();
+    @Autowired
+    public FlowableUserRequestHandler userRequestHandler(
+            final UserDataBinder userDataBinder,
+            final DomainProcessEngine engine,
+            final UserDAO userDAO,
+            final ConfParamOps confParamOps,
+            final EntityFactory entityFactory) {
+
+        return new FlowableUserRequestHandler(
+                userDataBinder,
+                securityProperties.getAdminUser(),
+                engine,
+                userDAO,
+                entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public FlowableWorkflowUtils flowableUtils() {
-        return new FlowableWorkflowUtils();
+    @Autowired
+    public FlowableWorkflowUtils flowableUtils(final DomainProcessEngine engine) {
+        return new FlowableWorkflowUtils(engine);
     }
 
     @ConditionalOnMissingBean
@@ -146,6 +165,30 @@ public class WorkflowFlowableContext {
     @Bean
     public DomainProcessEngineFactoryBean domainProcessEngineFactoryBean() {
         return new DomainProcessEngineFactoryBean(ctx);
+    }
+
+    @Bean
+    public Resource userWorkflowDef() {
+        return resourceLoader.getResource(props.getUserWorkflowDef());
+    }
+
+    @ConditionalOnMissingBean(name = "flowableUWFAdapter")
+    @Bean
+    @Autowired
+    public UserWorkflowAdapter uwfAdapter(
+            final UserDataBinder userDataBinder,
+            final UserDAO userDAO,
+            final EntityFactory entityFactory,
+            final ConfParamOps confParamOps,
+            final DomainProcessEngine engine,
+            final UserRequestHandler userRequestHandler) {
+
+        return new FlowableUserWorkflowAdapter(
+                userDataBinder,
+                userDAO,
+                entityFactory,
+                engine,
+                userRequestHandler);
     }
 
     @ConditionalOnMissingBean
@@ -206,10 +249,5 @@ public class WorkflowFlowableContext {
     @Autowired
     public Update update(final UserDataBinder userDataBinder, final UserDAO userDAO) {
         return new Update(userDataBinder, userDAO);
-    }
-
-    @Bean
-    public Resource userWorkflowDef() {
-        return resourceLoader.getResource(props.getUserWorkflowDef());
     }
 }

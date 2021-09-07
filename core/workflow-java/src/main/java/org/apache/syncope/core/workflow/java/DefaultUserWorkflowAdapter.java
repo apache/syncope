@@ -25,19 +25,30 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
+import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Simple implementation basically not involving any workflow engine.
  */
 public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
-    @Autowired
-    private ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
+
+    public DefaultUserWorkflowAdapter(
+            final UserDataBinder dataBinder,
+            final UserDAO userDAO,
+            final EntityFactory entityFactory,
+            final ConfParamOps confParamOps) {
+
+        super(dataBinder, userDAO, entityFactory);
+        this.confParamOps = confParamOps;
+    }
 
     @Override
     protected UserWorkflowResult<Pair<String, Boolean>> doCreate(

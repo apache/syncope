@@ -39,6 +39,9 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.core.workflow.java.AbstractUserWorkflowAdapter;
 import org.flowable.bpmn.model.FlowElement;
@@ -49,15 +52,24 @@ import org.flowable.common.engine.api.FlowableException;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter implements WorkflowTaskManager {
 
-    @Autowired
-    protected DomainProcessEngine engine;
+    protected final DomainProcessEngine engine;
 
-    @Autowired
-    protected UserRequestHandler userRequestHandler;
+    protected final UserRequestHandler userRequestHandler;
+
+    public FlowableUserWorkflowAdapter(
+            final UserDataBinder dataBinder,
+            final UserDAO userDAO,
+            final EntityFactory entityFactory,
+            final DomainProcessEngine engine,
+            final UserRequestHandler userRequestHandler) {
+
+        super(dataBinder, userDAO, entityFactory);
+        this.engine = engine;
+        this.userRequestHandler = userRequestHandler;
+    }
 
     @Override
     public String getPrefix() {

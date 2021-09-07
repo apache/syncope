@@ -18,40 +18,56 @@
  */
 package org.apache.syncope.core.workflow.java;
 
-import java.lang.reflect.InvocationTargetException;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
+import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
+import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@EnableConfigurationProperties(WorkflowProperties.class)
 @Configuration
 public class WorkflowContext {
 
+    @ConditionalOnMissingBean
+    @Bean
     @Autowired
-    private WorkflowProperties props;
+    public UserWorkflowAdapter uwfAdapter(
+            final UserDataBinder userDataBinder,
+            final UserDAO userDAO,
+            final EntityFactory entityFactory,
+            final ConfParamOps confParamOps) {
 
-    @Bean
-    public UserWorkflowAdapter uwfAdapter() throws NoSuchMethodException, InstantiationException,
-            IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-        return props.getUwfAdapter().getDeclaredConstructor().newInstance();
+        return new DefaultUserWorkflowAdapter(userDataBinder, userDAO, entityFactory, confParamOps);
     }
 
+    @ConditionalOnMissingBean
     @Bean
-    public GroupWorkflowAdapter gwfAdapter() throws NoSuchMethodException, InstantiationException,
-            IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    @Autowired
+    public GroupWorkflowAdapter gwfAdapter(
+            final GroupDataBinder groupDataBinder,
+            final GroupDAO groupDAO,
+            final EntityFactory entityFactory) {
 
-        return props.getGwfAdapter().getDeclaredConstructor().newInstance();
+        return new DefaultGroupWorkflowAdapter(groupDataBinder, groupDAO, entityFactory);
     }
 
+    @ConditionalOnMissingBean
     @Bean
-    public AnyObjectWorkflowAdapter awfAdapter() throws NoSuchMethodException, InstantiationException,
-            IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    @Autowired
+    public AnyObjectWorkflowAdapter awfAdapter(
+            final AnyObjectDataBinder anyObjectDataBinder,
+            final AnyObjectDAO anyObjectDAO,
+            final EntityFactory entityFactory) {
 
-        return props.getAwfAdapter().getDeclaredConstructor().newInstance();
+        return new DefaultAnyObjectWorkflowAdapter(anyObjectDataBinder, anyObjectDAO, entityFactory);
     }
 }
