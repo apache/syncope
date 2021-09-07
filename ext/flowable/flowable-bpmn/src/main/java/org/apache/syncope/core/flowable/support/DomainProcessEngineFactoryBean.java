@@ -87,6 +87,7 @@ public class DomainProcessEngineFactoryBean
         }
         conf.setEnableSafeBpmnXml(true);
         conf.setCustomFormTypes(List.of(new DropdownFormType(null), new PasswordFormType()));
+        conf.setDisableEventRegistry(true);
 
         return conf.buildProcessEngine();
     }
