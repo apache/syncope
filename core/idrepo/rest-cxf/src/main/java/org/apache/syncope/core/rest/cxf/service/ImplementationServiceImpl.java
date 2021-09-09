@@ -25,14 +25,16 @@ import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.core.logic.ImplementationLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ImplementationServiceImpl extends AbstractServiceImpl implements ImplementationService {
+public class ImplementationServiceImpl extends AbstractService implements ImplementationService {
 
-    @Autowired
-    private ImplementationLogic logic;
+    protected final ImplementationLogic logic;
+
+    public ImplementationServiceImpl(final ImplementationLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<ImplementationTO> list(final String type) {

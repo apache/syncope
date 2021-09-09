@@ -29,14 +29,16 @@ import org.apache.syncope.common.lib.saml2.SAML2LoginResponse;
 import org.apache.syncope.common.lib.saml2.SAML2Response;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIService;
 import org.apache.syncope.core.logic.SAML2SP4UILogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SAML2SP4UIServiceImpl extends AbstractServiceImpl implements SAML2SP4UIService {
+public class SAML2SP4UIServiceImpl extends AbstractService implements SAML2SP4UIService {
 
-    @Autowired
-    private SAML2SP4UILogic logic;
+    protected final SAML2SP4UILogic logic;
+
+    public SAML2SP4UIServiceImpl(final SAML2SP4UILogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public Response getMetadata(final String spEntityID, final String urlContext) {

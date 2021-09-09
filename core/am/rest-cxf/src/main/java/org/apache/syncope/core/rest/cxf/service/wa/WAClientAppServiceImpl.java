@@ -23,15 +23,17 @@ import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.core.logic.wa.WAClientAppLogic;
-import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.rest.cxf.service.AbstractService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class WAClientAppServiceImpl extends AbstractServiceImpl implements WAClientAppService {
+public class WAClientAppServiceImpl extends AbstractService implements WAClientAppService {
 
-    @Autowired
-    private WAClientAppLogic logic;
+    protected final WAClientAppLogic logic;
+
+    public WAClientAppServiceImpl(final WAClientAppLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<WAClientApp> list() {

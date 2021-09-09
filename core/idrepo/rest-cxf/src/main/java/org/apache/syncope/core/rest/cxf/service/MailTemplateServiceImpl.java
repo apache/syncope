@@ -32,14 +32,16 @@ import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
 import org.apache.syncope.core.logic.MailTemplateLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MailTemplateServiceImpl extends AbstractServiceImpl implements MailTemplateService {
+public class MailTemplateServiceImpl extends AbstractService implements MailTemplateService {
 
-    @Autowired
-    private MailTemplateLogic logic;
+    protected final MailTemplateLogic logic;
+
+    public MailTemplateServiceImpl(final MailTemplateLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public Response create(final MailTemplateTO mailTemplateTO) {

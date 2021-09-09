@@ -32,11 +32,16 @@ import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeObjectMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 @Configuration
-public class RESTCXFTestContext {
+public class IdRepoRESTCXFTestContext {
+
+    @Autowired
+    private Environment env;
 
     @Bean
     public DateParamConverterProvider dateParamConverterProvider() {
@@ -91,7 +96,7 @@ public class RESTCXFTestContext {
 
     @Bean
     public RestServiceExceptionMapper restServiceExceptionMapper() {
-        return new RestServiceExceptionMapper();
+        return new RestServiceExceptionMapper(env);
     }
 
     @Bean

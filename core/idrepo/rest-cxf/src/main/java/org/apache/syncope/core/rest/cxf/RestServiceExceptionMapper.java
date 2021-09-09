@@ -55,7 +55,6 @@ import org.identityconnectors.framework.common.exceptions.ConfigurationException
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.UncategorizedDataAccessException;
@@ -69,9 +68,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
 
     private final ValidationExceptionMapper validationEM = new ValidationExceptionMapper();
 
-    @Autowired
-    private Environment env;
-
     private static final String UNIQUE_MSG_KEY = "UniqueConstraintViolation";
 
     private static final Map<String, String> EXCEPTION_CODE_MAP = new HashMap<>() {
@@ -83,6 +79,12 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
             put("23505", UNIQUE_MSG_KEY);
         }
     };
+
+    protected final Environment env;
+
+    public RestServiceExceptionMapper(final Environment env) {
+        this.env = env;
+    }
 
     @Override
     public Response toResponse(final Exception ex) {
@@ -170,7 +172,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
     }
 
     private static ResponseBuilder getSyncopeClientCompositeExceptionResponse(
-        final SyncopeClientCompositeException ex) {
+            final SyncopeClientCompositeException ex) {
         if (ex.getExceptions().size() == 1) {
             return getSyncopeClientExceptionResponse(ex.getExceptions().iterator().next());
         }
@@ -317,6 +319,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         }
 
         return Optional.ofNullable(message)
-            .orElseGet(() -> (ex.getCause() == null) ? ex.getMessage() : ex.getCause().getMessage());
+                .orElseGet(() -> (ex.getCause() == null) ? ex.getMessage() : ex.getCause().getMessage());
     }
 }

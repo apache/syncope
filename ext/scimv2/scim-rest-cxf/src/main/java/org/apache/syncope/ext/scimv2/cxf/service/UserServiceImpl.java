@@ -27,6 +27,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.core.logic.GroupLogic;
+import org.apache.syncope.core.logic.SCIMDataBinder;
+import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.logic.scim.SCIMConfManager;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
@@ -38,12 +44,23 @@ import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 
 public class UserServiceImpl extends AbstractService<SCIMUser> implements UserService {
 
+    public UserServiceImpl(
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final UserLogic userLogic,
+            final GroupLogic groupLogic,
+            final SCIMDataBinder binder,
+            final SCIMConfManager confManager) {
+
+        super(userDAO, groupDAO, userLogic, groupLogic, binder, confManager);
+    }
+
     @Override
     public Response create(final SCIMUser user) {
-        ProvisioningResult<UserTO> result = userLogic().create(binder().toUserCR(user), false);
+        ProvisioningResult<UserTO> result = userLogic.create(binder.toUserCR(user), false);
         return createResponse(
                 result.getEntity().getKey(),
-                binder().toSCIMUser(
+                binder.toSCIMUser(
                         result.getEntity(),
                         uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
                         List.of(),
@@ -55,8 +72,8 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
             final String attributes,
             final String excludedAttributes) {
 
-        return binder().toSCIMUser(
-                userLogic().read(id),
+        return binder.toSCIMUser(
+                userLogic.read(id),
                 uriInfo.getAbsolutePathBuilder().build().toASCIIString(),
                 List.of(ArrayUtils.nullToEmpty(StringUtils.split(attributes, ','))),
                 List.of(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
@@ -78,11 +95,11 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
             return builder.build();
         }
 
-        ProvisioningResult<UserTO> result = userLogic().update(
-                AnyOperations.diff(binder().toUserTO(user), userLogic().read(id), false), false);
+        ProvisioningResult<UserTO> result = userLogic.update(
+                AnyOperations.diff(binder.toUserTO(user), userLogic.read(id), false), false);
         return updateResponse(
                 result.getEntity().getKey(),
-                binder().toSCIMUser(
+                binder.toSCIMUser(
                         result.getEntity(),
                         uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
                         List.of(),
@@ -127,5 +144,4 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
     public ListResponse<SCIMUser> search(final SCIMSearchRequest request) {
         return doSearch(Resource.User, request);
     }
-
 }

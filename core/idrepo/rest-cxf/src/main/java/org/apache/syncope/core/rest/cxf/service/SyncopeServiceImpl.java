@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
-import javax.annotation.Resource;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.HttpHeaders;
@@ -48,7 +47,6 @@ import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.logic.SyncopeLogic;
 import org.apache.syncope.core.rest.cxf.batch.BatchProcess;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
 import org.apache.syncope.core.persistence.api.entity.Batch;
@@ -59,24 +57,33 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
-public class SyncopeServiceImpl extends AbstractServiceImpl implements SyncopeService {
+public class SyncopeServiceImpl extends AbstractService implements SyncopeService {
 
     private static final String CONTENT_XML = "Content.xml";
 
-    @Resource(name = "batchExecutor")
-    private ThreadPoolTaskExecutor batchExecutor;
+    protected final SyncopeLogic logic;
 
-    @Autowired
-    private SyncopeLogic logic;
+    protected final ThreadPoolTaskExecutor batchExecutor;
 
-    @Autowired
-    private Bus bus;
+    protected final Bus bus;
 
-    @Autowired
-    private BatchDAO batchDAO;
+    protected final BatchDAO batchDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public SyncopeServiceImpl(
+            final SyncopeLogic logic,
+            final ThreadPoolTaskExecutor batchExecutor,
+            final Bus bus,
+            final BatchDAO batchDAO,
+            final EntityFactory entityFactory) {
+
+        this.logic = logic;
+        this.batchExecutor = batchExecutor;
+        this.bus = bus;
+        this.batchDAO = batchDAO;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public PagedResult<GroupTO> searchAssignableGroups(

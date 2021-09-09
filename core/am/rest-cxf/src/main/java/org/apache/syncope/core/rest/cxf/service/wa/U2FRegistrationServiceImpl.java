@@ -25,15 +25,17 @@ import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.rest.api.beans.U2FDeviceQuery;
 import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.core.logic.wa.U2FRegistrationLogic;
-import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.rest.cxf.service.AbstractService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class U2FRegistrationServiceImpl extends AbstractServiceImpl implements U2FRegistrationService {
+public class U2FRegistrationServiceImpl extends AbstractService implements U2FRegistrationService {
 
-    @Autowired
-    private U2FRegistrationLogic logic;
+    protected final U2FRegistrationLogic logic;
+
+    public U2FRegistrationServiceImpl(final U2FRegistrationLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public void delete(final U2FDeviceQuery query) {

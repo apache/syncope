@@ -20,8 +20,13 @@ package org.apache.syncope.ext.scimv2.cxf.service;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.core.logic.GroupLogic;
+import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.logic.SCIMLogic;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.logic.scim.SCIMConfManager;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.ext.scimv2.api.data.ResourceType;
 import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
 import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
@@ -29,20 +34,24 @@ import org.apache.syncope.ext.scimv2.api.service.SCIMService;
 
 public class SCIMServiceImpl extends AbstractService<SCIMResource> implements SCIMService {
 
-    private SCIMLogic scimLogic;
+    protected final SCIMLogic scimLogic;
 
-    private SCIMLogic scimLogic() {
-        synchronized (this) {
-            if (scimLogic == null) {
-                scimLogic = ApplicationContextProvider.getApplicationContext().getBean(SCIMLogic.class);
-            }
-        }
-        return scimLogic;
+    public SCIMServiceImpl(
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final UserLogic userLogic,
+            final GroupLogic groupLogic,
+            final SCIMDataBinder binder,
+            final SCIMConfManager confManager,
+            final SCIMLogic scimLogic) {
+
+        super(userDAO, groupDAO, userLogic, groupLogic, binder, confManager);
+        this.scimLogic = scimLogic;
     }
 
     @Override
     public ServiceProviderConfig serviceProviderConfig() {
-        return scimLogic().serviceProviderConfig(uriInfo.getAbsolutePathBuilder());
+        return scimLogic.serviceProviderConfig(uriInfo.getAbsolutePathBuilder());
     }
 
     @Override
@@ -57,11 +66,11 @@ public class SCIMServiceImpl extends AbstractService<SCIMResource> implements SC
 
     @Override
     public Response schemas() {
-        return Response.ok(scimLogic().schemas()).build();
+        return Response.ok(scimLogic.schemas()).build();
     }
 
     @Override
     public Response schema(final String schema) {
-        return Response.ok(scimLogic().schema(schema)).build();
+        return Response.ok(scimLogic.schema(schema)).build();
     }
 }

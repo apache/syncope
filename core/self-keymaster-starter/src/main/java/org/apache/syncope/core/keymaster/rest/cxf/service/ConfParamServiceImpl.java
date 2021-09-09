@@ -28,7 +28,6 @@ import org.apache.syncope.common.keymaster.rest.api.service.ConfParamService;
 import org.apache.syncope.core.logic.ConfParamLogic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,12 +35,15 @@ public class ConfParamServiceImpl implements ConfParamService {
 
     private static final long serialVersionUID = 3954522705963997651L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConfParamService.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ConfParamService.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
-    @Autowired
-    private ConfParamLogic logic;
+    protected final ConfParamLogic logic;
+
+    public ConfParamServiceImpl(final ConfParamLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public Map<String, Object> list() {

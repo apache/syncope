@@ -23,15 +23,17 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthAccountLogic;
-import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.rest.cxf.service.AbstractService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GoogleMfaAuthAccountServiceImpl extends AbstractServiceImpl implements GoogleMfaAuthAccountService {
+public class GoogleMfaAuthAccountServiceImpl extends AbstractService implements GoogleMfaAuthAccountService {
 
-    @Autowired
-    private GoogleMfaAuthAccountLogic logic;
+    protected final GoogleMfaAuthAccountLogic logic;
+
+    public GoogleMfaAuthAccountServiceImpl(final GoogleMfaAuthAccountLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public void delete(final String owner) {

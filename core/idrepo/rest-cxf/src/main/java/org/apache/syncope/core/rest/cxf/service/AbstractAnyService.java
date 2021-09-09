@@ -52,12 +52,16 @@ import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR extends AnyUR>
-        extends AbstractServiceImpl
-        implements AnyService<TO> {
+        extends AbstractSearchService implements AnyService<TO> {
+
+    public AbstractAnyService(final SearchCondVisitor searchCondVisitor) {
+        super(searchCondVisitor);
+    }
 
     protected abstract AnyDAO<?> getAnyDAO();
 
@@ -158,7 +162,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
         return modificationResponse(updated);
     }
 
-    private void addUpdateOrReplaceAttr(
+    protected void addUpdateOrReplaceAttr(
             final String key, final SchemaType schemaType, final Attr attrTO, final PatchOperation operation) {
 
         if (attrTO.getSchema() == null) {

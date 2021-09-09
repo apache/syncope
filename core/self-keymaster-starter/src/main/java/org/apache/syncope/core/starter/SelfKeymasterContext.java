@@ -33,9 +33,15 @@ import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
 import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.common.keymaster.rest.api.service.ConfParamService;
+import org.apache.syncope.common.keymaster.rest.api.service.DomainService;
+import org.apache.syncope.common.keymaster.rest.api.service.NetworkServiceService;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalConfParamOps;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalDomainOps;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalServiceOps;
+import org.apache.syncope.core.keymaster.rest.cxf.service.ConfParamServiceImpl;
+import org.apache.syncope.core.keymaster.rest.cxf.service.DomainServiceImpl;
+import org.apache.syncope.core.keymaster.rest.cxf.service.NetworkServiceServiceImpl;
 import org.apache.syncope.core.logic.ConfParamLogic;
 import org.apache.syncope.core.logic.DomainLogic;
 import org.apache.syncope.core.logic.NetworkServiceLogic;
@@ -49,7 +55,7 @@ import org.apache.syncope.core.persistence.jpa.dao.JPANetworkServiceDAO;
 import org.apache.syncope.core.persistence.jpa.entity.JPASelfKeymasterEntityFactory;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
-import org.apache.syncope.core.rest.security.SelfKeymasterUsernamePasswordAuthenticationProvider;
+import org.apache.syncope.core.keymaster.rest.security.SelfKeymasterUsernamePasswordAuthenticationProvider;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -63,14 +69,12 @@ import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 @EnableConfigurationProperties(KeymasterProperties.class)
-@ComponentScan("org.apache.syncope.core.keymaster.rest.cxf.service")
 @Configuration
 @AutoConfigureBefore(WebSecurityContext.class)
 public class SelfKeymasterContext {
@@ -96,6 +100,7 @@ public class SelfKeymasterContext {
 
     @Conditional(SelfKeymasterCondition.class)
     @Bean
+    @Autowired
     public Server selfKeymasterContainer(final JacksonJsonProvider jsonProvider) {
         SpringJAXRSServerFactoryBean selfKeymasterContainer = new SpringJAXRSServerFactoryBean();
         selfKeymasterContainer.setBus(bus);
@@ -218,5 +223,26 @@ public class SelfKeymasterContext {
     @Bean
     public NetworkServiceDAO networkServiceDAO() {
         return new JPANetworkServiceDAO();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public ConfParamService confParamService(final ConfParamLogic confParamLogic) {
+        return new ConfParamServiceImpl(confParamLogic);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public DomainService domainService(final DomainLogic domainLogic) {
+        return new DomainServiceImpl(domainLogic);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public NetworkServiceService networkServiceService(final NetworkServiceLogic networkServiceLogic) {
+        return new NetworkServiceServiceImpl(networkServiceLogic);
     }
 }

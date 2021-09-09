@@ -48,16 +48,20 @@ import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.core.logic.ReconciliationLogic;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.search.FilterVisitor;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.filter.Filter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReconciliationServiceImpl extends AbstractServiceImpl implements ReconciliationService {
+public class ReconciliationServiceImpl extends AbstractSearchService implements ReconciliationService {
 
-    @Autowired
-    private ReconciliationLogic logic;
+    protected final ReconciliationLogic logic;
+
+    public ReconciliationServiceImpl(final SearchCondVisitor searchCondVisitor, final ReconciliationLogic logic) {
+        super(searchCondVisitor);
+        this.logic = logic;
+    }
 
     private void validate(final ReconQuery reconQuery) {
         if ((reconQuery.getAnyKey() == null && reconQuery.getFiql() == null)

@@ -26,14 +26,16 @@ import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.core.logic.ClientAppLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ClientAppServiceImpl extends AbstractServiceImpl implements ClientAppService {
+public class ClientAppServiceImpl extends AbstractService implements ClientAppService {
 
-    @Autowired
-    private ClientAppLogic logic;
+    protected final ClientAppLogic logic;
+
+    public ClientAppServiceImpl(final ClientAppLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public Response create(final ClientAppType type, final ClientAppTO clientAppTO) {

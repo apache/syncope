@@ -34,15 +34,17 @@ import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.logic.TaskLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 @Service
 public class TaskServiceImpl extends AbstractExecutableService implements TaskService {
 
-    @Autowired
-    private TaskLogic logic;
+    protected final TaskLogic logic;
+
+    public TaskServiceImpl(final TaskLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     protected AbstractExecutableLogic<?> getExecutableLogic() {

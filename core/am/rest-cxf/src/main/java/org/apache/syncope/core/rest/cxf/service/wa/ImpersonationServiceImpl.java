@@ -22,15 +22,17 @@ import java.util.List;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.core.logic.wa.ImpersonationLogic;
-import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.rest.cxf.service.AbstractService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ImpersonationServiceImpl extends AbstractServiceImpl implements ImpersonationService {
+public class ImpersonationServiceImpl extends AbstractService implements ImpersonationService {
 
-    @Autowired
-    private ImpersonationLogic logic;
+    protected final ImpersonationLogic logic;
+
+    public ImpersonationServiceImpl(final ImpersonationLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<ImpersonationAccount> read(final String owner) {

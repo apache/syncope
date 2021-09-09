@@ -22,16 +22,18 @@ import java.util.Optional;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.syncope.common.lib.oidc.OIDCRequest;
 import org.apache.syncope.core.logic.OIDCC4UILogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
 
 @Service
-public class OIDCC4UIServiceImpl extends AbstractServiceImpl implements OIDCC4UIService {
+public class OIDCC4UIServiceImpl extends AbstractService implements OIDCC4UIService {
 
-    @Autowired
-    private OIDCC4UILogic logic;
+    protected final OIDCC4UILogic logic;
+
+    public OIDCC4UIServiceImpl(final OIDCC4UILogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public OIDCRequest createLoginRequest(final String redirectURI, final String op) {

@@ -36,7 +36,7 @@ import org.apache.syncope.common.rest.api.service.ExecutableService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
-public abstract class AbstractExecutableService extends AbstractServiceImpl implements ExecutableService {
+public abstract class AbstractExecutableService extends AbstractService implements ExecutableService {
 
     protected abstract AbstractExecutableLogic<?> getExecutableLogic();
 

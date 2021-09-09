@@ -35,23 +35,30 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RemediationServiceImpl extends AbstractServiceImpl implements RemediationService {
+public class RemediationServiceImpl extends AbstractService implements RemediationService {
 
-    @Autowired
-    private RemediationLogic logic;
+    protected final RemediationLogic logic;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    private AnyObjectDAO anyObjectDAO;
+    protected final AnyObjectDAO anyObjectDAO;
+
+    public RemediationServiceImpl(
+            final RemediationLogic logic,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO) {
+
+        this.logic = logic;
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.anyObjectDAO = anyObjectDAO;
+    }
 
     @Override
     public PagedResult<RemediationTO> list(final RemediationQuery query) {

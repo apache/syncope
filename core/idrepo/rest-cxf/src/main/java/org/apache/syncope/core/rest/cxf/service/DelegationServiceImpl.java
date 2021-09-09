@@ -25,14 +25,16 @@ import org.apache.syncope.common.lib.to.DelegationTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.DelegationService;
 import org.apache.syncope.core.logic.DelegationLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DelegationServiceImpl extends AbstractServiceImpl implements DelegationService {
+public class DelegationServiceImpl extends AbstractService implements DelegationService {
 
-    @Autowired
-    private DelegationLogic logic;
+    protected final DelegationLogic logic;
+
+    public DelegationServiceImpl(final DelegationLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<DelegationTO> list() {

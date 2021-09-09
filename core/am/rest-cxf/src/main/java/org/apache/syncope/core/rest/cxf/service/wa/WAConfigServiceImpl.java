@@ -21,16 +21,18 @@ package org.apache.syncope.core.rest.cxf.service.wa;
 import java.util.List;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
-import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.syncope.core.logic.wa.WAConfigLogic;
+import org.apache.syncope.core.rest.cxf.service.AbstractService;
 
 @Service
-public class WAConfigServiceImpl extends AbstractServiceImpl implements WAConfigService {
+public class WAConfigServiceImpl extends AbstractService implements WAConfigService {
 
-    @Autowired
-    private WAConfigLogic logic;
+    protected final WAConfigLogic logic;
+
+    public WAConfigServiceImpl(final WAConfigLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<Attr> list() {

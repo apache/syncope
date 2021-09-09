@@ -36,7 +36,7 @@ public class AddETagFilter implements ContainerResponseFilter {
     @Override
     public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) throws IOException {
         if (resCtx.getEntityTag() == null) {
-            Date lastModified = null;
+            Date lastModified;
             if (resCtx.getEntity() instanceof SCIMUser) {
                 lastModified = ((SCIMUser) resCtx.getEntity()).getMeta().getLastModified();
                 if (resCtx.getEntity() instanceof SCIMGroup) {

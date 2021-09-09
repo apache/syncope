@@ -26,14 +26,16 @@ import org.apache.syncope.common.lib.to.PrivilegeTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ApplicationService;
 import org.apache.syncope.core.logic.ApplicationLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ApplicationServiceImpl extends AbstractServiceImpl implements ApplicationService {
+public class ApplicationServiceImpl extends AbstractService implements ApplicationService {
 
-    @Autowired
-    private ApplicationLogic logic;
+    protected final ApplicationLogic logic;
+
+    public ApplicationServiceImpl(final ApplicationLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<ApplicationTO> list() {

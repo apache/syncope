@@ -26,14 +26,16 @@ import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.core.logic.PolicyLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyService {
+public class PolicyServiceImpl extends AbstractService implements PolicyService {
 
-    @Autowired
-    private PolicyLogic logic;
+    protected final PolicyLogic logic;
+
+    public PolicyServiceImpl(final PolicyLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public Response create(final PolicyType type, final PolicyTO policyTO) {

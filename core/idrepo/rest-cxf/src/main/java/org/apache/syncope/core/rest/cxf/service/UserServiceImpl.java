@@ -30,17 +30,25 @@ import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl extends AbstractAnyService<UserTO, UserCR, UserUR> implements UserService {
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private UserLogic logic;
+    protected final UserLogic logic;
+
+    public UserServiceImpl(
+            final SearchCondVisitor searchCondVisitor,
+            final UserDAO userDAO,
+            final UserLogic logic) {
+
+        super(searchCondVisitor);
+        this.userDAO = userDAO;
+        this.logic = logic;
+    }
 
     @Override
     protected AnyDAO<?> getAnyDAO() {

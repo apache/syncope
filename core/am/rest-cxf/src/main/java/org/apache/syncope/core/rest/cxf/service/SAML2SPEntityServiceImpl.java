@@ -21,15 +21,17 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.util.List;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
 import org.apache.syncope.core.logic.SAML2SPEntityLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 
 @Service
-public class SAML2SPEntityServiceImpl extends AbstractServiceImpl implements SAML2SPEntityService {
+public class SAML2SPEntityServiceImpl extends AbstractService implements SAML2SPEntityService {
 
-    @Autowired
-    private SAML2SPEntityLogic logic;
+    protected final SAML2SPEntityLogic logic;
+
+    public SAML2SPEntityServiceImpl(final SAML2SPEntityLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<SAML2SPEntityTO> list() {

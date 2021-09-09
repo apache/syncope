@@ -25,14 +25,16 @@ import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.core.logic.AuthModuleLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthModuleServiceImpl extends AbstractServiceImpl implements AuthModuleService {
+public class AuthModuleServiceImpl extends AbstractService implements AuthModuleService {
 
-    @Autowired
-    private AuthModuleLogic logic;
+    protected final AuthModuleLogic logic;
+
+    public AuthModuleServiceImpl(final AuthModuleLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public Response create(final AuthModuleTO authModuleTO) {

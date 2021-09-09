@@ -25,14 +25,16 @@ import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.core.logic.SecurityQuestionLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SecurityQuestionServiceImpl extends AbstractServiceImpl implements SecurityQuestionService {
+public class SecurityQuestionServiceImpl extends AbstractService implements SecurityQuestionService {
 
-    @Autowired
-    private SecurityQuestionLogic logic;
+    protected final SecurityQuestionLogic logic;
+
+    public SecurityQuestionServiceImpl(final SecurityQuestionLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<SecurityQuestionTO> list() {

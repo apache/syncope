@@ -25,14 +25,16 @@ import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.core.logic.DynRealmLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DynRealmServiceImpl extends AbstractServiceImpl implements DynRealmService {
+public class DynRealmServiceImpl extends AbstractService implements DynRealmService {
 
-    @Autowired
-    private DynRealmLogic logic;
+    protected final DynRealmLogic logic;
+
+    public DynRealmServiceImpl(final DynRealmLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<DynRealmTO> list() {

@@ -114,7 +114,6 @@ public class FlowableWorkflowContext {
             final UserDataBinder userDataBinder,
             final DomainProcessEngine engine,
             final UserDAO userDAO,
-            final ConfParamOps confParamOps,
             final EntityFactory entityFactory) {
 
         return new FlowableUserRequestHandler(
@@ -179,7 +178,6 @@ public class FlowableWorkflowContext {
             final UserDataBinder userDataBinder,
             final UserDAO userDAO,
             final EntityFactory entityFactory,
-            final ConfParamOps confParamOps,
             final DomainProcessEngine engine,
             final UserRequestHandler userRequestHandler) {
 

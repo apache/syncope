@@ -23,15 +23,17 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.core.logic.OIDCJWKSLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 
 @Service
-public class OIDCJWKSServiceImpl extends AbstractServiceImpl implements OIDCJWKSService {
+public class OIDCJWKSServiceImpl extends AbstractService implements OIDCJWKSService {
 
-    @Autowired
-    private OIDCJWKSLogic logic;
+    protected final OIDCJWKSLogic logic;
+
+    public OIDCJWKSServiceImpl(final OIDCJWKSLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public OIDCJWKSTO get() {

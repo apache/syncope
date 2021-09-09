@@ -25,14 +25,16 @@ import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.core.logic.AnyTypeLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AnyTypeServiceImpl extends AbstractServiceImpl implements AnyTypeService {
+public class AnyTypeServiceImpl extends AbstractService implements AnyTypeService {
 
-    @Autowired
-    private AnyTypeLogic logic;
+    protected final AnyTypeLogic logic;
+
+    public AnyTypeServiceImpl(final AnyTypeLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<AnyTypeTO> list() {

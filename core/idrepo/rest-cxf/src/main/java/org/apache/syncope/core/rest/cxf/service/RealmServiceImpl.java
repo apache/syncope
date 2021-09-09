@@ -31,14 +31,16 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.core.logic.RealmLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RealmServiceImpl extends AbstractServiceImpl implements RealmService {
+public class RealmServiceImpl extends AbstractService implements RealmService {
 
-    @Autowired
-    private RealmLogic logic;
+    protected final RealmLogic logic;
+
+    public RealmServiceImpl(final RealmLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public PagedResult<RealmTO> search(final RealmQuery query) {

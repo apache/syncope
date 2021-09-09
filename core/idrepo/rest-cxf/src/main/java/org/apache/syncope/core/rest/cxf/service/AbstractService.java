@@ -28,10 +28,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
-import org.apache.cxf.jaxrs.ext.search.SearchBean;
-import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.cxf.jaxrs.ext.search.SearchContext;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -43,16 +40,13 @@ import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractServiceImpl implements JAXRSService {
+public abstract class AbstractService implements JAXRSService {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractServiceImpl.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractService.class);
 
     protected static final String OPTIONS_ALLOW = "GET,POST,OPTIONS,HEAD";
 
@@ -64,9 +58,6 @@ public abstract class AbstractServiceImpl implements JAXRSService {
 
     @Context
     protected SearchContext searchContext;
-
-    @Autowired
-    protected SearchCondVisitor searchCondVisitor;
 
     protected String getActualKey(final AnyDAO<?> dao, final String pretendingKey) {
         String actualKey = pretendingKey;
@@ -159,23 +150,6 @@ public abstract class AbstractServiceImpl implements JAXRSService {
         if (builder != null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.ConcurrentModification);
             sce.getElements().add("Mismatching ETag value");
-            throw sce;
-        }
-    }
-
-    protected SearchCond getSearchCond(final String fiql, final String realm) {
-        try {
-            searchCondVisitor.setRealm(realm);
-            SearchCondition<SearchBean> sc = searchContext.getCondition(fiql, SearchBean.class);
-            sc.accept(searchCondVisitor);
-
-            return searchCondVisitor.getQuery();
-        } catch (Exception e) {
-            LOG.error("Invalid FIQL expression: {}", fiql, e);
-
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
-            sce.getElements().add(fiql);
-            sce.getElements().add(ExceptionUtils.getRootCauseMessage(e));
             throw sce;
         }
     }

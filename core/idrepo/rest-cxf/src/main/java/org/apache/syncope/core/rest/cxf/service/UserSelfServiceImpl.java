@@ -32,17 +32,19 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.core.logic.SyncopeLogic;
 import org.apache.syncope.core.logic.UserLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelfService {
+public class UserSelfServiceImpl extends AbstractService implements UserSelfService {
 
-    @Autowired
-    private UserLogic logic;
+    protected final UserLogic logic;
 
-    @Autowired
-    private SyncopeLogic syncopeLogic;
+    protected final SyncopeLogic syncopeLogic;
+
+    public UserSelfServiceImpl(final UserLogic logic, final SyncopeLogic syncopeLogic) {
+        this.logic = logic;
+        this.syncopeLogic = syncopeLogic;
+    }
 
     @Override
     public Response create(final UserCR createReq) {

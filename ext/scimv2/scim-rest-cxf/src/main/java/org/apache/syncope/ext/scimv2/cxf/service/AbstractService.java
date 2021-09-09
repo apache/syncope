@@ -44,7 +44,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
@@ -65,70 +64,41 @@ abstract class AbstractService<R extends SCIMResource> {
     @Context
     protected MessageContext messageContext;
 
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    private GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    private UserLogic userLogic;
+    protected final UserLogic userLogic;
 
-    private GroupLogic groupLogic;
+    protected final GroupLogic groupLogic;
 
-    private SCIMDataBinder binder;
+    protected final SCIMDataBinder binder;
 
-    private SCIMConfManager confManager;
+    protected final SCIMConfManager confManager;
 
-    protected UserDAO userDAO() {
-        synchronized (this) {
-            if (userDAO == null) {
-                userDAO = ApplicationContextProvider.getApplicationContext().getBean(UserDAO.class);
-            }
-        }
-        return userDAO;
-    }
+    protected AbstractService(
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final UserLogic userLogic,
+            final GroupLogic groupLogic,
+            final SCIMDataBinder binder,
+            final SCIMConfManager confManager) {
 
-    protected GroupDAO groupDAO() {
-        synchronized (this) {
-            if (groupDAO == null) {
-                groupDAO = ApplicationContextProvider.getApplicationContext().getBean(GroupDAO.class);
-            }
-        }
-        return groupDAO;
-    }
-
-    protected UserLogic userLogic() {
-        synchronized (this) {
-            if (userLogic == null) {
-                userLogic = ApplicationContextProvider.getApplicationContext().getBean(UserLogic.class);
-            }
-        }
-        return userLogic;
-    }
-
-    protected GroupLogic groupLogic() {
-        synchronized (this) {
-            if (groupLogic == null) {
-                groupLogic = ApplicationContextProvider.getApplicationContext().getBean(GroupLogic.class);
-            }
-        }
-        return groupLogic;
-    }
-
-    protected SCIMDataBinder binder() {
-        synchronized (this) {
-            if (binder == null) {
-                binder = ApplicationContextProvider.getApplicationContext().getBean(SCIMDataBinder.class);
-            }
-        }
-        return binder;
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.userLogic = userLogic;
+        this.groupLogic = groupLogic;
+        this.binder = binder;
+        this.confManager = confManager;
     }
 
     protected AnyDAO<?> anyDAO(final Resource type) {
         switch (type) {
             case User:
-                return userDAO();
+                return userDAO;
 
             case Group:
-                return groupDAO();
+                return groupDAO;
 
             default:
                 throw new UnsupportedOperationException();
@@ -138,23 +108,14 @@ abstract class AbstractService<R extends SCIMResource> {
     protected AbstractAnyLogic<?, ?, ?> anyLogic(final Resource type) {
         switch (type) {
             case User:
-                return userLogic();
+                return userLogic;
 
             case Group:
-                return groupLogic();
+                return groupLogic;
 
             default:
                 throw new UnsupportedOperationException();
         }
-    }
-
-    protected SCIMConfManager confManager() {
-        synchronized (this) {
-            if (confManager == null) {
-                confManager = ApplicationContextProvider.getApplicationContext().getBean(SCIMConfManager.class);
-            }
-        }
-        return confManager;
     }
 
     protected Response createResponse(final String key, final SCIMResource resource) {
@@ -188,11 +149,11 @@ abstract class AbstractService<R extends SCIMResource> {
             throw new UnsupportedOperationException();
         }
 
-        if (request.getCount() > confManager().get().getGeneralConf().getFilterMaxResults()) {
+        if (request.getCount() > confManager.get().getGeneralConf().getFilterMaxResults()) {
             throw new BadRequestException(ErrorType.tooMany, "Too many results requested");
         }
 
-        SearchCondVisitor visitor = new SearchCondVisitor(type, confManager().get());
+        SearchCondVisitor visitor = new SearchCondVisitor(type, confManager.get());
 
         int startIndex = request.getStartIndex() <= 1
                 ? 1
@@ -222,7 +183,7 @@ abstract class AbstractService<R extends SCIMResource> {
                 SyncopeConstants.ROOT_REALM,
                 false);
 
-        if (result.getLeft() > confManager().get().getGeneralConf().getFilterMaxResults()) {
+        if (result.getLeft() > confManager.get().getGeneralConf().getFilterMaxResults()) {
             throw new BadRequestException(ErrorType.tooMany, "Too many results found");
         }
 
@@ -232,13 +193,13 @@ abstract class AbstractService<R extends SCIMResource> {
         result.getRight().forEach(anyTO -> {
             SCIMResource resource = null;
             if (anyTO instanceof UserTO) {
-                resource = binder().toSCIMUser(
+                resource = binder.toSCIMUser(
                         (UserTO) anyTO,
                         uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString(),
                         request.getAttributes(),
                         request.getExcludedAttributes());
             } else if (anyTO instanceof GroupTO) {
-                resource = binder().toSCIMGroup((GroupTO) anyTO,
+                resource = binder.toSCIMGroup((GroupTO) anyTO,
                         uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString(),
                         request.getAttributes(),
                         request.getExcludedAttributes());

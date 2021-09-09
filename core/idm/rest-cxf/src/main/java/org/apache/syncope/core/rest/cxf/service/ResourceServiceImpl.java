@@ -44,14 +44,16 @@ import org.apache.syncope.core.logic.ResourceLogic;
 import org.apache.syncope.core.persistence.api.search.FilterVisitor;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.filter.Filter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ResourceServiceImpl extends AbstractServiceImpl implements ResourceService {
+public class ResourceServiceImpl extends AbstractService implements ResourceService {
 
-    @Autowired
-    private ResourceLogic logic;
+    protected final ResourceLogic logic;
+
+    public ResourceServiceImpl(final ResourceLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public Response create(final ResourceTO resourceTO) {

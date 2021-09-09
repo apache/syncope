@@ -24,15 +24,17 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthTokenLogic;
-import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.rest.cxf.service.AbstractService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GoogleMfaAuthTokenServiceImpl extends AbstractServiceImpl implements GoogleMfaAuthTokenService {
+public class GoogleMfaAuthTokenServiceImpl extends AbstractService implements GoogleMfaAuthTokenService {
 
-    @Autowired
-    private GoogleMfaAuthTokenLogic logic;
+    protected final GoogleMfaAuthTokenLogic logic;
+
+    public GoogleMfaAuthTokenServiceImpl(final GoogleMfaAuthTokenLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public void delete(final Date expirationDate) {

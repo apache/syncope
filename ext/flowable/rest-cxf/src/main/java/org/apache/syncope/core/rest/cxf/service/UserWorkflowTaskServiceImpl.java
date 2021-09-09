@@ -23,15 +23,17 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowTask;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.core.logic.UserWorkflowTaskLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 
 @Service
-public class UserWorkflowTaskServiceImpl extends AbstractServiceImpl implements UserWorkflowTaskService {
+public class UserWorkflowTaskServiceImpl extends AbstractService implements UserWorkflowTaskService {
 
-    @Autowired
-    private UserWorkflowTaskLogic logic;
+    protected final UserWorkflowTaskLogic logic;
+
+    public UserWorkflowTaskServiceImpl(final UserWorkflowTaskLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<WorkflowTask> getAvailableTasks(final String userKey) {
