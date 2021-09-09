@@ -23,11 +23,9 @@ import javax.persistence.Query;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.jpa.entity.JPABatch;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = Throwable.class)
-@Repository
 public class JPABatchDAO extends AbstractDAO<Batch> implements BatchDAO {
 
     @Transactional(readOnly = true)

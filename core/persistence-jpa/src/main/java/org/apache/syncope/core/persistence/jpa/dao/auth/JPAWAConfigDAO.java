@@ -22,12 +22,10 @@ import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAWAConfigEntry;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
-@Repository
 public class JPAWAConfigDAO extends AbstractDAO<WAConfigEntry> implements WAConfigDAO {
 
     @Transactional(readOnly = true)

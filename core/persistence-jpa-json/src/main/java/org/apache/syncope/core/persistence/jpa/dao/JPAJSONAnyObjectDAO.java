@@ -22,26 +22,39 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAJSONAnyObject;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.springframework.context.ApplicationEventPublisher;
 
 public class JPAJSONAnyObjectDAO extends JPAAnyObjectDAO {
 
-    private JPAJSONAnyDAO anyDAO;
+    protected final JPAJSONAnyDAO anyDAO;
 
-    private JPAJSONAnyDAO anyDAO() {
-        if (anyDAO == null) {
-            anyDAO = ApplicationContextProvider.getApplicationContext().getBean(JPAJSONAnyDAO.class);
-        }
-        return anyDAO;
+    public JPAJSONAnyObjectDAO(
+            final AnyUtilsFactory anyUtilsFactory,
+            final ApplicationEventPublisher publisher,
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final DynRealmDAO dynRealmDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final JPAJSONAnyDAO anyDAO) {
+
+        super(anyUtilsFactory, publisher, plainSchemaDAO, derSchemaDAO, dynRealmDAO, userDAO, groupDAO);
+        this.anyDAO = anyDAO;
     }
 
     @Override
@@ -50,7 +63,7 @@ public class JPAJSONAnyObjectDAO extends JPAAnyObjectDAO {
             final PlainAttrValue attrValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByPlainAttrValue(
+        return anyDAO.findByPlainAttrValue(
                 JPAJSONAnyObject.TABLE, anyUtils(), schema, attrValue, ignoreCaseMatch);
     }
 
@@ -60,7 +73,7 @@ public class JPAJSONAnyObjectDAO extends JPAAnyObjectDAO {
             final PlainAttrUniqueValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByPlainAttrUniqueValue(
+        return anyDAO.findByPlainAttrUniqueValue(
                 JPAJSONAnyObject.TABLE, anyUtils(), schema, attrUniqueValue, ignoreCaseMatch);
     }
 
@@ -70,7 +83,7 @@ public class JPAJSONAnyObjectDAO extends JPAAnyObjectDAO {
             final String value,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByDerAttrValue(JPAJSONAnyObject.TABLE, anyUtils(), schema, value, ignoreCaseMatch);
+        return anyDAO.findByDerAttrValue(JPAJSONAnyObject.TABLE, anyUtils(), schema, value, ignoreCaseMatch);
     }
 
     @Override
@@ -90,7 +103,7 @@ public class JPAJSONAnyObjectDAO extends JPAAnyObjectDAO {
 
     @Override
     public AnyObject save(final AnyObject anyObject) {
-        anyDAO().checkBeforeSave(JPAJSONAnyObject.TABLE, anyUtils(), anyObject);
+        anyDAO.checkBeforeSave(JPAJSONAnyObject.TABLE, anyUtils(), anyObject);
         return super.save(anyObject);
     }
 }

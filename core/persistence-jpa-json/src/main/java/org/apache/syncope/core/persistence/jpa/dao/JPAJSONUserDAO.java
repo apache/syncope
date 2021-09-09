@@ -23,27 +23,58 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUser;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.springframework.context.ApplicationEventPublisher;
 
 public class JPAJSONUserDAO extends JPAUserDAO {
 
-    private JPAJSONAnyDAO anyDAO;
+    protected final JPAJSONAnyDAO anyDAO;
 
-    private JPAJSONAnyDAO anyDAO() {
-        if (anyDAO == null) {
-            anyDAO = ApplicationContextProvider.getApplicationContext().getBean(JPAJSONAnyDAO.class);
-        }
-        return anyDAO;
+    public JPAJSONUserDAO(
+            final AnyUtilsFactory anyUtilsFactory,
+            final ApplicationEventPublisher publisher,
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final DynRealmDAO dynRealmDAO,
+            final RoleDAO roleDAO,
+            final AccessTokenDAO accessTokenDAO,
+            final RealmDAO realmDAO,
+            final GroupDAO groupDAO,
+            final DelegationDAO delegationDAO,
+            final SecurityProperties securityProperties,
+            final JPAJSONAnyDAO anyDAO) {
+
+        super(anyUtilsFactory,
+                publisher,
+                plainSchemaDAO,
+                derSchemaDAO,
+                dynRealmDAO,
+                roleDAO,
+                accessTokenDAO,
+                realmDAO,
+                groupDAO,
+                delegationDAO,
+                securityProperties);
+        this.anyDAO = anyDAO;
     }
 
     @Override
@@ -52,7 +83,7 @@ public class JPAJSONUserDAO extends JPAUserDAO {
             final PlainAttrValue attrValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByPlainAttrValue(
+        return anyDAO.findByPlainAttrValue(
                 JPAJSONUser.TABLE, anyUtils(), schema, attrValue, ignoreCaseMatch);
     }
 
@@ -62,7 +93,7 @@ public class JPAJSONUserDAO extends JPAUserDAO {
             final PlainAttrUniqueValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByPlainAttrUniqueValue(
+        return anyDAO.findByPlainAttrUniqueValue(
                 JPAJSONUser.TABLE, anyUtils(), schema, attrUniqueValue, ignoreCaseMatch);
     }
 
@@ -72,7 +103,7 @@ public class JPAJSONUserDAO extends JPAUserDAO {
             final String value,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByDerAttrValue(JPAJSONUser.TABLE, anyUtils(), schema, value, ignoreCaseMatch);
+        return anyDAO.findByDerAttrValue(JPAJSONUser.TABLE, anyUtils(), schema, value, ignoreCaseMatch);
     }
 
     @Override
@@ -108,13 +139,13 @@ public class JPAJSONUserDAO extends JPAUserDAO {
 
     @Override
     public User save(final User user) {
-        anyDAO().checkBeforeSave(JPAJSONUser.TABLE, anyUtils(), user);
+        anyDAO.checkBeforeSave(JPAJSONUser.TABLE, anyUtils(), user);
         return super.save(user);
     }
 
     @Override
     public Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(final User user) {
-        anyDAO().checkBeforeSave(JPAJSONUser.TABLE, anyUtils(), user);
+        anyDAO.checkBeforeSave(JPAJSONUser.TABLE, anyUtils(), user);
         return super.saveAndGetDynGroupMembs(user);
     }
 }

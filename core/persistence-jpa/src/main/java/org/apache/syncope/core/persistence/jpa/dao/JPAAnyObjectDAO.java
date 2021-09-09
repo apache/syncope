@@ -39,11 +39,15 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -59,17 +63,29 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObjectDAO {
 
-    @Autowired
-    protected UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    protected GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
+
+    public JPAAnyObjectDAO(
+            final AnyUtilsFactory anyUtilsFactory,
+            final ApplicationEventPublisher publisher,
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final DynRealmDAO dynRealmDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO) {
+
+        super(anyUtilsFactory, publisher, plainSchemaDAO, derSchemaDAO, dynRealmDAO);
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+    }
 
     @Override
     protected AnyUtils init() {

@@ -44,7 +44,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
@@ -54,11 +53,17 @@ public class ElasticsearchIndexManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchIndexManager.class);
 
-    @Autowired
-    private RestHighLevelClient client;
+    protected final RestHighLevelClient client;
 
-    @Autowired
-    private ElasticsearchUtils elasticsearchUtils;
+    protected final ElasticsearchUtils elasticsearchUtils;
+
+    public ElasticsearchIndexManager(
+            final RestHighLevelClient client,
+            final ElasticsearchUtils elasticsearchUtils) {
+
+        this.client = client;
+        this.elasticsearchUtils = elasticsearchUtils;
+    }
 
     public boolean existsIndex(final String domain, final AnyTypeKind kind) throws IOException {
         return client.indices().exists(

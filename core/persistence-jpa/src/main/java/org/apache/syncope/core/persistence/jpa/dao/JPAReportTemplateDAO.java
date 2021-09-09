@@ -23,9 +23,7 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReportTemplate;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPAReportTemplateDAO extends AbstractDAO<ReportTemplate> implements ReportTemplateDAO {
 
     @Override

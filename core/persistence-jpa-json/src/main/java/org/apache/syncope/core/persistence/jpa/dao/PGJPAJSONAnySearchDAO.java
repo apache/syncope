@@ -30,6 +30,12 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
@@ -46,6 +52,8 @@ import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -62,6 +70,19 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             output = output.replace(String.valueOf(toEscape), "\\" + toEscape);
         }
         return output;
+    }
+
+    public PGJPAJSONAnySearchDAO(
+            final RealmDAO realmDAO,
+            final DynRealmDAO dynRealmDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory) {
+
+        super(realmDAO, dynRealmDAO, userDAO, groupDAO, anyObjectDAO, plainSchemaDAO, entityFactory, anyUtilsFactory);
     }
 
     @Override
@@ -603,7 +624,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
         StringBuilder query = new StringBuilder();
 
-        PlainSchema schema = schemaDAO.find(cond.getSchema());
+        PlainSchema schema = plainSchemaDAO.find(cond.getSchema());
         if (schema == null) {
             fillAttrQuery(query, checked.getMiddle(), checked.getLeft(), checked.getRight(), not, parameters, svs);
         } else {
@@ -864,7 +885,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
         schemas.forEach(schema -> {
             // i.e jsonb_path_query(plainattrs, '$[*] ? (@.schema=="Nome")."values"') AS Nome
-            PlainSchema pschema = schemaDAO.find(schema);
+            PlainSchema pschema = plainSchemaDAO.find(schema);
             if (pschema == null) {
                 // just to be sure
                 LOG.warn("Ignoring invalid schema '{}'", schema);

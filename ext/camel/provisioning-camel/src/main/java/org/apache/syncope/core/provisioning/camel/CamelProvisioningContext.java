@@ -32,7 +32,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 @Configuration
-public class ProvisioningCamelContext {
+public class CamelProvisioningContext {
 
     @Bean
     public Resource userRoutes() {

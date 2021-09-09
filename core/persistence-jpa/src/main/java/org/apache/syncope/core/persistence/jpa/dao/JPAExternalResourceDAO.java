@@ -51,33 +51,59 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implements ExternalResourceDAO {
 
-    @Autowired
-    private TaskDAO taskDAO;
+    protected static StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
+        StringBuilder query = new StringBuilder("SELECT e FROM ").
+                append(JPAExternalResource.class.getSimpleName()).
+                append(" e WHERE e.");
 
-    @Autowired
-    private AnyObjectDAO anyObjectDAO;
+        if (AccountPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("accountPolicy");
+        } else if (PasswordPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("passwordPolicy");
+        } else if (PullPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("pullPolicy");
+        } else if (PushPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("pushPolicy");
+        }
 
-    @Autowired
-    private UserDAO userDAO;
+        return query;
+    }
 
-    @Autowired
-    private GroupDAO groupDAO;
+    protected final TaskDAO taskDAO;
 
-    @Autowired
-    private PolicyDAO policyDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private RealmDAO realmDAO;
+    protected final GroupDAO groupDAO;
+
+    protected final PolicyDAO policyDAO;
+
+    protected final VirSchemaDAO virSchemaDAO;
+
+    protected final RealmDAO realmDAO;
+
+    public JPAExternalResourceDAO(
+            final TaskDAO taskDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final PolicyDAO policyDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final RealmDAO realmDAO) {
+
+        this.taskDAO = taskDAO;
+        this.anyObjectDAO = anyObjectDAO;
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.policyDAO = policyDAO;
+        this.virSchemaDAO = virSchemaDAO;
+        this.realmDAO = realmDAO;
+    }
 
     @Transactional(readOnly = true)
     @Override
@@ -141,24 +167,6 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         query.setParameter("propagationActions", propagationActions);
 
         return query.getResultList();
-    }
-
-    private static StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
-        StringBuilder query = new StringBuilder("SELECT e FROM ").
-                append(JPAExternalResource.class.getSimpleName()).
-                append(" e WHERE e.");
-
-        if (AccountPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("accountPolicy");
-        } else if (PasswordPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("passwordPolicy");
-        } else if (PullPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("pullPolicy");
-        } else if (PushPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("pushPolicy");
-        }
-
-        return query;
     }
 
     @Override

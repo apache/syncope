@@ -18,6 +18,21 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.provisioning.api.AuditManager;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
+import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
@@ -43,7 +58,7 @@ public class WebSecurityContext extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private SecurityProperties securityProperties;
-    
+
     @Autowired
     private ApplicationContext ctx;
 
@@ -66,20 +81,33 @@ public class WebSecurityContext extends WebSecurityConfigurerAdapter {
 
     @ConditionalOnMissingBean
     @Bean
-    public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider() {
-        return new UsernamePasswordAuthenticationProvider();
+    @Autowired
+    public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider(
+            final DomainOps domainOps,
+            final AuthDataAccessor dataAccessor,
+            final UserProvisioningManager provisioningManager,
+            final DefaultCredentialChecker credentialChecker) {
+
+        return new UsernamePasswordAuthenticationProvider(
+                domainOps,
+                dataAccessor,
+                provisioningManager,
+                credentialChecker,
+                securityProperties);
     }
 
+    @ConditionalOnMissingBean
     @Bean
-    public JWTAuthenticationProvider jwtAuthenticationProvider() {
-        return new JWTAuthenticationProvider();
+    @Autowired
+    public JWTAuthenticationProvider jwtAuthenticationProvider(final AuthDataAccessor authDataAccessor) {
+        return new JWTAuthenticationProvider(authDataAccessor);
     }
 
     @Override
     protected void configure(final AuthenticationManagerBuilder builder) throws Exception {
         builder.
-                authenticationProvider(usernamePasswordAuthenticationProvider()).
-                authenticationProvider(jwtAuthenticationProvider());
+                authenticationProvider(ctx.getBean(UsernamePasswordAuthenticationProvider.class)).
+                authenticationProvider(ctx.getBean(JWTAuthenticationProvider.class));
     }
 
     @Bean
@@ -117,7 +145,36 @@ public class WebSecurityContext extends WebSecurityConfigurerAdapter {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthDataAccessor authDataAccessor() {
-        return new AuthDataAccessor();
+    @Autowired
+    public AuthDataAccessor authDataAccessor(
+            final RealmDAO realmDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final AnySearchDAO anySearchDAO,
+            final AccessTokenDAO accessTokenDAO,
+            final ConfParamOps confParamOps,
+            final RoleDAO roleDAO,
+            final DelegationDAO delegationDAO,
+            final ConnectorManager connectorManager,
+            final AuditManager auditManager,
+            final MappingManager mappingManager,
+            final ImplementationLookup implementationLookup) {
+
+        return new AuthDataAccessor(
+                securityProperties,
+                realmDAO,
+                userDAO,
+                groupDAO,
+                anyTypeDAO,
+                anySearchDAO,
+                accessTokenDAO,
+                confParamOps,
+                roleDAO,
+                delegationDAO,
+                connectorManager,
+                auditManager,
+                mappingManager,
+                implementationLookup);
     }
 }

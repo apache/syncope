@@ -23,12 +23,10 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCRPClientApp;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
-@Repository
 public class JPAOIDCRPDAO extends AbstractDAO<OIDCRPClientApp> implements OIDCRPDAO {
 
     @Override

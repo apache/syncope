@@ -20,12 +20,23 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 
 abstract class AbstractJPAJSONPlainSchemaDAO extends JPAPlainSchemaDAO {
+
+    protected AbstractJPAJSONPlainSchemaDAO(
+            final AnyUtilsFactory anyUtilsFactory,
+            final PlainAttrDAO plainAttrDAO,
+            final ExternalResourceDAO resourceDAO) {
+
+        super(anyUtilsFactory, plainAttrDAO, resourceDAO);
+    }
 
     @Override
     public <T extends PlainAttr<?>> List<T> findAttrs(final PlainSchema schema, final Class<T> reference) {

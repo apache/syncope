@@ -39,7 +39,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -51,14 +50,11 @@ public class ElasticsearchUtils {
         return domain.toLowerCase() + '_' + kind.name().toLowerCase();
     }
 
-    @Autowired
-    protected UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    protected GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
     protected int indexMaxResultWindow = 10000;
 
@@ -67,6 +63,12 @@ public class ElasticsearchUtils {
     protected int numberOfShards = 1;
 
     protected int numberOfReplicas = 1;
+
+    public ElasticsearchUtils(final UserDAO userDAO, final GroupDAO groupDAO, final AnyObjectDAO anyObjectDAO) {
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.anyObjectDAO = anyObjectDAO;
+    }
 
     public void setIndexMaxResultWindow(final int indexMaxResultWindow) {
         this.indexMaxResultWindow = indexMaxResultWindow;

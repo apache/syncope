@@ -23,9 +23,7 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.entity.DomainEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPADomain;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPADomainDAO extends AbstractDAO<DomainEntity> implements DomainDAO {
 
     @Override

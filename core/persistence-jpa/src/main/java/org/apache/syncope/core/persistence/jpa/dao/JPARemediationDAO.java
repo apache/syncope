@@ -28,11 +28,9 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.jpa.entity.JPARemediation;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
-@Repository
 public class JPARemediationDAO extends AbstractDAO<Remediation> implements RemediationDAO {
 
     @Transactional(readOnly = true)

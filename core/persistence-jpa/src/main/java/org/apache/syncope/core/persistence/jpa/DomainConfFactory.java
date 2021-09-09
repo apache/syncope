@@ -37,7 +37,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.AutowireCandidateQualifier;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
@@ -45,40 +44,37 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter;
-import org.springframework.stereotype.Component;
 
-@Component
-public class DomainConfFactory implements DomainRegistry, EnvironmentAware {
+public class DomainConfFactory implements DomainRegistry {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DomainConfFactory.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DomainConfFactory.class);
 
-    private Environment env;
-
-    @Override
-    public void setEnvironment(final Environment env) {
-        this.env = env;
-    }
-
-    private static void unregisterSingleton(final String name) {
+    protected static void unregisterSingleton(final String name) {
         if (ApplicationContextProvider.getBeanFactory().containsSingleton(name)) {
             ApplicationContextProvider.getBeanFactory().destroySingleton(name);
         }
     }
 
-    private static void registerSingleton(final String name, final Object bean) {
+    protected static void registerSingleton(final String name, final Object bean) {
         unregisterSingleton(name);
         ApplicationContextProvider.getBeanFactory().registerSingleton(name, bean);
     }
 
-    private static void unregisterBeanDefinition(final String name) {
+    protected static void unregisterBeanDefinition(final String name) {
         if (ApplicationContextProvider.getBeanFactory().containsBeanDefinition(name)) {
             ApplicationContextProvider.getBeanFactory().removeBeanDefinition(name);
         }
     }
 
-    private static void registerBeanDefinition(final String name, final BeanDefinition beanDefinition) {
+    protected static void registerBeanDefinition(final String name, final BeanDefinition beanDefinition) {
         unregisterBeanDefinition(name);
         ApplicationContextProvider.getBeanFactory().registerBeanDefinition(name, beanDefinition);
+    }
+
+    protected final Environment env;
+
+    public DomainConfFactory(final Environment env) {
+        this.env = env;
     }
 
     @Override

@@ -19,7 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
-import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
@@ -47,7 +47,7 @@ public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>> implements PlainA
     @SuppressWarnings("unchecked")
     public <T extends PlainAttr<?>> void delete(final T plainAttr) {
         if (plainAttr.getOwner() != null) {
-            ((Any<T>) plainAttr.getOwner()).remove(plainAttr);
+            ((Attributable<T>) plainAttr.getOwner()).remove(plainAttr);
         }
 
         entityManager().remove(plainAttr);

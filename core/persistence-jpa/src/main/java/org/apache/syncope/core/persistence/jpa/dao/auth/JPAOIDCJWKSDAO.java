@@ -22,13 +22,11 @@ import org.apache.syncope.core.persistence.api.dao.auth.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCJWKS;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 
-@Repository
 public class JPAOIDCJWKSDAO extends AbstractDAO<OIDCJWKS> implements OIDCJWKSDAO {
 
     @Transactional(readOnly = true)
@@ -36,7 +34,7 @@ public class JPAOIDCJWKSDAO extends AbstractDAO<OIDCJWKS> implements OIDCJWKSDAO
     public OIDCJWKS get() {
         try {
             TypedQuery<OIDCJWKS> query = entityManager().
-                createQuery("SELECT e FROM " + JPAOIDCJWKS.class.getSimpleName() + " e", OIDCJWKS.class);
+                    createQuery("SELECT e FROM " + JPAOIDCJWKS.class.getSimpleName() + " e", OIDCJWKS.class);
             return query.getSingleResult();
         } catch (final NoResultException e) {
             LOG.debug(e.getMessage());
@@ -52,7 +50,7 @@ public class JPAOIDCJWKSDAO extends AbstractDAO<OIDCJWKS> implements OIDCJWKSDAO
     @Override
     public void delete() {
         entityManager().
-            createQuery("DELETE FROM " + JPAOIDCJWKS.class.getSimpleName()).
-            executeUpdate();
+                createQuery("DELETE FROM " + JPAOIDCJWKS.class.getSimpleName()).
+                executeUpdate();
     }
 }

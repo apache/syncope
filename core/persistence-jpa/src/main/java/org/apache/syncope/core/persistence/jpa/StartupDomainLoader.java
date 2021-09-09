@@ -30,30 +30,36 @@ import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.stereotype.Component;
 
-@Component
 public class StartupDomainLoader implements SyncopeCoreLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StartupDomainLoader.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(StartupDomainLoader.class);
 
-    @Autowired
-    private DomainOps domainOps;
+    protected final DomainOps domainOps;
 
-    @Autowired
-    private DomainHolder domainHolder;
+    protected final DomainHolder domainHolder;
 
-    @Autowired
-    private PersistenceProperties persistenceProperties;
+    protected final PersistenceProperties persistenceProperties;
 
-    @Autowired
-    private ResourceLoader resourceLoader;
+    protected final ResourceLoader resourceLoader;
 
-    @Autowired
-    private DomainRegistry domainRegistry;
+    protected final DomainRegistry domainRegistry;
+
+    public StartupDomainLoader(
+            final DomainOps domainOps,
+            final DomainHolder domainHolder,
+            final PersistenceProperties persistenceProperties,
+            final ResourceLoader resourceLoader,
+            final DomainRegistry domainRegistry) {
+
+        this.domainOps = domainOps;
+        this.domainHolder = domainHolder;
+        this.persistenceProperties = persistenceProperties;
+        this.resourceLoader = resourceLoader;
+        this.domainRegistry = domainRegistry;
+    }
 
     @Override
     public int getOrder() {

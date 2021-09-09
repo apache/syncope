@@ -20,24 +20,55 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.springframework.context.ApplicationEventPublisher;
 
 public class JPAJSONGroupDAO extends JPAGroupDAO {
 
-    private JPAJSONAnyDAO anyDAO;
+    protected final JPAJSONAnyDAO anyDAO;
 
-    private JPAJSONAnyDAO anyDAO() {
-        if (anyDAO == null) {
-            anyDAO = ApplicationContextProvider.getApplicationContext().getBean(JPAJSONAnyDAO.class);
-        }
-        return anyDAO;
+    public JPAJSONGroupDAO(
+            final AnyUtilsFactory anyUtilsFactory,
+            final ApplicationEventPublisher publisher,
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final DynRealmDAO dynRealmDAO,
+            final AnyMatchDAO anyMatchDAO,
+            final PlainAttrDAO plainAttrDAO,
+            final UserDAO userDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final AnySearchDAO searchDAO,
+            final SearchCondVisitor searchCondVisitor,
+            final JPAJSONAnyDAO anyDAO) {
+
+        super(anyUtilsFactory,
+                publisher,
+                plainSchemaDAO,
+                derSchemaDAO,
+                dynRealmDAO,
+                anyMatchDAO,
+                plainAttrDAO,
+                userDAO,
+                anyObjectDAO,
+                searchDAO,
+                searchCondVisitor);
+        this.anyDAO = anyDAO;
     }
 
     @Override
@@ -46,7 +77,7 @@ public class JPAJSONGroupDAO extends JPAGroupDAO {
             final PlainAttrValue attrValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByPlainAttrValue(
+        return anyDAO.findByPlainAttrValue(
                 JPAGroup.TABLE, anyUtils(), schema, attrValue, ignoreCaseMatch);
     }
 
@@ -56,7 +87,7 @@ public class JPAJSONGroupDAO extends JPAGroupDAO {
             final PlainAttrUniqueValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByPlainAttrUniqueValue(
+        return anyDAO.findByPlainAttrUniqueValue(
                 JPAGroup.TABLE, anyUtils(), schema, attrUniqueValue, ignoreCaseMatch);
     }
 
@@ -66,12 +97,12 @@ public class JPAJSONGroupDAO extends JPAGroupDAO {
             final String value,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO().findByDerAttrValue(JPAGroup.TABLE, anyUtils(), schema, value, ignoreCaseMatch);
+        return anyDAO.findByDerAttrValue(JPAGroup.TABLE, anyUtils(), schema, value, ignoreCaseMatch);
     }
 
     @Override
     public Group save(final Group group) {
-        anyDAO().checkBeforeSave(JPAGroup.TABLE, anyUtils(), group);
+        anyDAO.checkBeforeSave(JPAGroup.TABLE, anyUtils(), group);
         return super.save(group);
     }
 }

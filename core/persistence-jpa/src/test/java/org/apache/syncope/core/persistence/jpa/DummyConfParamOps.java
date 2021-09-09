@@ -20,9 +20,7 @@ package org.apache.syncope.core.persistence.jpa;
 
 import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
-import org.springframework.stereotype.Component;
 
-@Component
 public class DummyConfParamOps implements ConfParamOps {
 
     @Override

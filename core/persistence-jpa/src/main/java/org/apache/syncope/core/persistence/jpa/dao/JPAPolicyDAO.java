@@ -43,22 +43,10 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationR
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
 
-    @Lazy
-    @Autowired
-    private RealmDAO realmDAO;
-
-    @Lazy
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
-
-    private static <T extends Policy> Class<? extends AbstractPolicy> getEntityReference(final Class<T> reference) {
+    protected static <T extends Policy> Class<? extends AbstractPolicy> getEntityReference(final Class<T> reference) {
         return AccountPolicy.class.isAssignableFrom(reference)
                 ? JPAAccountPolicy.class
                 : PasswordPolicy.class.isAssignableFrom(reference)
@@ -74,6 +62,15 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
                 : AttrReleasePolicy.class.isAssignableFrom(reference)
                 ? JPAAttrReleasePolicy.class
                 : null;
+    }
+
+    protected final RealmDAO realmDAO;
+
+    protected final ExternalResourceDAO resourceDAO;
+
+    public JPAPolicyDAO(final RealmDAO realmDAO, final ExternalResourceDAO resourceDAO) {
+        this.realmDAO = realmDAO;
+        this.resourceDAO = resourceDAO;
     }
 
     @SuppressWarnings("unchecked")

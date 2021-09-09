@@ -62,7 +62,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO {
 
@@ -71,30 +70,6 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     };
 
     protected static final String[] RELATIONSHIP_FIELDS = new String[] { "realm", "userOwner", "groupOwner" };
-
-    @Autowired
-    protected RealmDAO realmDAO;
-
-    @Autowired
-    protected DynRealmDAO dynRealmDAO;
-
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
-
-    @Autowired
-    protected UserDAO userDAO;
-
-    @Autowired
-    protected GroupDAO groupDAO;
-
-    @Autowired
-    protected PlainSchemaDAO schemaDAO;
-
-    @Autowired
-    protected EntityFactory entityFactory;
-
-    @Autowired
-    protected AnyUtilsFactory anyUtilsFactory;
 
     protected static SearchCond buildEffectiveCond(
             final SearchCond cond,
@@ -133,6 +108,42 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         }
 
         return SearchCond.getAnd(result);
+    }
+
+    protected final RealmDAO realmDAO;
+
+    protected final DynRealmDAO dynRealmDAO;
+
+    protected final UserDAO userDAO;
+
+    protected final GroupDAO groupDAO;
+
+    protected final AnyObjectDAO anyObjectDAO;
+
+    protected final PlainSchemaDAO plainSchemaDAO;
+
+    protected final EntityFactory entityFactory;
+
+    protected final AnyUtilsFactory anyUtilsFactory;
+
+    public AbstractAnySearchDAO(
+            final RealmDAO realmDAO,
+            final DynRealmDAO dynRealmDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory) {
+
+        this.realmDAO = realmDAO;
+        this.dynRealmDAO = dynRealmDAO;
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.anyObjectDAO = anyObjectDAO;
+        this.plainSchemaDAO = plainSchemaDAO;
+        this.entityFactory = entityFactory;
+        this.anyUtilsFactory = anyUtilsFactory;
     }
 
     protected abstract int doCount(Set<String> adminRealms, SearchCond cond, AnyTypeKind kind);
@@ -176,7 +187,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     protected Pair<PlainSchema, PlainAttrValue> check(final AttrCond cond, final AnyTypeKind kind) {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
 
-        PlainSchema schema = schemaDAO.find(cond.getSchema());
+        PlainSchema schema = plainSchemaDAO.find(cond.getSchema());
         if (schema == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
             throw new IllegalArgumentException();

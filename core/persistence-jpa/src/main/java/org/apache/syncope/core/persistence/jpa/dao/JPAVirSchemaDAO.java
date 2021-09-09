@@ -38,16 +38,14 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPAVirSchemaDAO extends AbstractDAO<VirSchema> implements VirSchemaDAO {
 
-    @Lazy
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
+
+    public JPAVirSchemaDAO(final ExternalResourceDAO resourceDAO) {
+        this.resourceDAO = resourceDAO;
+    }
 
     @Override
     public VirSchema find(final String key) {

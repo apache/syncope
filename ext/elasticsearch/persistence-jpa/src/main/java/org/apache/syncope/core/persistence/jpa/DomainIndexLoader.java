@@ -24,17 +24,17 @@ import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
-import org.springframework.stereotype.Component;
 
-@Component
 public class DomainIndexLoader implements SyncopeCoreLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DomainIndexLoader.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DomainIndexLoader.class);
 
-    @Autowired
-    private ElasticsearchIndexManager indexManager;
+    protected final ElasticsearchIndexManager indexManager;
+
+    public DomainIndexLoader(final ElasticsearchIndexManager indexManager) {
+        this.indexManager = indexManager;
+    }
 
     @Override
     public int getOrder() {

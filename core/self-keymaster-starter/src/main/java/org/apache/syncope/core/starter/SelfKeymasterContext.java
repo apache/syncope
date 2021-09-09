@@ -43,8 +43,16 @@ import org.apache.syncope.core.persistence.api.dao.ConfParamDAO;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
 import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
+import org.apache.syncope.core.persistence.jpa.dao.JPAConfParamDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPADomainDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPANetworkServiceDAO;
+import org.apache.syncope.core.persistence.jpa.entity.JPASelfKeymasterEntityFactory;
+import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
 import org.apache.syncope.core.rest.security.SelfKeymasterUsernamePasswordAuthenticationProvider;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
 import org.apache.syncope.core.spring.security.WebSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,9 +89,6 @@ public class SelfKeymasterContext {
     }
 
     @Autowired
-    private SelfKeymasterEntityFactory entityFactory;
-
-    @Autowired
     private Bus bus;
 
     @Autowired
@@ -118,33 +123,56 @@ public class SelfKeymasterContext {
 
     @Conditional(SelfKeymasterCondition.class)
     @Bean
-    public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider() {
-        return new SelfKeymasterUsernamePasswordAuthenticationProvider();
+    @Autowired
+    public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider(
+            final DomainOps domainOps,
+            final AuthDataAccessor dataAccessor,
+            final UserProvisioningManager provisioningManager,
+            final DefaultCredentialChecker credentialChecker,
+            final SecurityProperties securityProperties,
+            final KeymasterProperties keymasterProperties) {
+
+        return new SelfKeymasterUsernamePasswordAuthenticationProvider(
+                domainOps,
+                dataAccessor,
+                provisioningManager,
+                credentialChecker,
+                securityProperties,
+                keymasterProperties);
     }
 
     @Conditional(SelfKeymasterCondition.class)
     @Bean
-    public ConfParamOps internalConfParamOps() {
-        return new SelfKeymasterInternalConfParamOps();
+    @Autowired
+    public ConfParamOps internalConfParamOps(final ConfParamLogic confParamLogic, final KeymasterProperties props) {
+        return new SelfKeymasterInternalConfParamOps(confParamLogic, props);
     }
 
     @Conditional(SelfKeymasterCondition.class)
     @Bean
-    public ServiceOps internalServiceOps() {
-        return new SelfKeymasterInternalServiceOps();
+    @Autowired
+    public ServiceOps internalServiceOps(
+            final NetworkServiceLogic networkServiceLogic,
+            final KeymasterProperties props) {
+
+        return new SelfKeymasterInternalServiceOps(networkServiceLogic, props);
     }
 
     @Conditional(SelfKeymasterCondition.class)
     @Bean
-    public DomainOps domainOps() {
-        return new SelfKeymasterInternalDomainOps();
+    @Autowired
+    public DomainOps domainOps(final DomainLogic domainLogic, final KeymasterProperties props) {
+        return new SelfKeymasterInternalDomainOps(domainLogic, props);
     }
 
     @ConditionalOnMissingBean
     @Bean
     @Autowired
-    public ConfParamLogic confParamLogic(final ConfParamDAO confParamDAO) {
-        return new ConfParamLogic(confParamDAO, entityFactory);
+    public ConfParamLogic confParamLogic(
+            final ConfParamDAO confParamDAO,
+            final SelfKeymasterEntityFactory selfKeymasterEntityFactory) {
+
+        return new ConfParamLogic(confParamDAO, selfKeymasterEntityFactory);
     }
 
     @ConditionalOnMissingBean
@@ -152,15 +180,43 @@ public class SelfKeymasterContext {
     @Autowired
     public DomainLogic domainLogic(
             final DomainDAO domainDAO,
+            final SelfKeymasterEntityFactory selfKeymasterEntityFactory,
             final DomainWatcher domainWatcher) {
 
-        return new DomainLogic(domainDAO, entityFactory, domainWatcher);
+        return new DomainLogic(domainDAO, selfKeymasterEntityFactory, domainWatcher);
     }
 
     @ConditionalOnMissingBean
     @Bean
     @Autowired
-    public NetworkServiceLogic networkServiceLogic(final NetworkServiceDAO serviceDAO) {
-        return new NetworkServiceLogic(serviceDAO, entityFactory);
+    public NetworkServiceLogic networkServiceLogic(
+            final NetworkServiceDAO serviceDAO,
+            final SelfKeymasterEntityFactory selfKeymasterEntityFactory) {
+
+        return new NetworkServiceLogic(serviceDAO, selfKeymasterEntityFactory);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SelfKeymasterEntityFactory selfKeymasterEntityFactory() {
+        return new JPASelfKeymasterEntityFactory();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ConfParamDAO confParamDAO() {
+        return new JPAConfParamDAO();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public DomainDAO domainDAO() {
+        return new JPADomainDAO();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public NetworkServiceDAO networkServiceDAO() {
+        return new JPANetworkServiceDAO();
     }
 }

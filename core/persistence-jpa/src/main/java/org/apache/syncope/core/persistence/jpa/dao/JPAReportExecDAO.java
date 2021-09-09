@@ -27,11 +27,9 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReportExec;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
-@Repository
 public class JPAReportExecDAO extends AbstractDAO<ReportExec> implements ReportExecDAO {
 
     @Override

@@ -20,10 +20,19 @@ package org.apache.syncope.core.persistence.jpa;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.core.persistence.api.DomainHolder;
+import org.apache.syncope.core.persistence.api.DomainRegistry;
+import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.core.persistence.api.content.ContentLoader;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.spring.security.DefaultPasswordGenerator;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -67,6 +76,17 @@ public class PersistenceTestContext {
     }
 
     @Bean
+    @Autowired
+    public static TestInitializer testInitializer(
+            final StartupDomainLoader domainLoader,
+            final DomainHolder domainHolder,
+            final ContentLoader contentLoader,
+            final ConfigurableApplicationContext ctx) {
+
+        return new TestInitializer(domainLoader, domainHolder, contentLoader, ctx);
+    }
+
+    @Bean
     public SecurityProperties securityProperties() {
         return new SecurityProperties();
     }
@@ -74,5 +94,26 @@ public class PersistenceTestContext {
     @Bean
     public PasswordGenerator passwordGenerator() {
         return new DefaultPasswordGenerator();
+    }
+
+    @Bean
+    public ImplementationLookup implementationLookup() {
+        return new DummyImplementationLookup();
+    }
+
+    @Bean
+    public ConfParamOps confParamOps() {
+        return new DummyConfParamOps();
+    }
+
+    @Bean
+    @Autowired
+    public DomainOps domainOps(final DomainRegistry domainRegistry) {
+        return new DummyDomainOps(domainRegistry);
+    }
+
+    @Bean
+    public ConnectorManager connectorManager() {
+        return new DummyConnectorManager();
     }
 }

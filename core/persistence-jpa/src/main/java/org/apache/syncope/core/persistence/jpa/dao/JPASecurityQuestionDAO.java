@@ -24,14 +24,14 @@ import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPASecurityQuestion;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPASecurityQuestionDAO extends AbstractDAO<SecurityQuestion> implements SecurityQuestionDAO {
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
+
+    public JPASecurityQuestionDAO(final UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
 
     @Override
     public SecurityQuestion find(final String key) {

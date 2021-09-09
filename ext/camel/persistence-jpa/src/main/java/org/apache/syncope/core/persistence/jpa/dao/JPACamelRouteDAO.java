@@ -24,10 +24,8 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 import org.apache.syncope.core.persistence.jpa.entity.JPACamelRoute;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 public class JPACamelRouteDAO extends AbstractDAO<CamelRoute> implements CamelRouteDAO {
 
     @Override

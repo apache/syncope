@@ -26,16 +26,14 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPADerSchema;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPADerSchemaDAO extends AbstractDAO<DerSchema> implements DerSchemaDAO {
 
-    @Lazy
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
+
+    public JPADerSchemaDAO(final ExternalResourceDAO resourceDAO) {
+        this.resourceDAO = resourceDAO;
+    }
 
     @Override
     public DerSchema find(final String key) {

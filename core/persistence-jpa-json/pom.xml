@@ -217,7 +217,7 @@ under the License.
 
     <profile>
       <id>pgjsonb</id>
-      
+
       <dependencies>
         <dependency>
           <groupId>org.postgresql</groupId>
@@ -266,6 +266,7 @@ under the License.
               </includes>
               <excludedGroups>multitenancy,plainAttrTable</excludedGroups>
               <systemProperties>
+                <profileId>${project.activeProfiles[0].id}</profileId>
                 <CORE_PROPERTIES>classpath:core-pgjsonb.properties,classpath:core-pgjsonb-test.properties</CORE_PROPERTIES>
                 <DB_CONTAINER_IP>${docker.container.postgres.ip}</DB_CONTAINER_IP>
               </systemProperties>
@@ -281,6 +282,7 @@ under the License.
                   <alias>postgres</alias>
                   <name>postgres:${docker.postgresql.version}</name>
                   <run>
+                    <cmd>postgres -N 200</cmd>
                     <env>
                       <POSTGRES_DB>syncope</POSTGRES_DB>
                       <POSTGRES_USER>syncope</POSTGRES_USER>
@@ -377,6 +379,7 @@ under the License.
               </includes>
               <excludedGroups>multitenancy,plainAttrTable</excludedGroups>
               <systemProperties>
+                <profileId>${project.activeProfiles[0].id}</profileId>
                 <CORE_PROPERTIES>classpath:core-myjson.properties,classpath:core-myjson-test.properties</CORE_PROPERTIES>
                 <DB_CONTAINER_IP>${docker.container.mysql.ip}</DB_CONTAINER_IP>
               </systemProperties>

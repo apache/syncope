@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
@@ -34,14 +35,18 @@ import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 
-@Component
 public class JPATaskUtilsFactory implements TaskUtilsFactory {
 
-    private final Map<TaskType, TaskUtils> instances = new HashMap<>(5);
+    protected final EntityFactory entityFactory;
+
+    protected final Map<TaskType, TaskUtils> instances = new HashMap<>(5);
+
+    public JPATaskUtilsFactory(final EntityFactory entityFactory) {
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public TaskUtils getInstance(final TaskType type) {
@@ -49,7 +54,7 @@ public class JPATaskUtilsFactory implements TaskUtilsFactory {
         synchronized (instances) {
             instance = instances.get(type);
             if (instance == null) {
-                instance = new JPATaskUtils(type);
+                instance = new JPATaskUtils(entityFactory, type);
                 ApplicationContextProvider.getBeanFactory().autowireBean(instance);
                 instances.put(type, instance);
             }
@@ -102,5 +107,4 @@ public class JPATaskUtilsFactory implements TaskUtilsFactory {
     public TaskUtils getInstance(final TaskTO taskTO) {
         return getInstance(taskTO.getClass());
     }
-
 }

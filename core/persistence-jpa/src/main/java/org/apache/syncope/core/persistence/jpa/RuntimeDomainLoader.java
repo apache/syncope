@@ -23,24 +23,24 @@ import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.aop.support.AopUtils;
 
-@Component
 public class RuntimeDomainLoader implements DomainWatcher {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RuntimeDomainLoader.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(RuntimeDomainLoader.class);
 
-    @Autowired
-    private DomainHolder domainHolder;
+    protected final DomainHolder domainHolder;
 
-    @Autowired
-    private DomainRegistry domainRegistry;
+    protected final DomainRegistry domainRegistry;
+
+    public RuntimeDomainLoader(final DomainHolder domainHolder, final DomainRegistry domainRegistry) {
+        this.domainHolder = domainHolder;
+        this.domainRegistry = domainRegistry;
+    }
 
     @Override
     public void added(final Domain domain) {

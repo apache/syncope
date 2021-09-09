@@ -24,10 +24,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -36,6 +44,19 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 
 public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
+
+    public MyJPAJSONAnySearchDAO(
+            final RealmDAO realmDAO,
+            final DynRealmDAO dynRealmDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final PlainSchemaDAO schemaDAO,
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory) {
+
+        super(realmDAO, dynRealmDAO, userDAO, groupDAO, anyObjectDAO, schemaDAO, entityFactory, anyUtilsFactory);
+    }
 
     @Override
     protected void processOBS(

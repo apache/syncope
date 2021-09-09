@@ -64,7 +64,7 @@ import org.springframework.core.io.ResourceLoader;
 
 @EnableConfigurationProperties(WorkflowFlowableProperties.class)
 @Configuration
-public class WorkflowFlowableContext {
+public class FlowableWorkflowContext {
 
     @Autowired
     private WorkflowFlowableProperties props;

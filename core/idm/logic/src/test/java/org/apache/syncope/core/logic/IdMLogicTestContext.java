@@ -25,6 +25,7 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
+import org.apache.syncope.core.persistence.jpa.MasterDomain;
 import org.apache.syncope.core.persistence.jpa.PersistenceContext;
 import org.apache.syncope.core.persistence.jpa.StartupDomainLoader;
 import org.apache.syncope.core.provisioning.java.ProvisioningContext;
@@ -38,8 +39,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 
 @PropertySource("classpath:core-test.properties")
-@Import({ IdRepoLogicContext.class, IdMLogicContext.class,
-    SecurityContext.class, PersistenceContext.class, ProvisioningContext.class, WorkflowContext.class })
+@Import({ IdRepoLogicContext.class, IdMLogicContext.class, SecurityContext.class,
+    PersistenceContext.class, MasterDomain.class, ProvisioningContext.class, WorkflowContext.class })
 @Configuration
 public class IdMLogicTestContext {
 

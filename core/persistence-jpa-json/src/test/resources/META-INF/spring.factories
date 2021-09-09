@@ -15,4 +15,5 @@
 # specific language governing permissions and limitations
 # under the License.
 
-persistence.anySearchDao=org.apache.syncope.core.persistence.jpa.dao.ElasticsearchAnySearchDAO
+org.springframework.test.context.ContextCustomizerFactory=\
+  org.apache.syncope.core.persistence.jpa.JPAJSONTestContextCustomizerFactory

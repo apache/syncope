@@ -28,9 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
-import org.springframework.stereotype.Component;
 
-@Component
 public class DummyConnectorManager implements ConnectorManager {
 
     @Override

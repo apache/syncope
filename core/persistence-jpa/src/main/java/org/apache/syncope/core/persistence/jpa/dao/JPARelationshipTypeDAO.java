@@ -32,9 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.jpa.entity.JPARelationshipType;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPARelationshipTypeDAO extends AbstractDAO<RelationshipType> implements RelationshipTypeDAO {
 
     @Override

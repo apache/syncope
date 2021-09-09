@@ -31,7 +31,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -45,20 +44,29 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
-    @Autowired
-    protected DomainOps domainOps;
+    protected final DomainOps domainOps;
 
-    @Autowired
-    protected AuthDataAccessor dataAccessor;
+    protected final AuthDataAccessor dataAccessor;
 
-    @Autowired
-    protected UserProvisioningManager provisioningManager;
+    protected final UserProvisioningManager provisioningManager;
 
-    @Autowired
-    protected DefaultCredentialChecker credentialChecker;
+    protected final DefaultCredentialChecker credentialChecker;
 
-    @Autowired
-    protected SecurityProperties securityProperties;
+    protected final SecurityProperties securityProperties;
+
+    public UsernamePasswordAuthenticationProvider(
+            final DomainOps domainOps,
+            final AuthDataAccessor dataAccessor,
+            final UserProvisioningManager provisioningManager,
+            final DefaultCredentialChecker credentialChecker,
+            final SecurityProperties securityProperties) {
+
+        this.domainOps = domainOps;
+        this.dataAccessor = dataAccessor;
+        this.provisioningManager = provisioningManager;
+        this.credentialChecker = credentialChecker;
+        this.securityProperties = securityProperties;
+    }
 
     @Override
     public Authentication authenticate(final Authentication authentication) {

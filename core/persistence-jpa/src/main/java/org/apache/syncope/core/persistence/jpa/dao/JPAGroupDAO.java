@@ -36,14 +36,18 @@ import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
@@ -67,7 +71,7 @@ import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
@@ -76,23 +80,39 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     public static final String ADYNMEMB_TABLE = "ADynGroupMembers";
 
-    @Autowired
-    private AnyMatchDAO anyMatchDAO;
+    protected final AnyMatchDAO anyMatchDAO;
 
-    @Autowired
-    private PlainAttrDAO plainAttrDAO;
+    protected final PlainAttrDAO plainAttrDAO;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private AnyObjectDAO anyObjectDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
-    @Autowired
-    private AnySearchDAO searchDAO;
+    protected final AnySearchDAO anySearchDAO;
 
-    @Autowired
-    private SearchCondVisitor searchCondVisitor;
+    protected final SearchCondVisitor searchCondVisitor;
+
+    public JPAGroupDAO(
+            final AnyUtilsFactory anyUtilsFactory,
+            final ApplicationEventPublisher publisher,
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final DynRealmDAO dynRealmDAO,
+            final AnyMatchDAO anyMatchDAO,
+            final PlainAttrDAO plainAttrDAO,
+            final UserDAO userDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final AnySearchDAO searchDAO,
+            final SearchCondVisitor searchCondVisitor) {
+
+        super(anyUtilsFactory, publisher, plainSchemaDAO, derSchemaDAO, dynRealmDAO);
+        this.anyMatchDAO = anyMatchDAO;
+        this.plainAttrDAO = plainAttrDAO;
+        this.userDAO = userDAO;
+        this.anyObjectDAO = anyObjectDAO;
+        this.anySearchDAO = searchDAO;
+        this.searchCondVisitor = searchCondVisitor;
+    }
 
     @Override
     protected AnyUtils init() {
@@ -256,7 +276,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return findAllKeys(JPAGroup.TABLE, page, itemsPerPage);
     }
 
-    private SearchCond buildDynMembershipCond(final String baseCondFIQL, final Realm groupRealm) {
+    protected SearchCond buildDynMembershipCond(final String baseCondFIQL, final Realm groupRealm) {
         AssignableCond cond = new AssignableCond();
         cond.setRealmFullPath(groupRealm.getFullPath());
         cond.setFromGroup(true);
@@ -275,9 +295,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         clearUDynMembers(merged);
         if (merged.getUDynMembership() != null) {
             SearchCond cond = buildDynMembershipCond(merged.getUDynMembership().getFIQLCond(), merged.getRealm());
-            int count = searchDAO.count(Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.USER);
+            int count = anySearchDAO.count(Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.USER);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                List<User> matching = searchDAO.search(
+                List<User> matching = anySearchDAO.search(
                         Set.of(merged.getRealm().getFullPath()),
                         cond,
                         page,
@@ -298,9 +318,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         clearADynMembers(merged);
         merged.getADynMemberships().forEach(memb -> {
             SearchCond cond = buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm());
-            int count = searchDAO.count(Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
+            int count = anySearchDAO.count(Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                List<AnyObject> matching = searchDAO.search(
+                List<AnyObject> matching = anySearchDAO.search(
                         Set.of(merged.getRealm().getFullPath()),
                         cond,
                         page,
@@ -447,7 +467,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         delete.executeUpdate();
     }
 
-    private List<ADynGroupMembership> findWithADynMemberships(final AnyType anyType) {
+    protected List<ADynGroupMembership> findWithADynMemberships(final AnyType anyType) {
         TypedQuery<ADynGroupMembership> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAADynGroupMembership.class.getSimpleName() + " e  WHERE e.anyType=:anyType",
                 ADynGroupMembership.class);
@@ -546,7 +566,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         delete.executeUpdate();
     }
 
-    private List<UDynGroupMembership> findWithUDynMemberships() {
+    protected List<UDynGroupMembership> findWithUDynMemberships() {
         TypedQuery<UDynGroupMembership> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAUDynGroupMembership.class.getSimpleName() + " e",
                 UDynGroupMembership.class);

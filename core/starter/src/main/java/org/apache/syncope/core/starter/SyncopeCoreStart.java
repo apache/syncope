@@ -26,7 +26,6 @@ import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
@@ -39,11 +38,11 @@ public class SyncopeCoreStart extends KeymasterStart
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreStart.class);
 
-    @Autowired
-    private DomainHolder domainHolder;
+    private final DomainHolder domainHolder;
 
-    public SyncopeCoreStart() {
+    public SyncopeCoreStart(final DomainHolder domainHolder) {
         super(NetworkService.Type.CORE);
+        this.domainHolder = domainHolder;
     }
 
     @Override

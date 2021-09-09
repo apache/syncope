@@ -21,6 +21,11 @@ package org.apache.syncope.ext.elasticsearch.client;
 import java.util.List;
 
 import org.apache.http.HttpHost;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,18 +42,27 @@ public class ElasticsearchClientContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ElasticsearchIndexManager elasticsearchIndexManager() {
-        return new ElasticsearchIndexManager();
-    }
+    @Autowired
+    public ElasticsearchUtils elasticsearchUtils(
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO) {
 
-    @ConditionalOnMissingBean
-    @Bean
-    public ElasticsearchUtils elasticsearchUtils() {
-        ElasticsearchUtils utils = new ElasticsearchUtils();
+        ElasticsearchUtils utils = new ElasticsearchUtils(userDAO, groupDAO, anyObjectDAO);
         utils.setIndexMaxResultWindow(10000);
         utils.setRetryOnConflict(5);
         utils.setNumberOfShards(1);
         utils.setNumberOfReplicas(1);
         return utils;
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    @Autowired
+    public ElasticsearchIndexManager elasticsearchIndexManager(
+            final RestHighLevelClient client,
+            final ElasticsearchUtils elasticsearchUtils) {
+
+        return new ElasticsearchIndexManager(client, elasticsearchUtils);
     }
 }

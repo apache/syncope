@@ -18,26 +18,39 @@
  */
 package org.apache.syncope.core.rest.security;
 
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
+import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.core.Authentication;
 
-@Configurable
 public class SelfKeymasterUsernamePasswordAuthenticationProvider extends UsernamePasswordAuthenticationProvider {
 
-    @Autowired
-    private KeymasterProperties props;
+    protected final KeymasterProperties keymasterProperties;
+
+    public SelfKeymasterUsernamePasswordAuthenticationProvider(
+            final DomainOps domainOps,
+            final AuthDataAccessor dataAccessor,
+            final UserProvisioningManager provisioningManager,
+            final DefaultCredentialChecker credentialChecker,
+            final SecurityProperties securityProperties,
+            final KeymasterProperties keymasterProperties) {
+
+        super(domainOps, dataAccessor, provisioningManager, credentialChecker, securityProperties);
+        this.keymasterProperties = keymasterProperties;
+    }
 
     @Override
     public Authentication authenticate(final Authentication authentication) {
-        if (props.getUsername().equals(authentication.getName())) {
+        if (keymasterProperties.getUsername().equals(authentication.getName())) {
             return finalizeAuthentication(
-                    authentication.getCredentials().toString().equals(props.getPassword()),
+                    authentication.getCredentials().toString().equals(keymasterProperties.getPassword()),
                     SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain(),
-                    props.getUsername(),
+                    keymasterProperties.getUsername(),
                     null,
                     authentication);
         }

@@ -51,6 +51,7 @@ public class AuditLoader implements SyncopeCoreLoader {
             final AuditAccessor auditAccessor,
             final ImplementationLookup implementationLookup,
             final LogicProperties props) {
+
         this.auditAccessor = auditAccessor;
         this.implementationLookup = implementationLookup;
         this.props = props;

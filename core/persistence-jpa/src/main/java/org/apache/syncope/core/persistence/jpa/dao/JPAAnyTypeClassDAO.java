@@ -35,29 +35,36 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass> implements AnyTypeClassDAO {
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
+    protected final PlainSchemaDAO plainSchemaDAO;
 
-    @Autowired
-    private DerSchemaDAO derSchemaDAO;
+    protected final DerSchemaDAO derSchemaDAO;
 
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    private GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
+
+    public JPAAnyTypeClassDAO(
+            final AnyTypeDAO anyTypeDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final GroupDAO groupDAO,
+            final ExternalResourceDAO resourceDAO) {
+
+        this.anyTypeDAO = anyTypeDAO;
+        this.plainSchemaDAO = plainSchemaDAO;
+        this.derSchemaDAO = derSchemaDAO;
+        this.virSchemaDAO = virSchemaDAO;
+        this.groupDAO = groupDAO;
+        this.resourceDAO = resourceDAO;
+    }
 
     @Override
     public AnyTypeClass find(final String key) {

@@ -74,19 +74,18 @@ import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JPAAnyUtils implements AnyUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AnyUtils.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AnyUtils.class);
 
-    private static final Map<String, Field> USER_FIELDS = new HashMap<>();
+    protected static final Map<String, Field> USER_FIELDS = new HashMap<>();
 
-    private static final Map<String, Field> GROUP_FIELDS = new HashMap<>();
+    protected static final Map<String, Field> GROUP_FIELDS = new HashMap<>();
 
-    private static final Map<String, Field> ANY_OBJECT_FIELDS = new HashMap<>();
+    protected static final Map<String, Field> ANY_OBJECT_FIELDS = new HashMap<>();
 
     static {
         initFieldNames(JPAUser.class, USER_FIELDS);
@@ -94,7 +93,7 @@ public class JPAAnyUtils implements AnyUtils {
         initFieldNames(JPAAnyObject.class, ANY_OBJECT_FIELDS);
     }
 
-    private static void initFieldNames(final Class<?> entityClass, final Map<String, Field> fields) {
+    protected static void initFieldNames(final Class<?> entityClass, final Map<String, Field> fields) {
         List<Class<?>> classes = ClassUtils.getAllSuperclasses(entityClass);
         classes.add(entityClass);
         classes.forEach(clazz -> {
@@ -119,27 +118,30 @@ public class JPAAnyUtils implements AnyUtils {
                 || ANY_OBJECT_FIELDS.containsKey(candidate);
     }
 
-    private final AnyTypeKind anyTypeKind;
+    protected final UserDAO userDAO;
 
-    private final boolean linkedAccount;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
-    @Autowired
-    private GroupDAO groupDAO;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private AnyObjectDAO anyObjectDAO;
+    protected final AnyTypeKind anyTypeKind;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final boolean linkedAccount;
 
-    protected JPAAnyUtils(final AnyTypeKind anyTypeKind) {
-        this(anyTypeKind, false);
-    }
+    protected JPAAnyUtils(
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final EntityFactory entityFactory,
+            final AnyTypeKind anyTypeKind,
+            final boolean linkedAccount) {
 
-    protected JPAAnyUtils(final AnyTypeKind anyTypeKind, final boolean linkedAccount) {
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.anyObjectDAO = anyObjectDAO;
+        this.entityFactory = entityFactory;
         this.anyTypeKind = anyTypeKind;
         this.linkedAccount = linkedAccount;
     }

@@ -28,11 +28,9 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAccessToken;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
-@Repository
 public class JPAAccessTokenDAO extends AbstractDAO<AccessToken> implements AccessTokenDAO {
 
     @Transactional(readOnly = true)
