@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 @Configuration
 public class ElasticsearchClientContext {
@@ -44,9 +45,9 @@ public class ElasticsearchClientContext {
     @Bean
     @Autowired
     public ElasticsearchUtils elasticsearchUtils(
-            final UserDAO userDAO,
-            final GroupDAO groupDAO,
-            final AnyObjectDAO anyObjectDAO) {
+            final @Lazy UserDAO userDAO,
+            final @Lazy GroupDAO groupDAO,
+            final @Lazy AnyObjectDAO anyObjectDAO) {
 
         ElasticsearchUtils utils = new ElasticsearchUtils(userDAO, groupDAO, anyObjectDAO);
         utils.setIndexMaxResultWindow(10000);

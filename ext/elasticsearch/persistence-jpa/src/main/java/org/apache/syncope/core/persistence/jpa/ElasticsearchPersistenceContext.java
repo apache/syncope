@@ -60,7 +60,7 @@ public class ElasticsearchPersistenceContext {
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final RestHighLevelClient client,
-            final ElasticsearchUtils elasticsearchUtils) {
+            final @Lazy ElasticsearchUtils elasticsearchUtils) {
 
         return new ElasticsearchAnySearchDAO(
                 realmDAO,
