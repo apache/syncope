@@ -714,8 +714,16 @@ public class GroupITCase extends AbstractITCase {
         GroupTO group = createGroup(groupCR).getEntity();
         assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
+        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
         group = groupService.read(group.getKey());
-        final String groupKey = group.getKey();
+        String groupKey = group.getKey();
         assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
         // verify that the condition is dynamically applied
@@ -980,7 +988,7 @@ public class GroupITCase extends AbstractITCase {
             // 6. verify that the user above is now fond on LDAP
             if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(4000);
                 } catch (InterruptedException ex) {
                     // ignore
                 }

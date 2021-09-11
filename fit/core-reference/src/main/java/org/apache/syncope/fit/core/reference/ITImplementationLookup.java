@@ -75,12 +75,16 @@ import org.apache.syncope.core.spring.policy.HaveIBeenPwnedPasswordRule;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SyncopeJWTSSOProvider;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 
 /**
  * Static implementation providing information about the integration test environment.
  */
 public class ITImplementationLookup implements ImplementationLookup {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ITImplementationLookup.class);
 
     private static final Set<Class<?>> JWTSSOPROVIDER_CLASSES = new HashSet<>(
             List.of(SyncopeJWTSSOProvider.class, CustomJWTSSOProvider.class));
@@ -248,6 +252,8 @@ public class ITImplementationLookup implements ImplementationLookup {
 
     private final ElasticsearchInit elasticsearchInit;
 
+    private boolean loaded;
+
     public ITImplementationLookup(
             final UserWorkflowAdapter uwf,
             final AnySearchDAO anySearchDAO,
@@ -267,6 +273,11 @@ public class ITImplementationLookup implements ImplementationLookup {
 
     @Override
     public void load(final String domain, final DataSource datasource) {
+        if (loaded) {
+            LOG.debug("Already loaded, nothing to do");
+            return;
+        }
+
         // in case the Flowable extension is enabled, enable modifications for test users
         if (enableFlowableForTestUsers != null && AopUtils.getTargetClass(uwf).getName().contains("Flowable")) {
             AuthContextUtils.callAsAdmin(domain, () -> {
@@ -282,6 +293,8 @@ public class ITImplementationLookup implements ImplementationLookup {
                 return null;
             });
         }
+
+        loaded = true;
     }
 
     @Override
