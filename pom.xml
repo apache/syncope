@@ -428,7 +428,7 @@ under the License.
 
     <flowable.version>6.7.0</flowable.version>
 
-    <camel.version>3.11.1</camel.version>
+    <camel.version>3.11.2</camel.version>
 
     <slf4j.version>2.0.0-alpha4</slf4j.version>
 
@@ -507,7 +507,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.52</tomcat.version>
+    <tomcat.version>9.0.53</tomcat.version>
     <wildfly.version>24.0.0.Final</wildfly.version>
     <payara.version>5.2021.6</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
