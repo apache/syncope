@@ -19,7 +19,6 @@
 package org.apache.syncope.client.ui.commons.pages;
 
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.AttributeModifier;
@@ -46,9 +45,9 @@ public abstract class AbstractMustChangePassword extends WebPage {
 
     protected final TextField<String> usernameField;
 
-    protected final AjaxPasswordFieldPanel passwordField;
+    protected final PasswordTextField passwordField;
 
-    protected final AjaxPasswordFieldPanel confirmPasswordField;
+    protected final PasswordTextField confirmPasswordField;
 
     protected final NotificationPanel notificationPanel = new NotificationPanel(Constants.FEEDBACK);
 
@@ -65,21 +64,19 @@ public abstract class AbstractMustChangePassword extends WebPage {
         usernameField.setEnabled(false);
         form.add(usernameField);
 
-        passwordField = new AjaxPasswordFieldPanel("password", "password", new Model<>());
+        passwordField = new PasswordTextField("password", new Model<>());
         passwordField.setRequired(true);
         passwordField.setMarkupId("password");
-        passwordField.setPlaceholder("password");
-        ((PasswordTextField) passwordField.getField()).setResetPassword(true);
+        passwordField.setResetPassword(true);
         form.add(passwordField);
 
-        confirmPasswordField = new AjaxPasswordFieldPanel("confirmPassword", "confirmPassword", new Model<>());
+        confirmPasswordField = new PasswordTextField("confirmPassword", new Model<>());
         confirmPasswordField.setRequired(true);
         confirmPasswordField.setMarkupId("confirmPassword");
-        confirmPasswordField.setPlaceholder("confirmPassword");
-        ((PasswordTextField) confirmPasswordField.getField()).setResetPassword(true);
+        confirmPasswordField.setResetPassword(true);
         form.add(confirmPasswordField);
 
-        form.add(new EqualPasswordInputValidator(passwordField.getField(), confirmPasswordField.getField()));
+        form.add(new EqualPasswordInputValidator(passwordField, confirmPasswordField));
 
         AjaxButton submitButton = new AjaxButton("submit", new Model<>(getString("submit"))) {
 
