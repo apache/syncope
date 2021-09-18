@@ -2,11 +2,40 @@ github:
   description: "Apache Syncope"
   homepage: https://syncope.apache.org/
   labels:
-    - iam
     - security
+    - iam
+    - idm
     - identity-management
     - identity-provisioning
     - identity-governance
+    - iga
+    - identity-lifecycle
+    - user-workflow
+    - user-requests
+    - approval
+    - scim
+    - am
+    - access-management
+    - sso
+    - websso
+    - authentication
+    - authorization
+    - saml2
+    - oauth2
+    - openidconnect
+    - ldap-authentication
+    - identity-provider
+    - duosecurity
+    - u2f-server
+    - api-management
+    - api-gateway
+    - proxies
+    - proxy
+    - enforce-policies
+    - request-routing
+    - service-mesh
+    - microservices
+    - reactor
   enabled_merge_buttons:
     # enable squash button:
     squash:  true
