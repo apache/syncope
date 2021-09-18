@@ -2203,6 +2203,7 @@ under the License.
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.22.2</version>
           <configuration>
+            <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
             <runOrder>alphabetical</runOrder>
           </configuration>
@@ -2212,6 +2213,7 @@ under the License.
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>2.22.2</version>
           <configuration>
+            <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
             <runOrder>alphabetical</runOrder>
           </configuration>
