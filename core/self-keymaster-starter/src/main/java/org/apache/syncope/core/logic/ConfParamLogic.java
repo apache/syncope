@@ -30,21 +30,21 @@ import org.apache.syncope.core.persistence.api.dao.ConfParamDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.ConfParam;
 import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class ConfParamLogic extends AbstractTransactionalLogic<EntityTO> {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
-    @Autowired
-    private ConfParamDAO confParamDAO;
+    protected final ConfParamDAO confParamDAO;
 
-    @Autowired
-    private SelfKeymasterEntityFactory entityFactory;
+    protected final SelfKeymasterEntityFactory entityFactory;
+
+    public ConfParamLogic(final ConfParamDAO confParamDAO, final SelfKeymasterEntityFactory entityFactory) {
+        this.confParamDAO = confParamDAO;
+        this.entityFactory = entityFactory;
+    }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
     @Transactional(readOnly = true)

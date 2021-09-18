@@ -28,19 +28,19 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.provisioning.api.data.DynRealmDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
 
-    @Autowired
-    private DynRealmDataBinder binder;
+    protected final DynRealmDataBinder binder;
 
-    @Autowired
-    private DynRealmDAO dynRealmDAO;
+    protected final DynRealmDAO dynRealmDAO;
+
+    public DynRealmLogic(final DynRealmDataBinder binder, final DynRealmDAO dynRealmDAO) {
+        this.binder = binder;
+        this.dynRealmDAO = dynRealmDAO;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.DYNREALM_READ + "')")
     @Transactional(readOnly = true)

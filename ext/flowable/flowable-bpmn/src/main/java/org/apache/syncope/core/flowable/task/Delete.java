@@ -21,9 +21,7 @@ package org.apache.syncope.core.flowable.task;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.stereotype.Component;
 
-@Component
 public class Delete extends FlowableServiceTask {
 
     @Override

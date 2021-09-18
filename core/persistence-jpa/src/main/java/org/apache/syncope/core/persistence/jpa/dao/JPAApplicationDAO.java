@@ -27,17 +27,17 @@ import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.jpa.entity.JPAApplication;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPrivilege;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPAApplicationDAO extends AbstractDAO<Application> implements ApplicationDAO {
 
-    @Autowired
-    private RoleDAO roleDAO;
+    protected final RoleDAO roleDAO;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
+
+    public JPAApplicationDAO(final RoleDAO roleDAO, final UserDAO userDAO) {
+        this.roleDAO = roleDAO;
+        this.userDAO = userDAO;
+    }
 
     @Override
     public Application find(final String key) {

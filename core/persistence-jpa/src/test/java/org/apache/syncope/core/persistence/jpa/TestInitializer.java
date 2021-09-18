@@ -22,32 +22,30 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.stereotype.Component;
 
-@Component
-public class TestInitializer implements InitializingBean, ApplicationContextAware {
+public class TestInitializer implements InitializingBean {
 
-    private ConfigurableApplicationContext ctx;
+    private final StartupDomainLoader domainLoader;
 
-    @Autowired
-    private StartupDomainLoader domainLoader;
+    private final DomainHolder domainHolder;
 
-    @Autowired
-    private DomainHolder domainHolder;
+    private final ContentLoader contentLoader;
 
-    @Autowired
-    private ContentLoader contentLoader;
+    private final ConfigurableApplicationContext ctx;
 
-    @Override
-    public void setApplicationContext(final ApplicationContext ctx) throws BeansException {
-        this.ctx = (ConfigurableApplicationContext) ctx;
+    public TestInitializer(
+            final StartupDomainLoader domainLoader,
+            final DomainHolder domainHolder,
+            final ContentLoader contentLoader,
+            final ConfigurableApplicationContext ctx) {
+
+        this.domainLoader = domainLoader;
+        this.domainHolder = domainHolder;
+        this.contentLoader = contentLoader;
+        this.ctx = ctx;
     }
 
     @Override

@@ -30,9 +30,7 @@ import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.jpa.entity.JPADynRealm;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -40,31 +38,41 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 
-@Repository
 public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO {
 
     public static final String DYNMEMB_TABLE = "DynRealmMembers";
 
-    @Autowired
-    private ApplicationEventPublisher publisher;
+    protected final ApplicationEventPublisher publisher;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    private AnyObjectDAO anyObjectDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
-    @Autowired
-    private AnySearchDAO searchDAO;
+    protected final AnySearchDAO searchDAO;
 
-    @Autowired
-    private AnyMatchDAO anyMatchDAO;
+    protected final AnyMatchDAO anyMatchDAO;
 
-    @Autowired
-    private SearchCondVisitor searchCondVisitor;
+    protected final SearchCondVisitor searchCondVisitor;
+
+    public JPADynRealmDAO(
+            final ApplicationEventPublisher publisher,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final AnySearchDAO searchDAO,
+            final AnyMatchDAO anyMatchDAO,
+            final SearchCondVisitor searchCondVisitor) {
+
+        this.publisher = publisher;
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.anyObjectDAO = anyObjectDAO;
+        this.searchDAO = searchDAO;
+        this.anyMatchDAO = anyMatchDAO;
+        this.searchCondVisitor = searchCondVisitor;
+    }
 
     @Override
     public DynRealm find(final String key) {
@@ -84,7 +92,7 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
     }
 
     @SuppressWarnings("unchecked")
-    private List<String> clearDynMembers(final DynRealm dynRealm) {
+    protected List<String> clearDynMembers(final DynRealm dynRealm) {
         Query find = entityManager().createNativeQuery(
                 "SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE dynRealm_id=?");
         find.setParameter(1, dynRealm.getKey());
@@ -102,7 +110,7 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
         return cleared;
     }
 
-    private void notifyDynMembershipRemoval(final List<String> anyKeys) {
+    protected void notifyDynMembershipRemoval(final List<String> anyKeys) {
         anyKeys.forEach(key -> {
             Any<?> any = userDAO.find(key);
             if (any == null) {

@@ -97,7 +97,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 before.getVirAttrs(),
                 noPropResources),
                 false,
-                securityProperties.getAdminUser());
+                profile.getExecutor());
         reportPropagation(result, reporter);
     }
 
@@ -136,7 +136,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
+            taskExecutor.execute(taskInfos.get(0), reporter, profile.getExecutor());
             reportPropagation(result, reporter);
         }
     }
@@ -167,7 +167,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
+            taskExecutor.execute(taskInfos.get(0), reporter, profile.getExecutor());
             reportPropagation(result, reporter);
         }
     }
@@ -224,13 +224,13 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
 
         // Try to read remote object BEFORE any actual operation
         Optional<ConnectorObject> connObj = MappingUtils.getConnObjectKeyItem(provision).
-            flatMap(connObjectKeyItem -> outboundMatcher.matchByConnObjectKeyValue(
-            profile.getConnector(),
-            connObjectKeyItem,
-            account.getConnObjectKeyValue(),
-            provision,
-            Optional.empty(),
-            Optional.empty()));
+                flatMap(connObjectKeyItem -> outboundMatcher.matchByConnObjectKeyValue(
+                profile.getConnector(),
+                connObjectKeyItem,
+                account.getConnObjectKeyValue(),
+                provision,
+                Optional.empty(),
+                Optional.empty()));
         LOG.debug("Match found for linked account {} as {}: {}", account, provision.getObjectClass(), connObj);
 
         ConnectorObject beforeObj = connObj.orElse(null);
@@ -375,7 +375,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.empty());
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
+            taskExecutor.execute(taskInfos.get(0), reporter, profile.getExecutor());
             reportPropagation(result, reporter);
         }
     }
@@ -402,7 +402,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.empty());
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
+            taskExecutor.execute(taskInfos.get(0), reporter, profile.getExecutor());
             reportPropagation(result, reporter);
         }
     }

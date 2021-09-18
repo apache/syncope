@@ -29,19 +29,19 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
 import org.apache.syncope.core.provisioning.api.data.OIDCJWKSDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
 
-    @Autowired
-    private OIDCJWKSDataBinder binder;
+    protected final OIDCJWKSDataBinder binder;
 
-    @Autowired
-    private OIDCJWKSDAO dao;
+    protected final OIDCJWKSDAO dao;
+
+    public OIDCJWKSLogic(final OIDCJWKSDataBinder binder, final OIDCJWKSDAO dao) {
+        this.binder = binder;
+        this.dao = dao;
+    }
 
     @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_READ + "') "
             + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")

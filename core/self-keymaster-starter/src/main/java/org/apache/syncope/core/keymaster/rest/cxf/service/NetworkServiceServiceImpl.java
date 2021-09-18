@@ -23,7 +23,6 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.rest.api.service.NetworkServiceService;
 import org.apache.syncope.core.logic.NetworkServiceLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,8 +30,11 @@ public class NetworkServiceServiceImpl implements NetworkServiceService {
 
     private static final long serialVersionUID = 4160287655489345100L;
 
-    @Autowired
-    private NetworkServiceLogic logic;
+    protected final NetworkServiceLogic logic;
+
+    public NetworkServiceServiceImpl(final NetworkServiceLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<NetworkService> list(final NetworkService.Type serviceType) {

@@ -22,12 +22,10 @@ import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.jpa.entity.JPAOIDCC4UIProvider;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 
-@Repository
 public class JPAOIDCC4UIProviderDAO extends AbstractDAO<OIDCC4UIProvider> implements OIDCC4UIProviderDAO {
 
     @Transactional(readOnly = true)

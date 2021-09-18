@@ -27,22 +27,22 @@ import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPEntity;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2IdPEntityDAO;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPEntityDataBinder;
 
-@Component
 public class SAML2IdPEntityLogic extends AbstractTransactionalLogic<SAML2IdPEntityTO> {
 
-    @Autowired
-    private SAML2IdPEntityDataBinder binder;
+    protected final SAML2IdPEntityDataBinder binder;
 
-    @Autowired
-    private SAML2IdPEntityDAO entityDAO;
+    protected final SAML2IdPEntityDAO entityDAO;
+
+    public SAML2IdPEntityLogic(final SAML2IdPEntityDataBinder binder, final SAML2IdPEntityDAO entityDAO) {
+        this.binder = binder;
+        this.entityDAO = entityDAO;
+    }
 
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_IDP_ENTITY_LIST + "')")
     @Transactional(readOnly = true)

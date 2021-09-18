@@ -21,16 +21,18 @@ package org.apache.syncope.core.flowable.impl;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class FlowableWorkflowUtils {
-
-    @Autowired
-    protected DomainProcessEngine engine;
 
     public static boolean isUserIngroup(final UserTO user, final String groupName) {
         return user.getMemberships().stream().
                 anyMatch(membership -> groupName != null && groupName.equals(membership.getGroupName()));
+    }
+
+    protected final DomainProcessEngine engine;
+
+    public FlowableWorkflowUtils(final DomainProcessEngine engine) {
+        this.engine = engine;
     }
 
     public void setUserWorkflowVariable(final String variableName, final Object value, final User user) {

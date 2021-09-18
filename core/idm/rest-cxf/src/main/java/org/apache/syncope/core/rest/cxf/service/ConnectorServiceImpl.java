@@ -27,14 +27,16 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.core.logic.ConnectorLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ConnectorServiceImpl extends AbstractServiceImpl implements ConnectorService {
+public class ConnectorServiceImpl extends AbstractService implements ConnectorService {
 
-    @Autowired
-    private ConnectorLogic logic;
+    protected final ConnectorLogic logic;
+
+    public ConnectorServiceImpl(final ConnectorLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public Response create(final ConnInstanceTO connInstanceTO) {

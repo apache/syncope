@@ -47,6 +47,8 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
@@ -58,11 +60,21 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -75,38 +87,85 @@ import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
+import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
+import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 @Transactional(rollbackFor = { Throwable.class })
 public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDataBinder {
 
-    @Autowired
-    private RoleDAO roleDAO;
+    protected final RoleDAO roleDAO;
 
-    @Autowired
-    private SecurityQuestionDAO securityQuestionDAO;
+    protected final SecurityQuestionDAO securityQuestionDAO;
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final ApplicationDAO applicationDAO;
 
-    @Autowired
-    private ApplicationDAO applicationDAO;
+    protected final AccessTokenDAO accessTokenDAO;
 
-    @Autowired
-    private AccessTokenDAO accessTokenDAO;
+    protected final DelegationDAO delegationDAO;
 
-    @Autowired
-    private DelegationDAO delegationDAO;
+    protected final ConfParamOps confParamOps;
 
-    @Autowired
-    private ConfParamOps confParamOps;
+    protected final SecurityProperties securityProperties;
 
-    @Autowired
-    private SecurityProperties securityProperties;
+    public UserDataBinderImpl(
+            final AnyTypeDAO anyTypeDAO,
+            final RealmDAO realmDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final PlainAttrDAO plainAttrDAO,
+            final PlainAttrValueDAO plainAttrValueDAO,
+            final ExternalResourceDAO resourceDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory,
+            final DerAttrHandler derAttrHandler,
+            final VirAttrHandler virAttrHandler,
+            final MappingManager mappingManager,
+            final IntAttrNameParser intAttrNameParser,
+            final OutboundMatcher outboundMatcher,
+            final RoleDAO roleDAO,
+            final SecurityQuestionDAO securityQuestionDAO,
+            final ApplicationDAO applicationDAO,
+            final AccessTokenDAO accessTokenDAO,
+            final DelegationDAO delegationDAO,
+            final ConfParamOps confParamOps,
+            final SecurityProperties securityProperties) {
+
+        super(anyTypeDAO,
+                realmDAO,
+                anyTypeClassDAO,
+                anyObjectDAO,
+                userDAO,
+                groupDAO,
+                plainSchemaDAO,
+                plainAttrDAO,
+                plainAttrValueDAO,
+                resourceDAO,
+                relationshipTypeDAO,
+                entityFactory,
+                anyUtilsFactory,
+                derAttrHandler,
+                virAttrHandler,
+                mappingManager,
+                intAttrNameParser,
+                outboundMatcher);
+
+        this.roleDAO = roleDAO;
+        this.securityQuestionDAO = securityQuestionDAO;
+        this.applicationDAO = applicationDAO;
+        this.accessTokenDAO = accessTokenDAO;
+        this.delegationDAO = delegationDAO;
+        this.confParamOps = confParamOps;
+        this.securityProperties = securityProperties;
+    }
 
     @Transactional(readOnly = true)
     @Override

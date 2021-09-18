@@ -23,14 +23,14 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class GenerateToken extends FlowableServiceTask {
 
-    @Autowired
-    private ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
+
+    public GenerateToken(final ConfParamOps confParamOps) {
+        this.confParamOps = confParamOps;
+    }
 
     @Override
     protected void doExecute(final DelegateExecution execution) {

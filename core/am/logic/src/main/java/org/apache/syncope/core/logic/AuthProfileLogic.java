@@ -25,13 +25,17 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
+import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class AuthProfileLogic extends AbstractAuthProfileLogic {
+
+    public AuthProfileLogic(final AuthProfileDAO authProfileDAO, final AuthProfileDataBinder binder) {
+        super(authProfileDAO, binder);
+    }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_DELETE + "') ")
     public void delete(final String key) {

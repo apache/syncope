@@ -27,14 +27,16 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.core.logic.SchemaLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaService {
+public class SchemaServiceImpl extends AbstractService implements SchemaService {
 
-    @Autowired
-    private SchemaLogic logic;
+    protected final SchemaLogic logic;
+
+    public SchemaServiceImpl(final SchemaLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public Response create(final SchemaType schemaType, final SchemaTO schemaTO) {

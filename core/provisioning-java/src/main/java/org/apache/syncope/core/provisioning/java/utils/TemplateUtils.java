@@ -40,20 +40,11 @@ import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class TemplateUtils {
 
-    @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
-    private GroupDAO groupDAO;
-
-    private static Attr evaluateAttr(final Attr template, final MapContext jexlContext) {
+    protected static Attr evaluateAttr(final Attr template, final MapContext jexlContext) {
         Attr result = new Attr();
         result.setSchema(template.getSchema());
 
@@ -69,7 +60,7 @@ public class TemplateUtils {
         return result;
     }
 
-    private static void fill(final RealmMember realmMember, final RealmMember template) {
+    protected static void fill(final RealmMember realmMember, final RealmMember template) {
         MapContext jexlContext = new MapContext();
         JexlUtils.addFieldsToContext(realmMember, jexlContext);
         JexlUtils.addAttrsToContext(realmMember.getPlainAttrs(), jexlContext);
@@ -123,17 +114,26 @@ public class TemplateUtils {
         realmMember.getAuxClasses().addAll(template.getAuxClasses());
     }
 
-    private static void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
+    protected static void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
         template.getRelationships().stream().
                 filter(relationship -> any.getRelationship(
                 relationship.getOtherEndKey(), relationship.getOtherEndKey()).isEmpty()).
                 forEachOrdered(relationship -> any.getRelationships().add(relationship));
     }
 
-    private static void fillMemberships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
+    protected static void fillMemberships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
         template.getMemberships().stream().
                 filter(membership -> any.getMembership(membership.getGroupKey()).isEmpty()).
                 forEachOrdered(membership -> any.getMemberships().add(membership));
+    }
+
+    protected final UserDAO userDAO;
+
+    protected final GroupDAO groupDAO;
+
+    public TemplateUtils(final UserDAO userDAO, final GroupDAO groupDAO) {
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
     }
 
     @Transactional(readOnly = true)

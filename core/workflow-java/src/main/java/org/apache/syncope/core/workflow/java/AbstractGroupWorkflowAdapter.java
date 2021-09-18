@@ -26,21 +26,27 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = { Throwable.class })
 public abstract class AbstractGroupWorkflowAdapter extends AbstractWorkflowAdapter implements GroupWorkflowAdapter {
 
-    @Autowired
-    protected GroupDataBinder dataBinder;
+    protected final GroupDataBinder dataBinder;
 
-    @Autowired
-    protected GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    protected EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public AbstractGroupWorkflowAdapter(
+            final GroupDataBinder dataBinder,
+            final GroupDAO groupDAO,
+            final EntityFactory entityFactory) {
+
+        this.dataBinder = dataBinder;
+        this.groupDAO = groupDAO;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public String getPrefix() {

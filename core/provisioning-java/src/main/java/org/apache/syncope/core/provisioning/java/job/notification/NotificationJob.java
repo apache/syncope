@@ -30,15 +30,12 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * Periodically checks for notification to send.
  *
  * @see org.apache.syncope.core.persistence.api.entity.task.NotificationTask
  */
-@Component
 public class NotificationJob extends AbstractInterruptableJob {
 
     public enum Status {
@@ -48,18 +45,25 @@ public class NotificationJob extends AbstractInterruptableJob {
 
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(NotificationJob.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(NotificationJob.class);
 
     public static final String DEFAULT_CRON_EXP = "0 0/5 * * * ?";
 
-    @Autowired
-    private SecurityProperties securityProperties;
+    protected final SecurityProperties securityProperties;
 
-    @Autowired
-    private DomainHolder domainHolder;
+    protected final DomainHolder domainHolder;
 
-    @Autowired
-    private NotificationJobDelegate delegate;
+    protected final NotificationJobDelegate delegate;
+
+    public NotificationJob(
+            final SecurityProperties securityProperties,
+            final DomainHolder domainHolder,
+            final NotificationJobDelegate delegate) {
+
+        this.securityProperties = securityProperties;
+        this.domainHolder = domainHolder;
+        this.delegate = delegate;
+    }
 
     @Override
     public JobDelegate getDelegate() {

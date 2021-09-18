@@ -34,16 +34,16 @@ import org.apache.syncope.core.provisioning.api.data.OIDCJWKSDataBinder;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OIDCJWKSDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(OIDCJWKSDataBinder.class);
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public OIDCJWKSDataBinderImpl(final EntityFactory entityFactory) {
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public OIDCJWKSTO getOIDCJWKSTO(final OIDCJWKS jwks) {

@@ -100,8 +100,6 @@ public class SecurityProperties {
 
     private String secretKey;
 
-    private Class<? extends PasswordGenerator> passwordGenerator = DefaultPasswordGenerator.class;
-
     private final DigesterProperties digester = new DigesterProperties();
 
     public String getAdminUser() {
@@ -174,14 +172,6 @@ public class SecurityProperties {
 
     public void setSecretKey(final String secretKey) {
         this.secretKey = secretKey;
-    }
-
-    public Class<? extends PasswordGenerator> getPasswordGenerator() {
-        return passwordGenerator;
-    }
-
-    public void setPasswordGenerator(final Class<? extends PasswordGenerator> passwordGenerator) {
-        this.passwordGenerator = passwordGenerator;
     }
 
     public DigesterProperties getDigester() {

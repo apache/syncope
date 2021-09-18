@@ -34,28 +34,34 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AnyTypeClassDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AnyTypeClassDataBinder.class);
 
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
+    protected final PlainSchemaDAO plainSchemaDAO;
 
-    @Autowired
-    private DerSchemaDAO derSchemaDAO;
+    protected final DerSchemaDAO derSchemaDAO;
 
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public AnyTypeClassDataBinderImpl(
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final EntityFactory entityFactory) {
+
+        this.plainSchemaDAO = plainSchemaDAO;
+        this.derSchemaDAO = derSchemaDAO;
+        this.virSchemaDAO = virSchemaDAO;
+        this.anyTypeDAO = anyTypeDAO;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public AnyTypeClass create(final AnyTypeClassTO anyTypeClassTO) {

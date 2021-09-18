@@ -26,8 +26,6 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
@@ -37,15 +35,17 @@ import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
  *
  * @see AuditLoader
  */
-@Component
 public class AuditAccessor {
 
-    @Autowired
-    private AuditConfDAO auditDAO;
+    protected final AuditConfDAO auditConfDAO;
+
+    public AuditAccessor(final AuditConfDAO auditConfDAO) {
+        this.auditConfDAO = auditConfDAO;
+    }
 
     @Transactional
     public void synchronizeLoggingWithAudit(final LoggerContext ctx) {
-        Map<String, AuditConf> audits = auditDAO.findAll().stream().
+        Map<String, AuditConf> audits = auditConfDAO.findAll().stream().
                 collect(Collectors.toMap(
                         audit -> AuditLoggerName.getAuditEventLoggerName(AuthContextUtils.getDomain(), audit.getKey()),
                         Function.identity()));

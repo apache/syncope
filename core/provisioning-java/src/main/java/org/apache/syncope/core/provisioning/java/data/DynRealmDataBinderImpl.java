@@ -34,27 +34,32 @@ import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.data.DynRealmDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class DynRealmDataBinderImpl implements DynRealmDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DynRealmDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DynRealmDataBinder.class);
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private DynRealmDAO dynRealmDAO;
+    protected final DynRealmDAO dynRealmDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private SearchCondVisitor searchCondVisitor;
+    protected final SearchCondVisitor searchCondVisitor;
 
-    private void setDynMembership(final DynRealm dynRealm, final AnyType anyType, final String dynMembershipFIQL) {
+    public DynRealmDataBinderImpl(
+            final AnyTypeDAO anyTypeDAO,
+            final DynRealmDAO dynRealmDAO,
+            final EntityFactory entityFactory,
+            final SearchCondVisitor searchCondVisitor) {
+
+        this.anyTypeDAO = anyTypeDAO;
+        this.dynRealmDAO = dynRealmDAO;
+        this.entityFactory = entityFactory;
+        this.searchCondVisitor = searchCondVisitor;
+    }
+
+    protected void setDynMembership(final DynRealm dynRealm, final AnyType anyType, final String dynMembershipFIQL) {
         SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, dynMembershipFIQL);
         if (!dynMembershipCond.isValid()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
@@ -108,10 +113,9 @@ public class DynRealmDataBinderImpl implements DynRealmDataBinder {
 
         dynRealmTO.setKey(dynRealm.getKey());
 
-        dynRealm.getDynMemberships()
-            .forEach(memb -> dynRealmTO.getDynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond()));
+        dynRealm.getDynMemberships().forEach(memb -> dynRealmTO.getDynMembershipConds().
+                put(memb.getAnyType().getKey(), memb.getFIQLCond()));
 
         return dynRealmTO;
     }
-
 }

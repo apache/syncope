@@ -24,15 +24,17 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.logic.OIDCC4UIProviderLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 
 @Service
-public class OIDCC4UIProviderServiceImpl extends AbstractServiceImpl implements OIDCC4UIProviderService {
+public class OIDCC4UIProviderServiceImpl extends AbstractService implements OIDCC4UIProviderService {
 
-    @Autowired
-    private OIDCC4UIProviderLogic logic;
+    protected final OIDCC4UIProviderLogic logic;
+
+    public OIDCC4UIProviderServiceImpl(final OIDCC4UIProviderLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public Response create(final OIDCC4UIProviderTO oidcProviderTO) {

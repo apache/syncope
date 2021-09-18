@@ -48,7 +48,6 @@ import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,20 +55,29 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(UserProvisioningManager.class);
 
-    @Autowired
-    protected UserWorkflowAdapter uwfAdapter;
+    protected final UserWorkflowAdapter uwfAdapter;
 
-    @Autowired
-    protected PropagationManager propagationManager;
+    protected final PropagationManager propagationManager;
 
-    @Autowired
-    protected PropagationTaskExecutor taskExecutor;
+    protected final PropagationTaskExecutor taskExecutor;
 
-    @Autowired
-    protected VirAttrHandler virtAttrHandler;
+    protected final VirAttrHandler virtAttrHandler;
 
-    @Autowired
-    protected UserDAO userDAO;
+    protected final UserDAO userDAO;
+
+    public DefaultUserProvisioningManager(
+            final UserWorkflowAdapter uwfAdapter,
+            final PropagationManager propagationManager,
+            final PropagationTaskExecutor taskExecutor,
+            final VirAttrHandler virtAttrHandler,
+            final UserDAO userDAO) {
+
+        this.uwfAdapter = uwfAdapter;
+        this.propagationManager = propagationManager;
+        this.taskExecutor = taskExecutor;
+        this.virtAttrHandler = virtAttrHandler;
+        this.userDAO = userDAO;
+    }
 
     @Override
     public Pair<String, List<PropagationStatus>> create(

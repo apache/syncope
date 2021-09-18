@@ -33,17 +33,16 @@ import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings("unchecked")
 public final class JPATaskUtils implements TaskUtils {
 
-    private final TaskType type;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final TaskType type;
 
-    protected JPATaskUtils(final TaskType type) {
+    protected JPATaskUtils(final EntityFactory entityFactory, final TaskType type) {
+        this.entityFactory = entityFactory;
         this.type = type;
     }
 

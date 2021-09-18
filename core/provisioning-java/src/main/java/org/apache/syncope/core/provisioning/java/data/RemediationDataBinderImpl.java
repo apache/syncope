@@ -21,9 +21,7 @@ package org.apache.syncope.core.provisioning.java.data;
 import org.apache.syncope.common.lib.to.RemediationTO;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.provisioning.api.data.RemediationDataBinder;
-import org.springframework.stereotype.Component;
 
-@Component
 public class RemediationDataBinderImpl implements RemediationDataBinder {
 
     @Override

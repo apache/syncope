@@ -30,21 +30,21 @@ import org.apache.syncope.core.persistence.api.content.ConfParamLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * Initialize Keymaster with default content if no data is present already.
  */
-@Component
 public class KeymasterConfParamLoader implements ConfParamLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KeymasterConfParamLoader.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(KeymasterConfParamLoader.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
-    @Autowired
-    private ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
+
+    public KeymasterConfParamLoader(final ConfParamOps confParamOps) {
+        this.confParamOps = confParamOps;
+    }
 
     @Override
     public int getOrder() {
@@ -76,7 +76,7 @@ public class KeymasterConfParamLoader implements ConfParamLoader {
         }
     }
 
-    private void loadDefaultContent(final String domain, final InputStream contentJSON)
+    protected void loadDefaultContent(final String domain, final InputStream contentJSON)
             throws IOException {
 
         try (contentJSON) {

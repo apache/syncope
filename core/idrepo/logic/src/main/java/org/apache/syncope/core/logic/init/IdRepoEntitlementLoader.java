@@ -23,14 +23,14 @@ import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class IdRepoEntitlementLoader implements SyncopeCoreLoader {
 
-    @Autowired
-    private EntitlementAccessor entitlementAccessor;
+    protected final EntitlementAccessor entitlementAccessor;
+
+    public IdRepoEntitlementLoader(final EntitlementAccessor entitlementAccessor) {
+        this.entitlementAccessor = entitlementAccessor;
+    }
 
     @Override
     public int getOrder() {

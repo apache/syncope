@@ -25,10 +25,8 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReport;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 public class JPAReportDAO extends AbstractDAO<Report> implements ReportDAO {
 
     @Transactional(readOnly = true)

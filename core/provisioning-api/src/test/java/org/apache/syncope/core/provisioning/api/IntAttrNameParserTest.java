@@ -48,7 +48,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.util.ReflectionUtils;
 
@@ -77,7 +76,6 @@ public class IntAttrNameParserTest extends AbstractTest {
     @Mock
     private AnyUtils anyUtils;
 
-    @InjectMocks
     private IntAttrNameParser intAttrNameParser;
 
     @BeforeEach
@@ -131,6 +129,8 @@ public class IntAttrNameParserTest extends AbstractTest {
                     return null;
             }
         });
+
+        intAttrNameParser = new IntAttrNameParser(plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyUtilsFactory);
     }
 
     @Test

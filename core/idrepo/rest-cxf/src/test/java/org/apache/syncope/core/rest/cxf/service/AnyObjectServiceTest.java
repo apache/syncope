@@ -86,7 +86,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.util.ReflectionTestUtils;
 
-@SpringJUnitConfig(classes = { RESTCXFTestContext.class })
+@SpringJUnitConfig(classes = { IdRepoRESTCXFTestContext.class })
 public class AnyObjectServiceTest {
 
     private static final String LOCAL_ADDRESS = "local://anyObjects";
@@ -178,10 +178,7 @@ public class AnyObjectServiceTest {
             when(request.evaluatePreconditions(any(Date.class))).thenReturn(Response.notModified());
             when(messageContext.getRequest()).thenReturn(request);
 
-            AnyObjectServiceImpl service = new AnyObjectServiceImpl();
-            ReflectionTestUtils.setField(service, "anyObjectDAO", anyObjectDAO);
-            ReflectionTestUtils.setField(service, "logic", logic);
-            ReflectionTestUtils.setField(service, "searchCondVisitor", searchCondVisitor);
+            AnyObjectServiceImpl service = new AnyObjectServiceImpl(searchCondVisitor, anyObjectDAO, logic);
             ReflectionTestUtils.setField(service, "searchContext", searchContext);
             ReflectionTestUtils.setField(service, "uriInfo", uriInfo);
             ReflectionTestUtils.setField(service, "messageContext", messageContext);

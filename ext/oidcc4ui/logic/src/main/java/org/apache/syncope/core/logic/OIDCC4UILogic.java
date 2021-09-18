@@ -49,9 +49,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.Encryptor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
@@ -60,35 +58,43 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.profile.OidcProfile;
 
-@Component
 public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
-    private static final String JWT_CLAIM_OP_NAME = "OP_NAME";
+    protected static final String JWT_CLAIM_OP_NAME = "OP_NAME";
 
-    private static final String JWT_CLAIM_ID_TOKEN = "ID_TOKEN";
+    protected static final String JWT_CLAIM_ID_TOKEN = "ID_TOKEN";
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
-    @Autowired
-    private OIDCClientCache oidcClientClientCache;
+    protected final OIDCClientCache oidcClientCache;
 
-    @Autowired
-    private AuthDataAccessor authDataAccessor;
+    protected final AuthDataAccessor authDataAccessor;
 
-    @Autowired
-    private AccessTokenDataBinder accessTokenDataBinder;
+    protected final AccessTokenDataBinder accessTokenDataBinder;
 
-    @Autowired
-    private OIDCC4UIProviderDAO opDAO;
+    protected final OIDCC4UIProviderDAO opDAO;
 
-    @Autowired
-    private OIDCUserManager userManager;
+    protected final OIDCUserManager userManager;
 
-    private OidcClient getOidcClient(final OIDCC4UIProvider op, final String callbackUrl) {
-        return oidcClientClientCache.get(op.getName()).orElseGet(() -> oidcClientClientCache.add(op, callbackUrl));
+    public OIDCC4UILogic(
+            final OIDCClientCache oidcClientCache,
+            final AuthDataAccessor authDataAccessor,
+            final AccessTokenDataBinder accessTokenDataBinder,
+            final OIDCC4UIProviderDAO opDAO,
+            final OIDCUserManager userManager) {
+
+        this.oidcClientCache = oidcClientCache;
+        this.authDataAccessor = authDataAccessor;
+        this.accessTokenDataBinder = accessTokenDataBinder;
+        this.opDAO = opDAO;
+        this.userManager = userManager;
     }
 
-    private OidcClient getOidcClient(final String opName, final String callbackUrl) {
+    protected OidcClient getOidcClient(final OIDCC4UIProvider op, final String callbackUrl) {
+        return oidcClientCache.get(op.getName()).orElseGet(() -> oidcClientCache.add(op, callbackUrl));
+    }
+
+    protected OidcClient getOidcClient(final String opName, final String callbackUrl) {
         OIDCC4UIProvider op = opDAO.findByName(opName);
         if (op == null) {
             throw new NotFoundException("OIDC Provider '" + opName + '\'');

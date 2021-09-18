@@ -35,22 +35,26 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.DelegationDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class DelegationDataBinderImpl implements DelegationDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DelegationDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DelegationDataBinder.class);
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private RoleDAO roleDAO;
+    protected final RoleDAO roleDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public DelegationDataBinderImpl(
+            final UserDAO userDAO,
+            final RoleDAO roleDAO,
+            final EntityFactory entityFactory) {
+
+        this.userDAO = userDAO;
+        this.roleDAO = roleDAO;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public Delegation create(final DelegationTO delegationTO) {

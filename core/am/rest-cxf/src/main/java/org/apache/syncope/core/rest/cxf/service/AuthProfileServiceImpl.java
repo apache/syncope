@@ -22,7 +22,6 @@ import java.net.URI;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.core.logic.AuthProfileLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,10 +31,13 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 @Service
-public class AuthProfileServiceImpl extends AbstractServiceImpl implements AuthProfileService {
+public class AuthProfileServiceImpl extends AbstractService implements AuthProfileService {
 
-    @Autowired
-    private AuthProfileLogic logic;
+    protected final AuthProfileLogic logic;
+
+    public AuthProfileServiceImpl(final AuthProfileLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public void delete(final String key) {

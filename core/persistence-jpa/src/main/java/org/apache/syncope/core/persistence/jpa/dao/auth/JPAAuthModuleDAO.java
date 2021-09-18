@@ -24,10 +24,8 @@ import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModule;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 public class JPAAuthModuleDAO extends AbstractDAO<AuthModule> implements AuthModuleDAO {
 
     @Transactional(readOnly = true)

@@ -22,9 +22,7 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.springframework.core.Ordered;
-import org.springframework.stereotype.Component;
 
-@Component
 public class IdRepoImplementationTypeLoader implements SyncopeCoreLoader {
 
     @Override

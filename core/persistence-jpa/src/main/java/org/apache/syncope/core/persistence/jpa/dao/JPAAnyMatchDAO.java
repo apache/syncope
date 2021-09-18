@@ -59,8 +59,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -69,26 +67,35 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.springframework.beans.BeanUtils;
 
-@Component
 public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    private AnyObjectDAO anyObjectDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
-    @Autowired
-    private RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
+    protected final PlainSchemaDAO plainSchemaDAO;
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    protected final AnyUtilsFactory anyUtilsFactory;
+
+    public JPAAnyMatchDAO(
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final RealmDAO realmDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final AnyUtilsFactory anyUtilsFactory) {
+
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.anyObjectDAO = anyObjectDAO;
+        this.realmDAO = realmDAO;
+        this.plainSchemaDAO = plainSchemaDAO;
+        this.anyUtilsFactory = anyUtilsFactory;
+    }
 
     /**
      * Verify if any matches the given search condition.
@@ -166,8 +173,8 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                 if (match == null) {
                     Optional<AnyCond> anyCond = cond.getLeaf(AnyCond.class);
                     match = anyCond.map(value -> matches(any, value, not)).orElseGet(() -> cond.getLeaf(AttrCond.class).
-                        map(leaf -> matches(any, leaf, not)).
-                        orElse(null));
+                            map(leaf -> matches(any, leaf, not)).
+                            orElse(null));
                 }
 
                 if (match == null) {
@@ -190,20 +197,20 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
         return false;
     }
 
-    private static boolean matches(final Any<?> any, final AnyTypeCond cond, final boolean not) {
+    protected static boolean matches(final Any<?> any, final AnyTypeCond cond, final boolean not) {
         boolean equals = any.getType().getKey().equals(cond.getAnyTypeKey());
         return not ? !equals : equals;
     }
 
-    private static boolean matches(
-        final GroupableRelatable<?, ?, ?, ?, ?> any, final RelationshipTypeCond cond, final boolean not) {
+    protected static boolean matches(
+            final GroupableRelatable<?, ?, ?, ?, ?> any, final RelationshipTypeCond cond, final boolean not) {
 
         boolean found = any.getRelationships().stream().
                 anyMatch(rel -> rel.getType().getKey().equals(cond.getRelationshipTypeKey()));
         return not ? !found : found;
     }
 
-    private boolean matches(
+    protected boolean matches(
             final GroupableRelatable<?, ?, ?, ?, ?> any, final RelationshipCond cond, final boolean not) {
 
         String anyObject = cond.getAnyObject();
@@ -215,7 +222,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
         return not ? !found : found;
     }
 
-    private boolean matches(
+    protected boolean matches(
             final GroupableRelatable<?, ?, ?, ?, ?> any, final MembershipCond cond, final boolean not) {
 
         final String group = SyncopeConstants.UUID_PATTERN.matcher(cond.getGroup()).matches()
@@ -230,26 +237,27 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
         return not ? !found : found;
     }
 
-    private boolean matches(final Any<?> any, final AssignableCond cond, final boolean not) {
+    protected boolean matches(final Any<?> any, final AssignableCond cond, final boolean not) {
         Realm realm = realmDAO.findByFullPath(cond.getRealmFullPath());
         boolean found = Optional.ofNullable(realm)
-            .filter(realm1 -> (cond.isFromGroup() ? realmDAO.findDescendants(realm1) : realmDAO.findAncestors(realm1)).
-            stream().anyMatch(item -> item.equals(any.getRealm()))).isPresent();
+                .filter(realm1 -> (cond.isFromGroup() ? realmDAO.findDescendants(realm1) : realmDAO.
+                findAncestors(realm1)).
+                stream().anyMatch(item -> item.equals(any.getRealm()))).isPresent();
         return not ? !found : found;
     }
 
-    private boolean matches(final User user, final RoleCond cond, final boolean not) {
+    protected boolean matches(final User user, final RoleCond cond, final boolean not) {
         boolean found = userDAO.findAllRoles(user).stream().anyMatch(role -> role.getKey().equals(cond.getRole()));
         return not ? !found : found;
     }
 
-    private boolean matches(final Any<?> any, final DynRealmCond cond, final boolean not) {
+    protected boolean matches(final Any<?> any, final DynRealmCond cond, final boolean not) {
         boolean found = anyUtilsFactory.getInstance(any).dao().findDynRealms(any.getKey()).stream().
                 anyMatch(dynRealm -> dynRealm.equals(cond.getDynRealm()));
         return not ? !found : found;
     }
 
-    private boolean matches(final Group group, final MemberCond cond, final boolean not) {
+    protected boolean matches(final Group group, final MemberCond cond, final boolean not) {
         boolean found = false;
 
         GroupableRelatable<?, ?, ?, ?, ?> any = userDAO.find(cond.getMember());
@@ -269,14 +277,14 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
         return not ? !found : found;
     }
 
-    private boolean matches(final Any<?> any, final ResourceCond cond, final boolean not) {
+    protected boolean matches(final Any<?> any, final ResourceCond cond, final boolean not) {
         boolean found = anyUtilsFactory.getInstance(any).getAllResources(any).stream().
                 anyMatch(resource -> resource.getKey().equals(cond.getResourceKey()));
         return not ? !found : found;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static boolean matches(
+    protected static boolean matches(
             final List<? extends PlainAttrValue> anyAttrValues,
             final PlainAttrValue attrValue,
             final PlainSchema schema,
@@ -338,7 +346,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
         });
     }
 
-    private boolean matches(final Any<?> any, final AttrCond cond, final boolean not) {
+    protected boolean matches(final Any<?> any, final AttrCond cond, final boolean not) {
         PlainSchema schema = plainSchemaDAO.find(cond.getSchema());
         if (schema == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
@@ -378,7 +386,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
         return not ? !found : found;
     }
 
-    private boolean matches(final Any<?> any, final AnyCond cond, final boolean not) {
+    protected boolean matches(final Any<?> any, final AnyCond cond, final boolean not) {
         // Keeps track of difference between entity's getKey() and JPA @Id fields
         if ("key".equals(cond.getSchema())) {
             cond.setSchema("id");

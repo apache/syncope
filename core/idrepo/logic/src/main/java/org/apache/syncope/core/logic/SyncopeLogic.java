@@ -49,41 +49,51 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
-@Component
 public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    private AnySearchDAO searchDAO;
+    protected final AnySearchDAO searchDAO;
 
-    @Autowired
-    private GroupDataBinder groupDataBinder;
+    protected final GroupDataBinder groupDataBinder;
 
-    @Autowired
-    private ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
 
-    @Autowired
-    private AnyObjectWorkflowAdapter awfAdapter;
+    protected final ContentExporter exporter;
 
-    @Autowired
-    private ContentExporter exporter;
+    protected final UserWorkflowAdapter uwfAdapter;
 
-    @Autowired
-    private UserWorkflowAdapter uwfAdapter;
+    protected final GroupWorkflowAdapter gwfAdapter;
 
-    @Autowired
-    private GroupWorkflowAdapter gwfAdapter;
+    protected final AnyObjectWorkflowAdapter awfAdapter;
+
+    public SyncopeLogic(
+            final AnyTypeDAO anyTypeDAO,
+            final GroupDAO groupDAO,
+            final AnySearchDAO searchDAO,
+            final GroupDataBinder groupDataBinder,
+            final ConfParamOps confParamOps,
+            final ContentExporter exporter,
+            final UserWorkflowAdapter uwfAdapter,
+            final GroupWorkflowAdapter gwfAdapter,
+            final AnyObjectWorkflowAdapter awfAdapter) {
+
+        this.anyTypeDAO = anyTypeDAO;
+        this.groupDAO = groupDAO;
+        this.searchDAO = searchDAO;
+        this.groupDataBinder = groupDataBinder;
+        this.confParamOps = confParamOps;
+        this.exporter = exporter;
+        this.uwfAdapter = uwfAdapter;
+        this.gwfAdapter = gwfAdapter;
+        this.awfAdapter = awfAdapter;
+    }
 
     public boolean isSelfRegAllowed() {
         return confParamOps.get(AuthContextUtils.getDomain(), "selfRegistration.allowed", false, Boolean.class);

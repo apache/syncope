@@ -32,17 +32,19 @@ import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.core.logic.UserRequestLogic;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserRequestServiceImpl extends AbstractServiceImpl implements UserRequestService {
+public class UserRequestServiceImpl extends AbstractService implements UserRequestService {
 
-    @Autowired
-    private UserRequestLogic logic;
+    protected final UserRequestLogic logic;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
+
+    public UserRequestServiceImpl(final UserRequestLogic logic, final UserDAO userDAO) {
+        this.logic = logic;
+        this.userDAO = userDAO;
+    }
 
     @Override
     public PagedResult<UserRequest> listRequests(final UserRequestQuery query) {

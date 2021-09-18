@@ -16,4 +16,4 @@
 # under the License.
 
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  org.apache.syncope.ext.scimv2.cxf.RESTSCIMCXFContext
+  org.apache.syncope.ext.scimv2.cxf.SCIMv2RESTCXFContext

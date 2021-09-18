@@ -74,43 +74,53 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 @Transactional(readOnly = true)
-@Component
 public class InboundMatcher {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InboundMatcher.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(InboundMatcher.class);
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private AnyObjectDAO anyObjectDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
-    @Autowired
-    private GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    private AnySearchDAO searchDAO;
+    protected final AnySearchDAO anySearchDAO;
 
-    @Autowired
-    private RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    private VirAttrHandler virAttrHandler;
+    protected final VirAttrHandler virAttrHandler;
 
-    @Autowired
-    private IntAttrNameParser intAttrNameParser;
+    protected final IntAttrNameParser intAttrNameParser;
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    protected final AnyUtilsFactory anyUtilsFactory;
+
+    public InboundMatcher(
+            final UserDAO userDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final GroupDAO groupDAO,
+            final AnySearchDAO anySearchDAO,
+            final RealmDAO realmDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final VirAttrHandler virAttrHandler,
+            final IntAttrNameParser intAttrNameParser,
+            final AnyUtilsFactory anyUtilsFactory) {
+
+        this.userDAO = userDAO;
+        this.anyObjectDAO = anyObjectDAO;
+        this.groupDAO = groupDAO;
+        this.anySearchDAO = anySearchDAO;
+        this.realmDAO = realmDAO;
+        this.virSchemaDAO = virSchemaDAO;
+        this.virAttrHandler = virAttrHandler;
+        this.intAttrNameParser = intAttrNameParser;
+        this.anyUtilsFactory = anyUtilsFactory;
+    }
 
     public Optional<PullMatch> match(
             final AnyType anyType,
@@ -240,7 +250,7 @@ public class InboundMatcher {
                         AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("username");
                         cond.setExpression(finalConnObjectKeyValue);
-                        anys.addAll(searchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.USER));
+                        anys.addAll(anySearchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.USER));
                     } else {
                         Optional.ofNullable(userDAO.findByUsername(finalConnObjectKeyValue)).ifPresent(anys::add);
                     }
@@ -251,7 +261,7 @@ public class InboundMatcher {
                         AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("name");
                         cond.setExpression(finalConnObjectKeyValue);
-                        anys.addAll(searchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.GROUP));
+                        anys.addAll(anySearchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.GROUP));
                     } else {
                         Optional.ofNullable(groupDAO.findByName(finalConnObjectKeyValue)).ifPresent(anys::add);
                     }
@@ -260,7 +270,7 @@ public class InboundMatcher {
                         AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("name");
                         cond.setExpression(finalConnObjectKeyValue);
-                        anys.addAll(searchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.ANY_OBJECT));
+                        anys.addAll(anySearchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.ANY_OBJECT));
                     } else {
                         Optional.ofNullable(anyObjectDAO.findByName(finalConnObjectKeyValue)).ifPresent(anys::add);
                     }
@@ -313,7 +323,7 @@ public class InboundMatcher {
         return result.isEmpty() ? noMatchResult : result;
     }
 
-    private List<PullMatch> matchByCorrelationRule(
+    protected List<PullMatch> matchByCorrelationRule(
             final SyncDelta syncDelta,
             final Provision provision,
             final PullCorrelationRule rule,
@@ -321,7 +331,7 @@ public class InboundMatcher {
 
         List<PullMatch> result = new ArrayList<>();
 
-        result.addAll(searchDAO.search(rule.getSearchCond(syncDelta, provision), type).stream().
+        result.addAll(anySearchDAO.search(rule.getSearchCond(syncDelta, provision), type).stream().
                 map(any -> rule.matching(any, syncDelta, provision)).
                 collect(Collectors.toList()));
 

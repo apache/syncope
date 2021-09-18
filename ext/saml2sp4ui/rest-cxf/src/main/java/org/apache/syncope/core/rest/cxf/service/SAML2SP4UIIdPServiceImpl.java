@@ -24,15 +24,17 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.logic.SAML2SP4UIIdPLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 
 @Service
-public class SAML2SP4UIIdPServiceImpl extends AbstractServiceImpl implements SAML2SP4UIIdPService {
+public class SAML2SP4UIIdPServiceImpl extends AbstractService implements SAML2SP4UIIdPService {
 
-    @Autowired
-    private SAML2SP4UIIdPLogic logic;
+    protected final SAML2SP4UIIdPLogic logic;
+
+    public SAML2SP4UIIdPServiceImpl(final SAML2SP4UIIdPLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<SAML2SP4UIIdPTO> list() {

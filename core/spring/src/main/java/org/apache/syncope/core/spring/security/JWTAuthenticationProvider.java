@@ -20,7 +20,6 @@ package org.apache.syncope.core.spring.security;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import java.util.Date;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.Authentication;
@@ -32,8 +31,11 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class JWTAuthenticationProvider implements AuthenticationProvider {
 
-    @Autowired
-    private AuthDataAccessor dataAccessor;
+    protected final AuthDataAccessor dataAccessor;
+
+    public JWTAuthenticationProvider(final AuthDataAccessor dataAccessor) {
+        this.dataAccessor = dataAccessor;
+    }
 
     @Override
     public Authentication authenticate(final Authentication authentication) throws AuthenticationException {

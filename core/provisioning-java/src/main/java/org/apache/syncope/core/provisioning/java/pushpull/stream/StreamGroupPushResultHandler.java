@@ -40,12 +40,6 @@ public class StreamGroupPushResultHandler extends DefaultGroupPushResultHandler 
     @Autowired
     private DerAttrHandler derAttrHandler;
 
-    private String executor;
-
-    public void setExecutor(final String executor) {
-        this.executor = executor;
-    }
-
     @Override
     protected void provision(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
         Provision provision = profile.getTask().getResource().getProvisions().get(0);
@@ -67,7 +61,7 @@ public class StreamGroupPushResultHandler extends DefaultGroupPushResultHandler 
         LOG.debug("PropagationTask created: {}", propagationTask);
 
         PropagationReporter reporter = new DefaultPropagationReporter();
-        taskExecutor.execute(propagationTask, reporter, executor);
+        taskExecutor.execute(propagationTask, reporter, profile.getExecutor());
         reportPropagation(result, reporter);
     }
 }

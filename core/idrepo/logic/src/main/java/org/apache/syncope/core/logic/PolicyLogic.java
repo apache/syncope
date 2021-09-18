@@ -33,22 +33,26 @@ import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtils;
 import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
 
-    @Autowired
-    private PolicyDAO policyDAO;
+    protected final PolicyDAO policyDAO;
 
-    @Autowired
-    private PolicyDataBinder binder;
+    protected final PolicyDataBinder binder;
 
-    @Autowired
-    private PolicyUtilsFactory policyUtilsFactory;
+    protected final PolicyUtilsFactory policyUtilsFactory;
+
+    public PolicyLogic(
+            final PolicyDAO policyDAO,
+            final PolicyDataBinder binder,
+            final PolicyUtilsFactory policyUtilsFactory) {
+
+        this.policyDAO = policyDAO;
+        this.binder = binder;
+        this.policyUtilsFactory = policyUtilsFactory;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_CREATE + "')")
     public <T extends PolicyTO> T create(final PolicyType type, final T policyTO) {

@@ -28,15 +28,15 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 public class JPANotificationDAO extends AbstractDAO<Notification> implements NotificationDAO {
 
-    @Autowired
-    private TaskDAO taskDAO;
+    protected final TaskDAO taskDAO;
+
+    public JPANotificationDAO(final TaskDAO taskDAO) {
+        this.taskDAO = taskDAO;
+    }
 
     @Transactional(readOnly = true)
     @Override

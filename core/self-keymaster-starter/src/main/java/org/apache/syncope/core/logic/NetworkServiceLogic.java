@@ -26,23 +26,23 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
 import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
 
-@Component
 public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
 
-    @Autowired
-    private NetworkServiceDAO serviceDAO;
+    protected final NetworkServiceDAO serviceDAO;
 
-    @Autowired
-    private SelfKeymasterEntityFactory entityFactory;
+    protected final SelfKeymasterEntityFactory entityFactory;
 
-    private static NetworkService toNetworkService(
+    public NetworkServiceLogic(final NetworkServiceDAO serviceDAO, final SelfKeymasterEntityFactory entityFactory) {
+        this.serviceDAO = serviceDAO;
+        this.entityFactory = entityFactory;
+    }
+
+    protected NetworkService toNetworkService(
             final NetworkService.Type serviceType,
             final NetworkServiceEntity service) {
 

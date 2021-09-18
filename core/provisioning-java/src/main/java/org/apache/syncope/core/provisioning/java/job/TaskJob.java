@@ -90,7 +90,7 @@ public class TaskJob extends AbstractInterruptableJob {
                             LOG.error("Could not find Implementation '{}', aborting",
                                     context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
                         } else {
-                            delegate = ImplementationManager.<SchedTaskJobDelegate>build(implementation);
+                            delegate = ImplementationManager.build(implementation);
                             delegate.execute(
                                     taskKey,
                                     context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),

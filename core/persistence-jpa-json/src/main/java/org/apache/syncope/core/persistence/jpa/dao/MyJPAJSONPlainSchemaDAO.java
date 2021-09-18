@@ -19,10 +19,21 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import javax.persistence.Query;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public class MyJPAJSONPlainSchemaDAO extends AbstractJPAJSONPlainSchemaDAO {
+
+    public MyJPAJSONPlainSchemaDAO(
+            final AnyUtilsFactory anyUtilsFactory,
+            final PlainAttrDAO plainAttrDAO,
+            final ExternalResourceDAO resourceDAO) {
+
+        super(anyUtilsFactory, plainAttrDAO, resourceDAO);
+    }
 
     @Override
     public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> reference) {

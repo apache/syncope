@@ -22,14 +22,14 @@ import org.apache.syncope.core.provisioning.api.data.SecurityQuestionDataBinder;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SecurityQuestionDataBinderImpl implements SecurityQuestionDataBinder {
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public SecurityQuestionDataBinderImpl(final EntityFactory entityFactory) {
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public SecurityQuestionTO getSecurityQuestionTO(final SecurityQuestion securityQuestion) {

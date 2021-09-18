@@ -22,15 +22,17 @@ import java.util.List;
 import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
 import org.apache.syncope.core.logic.wa.WebAuthnRegistrationLogic;
-import org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.rest.cxf.service.AbstractService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class WebAuthnRegistrationServiceImpl extends AbstractServiceImpl implements WebAuthnRegistrationService {
+public class WebAuthnRegistrationServiceImpl extends AbstractService implements WebAuthnRegistrationService {
 
-    @Autowired
-    private WebAuthnRegistrationLogic logic;
+    protected final WebAuthnRegistrationLogic logic;
+
+    public WebAuthnRegistrationServiceImpl(final WebAuthnRegistrationLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<WebAuthnAccount> list() {

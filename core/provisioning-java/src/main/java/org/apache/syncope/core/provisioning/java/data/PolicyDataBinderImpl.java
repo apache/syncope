@@ -51,31 +51,37 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class PolicyDataBinderImpl implements PolicyDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PolicyDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(PolicyDataBinder.class);
 
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    private RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private ImplementationDAO implementationDAO;
+    protected final ImplementationDAO implementationDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public PolicyDataBinderImpl(
+            final ExternalResourceDAO resourceDAO,
+            final RealmDAO realmDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final ImplementationDAO implementationDAO,
+            final EntityFactory entityFactory) {
+
+        this.resourceDAO = resourceDAO;
+        this.realmDAO = realmDAO;
+        this.anyTypeDAO = anyTypeDAO;
+        this.implementationDAO = implementationDAO;
+        this.entityFactory = entityFactory;
+    }
 
     @SuppressWarnings("unchecked")
-    private <T extends Policy> T getPolicy(final T policy, final PolicyTO policyTO) {
+    protected <T extends Policy> T getPolicy(final T policy, final PolicyTO policyTO) {
         T result = policy;
 
         if (policyTO instanceof PasswordPolicyTO) {

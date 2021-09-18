@@ -45,30 +45,36 @@ import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AnyTypeDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AnyTypeDataBinder.class);
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
-    @Autowired
-    private SecurityProperties securityProperties;
+    protected final SecurityProperties securityProperties;
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private AnyTypeClassDAO anyTypeClassDAO;
+    protected final AnyTypeClassDAO anyTypeClassDAO;
 
-    @Autowired
-    private AccessTokenDAO accessTokenDAO;
+    protected final AccessTokenDAO accessTokenDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public AnyTypeDataBinderImpl(
+            final SecurityProperties securityProperties,
+            final AnyTypeDAO anyTypeDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
+            final AccessTokenDAO accessTokenDAO,
+            final EntityFactory entityFactory) {
+
+        this.securityProperties = securityProperties;
+        this.anyTypeDAO = anyTypeDAO;
+        this.anyTypeClassDAO = anyTypeClassDAO;
+        this.accessTokenDAO = accessTokenDAO;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public AnyType create(final AnyTypeTO anyTypeTO) {

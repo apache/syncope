@@ -26,15 +26,15 @@ import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 public class JPAAnyTypeDAO extends AbstractDAO<AnyType> implements AnyTypeDAO {
 
-    @Autowired
-    private RemediationDAO remediationDAO;
+    protected final RemediationDAO remediationDAO;
+
+    public JPAAnyTypeDAO(final RemediationDAO remediationDAO) {
+        this.remediationDAO = remediationDAO;
+    }
 
     @Transactional(readOnly = true)
     @Override

@@ -29,19 +29,21 @@ import org.apache.syncope.core.logic.ConfParamLogic;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConfParamOps.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ConfParamOps.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final ObjectMapper MAPPER = new ObjectMapper();
 
-    @Autowired
-    private ConfParamLogic logic;
+    protected final ConfParamLogic logic;
 
-    @Autowired
-    private KeymasterProperties props;
+    protected final KeymasterProperties props;
+
+    public SelfKeymasterInternalConfParamOps(final ConfParamLogic logic, final KeymasterProperties props) {
+        this.logic = logic;
+        this.props = props;
+    }
 
     @Override
     public Map<String, Object> list(final String domain) {

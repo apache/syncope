@@ -31,19 +31,19 @@ import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.provisioning.api.data.ApplicationDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ApplicationDataBinderImpl implements ApplicationDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ApplicationDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ApplicationDataBinder.class);
 
-    @Autowired
-    private ApplicationDAO applicationDAO;
+    protected final ApplicationDAO applicationDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public ApplicationDataBinderImpl(final ApplicationDAO applicationDAO, final EntityFactory entityFactory) {
+        this.applicationDAO = applicationDAO;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public Application create(final ApplicationTO applicationTO) {

@@ -27,14 +27,16 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.core.logic.AuditLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuditServiceImpl extends AbstractServiceImpl implements AuditService {
+public class AuditServiceImpl extends AbstractService implements AuditService {
 
-    @Autowired
-    private AuditLogic logic;
+    protected final AuditLogic logic;
+
+    public AuditServiceImpl(final AuditLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<AuditConfTO> list() {

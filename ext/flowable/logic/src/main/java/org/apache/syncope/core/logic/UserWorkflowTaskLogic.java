@@ -37,29 +37,33 @@ import org.apache.syncope.core.flowable.api.WorkflowTaskManager;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 
-@Component
 public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<EntityTO> {
 
-    @Autowired
-    @Lazy
-    private WorkflowTaskManager wfTaskManager;
+    protected final WorkflowTaskManager wfTaskManager;
 
-    @Autowired
-    private PropagationManager propagationManager;
+    protected final PropagationManager propagationManager;
 
-    @Autowired
-    private PropagationTaskExecutor taskExecutor;
+    protected final PropagationTaskExecutor taskExecutor;
 
-    @Autowired
-    private UserDataBinder binder;
+    protected final UserDataBinder binder;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
+
+    public UserWorkflowTaskLogic(
+            final WorkflowTaskManager wfTaskManager,
+            final PropagationManager propagationManager,
+            final PropagationTaskExecutor taskExecutor,
+            final UserDataBinder binder,
+            final UserDAO userDAO) {
+
+        this.wfTaskManager = wfTaskManager;
+        this.propagationManager = propagationManager;
+        this.taskExecutor = taskExecutor;
+        this.binder = binder;
+        this.userDAO = userDAO;
+    }
 
     @PreAuthorize("hasRole('" + FlowableEntitlement.WORKFLOW_TASK_LIST + "') "
             + "and hasRole('" + IdRepoEntitlement.USER_READ + "')")

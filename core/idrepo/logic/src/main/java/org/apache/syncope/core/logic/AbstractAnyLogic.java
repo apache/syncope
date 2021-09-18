@@ -40,23 +40,29 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.apache.syncope.core.spring.ImplementationManager;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U extends AnyUR>
         extends AbstractResourceAssociator<TO> {
 
     protected static final String REST_CONTEXT = "REST";
 
-    @Autowired
-    private RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private TemplateUtils templateUtils;
+    protected final TemplateUtils templateUtils;
 
-    private static List<LogicActions> getActions(final Realm realm) {
+    public AbstractAnyLogic(
+            final RealmDAO realmDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final TemplateUtils templateUtils) {
+
+        this.realmDAO = realmDAO;
+        this.anyTypeDAO = anyTypeDAO;
+        this.templateUtils = templateUtils;
+    }
+
+    protected List<LogicActions> getActions(final Realm realm) {
         List<LogicActions> actions = new ArrayList<>();
 
         realm.getActions().forEach(impl -> {

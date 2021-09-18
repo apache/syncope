@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.io.IOException;
 import java.security.AccessControlException;
@@ -714,8 +715,16 @@ public class GroupITCase extends AbstractITCase {
         GroupTO group = createGroup(groupCR).getEntity();
         assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
+        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
         group = groupService.read(group.getKey());
-        final String groupKey = group.getKey();
+        String groupKey = group.getKey();
         assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
         // verify that the condition is dynamically applied
@@ -933,6 +942,8 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void provisionMembers() throws InterruptedException {
+        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform()));
+
         // 1. create group without resources
         GroupCR groupCR = getBasicSample("forProvision");
         GroupTO groupTO = createGroup(groupCR).getEntity();
@@ -978,14 +989,6 @@ public class GroupITCase extends AbstractITCase {
             assertEquals(TaskJob.Status.SUCCESS.name(), execs.get().get(0).getStatus());
 
             // 6. verify that the user above is now fond on LDAP
-            if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
-
             ConnObjectTO userOnLdap =
                     resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(userOnLdap);

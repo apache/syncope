@@ -36,24 +36,28 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO> {
 
-    @Autowired
-    private MailTemplateDAO mailTemplateDAO;
+    protected final MailTemplateDAO mailTemplateDAO;
 
-    @Autowired
-    private NotificationDAO notificationDAO;
+    protected final NotificationDAO notificationDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    private static MailTemplateTO getMailTemplateTO(final String key) {
+    public MailTemplateLogic(
+            final MailTemplateDAO mailTemplateDAO,
+            final NotificationDAO notificationDAO,
+            final EntityFactory entityFactory) {
+
+        this.mailTemplateDAO = mailTemplateDAO;
+        this.notificationDAO = notificationDAO;
+        this.entityFactory = entityFactory;
+    }
+
+    protected MailTemplateTO getMailTemplateTO(final String key) {
         MailTemplateTO mailTemplateTO = new MailTemplateTO();
         mailTemplateTO.setKey(key);
         return mailTemplateTO;

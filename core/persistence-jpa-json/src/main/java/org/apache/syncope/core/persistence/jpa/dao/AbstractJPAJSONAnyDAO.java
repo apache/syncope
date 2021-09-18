@@ -48,13 +48,15 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> implements JPAJSONAnyDAO {
 
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
+    protected final PlainSchemaDAO plainSchemaDAO;
+
+    protected AbstractJPAJSONAnyDAO(final PlainSchemaDAO plainSchemaDAO) {
+        this.plainSchemaDAO = plainSchemaDAO;
+    }
 
     protected abstract String queryBegin(String table);
 

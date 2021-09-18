@@ -26,12 +26,10 @@ import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtils;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtilsFactory;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
-@Component
 public class JPAClientAppUtilsFactory implements ClientAppUtilsFactory {
 
     @Override

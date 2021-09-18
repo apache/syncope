@@ -25,10 +25,8 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 
-@Configurable
 public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DAO.class);

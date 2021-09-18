@@ -26,9 +26,7 @@ import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthProfile;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPAAuthProfileDAO extends AbstractDAO<AuthProfile> implements AuthProfileDAO {
 
     @Override

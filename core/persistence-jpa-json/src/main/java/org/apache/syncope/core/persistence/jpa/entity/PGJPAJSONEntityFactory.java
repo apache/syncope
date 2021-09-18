@@ -19,8 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
-import org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONAnySearchDAO;
 
 public class PGJPAJSONEntityFactory extends JPAJSONEntityFactory {
@@ -28,10 +26,5 @@ public class PGJPAJSONEntityFactory extends JPAJSONEntityFactory {
     @Override
     public Class<? extends AnySearchDAO> anySearchDAOClass() {
         return PGJPAJSONAnySearchDAO.class;
-    }
-
-    @Override
-    protected Class<? extends JPAJSONAnyDAO> jpaJSONAnyDAOClass() {
-        return PGJPAJSONAnyDAO.class;
     }
 }

@@ -32,14 +32,16 @@ import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.logic.ReportLogic;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ReportServiceImpl extends AbstractExecutableService implements ReportService {
 
-    @Autowired
-    private ReportLogic logic;
+    protected final ReportLogic logic;
+
+    public ReportServiceImpl(final ReportLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     protected AbstractExecutableLogic<?> getExecutableLogic() {

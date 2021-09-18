@@ -19,11 +19,9 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.common.lib.to.AuditConfTO;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
 
-@Component
 public class AuditDataBinderImpl implements AuditDataBinder {
 
     @Override

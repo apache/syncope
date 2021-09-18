@@ -93,22 +93,19 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
-import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * Export internal storage content as XML.
  */
-@Component
 public class XMLContentExporter implements ContentExporter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XMLContentExporter.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(XMLContentExporter.class);
 
-    private static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = Stream.of(
+    protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = Stream.of(
             "QRTZ_", "LOGGING", "NotificationTask_recipients", AuditConfDAO.AUDIT_ENTRY_TABLE, JPAReportExec.TABLE,
             JPATaskExec.TABLE, JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE,
             JPAUPlainAttrUniqueValue.TABLE, JPAURelationship.TABLE, JPAUMembership.TABLE,
@@ -116,24 +113,18 @@ public class XMLContentExporter implements ContentExporter {
             JPAARelationship.TABLE, JPAAMembership.TABLE, JPAAccessToken.TABLE
     ).collect(Collectors.toCollection(HashSet::new));
 
-    private static final Map<String, String> TABLES_TO_BE_FILTERED =
+    protected static final Map<String, String> TABLES_TO_BE_FILTERED =
             Map.of("TASK", "DTYPE <> 'PropagationTask' AND DTYPE <> 'NotificationTask'");
 
-    private static final Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
+    protected static final Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
             Map.of("SYNCOPEGROUP", Set.of("USEROWNER_ID"));
 
-    @Autowired
-    private DomainHolder domainHolder;
-
-    @Autowired
-    private RealmDAO realmDAO;
-
-    private static boolean isTableAllowed(final String tableName) {
+    protected static boolean isTableAllowed(final String tableName) {
         return TABLE_PREFIXES_TO_BE_EXCLUDED.stream().
                 allMatch(prefix -> !tableName.toUpperCase().startsWith(prefix.toUpperCase()));
     }
 
-    private static List<String> sortByForeignKeys(final String dbSchema, final Connection conn,
+    protected static List<String> sortByForeignKeys(final String dbSchema, final Connection conn,
             final Set<String> tableNames)
             throws SQLException {
 
@@ -204,7 +195,7 @@ public class XMLContentExporter implements ContentExporter {
         return sortedTableNames;
     }
 
-    private static String getValues(final ResultSet rs, final String columnName, final Integer columnType)
+    protected static String getValues(final ResultSet rs, final String columnName, final Integer columnType)
             throws SQLException {
 
         String res = null;
@@ -251,7 +242,16 @@ public class XMLContentExporter implements ContentExporter {
         return res;
     }
 
-    private String columnName(final Supplier<Stream<Attribute<?, ?>>> attrs, final String columnName) {
+    protected final DomainHolder domainHolder;
+
+    protected final RealmDAO realmDAO;
+
+    public XMLContentExporter(final DomainHolder domainHolder, final RealmDAO realmDAO) {
+        this.domainHolder = domainHolder;
+        this.realmDAO = realmDAO;
+    }
+
+    protected String columnName(final Supplier<Stream<Attribute<?, ?>>> attrs, final String columnName) {
         String name = attrs.get().map(attr -> {
             if (attr.getName().equalsIgnoreCase(columnName)) {
                 return attr.getName();
@@ -276,12 +276,12 @@ public class XMLContentExporter implements ContentExporter {
         return name;
     }
 
-    private boolean isTask(final String tableName) {
+    protected boolean isTask(final String tableName) {
         return "TASK".equalsIgnoreCase(tableName);
     }
 
     @SuppressWarnings("unchecked")
-    private void exportTable(
+    protected void exportTable(
             final TransformerHandler handler,
             final Connection conn,
             final String tableName,
@@ -427,11 +427,11 @@ public class XMLContentExporter implements ContentExporter {
         }
     }
 
-    private Set<EntityType<?>> taskEntities(final Set<EntityType<?>> entityTypes) {
+    protected Set<EntityType<?>> taskEntities(final Set<EntityType<?>> entityTypes) {
         return entityTypes.stream().filter(e -> e.getName().endsWith("Task")).collect(Collectors.toSet());
     }
 
-    private BidiMap<String, EntityType<?>> entities(final Set<EntityType<?>> entityTypes) {
+    protected BidiMap<String, EntityType<?>> entities(final Set<EntityType<?>> entityTypes) {
         BidiMap<String, EntityType<?>> entities = new DualHashBidiMap<>();
         entityTypes.forEach(entity -> {
             Table table = entity.getBindableJavaType().getAnnotation(Table.class);
@@ -443,7 +443,7 @@ public class XMLContentExporter implements ContentExporter {
         return entities;
     }
 
-    private Map<String, Pair<String, String>> relationTables(final BidiMap<String, EntityType<?>> entities) {
+    protected Map<String, Pair<String, String>> relationTables(final BidiMap<String, EntityType<?>> entities) {
         Map<String, Pair<String, String>> relationTables = new HashMap<>();
         entities.values().stream().forEach(e -> e.getAttributes().stream().
                 filter(a -> a.getPersistentAttributeType() != Attribute.PersistentAttributeType.BASIC).

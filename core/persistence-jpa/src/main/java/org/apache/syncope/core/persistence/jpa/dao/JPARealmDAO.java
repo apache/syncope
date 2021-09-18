@@ -39,18 +39,16 @@ import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.ProvisioningPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 
-@Repository
 public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
-    @Autowired
-    @Lazy
-    private RoleDAO roleDAO;
+    protected final RoleDAO roleDAO;
+
+    public JPARealmDAO(final RoleDAO roleDAO) {
+        this.roleDAO = roleDAO;
+    }
 
     @Override
     public Realm getRoot() {

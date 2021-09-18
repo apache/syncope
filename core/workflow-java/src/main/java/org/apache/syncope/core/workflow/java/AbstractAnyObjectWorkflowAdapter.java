@@ -31,7 +31,6 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,14 +38,21 @@ import org.springframework.transaction.annotation.Transactional;
 public abstract class AbstractAnyObjectWorkflowAdapter
         extends AbstractWorkflowAdapter implements AnyObjectWorkflowAdapter {
 
-    @Autowired
-    protected AnyObjectDataBinder dataBinder;
+    protected final AnyObjectDataBinder dataBinder;
 
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
-    @Autowired
-    protected EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public AbstractAnyObjectWorkflowAdapter(
+            final AnyObjectDataBinder dataBinder,
+            final AnyObjectDAO anyObjectDAO,
+            final EntityFactory entityFactory) {
+
+        this.dataBinder = dataBinder;
+        this.anyObjectDAO = anyObjectDAO;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public String getPrefix() {

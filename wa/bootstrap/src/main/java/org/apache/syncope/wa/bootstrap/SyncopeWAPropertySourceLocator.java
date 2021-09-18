@@ -173,6 +173,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         return filterCasProperties(casProperties, filterProvider);
     }
 
+    @SuppressWarnings("deprecation")
     private static Map<String, Object> mapAuthModule(
             final String authModule,
             final DuoMfaAuthModuleConf conf) {

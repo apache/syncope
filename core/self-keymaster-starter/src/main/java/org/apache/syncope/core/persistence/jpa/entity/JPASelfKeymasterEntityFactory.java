@@ -22,10 +22,8 @@ import org.apache.syncope.core.persistence.api.entity.ConfParam;
 import org.apache.syncope.core.persistence.api.entity.DomainEntity;
 import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
 
-@Component
 public class JPASelfKeymasterEntityFactory implements SelfKeymasterEntityFactory {
 
     @Override

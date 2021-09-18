@@ -21,7 +21,6 @@ package org.apache.syncope.core.spring.security;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.KeyLengthException;
-import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -128,11 +127,10 @@ public class SecurityContext {
         return new AccessTokenJWSSigner(jwsAlgorithm(), jwsKey());
     }
 
+    @ConditionalOnMissingBean
     @Bean
-    public PasswordGenerator passwordGenerator() throws NoSuchMethodException,
-            InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-        return props.getPasswordGenerator().getDeclaredConstructor().newInstance();
+    public PasswordGenerator passwordGenerator() {
+        return new DefaultPasswordGenerator();
     }
 
     @Bean

@@ -22,13 +22,24 @@ import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 
 /**
  * Simple implementation basically not involving any workflow engine.
  */
 public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
+
+    public DefaultGroupWorkflowAdapter(
+            final GroupDataBinder dataBinder,
+            final GroupDAO groupDAO,
+            final EntityFactory entityFactory) {
+
+        super(dataBinder, groupDAO, entityFactory);
+    }
 
     @Override
     protected WorkflowResult<String> doCreate(final GroupCR groupCR, final String creator, final String context) {

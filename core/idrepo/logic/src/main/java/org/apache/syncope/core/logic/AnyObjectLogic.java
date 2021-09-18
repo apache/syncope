@@ -41,6 +41,8 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -49,29 +51,40 @@ import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Note that this controller does not extend {@link AbstractTransactionalLogic}, hence does not provide any
  * Spring's Transactional logic at class level.
  */
-@Component
 public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, AnyObjectUR> {
 
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
-    @Autowired
-    protected AnySearchDAO searchDAO;
+    protected final AnySearchDAO searchDAO;
 
-    @Autowired
-    protected AnyObjectDataBinder binder;
+    protected final AnyObjectDataBinder binder;
 
-    @Autowired
-    protected AnyObjectProvisioningManager provisioningManager;
+    protected final AnyObjectProvisioningManager provisioningManager;
+
+    public AnyObjectLogic(
+            final RealmDAO realmDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final TemplateUtils templateUtils,
+            final AnyObjectDAO anyObjectDAO,
+            final AnySearchDAO searchDAO,
+            final AnyObjectDataBinder binder,
+            final AnyObjectProvisioningManager provisioningManager) {
+
+        super(realmDAO, anyTypeDAO, templateUtils);
+
+        this.anyObjectDAO = anyObjectDAO;
+        this.searchDAO = searchDAO;
+        this.binder = binder;
+        this.provisioningManager = provisioningManager;
+    }
 
     @Transactional(readOnly = true)
     @Override

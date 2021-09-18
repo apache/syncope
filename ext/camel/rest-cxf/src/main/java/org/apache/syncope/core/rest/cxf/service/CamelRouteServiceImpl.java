@@ -24,14 +24,16 @@ import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.core.logic.CamelRouteLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CamelRouteServiceImpl extends AbstractServiceImpl implements CamelRouteService {
+public class CamelRouteServiceImpl extends AbstractService implements CamelRouteService {
 
-    @Autowired
-    private CamelRouteLogic logic;
+    protected final CamelRouteLogic logic;
+
+    public CamelRouteServiceImpl(final CamelRouteLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<CamelRouteTO> list(final AnyTypeKind anyTypeKind) {
@@ -57,5 +59,4 @@ public class CamelRouteServiceImpl extends AbstractServiceImpl implements CamelR
     public CamelMetrics metrics() {
         return logic.metrics();
     }
-
 }

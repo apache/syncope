@@ -22,14 +22,14 @@ import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 import org.apache.syncope.core.provisioning.api.data.CamelRouteDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class CamelRouteDataBinderImpl implements CamelRouteDataBinder {
 
-    @Autowired
-    private CamelRouteDAO routeDAO;
+    protected final CamelRouteDAO routeDAO;
+
+    public CamelRouteDataBinderImpl(final CamelRouteDAO routeDAO) {
+        this.routeDAO = routeDAO;
+    }
 
     @Override
     public CamelRouteTO getRouteTO(final CamelRoute route) {

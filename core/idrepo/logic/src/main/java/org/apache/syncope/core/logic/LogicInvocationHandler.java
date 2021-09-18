@@ -31,18 +31,20 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Aspect
 public class LogicInvocationHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LogicInvocationHandler.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(LogicInvocationHandler.class);
 
-    @Autowired
-    private NotificationManager notificationManager;
+    protected final NotificationManager notificationManager;
 
-    @Autowired
-    private AuditManager auditManager;
+    protected final AuditManager auditManager;
+
+    public LogicInvocationHandler(final NotificationManager notificationManager, final AuditManager auditManager) {
+        this.notificationManager = notificationManager;
+        this.auditManager = auditManager;
+    }
 
     @Around("execution(* org.apache.syncope.core.logic.AbstractLogic+.*(..))")
     public Object around(final ProceedingJoinPoint joinPoint) throws Throwable {

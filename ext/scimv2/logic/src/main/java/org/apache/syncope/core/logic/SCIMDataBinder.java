@@ -57,31 +57,35 @@ import org.apache.syncope.ext.scimv2.api.type.Function;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SCIMDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SCIMDataBinder.class);
 
-    private static final List<String> USER_SCHEMAS = List.of(Resource.User.schema());
+    protected static final List<String> USER_SCHEMAS = List.of(Resource.User.schema());
 
-    private static final List<String> ENTERPRISE_USER_SCHEMAS =
+    protected static final List<String> ENTERPRISE_USER_SCHEMAS =
             List.of(Resource.User.schema(), Resource.EnterpriseUser.schema());
 
-    private static final List<String> GROUP_SCHEMAS = List.of(Resource.Group.schema());
+    protected static final List<String> GROUP_SCHEMAS = List.of(Resource.Group.schema());
 
-    @Autowired
-    private SCIMConfManager confManager;
+    protected final SCIMConfManager confManager;
 
-    @Autowired
-    private UserLogic userLogic;
+    protected final UserLogic userLogic;
 
-    @Autowired
-    private AuthDataAccessor authDataAccessor;
+    protected final AuthDataAccessor authDataAccessor;
 
-    private static <E extends Enum<?>> void fill(
+    public SCIMDataBinder(
+            final SCIMConfManager confManager,
+            final UserLogic userLogic,
+            final AuthDataAccessor authDataAccessor) {
+
+        this.confManager = confManager;
+        this.userLogic = userLogic;
+        this.authDataAccessor = authDataAccessor;
+    }
+
+    protected <E extends Enum<?>> void fill(
             final Map<String, Attr> attrs,
             final List<SCIMComplexConf<E>> confs,
             final List<SCIMComplexValue> values) {
@@ -108,7 +112,7 @@ public class SCIMDataBinder {
         });
     }
 
-    private static boolean output(
+    protected boolean output(
             final List<String> attributes,
             final List<String> excludedAttributes,
             final String schema) {
@@ -117,7 +121,7 @@ public class SCIMDataBinder {
                 && (excludedAttributes.isEmpty() || !excludedAttributes.contains(schema));
     }
 
-    private static <T> T output(
+    protected <T> T output(
             final List<String> attributes,
             final List<String> excludedAttributes,
             final String schema,
@@ -411,7 +415,7 @@ public class SCIMDataBinder {
         return user;
     }
 
-    private static <E extends Enum<?>> void fill(
+    protected <E extends Enum<?>> void fill(
             final Set<Attr> attrs,
             final List<SCIMComplexConf<E>> confs,
             final List<SCIMComplexValue> values) {
@@ -597,7 +601,7 @@ public class SCIMDataBinder {
         return userCR;
     }
 
-    private static void setAttribute(final UserTO userTO, final String schema, final String value) {
+    protected void setAttribute(final UserTO userTO, final String schema, final String value) {
         switch (schema) {
             case "username":
                 userTO.setUsername(value);

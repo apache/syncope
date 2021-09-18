@@ -34,24 +34,28 @@ import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.provisioning.api.data.DelegationDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
 
-    @Autowired
-    private DelegationDataBinder binder;
+    protected final DelegationDataBinder binder;
 
-    @Autowired
-    private DelegationDAO delegationDAO;
+    protected final DelegationDAO delegationDAO;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    private void securityChecks(final String delegating, final String entitlement) {
+    public DelegationLogic(
+            final DelegationDataBinder binder,
+            final DelegationDAO delegationDAO,
+            final UserDAO userDAO) {
+
+        this.binder = binder;
+        this.delegationDAO = delegationDAO;
+        this.userDAO = userDAO;
+    }
+
+    protected void securityChecks(final String delegating, final String entitlement) {
         if (!AuthContextUtils.getAuthorizations().keySet().contains(entitlement)
                 && (delegating == null || !delegating.equals(userDAO.findKey(AuthContextUtils.getUsername())))) {
 

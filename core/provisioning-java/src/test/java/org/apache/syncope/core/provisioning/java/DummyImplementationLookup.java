@@ -34,9 +34,7 @@ import org.apache.syncope.core.persistence.jpa.dao.DefaultPullCorrelationRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPushCorrelationRule;
 import org.apache.syncope.core.spring.policy.DefaultAccountRule;
 import org.apache.syncope.core.spring.policy.DefaultPasswordRule;
-import org.springframework.stereotype.Component;
 
-@Component
 public class DummyImplementationLookup implements ImplementationLookup {
 
     @Override

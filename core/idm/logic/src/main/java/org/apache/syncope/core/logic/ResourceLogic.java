@@ -40,7 +40,6 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -53,6 +52,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
@@ -67,52 +67,74 @@ import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private ConnInstanceDAO connInstanceDAO;
+    protected final ConnInstanceDAO connInstanceDAO;
 
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    private VirAttrHandler virAttrHandler;
+    protected final VirAttrHandler virAttrHandler;
 
-    @Autowired
-    private ResourceDataBinder binder;
+    protected final ResourceDataBinder binder;
 
-    @Autowired
-    private ConnInstanceDataBinder connInstanceDataBinder;
+    protected final ConnInstanceDataBinder connInstanceDataBinder;
 
-    @Autowired
-    private OutboundMatcher outboundMatcher;
+    protected final OutboundMatcher outboundMatcher;
 
-    @Autowired
-    private MappingManager mappingManager;
+    protected final MappingManager mappingManager;
 
-    @Autowired
-    private ConnectorFactory connFactory;
+    protected final ConnectorManager connectorManager;
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    protected final AnyUtilsFactory anyUtilsFactory;
 
-    protected static void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
+    public ResourceLogic(
+            final ExternalResourceDAO resourceDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final ConnInstanceDAO connInstanceDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final VirAttrHandler virAttrHandler,
+            final ResourceDataBinder binder,
+            final ConnInstanceDataBinder connInstanceDataBinder,
+            final OutboundMatcher outboundMatcher,
+            final MappingManager mappingManager,
+            final ConnectorManager connectorManager,
+            final AnyUtilsFactory anyUtilsFactory) {
+
+        this.resourceDAO = resourceDAO;
+        this.anyTypeDAO = anyTypeDAO;
+        this.connInstanceDAO = connInstanceDAO;
+        this.virSchemaDAO = virSchemaDAO;
+        this.virAttrHandler = virAttrHandler;
+        this.binder = binder;
+        this.connInstanceDataBinder = connInstanceDataBinder;
+        this.outboundMatcher = outboundMatcher;
+        this.mappingManager = mappingManager;
+        this.connectorManager = connectorManager;
+        this.anyUtilsFactory = anyUtilsFactory;
+    }
+
+    protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
         boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
         if (!authorized) {
             throw new DelegatedAdministrationException(realm, ExternalResource.class.getSimpleName(), key);
         }
+    }
+
+    protected ExternalResource doSave(final ExternalResource resource) {
+        ExternalResource merged = resourceDAO.save(resource);
+        try {
+            connectorManager.registerConnector(merged);
+        } catch (NotFoundException e) {
+            LOG.error("While registering connector for resource", e);
+        }
+        return merged;
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_CREATE + "')")
@@ -139,7 +161,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             throw new DuplicateException(resourceTO.getKey());
         }
 
-        return binder.getResourceTO(resourceDAO.save(binder.create(resourceTO)));
+        return binder.getResourceTO(doSave(binder.create(resourceTO)));
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_UPDATE + "')")
@@ -154,7 +176,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 resource.getConnector().getAdminRealm().getFullPath());
         securityChecks(effectiveRealms, resource.getConnector().getAdminRealm().getFullPath(), resource.getKey());
 
-        return binder.getResourceTO(resourceDAO.save(binder.update(resource, resourceTO)));
+        return binder.getResourceTO(doSave(binder.update(resource, resourceTO)));
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_UPDATE + "')")
@@ -166,7 +188,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         Connector connector;
         try {
-            connector = connFactory.getConnector(resource);
+            connector = connectorManager.getConnector(resource);
         } catch (Exception e) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
             sce.getElements().add(e.getMessage());
@@ -197,7 +219,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 resource.getConnector().getAdminRealm().getFullPath());
         securityChecks(effectiveRealms, resource.getConnector().getAdminRealm().getFullPath(), resource.getKey());
 
-        resourceDAO.save(resource);
+        doSave(resource);
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_UPDATE + "')")
@@ -230,7 +252,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 resource.getConnector().getAdminRealm().getFullPath());
         securityChecks(effectiveRealms, resource.getConnector().getAdminRealm().getFullPath(), resource.getKey());
 
-        resourceDAO.save(resource);
+        doSave(resource);
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_DELETE + "')")
@@ -269,7 +291,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return resourceDAO.findAll().stream().map(binder::getResourceTO).collect(Collectors.toList());
     }
 
-    private Provision getProvision(final String resourceKey, final String anyTypeKey) {
+    protected Provision getProvision(final String resourceKey, final String anyTypeKey) {
         ExternalResource resource = resourceDAO.find(resourceKey);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceKey + '\'');
@@ -323,7 +345,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         // 2. find on resource
         List<ConnectorObject> connObjs = outboundMatcher.match(
-                connFactory.getConnector(provision.getResource()), any, provision, Optional.empty());
+                connectorManager.getConnector(provision.getResource()), any, provision, Optional.empty());
         if (connObjs.isEmpty()) {
             throw new NotFoundException(
                     "Object " + any + " with class " + provision.getObjectClass()
@@ -355,7 +377,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 + " on resource '" + provision.getResource().getKey() + "'"));
 
         return outboundMatcher.matchByConnObjectKeyValue(
-                connFactory.getConnector(provision.getResource()),
+                connectorManager.getConnector(provision.getResource()),
                 connObjectKeyItem,
                 connObjectKeyValue,
                 provision,
@@ -408,7 +430,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         List<ConnObjectTO> connObjects = new ArrayList<>();
-        SearchResult searchResult = connFactory.getConnector(resource).
+        SearchResult searchResult = connectorManager.getConnector(resource).
                 search(objectClass, filter, new SearchResultsHandler() {
 
                     private int count;
@@ -440,8 +462,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             throw new NotFoundException("Connector '" + resourceTO.getConnector() + '\'');
         }
 
-        connFactory.createConnector(
-                connFactory.buildConnInstanceOverride(
+        connectorManager.createConnector(
+                connectorManager.buildConnInstanceOverride(
                         connInstanceDataBinder.getConnInstanceTO(connInstance),
                         resourceTO.getConfOverride(),
                         resourceTO.isOverrideCapabilities()

@@ -34,8 +34,13 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.SCIMDataBinder;
+import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
@@ -49,10 +54,21 @@ import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 
 public class GroupServiceImpl extends AbstractService<SCIMGroup> implements GroupService {
 
+    public GroupServiceImpl(
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final UserLogic userLogic,
+            final GroupLogic groupLogic,
+            final SCIMDataBinder binder,
+            final SCIMConfManager confManager) {
+
+        super(userDAO, groupDAO, userLogic, groupLogic, binder, confManager);
+    }
+
     @Override
     public Response create(final SCIMGroup group) {
         // first create group, no members assigned
-        ProvisioningResult<GroupTO> result = groupLogic().create(SCIMDataBinder.toGroupCR(group), false);
+        ProvisioningResult<GroupTO> result = groupLogic.create(SCIMDataBinder.toGroupCR(group), false);
 
         // then assign members
         group.getMembers().forEach(member -> {
@@ -61,7 +77,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
                             operation(PatchOperation.ADD_REPLACE).build()).
                     build();
             try {
-                userLogic().update(req, false);
+                userLogic.update(req, false);
             } catch (Exception e) {
                 LOG.error("While setting membership of {} to {}", result.getEntity().getKey(), member.getValue(), e);
             }
@@ -69,7 +85,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
 
         return createResponse(
                 result.getEntity().getKey(),
-                binder().toSCIMGroup(
+                binder.toSCIMGroup(
                         result.getEntity(),
                         uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
                         List.of(),
@@ -81,8 +97,8 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
             final String attributes,
             final String excludedAttributes) {
 
-        return binder().toSCIMGroup(
-                groupLogic().read(id),
+        return binder.toSCIMGroup(
+                groupLogic.read(id),
                 uriInfo.getAbsolutePathBuilder().build().toASCIIString(),
                 List.of(ArrayUtils.nullToEmpty(StringUtils.split(attributes, ','))),
                 List.of(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
@@ -110,11 +126,11 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
         MembershipCond membCond = new MembershipCond();
         membCond.setGroup(id);
         SearchCond searchCond = SearchCond.getLeaf(membCond);
-        int count = userLogic().search(searchCond,
+        int count = userLogic.search(searchCond,
                 1, 1, List.of(),
                 SyncopeConstants.ROOT_REALM, false).getLeft();
         for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-            beforeMembers.addAll(userLogic().search(
+            beforeMembers.addAll(userLogic.search(
                     searchCond,
                     page,
                     AnyDAO.DEFAULT_PAGE_SIZE,
@@ -125,8 +141,8 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
         }
 
         // update group, don't change members
-        ProvisioningResult<GroupTO> result = groupLogic().update(
-                AnyOperations.diff(SCIMDataBinder.toGroupTO(group), groupLogic().read(id), false), false);
+        ProvisioningResult<GroupTO> result = groupLogic.update(
+                AnyOperations.diff(SCIMDataBinder.toGroupTO(group), groupLogic.read(id), false), false);
 
         // assign new members
         Set<String> afterMembers = new HashSet<>();
@@ -139,7 +155,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
                                 operation(PatchOperation.ADD_REPLACE).build()).
                         build();
                 try {
-                    userLogic().update(req, false);
+                    userLogic.update(req, false);
                 } catch (Exception e) {
                     LOG.error("While setting membership of {} to {}",
                             result.getEntity().getKey(), member.getValue(), e);
@@ -153,7 +169,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
                             operation(PatchOperation.DELETE).build()).
                     build();
             try {
-                userLogic().update(req, false);
+                userLogic.update(req, false);
             } catch (Exception e) {
                 LOG.error("While removing membership of {} from {}", result.getEntity().getKey(), user, e);
             }
@@ -161,7 +177,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
 
         return updateResponse(
                 result.getEntity().getKey(),
-                binder().toSCIMGroup(
+                binder.toSCIMGroup(
                         result.getEntity(),
                         uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
                         List.of(),

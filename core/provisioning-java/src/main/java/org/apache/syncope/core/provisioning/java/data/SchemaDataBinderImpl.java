@@ -53,42 +53,52 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SchemaDataBinderImpl implements SchemaDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SchemaDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SchemaDataBinder.class);
 
-    @Autowired
-    private AnyTypeClassDAO anyTypeClassDAO;
+    protected final AnyTypeClassDAO anyTypeClassDAO;
 
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
+    protected final PlainSchemaDAO plainSchemaDAO;
 
-    @Autowired
-    private DerSchemaDAO derSchemaDAO;
+    protected final DerSchemaDAO derSchemaDAO;
 
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private ImplementationDAO implementationDAO;
+    protected final ImplementationDAO implementationDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    protected final AnyUtilsFactory anyUtilsFactory;
 
-    private <S extends Schema, T extends SchemaTO> void labels(final T src, final S dst) {
+    public SchemaDataBinderImpl(
+            final AnyTypeClassDAO anyTypeClassDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final ExternalResourceDAO resourceDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final ImplementationDAO implementationDAO,
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory) {
+
+        this.anyTypeClassDAO = anyTypeClassDAO;
+        this.plainSchemaDAO = plainSchemaDAO;
+        this.derSchemaDAO = derSchemaDAO;
+        this.virSchemaDAO = virSchemaDAO;
+        this.resourceDAO = resourceDAO;
+        this.anyTypeDAO = anyTypeDAO;
+        this.implementationDAO = implementationDAO;
+        this.entityFactory = entityFactory;
+        this.anyUtilsFactory = anyUtilsFactory;
+    }
+
+    protected <S extends Schema, T extends SchemaTO> void labels(final T src, final S dst) {
         src.getLabels().forEach((locale, display) -> {
             SchemaLabel label = dst.getLabel(locale).orElse(null);
             if (label == null) {
@@ -103,13 +113,13 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         dst.getLabels().removeIf(label -> !src.getLabels().containsKey(label.getLocale()));
     }
 
-    private static <S extends Schema, T extends SchemaTO> void labels(final S src, final T dst) {
+    protected static <S extends Schema, T extends SchemaTO> void labels(final S src, final T dst) {
         dst.getLabels().putAll(src.getLabels().stream().
                 collect(Collectors.toMap(SchemaLabel::getLocale, SchemaLabel::getDisplay)));
     }
 
     // --------------- PLAIN -----------------
-    private PlainSchema fill(final PlainSchema schema, final PlainSchemaTO schemaTO) {
+    protected PlainSchema fill(final PlainSchema schema, final PlainSchemaTO schemaTO) {
         if (!JexlUtils.isExpressionValid(schemaTO.getMandatoryCondition())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidValues);
             sce.getElements().add(schemaTO.getMandatoryCondition());
@@ -234,7 +244,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     }
 
     // --------------- DERIVED -----------------
-    private DerSchema fill(final DerSchema schema, final DerSchemaTO schemaTO) {
+    protected DerSchema fill(final DerSchema schema, final DerSchemaTO schemaTO) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         if (StringUtils.isBlank(schemaTO.getExpression())) {
@@ -310,7 +320,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     }
 
     // --------------- VIRTUAL -----------------
-    private VirSchema fill(final VirSchema schema, final VirSchemaTO schemaTO) {
+    protected VirSchema fill(final VirSchema schema, final VirSchemaTO schemaTO) {
         schema.setKey(schemaTO.getKey());
         schema.setExtAttrName(schemaTO.getExtAttrName());
         schema.setReadonly(schema.isReadonly());

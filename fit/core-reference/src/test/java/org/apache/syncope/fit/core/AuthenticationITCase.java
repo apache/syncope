@@ -201,6 +201,14 @@ public class AuthenticationITCase extends AbstractITCase {
         UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
 
+        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
         PagedResult<UserTO> matchingUsers = userService2.search(new AnyQuery.Builder().
                 realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("key").query()).build());

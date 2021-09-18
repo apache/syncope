@@ -33,14 +33,16 @@ import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 import org.apache.syncope.core.logic.ReportTemplateLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReportTemplateServiceImpl extends AbstractServiceImpl implements ReportTemplateService {
+public class ReportTemplateServiceImpl extends AbstractService implements ReportTemplateService {
 
-    @Autowired
-    private ReportTemplateLogic logic;
+    protected final ReportTemplateLogic logic;
+
+    public ReportTemplateServiceImpl(final ReportTemplateLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public Response create(final ReportTemplateTO reportTemplateTO) {

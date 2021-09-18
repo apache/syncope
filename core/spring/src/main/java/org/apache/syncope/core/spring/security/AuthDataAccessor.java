@@ -61,13 +61,12 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.DisabledException;
@@ -95,49 +94,67 @@ public class AuthDataAccessor {
     protected static final Set<SyncopeGrantedAuthority> MUST_CHANGE_PASSWORD_AUTHORITIES =
             Set.of(new SyncopeGrantedAuthority(IdRepoEntitlement.MUST_CHANGE_PASSWORD));
 
-    @Autowired
-    protected SecurityProperties securityProperties;
+    protected final SecurityProperties securityProperties;
 
-    @Autowired
-    protected RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    protected UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    protected GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    protected AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    protected AnySearchDAO searchDAO;
+    protected final AnySearchDAO anySearchDAO;
 
-    @Autowired
-    protected AccessTokenDAO accessTokenDAO;
+    protected final AccessTokenDAO accessTokenDAO;
 
-    @Autowired
-    protected ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
 
-    @Autowired
-    protected RoleDAO roleDAO;
+    protected final RoleDAO roleDAO;
 
-    @Autowired
-    protected DelegationDAO delegationDAO;
+    protected final DelegationDAO delegationDAO;
 
-    @Autowired
-    protected ConnectorFactory connFactory;
+    protected final ConnectorManager connectorManager;
 
-    @Autowired
-    protected AuditManager auditManager;
+    protected final AuditManager auditManager;
 
-    @Autowired
-    protected MappingManager mappingManager;
+    protected final MappingManager mappingManager;
 
-    @Autowired
-    protected ImplementationLookup implementationLookup;
+    protected final ImplementationLookup implementationLookup;
 
     private Map<String, JWTSSOProvider> jwtSSOProviders;
+
+    public AuthDataAccessor(
+            final SecurityProperties securityProperties,
+            final RealmDAO realmDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final AnySearchDAO anySearchDAO,
+            final AccessTokenDAO accessTokenDAO,
+            final ConfParamOps confParamOps,
+            final RoleDAO roleDAO,
+            final DelegationDAO delegationDAO,
+            final ConnectorManager connectorManager,
+            final AuditManager auditManager,
+            final MappingManager mappingManager,
+            final ImplementationLookup implementationLookup) {
+
+        this.securityProperties = securityProperties;
+        this.realmDAO = realmDAO;
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.anyTypeDAO = anyTypeDAO;
+        this.anySearchDAO = anySearchDAO;
+        this.accessTokenDAO = accessTokenDAO;
+        this.confParamOps = confParamOps;
+        this.roleDAO = roleDAO;
+        this.delegationDAO = delegationDAO;
+        this.connectorManager = connectorManager;
+        this.auditManager = auditManager;
+        this.mappingManager = mappingManager;
+        this.implementationLookup = implementationLookup;
+    }
 
     public JWTSSOProvider getJWTSSOProvider(final String issuer) {
         synchronized (this) {
@@ -198,7 +215,7 @@ public class AuthDataAccessor {
                 AttrCond attrCond = new AttrCond(AttrCond.Type.EQ);
                 attrCond.setSchema(authAttrValues.get(i));
                 attrCond.setExpression(authentication.getName());
-                List<User> users = searchDAO.search(SearchCond.getLeaf(attrCond), AnyTypeKind.USER);
+                List<User> users = anySearchDAO.search(SearchCond.getLeaf(attrCond), AnyTypeKind.USER);
                 if (users.size() == 1) {
                     user = users.get(0);
                 } else {
@@ -268,7 +285,7 @@ public class AuthDataAccessor {
                 connObjectKey = mappingManager.getConnObjectKeyValue(user, provision).
                         orElseThrow(() -> new AccountNotFoundException(
                         "Unable to locate conn object key value for " + userType.getKey()));
-                Uid uid = connFactory.getConnector(resource).authenticate(connObjectKey, password, null);
+                Uid uid = connectorManager.getConnector(resource).authenticate(connObjectKey, password, null);
                 if (uid != null) {
                     authenticated = true;
                 }

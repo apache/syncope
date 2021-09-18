@@ -22,18 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
-import org.apache.syncope.core.provisioning.api.AuditManager;
-import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
-import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
-import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.java.cache.CaffeineVirAttrCache;
-import org.apache.syncope.core.provisioning.java.notification.DefaultNotificationManager;
-import org.apache.syncope.core.provisioning.java.propagation.PriorityPropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationManager;
 import org.quartz.impl.jdbcjobstore.DriverDelegate;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -209,26 +197,7 @@ public class ProvisioningProperties {
 
     private final ExecutorProperties propagationTaskExecutorAsyncExecutor = new ExecutorProperties();
 
-    private Class<? extends PropagationManager> propagationManager = DefaultPropagationManager.class;
-
-    private Class<? extends PropagationTaskExecutor> propagationTaskExecutor = PriorityPropagationTaskExecutor.class;
-
-    private Class<? extends UserProvisioningManager> userProvisioningManager =
-            DefaultUserProvisioningManager.class;
-
-    private Class<? extends GroupProvisioningManager> groupProvisioningManager =
-            DefaultGroupProvisioningManager.class;
-
-    private Class<? extends AnyObjectProvisioningManager> anyObjectProvisioningManager =
-            DefaultAnyObjectProvisioningManager.class;
-
-    private Class<? extends VirAttrCache> virAttrCache = CaffeineVirAttrCache.class;
-
     private String virAttrCacheSpec = "maximumSize=5000,expireAfterAccess=1m";
-
-    private Class<? extends NotificationManager> notifcationManager = DefaultNotificationManager.class;
-
-    private Class<? extends AuditManager> auditManager = DefaultAuditManager.class;
 
     private final List<String> connIdLocation = new ArrayList<>();
 
@@ -236,78 +205,12 @@ public class ProvisioningProperties {
 
     private final SMTPProperties smtp = new SMTPProperties();
 
-    public Class<? extends PropagationManager> getPropagationManager() {
-        return propagationManager;
-    }
-
-    public void setPropagationManager(final Class<? extends PropagationManager> propagationManager) {
-        this.propagationManager = propagationManager;
-    }
-
-    public Class<? extends PropagationTaskExecutor> getPropagationTaskExecutor() {
-        return propagationTaskExecutor;
-    }
-
-    public void setPropagationTaskExecutor(final Class<? extends PropagationTaskExecutor> propagationTaskExecutor) {
-        this.propagationTaskExecutor = propagationTaskExecutor;
-    }
-
-    public Class<? extends UserProvisioningManager> getUserProvisioningManager() {
-        return userProvisioningManager;
-    }
-
-    public void setUserProvisioningManager(final Class<? extends UserProvisioningManager> userProvisioningManager) {
-        this.userProvisioningManager = userProvisioningManager;
-    }
-
-    public Class<? extends GroupProvisioningManager> getGroupProvisioningManager() {
-        return groupProvisioningManager;
-    }
-
-    public void setGroupProvisioningManager(final Class<? extends GroupProvisioningManager> groupProvisioningManager) {
-        this.groupProvisioningManager = groupProvisioningManager;
-    }
-
-    public Class<? extends AnyObjectProvisioningManager> getAnyObjectProvisioningManager() {
-        return anyObjectProvisioningManager;
-    }
-
-    public void setAnyObjectProvisioningManager(
-            final Class<? extends AnyObjectProvisioningManager> anyObjectProvisioningManager) {
-
-        this.anyObjectProvisioningManager = anyObjectProvisioningManager;
-    }
-
-    public Class<? extends VirAttrCache> getVirAttrCache() {
-        return virAttrCache;
-    }
-
-    public void setVirAttrCache(final Class<? extends VirAttrCache> virAttrCache) {
-        this.virAttrCache = virAttrCache;
-    }
-
     public String getVirAttrCacheSpec() {
         return virAttrCacheSpec;
     }
 
     public void setVirAttrCacheSpec(final String virAttrCacheSpec) {
         this.virAttrCacheSpec = virAttrCacheSpec;
-    }
-
-    public Class<? extends NotificationManager> getNotifcationManager() {
-        return notifcationManager;
-    }
-
-    public void setNotifcationManager(final Class<? extends NotificationManager> notifcationManager) {
-        this.notifcationManager = notifcationManager;
-    }
-
-    public Class<? extends AuditManager> getAuditManager() {
-        return auditManager;
-    }
-
-    public void setAuditManager(final Class<? extends AuditManager> auditManager) {
-        this.auditManager = auditManager;
     }
 
     public ExecutorProperties getAsyncConnectorFacadeExecutor() {

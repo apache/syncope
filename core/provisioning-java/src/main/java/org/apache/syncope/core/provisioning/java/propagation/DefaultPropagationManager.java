@@ -64,7 +64,6 @@ import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -76,26 +75,37 @@ public class DefaultPropagationManager implements PropagationManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(PropagationManager.class);
 
-    @Autowired
-    protected VirSchemaDAO virSchemaDAO;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    protected ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    protected EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    protected ConnObjectUtils connObjectUtils;
+    protected final ConnObjectUtils connObjectUtils;
 
-    @Autowired
-    protected MappingManager mappingManager;
+    protected final MappingManager mappingManager;
 
-    @Autowired
-    protected DerAttrHandler derAttrHandler;
+    protected final DerAttrHandler derAttrHandler;
 
-    @Autowired
-    protected AnyUtilsFactory anyUtilsFactory;
+    protected final AnyUtilsFactory anyUtilsFactory;
+
+    public DefaultPropagationManager(
+            final VirSchemaDAO virSchemaDAO,
+            final ExternalResourceDAO resourceDAO,
+            final EntityFactory entityFactory,
+            final ConnObjectUtils connObjectUtils,
+            final MappingManager mappingManager,
+            final DerAttrHandler derAttrHandler,
+            final AnyUtilsFactory anyUtilsFactory) {
+
+        this.virSchemaDAO = virSchemaDAO;
+        this.resourceDAO = resourceDAO;
+        this.entityFactory = entityFactory;
+        this.connObjectUtils = connObjectUtils;
+        this.mappingManager = mappingManager;
+        this.derAttrHandler = derAttrHandler;
+        this.anyUtilsFactory = anyUtilsFactory;
+    }
 
     @Override
     public List<PropagationTaskInfo> getCreateTasks(
@@ -455,7 +465,7 @@ public class DefaultPropagationManager implements PropagationManager {
         propByRes.asMap().forEach((resourceKey, operation) -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
             Provision provision = Optional.ofNullable(resource).
-                flatMap(externalResource -> externalResource.getProvision(any.getType())).orElse(null);
+                    flatMap(externalResource -> externalResource.getProvision(any.getType())).orElse(null);
             Stream<? extends Item> mappingItems = provision == null
                     ? Stream.empty()
                     : MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());

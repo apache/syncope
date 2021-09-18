@@ -23,10 +23,8 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.ConfParamDAO;
 import org.apache.syncope.core.persistence.api.entity.ConfParam;
 import org.apache.syncope.core.persistence.jpa.entity.JPAConfParam;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 public class JPAConfParamDAO extends AbstractDAO<ConfParam> implements ConfParamDAO {
 
     @Transactional(readOnly = true)

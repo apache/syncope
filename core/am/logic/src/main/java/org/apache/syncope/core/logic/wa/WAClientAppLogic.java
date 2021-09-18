@@ -29,29 +29,34 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
 import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
-@Component
 public class WAClientAppLogic {
 
-    @Autowired
-    private WAClientAppDataBinder binder;
+    protected final WAClientAppDataBinder binder;
 
-    @Autowired
-    private SAML2SPDAO saml2spDAO;
+    protected final SAML2SPDAO saml2spDAO;
 
-    @Autowired
-    private OIDCRPDAO oidcrpDAO;
+    protected final OIDCRPDAO oidcrpDAO;
 
-    @Autowired
-    private CASSPDAO casspDAO;
+    protected final CASSPDAO casspDAO;
+
+    public WAClientAppLogic(
+            final WAClientAppDataBinder binder,
+            final SAML2SPDAO saml2spDAO,
+            final OIDCRPDAO oidcrpDAO,
+            final CASSPDAO casspDAO) {
+
+        this.binder = binder;
+        this.saml2spDAO = saml2spDAO;
+        this.oidcrpDAO = oidcrpDAO;
+        this.casspDAO = casspDAO;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
@@ -80,7 +85,7 @@ public class WAClientAppLogic {
         return clientApps;
     }
 
-    private WAClientApp doRead(final Long clientAppId, final ClientAppType type) {
+    protected WAClientApp doRead(final Long clientAppId, final ClientAppType type) {
         WAClientApp clientApp = null;
 
         switch (type) {
@@ -130,7 +135,7 @@ public class WAClientAppLogic {
         return clientApp;
     }
 
-    private WAClientApp doRead(final String name, final ClientAppType type) {
+    protected WAClientApp doRead(final String name, final ClientAppType type) {
         WAClientApp clientApp = null;
 
         switch (type) {

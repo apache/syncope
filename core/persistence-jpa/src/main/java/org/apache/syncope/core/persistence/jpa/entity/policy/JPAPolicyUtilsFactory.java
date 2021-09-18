@@ -37,9 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtils;
 import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
-import org.springframework.stereotype.Component;
 
-@Component
 public class JPAPolicyUtilsFactory implements PolicyUtilsFactory {
 
     @Override

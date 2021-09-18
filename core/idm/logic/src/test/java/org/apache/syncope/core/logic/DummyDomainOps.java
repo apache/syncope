@@ -23,14 +23,14 @@ import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class DummyDomainOps implements DomainOps {
 
-    @Autowired
-    private DomainRegistry domainRegistry;
+    private final DomainRegistry domainRegistry;
+
+    public DummyDomainOps(final DomainRegistry domainRegistry) {
+        this.domainRegistry = domainRegistry;
+    }
 
     @Override
     public List<Domain> list() {

@@ -35,6 +35,12 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
@@ -52,7 +58,9 @@ import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -63,6 +71,19 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     protected static final String EMPTY_QUERY = "SELECT any_id FROM user_search WHERE 1=2";
+
+    public JPAAnySearchDAO(
+            final RealmDAO realmDAO,
+            final DynRealmDAO dynRealmDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory) {
+
+        super(realmDAO, dynRealmDAO, userDAO, groupDAO, anyObjectDAO, plainSchemaDAO, entityFactory, anyUtilsFactory);
+    }
 
     protected String buildAdminRealmsFilter(
             final Set<String> realmKeys,
@@ -429,7 +450,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             if (item.isEmpty()) {
                 if (anyUtils.getField(clause.getField()) == null) {
-                    PlainSchema schema = schemaDAO.find(clause.getField());
+                    PlainSchema schema = plainSchemaDAO.find(clause.getField());
                     if (schema != null) {
                         if (schema.isUniqueConstraint()) {
                             orderByUniquePlainSchemas.add(schema.getKey());

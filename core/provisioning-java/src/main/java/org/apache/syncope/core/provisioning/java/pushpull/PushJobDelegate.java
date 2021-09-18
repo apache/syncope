@@ -55,7 +55,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
-import org.apache.syncope.core.provisioning.java.DefaultProvisionSorter;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

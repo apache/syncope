@@ -31,32 +31,36 @@ import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
-import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
 /**
  * Initialize Database with default content if no data is present already.
  */
-@Component
 public class XMLContentLoader implements ContentLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XMLContentLoader.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(XMLContentLoader.class);
 
-    @javax.annotation.Resource(name = "viewsXML")
-    private Resource viewsXML;
+    protected final Resource viewsXML;
 
-    @javax.annotation.Resource(name = "indexesXML")
-    private Resource indexesXML;
+    protected final Resource indexesXML;
 
-    @Autowired
-    private Environment env;
+    protected final Environment env;
+
+    public XMLContentLoader(
+            final Resource viewsXML,
+            final Resource indexesXML,
+            final Environment env) {
+
+        this.viewsXML = viewsXML;
+        this.indexesXML = indexesXML;
+        this.env = env;
+    }
 
     @Override
     public int getOrder() {
@@ -105,7 +109,7 @@ public class XMLContentLoader implements ContentLoader {
         }
     }
 
-    private void loadDefaultContent(
+    protected void loadDefaultContent(
             final String domain, final InputStream contentXML, final DataSource dataSource)
             throws IOException, ParserConfigurationException, SAXException {
 
@@ -119,7 +123,7 @@ public class XMLContentLoader implements ContentLoader {
         }
     }
 
-    private void createViews(final String domain, final DataSource dataSource) throws IOException {
+    protected void createViews(final String domain, final DataSource dataSource) throws IOException {
         LOG.debug("[{}] Creating views", domain);
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -137,7 +141,7 @@ public class XMLContentLoader implements ContentLoader {
         LOG.debug("Views created");
     }
 
-    private void createIndexes(final String domain, final DataSource dataSource) throws IOException {
+    protected void createIndexes(final String domain, final DataSource dataSource) throws IOException {
         LOG.debug("[{}] Creating indexes", domain);
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);

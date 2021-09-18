@@ -28,17 +28,17 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class PasswordReset extends FlowableServiceTask {
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDataBinder dataBinder;
 
-    @Autowired
-    private UserDataBinder dataBinder;
+    protected final UserDAO userDAO;
+
+    public PasswordReset(final UserDataBinder dataBinder, final UserDAO userDAO) {
+        this.dataBinder = dataBinder;
+        this.userDAO = userDAO;
+    }
 
     @Override
     protected void doExecute(final DelegateExecution execution) {

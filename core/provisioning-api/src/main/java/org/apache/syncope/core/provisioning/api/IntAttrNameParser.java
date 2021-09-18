@@ -30,46 +30,53 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Schema;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @SuppressWarnings({ "squid:S4784", "squid:S3776" })
 public class IntAttrNameParser {
-    
-    private static final String END_PATTERN = ")\\]\\.(.+)";
 
-    private static final Pattern PRIVILEGE_PATTERN = Pattern.compile(
+    protected static final String END_PATTERN = ")\\]\\.(.+)";
+
+    protected static final Pattern PRIVILEGE_PATTERN = Pattern.compile(
             "^privileges\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]");
 
-    private static final Pattern ENCLOSING_GROUP_PATTERN = Pattern.compile(
+    protected static final Pattern ENCLOSING_GROUP_PATTERN = Pattern.compile(
             "^groups\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
 
-    private static final Pattern RELATED_USER_PATTERN = Pattern.compile(
+    protected static final Pattern RELATED_USER_PATTERN = Pattern.compile(
             "^users\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
 
-    private static final Pattern RELATED_ANY_OBJECT_PATTERN = Pattern.compile(
+    protected static final Pattern RELATED_ANY_OBJECT_PATTERN = Pattern.compile(
             "^anyObjects\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
 
-    private static final Pattern MEMBERSHIP_PATTERN = Pattern.compile(
+    protected static final Pattern MEMBERSHIP_PATTERN = Pattern.compile(
             "^memberships\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
 
-    private static final Pattern RELATIONSHIP_PATTERN = Pattern.compile(
+    protected static final Pattern RELATIONSHIP_PATTERN = Pattern.compile(
             "^relationships\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]"
             + "\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
 
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
+    protected final PlainSchemaDAO plainSchemaDAO;
 
-    @Autowired
-    private DerSchemaDAO derSchemaDAO;
+    protected final DerSchemaDAO derSchemaDAO;
 
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    protected final AnyUtilsFactory anyUtilsFactory;
 
-    private Pair<Schema, SchemaType> find(final String key) {
+    public IntAttrNameParser(
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final AnyUtilsFactory anyUtilsFactory) {
+
+        this.plainSchemaDAO = plainSchemaDAO;
+        this.derSchemaDAO = derSchemaDAO;
+        this.virSchemaDAO = virSchemaDAO;
+        this.anyUtilsFactory = anyUtilsFactory;
+    }
+
+    protected Pair<Schema, SchemaType> find(final String key) {
         Schema schema = plainSchemaDAO.find(key);
         if (schema == null) {
             schema = derSchemaDAO.find(key);
@@ -88,7 +95,7 @@ public class IntAttrNameParser {
         }
     }
 
-    private void setFieldOrSchemaName(
+    protected void setFieldOrSchemaName(
             final String fieldOrSchemaName,
             final AnyTypeKind anyTypeKind,
             final IntAttrName result) {

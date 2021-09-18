@@ -48,38 +48,45 @@ import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.OIDCC4UIProviderActions;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
 
-@Component
 public class OIDCUserManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OIDCUserManager.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(OIDCUserManager.class);
 
-    private static final String OIDC_CLIENT_CONTEXT = "ODIC Client";
+    protected static final String OIDC_CLIENT_CONTEXT = "ODIC Client";
 
-    @Autowired
-    private InboundMatcher inboundMatcher;
+    protected final InboundMatcher inboundMatcher;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private IntAttrNameParser intAttrNameParser;
+    protected final IntAttrNameParser intAttrNameParser;
 
-    @Autowired
-    private TemplateUtils templateUtils;
+    protected final TemplateUtils templateUtils;
 
-    @Autowired
-    private UserProvisioningManager provisioningManager;
+    protected final UserProvisioningManager provisioningManager;
 
-    @Autowired
-    private UserDataBinder binder;
+    protected final UserDataBinder binder;
+
+    public OIDCUserManager(
+            final InboundMatcher inboundMatcher,
+            final UserDAO userDAO,
+            final IntAttrNameParser intAttrNameParser,
+            final TemplateUtils templateUtils,
+            final UserProvisioningManager provisioningManager,
+            final UserDataBinder binder) {
+
+        this.inboundMatcher = inboundMatcher;
+        this.userDAO = userDAO;
+        this.intAttrNameParser = intAttrNameParser;
+        this.templateUtils = templateUtils;
+        this.provisioningManager = provisioningManager;
+        this.binder = binder;
+    }
 
     @Transactional(readOnly = true)
     public List<String> findMatchingUser(
@@ -93,7 +100,7 @@ public class OIDCUserManager {
                 collect(Collectors.toList());
     }
 
-    private List<OIDCC4UIProviderActions> getActions(final OIDCC4UIProvider op) {
+    protected List<OIDCC4UIProviderActions> getActions(final OIDCC4UIProvider op) {
         List<OIDCC4UIProviderActions> actions = new ArrayList<>();
         op.getActions().forEach(impl -> {
             try {

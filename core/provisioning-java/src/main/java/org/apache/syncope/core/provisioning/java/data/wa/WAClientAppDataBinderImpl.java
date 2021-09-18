@@ -28,23 +28,27 @@ import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
 
-@Component
 public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WAClientAppDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WAClientAppDataBinder.class);
 
-    @Autowired
-    private ClientAppDataBinder clientAppDataBinder;
+    protected final ClientAppDataBinder clientAppDataBinder;
 
-    @Autowired
-    private PolicyDataBinder policyDataBinder;
+    protected final PolicyDataBinder policyDataBinder;
 
-    @Autowired
-    private AuthModuleDAO authModuleDAO;
+    protected final AuthModuleDAO authModuleDAO;
+
+    public WAClientAppDataBinderImpl(
+            final ClientAppDataBinder clientAppDataBinder,
+            final PolicyDataBinder policyDataBinder,
+            final AuthModuleDAO authModuleDAO) {
+
+        this.clientAppDataBinder = clientAppDataBinder;
+        this.policyDataBinder = policyDataBinder;
+        this.authModuleDAO = authModuleDAO;
+    }
 
     @Override
     public WAClientApp getWAClientApp(final ClientApp clientApp) {

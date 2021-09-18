@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -73,7 +72,6 @@ import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,20 +80,29 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
     protected static final Logger LOG = LoggerFactory.getLogger(UserRequestHandler.class);
 
-    @Autowired
-    protected UserDataBinder dataBinder;
+    protected final UserDataBinder dataBinder;
 
-    @Resource(name = "adminUser")
-    protected String adminUser;
+    protected final String adminUser;
 
-    @Autowired
-    protected DomainProcessEngine engine;
+    protected final DomainProcessEngine engine;
 
-    @Autowired
-    protected UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    protected EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public FlowableUserRequestHandler(
+            final UserDataBinder dataBinder,
+            final String adminUser,
+            final DomainProcessEngine engine,
+            final UserDAO userDAO,
+            final EntityFactory entityFactory) {
+
+        this.dataBinder = dataBinder;
+        this.adminUser = adminUser;
+        this.engine = engine;
+        this.userDAO = userDAO;
+        this.entityFactory = entityFactory;
+    }
 
     protected StringBuilder createProcessInstanceQuery(final String userKey) {
         StringBuilder query = new StringBuilder().

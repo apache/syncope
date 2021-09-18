@@ -37,30 +37,36 @@ import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Repository
 public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
     public static final String DYNMEMB_TABLE = "DynRoleMembers";
 
-    @Autowired
-    private AnyMatchDAO anyMatchDAO;
+    protected final AnyMatchDAO anyMatchDAO;
 
-    @Autowired
-    private ApplicationEventPublisher publisher;
+    protected final ApplicationEventPublisher publisher;
 
-    @Autowired
-    private AnySearchDAO searchDAO;
+    protected final AnySearchDAO anySearchDAO;
 
-    @Autowired
-    private DelegationDAO delegationDAO;
+    protected final DelegationDAO delegationDAO;
 
-    @Autowired
-    private SearchCondVisitor searchCondVisitor;
+    protected final SearchCondVisitor searchCondVisitor;
+
+    public JPARoleDAO(
+            final AnyMatchDAO anyMatchDAO,
+            final ApplicationEventPublisher publisher,
+            final AnySearchDAO anySearchDAO,
+            final DelegationDAO delegationDAO,
+            final SearchCondVisitor searchCondVisitor) {
+
+        this.anyMatchDAO = anyMatchDAO;
+        this.publisher = publisher;
+        this.anySearchDAO = anySearchDAO;
+        this.delegationDAO = delegationDAO;
+        this.searchCondVisitor = searchCondVisitor;
+    }
 
     @Override
     public int count() {
@@ -110,7 +116,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
         // refresh dynamic memberships
         clearDynMembers(merged);
         if (merged.getDynMembership() != null) {
-            List<User> matching = searchDAO.search(
+            List<User> matching = anySearchDAO.search(
                     SearchCondConverter.convert(searchCondVisitor, merged.getDynMembership().getFIQLCond()),
                     AnyTypeKind.USER);
 

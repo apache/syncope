@@ -50,7 +50,8 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
     private List<PushActions> before(
             final Provision provision,
             final Connector connector,
-            final PushTaskTO pushTaskTO) throws JobExecutionException {
+            final PushTaskTO pushTaskTO,
+            final String executor) throws JobExecutionException {
 
         LOG.debug("Executing push on {}", provision.getResource());
 
@@ -80,6 +81,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
         pushTask.setSyncStatus(pushTaskTO.isSyncStatus());
 
         profile = new ProvisioningProfile<>(connector, pushTask);
+        profile.setExecutor(executor);
         profile.getActions().addAll(actions);
         profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
 
@@ -95,10 +97,11 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             final Provision provision,
             final Connector connector,
             final Any<?> any,
-            final PushTaskTO pushTaskTO) throws JobExecutionException {
+            final PushTaskTO pushTaskTO,
+            final String executor) throws JobExecutionException {
 
         try {
-            List<PushActions> actions = before(provision, connector, pushTaskTO);
+            List<PushActions> actions = before(provision, connector, pushTaskTO, executor);
 
             SyncopePushResultHandler handler;
             switch (provision.getAnyType().getKind()) {
@@ -135,10 +138,11 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             final Provision provision,
             final Connector connector,
             final LinkedAccount account,
-            final PushTaskTO pushTaskTO) throws JobExecutionException {
+            final PushTaskTO pushTaskTO,
+            final String executor) throws JobExecutionException {
 
         try {
-            List<PushActions> actions = before(provision, connector, pushTaskTO);
+            List<PushActions> actions = before(provision, connector, pushTaskTO, executor);
 
             UserPushResultHandler handler = buildUserHandler();
             handler.setProfile(profile);

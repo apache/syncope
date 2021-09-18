@@ -21,13 +21,11 @@ package org.apache.syncope.core.persistence.jpa.dao.auth;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2IdPEntity;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPEntity;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2IdPEntityDAO;
 
-@Repository
 public class JPASAML2IdPEntityDAO extends AbstractDAO<SAML2IdPEntity> implements SAML2IdPEntityDAO {
 
     @Transactional(readOnly = true)

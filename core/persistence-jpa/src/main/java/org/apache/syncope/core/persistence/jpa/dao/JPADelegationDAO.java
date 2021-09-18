@@ -28,9 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPADelegation;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPADelegationDAO extends AbstractDAO<Delegation> implements DelegationDAO {
 
     @Override

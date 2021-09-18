@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.to.ErrorTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.persistence.api.DomainHolder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Checks that requested Domain exists.
@@ -40,8 +39,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 @PreMatching
 public class CheckDomainFilter implements ContainerRequestFilter {
 
-    @Autowired
-    private DomainHolder domainHolder;
+    protected final DomainHolder domainHolder;
+
+    public CheckDomainFilter(final DomainHolder domainHolder) {
+        this.domainHolder = domainHolder;
+    }
 
     @Override
     public void filter(final ContainerRequestContext reqContext) throws IOException {

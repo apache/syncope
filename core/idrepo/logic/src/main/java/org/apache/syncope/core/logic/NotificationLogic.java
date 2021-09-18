@@ -35,19 +35,27 @@ import org.apache.syncope.core.provisioning.api.data.NotificationDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
 import org.quartz.JobKey;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
 
-    @Autowired
-    private NotificationDAO notificationDAO;
+    protected final NotificationDAO notificationDAO;
 
-    @Autowired
-    private NotificationDataBinder binder;
+    protected final NotificationDataBinder binder;
+
+    public NotificationLogic(
+            final JobManager jobManager,
+            final SchedulerFactoryBean scheduler,
+            final NotificationDAO notificationDAO,
+            final NotificationDataBinder binder) {
+
+        super(jobManager, scheduler);
+
+        this.notificationDAO = notificationDAO;
+        this.binder = binder;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_READ + "')")
     @Transactional(readOnly = true)

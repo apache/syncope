@@ -44,7 +44,6 @@ import org.flowable.engine.repository.Model;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,8 +56,11 @@ public class FlowableBpmnProcessManager implements BpmnProcessManager {
 
     protected static final String MODEL_DATA_JSON_MODEL = "model";
 
-    @Autowired
-    protected DomainProcessEngine engine;
+    protected final DomainProcessEngine engine;
+
+    public FlowableBpmnProcessManager(final DomainProcessEngine engine) {
+        this.engine = engine;
+    }
 
     protected Model getModel(final ProcessDefinition procDef) {
         try {

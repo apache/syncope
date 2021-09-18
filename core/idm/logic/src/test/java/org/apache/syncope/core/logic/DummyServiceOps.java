@@ -21,9 +21,7 @@ package org.apache.syncope.core.logic;
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.springframework.stereotype.Component;
 
-@Component
 public class DummyServiceOps implements ServiceOps {
 
     @Override

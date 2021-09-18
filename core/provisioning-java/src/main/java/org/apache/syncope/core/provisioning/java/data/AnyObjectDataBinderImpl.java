@@ -39,10 +39,22 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
@@ -52,17 +64,56 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 @Transactional(rollbackFor = { Throwable.class })
 public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements AnyObjectDataBinder {
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    public AnyObjectDataBinderImpl(
+            final AnyTypeDAO anyTypeDAO,
+            final RealmDAO realmDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final PlainAttrDAO plainAttrDAO,
+            final PlainAttrValueDAO plainAttrValueDAO,
+            final ExternalResourceDAO resourceDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory,
+            final DerAttrHandler derAttrHandler,
+            final VirAttrHandler virAttrHandler,
+            final MappingManager mappingManager,
+            final IntAttrNameParser intAttrNameParser,
+            final OutboundMatcher outboundMatcher) {
+
+        super(anyTypeDAO,
+                realmDAO,
+                anyTypeClassDAO,
+                anyObjectDAO,
+                userDAO,
+                groupDAO,
+                plainSchemaDAO,
+                plainAttrDAO,
+                plainAttrValueDAO,
+                resourceDAO,
+                relationshipTypeDAO,
+                entityFactory,
+                anyUtilsFactory,
+                derAttrHandler,
+                virAttrHandler,
+                mappingManager,
+                intAttrNameParser,
+                outboundMatcher);
+    }
 
     @Transactional(readOnly = true)
     @Override

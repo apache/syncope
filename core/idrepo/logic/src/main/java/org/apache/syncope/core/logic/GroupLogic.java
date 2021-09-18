@@ -45,9 +45,11 @@ import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -65,60 +67,80 @@ import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
+import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.quartz.JobDataMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Note that this controller does not extend {@link AbstractTransactionalLogic}, hence does not provide any
  * Spring's Transactional logic at class level.
  */
-@Component
 public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
-    @Autowired
-    protected UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    protected GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    protected SecurityProperties securityProperties;
+    protected final SecurityProperties securityProperties;
 
-    @Autowired
-    protected AnySearchDAO searchDAO;
+    protected final AnySearchDAO searchDAO;
 
-    @Autowired
-    protected ImplementationDAO implementationDAO;
+    protected final ImplementationDAO implementationDAO;
 
-    @Autowired
-    protected TaskDAO taskDAO;
+    protected final TaskDAO taskDAO;
 
-    @Autowired
-    protected GroupDataBinder binder;
+    protected final GroupDataBinder binder;
 
-    @Autowired
-    protected GroupProvisioningManager provisioningManager;
+    protected final GroupProvisioningManager provisioningManager;
 
-    @Autowired
-    protected TaskDataBinder taskDataBinder;
+    protected final TaskDataBinder taskDataBinder;
 
-    @Autowired
-    protected ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
 
-    @Autowired
-    protected JobManager jobManager;
+    protected final JobManager jobManager;
 
-    @Autowired
-    protected SchedulerFactoryBean scheduler;
+    protected final SchedulerFactoryBean scheduler;
 
-    @Autowired
-    protected EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public GroupLogic(
+            final RealmDAO realmDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final TemplateUtils templateUtils,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final SecurityProperties securityProperties,
+            final AnySearchDAO searchDAO,
+            final ImplementationDAO implementationDAO,
+            final TaskDAO taskDAO,
+            final GroupDataBinder binder,
+            final GroupProvisioningManager provisioningManager,
+            final TaskDataBinder taskDataBinder,
+            final ConfParamOps confParamOps,
+            final JobManager jobManager,
+            final SchedulerFactoryBean scheduler,
+            final EntityFactory entityFactory) {
+
+        super(realmDAO, anyTypeDAO, templateUtils);
+
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.securityProperties = securityProperties;
+        this.searchDAO = searchDAO;
+        this.implementationDAO = implementationDAO;
+        this.taskDAO = taskDAO;
+        this.binder = binder;
+        this.provisioningManager = provisioningManager;
+        this.taskDataBinder = taskDataBinder;
+        this.confParamOps = confParamOps;
+        this.jobManager = jobManager;
+        this.scheduler = scheduler;
+        this.entityFactory = entityFactory;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_READ + "')")
     @Transactional(readOnly = true)

@@ -22,12 +22,10 @@ import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.core.persistence.jpa.entity.JPANetworkService;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
 import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
 
-@Repository
 public class JPANetworkServiceDAO extends AbstractDAO<NetworkServiceEntity> implements NetworkServiceDAO {
 
     @Transactional(readOnly = true)

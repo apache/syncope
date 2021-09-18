@@ -28,16 +28,16 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskExec;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
-@Repository
 public class JPATaskExecDAO extends AbstractDAO<TaskExec> implements TaskExecDAO {
 
-    @Autowired
-    private TaskDAO taskDAO;
+    protected final TaskDAO taskDAO;
+
+    public JPATaskExecDAO(final TaskDAO taskDAO) {
+        this.taskDAO = taskDAO;
+    }
 
     @Override
     public TaskExec find(final String key) {
@@ -54,7 +54,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec> implements TaskExecDAO
         return query.getResultList();
     }
 
-    private <T extends Task> TaskExec findLatest(final T task, final String field) {
+    protected <T extends Task> TaskExec findLatest(final T task, final String field) {
         TypedQuery<TaskExec> query = entityManager().createQuery(
                 "SELECT e FROM " + JPATaskExec.class.getSimpleName() + " e "
                 + "WHERE e.task=:task ORDER BY e." + field + " DESC", TaskExec.class);
@@ -125,7 +125,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec> implements TaskExecDAO
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 
-    private static String toOrderByStatement(final List<OrderByClause> orderByClauses) {
+    protected String toOrderByStatement(final List<OrderByClause> orderByClauses) {
         StringBuilder statement = new StringBuilder();
 
         orderByClauses.forEach(clause -> {

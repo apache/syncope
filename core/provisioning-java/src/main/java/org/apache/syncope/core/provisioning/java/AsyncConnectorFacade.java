@@ -36,13 +36,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
-import org.springframework.stereotype.Component;
 
 /**
  * Intercept calls to ConnectorFacade's methods and check if the corresponding connector instance has been configured to
  * allow every single operation: if not, simply do nothing.
  */
-@Component
 public class AsyncConnectorFacade {
 
     private static final Logger LOG = LoggerFactory.getLogger(AsyncConnectorFacade.class);

@@ -39,8 +39,6 @@ import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIUserTemplate;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIEntityFactory;
@@ -48,32 +46,40 @@ import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.provisioning.api.data.SAML2SP4UIIdPDataBinder;
 
-@Component
 public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SAML2SP4UIIdPDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SAML2SP4UIIdPDataBinder.class);
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private SAML2SP4UIIdPDAO idapDAO;
+    protected final SAML2SP4UIIdPDAO idapDAO;
 
-    @Autowired
-    private ImplementationDAO implementationDAO;
+    protected final ImplementationDAO implementationDAO;
 
-    @Autowired
-    private SAML2SP4UIEntityFactory entityFactory;
+    protected final SAML2SP4UIEntityFactory entityFactory;
 
-    @Autowired
-    private IntAttrNameParser intAttrNameParser;
+    protected final IntAttrNameParser intAttrNameParser;
+
+    public SAML2SP4UIIdPDataBinderImpl(
+            final AnyTypeDAO anyTypeDAO,
+            final SAML2SP4UIIdPDAO idapDAO,
+            final ImplementationDAO implementationDAO,
+            final SAML2SP4UIEntityFactory entityFactory,
+            final IntAttrNameParser intAttrNameParser) {
+
+        this.anyTypeDAO = anyTypeDAO;
+        this.idapDAO = idapDAO;
+        this.implementationDAO = implementationDAO;
+        this.entityFactory = entityFactory;
+        this.intAttrNameParser = intAttrNameParser;
+    }
 
     @Override
     public SAML2SP4UIIdP create(final SAML2SP4UIIdPTO idpTO) {
         return update(entityFactory.newEntity(SAML2SP4UIIdP.class), idpTO);
     }
 
-    private void populateItems(final SAML2SP4UIIdPTO idpTO, final SAML2SP4UIIdP idp) {
+    protected void populateItems(final SAML2SP4UIIdPTO idpTO, final SAML2SP4UIIdP idp) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
         SyncopeClientException invalidMapping =
                 SyncopeClientException.build(ClientExceptionType.InvalidMapping);
@@ -198,7 +204,7 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
         return idapDAO.save(idp);
     }
 
-    private static void populateItems(final SAML2SP4UIIdP idp, final SAML2SP4UIIdPTO idpTO) {
+    protected static void populateItems(final SAML2SP4UIIdP idp, final SAML2SP4UIIdPTO idpTO) {
         idp.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());

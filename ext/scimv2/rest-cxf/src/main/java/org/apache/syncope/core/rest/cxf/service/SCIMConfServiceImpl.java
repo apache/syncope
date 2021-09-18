@@ -21,12 +21,14 @@ package org.apache.syncope.core.rest.cxf.service;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.rest.api.service.SCIMConfService;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
-import org.springframework.beans.factory.annotation.Autowired;
 
-public class SCIMConfServiceImpl extends AbstractServiceImpl implements SCIMConfService {
+public class SCIMConfServiceImpl extends AbstractService implements SCIMConfService {
 
-    @Autowired
-    private SCIMConfManager manager;
+    protected final SCIMConfManager manager;
+
+    public SCIMConfServiceImpl(final SCIMConfManager manager) {
+        this.manager = manager;
+    }
 
     @Override
     public SCIMConf get() {

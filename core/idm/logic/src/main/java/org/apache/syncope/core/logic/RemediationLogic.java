@@ -41,28 +41,34 @@ import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.provisioning.api.data.RemediationDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class RemediationLogic extends AbstractLogic<RemediationTO> {
 
-    @Autowired
-    private UserLogic userLogic;
+    protected final UserLogic userLogic;
 
-    @Autowired
-    private GroupLogic groupLogic;
+    protected final GroupLogic groupLogic;
 
-    @Autowired
-    private AnyObjectLogic anyObjectLogic;
+    protected final AnyObjectLogic anyObjectLogic;
 
-    @Autowired
-    private RemediationDataBinder binder;
+    protected final RemediationDataBinder binder;
 
-    @Autowired
-    private RemediationDAO remediationDAO;
+    protected final RemediationDAO remediationDAO;
+
+    public RemediationLogic(
+            final UserLogic userLogic,
+            final GroupLogic groupLogic,
+            final AnyObjectLogic anyObjectLogic,
+            final RemediationDataBinder binder,
+            final RemediationDAO remediationDAO) {
+
+        this.userLogic = userLogic;
+        this.groupLogic = groupLogic;
+        this.anyObjectLogic = anyObjectLogic;
+        this.binder = binder;
+        this.remediationDAO = remediationDAO;
+    }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_LIST + "')")
     @Transactional(readOnly = true)

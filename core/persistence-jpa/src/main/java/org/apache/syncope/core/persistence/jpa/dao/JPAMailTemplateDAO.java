@@ -23,9 +23,7 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.JPAMailTemplate;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public class JPAMailTemplateDAO extends AbstractDAO<MailTemplate> implements MailTemplateDAO {
 
     @Override

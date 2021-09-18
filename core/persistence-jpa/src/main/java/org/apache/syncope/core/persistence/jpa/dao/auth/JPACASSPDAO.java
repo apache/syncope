@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao.auth;
 import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPACASSPClientApp;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
@@ -30,7 +29,6 @@ import javax.persistence.TypedQuery;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 
-@Repository
 public class JPACASSPDAO extends AbstractDAO<CASSPClientApp> implements CASSPDAO {
 
     @Override

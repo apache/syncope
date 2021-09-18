@@ -44,12 +44,16 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
@@ -74,7 +78,7 @@ import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,23 +87,39 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     protected static final Pattern USERNAME_PATTERN =
             Pattern.compile('^' + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
-    @Autowired
-    protected RoleDAO roleDAO;
+    protected final RoleDAO roleDAO;
 
-    @Autowired
-    protected AccessTokenDAO accessTokenDAO;
+    protected final AccessTokenDAO accessTokenDAO;
 
-    @Autowired
-    protected RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    protected GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    protected DelegationDAO delegationDAO;
+    protected final DelegationDAO delegationDAO;
 
-    @Autowired
-    protected SecurityProperties securityProperties;
+    protected final SecurityProperties securityProperties;
+
+    public JPAUserDAO(
+            final AnyUtilsFactory anyUtilsFactory,
+            final ApplicationEventPublisher publisher,
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final DynRealmDAO dynRealmDAO,
+            final RoleDAO roleDAO,
+            final AccessTokenDAO accessTokenDAO,
+            final RealmDAO realmDAO,
+            final GroupDAO groupDAO,
+            final DelegationDAO delegationDAO,
+            final SecurityProperties securityProperties) {
+
+        super(anyUtilsFactory, publisher, plainSchemaDAO, derSchemaDAO, dynRealmDAO);
+        this.roleDAO = roleDAO;
+        this.accessTokenDAO = accessTokenDAO;
+        this.realmDAO = realmDAO;
+        this.groupDAO = groupDAO;
+        this.delegationDAO = delegationDAO;
+        this.securityProperties = securityProperties;
+    }
 
     @Override
     protected AnyUtils init() {

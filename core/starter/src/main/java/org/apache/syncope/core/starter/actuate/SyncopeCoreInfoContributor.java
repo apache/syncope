@@ -79,7 +79,6 @@ import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
-import org.apache.syncope.core.workflow.java.WorkflowProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
@@ -177,9 +176,6 @@ public class SyncopeCoreInfoContributor implements InfoContributor {
 
     @Autowired
     protected LogicProperties logicProperties;
-
-    @Autowired
-    protected WorkflowProperties workflowProperties;
 
     @Autowired
     protected AnyTypeDAO anyTypeDAO;
@@ -471,6 +467,5 @@ public class SyncopeCoreInfoContributor implements InfoContributor {
         builder.withDetail("persistenceProperties", persistenceProperties);
         builder.withDetail("provisioningProperties", provisioningProperties);
         builder.withDetail("logicProperties", logicProperties);
-        builder.withDetail("workflowProperties", workflowProperties);
     }
 }

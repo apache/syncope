@@ -29,19 +29,22 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.provisioning.api.data.RelationshipTypeDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class RelationshipTypeLogic extends AbstractTransactionalLogic<RelationshipTypeTO> {
 
-    @Autowired
-    private RelationshipTypeDataBinder binder;
+    protected final RelationshipTypeDataBinder binder;
 
-    @Autowired
-    private RelationshipTypeDAO relationshipTypeDAO;
+    protected final RelationshipTypeDAO relationshipTypeDAO;
+
+    public RelationshipTypeLogic(
+            final RelationshipTypeDataBinder binder,
+            final RelationshipTypeDAO relationshipTypeDAO) {
+
+        this.binder = binder;
+        this.relationshipTypeDAO = relationshipTypeDAO;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.RELATIONSHIPTYPE_READ + "')")
     @Transactional(readOnly = true)

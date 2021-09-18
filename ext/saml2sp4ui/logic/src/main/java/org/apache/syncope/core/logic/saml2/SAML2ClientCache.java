@@ -39,7 +39,6 @@ import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.pac4j.saml.metadata.SAML2IdentityProviderMetadataResolver;
 import org.slf4j.Logger;
@@ -48,12 +47,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Basic in-memory cache for available {@link SAML2Client} instances.
  */
-@Component
 public class SAML2ClientCache {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SAML2ClientCache.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SAML2ClientCache.class);
 
-    private static Path METADATA_PATH;
+    protected static Path METADATA_PATH;
 
     static {
         try {
@@ -69,7 +67,7 @@ public class SAML2ClientCache {
         return Optional.ofNullable(METADATA_PATH).map(path -> path.resolve(entityIDPath).toAbsolutePath().toString());
     }
 
-    private final List<SAML2Client> cache = Collections.synchronizedList(new ArrayList<>());
+    protected final List<SAML2Client> cache = Collections.synchronizedList(new ArrayList<>());
 
     public Optional<SAML2Client> get(final String idpEntityID, final String spEntityID) {
         return cache.stream().filter(c -> idpEntityID.equals(c.getIdentityProviderResolvedEntityId())

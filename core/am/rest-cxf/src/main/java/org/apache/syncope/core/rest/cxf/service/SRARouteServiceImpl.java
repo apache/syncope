@@ -25,14 +25,16 @@ import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.core.logic.SRARouteLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SRARouteServiceImpl extends AbstractServiceImpl implements SRARouteService {
+public class SRARouteServiceImpl extends AbstractService implements SRARouteService {
 
-    @Autowired
-    private SRARouteLogic logic;
+    protected final SRARouteLogic logic;
+
+    public SRARouteServiceImpl(final SRARouteLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<SRARouteTO> list() {

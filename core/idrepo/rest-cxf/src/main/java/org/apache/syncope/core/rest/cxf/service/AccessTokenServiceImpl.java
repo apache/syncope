@@ -30,13 +30,15 @@ import org.apache.syncope.common.rest.api.beans.AccessTokenQuery;
 import org.springframework.stereotype.Service;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.core.logic.AccessTokenLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
-public class AccessTokenServiceImpl extends AbstractServiceImpl implements AccessTokenService {
+public class AccessTokenServiceImpl extends AbstractService implements AccessTokenService {
 
-    @Autowired
-    private AccessTokenLogic logic;
+    protected final AccessTokenLogic logic;
+
+    public AccessTokenServiceImpl(final AccessTokenLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public Response login() {

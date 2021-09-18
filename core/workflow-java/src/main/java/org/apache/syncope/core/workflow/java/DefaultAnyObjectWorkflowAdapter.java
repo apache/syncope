@@ -22,13 +22,24 @@ import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 
 /**
  * Simple implementation basically not involving any workflow engine.
  */
 public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAdapter {
+
+    public DefaultAnyObjectWorkflowAdapter(
+            final AnyObjectDataBinder dataBinder,
+            final AnyObjectDAO anyObjectDAO,
+            final EntityFactory entityFactory) {
+
+        super(dataBinder, anyObjectDAO, entityFactory);
+    }
 
     @Override
     protected WorkflowResult<String> doCreate(

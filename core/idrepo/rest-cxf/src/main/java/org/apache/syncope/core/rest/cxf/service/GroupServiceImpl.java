@@ -31,17 +31,25 @@ import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupCR, GroupUR> implements GroupService {
 
-    @Autowired
-    private GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    private GroupLogic logic;
+    protected final GroupLogic logic;
+
+    public GroupServiceImpl(
+            final SearchCondVisitor searchCondVisitor,
+            final GroupDAO groupDAO,
+            final GroupLogic logic) {
+
+        super(searchCondVisitor);
+        this.groupDAO = groupDAO;
+        this.logic = logic;
+    }
 
     @Override
     protected AnyDAO<?> getAnyDAO() {

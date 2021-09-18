@@ -61,33 +61,37 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> implements AnyDAO<A> {
 
-    @Autowired
-    protected AnyUtilsFactory anyUtilsFactory;
+    protected final AnyUtilsFactory anyUtilsFactory;
 
-    @Autowired
-    protected ApplicationEventPublisher publisher;
+    protected final ApplicationEventPublisher publisher;
 
-    @Autowired
-    @Lazy
-    protected PlainSchemaDAO plainSchemaDAO;
+    protected final PlainSchemaDAO plainSchemaDAO;
 
-    @Autowired
-    @Lazy
-    protected DerSchemaDAO derSchemaDAO;
+    protected final DerSchemaDAO derSchemaDAO;
 
-    @Autowired
-    @Lazy
-    protected DynRealmDAO dynRealmDAO;
+    protected final DynRealmDAO dynRealmDAO;
 
     private AnyUtils anyUtils;
+
+    public AbstractAnyDAO(
+            final AnyUtilsFactory anyUtilsFactory,
+            final ApplicationEventPublisher publisher,
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final DynRealmDAO dynRealmDAO) {
+
+        this.anyUtilsFactory = anyUtilsFactory;
+        this.publisher = publisher;
+        this.plainSchemaDAO = plainSchemaDAO;
+        this.derSchemaDAO = derSchemaDAO;
+        this.dynRealmDAO = dynRealmDAO;
+    }
 
     protected abstract AnyUtils init();
 

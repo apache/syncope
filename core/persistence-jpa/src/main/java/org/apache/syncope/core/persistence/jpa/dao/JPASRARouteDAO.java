@@ -21,12 +21,10 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.jpa.entity.JPASRARoute;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.SRARoute;
 import org.apache.syncope.core.persistence.api.dao.SRARouteDAO;
 
-@Repository
 public class JPASRARouteDAO extends AbstractDAO<SRARoute> implements SRARouteDAO {
 
     @Transactional(readOnly = true)

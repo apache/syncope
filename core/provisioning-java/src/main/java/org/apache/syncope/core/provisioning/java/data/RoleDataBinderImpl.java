@@ -39,33 +39,40 @@ import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class RoleDataBinderImpl implements RoleDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RoleDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(RoleDataBinder.class);
 
-    @Autowired
-    private RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    private DynRealmDAO dynRealmDAO;
+    protected final DynRealmDAO dynRealmDAO;
 
-    @Autowired
-    private RoleDAO roleDAO;
+    protected final RoleDAO roleDAO;
 
-    @Autowired
-    private ApplicationDAO applicationDAO;
+    protected final ApplicationDAO applicationDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private SearchCondVisitor searchCondVisitor;
+    protected final SearchCondVisitor searchCondVisitor;
 
-    private void setDynMembership(final Role role, final String dynMembershipFIQL) {
+    public RoleDataBinderImpl(
+            final RealmDAO realmDAO,
+            final DynRealmDAO dynRealmDAO,
+            final RoleDAO roleDAO,
+            final ApplicationDAO applicationDAO,
+            final EntityFactory entityFactory,
+            final SearchCondVisitor searchCondVisitor) {
+
+        this.realmDAO = realmDAO;
+        this.dynRealmDAO = dynRealmDAO;
+        this.roleDAO = roleDAO;
+        this.applicationDAO = applicationDAO;
+        this.entityFactory = entityFactory;
+        this.searchCondVisitor = searchCondVisitor;
+    }
+
+    protected void setDynMembership(final Role role, final String dynMembershipFIQL) {
         SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, dynMembershipFIQL);
         if (!dynMembershipCond.isValid()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);

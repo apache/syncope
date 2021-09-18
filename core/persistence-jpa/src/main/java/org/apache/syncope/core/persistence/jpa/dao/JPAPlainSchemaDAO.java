@@ -37,20 +37,24 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 
 public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements PlainSchemaDAO {
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
+    private final AnyUtilsFactory anyUtilsFactory;
 
-    @Autowired
-    private PlainAttrDAO plainAttrDAO;
+    private final PlainAttrDAO plainAttrDAO;
 
-    @Autowired
-    @Lazy
-    private ExternalResourceDAO resourceDAO;
+    private final ExternalResourceDAO resourceDAO;
+
+    public JPAPlainSchemaDAO(
+            final AnyUtilsFactory anyUtilsFactory,
+            final PlainAttrDAO plainAttrDAO,
+            final ExternalResourceDAO resourceDAO) {
+
+        this.anyUtilsFactory = anyUtilsFactory;
+        this.plainAttrDAO = plainAttrDAO;
+        this.resourceDAO = resourceDAO;
+    }
 
     @Override
     public PlainSchema find(final String key) {

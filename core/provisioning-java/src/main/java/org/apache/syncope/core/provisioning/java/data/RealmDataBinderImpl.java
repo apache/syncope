@@ -43,34 +43,41 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 
-@Component
 public class RealmDataBinderImpl implements RealmDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RealmDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(RealmDataBinder.class);
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    private ImplementationDAO implementationDAO;
+    protected final ImplementationDAO implementationDAO;
 
-    @Autowired
-    private RealmDAO realmDAO;
+    protected final RealmDAO realmDAO;
 
-    @Autowired
-    private PolicyDAO policyDAO;
+    protected final PolicyDAO policyDAO;
 
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    private void setTemplates(final RealmTO realmTO, final Realm realm) {
+    public RealmDataBinderImpl(
+            final AnyTypeDAO anyTypeDAO,
+            final ImplementationDAO implementationDAO,
+            final RealmDAO realmDAO,
+            final PolicyDAO policyDAO,
+            final ExternalResourceDAO resourceDAO,
+            final EntityFactory entityFactory) {
+
+        this.anyTypeDAO = anyTypeDAO;
+        this.implementationDAO = implementationDAO;
+        this.realmDAO = realmDAO;
+        this.policyDAO = policyDAO;
+        this.resourceDAO = resourceDAO;
+        this.entityFactory = entityFactory;
+    }
+
+    protected void setTemplates(final RealmTO realmTO, final Realm realm) {
         // validate JEXL expressions from templates and proceed if fine
         TemplateUtils.check(realmTO.getTemplates(), ClientExceptionType.InvalidRealm);
         realmTO.getTemplates().forEach((key, template) -> {

@@ -52,17 +52,47 @@ import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.AbstractTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskExec;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
-@Repository
 public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
-    @Autowired
-    private RemediationDAO remediationDAO;
+    protected static String getEntityTableName(final TaskType type) {
+        String result = null;
+
+        switch (type) {
+            case NOTIFICATION:
+                result = JPANotificationTask.class.getAnnotation(DiscriminatorValue.class).value();
+                break;
+
+            case PROPAGATION:
+                result = JPAPropagationTask.class.getAnnotation(DiscriminatorValue.class).value();
+                break;
+
+            case PUSH:
+                result = JPAPushTask.class.getAnnotation(DiscriminatorValue.class).value();
+                break;
+
+            case SCHEDULED:
+                result = JPASchedTask.class.getAnnotation(DiscriminatorValue.class).value();
+                break;
+
+            case PULL:
+                result = JPAPullTask.class.getAnnotation(DiscriminatorValue.class).value();
+                break;
+
+            default:
+        }
+
+        return result;
+    }
+
+    protected final RemediationDAO remediationDAO;
+
+    public JPATaskDAO(final RemediationDAO remediationDAO) {
+        this.remediationDAO = remediationDAO;
+    }
 
     @Override
     public Class<? extends Task> getEntityReference(final TaskType type) {
@@ -87,36 +117,6 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
             case PULL:
                 result = JPAPullTask.class;
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    private static String getEntityTableName(final TaskType type) {
-        String result = null;
-
-        switch (type) {
-            case NOTIFICATION:
-                result = JPANotificationTask.class.getAnnotation(DiscriminatorValue.class).value();
-                break;
-
-            case PROPAGATION:
-                result = JPAPropagationTask.class.getAnnotation(DiscriminatorValue.class).value();
-                break;
-
-            case PUSH:
-                result = JPAPushTask.class.getAnnotation(DiscriminatorValue.class).value();
-                break;
-
-            case SCHEDULED:
-                result = JPASchedTask.class.getAnnotation(DiscriminatorValue.class).value();
-                break;
-
-            case PULL:
-                result = JPAPullTask.class.getAnnotation(DiscriminatorValue.class).value();
                 break;
 
             default:
@@ -172,7 +172,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         return query.getResultList();
     }
 
-    private <T extends Task> StringBuilder buildFindAllQueryJPA(final TaskType type) {
+    protected final <T extends Task> StringBuilder buildFindAllQueryJPA(final TaskType type) {
         StringBuilder builder = new StringBuilder("SELECT t FROM ").
                 append(getEntityReference(type).getSimpleName()).
                 append(" t WHERE ");
@@ -211,7 +211,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         return findAll(type, null, null, null, null, -1, -1, List.of());
     }
 
-    private static StringBuilder buildFindAllQuery(
+    protected StringBuilder buildFindAllQuery(
             final TaskType type,
             final ExternalResource resource,
             final Notification notification,
@@ -305,7 +305,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         return queryString;
     }
 
-    private static String toOrderByStatement(
+    protected String toOrderByStatement(
             final Class<? extends Task> beanClass,
             final List<OrderByClause> orderByClauses) {
 

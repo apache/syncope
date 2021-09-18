@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
@@ -31,6 +32,10 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 
 public class MyJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
+
+    public MyJPAJSONAnyDAO(final PlainSchemaDAO plainSchemaDAO) {
+        super(plainSchemaDAO);
+    }
 
     @Override
     protected String queryBegin(final String table) {

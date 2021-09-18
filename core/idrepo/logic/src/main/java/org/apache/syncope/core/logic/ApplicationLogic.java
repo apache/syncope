@@ -30,19 +30,19 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.provisioning.api.data.ApplicationDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> {
 
-    @Autowired
-    private ApplicationDataBinder binder;
+    protected final ApplicationDataBinder binder;
 
-    @Autowired
-    private ApplicationDAO applicationDAO;
+    protected final ApplicationDAO applicationDAO;
+
+    public ApplicationLogic(final ApplicationDataBinder binder, final ApplicationDAO applicationDAO) {
+        this.binder = binder;
+        this.applicationDAO = applicationDAO;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_READ + "')")
     @Transactional(readOnly = true)

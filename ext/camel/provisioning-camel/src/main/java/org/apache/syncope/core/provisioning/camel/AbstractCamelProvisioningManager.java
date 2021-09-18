@@ -34,23 +34,25 @@ import org.apache.camel.support.DefaultMessage;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 abstract class AbstractCamelProvisioningManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCamelProvisioningManager.class);
 
-    @Autowired
-    protected CamelRouteDAO routeDAO;
+    protected final CamelRouteDAO routeDAO;
 
-    @Autowired
-    protected SyncopeCamelContext contextFactory;
+    protected final SyncopeCamelContext contextFactory;
 
     protected RoutesDefinition routes;
 
     protected final Map<String, PollingConsumer> consumerMap = new HashMap<>();
 
     protected final List<String> knownURIs = new ArrayList<>();
+
+    protected AbstractCamelProvisioningManager(final CamelRouteDAO routeDAO, final SyncopeCamelContext contextFactory) {
+        this.routeDAO = routeDAO;
+        this.contextFactory = contextFactory;
+    }
 
     protected void sendMessage(final String uri, final Object obj) {
         Exchange exchange = new DefaultExchange(contextFactory.getCamelContext());

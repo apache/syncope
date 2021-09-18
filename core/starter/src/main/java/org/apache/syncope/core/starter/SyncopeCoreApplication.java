@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.cxf.spring.boot.autoconfigure.openapi.OpenApiAutoConfiguration;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.starter.actuate.DomainsHealthIndicator;
 import org.apache.syncope.core.starter.actuate.ExternalResourcesHealthIndicator;
 import org.apache.syncope.core.starter.actuate.SyncopeCoreInfoContributor;
@@ -93,9 +94,11 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
         return new ExternalResourcesHealthIndicator();
     }
 
+    @ConditionalOnMissingBean
     @Bean
-    public SyncopeCoreStart keymasterStart() {
-        return new SyncopeCoreStart();
+    @Autowired
+    public SyncopeCoreStart keymasterStart(final DomainHolder domainHolder) {
+        return new SyncopeCoreStart(domainHolder);
     }
 
     @Bean

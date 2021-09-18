@@ -32,14 +32,16 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.core.logic.RoleLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RoleServiceImpl extends AbstractServiceImpl implements RoleService {
+public class RoleServiceImpl extends AbstractService implements RoleService {
 
-    @Autowired
-    private RoleLogic logic;
+    protected final RoleLogic logic;
+
+    public RoleServiceImpl(final RoleLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<RoleTO> list() {

@@ -26,15 +26,17 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.logic.DomainLogic;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class SelfKeymasterInternalDomainOps implements DomainOps {
 
-    @Autowired
-    private DomainLogic logic;
+    protected final DomainLogic logic;
 
-    @Autowired
-    private KeymasterProperties props;
+    protected final KeymasterProperties props;
+
+    public SelfKeymasterInternalDomainOps(final DomainLogic logic, final KeymasterProperties props) {
+        this.logic = logic;
+        this.props = props;
+    }
 
     @Override
     public List<Domain> list() {

@@ -35,6 +35,12 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
@@ -51,7 +57,9 @@ import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -72,7 +80,6 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Search engine implementation for users, groups and any objects, based on Elasticsearch.
@@ -98,11 +105,26 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         return output.toString();
     }
 
-    @Autowired
-    protected RestHighLevelClient client;
+    protected final RestHighLevelClient client;
 
-    @Autowired
-    protected ElasticsearchUtils elasticsearchUtils;
+    protected final ElasticsearchUtils elasticsearchUtils;
+
+    public ElasticsearchAnySearchDAO(
+            final RealmDAO realmDAO,
+            final DynRealmDAO dynRealmDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final PlainSchemaDAO schemaDAO,
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory,
+            final RestHighLevelClient client,
+            final ElasticsearchUtils elasticsearchUtils) {
+
+        super(realmDAO, dynRealmDAO, userDAO, groupDAO, anyObjectDAO, schemaDAO, entityFactory, anyUtilsFactory);
+        this.client = client;
+        this.elasticsearchUtils = elasticsearchUtils;
+    }
 
     protected Triple<Optional<QueryBuilder>, Set<String>, Set<String>> getAdminRealmsFilter(
             final AnyTypeKind kind, final Set<String> adminRealms) {
@@ -202,7 +224,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
             Field anyField = anyUtils.getField(fieldName);
             if (anyField == null) {
-                PlainSchema schema = schemaDAO.find(fieldName);
+                PlainSchema schema = plainSchemaDAO.find(fieldName);
                 if (schema != null) {
                     sortName = fieldName;
                 }

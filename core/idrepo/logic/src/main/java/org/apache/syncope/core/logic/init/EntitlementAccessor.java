@@ -20,8 +20,6 @@ package org.apache.syncope.core.logic.init;
 
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -29,11 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see IdRepoEntitlementLoader
  */
-@Component
 public class EntitlementAccessor {
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final AnyTypeDAO anyTypeDAO;
+
+    public EntitlementAccessor(final AnyTypeDAO anyTypeDAO) {
+        this.anyTypeDAO = anyTypeDAO;
+    }
 
     @Transactional(readOnly = true)
     public void addEntitlementsForAnyTypes() {

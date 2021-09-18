@@ -22,18 +22,14 @@ import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.provisioning.api.data.RelationshipTypeDataBinder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RelationshipTypeDataBinder.class);
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    public RelationshipTypeDataBinderImpl(final EntityFactory entityFactory) {
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public RelationshipType create(final RelationshipTypeTO relationshipTypeTO) {
@@ -60,5 +56,4 @@ public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinde
 
         return relationshipTypeTO;
     }
-
 }

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrUniqueValue;
@@ -53,18 +52,11 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUPlainAttrValue;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
-public abstract class JPAJSONEntityFactory extends JPAEntityFactory implements InitializingBean, BeanFactoryAware {
+public abstract class JPAJSONEntityFactory extends JPAEntityFactory {
 
-    private DefaultListableBeanFactory beanFactory;
-
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public <E extends Entity> E newEntity(final Class<E> reference) {
         E result;
 
@@ -124,18 +116,5 @@ public abstract class JPAJSONEntityFactory extends JPAEntityFactory implements I
     @Override
     public Class<? extends AnyObject> anyObjectClass() {
         return JPAJSONAnyObject.class;
-    }
-
-    protected abstract Class<? extends JPAJSONAnyDAO> jpaJSONAnyDAOClass();
-
-    @Override
-    public void setBeanFactory(final BeanFactory beanFactory) {
-        this.beanFactory = (DefaultListableBeanFactory) beanFactory;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        beanFactory.registerSingleton("jpaJSONAnyDAO",
-                beanFactory.createBean(jpaJSONAnyDAOClass(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false));
     }
 }

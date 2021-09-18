@@ -25,14 +25,16 @@ import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.syncope.core.logic.RelationshipTypeLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RelationshipTypeServiceImpl extends AbstractServiceImpl implements RelationshipTypeService {
+public class RelationshipTypeServiceImpl extends AbstractService implements RelationshipTypeService {
 
-    @Autowired
-    private RelationshipTypeLogic logic;
+    protected final RelationshipTypeLogic logic;
+
+    public RelationshipTypeServiceImpl(final RelationshipTypeLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public List<RelationshipTypeTO> list() {

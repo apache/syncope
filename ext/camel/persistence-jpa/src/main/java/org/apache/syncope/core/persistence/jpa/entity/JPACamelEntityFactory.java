@@ -20,14 +20,11 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import org.apache.syncope.core.persistence.api.entity.CamelEntityFactory;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
-import org.springframework.stereotype.Component;
 
-@Component
 public class JPACamelEntityFactory implements CamelEntityFactory {
 
     @Override
     public CamelRoute newCamelRoute() {
         return new JPACamelRoute();
     }
-
 }

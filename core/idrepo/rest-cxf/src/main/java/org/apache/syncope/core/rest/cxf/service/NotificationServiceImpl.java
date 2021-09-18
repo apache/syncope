@@ -27,14 +27,16 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.core.logic.NotificationLogic;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class NotificationServiceImpl extends AbstractServiceImpl implements NotificationService {
+public class NotificationServiceImpl extends AbstractService implements NotificationService {
 
-    @Autowired
-    private NotificationLogic logic;
+    protected final NotificationLogic logic;
+
+    public NotificationServiceImpl(final NotificationLogic logic) {
+        this.logic = logic;
+    }
 
     @Override
     public Response create(final NotificationTO notificationTO) {

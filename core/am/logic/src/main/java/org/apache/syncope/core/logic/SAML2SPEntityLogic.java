@@ -30,19 +30,19 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPEntityDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPEntity;
 import org.apache.syncope.core.provisioning.api.data.SAML2SPEntityDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class SAML2SPEntityLogic extends AbstractTransactionalLogic<SAML2SPEntityTO> {
 
-    @Autowired
-    private SAML2SPEntityDataBinder binder;
+    protected final SAML2SPEntityDataBinder binder;
 
-    @Autowired
-    private SAML2SPEntityDAO entityDAO;
+    protected final SAML2SPEntityDAO entityDAO;
+
+    public SAML2SPEntityLogic(final SAML2SPEntityDataBinder binder, final SAML2SPEntityDAO entityDAO) {
+        this.binder = binder;
+        this.entityDAO = entityDAO;
+    }
 
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_ENTITY_LIST + "')")
     @Transactional(readOnly = true)

@@ -24,17 +24,17 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class Create extends FlowableServiceTask {
 
-    @Autowired
-    private UserDataBinder dataBinder;
+    protected final UserDataBinder dataBinder;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public Create(final UserDataBinder dataBinder, final EntityFactory entityFactory) {
+        this.dataBinder = dataBinder;
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     protected void doExecute(final DelegateExecution execution) {

@@ -75,24 +75,19 @@ public class MasterDomain {
         return masterDataSource;
     }
 
-    @ConditionalOnMissingBean(name = "MasterResourceDatabasePopulator")
-    @Bean(name = "MasterResourceDatabasePopulator")
-    public ResourceDatabasePopulator masterResourceDatabasePopulator() {
+    @ConditionalOnMissingBean(name = "MasterDataSourceInitializer")
+    @Bean(name = "MasterDataSourceInitializer")
+    public DataSourceInitializer masterDataSourceInitializer() {
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
         databasePopulator.setContinueOnError(true);
         databasePopulator.setIgnoreFailedDrops(true);
         databasePopulator.setSqlScriptEncoding("UTF-8");
         databasePopulator.addScript(new ClassPathResource("/audit/" + props.getDomain().get(0).getAuditSql()));
-        return databasePopulator;
-    }
 
-    @ConditionalOnMissingBean(name = "MasterDataSourceInitializer")
-    @Bean(name = "MasterDataSourceInitializer")
-    public DataSourceInitializer masterDataSourceInitializer() {
         DataSourceInitializer dataSourceInitializer = new DataSourceInitializer();
         dataSourceInitializer.setDataSource((DataSource) Objects.requireNonNull(masterDataSource().getObject()));
         dataSourceInitializer.setEnabled(true);
-        dataSourceInitializer.setDatabasePopulator(masterResourceDatabasePopulator());
+        dataSourceInitializer.setDatabasePopulator(databasePopulator);
         return dataSourceInitializer;
     }
 

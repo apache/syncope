@@ -39,16 +39,18 @@ import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactionalLogic<T> {
 
-    @Autowired
-    protected JobManager jobManager;
+    protected final JobManager jobManager;
 
-    @Autowired
-    protected SchedulerFactoryBean scheduler;
+    protected final SchedulerFactoryBean scheduler;
+
+    protected AbstractJobLogic(final JobManager jobManager, final SchedulerFactoryBean scheduler) {
+        this.jobManager = jobManager;
+        this.scheduler = scheduler;
+    }
 
     protected abstract Triple<JobType, String, String> getReference(JobKey jobKey);
 

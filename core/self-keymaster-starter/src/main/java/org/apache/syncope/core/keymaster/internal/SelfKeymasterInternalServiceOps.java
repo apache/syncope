@@ -26,15 +26,17 @@ import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.logic.NetworkServiceLogic;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class SelfKeymasterInternalServiceOps implements ServiceOps {
 
-    @Autowired
-    private NetworkServiceLogic logic;
+    protected final NetworkServiceLogic logic;
 
-    @Autowired
-    private KeymasterProperties props;
+    protected final KeymasterProperties props;
+
+    public SelfKeymasterInternalServiceOps(final NetworkServiceLogic logic, final KeymasterProperties props) {
+        this.logic = logic;
+        this.props = props;
+    }
 
     @Override
     public List<NetworkService> list(final NetworkService.Type serviceType) {

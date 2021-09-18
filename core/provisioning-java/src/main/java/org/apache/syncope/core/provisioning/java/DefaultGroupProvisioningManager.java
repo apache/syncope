@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.GroupCR;
@@ -48,23 +47,33 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class DefaultGroupProvisioningManager implements GroupProvisioningManager {
 
-    @Autowired
-    protected GroupWorkflowAdapter gwfAdapter;
+    protected final GroupWorkflowAdapter gwfAdapter;
 
-    @Autowired
-    protected PropagationManager propagationManager;
+    protected final PropagationManager propagationManager;
 
-    @Autowired
-    protected PropagationTaskExecutor taskExecutor;
+    protected final PropagationTaskExecutor taskExecutor;
 
-    @Autowired
-    protected GroupDataBinder groupDataBinder;
+    protected final GroupDataBinder groupDataBinder;
 
-    @Autowired
-    protected GroupDAO groupDAO;
+    protected final GroupDAO groupDAO;
 
-    @Autowired
-    protected VirAttrHandler virtAttrHandler;
+    protected final VirAttrHandler virtAttrHandler;
+
+    public DefaultGroupProvisioningManager(
+            final GroupWorkflowAdapter gwfAdapter,
+            final PropagationManager propagationManager,
+            final PropagationTaskExecutor taskExecutor,
+            final GroupDataBinder groupDataBinder,
+            final GroupDAO groupDAO,
+            final VirAttrHandler virtAttrHandler) {
+
+        this.gwfAdapter = gwfAdapter;
+        this.propagationManager = propagationManager;
+        this.taskExecutor = taskExecutor;
+        this.groupDataBinder = groupDataBinder;
+        this.groupDAO = groupDAO;
+        this.virtAttrHandler = virtAttrHandler;
+    }
 
     @Override
     public Pair<String, List<PropagationStatus>> create(

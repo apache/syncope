@@ -26,18 +26,25 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.logic.AbstractAuthProfileLogic;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public GoogleMfaAuthTokenLogic(
+            final EntityFactory entityFactory,
+            final AuthProfileDAO authProfileDAO,
+            final AuthProfileDataBinder binder) {
+
+        super(authProfileDAO, binder);
+        this.entityFactory = entityFactory;
+    }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final Date expirationDate) {

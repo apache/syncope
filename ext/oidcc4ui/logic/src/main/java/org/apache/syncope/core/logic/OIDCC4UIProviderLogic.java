@@ -29,25 +29,29 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.OIDC4UIEntitlement;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.provisioning.api.data.OIDCC4UIProviderDataBinder;
 
-@Component
 public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIProviderTO> {
 
-    @Autowired
-    private OIDCClientCache oidcClientClientCache;
+    protected final OIDCClientCache oidcClientClientCache;
 
-    @Autowired
-    private OIDCC4UIProviderDAO opDAO;
+    protected final OIDCC4UIProviderDAO opDAO;
 
-    @Autowired
-    private OIDCC4UIProviderDataBinder binder;
+    protected final OIDCC4UIProviderDataBinder binder;
+
+    public OIDCC4UIProviderLogic(
+            final OIDCClientCache oidcClientClientCache,
+            final OIDCC4UIProviderDAO opDAO,
+            final OIDCC4UIProviderDataBinder binder) {
+
+        this.oidcClientClientCache = oidcClientClientCache;
+        this.opDAO = opDAO;
+        this.binder = binder;
+    }
 
     @PreAuthorize("hasRole('" + OIDC4UIEntitlement.OP_CREATE + "')")
     public String createFromDiscovery(final OIDCC4UIProviderTO opTO) {

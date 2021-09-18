@@ -42,8 +42,6 @@ import org.apache.syncope.common.lib.report.StaticReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
-import org.apache.syncope.core.logic.init.ElasticsearchInit;
-import org.apache.syncope.core.logic.init.EnableFlowableForTestUsers;
 import org.apache.syncope.core.provisioning.java.job.report.AuditReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.GroupReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.ReconciliationReportlet;
@@ -62,7 +60,7 @@ import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValida
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPullCorrelationRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPushCorrelationRule;
-import org.apache.syncope.core.provisioning.java.DefaultProvisionSorter;
+import org.apache.syncope.core.provisioning.java.pushpull.DefaultProvisionSorter;
 import org.apache.syncope.core.provisioning.java.propagation.AzurePropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.GoogleAppsPropagationActions;
@@ -77,78 +75,81 @@ import org.apache.syncope.core.spring.policy.HaveIBeenPwnedPasswordRule;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SyncopeJWTSSOProvider;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Static implementation providing information about the integration test environment.
  */
 public class ITImplementationLookup implements ImplementationLookup {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ITImplementationLookup.class);
+
     private static final Set<Class<?>> JWTSSOPROVIDER_CLASSES = new HashSet<>(
             List.of(SyncopeJWTSSOProvider.class, CustomJWTSSOProvider.class));
 
     private static final Map<Class<? extends ReportletConf>, Class<? extends Reportlet>> REPORTLET_CLASSES =
-        new HashMap<>() {
+            new HashMap<>() {
 
-            private static final long serialVersionUID = 3109256773218160485L;
+        private static final long serialVersionUID = 3109256773218160485L;
 
-            {
-                put(AuditReportletConf.class, AuditReportlet.class);
-                put(ReconciliationReportletConf.class, ReconciliationReportlet.class);
-                put(GroupReportletConf.class, GroupReportlet.class);
-                put(UserReportletConf.class, UserReportlet.class);
-                put(StaticReportletConf.class, StaticReportlet.class);
-            }
-        };
+        {
+            put(AuditReportletConf.class, AuditReportlet.class);
+            put(ReconciliationReportletConf.class, ReconciliationReportlet.class);
+            put(GroupReportletConf.class, GroupReportlet.class);
+            put(UserReportletConf.class, UserReportlet.class);
+            put(StaticReportletConf.class, StaticReportlet.class);
+        }
+    };
 
     private static final Map<Class<? extends AccountRuleConf>, Class<? extends AccountRule>> ACCOUNT_RULE_CLASSES =
-        new HashMap<>() {
+            new HashMap<>() {
 
-            private static final long serialVersionUID = 3109256773218160485L;
+        private static final long serialVersionUID = 3109256773218160485L;
 
-            {
-                put(TestAccountRuleConf.class, TestAccountRule.class);
-                put(DefaultAccountRuleConf.class, DefaultAccountRule.class);
-            }
-        };
+        {
+            put(TestAccountRuleConf.class, TestAccountRule.class);
+            put(DefaultAccountRuleConf.class, DefaultAccountRule.class);
+        }
+    };
 
     private static final Map<Class<? extends PasswordRuleConf>, Class<? extends PasswordRule>> PASSWORD_RULE_CLASSES =
-        new HashMap<>() {
+            new HashMap<>() {
 
-            private static final long serialVersionUID = -6624291041977583649L;
+        private static final long serialVersionUID = -6624291041977583649L;
 
-            {
-                put(TestPasswordRuleConf.class, TestPasswordRule.class);
-                put(DefaultPasswordRuleConf.class, DefaultPasswordRule.class);
-                put(HaveIBeenPwnedPasswordRuleConf.class, HaveIBeenPwnedPasswordRule.class);
-            }
-        };
+        {
+            put(TestPasswordRuleConf.class, TestPasswordRule.class);
+            put(DefaultPasswordRuleConf.class, DefaultPasswordRule.class);
+            put(HaveIBeenPwnedPasswordRuleConf.class, HaveIBeenPwnedPasswordRule.class);
+        }
+    };
 
     private static final Map<
             Class<? extends PullCorrelationRuleConf>, Class<? extends PullCorrelationRule>> PULL_CR_CLASSES =
-        new HashMap<>() {
+            new HashMap<>() {
 
-            private static final long serialVersionUID = 3109256773218160485L;
+        private static final long serialVersionUID = 3109256773218160485L;
 
-            {
-                put(DummyPullCorrelationRuleConf.class, DummyPullCorrelationRule.class);
-                put(DefaultPullCorrelationRuleConf.class, DefaultPullCorrelationRule.class);
-                put(LinkedAccountSamplePullCorrelationRuleConf.class, LinkedAccountSamplePullCorrelationRule.class);
-            }
-        };
+        {
+            put(DummyPullCorrelationRuleConf.class, DummyPullCorrelationRule.class);
+            put(DefaultPullCorrelationRuleConf.class, DefaultPullCorrelationRule.class);
+            put(LinkedAccountSamplePullCorrelationRuleConf.class, LinkedAccountSamplePullCorrelationRule.class);
+        }
+    };
 
     private static final Map<
             Class<? extends PushCorrelationRuleConf>, Class<? extends PushCorrelationRule>> PUSH_CR_CLASSES =
-        new HashMap<>() {
+            new HashMap<>() {
 
-            private static final long serialVersionUID = 3109256773218160485L;
+        private static final long serialVersionUID = 3109256773218160485L;
 
-            {
-                put(DummyPushCorrelationRuleConf.class, DummyPushCorrelationRule.class);
-                put(DefaultPushCorrelationRuleConf.class, DefaultPushCorrelationRule.class);
-            }
-        };
+        {
+            put(DummyPushCorrelationRuleConf.class, DummyPushCorrelationRule.class);
+            put(DefaultPushCorrelationRuleConf.class, DefaultPushCorrelationRule.class);
+        }
+    };
 
     private static final Set<Class<?>> AUDITAPPENDER_CLASSES = new HashSet<>(
             List.of(TestFileAuditAppender.class, TestFileRewriteAuditAppender.class));
@@ -162,7 +163,7 @@ public class ITImplementationLookup implements ImplementationLookup {
 
         {
             Set<String> classNames = ITImplementationLookup.JWTSSOPROVIDER_CLASSES.stream().
-                map(Class::getName).collect(Collectors.toSet());
+                    map(Class::getName).collect(Collectors.toSet());
             put(IdRepoImplementationType.JWT_SSO_PROVIDER, classNames);
 
             classNames = new HashSet<>();
@@ -174,11 +175,11 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(IdRepoImplementationType.REPORTLET, classNames);
 
             classNames = ITImplementationLookup.ACCOUNT_RULE_CLASSES.values().stream().
-                map(Class::getName).collect(Collectors.toSet());
+                    map(Class::getName).collect(Collectors.toSet());
             put(IdRepoImplementationType.ACCOUNT_RULE, classNames);
 
             classNames = ITImplementationLookup.PASSWORD_RULE_CLASSES.values().stream().
-                map(Class::getName).collect(Collectors.toSet());
+                    map(Class::getName).collect(Collectors.toSet());
             put(IdRepoImplementationType.PASSWORD_RULE, classNames);
 
             classNames = new HashSet<>();
@@ -234,26 +235,36 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(IdRepoImplementationType.RECIPIENTS_PROVIDER, classNames);
 
             classNames = ITImplementationLookup.AUDITAPPENDER_CLASSES.stream().
-                map(Class::getName).collect(Collectors.toSet());
+                    map(Class::getName).collect(Collectors.toSet());
             put(IdRepoImplementationType.AUDIT_APPENDER, classNames);
 
             classNames = ITImplementationLookup.PROVISION_SORTER_CLASSES.stream().
-                map(Class::getName).collect(Collectors.toSet());
+                    map(Class::getName).collect(Collectors.toSet());
             put(IdMImplementationType.PROVISION_SORTER, classNames);
         }
     };
 
-    @Autowired
-    private UserWorkflowAdapter uwf;
+    private final UserWorkflowAdapter uwf;
 
-    @Autowired
-    private AnySearchDAO anySearchDAO;
+    private final AnySearchDAO anySearchDAO;
 
-    @Autowired(required = false)
-    private EnableFlowableForTestUsers enableFlowableForTestUsers;
+    private final EnableFlowableForTestUsers enableFlowableForTestUsers;
 
-    @Autowired(required = false)
-    private ElasticsearchInit elasticsearchInit;
+    private final ElasticsearchInit elasticsearchInit;
+
+    private boolean loaded;
+
+    public ITImplementationLookup(
+            final UserWorkflowAdapter uwf,
+            final AnySearchDAO anySearchDAO,
+            final EnableFlowableForTestUsers enableFlowableForTestUsers,
+            final ElasticsearchInit elasticsearchInit) {
+
+        this.uwf = uwf;
+        this.anySearchDAO = anySearchDAO;
+        this.enableFlowableForTestUsers = enableFlowableForTestUsers;
+        this.elasticsearchInit = elasticsearchInit;
+    }
 
     @Override
     public int getOrder() {
@@ -262,6 +273,11 @@ public class ITImplementationLookup implements ImplementationLookup {
 
     @Override
     public void load(final String domain, final DataSource datasource) {
+        if (loaded) {
+            LOG.debug("Already loaded, nothing to do");
+            return;
+        }
+
         // in case the Flowable extension is enabled, enable modifications for test users
         if (enableFlowableForTestUsers != null && AopUtils.getTargetClass(uwf).getName().contains("Flowable")) {
             AuthContextUtils.callAsAdmin(domain, () -> {
@@ -277,6 +293,8 @@ public class ITImplementationLookup implements ImplementationLookup {
                 return null;
             });
         }
+
+        loaded = true;
     }
 
     @Override

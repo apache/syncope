@@ -40,29 +40,36 @@ import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
-    @Autowired
-    private SecurityProperties securityProperties;
+    protected final SecurityProperties securityProperties;
 
-    @Autowired
-    private AccessTokenJWSSigner jwsSigner;
+    protected final AccessTokenJWSSigner jwsSigner;
 
-    @Autowired
-    private AccessTokenDAO accessTokenDAO;
+    protected final AccessTokenDAO accessTokenDAO;
 
-    @Autowired
-    private ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    @Autowired
-    private DefaultCredentialChecker credentialChecker;
+    protected final DefaultCredentialChecker credentialChecker;
+
+    public AccessTokenDataBinderImpl(
+            final SecurityProperties securityProperties,
+            final AccessTokenJWSSigner jwsSigner,
+            final AccessTokenDAO accessTokenDAO,
+            final ConfParamOps confParamOps,
+            final EntityFactory entityFactory,
+            final DefaultCredentialChecker credentialChecker) {
+
+        this.securityProperties = securityProperties;
+        this.jwsSigner = jwsSigner;
+        this.accessTokenDAO = accessTokenDAO;
+        this.confParamOps = confParamOps;
+        this.entityFactory = entityFactory;
+        this.credentialChecker = credentialChecker;
+    }
 
     @Override
     public Pair<String, Date> generateJWT(

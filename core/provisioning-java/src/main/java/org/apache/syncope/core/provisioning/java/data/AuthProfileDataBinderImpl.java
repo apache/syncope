@@ -22,14 +22,14 @@ import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
 
-    @Autowired
-    private EntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
+
+    public AuthProfileDataBinderImpl(final EntityFactory entityFactory) {
+        this.entityFactory = entityFactory;
+    }
 
     @Override
     public AuthProfileTO getAuthProfileTO(final AuthProfile authProfile) {

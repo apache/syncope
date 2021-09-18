@@ -35,40 +35,93 @@ import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
+import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 @Transactional(rollbackFor = { Throwable.class })
 public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupDataBinder {
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
+    protected final SearchCondVisitor searchCondVisitor;
 
-    @Autowired
-    private SearchCondVisitor searchCondVisitor;
+    public GroupDataBinderImpl(
+            final AnyTypeDAO anyTypeDAO,
+            final RealmDAO realmDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final PlainAttrDAO plainAttrDAO,
+            final PlainAttrValueDAO plainAttrValueDAO,
+            final ExternalResourceDAO resourceDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory,
+            final DerAttrHandler derAttrHandler,
+            final VirAttrHandler virAttrHandler,
+            final MappingManager mappingManager,
+            final IntAttrNameParser intAttrNameParser,
+            final OutboundMatcher outboundMatcher,
+            final SearchCondVisitor searchCondVisitor) {
 
-    private void setDynMembership(final Group group, final AnyType anyType, final String dynMembershipFIQL) {
+        super(anyTypeDAO,
+                realmDAO,
+                anyTypeClassDAO,
+                anyObjectDAO,
+                userDAO,
+                groupDAO,
+                plainSchemaDAO,
+                plainAttrDAO,
+                plainAttrValueDAO,
+                resourceDAO,
+                relationshipTypeDAO,
+                entityFactory,
+                anyUtilsFactory,
+                derAttrHandler,
+                virAttrHandler,
+                mappingManager,
+                intAttrNameParser,
+                outboundMatcher);
+
+        this.searchCondVisitor = searchCondVisitor;
+    }
+
+    protected void setDynMembership(final Group group, final AnyType anyType, final String dynMembershipFIQL) {
         SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, dynMembershipFIQL);
         if (!dynMembershipCond.isValid()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
@@ -405,7 +458,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         return getGroupTO(groupDAO.authFind(key), true);
     }
 
-    private static void populateTransitiveResources(
+    protected static void populateTransitiveResources(
             final Group group, final Any<?> any, final Map<String, PropagationByResource<String>> result) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
