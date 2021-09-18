@@ -442,9 +442,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.USER);
 
-        // realm
-        setRealm(user, userUR);
-
         // password
         String password = null;
         boolean changePwd = false;
@@ -471,6 +468,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         // Save projection on Resources (before update)
         Map<String, ConnObjectTO> beforeOnResources =
                 onResources(user, userDAO.findAllResourceKeys(user.getKey()), password, changePwd);
+
+        // realm
+        setRealm(user, userUR);
 
         // username
         if (userUR.getUsername() != null && StringUtils.isNotBlank(userUR.getUsername().getValue())) {

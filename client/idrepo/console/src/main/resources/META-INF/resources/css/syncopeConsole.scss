@@ -80,16 +80,13 @@ body {
   }
 }
 
-
-
 /* Must Change Password
 ============================================================================= */
 
 #mcp_wrapper {
-  height: 100%;
 
-  #mcp_logo {
-    background: $background_console_white;
+  .form-control{
+    margin-bottom: 10px
   }
 
   .card {
