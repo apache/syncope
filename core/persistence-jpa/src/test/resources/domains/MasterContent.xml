@@ -348,6 +348,7 @@ under the License.
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <SchemaLabel id="d90f90d0-cf15-407e-bac7-d46a8eb57c05" schema_id="firstname" locale="en" display="Firstname"/>
   <SchemaLabel id="a9465ef0-b8b4-4af4-840d-77031a6b54a0" schema_id="firstname" locale="it" display="Nome"/>
+  <SchemaLabel id="ac8b7383-62df-490d-9364-88dbd3d301aa" schema_id="firstname" locale="pt_BR" display="Nome próprio"/>
   <SyncopeSchema id="surname"/>
   <PlainSchema id="surname" type="String" anyTypeClass_id="minimal user"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
