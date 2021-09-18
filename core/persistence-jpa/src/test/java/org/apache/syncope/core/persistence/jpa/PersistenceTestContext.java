@@ -77,7 +77,7 @@ public class PersistenceTestContext {
 
     @Bean
     @Autowired
-    public static TestInitializer testInitializer(
+    public TestInitializer testInitializer(
             final StartupDomainLoader domainLoader,
             final DomainHolder domainHolder,
             final ContentLoader contentLoader,
