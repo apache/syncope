@@ -93,7 +93,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration(value = "SyncopeWAConfiguration", proxyBeanMethods = true)
+@Configuration(value = "SyncopeWAConfiguration", proxyBeanMethods = false)
 public class SyncopeWAConfiguration {
 
     @Autowired
@@ -240,7 +240,7 @@ public class SyncopeWAConfiguration {
         return plan -> plan.registerAuditTrailManager(new SyncopeWAAuditTrailManager(restClient));
     }
 
-    @ConditionalOnMissingBean(name = "syncopWaEventRepositoryFilter")
+    @ConditionalOnMissingBean(name = "syncopeWaEventRepositoryFilter")
     @Bean
     public CasEventRepositoryFilter syncopeWAEventRepositoryFilter() {
         return CasEventRepositoryFilter.noOp();
@@ -248,8 +248,10 @@ public class SyncopeWAConfiguration {
 
     @Autowired
     @Bean
-    public CasEventRepository casEventRepository(final WARestClient restClient) {
-        return new SyncopeWAEventRepository(syncopeWAEventRepositoryFilter(), restClient);
+    public CasEventRepository casEventRepository(final WARestClient restClient,
+                                                 @Qualifier("syncopeWAEventRepositoryFilter")
+                                                 final CasEventRepositoryFilter syncopeWAEventRepositoryFilter) {
+        return new SyncopeWAEventRepository(syncopeWAEventRepositoryFilter, restClient);
     }
 
     @Autowired
