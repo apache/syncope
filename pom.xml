@@ -455,9 +455,6 @@ under the License.
 
     <h2.version>1.4.200</h2.version>
 
-    <junit.version>5.7.2</junit.version>
-    <mockito.version>3.12.4</mockito.version>
-
     <swagger-core.version>2.1.10</swagger-core.version>
     <swagger-ui.version>3.51.2</swagger-ui.version>
 
@@ -1907,31 +1904,6 @@ under the License.
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
         <version>${slf4j.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <version>${mockito.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-junit-jupiter</artifactId>
-        <version>${mockito.version}</version>
-        <scope>test</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter</artifactId>
-        <version>${junit.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
