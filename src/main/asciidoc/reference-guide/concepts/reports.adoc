@@ -57,10 +57,10 @@ Each reportlet is composed by:
 
 * a Java class extending
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/AbstractReportlet.java[AbstractReportlet^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/AbstractReportlet.java[AbstractReportlet^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/core/logic/src/main/java/org/apache/syncope/core/logic/report/AbstractReportlet.java[AbstractReportlet^]
+https://github.com/apache/syncope/blob/2_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/AbstractReportlet.java[AbstractReportlet^]
 endif::[]
 and implementing the information extraction logic and generating an XML stream as result
 * a Java class extending
@@ -80,10 +80,10 @@ a reference when building new reportlets for specific Apache Syncope deployments
 
 Defined by
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/StaticReportlet.java[StaticReportlet^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/StaticReportlet.java[StaticReportlet^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/core/logic/src/main/java/org/apache/syncope/core/logic/report/StaticReportlet.java[StaticReportlet^]
+https://github.com/apache/syncope/blob/2_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/StaticReportlet.java[StaticReportlet^]
 endif::[]
 and
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -97,10 +97,10 @@ it is essentially a handy way to inject static values (of various types) into a 
 ===== User and Group Reportlets
 Defined by
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/UserReportlet.java[UserReportlet^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/UserReportlet.java[UserReportlet^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/core/logic/src/main/java/org/apache/syncope/core/logic/report/UserReportlet.java[UserReportlet^]
+https://github.com/apache/syncope/blob/2_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/UserReportlet.java[UserReportlet^]
 endif::[]
 and
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -114,10 +114,10 @@ memberships and relationships, external resources and so on.
 
 A similar reportlet is also available for Groups, defined by
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/GroupReportlet.java[GroupReportlet^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/GroupReportlet.java[GroupReportlet^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/core/logic/src/main/java/org/apache/syncope/core/logic/report/GroupReportlet.java[GroupReportlet^]
+https://github.com/apache/syncope/blob/2_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/GroupReportlet.java[GroupReportlet^]
 endif::[]
 and
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -131,10 +131,10 @@ endif::[]
 
 Defined by
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/ReconciliationReportlet.java[ReconciliationReportlet^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/ReconciliationReportlet.java[ReconciliationReportlet^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/core/logic/src/main/java/org/apache/syncope/core/logic/report/ReconciliationReportlet.java[ReconciliationReportlet^]
+https://github.com/apache/syncope/blob/2_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/ReconciliationReportlet.java[ReconciliationReportlet^]
 endif::[]
 and
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -155,10 +155,10 @@ are available as a widget.
 
 Defined by
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/AuditReportlet.java[AuditReportlet^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/AuditReportlet.java[AuditReportlet^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/core/logic/src/main/java/org/apache/syncope/core/logic/report/AuditReportlet.java[AuditReportlet^]
+https://github.com/apache/syncope/blob/2_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/AuditReportlet.java[AuditReportlet^]
 endif::[]
 and
 ifeval::["{snapshotOrRelease}" == "release"]
