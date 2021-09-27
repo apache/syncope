@@ -67,13 +67,13 @@ public class SCIMv2RESTCXFContext {
         return new SCIMExceptionMapper();
     }
 
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = "scimAddETagFilter")
     @Bean
     public AddETagFilter scimAddETagFilter() {
         return new AddETagFilter();
     }
 
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = "scimv2Container")
     @Bean
     public Server scimv2Container() {
         SpringJAXRSServerFactoryBean scimv2Container = new SpringJAXRSServerFactoryBean();

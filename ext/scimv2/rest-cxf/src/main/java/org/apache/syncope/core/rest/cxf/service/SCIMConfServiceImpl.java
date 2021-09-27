@@ -39,5 +39,4 @@ public class SCIMConfServiceImpl extends AbstractService implements SCIMConfServ
     public void set(final SCIMConf conf) {
         manager.set(conf);
     }
-
 }

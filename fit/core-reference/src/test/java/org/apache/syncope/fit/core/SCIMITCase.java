@@ -63,7 +63,7 @@ import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.cxf.SCIMJacksonJsonProvider;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class SCIMITCase extends AbstractITCase {
@@ -101,19 +101,19 @@ public class SCIMITCase extends AbstractITCase {
         CONF.getUserConf().getEmails().add(email);
     }
 
-    private static boolean isSCIMAvailable(final WebClient webClient) {
-        synchronized (LOG) {
-            if (ENABLED == null) {
-                try {
-                    Response response = webClient.path("ServiceProviderConfig").get();
-                    ENABLED = response.getStatus() == 200;
-                } catch (Exception e) {
-                    // ignore
-                    ENABLED = false;
-                }
+    @BeforeAll
+    public static void isSCIMAvailable() {
+        if (ENABLED == null) {
+            try {
+                Response response = webClient().path("ServiceProviderConfig").get();
+                ENABLED = response.getStatus() == 200;
+            } catch (Exception e) {
+                // ignore
+                ENABLED = false;
             }
         }
-        return ENABLED;
+
+        assumeTrue(ENABLED);
     }
 
     private static WebClient webClient() {
@@ -121,11 +121,6 @@ public class SCIMITCase extends AbstractITCase {
                 accept(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 type(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT());
-    }
-
-    @BeforeEach
-    public void check() {
-        assumeTrue(isSCIMAvailable(webClient()));
     }
 
     @Test
