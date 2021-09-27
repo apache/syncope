@@ -98,6 +98,7 @@ import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.Encryptor;
+import org.apache.syncope.fit.ElasticsearchDetector;
 import org.apache.syncope.fit.FlowableDetector;
 import org.apache.syncope.fit.core.reference.TestPullActions;
 import org.identityconnectors.framework.common.objects.Name;
@@ -189,6 +190,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void fromCSV() throws Exception {
+        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(syncopeService));
+
         removeTestUsers();
 
         // Attemp to reset CSV content

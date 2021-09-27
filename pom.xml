@@ -409,7 +409,7 @@ under the License.
 
     <jackson.version>2.11.4</jackson.version>
 
-    <spring.version>5.2.16.RELEASE</spring.version>
+    <spring.version>5.2.17.RELEASE</spring.version>
     <spring-security.version>5.2.12.RELEASE</spring-security.version>
 
     <openjpa.version>3.2.0</openjpa.version>
@@ -431,7 +431,7 @@ under the License.
     <slf4j.version>1.7.32</slf4j.version>
     <opensaml.version>3.3.1</opensaml.version>
 
-    <elasticsearch.version>7.14.0</elasticsearch.version>
+    <elasticsearch.version>7.15.0</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -459,7 +459,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.0.10</swagger-core.version>    
-    <swagger-ui.version>3.51.2</swagger-ui.version>
+    <swagger-ui.version>3.52.1</swagger-ui.version>
     <guava.version>29.0-jre</guava.version>
 
     <jquery.version>3.4.1</jquery.version>
@@ -504,7 +504,7 @@ under the License.
     <maven-invoker.version>3.0.1</maven-invoker.version>
 
     <tycho.version>1.7.0</tycho.version>
-    <netbeans.version>RELEASE124</netbeans.version>
+    <netbeans.version>RELEASE125</netbeans.version>
 
     <antlr4.version>4.9.2</antlr4.version>
 
@@ -2092,7 +2092,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>8.45.1</version>
+              <version>9.0</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2490,20 +2490,20 @@ under the License.
             <link>http://www.slf4j.org/api/</link>
             <link>http://connid.tirasa.net/apidocs/1.5/</link>
             <link>http://cxf.apache.org/javadoc/latest-3.2.x/</link>
-            <link>http://fasterxml.github.io/jackson-core/javadoc/2.10/</link>
-            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.10/</link>
-            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.10/</link>
-            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.10/</link>
-            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.10/</link>
-            <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.24.2/</link>
-            <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.24.2/</link>
+            <link>http://fasterxml.github.io/jackson-core/javadoc/2.11/</link>
+            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.11/</link>
+            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.11/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.11/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.11/</link>
+            <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.25.4/</link>
+            <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.25.4/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/8.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.6/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
             <link>https://tika.apache.org/1.25/api/</link>
-            <link>https://docs.spring.io/spring/docs/5.1.x/javadoc-api/</link>
-            <link>https://docs.spring.io/spring-security/site/docs/5.1.x/api/</link>
+            <link>https://docs.spring.io/spring/docs/5.2.x/javadoc-api/</link>
+            <link>https://docs.spring.io/spring-security/site/docs/5.2.x/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/3.3.1/apidocs/</link>
             <link>http://docs.swagger.io/swagger-core/v2.0.10/apidocs/</link>

@@ -46,10 +46,13 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -153,8 +156,16 @@ public class ElasticsearchAnySearchDAOTest {
             AnyCond anyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
             anyCond.setSchema("id");
 
-            SearchRequest searchRequest = searchDAO.searchRequest(
-                    adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER, 1, 10, Collections.emptyList());
+            SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().
+                    query(searchDAO.getQueryBuilder(adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER)).
+                    from(1).
+                    size(10);
+            searchDAO.sortBuilders(AnyTypeKind.USER, Collections.emptyList()).forEach(sourceBuilder::sort);
+
+            SearchRequest searchRequest = new SearchRequest(
+                    ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
+                    searchType(SearchType.QUERY_THEN_FETCH).
+                    source(sourceBuilder);
 
             assertEquals(
                     QueryBuilders.boolQuery().

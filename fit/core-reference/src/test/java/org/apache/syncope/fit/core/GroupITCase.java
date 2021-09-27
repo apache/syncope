@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.io.IOException;
 import java.security.AccessControlException;
@@ -93,6 +94,7 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.ElasticsearchDetector;
 import org.junit.jupiter.api.Test;
 
 public class GroupITCase extends AbstractITCase {
@@ -928,6 +930,8 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void provisionMembers() throws InterruptedException {
+        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(syncopeService));
+
         // 1. create group without resources
         GroupTO groupTO = getBasicSampleTO("forProvision");
         groupTO = createGroup(groupTO).getEntity();

@@ -90,21 +90,12 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
             LOG.debug("Start rebuilding indexes");
 
             try {
-                if (indexManager.existsIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER)) {
-                    indexManager.removeIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER);
-                }
                 indexManager.createIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.USER, userSettings(), userMapping());
 
-                if (indexManager.existsIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP)) {
-                    indexManager.removeIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP);
-                }
                 indexManager.createIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.GROUP, groupSettings(), groupMapping());
 
-                if (indexManager.existsIndex(AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT)) {
-                    indexManager.removeIndex(AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT);
-                }
                 indexManager.createIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT, anyObjectSettings(), anyObjectMapping());
 
@@ -116,8 +107,12 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                                         AuthContextUtils.getDomain(), AnyTypeKind.USER)).
                                 id(user).
                                 source(utils.builder(userDAO.find(user), AuthContextUtils.getDomain()));
-                        IndexResponse response = client.index(request, RequestOptions.DEFAULT);
-                        LOG.debug("Index successfully created for {}: {}", user, response);
+                        try {
+                            IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+                            LOG.debug("Index successfully created for {}: {}", user, response);
+                        } catch (Exception e) {
+                            LOG.error("Could not create index for {} {}", AnyTypeKind.USER, user);
+                        }
                     }
                 }
 
@@ -129,8 +124,12 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                                         AuthContextUtils.getDomain(), AnyTypeKind.GROUP)).
                                 id(group).
                                 source(utils.builder(groupDAO.find(group), AuthContextUtils.getDomain()));
-                        IndexResponse response = client.index(request, RequestOptions.DEFAULT);
-                        LOG.debug("Index successfully created for {}: {}", group, response);
+                        try {
+                            IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+                            LOG.debug("Index successfully created for {}: {}", group, response);
+                        } catch (Exception e) {
+                            LOG.error("Could not create index for {} {}", AnyTypeKind.GROUP, group);
+                        }
                     }
                 }
 
@@ -142,8 +141,12 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                                         AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT)).
                                 id(anyObject).
                                 source(utils.builder(anyObjectDAO.find(anyObject), AuthContextUtils.getDomain()));
-                        IndexResponse response = client.index(request, RequestOptions.DEFAULT);
-                        LOG.debug("Index successfully created for {}: {}", anyObject, response);
+                        try {
+                            IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+                            LOG.debug("Index successfully created for {}: {}", anyObject, response);
+                        } catch (Exception e) {
+                            LOG.error("Could not create index for {} {}", AnyTypeKind.ANY_OBJECT, anyObject);
+                        }
                     }
                 }
 

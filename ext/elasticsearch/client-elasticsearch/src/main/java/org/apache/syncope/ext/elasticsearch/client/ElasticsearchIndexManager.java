@@ -19,12 +19,12 @@
 package org.apache.syncope.ext.elasticsearch.client;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -44,7 +44,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
@@ -54,11 +53,17 @@ public class ElasticsearchIndexManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchIndexManager.class);
 
-    @Autowired
-    private RestHighLevelClient client;
+    protected final RestHighLevelClient client;
 
-    @Autowired
-    private ElasticsearchUtils elasticsearchUtils;
+    protected final ElasticsearchUtils elasticsearchUtils;
+
+    public ElasticsearchIndexManager(
+            final RestHighLevelClient client,
+            final ElasticsearchUtils elasticsearchUtils) {
+
+        this.client = client;
+        this.elasticsearchUtils = elasticsearchUtils;
+    }
 
     public boolean existsIndex(final String domain, final AnyTypeKind kind) throws IOException {
         return client.indices().exists(
@@ -104,19 +109,37 @@ public class ElasticsearchIndexManager {
                 endObject();
     }
 
+    protected CreateIndexResponse doCreateIndex(
+            final String domain,
+            final AnyTypeKind kind,
+            final XContentBuilder settings,
+            final XContentBuilder mapping) throws IOException {
+
+        return client.indices().create(
+                new CreateIndexRequest(ElasticsearchUtils.getContextDomainName(domain, kind)).
+                        settings(settings).
+                        mapping(mapping), RequestOptions.DEFAULT);
+    }
+
     public void createIndex(
             final String domain,
             final AnyTypeKind kind,
             final XContentBuilder settings,
             final XContentBuilder mapping)
-            throws InterruptedException, ExecutionException, IOException {
+            throws IOException {
 
-        CreateIndexResponse response = client.indices().create(
-                new CreateIndexRequest(ElasticsearchUtils.getContextDomainName(domain, kind)).
-                        settings(settings).
-                        mapping(mapping), RequestOptions.DEFAULT);
-        LOG.debug("Successfully created {} for {}: {}",
-                ElasticsearchUtils.getContextDomainName(domain, kind), kind.name(), response);
+        try {
+            CreateIndexResponse response = doCreateIndex(domain, kind, settings, mapping);
+
+            LOG.debug("Successfully created {} for {}: {}",
+                    ElasticsearchUtils.getContextDomainName(domain, kind), kind.name(), response);
+        } catch (ElasticsearchStatusException e) {
+            LOG.debug("Could not create index {} because it already exists",
+                    ElasticsearchUtils.getContextDomainName(domain, kind), e);
+
+            removeIndex(domain, kind);
+            doCreateIndex(domain, kind, settings, mapping);
+        }
     }
 
     public void removeIndex(final String domain, final AnyTypeKind kind) throws IOException {
