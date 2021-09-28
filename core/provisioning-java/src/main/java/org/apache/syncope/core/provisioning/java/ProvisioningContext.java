@@ -155,10 +155,10 @@ import org.apache.syncope.core.provisioning.java.data.TaskDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.UserDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.WAConfigDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.wa.WAClientAppDataBinderImpl;
-import org.apache.syncope.core.provisioning.java.job.AutowiringSpringBeanJobFactory;
 import org.apache.syncope.core.provisioning.java.job.DefaultJobManager;
 import org.apache.syncope.core.provisioning.java.job.SchedulerDBInit;
 import org.apache.syncope.core.provisioning.java.job.SchedulerShutdown;
+import org.apache.syncope.core.provisioning.java.job.SyncopeSpringBeanJobFactory;
 import org.apache.syncope.core.provisioning.java.job.SystemLoadReporterJob;
 import org.apache.syncope.core.provisioning.java.job.notification.DefaultNotificationJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
@@ -311,7 +311,7 @@ public class ProvisioningContext implements AsyncConfigurer {
         scheduler.setOverwriteExistingJobs(true);
         scheduler.setDataSource(masterDataSource);
         scheduler.setTransactionManager(masterTransactionManager);
-        scheduler.setJobFactory(new AutowiringSpringBeanJobFactory());
+        scheduler.setJobFactory(new SyncopeSpringBeanJobFactory());
 
         Properties quartzProperties = new Properties();
         quartzProperties.setProperty(
