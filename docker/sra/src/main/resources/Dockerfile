@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM adoptopenjdk/openjdk11-openj9:debian-slim
+FROM adoptopenjdk/openjdk11:debian-slim
 MAINTAINER dev@syncope.apache.org
 
 RUN set -x

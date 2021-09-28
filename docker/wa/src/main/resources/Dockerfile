@@ -15,7 +15,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Cannot FROM adoptopenjdk/openjdk11-openj9:debian-slim because it's headless, and fonts might be required
 FROM adoptopenjdk/openjdk11:debian-slim
 MAINTAINER dev@syncope.apache.org
 
