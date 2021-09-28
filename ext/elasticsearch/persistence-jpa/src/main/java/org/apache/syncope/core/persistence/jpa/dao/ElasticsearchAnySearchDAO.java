@@ -70,6 +70,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.MatchNoneQueryBuilder;
@@ -165,13 +166,10 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 groupOwners);
     }
 
-    protected SearchRequest searchRequest(
+    protected QueryBuilder getQueryBuilder(
             final Set<String> adminRealms,
             final SearchCond cond,
-            final AnyTypeKind kind,
-            final int from,
-            final int size,
-            final List<SortBuilder<?>> sortBuilders) {
+            final AnyTypeKind kind) {
 
         Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter = getAdminRealmsFilter(kind, adminRealms);
         QueryBuilder queryBuilder;
@@ -187,22 +185,16 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             }
         }
 
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().
-                query(queryBuilder).
-                from(from).
-                size(size);
-        sortBuilders.forEach(sourceBuilder::sort);
-
-        return new SearchRequest(ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), kind)).
-                searchType(SearchType.QUERY_THEN_FETCH).
-                source(sourceBuilder);
+        return queryBuilder;
     }
 
     @Override
     protected int doCount(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind kind) {
-        SearchRequest request = searchRequest(adminRealms, cond, kind, 0, 0, List.of());
+        CountRequest request = new CountRequest(
+                ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), kind)).
+                query(getQueryBuilder(adminRealms, cond, kind));
         try {
-            return (int) client.search(request, RequestOptions.DEFAULT).getHits().getTotalHits().value;
+            return (int) client.count(request, RequestOptions.DEFAULT).getCount();
         } catch (IOException e) {
             LOG.error("Search error", e);
             return 0;
@@ -250,13 +242,16 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final List<OrderByClause> orderBy,
             final AnyTypeKind kind) {
 
-        SearchRequest request = searchRequest(
-                adminRealms,
-                cond,
-                kind,
-                (itemsPerPage * (page <= 0 ? 0 : page - 1)),
-                (itemsPerPage < 0 ? elasticsearchUtils.getIndexMaxResultWindow() : itemsPerPage),
-                sortBuilders(kind, orderBy));
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().
+                query(getQueryBuilder(adminRealms, cond, kind)).
+                from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
+                size(itemsPerPage < 0 ? elasticsearchUtils.getIndexMaxResultWindow() : itemsPerPage);
+        sortBuilders(kind, orderBy).forEach(sourceBuilder::sort);
+
+        SearchRequest request = new SearchRequest(
+                ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), kind)).
+                searchType(SearchType.QUERY_THEN_FETCH).
+                source(sourceBuilder);
 
         SearchHit[] esResult = null;
         try {
