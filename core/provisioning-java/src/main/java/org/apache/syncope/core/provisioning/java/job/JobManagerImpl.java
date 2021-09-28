@@ -36,7 +36,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.Report;
@@ -46,7 +45,6 @@ import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -62,9 +60,7 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
@@ -77,6 +73,7 @@ import org.apache.syncope.core.provisioning.java.job.notification.NotificationJo
 import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
+import org.quartz.Trigger;
 
 public class JobManagerImpl implements JobManager, SyncopeLoader {
 
@@ -144,7 +141,7 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
     }
 
     private void registerJob(
-            final String jobName, final Job jobInstance,
+            final String jobName, final Class<? extends Job> jobClass,
             final String cronExpression, final Date startAt,
             final Map<String, Object> jobMap)
             throws SchedulerException {
@@ -157,34 +154,28 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
         // 0. unregister job
         unregisterJob(jobName);
 
-        // 1. Job bean
-        ApplicationContextProvider.getBeanFactory().registerSingleton(jobName, jobInstance);
-
-        // 2. JobDetail bean
-        JobBuilder jobDetailBuilder = JobBuilder.newJob(jobInstance.getClass()).
+        // 1. JobDetail
+        JobBuilder jobDetailBuilder = JobBuilder.newJob(jobClass).
                 withIdentity(jobName).
                 usingJobData(new JobDataMap(jobMap));
 
-        // 3. Trigger
+        // 2. Trigger
         if (cronExpression == null && startAt == null) {
             // Jobs added with no trigger must be durable
             scheduler.getScheduler().addJob(jobDetailBuilder.storeDurably().build(), true);
         } else {
-            TriggerBuilder<?> triggerBuilder;
+            TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger().
+                    withIdentity(JobNamer.getTriggerName(jobName));
 
             if (cronExpression == null) {
-                triggerBuilder = TriggerBuilder.newTrigger().
-                        withIdentity(JobNamer.getTriggerName(jobName)).
-                        startAt(startAt);
+                triggerBuilder.startAt(startAt);
             } else {
-                triggerBuilder = TriggerBuilder.newTrigger().
-                        withIdentity(JobNamer.getTriggerName(jobName)).
-                        withSchedule(CronScheduleBuilder.cronSchedule(cronExpression));
+                triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression));
 
                 if (startAt == null) {
-                    triggerBuilder = triggerBuilder.startNow();
+                    triggerBuilder.startNow();
                 } else {
-                    triggerBuilder = triggerBuilder.startAt(startAt);
+                    triggerBuilder.startAt(startAt);
                 }
             }
 
@@ -192,37 +183,9 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T createSpringBean(final Class<T> jobClass) {
-        T jobInstance = null;
-        for (int i = 0; i < 5 && jobInstance == null; i++) {
-            LOG.debug("{} attempt to create Spring bean for {}", i, jobClass);
-            try {
-                jobInstance = (T) ApplicationContextProvider.getBeanFactory().
-                        createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                LOG.debug("{} attempt to create Spring bean for {} succeeded", i, jobClass);
-            } catch (BeanCreationException e) {
-                LOG.error("Could not create Spring bean for {}", jobClass, e);
-                try {
-                    Thread.sleep(1000);
-                } catch (final InterruptedException ex) {
-                    // ignore
-                }
-            }
-        }
-        if (jobInstance == null) {
-            throw new NotFoundException("Spring bean for " + jobClass);
-        }
-
-        return jobInstance;
-    }
-
     @Override
     public Map<String, Object> register(final SchedTask task, final Date startAt, final long interruptMaxRetries)
             throws SchedulerException {
-
-        TaskJob job = createSpringBean(TaskJob.class);
-        job.setTaskKey(task.getKey());
 
         Implementation jobDelegate = task.getJobDelegate() == null
                 ? task instanceof PullTask
@@ -241,12 +204,13 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
         }
 
         Map<String, Object> jobMap = new HashMap<>();
+        jobMap.put(JobManager.TASK_KEY, task.getKey());
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
         jobMap.put(TaskJob.DELEGATE_IMPLEMENTATION, jobDelegate.getKey());
 
         registerJob(
                 JobNamer.getJobKey(task).getName(),
-                job,
+                TaskJob.class,
                 task.getCronExpression(),
                 startAt,
                 jobMap);
@@ -257,13 +221,11 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
     public void register(final Report report, final Date startAt, final long interruptMaxRetries)
             throws SchedulerException {
 
-        ReportJob job = createSpringBean(ReportJob.class);
-        job.setReportKey(report.getKey());
-
         Map<String, Object> jobMap = new HashMap<>();
+        jobMap.put(JobManager.REPORT_KEY, report.getKey());
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
 
-        registerJob(JobNamer.getJobKey(report).getName(), job, report.getCronExpression(), startAt, jobMap);
+        registerJob(JobNamer.getJobKey(report).getName(), ReportJob.class, report.getCronExpression(), startAt, jobMap);
     }
 
     private void unregisterJob(final String jobName) {
@@ -272,10 +234,6 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
             scheduler.getScheduler().deleteJob(new JobKey(jobName, Scheduler.DEFAULT_GROUP));
         } catch (SchedulerException e) {
             LOG.error("Could not remove job " + jobName, e);
-        }
-
-        if (ApplicationContextProvider.getBeanFactory().containsSingleton(jobName)) {
-            ApplicationContextProvider.getBeanFactory().destroySingleton(jobName);
         }
     }
 
@@ -379,10 +337,9 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
                     NotificationJob.class.getSimpleName(), conf.getLeft());
 
             try {
-                NotificationJob job = createSpringBean(NotificationJob.class);
                 registerJob(
                         NOTIFICATION_JOB.getName(),
-                        job,
+                        NotificationJob.class,
                         conf.getLeft(),
                         null,
                         jobMap);
@@ -394,10 +351,9 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
         // 4. SystemLoadReporterJob (fixed schedule, every minute)
         LOG.debug("Registering {}", SystemLoadReporterJob.class);
         try {
-            SystemLoadReporterJob job = createSpringBean(SystemLoadReporterJob.class);
             registerJob(
                     "systemLoadReporterJob",
-                    job,
+                    SystemLoadReporterJob.class,
                     "0 * * * * ?",
                     null,
                     jobMap);

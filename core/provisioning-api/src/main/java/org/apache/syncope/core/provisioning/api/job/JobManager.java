@@ -30,6 +30,10 @@ import org.quartz.SchedulerException;
 @SuppressWarnings("squid:S1214")
 public interface JobManager {
 
+    String TASK_KEY = "task";
+
+    String REPORT_KEY = "report";
+
     String DOMAIN_KEY = "domain";
 
     JobKey NOTIFICATION_JOB = new JobKey("notificationJob", Scheduler.DEFAULT_GROUP);

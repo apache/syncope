@@ -77,7 +77,7 @@ under the License.
     <property name="dataSource" ref="MasterDataSource"/>
     <property name="transactionManager" ref="MasterTransactionManager"/>
     <property name="jobFactory">
-      <bean class="org.apache.syncope.core.provisioning.java.job.AutowiringSpringBeanJobFactory"/>
+      <bean class="org.apache.syncope.core.provisioning.java.job.SyncopeSpringBeanJobFactory"/>
     </property>
     <property name="quartzProperties">
       <props>
