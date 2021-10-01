@@ -21,10 +21,16 @@ package org.apache.syncope.core.provisioning.java.job;
 import java.util.Optional;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.quartz.spi.TriggerFiredBundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
 public class SyncopeSpringBeanJobFactory extends SpringBeanJobFactory {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeSpringBeanJobFactory.class);
 
     @Override
     protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception {
@@ -38,6 +44,16 @@ public class SyncopeSpringBeanJobFactory extends SpringBeanJobFactory {
                 Optional.ofNullable(bundle.getJobDetail().getJobDataMap().getString(JobManager.TASK_KEY)).
                         ifPresent(((TaskJob) job)::setTaskKey);
             }
+        }
+
+        DefaultListableBeanFactory factory = ApplicationContextProvider.getBeanFactory();
+        try {
+            if (factory.containsSingleton(bundle.getJobDetail().getKey().getName())) {
+                factory.destroySingleton(bundle.getJobDetail().getKey().getName());
+            }
+            factory.registerSingleton(bundle.getJobDetail().getKey().getName(), job);
+        } catch (Exception e) {
+            LOG.error("While attempting to replace job instance as singleton Spring bean", e);
         }
 
         return job;
