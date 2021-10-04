@@ -212,7 +212,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         response = httpclient.execute(get, context);
 
         headers = checkGetResponse(response, originalRequestURI.replace("/protected", ""));
-        assertTrue(headers.get(HttpHeaders.COOKIE).asText().contains("pac4jCsrfToken"));
+        assertTrue(headers.get(HttpHeaders.COOKIE).asText().contains("SESSION"));
 
         // 3. logout
         get = new HttpGet(SRA_ADDRESS + "/protected/logout");
