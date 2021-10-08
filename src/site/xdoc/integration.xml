@@ -32,11 +32,9 @@ under the License.
       </p>
     </section>
 
-    <section name="Travis CI">
+    <section name="GitHub Actions">
       <p>
-        <a href="https://travis-ci.com/github/apache/syncope">
-          <img src="https://api.travis-ci.com/apache/syncope.png"/>
-        </a>
+        <source><a href="https://github.com/apache/syncope/actions/">https://github.com/apache/syncope/actions/</a></source>
       </p>
     </section>
 
