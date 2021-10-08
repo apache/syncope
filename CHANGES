@@ -2,6 +2,29 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.1.10
+================================================================================
+
+** Bug
+    * [SYNCOPE-1628] - Console goes NPE when Connector fails to initialize
+    * [SYNCOPE-1629] - JPA JSON: Date conversion pattern including slashes leads to incorrect search results
+    * [SYNCOPE-1634] - Group Owner update/delete action doesn't trigger propagation action
+    * [SYNCOPE-1635] - Create Rules with configurations for each domain, make creation thread safe
+    * [SYNCOPE-1640] - Uncaught exception when creating Enum schema
+    * [SYNCOPE-1643] - Update of Realm doesn't trigger provisioning for users
+    * [SYNCOPE-1644] - Task run failure with multi-node deployments
+    * [SYNCOPE-1645] - Case insensitive search with Elasticsearch extension returns wrong results 
+
+** New Feature
+    * [SYNCOPE-129] - Delegation
+
+** Improvement
+    * [SYNCOPE-1630] - Use Group owners to extend Delegated Administration
+    * [SYNCOPE-1631] - Pass ConnId ObjectClass to ReconFilterBuilder
+    * [SYNCOPE-1633] - Give the possibility to add a custom message to the confirm dialog
+    * [SYNCOPE-1639] - Provide ordering of attributes in the diff view on the history management
+    * [SYNCOPE-1641] - Allow to purge Propagation Tasks
+
 Release Notes - Syncope - Version 2.1.9
 ================================================================================
 
