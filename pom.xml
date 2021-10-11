@@ -451,7 +451,7 @@ under the License.
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.8.1</junit.version>
-    <mockito.version>3.12.4</mockito.version>
+    <mockito.version>4.0.0</mockito.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -481,7 +481,7 @@ under the License.
     <chartjs.version>1.0.2</chartjs.version>
     
     <wicket.version>8.13.0</wicket.version>
-    <wicket-jqueryui.version>8.12.0</wicket-jqueryui.version>
+    <wicket-jqueryui.version>8.13.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>2.0.15</wicket-bootstrap.version>
 
     <angular.version>1.7.5</angular.version>
