@@ -110,7 +110,7 @@ public class StatusProducer extends AbstractProducer {
                     null);
             PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
-            exchange.getOut().setBody(Pair.of(updated.getResult(), reporter.getStatuses()));
+            exchange.getMessage().setBody(Pair.of(updated.getResult(), reporter.getStatuses()));
         }
     }
 }

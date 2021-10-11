@@ -59,7 +59,7 @@ public class UpdateProducer extends AbstractProducer {
                 }
                 PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
-                exchange.getOut().setBody(Pair.of(updated.getResult().getLeft(), reporter.getStatuses()));
+                exchange.getMessage().setBody(Pair.of(updated.getResult().getLeft(), reporter.getStatuses()));
             } else if (actual instanceof AnyPatch) {
                 WorkflowResult<? extends AnyPatch> updated =
                         (WorkflowResult<? extends AnyPatch>) exchange.getIn().getBody();
@@ -75,7 +75,7 @@ public class UpdateProducer extends AbstractProducer {
                         excludedResources);
                 PropagationReporter reporter = getPropagationTaskExecutor().execute(taskInfos, nullPriorityAsync);
 
-                exchange.getOut().setBody(Pair.of(updated.getResult(), reporter.getStatuses()));
+                exchange.getMessage().setBody(Pair.of(updated.getResult(), reporter.getStatuses()));
             }
         }
     }
