@@ -112,7 +112,7 @@ public class AttrTO implements Comparable<AttrTO>, Serializable {
                 ? 0
                 : new CompareToBuilder().
                         append(schema, other.schema).
-                        append(values, other.values).
+                        append(values.toArray(), other.values.toArray()).
                         toComparison();
     }
 
