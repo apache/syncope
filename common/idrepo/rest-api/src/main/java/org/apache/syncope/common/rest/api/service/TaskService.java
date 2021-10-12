@@ -146,7 +146,7 @@ public interface TaskService extends ExecutableService {
      * Deletes all the propagation tasks whose latest execution is matching the given conditions.
      * At least one matching condition must be specified.
      *
-     * @param since
+     * @param since match all executions started afterwards
      * @param statuses execution status(es) to match
      * @return deleted propagation tasks
      */

@@ -104,7 +104,7 @@ public class Attr implements Comparable<Attr>, BaseBean {
                 ? 0
                 : new CompareToBuilder().
                         append(schema, other.schema).
-                        append(values, other.values).
+                        append(values.toArray(), other.values.toArray()).
                         toComparison();
     }
 
