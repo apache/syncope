@@ -410,7 +410,7 @@ under the License.
     <jackson.version>2.11.4</jackson.version>
 
     <spring.version>5.2.18.RELEASE</spring.version>
-    <spring-security.version>5.2.12.RELEASE</spring-security.version>
+    <spring-security.version>5.2.13.RELEASE</spring-security.version>
 
     <openjpa.version>3.2.0</openjpa.version>
     <hikaricp.version>4.0.3</hikaricp.version>
