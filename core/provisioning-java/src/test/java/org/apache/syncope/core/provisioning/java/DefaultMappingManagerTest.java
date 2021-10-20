@@ -51,6 +51,7 @@ import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 
 @Transactional("Master")
 public class DefaultMappingManagerTest extends AbstractTest {
@@ -165,6 +166,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
         account.setConnObjectKeyValue("admin");
         account.setResource(ldap);
         account.setOwner(vivaldi);
+        account.setSuspended(Boolean.FALSE);
         account.setPassword("Password321", CipherAlgorithm.AES);
         vivaldi.add(account);
 
@@ -180,6 +182,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
                 provision);
         assertEquals("admin", AttributeUtil.getStringValue(AttributeUtil.find("cn", attrs)));
         assertEquals("Password321", SecurityUtil.decrypt(AttributeUtil.getPasswordValue(attrs)));
+        assertTrue(AttributeUtil.getBooleanValue(AttributeUtil.find(OperationalAttributes.ENABLE_NAME, attrs)));
 
         // 2. without account password and clear-text default password
         account.setEncodedPassword(null, null);

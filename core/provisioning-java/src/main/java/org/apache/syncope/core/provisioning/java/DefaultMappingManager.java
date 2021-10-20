@@ -407,7 +407,7 @@ public class DefaultMappingManager implements MappingManager {
         });
 
         if (account.isSuspended() != null) {
-            attributes.add(AttributeBuilder.buildEnabled(!BooleanUtils.negate(account.isSuspended())));
+            attributes.add(AttributeBuilder.buildEnabled(BooleanUtils.negate(account.isSuspended())));
         }
         if (!changePwd) {
             Attribute pwdAttr = AttributeUtil.find(OperationalAttributes.PASSWORD_NAME, attributes);
