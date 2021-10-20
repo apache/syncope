@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -37,9 +32,12 @@ import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.identityconnectors.common.security.SecurityUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Set;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional("Master")
 public class MappingManagerImplTest extends AbstractTest {
@@ -139,6 +137,7 @@ public class MappingManagerImplTest extends AbstractTest {
         account.setConnObjectKeyValue("admin");
         account.setResource(ldap);
         account.setOwner(vivaldi);
+        account.setSuspended(false);
         account.setPassword("Password321", CipherAlgorithm.AES);
         vivaldi.add(account);
 
@@ -154,6 +153,7 @@ public class MappingManagerImplTest extends AbstractTest {
                 provision);
         assertEquals("admin", AttributeUtil.getStringValue(AttributeUtil.find("cn", attrs)));
         assertEquals("Password321", SecurityUtil.decrypt(AttributeUtil.getPasswordValue(attrs)));
+        assertTrue(AttributeUtil.getBooleanValue(AttributeUtil.find(OperationalAttributes.ENABLE_NAME, attrs)));
 
         // 2. without account password and clear-text default password
         account.setEncodedPassword(null, null);
