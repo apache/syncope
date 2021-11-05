@@ -166,7 +166,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchWithNotCondition() {
+    public void searchWithNotCondition_AttrCond() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.EQ);
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("Giuseppe Verdi");
@@ -181,6 +181,22 @@ public class AnySearchTest extends AbstractTest {
         Set<String> ids = users.stream().map(Entity::getKey).collect(Collectors.toSet());
         assertTrue(ids.contains("1417acbe-cbf6-4277-9372-e75e04f97000"));
         assertTrue(ids.contains("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee"));
+    }
+
+    @Test
+    public void searchWithNotCondition_AnyCond() {
+        AnyCond usernameLeafCond = new AnyCond(AttrCond.Type.EQ);
+        usernameLeafCond.setSchema("username");
+        usernameLeafCond.setExpression("verdi");
+
+        SearchCond cond = SearchCond.getNotLeaf(usernameLeafCond);
+        assertTrue(cond.isValid());
+
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(4, users.size());
+
+        assertTrue(users.stream().noneMatch(user -> "verdi".equals(user.getUsername())));
     }
 
     @Test
