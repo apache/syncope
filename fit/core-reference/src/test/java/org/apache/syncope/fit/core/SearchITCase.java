@@ -772,4 +772,14 @@ public class SearchITCase extends AbstractITCase {
 
         assertEquals(total.getTotalCount(), matching.getTotalCount() + unmatching.getTotalCount());
     }
+
+    @Test
+    public void issueSYNCOPE1648() {
+        PagedResult<UserTO> matching = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                is("username").notEqualTo("verdi").query()).
+                        build());
+        assertTrue(matching.getResult().stream().noneMatch(user -> "verdi".equals(user.getUsername())));
+    }
 }

@@ -106,14 +106,13 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
-        if (not && !(cond instanceof AnyCond)) {
+        if (not && cond.getType() == AttrCond.Type.ISNULL) {
+            cond.setType(AttrCond.Type.ISNOTNULL);
+            fillAttrQuery(anyUtils, query, attrValue, schema, cond, true, parameters, svs);
+        } else if (not) {
             query.append("NOT (");
             fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
             query.append(')');
-        } else if (not && cond.getType() == AttrCond.Type.ISNULL) {
-            cond.setType(AttrCond.Type.ISNOTNULL);
-            fillAttrQuery(anyUtils, query, attrValue, schema, cond, true, parameters, svs);
         } else {
             String key = key(schema.getType());
 
@@ -229,15 +228,6 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             checked = check(cond, svs.anyTypeKind);
         } catch (IllegalArgumentException e) {
             return ALWAYS_FALSE_ASSERTION;
-        }
-
-        // normalize NULL / NOT NULL checks
-        if (not) {
-            if (cond.getType() == AttrCond.Type.ISNULL) {
-                cond.setType(AttrCond.Type.ISNOTNULL);
-            } else if (cond.getType() == AttrCond.Type.ISNOTNULL) {
-                cond.setType(AttrCond.Type.ISNULL);
-            }
         }
 
         StringBuilder query = new StringBuilder();
@@ -737,8 +727,10 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
-        if (not && !(cond instanceof AnyCond)) {
+        if (not && cond.getType() == AttrCond.Type.ISNULL) {
+            cond.setType(AttrCond.Type.ISNOTNULL);
+            fillAttrQuery(query, attrValue, schema, cond, true, parameters, svs);
+        } else if (not) {
             query.append("NOT (");
             fillAttrQuery(query, attrValue, schema, cond, false, parameters, svs);
             query.append(')');
