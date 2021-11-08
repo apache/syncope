@@ -46,7 +46,7 @@
           <xsl:value-of select="wadl:doc/@title"/>
         </title>
 
-        <link rel="stylesheet" href="{$contextPath}/webjars/jquery-ui-themes/${jquery-ui.version}/smoothness/jquery-ui.min.css"/>
+        <link rel="stylesheet" href="https://code.jquery.com/ui/${jquery-ui.version}/themes/smoothness/jquery-ui.min.css"/>
         <style>
           body {
           font-family: "Verdana,Arial,sans-serif";
