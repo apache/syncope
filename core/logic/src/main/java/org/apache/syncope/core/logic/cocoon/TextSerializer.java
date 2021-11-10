@@ -18,66 +18,25 @@
  */
 package org.apache.syncope.core.logic.cocoon;
 
-import org.apache.cocoon.sax.component.XMLSerializer;
-import org.xml.sax.Attributes;
-import org.xml.sax.Locator;
-import org.xml.sax.SAXException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import org.apache.cocoon.pipeline.caching.CacheKey;
+import org.apache.cocoon.pipeline.caching.SimpleCacheKey;
+import org.apache.cocoon.pipeline.component.CachingPipelineComponent;
+import org.apache.cocoon.sax.AbstractSAXSerializer;
+import org.apache.tika.sax.ToTextContentHandler;
 
-/**
- * Converts XML into plain text. It omits all XML tags and writes only character events to the output. Input document
- * must have at least one element - root element - which should wrap all the text inside it.
- *
- */
-public class TextSerializer extends XMLSerializer {
+public class TextSerializer extends AbstractSAXSerializer implements CachingPipelineComponent {
 
-    private static final String UTF_8 = "UTF-8";
-
-    private static final String TXT = "text";
-
-    public TextSerializer() {
-        super();
-        super.setOmitXmlDeclaration(true);
+    @Override
+    public void setOutputStream(final OutputStream outputStream) {
+        super.setOutputStream(outputStream);
+        setContentHandler(new ToTextContentHandler(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)));
     }
 
     @Override
-    public void setDocumentLocator(final Locator locator) {
-        // nothing
-    }
-
-    @Override
-    public void processingInstruction(final String target, final String data)
-            throws SAXException {
-        // nothing
-    }
-
-    @Override
-    public void startDTD(final String name, final String publicId, final String systemId)
-            throws SAXException {
-        // nothing
-    }
-
-    @Override
-    public void endDTD() throws SAXException {
-        // nothing
-    }
-
-    @Override
-    public void startElement(final String uri, final String loc, final String raw, final Attributes atts)
-            throws SAXException {
-        // nothing
-    }
-
-    @Override
-    public void endElement(final String uri, final String name, final String raw)
-            throws SAXException {
-        // nothing
-    }
-
-    public static TextSerializer createPlainSerializer() {
-        final TextSerializer serializer = new TextSerializer();
-        serializer.setContentType("text/plain; charset=" + UTF_8);
-        serializer.setEncoding(UTF_8);
-        serializer.setMethod(TXT);
-        return serializer;
+    public CacheKey constructCacheKey() {
+        return new SimpleCacheKey();
     }
 }
