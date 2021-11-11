@@ -35,6 +35,7 @@ under the License.
   
   <properties>
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
+    <slf4j.version>1.7.32</slf4j.version>
   </properties>
 
   <dependencies>

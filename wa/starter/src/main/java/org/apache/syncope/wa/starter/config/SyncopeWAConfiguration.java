@@ -27,9 +27,12 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
@@ -75,6 +78,7 @@ import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepositor
 import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
 import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
 import org.apereo.cas.services.ServiceRegistryListener;
+import org.apereo.cas.services.web.CasThymeleafLoginFormDirector;
 import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
 import org.apereo.cas.support.pac4j.authentication.DelegatedClientFactoryCustomizer;
@@ -83,8 +87,10 @@ import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerat
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
 import org.apereo.cas.util.DateTimeUtils;
 import org.apereo.cas.util.crypto.CipherExecutor;
+import org.apereo.cas.web.flow.CasWebflowExecutionPlan;
 import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
 import org.pac4j.core.client.Client;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -96,31 +102,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(value = "SyncopeWAConfiguration", proxyBeanMethods = false)
 public class SyncopeWAConfiguration {
 
-    @Autowired
-    private CasConfigurationProperties casProperties;
-
-    @Autowired
-    private ConfigurableApplicationContext ctx;
-
-    @Autowired
-    @Qualifier("serviceRegistryListeners")
-    private Collection<ServiceRegistryListener> serviceRegistryListeners;
-
-    private String version() {
+    private static String version(final ConfigurableApplicationContext ctx) {
         return ctx.getEnvironment().getProperty("version");
     }
 
     @Bean
-    public OpenAPI casSwaggerOpenApi() {
+    public OpenAPI casSwaggerOpenApi(final ConfigurableApplicationContext ctx) {
         return new OpenAPI().
                 info(new Info().
                         title("Apache Syncope").
-                        description("Apache Syncope " + version()).
+                        description("Apache Syncope " + version(ctx)).
                         contact(new Contact().
                                 name("The Apache Syncope community").
                                 email("dev@syncope.apache.org").
                                 url("http://syncope.apache.org")).
-                        version(version())).
+                        version(version(ctx))).
                 schemaRequirement("BasicAuthentication",
                         new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("basic")).
                 schemaRequirement("Bearer",
@@ -165,7 +161,7 @@ public class SyncopeWAConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    public RegisteredServiceMapper registeredServiceMapper() {
+    public RegisteredServiceMapper registeredServiceMapper(final ConfigurableApplicationContext ctx) {
         Map<String, AuthMapper> authPolicyConfMappers = new HashMap<>();
         ctx.getBeansOfType(AuthMapper.class).forEach((name, bean) -> {
             AuthMapFor authMapFor = ctx.findAnnotationOnBean(name, AuthMapFor.class);
@@ -209,10 +205,15 @@ public class SyncopeWAConfiguration {
     @Autowired
     @Bean
     public ServiceRegistryExecutionPlanConfigurer syncopeServiceRegistryConfigurer(
-            final WARestClient restClient, final RegisteredServiceMapper registeredServiceMapper) {
+            final ConfigurableApplicationContext ctx,
+            final WARestClient restClient,
+            final RegisteredServiceMapper registeredServiceMapper,
+            @Qualifier("serviceRegistryListeners")
+            final ObjectProvider<List<ServiceRegistryListener>> serviceRegistryListeners) {
 
         SyncopeWAServiceRegistry registry = new SyncopeWAServiceRegistry(
-                restClient, registeredServiceMapper, ctx, serviceRegistryListeners);
+                restClient, registeredServiceMapper, ctx,
+                Optional.ofNullable(serviceRegistryListeners.getIfAvailable()).orElseGet(ArrayList::new));
         return plan -> plan.registerServiceRegistry(registry);
     }
 
@@ -260,9 +261,10 @@ public class SyncopeWAConfiguration {
         return new SyncopeWASAML2ClientCustomizer(restClient);
     }
 
-    @Autowired
     @Bean
-    public OneTimeTokenRepository oneTimeTokenAuthenticatorTokenRepository(final WARestClient restClient) {
+    public OneTimeTokenRepository oneTimeTokenAuthenticatorTokenRepository(
+        final CasConfigurationProperties casProperties,
+        final WARestClient restClient) {
         return new SyncopeWAGoogleMfaAuthTokenRepository(
                 restClient, casProperties.getAuthn().getMfa().getGauth().getCore().getTimeStepSize());
     }
@@ -277,7 +279,9 @@ public class SyncopeWAConfiguration {
 
     @Autowired
     @Bean
-    public OidcJsonWebKeystoreGeneratorService oidcJsonWebKeystoreGeneratorService(final WARestClient restClient) {
+    public OidcJsonWebKeystoreGeneratorService oidcJsonWebKeystoreGeneratorService(
+        final ConfigurableApplicationContext ctx,
+        final WARestClient restClient) {
         int size = ctx.getEnvironment().
                 getProperty("cas.authn.oidc.jwks.size", int.class, 2048);
         JWSAlgorithm algorithm = ctx.getEnvironment().
@@ -287,15 +291,17 @@ public class SyncopeWAConfiguration {
 
     @RefreshScope
     @Bean
-    @Autowired
-    public WebAuthnCredentialRepository webAuthnCredentialRepository(final WARestClient restClient) {
+    public WebAuthnCredentialRepository webAuthnCredentialRepository(
+        final CasConfigurationProperties casProperties,
+        final WARestClient restClient) {
         return new SyncopeWAWebAuthnCredentialRepository(casProperties, restClient);
     }
 
     @Bean
-    @Autowired
     @RefreshScope
-    public U2FDeviceRepository u2fDeviceRepository(final WARestClient restClient) {
+    public U2FDeviceRepository u2fDeviceRepository(
+        final CasConfigurationProperties casProperties,
+        final WARestClient restClient) {
         U2FCoreMultifactorAuthenticationProperties u2f = casProperties.getAuthn().getMfa().getU2f().getCore();
         LocalDate expirationDate = LocalDate.now(ZoneId.systemDefault()).
                 minus(u2f.getExpireDevices(), DateTimeUtils.toChronoUnit(u2f.getExpireDevicesTimeUnit()));
@@ -332,5 +338,11 @@ public class SyncopeWAConfiguration {
     @Bean
     public KeymasterStop keymasterStop() {
         return new KeymasterStop(NetworkService.Type.WA);
+    }
+
+    @Bean
+    public CasThymeleafLoginFormDirector casThymeleafLoginFormDirector(
+        @Qualifier("casWebflowExecutionPlan") final CasWebflowExecutionPlan webflowExecutionPlan) {
+        return new CasThymeleafLoginFormDirector(webflowExecutionPlan);
     }
 }

@@ -411,7 +411,7 @@ under the License.
 
     <jackson.version>2.13.0</jackson.version>
 
-    <spring-boot.version>2.5.6</spring-boot.version>
+    <spring-boot.version>2.6.0-RC1</spring-boot.version>
     <spring-cloud-gateway.version>3.0.4</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.0</openjpa.version>
@@ -450,7 +450,7 @@ under the License.
 
     <pac4j.version>5.1.4</pac4j.version>
 
-    <cas.version>6.5.0-RC2</cas.version>
+    <cas.version>6.5.0-SNAPSHOT</cas.version>
     <cas-client.version>3.6.2</cas-client.version>
 
     <h2.version>1.4.200</h2.version>
@@ -1922,6 +1922,13 @@ under the License.
         <enabled>true</enabled>
       </releases>
     </repository>
+    <repository>
+      <id>spring</id>
+      <url>https://repo.spring.io/milestone</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -1954,6 +1961,13 @@ under the License.
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
+    </pluginRepository>
+    <pluginRepository>
+      <id>spring</id>
+      <url>https://repo.spring.io/milestone</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
     </pluginRepository>
   </pluginRepositories>
 
