@@ -48,4 +48,8 @@ public interface JAXRSService {
 
     String PARAM_ANYTYPEKEY = "anyTypeKey";
 
+    String DOUBLE_DASH = "--";
+
+    String CRLF = "\r\n";
+
 }

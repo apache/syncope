@@ -19,9 +19,19 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.io.Serializable;
+import java.util.regex.Pattern;
 
 @FunctionalInterface
 public interface Entity extends Serializable {
+
+    String ID_REGEX = "[\\p{L}\\p{gc=Mn}\\p{gc=Me}\\p{gc=Mc}\\p{Digit}\\p{gc=Pc} \\-@.~]+";
+
+    Pattern ID_PATTERN = Pattern.compile('^' + Entity.ID_REGEX, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+    Pattern EMAIL_PATTERN = Pattern.compile(
+            "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
+            + "@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
+            Pattern.CASE_INSENSITIVE);
 
     String getKey();
 }

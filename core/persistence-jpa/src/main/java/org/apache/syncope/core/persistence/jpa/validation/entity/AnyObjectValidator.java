@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
 public class AnyObjectValidator extends AbstractValidator<AnyObjectCheck, AnyObject> {
@@ -28,7 +29,7 @@ public class AnyObjectValidator extends AbstractValidator<AnyObjectCheck, AnyObj
     public boolean isValid(final AnyObject anyObject, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        boolean isValid = anyObject.getName() != null && KEY_PATTERN.matcher(anyObject.getName()).matches();
+        boolean isValid = anyObject.getName() != null && Entity.ID_PATTERN.matcher(anyObject.getName()).matches();
 
         if (!isValid) {
             context.buildConstraintViolationWithTemplate(

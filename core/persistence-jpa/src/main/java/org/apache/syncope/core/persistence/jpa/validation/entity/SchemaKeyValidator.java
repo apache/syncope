@@ -20,41 +20,31 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtils;
 
-import java.util.Objects;
-
-public class SchemaKeyValidator extends AbstractValidator<SchemaKeyCheck, Object> {
+public class SchemaKeyValidator extends AbstractValidator<SchemaKeyCheck, Schema> {
 
     @Override
-    public boolean isValid(final Object object, final ConstraintValidatorContext context) {
-        String key = null;
-        if (object instanceof PlainSchema) {
-            key = ((PlainSchema) object).getKey();
-        } else if (object instanceof DerSchema) {
-            key = ((DerSchema) object).getKey();
-        } else if (object instanceof VirSchema) {
-            key = ((VirSchema) object).getKey();
-        }
+    public boolean isValid(final Schema schema, final ConstraintValidatorContext context) {
 
-        boolean isValid = KEY_PATTERN.matcher(Objects.requireNonNull(key)).matches();
-        if (!isValid) {
+        if (schema.getKey() == null || !Entity.ID_PATTERN.matcher(schema.getKey()).matches()) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, key)).
+                    getTemplate(EntityViolationType.InvalidKey, schema.getKey())).
                     addPropertyNode("key").addConstraintViolation();
-        } else if (JPAAnyUtils.matchesFieldName(key)) {
+
+            return false;
+        } else if (JPAAnyUtils.matchesFieldName(schema.getKey())) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, "Schema key not allowed: " + key)).
+                    getTemplate(EntityViolationType.InvalidKey, "Schema key not allowed: " + schema.getKey())).
                     addPropertyNode("key").addConstraintViolation();
 
             return false;
         }
 
-        return isValid;
+        return true;
     }
 }

@@ -24,6 +24,7 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 
@@ -44,7 +45,7 @@ public class GroupValidator extends AbstractValidator<GroupCheck, Group> {
                     addPropertyNode("owner").addConstraintViolation();
         }
 
-        if (isValid && (group.getName() == null || !KEY_PATTERN.matcher(group.getName()).matches())) {
+        if (isValid && (group.getName() == null || !Entity.ID_PATTERN.matcher(group.getName()).matches())) {
             isValid = false;
 
             context.buildConstraintViolationWithTemplate(

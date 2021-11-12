@@ -26,11 +26,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public class BatchPayloadLineReader implements AutoCloseable {
 
@@ -71,8 +70,8 @@ public class BatchPayloadLineReader implements AutoCloseable {
     }
 
     private boolean isBoundary(final String currentLine) {
-        return (currentBoundary + SyncopeConstants.CRLF).equals(currentLine)
-                || (currentBoundary + SyncopeConstants.DOUBLE_DASH + SyncopeConstants.CRLF).equals(currentLine);
+        return (currentBoundary + JAXRSService.CRLF).equals(currentLine)
+                || (currentBoundary + JAXRSService.DOUBLE_DASH + JAXRSService.CRLF).equals(currentLine);
     }
 
     private int fillBuffer() throws IOException {
@@ -137,9 +136,9 @@ public class BatchPayloadLineReader implements AutoCloseable {
                 String charsetString = multipartMixed.getParameters().get(MediaType.CHARSET_PARAMETER);
                 currentCharset = Optional.ofNullable(charsetString).map(Charset::forName).orElse(DEFAULT_CHARSET);
 
-                currentBoundary = SyncopeConstants.DOUBLE_DASH + multipartMixed.getParameters().
+                currentBoundary = JAXRSService.DOUBLE_DASH + multipartMixed.getParameters().
                         get(RESTHeaders.BOUNDARY_PARAMETER);
-            } else if (SyncopeConstants.CRLF.equals(currentLine)) {
+            } else if (JAXRSService.CRLF.equals(currentLine)) {
                 readState.foundLinebreak();
             } else if (isBoundary(currentLine)) {
                 readState.foundBoundary();

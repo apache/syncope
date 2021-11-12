@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 
 public class PrivilegeValidator extends AbstractValidator<PrivilegeCheck, Privilege> {
@@ -28,7 +29,7 @@ public class PrivilegeValidator extends AbstractValidator<PrivilegeCheck, Privil
     public boolean isValid(final Privilege privilege, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (privilege.getKey() == null || !KEY_PATTERN.matcher(privilege.getKey()).matches()) {
+        if (privilege.getKey() == null || !Entity.ID_PATTERN.matcher(privilege.getKey()).matches()) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidKey, privilege.getKey())).
                     addPropertyNode("key").addConstraintViolation();

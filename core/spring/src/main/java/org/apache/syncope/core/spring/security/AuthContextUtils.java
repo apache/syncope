@@ -44,9 +44,11 @@ public final class AuthContextUtils {
 
     private static final String FAKE_PASSWORD = "FAKE_PASSWORD";
 
+    private static final String UNAUTHENTICATED = "unauthenticated";
+
     public static String getUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication == null ? SyncopeConstants.UNAUTHENTICATED : authentication.getName();
+        return authentication == null ? UNAUTHENTICATED : authentication.getName();
     }
 
     public static void updateUsername(final String newUsername) {
