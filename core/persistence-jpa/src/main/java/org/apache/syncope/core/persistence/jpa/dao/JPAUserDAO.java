@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.persistence.NoResultException;
@@ -35,7 +34,6 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -53,6 +51,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -78,9 +77,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
-
-    protected static final Pattern USERNAME_PATTERN =
-            Pattern.compile("^" + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
@@ -396,31 +392,34 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 throw new AccountPolicyException("Not allowed: " + user.getUsername());
             }
 
-            if (!USERNAME_PATTERN.matcher(user.getUsername()).matches()) {
-                throw new AccountPolicyException("Character(s) not allowed: " + user.getUsername());
-            }
-            user.getLinkedAccounts().stream().
-                    filter(account -> account.getUsername() != null).
-                    forEach(account -> {
-                        if (!USERNAME_PATTERN.matcher(account.getUsername()).matches()) {
-                            throw new AccountPolicyException("Character(s) not allowed: " + account.getUsername());
-                        }
-                    });
-
-            for (AccountPolicy policy : getAccountPolicies(user)) {
-                for (Implementation impl : policy.getRules()) {
-                    ImplementationManager.buildAccountRule(impl).ifPresent(rule -> {
-                        rule.enforce(user);
-
-                        user.getLinkedAccounts().stream().
-                                filter(account -> account.getUsername() != null).
-                                forEach(account -> rule.enforce(account));
-                    });
+            List<AccountPolicy> accountPolicies = getAccountPolicies(user);
+            if (accountPolicies.isEmpty()) {
+                if (!Entity.ID_PATTERN.matcher(user.getUsername()).matches()) {
+                    throw new AccountPolicyException("Character(s) not allowed: " + user.getUsername());
                 }
+                user.getLinkedAccounts().stream().
+                        filter(account -> account.getUsername() != null).
+                        forEach(account -> {
+                            if (!Entity.ID_PATTERN.matcher(account.getUsername()).matches()) {
+                                throw new AccountPolicyException("Character(s) not allowed: " + account.getUsername());
+                            }
+                        });
+            } else {
+                for (AccountPolicy policy : accountPolicies) {
+                    for (Implementation impl : policy.getRules()) {
+                        ImplementationManager.buildAccountRule(impl).ifPresent(rule -> {
+                            rule.enforce(user);
 
-                suspend |= user.getFailedLogins() != null && policy.getMaxAuthenticationAttempts() > 0
-                        && user.getFailedLogins() > policy.getMaxAuthenticationAttempts() && !user.isSuspended();
-                propagateSuspension |= policy.isPropagateSuspension();
+                            user.getLinkedAccounts().stream().
+                                    filter(account -> account.getUsername() != null).
+                                    forEach(account -> rule.enforce(account));
+                        });
+                    }
+
+                    suspend |= user.getFailedLogins() != null && policy.getMaxAuthenticationAttempts() > 0
+                            && user.getFailedLogins() > policy.getMaxAuthenticationAttempts() && !user.isSuspended();
+                    propagateSuspension |= policy.isPropagateSuspension();
+                }
             }
         } catch (PersistenceException | InvalidEntityException e) {
             throw e;

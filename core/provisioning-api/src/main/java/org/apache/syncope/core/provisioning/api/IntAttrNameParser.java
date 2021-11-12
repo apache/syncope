@@ -22,40 +22,40 @@ import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @SuppressWarnings({ "squid:S4784", "squid:S3776" })
 public class IntAttrNameParser {
-    
+
     private static final String END_PATTERN = ")\\]\\.(.+)";
 
     private static final Pattern PRIVILEGE_PATTERN = Pattern.compile(
-            "^privileges\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]");
+            "^privileges\\[(" + Entity.ID_REGEX + ")\\]");
 
     private static final Pattern ENCLOSING_GROUP_PATTERN = Pattern.compile(
-            "^groups\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
+            "^groups\\[(" + Entity.ID_REGEX + END_PATTERN);
 
     private static final Pattern RELATED_USER_PATTERN = Pattern.compile(
-            "^users\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
+            "^users\\[(" + Entity.ID_REGEX + END_PATTERN);
 
     private static final Pattern RELATED_ANY_OBJECT_PATTERN = Pattern.compile(
-            "^anyObjects\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
+            "^anyObjects\\[(" + Entity.ID_REGEX + END_PATTERN);
 
     private static final Pattern MEMBERSHIP_PATTERN = Pattern.compile(
-            "^memberships\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
+            "^memberships\\[(" + Entity.ID_REGEX + END_PATTERN);
 
     private static final Pattern RELATIONSHIP_PATTERN = Pattern.compile(
-            "^relationships\\[(" + SyncopeConstants.NAME_PATTERN + ")\\]"
-            + "\\[(" + SyncopeConstants.NAME_PATTERN + END_PATTERN);
+            "^relationships\\[(" + Entity.ID_REGEX + ")\\]"
+            + "\\[(" + Entity.ID_REGEX + END_PATTERN);
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;

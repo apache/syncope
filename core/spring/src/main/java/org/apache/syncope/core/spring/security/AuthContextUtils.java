@@ -41,6 +41,8 @@ public final class AuthContextUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthContextUtils.class);
 
+    private static final String UNAUTHENTICATED = "unauthenticated";
+
     public interface Executable<T> {
 
         T exec();
@@ -48,7 +50,7 @@ public final class AuthContextUtils {
 
     public static String getUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication == null ? SyncopeConstants.UNAUTHENTICATED : authentication.getName();
+        return authentication == null ? UNAUTHENTICATED : authentication.getName();
     }
 
     public static void updateUsername(final String newUsername) {

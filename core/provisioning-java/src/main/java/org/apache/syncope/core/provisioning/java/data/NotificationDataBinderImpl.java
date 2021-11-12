@@ -22,7 +22,6 @@ import java.text.ParseException;
 import java.util.regex.Matcher;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.provisioning.api.data.NotificationDataBinder;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -34,6 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
@@ -126,7 +126,7 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
 
         if (!notification.getStaticRecipients().isEmpty()) {
             notification.getStaticRecipients().forEach(mail -> {
-                Matcher matcher = SyncopeConstants.EMAIL_PATTERN.matcher(mail);
+                Matcher matcher = Entity.EMAIL_PATTERN.matcher(mail);
                 if (!matcher.matches()) {
                     LOG.error("Invalid mail address: {}", mail);
                     sce.getElements().add("staticRecipients: " + mail);

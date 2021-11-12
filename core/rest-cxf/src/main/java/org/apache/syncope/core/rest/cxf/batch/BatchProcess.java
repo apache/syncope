@@ -25,10 +25,10 @@ import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.transport.http.DestinationRegistry;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadGenerator;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.slf4j.Logger;
@@ -131,7 +131,7 @@ public class BatchProcess implements Runnable {
             }
         });
 
-        String results = BatchPayloadGenerator.generate(batchResponseItems, SyncopeConstants.DOUBLE_DASH + boundary);
+        String results = BatchPayloadGenerator.generate(batchResponseItems, JAXRSService.DOUBLE_DASH + boundary);
 
         Batch batch = batchDAO.find(boundary);
         if (batch == null) {

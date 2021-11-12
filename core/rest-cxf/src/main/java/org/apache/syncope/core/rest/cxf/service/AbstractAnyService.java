@@ -48,6 +48,7 @@ import org.apache.syncope.common.rest.api.batch.BatchPayloadGenerator;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -282,7 +283,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
         String boundary = "deassociate_" + SecureRandomUtils.generateRandomUUID().toString();
         return Response.ok(BatchPayloadGenerator.generate(
-                batchResponseItems, SyncopeConstants.DOUBLE_DASH + boundary)).
+                batchResponseItems, JAXRSService.DOUBLE_DASH + boundary)).
                 type(RESTHeaders.multipartMixedWith(boundary)).
                 build();
     }
@@ -371,7 +372,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
         String boundary = "associate_" + SecureRandomUtils.generateRandomUUID().toString();
         return Response.ok(BatchPayloadGenerator.generate(
-                batchResponseItems, SyncopeConstants.DOUBLE_DASH + boundary)).
+                batchResponseItems, JAXRSService.DOUBLE_DASH + boundary)).
                 type(RESTHeaders.multipartMixedWith(boundary)).
                 build();
     }

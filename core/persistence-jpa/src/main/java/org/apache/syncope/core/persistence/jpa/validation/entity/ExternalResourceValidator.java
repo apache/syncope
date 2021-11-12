@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
@@ -75,7 +76,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
     public boolean isValid(final ExternalResource resource, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (resource.getKey() == null || !KEY_PATTERN.matcher(resource.getKey()).matches()) {
+        if (resource.getKey() == null || !Entity.ID_PATTERN.matcher(resource.getKey()).matches()) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidKey, resource.getKey())).
                     addPropertyNode("key").addConstraintViolation();

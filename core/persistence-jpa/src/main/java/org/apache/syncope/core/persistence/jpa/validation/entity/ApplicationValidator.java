@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.Application;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 
 public class ApplicationValidator extends AbstractValidator<ApplicationCheck, Application> {
 
@@ -28,7 +29,7 @@ public class ApplicationValidator extends AbstractValidator<ApplicationCheck, Ap
     public boolean isValid(final Application application, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (application.getKey() == null || !KEY_PATTERN.matcher(application.getKey()).matches()) {
+        if (application.getKey() == null || !Entity.ID_PATTERN.matcher(application.getKey()).matches()) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidKey, application.getKey())).
                     addPropertyNode("key").addConstraintViolation();

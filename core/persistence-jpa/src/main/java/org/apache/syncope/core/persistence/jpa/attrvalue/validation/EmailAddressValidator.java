@@ -19,8 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.attrvalue.validation;
 
 import java.util.regex.Matcher;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 
 public class EmailAddressValidator extends AbstractValidator {
@@ -29,7 +29,7 @@ public class EmailAddressValidator extends AbstractValidator {
 
     @Override
     protected void doValidate(final PlainAttrValue attrValue) {
-        Matcher matcher = SyncopeConstants.EMAIL_PATTERN.matcher(attrValue.<CharSequence>getValue());
+        Matcher matcher = Entity.EMAIL_PATTERN.matcher(attrValue.<CharSequence>getValue());
         if (!matcher.matches()) {
             throw new InvalidPlainAttrValueException("\"" + attrValue.getValue() + "\" is not a valid email address");
         }

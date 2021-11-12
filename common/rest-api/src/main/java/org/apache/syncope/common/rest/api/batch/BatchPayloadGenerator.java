@@ -21,7 +21,7 @@ package org.apache.syncope.common.rest.api.batch;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public final class BatchPayloadGenerator {
 
@@ -31,10 +31,10 @@ public final class BatchPayloadGenerator {
         StringBuilder payload = new StringBuilder();
 
         items.forEach(item -> {
-            payload.append(boundary).append(SyncopeConstants.CRLF);
+            payload.append(boundary).append(JAXRSService.CRLF);
             payload.append(HttpHeaders.CONTENT_TYPE).append(": ").append("application/http").append('\n');
             payload.append("Content-Transfer-Encoding: binary").append('\n');
-            payload.append(SyncopeConstants.CRLF);
+            payload.append(JAXRSService.CRLF);
 
             if (item instanceof BatchRequestItem) {
                 BatchRequestItem bri = BatchRequestItem.class.cast(item);
@@ -59,7 +59,7 @@ public final class BatchPayloadGenerator {
                         payload.append(key).append(": ").append(value).append('\n');
                     });
                 });
-                payload.append(SyncopeConstants.CRLF);
+                payload.append(JAXRSService.CRLF);
             }
 
             if (item.getContent() != null) {
@@ -67,7 +67,7 @@ public final class BatchPayloadGenerator {
             }
         });
 
-        payload.append(boundary).append(SyncopeConstants.DOUBLE_DASH).append('\n');
+        payload.append(boundary).append(JAXRSService.DOUBLE_DASH).append('\n');
 
         return payload.toString();
     }
