@@ -30,23 +30,29 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource(value = "file:${conf.directory}/wa.properties", ignoreResourceNotFound = true)
 public class SyncopeWABootstrapConfiguration {
 
-    @Value("${wa.anonymousUser}")
-    private String anonymousUser;
+    @Configuration(proxyBeanMethods = false)
+    public static class WAClientConfiguration {
+        @Value("${wa.anonymousUser}")
+        private String anonymousUser;
 
-    @Value("${wa.anonymousKey}")
-    private String anonymousKey;
+        @Value("${wa.anonymousKey}")
+        private String anonymousKey;
 
-    @Value("${wa.useGZIPCompression:true}")
-    private boolean useGZIPCompression;
+        @Value("${wa.useGZIPCompression:true}")
+        private boolean useGZIPCompression;
 
-    @Bean
-    public WARestClient waRestClient() {
-        return new WARestClient(anonymousUser, anonymousKey, useGZIPCompression);
+        @Bean
+        public WARestClient waRestClient() {
+            return new WARestClient(anonymousUser, anonymousKey, useGZIPCompression);
+        }
     }
 
-    @Autowired
-    @Bean
-    public PropertySourceLocator configPropertySourceLocator(final WARestClient waRestClient) {
-        return new SyncopeWAPropertySourceLocator(waRestClient);
+    @Configuration(proxyBeanMethods = false)
+    public static class PropertySourceConfiguration {
+        @Autowired
+        @Bean
+        public PropertySourceLocator configPropertySourceLocator(final WARestClient waRestClient) {
+            return new SyncopeWAPropertySourceLocator(waRestClient);
+        }
     }
 }
