@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,8 +37,6 @@ import org.springframework.util.CollectionUtils;
 
 @AccountRuleConfClass(DefaultAccountRuleConf.class)
 public class DefaultAccountRule implements AccountRule {
-
-    private static final Pattern DEFAULT_PATTERN = Pattern.compile("[a-zA-Z0-9-_@. ]+");
 
     private DefaultAccountRuleConf conf;
 
@@ -78,22 +77,22 @@ public class DefaultAccountRule implements AccountRule {
         }
 
         // check pattern
-        Pattern pattern = (conf.getPattern() == null) ? DEFAULT_PATTERN : Pattern.compile(conf.getPattern());
+        Pattern pattern = conf.getPattern() == null ? Entity.ID_PATTERN : Pattern.compile(conf.getPattern());
         if (!pattern.matcher(username).matches()) {
             throw new AccountPolicyException("Username does not match pattern");
         }
 
         // check prefix
         conf.getPrefixesNotPermitted().stream().
-                filter(username::startsWith).
-                forEach(item -> {
+                filter(username::startsWith).findAny().
+                ifPresent(item -> {
                     throw new AccountPolicyException("Prefix not permitted");
                 });
 
         // check suffix
         conf.getSuffixesNotPermitted().stream().
-                filter(username::endsWith).
-                forEach(item -> {
+                filter(username::endsWith).findAny().
+                ifPresent(item -> {
                     throw new AccountPolicyException("Suffix not permitted");
                 });
     }

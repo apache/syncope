@@ -27,15 +27,11 @@ public final class SyncopeConstants {
 
     public static final String ROOT_REALM = "/";
 
+    public static final Set<String> FULL_ADMIN_REALMS = Set.of(ROOT_REALM);
+
     public static final String REALM_ANYTYPE = "REALM";
 
-    public static final Set<String> FULL_ADMIN_REALMS = Set.of("/");
-
-    public static final String UNAUTHENTICATED = "unauthenticated";
-
     public static final String ENUM_VALUES_SEPARATOR = ";";
-
-    public static final String NAME_PATTERN = "[\\p{L}\\p{gc=Mn}\\p{gc=Me}\\p{gc=Mc}\\p{Digit}\\p{gc=Pc} \\-@.~]+";
 
     public static final String[] DATE_PATTERNS = {
         "yyyy-MM-dd'T'HH:mm:ssZ",
@@ -47,24 +43,11 @@ public final class SyncopeConstants {
 
     public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
 
-    public static final String ROOT_LOGGER = "ROOT";
-
-    public static final String GROUP_OWNER_ROLE = "GROUP_OWNER";
-
-    public static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
-            + "@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
-            Pattern.CASE_INSENSITIVE);
-
     public static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 
     public static final Pattern UUID_PATTERN = Pattern.compile(UUID_REGEX);
 
     public static final String ENCRYPTED_DECODE_CONVERSION_PATTERN = "ENCRYPTED_DECODE_CONVERSION_PATTERN";
-
-    public static final String DOUBLE_DASH = "--";
-
-    public static final String CRLF = "\r\n";
 
     private SyncopeConstants() {
         // private constructor for utility class

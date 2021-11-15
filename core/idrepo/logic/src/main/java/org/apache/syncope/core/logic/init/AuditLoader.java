@@ -41,6 +41,8 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 public class AuditLoader implements SyncopeCoreLoader {
 
+    protected static final String ROOT_LOGGER = "ROOT";
+
     protected final AuditAccessor auditAccessor;
 
     protected final ImplementationLookup implementationLookup;

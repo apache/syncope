@@ -86,6 +86,8 @@ public class AuthDataAccessor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AuthDataAccessor.class);
 
+    public static final String GROUP_OWNER_ROLE = "GROUP_OWNER";
+
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     protected static final Set<SyncopeGrantedAuthority> ANONYMOUS_AUTHORITIES =
@@ -358,7 +360,7 @@ public class AuthDataAccessor {
         // Give entitlements as assigned by roles (with static or dynamic realms, where applicable) - assigned
         // either statically and dynamically
         userDAO.findAllRoles(user).stream().
-                filter(role -> !SyncopeConstants.GROUP_OWNER_ROLE.equals(role.getKey())).
+                filter(role -> !GROUP_OWNER_ROLE.equals(role.getKey())).
                 forEach(role -> role.getEntitlements().forEach(entitlement -> {
             Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                 Set<String> r = new HashSet<>();
@@ -374,9 +376,9 @@ public class AuthDataAccessor {
 
         // Give group entitlements for owned groups
         groupDAO.findOwnedByUser(user.getKey()).forEach(group -> {
-            Role groupOwnerRole = roleDAO.find(SyncopeConstants.GROUP_OWNER_ROLE);
+            Role groupOwnerRole = roleDAO.find(GROUP_OWNER_ROLE);
             if (groupOwnerRole == null) {
-                LOG.warn("Role {} was not found", SyncopeConstants.GROUP_OWNER_ROLE);
+                LOG.warn("Role {} was not found", GROUP_OWNER_ROLE);
             } else {
                 groupOwnerRole.getEntitlements().forEach(entitlement -> {
                     Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
@@ -396,7 +398,7 @@ public class AuthDataAccessor {
     protected Set<SyncopeGrantedAuthority> getDelegatedAuthorities(final Delegation delegation) {
         Map<String, Set<String>> entForRealms = new HashMap<>();
 
-        delegation.getRoles().stream().filter(role -> !SyncopeConstants.GROUP_OWNER_ROLE.equals(role.getKey())).
+        delegation.getRoles().stream().filter(role -> !GROUP_OWNER_ROLE.equals(role.getKey())).
                 forEach(role -> role.getEntitlements().forEach(entitlement -> {
             Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                 HashSet<String> r = new HashSet<>();

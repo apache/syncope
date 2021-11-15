@@ -67,6 +67,7 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.junit.jupiter.api.Test;
@@ -619,7 +620,7 @@ public class AnySearchTest extends AbstractTest {
     public void asGroupOwner() {
         // prepare authentication
         Map<String, Set<String>> entForRealms = new HashMap<>();
-        roleDAO.find(SyncopeConstants.GROUP_OWNER_ROLE).getEntitlements().forEach(entitlement -> {
+        roleDAO.find(AuthDataAccessor.GROUP_OWNER_ROLE).getEntitlements().forEach(entitlement -> {
             Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                 Set<String> r = new HashSet<>();
                 entForRealms.put(entitlement, r);

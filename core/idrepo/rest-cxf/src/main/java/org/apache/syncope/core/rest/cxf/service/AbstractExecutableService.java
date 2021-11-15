@@ -21,7 +21,6 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -33,6 +32,7 @@ import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ExecutableService;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
@@ -71,7 +71,7 @@ public abstract class AbstractExecutableService extends AbstractService implemen
 
         String boundary = "deleteExecutions_" + SecureRandomUtils.generateRandomUUID().toString();
         return Response.ok(BatchPayloadGenerator.generate(
-                batchResponseItems, SyncopeConstants.DOUBLE_DASH + boundary)).
+                batchResponseItems, JAXRSService.DOUBLE_DASH + boundary)).
                 type(RESTHeaders.multipartMixedWith(boundary)).
                 build();
     }
