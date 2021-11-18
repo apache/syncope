@@ -1505,9 +1505,9 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly23x</containerId>
+                <containerId>wildfly25x</containerId>
                 <zipUrlInstaller>
-                  <url>https://download.jboss.org/wildfly/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
+                  <url>https://github.com/wildfly/wildfly/releases/download/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
