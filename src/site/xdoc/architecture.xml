@@ -58,7 +58,7 @@ under the License.
           <em>Core</em>
         </strong> is the central component, providing all services offered by Apache Syncope.<br/>
         It exposes a fully-compliant 
-        <a target="_blank" href="https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services">JAX-RS 2.0</a>
+        <a target="_blank" href="https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services">JAX-RS 2.1</a>
         <a target="_blank" href="https://en.wikipedia.org/wiki/Representational_state_transfer">RESTful</a> 
         interface which enables third-party applications, written in any programming language, to consume IdM 
         services.

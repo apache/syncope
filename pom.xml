@@ -36,7 +36,7 @@ under the License.
     <relativePath />
   </parent>
 
-  <url>http://syncope.apache.org/</url>
+  <url>https://syncope.apache.org/</url>
 
   <inceptionYear>2010</inceptionYear>
 
@@ -81,8 +81,7 @@ under the License.
       <post>user@syncope.apache.org</post>
       <archive>https://lists.apache.org/list.html?user@syncope.apache.org</archive>
       <otherArchives>
-        <otherArchive>http://syncope.markmail.org/</otherArchive>
-        <otherArchive>http://syncope-user.1051894.n5.nabble.com/</otherArchive>
+        <otherArchive>https://syncope.markmail.org/</otherArchive>
         <otherArchive>http://www.mail-archive.com/user@syncope.apache.org/</otherArchive>
       </otherArchives>
     </mailingList>
@@ -93,8 +92,7 @@ under the License.
       <post>dev@syncope.apache.org</post>
       <archive>https://lists.apache.org/list.html?dev@syncope.apache.org</archive>
       <otherArchives>
-        <otherArchive>http://syncope.markmail.org/</otherArchive>
-        <otherArchive>http://syncope-dev.1063484.n5.nabble.com/</otherArchive>
+        <otherArchive>https://syncope.markmail.org/</otherArchive>
         <otherArchive>http://www.mail-archive.com/dev@syncope.apache.org/</otherArchive>
       </otherArchives>
     </mailingList>
@@ -105,7 +103,7 @@ under the License.
       <post>commits@syncope.apache.org</post>
       <archive>https://lists.apache.org/list.html?commits@syncope.apache.org</archive>
       <otherArchives>
-        <otherArchive>http://syncope.markmail.org/</otherArchive>
+        <otherArchive>https://syncope.markmail.org/</otherArchive>
         <otherArchive>http://www.mail-archive.com/commits@syncope.apache.org/</otherArchive>
       </otherArchives>
     </mailingList>
@@ -2550,12 +2548,12 @@ under the License.
             <link>http://www.slf4j.org/api/</link>
             <link>http://connid.tirasa.net/apidocs/1.5/</link>
             <link>http://cxf.apache.org/javadoc/latest/</link>
-            <link>http://fasterxml.github.io/jackson-core/javadoc/2.12/</link>
-            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.12/</link>
-            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.12/</link>
-            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.12/</link>
-            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.12/</link>
-            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.12/</link>
+            <link>http://fasterxml.github.io/jackson-core/javadoc/2.13/</link>
+            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.13/</link>
+            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.13/</link>
+            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.13/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.13/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.13/</link>
             <link>https://www.javadoc.io/doc/org.apache.camel/camel-core/latest/</link>
             <link>https://www.javadoc.io/doc/org.apache.camel/camel-spring/latest/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/9.x/</link>

@@ -26,15 +26,13 @@ import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 
 /**
  * Take care of all initializations needed by Syncope Core to run up and safe.
  */
-public class SyncopeCoreStart extends KeymasterStart
-        implements ApplicationListener<ContextRefreshedEvent>, Ordered {
+public class SyncopeCoreStart extends KeymasterStart implements Ordered {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreStart.class);
 
@@ -70,6 +68,6 @@ public class SyncopeCoreStart extends KeymasterStart
                     LOG.debug("[{}] Initialization completed", loaderName);
                 });
 
-        serviceOps.register(getNetworkService());
+        super.onApplicationEvent(event);
     }
 }

@@ -21,7 +21,7 @@
 // User manual: http://asciidoctor.org/docs/user-manual/
 // Tricks: https://leanpub.com/awesomeasciidoctornotebook/read
 
-:homepage: http://syncope.apache.org
+:homepage: https://syncope.apache.org
 :description: Several ways to get started with Apache Syncope
 :keywords: Apache Syncope, IdM, provisioning, identity management, getting started, tutorial
 
@@ -41,16 +41,19 @@ image::http://syncope.apache.org/images/apache-syncope-logo-small.jpg[Apache Syn
 [NOTE]
 .This document is under active development and discussion!
 If you find errors or omissions in this document, please don’t hesitate to 
-http://syncope.apache.org/issue-management.html[submit an issue] or
+https://syncope.apache.org/issue-management.html[submit an issue] or
 https://github.com/apache/syncope/pulls[open a pull request] with 
 a fix. We also encourage you to ask questions and discuss any aspects of the project on the 
-http://syncope.apache.org/mailing-lists.html[mailing lists or IRC]. 
+https://syncope.apache.org/mailing-lists.html[mailing lists or IRC]. 
 New contributors are always welcome!
 
 [discrete] 
 == Preface
-This guide shows you how to get started with Apache Syncope services for identity management, provisioning, and 
-compliance.
+This guide shows you how to get started with Apache Syncope services for:
+
+* identity management, provisioning and compliance; 
+* access management, single sign-on, authentication and authorization;
+* API gateway, secure proxy, service mesh, request routing.
 
 include::introduction.adoc[]
 

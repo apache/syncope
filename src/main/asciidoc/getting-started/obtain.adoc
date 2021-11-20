@@ -28,7 +28,7 @@ Tomcat-based environment that can be easily grabbed and put at work on any moder
 
 [CAUTION]
 .Target Audience
-First approach, especially with administration console and end-user; does not require technical skills. +
+First approach, especially with Admin and End-user UIs; does not require technical skills. +
 *Not meant for any production environment.*
 
 Getting ready in a few easy steps:
@@ -53,7 +53,7 @@ $ ./bin/startup.sh
 ----
 
 [TIP]
-Please refer to the http://tomcat.apache.org/tomcat-8.5-doc/[Apache Tomcat documentation^] for more advanced setup and 
+Please refer to the http://tomcat.apache.org/tomcat-9.0-doc/[Apache Tomcat documentation^] for more advanced setup and 
 instructions.
 
 [[standalone-components]]
@@ -78,8 +78,18 @@ with
 [source,java]
 jdbc:h2:~/syncopedb;DB_CLOSE_DELAY=-1
 
-in `webapps/syncope/WEB-INF/classes/domains/Master.properties` (for `Master` domain) or
-`webapps/syncope/WEB-INF/classes/domains/Two.properties` (for `Two` domain) from the Apache Tomcat directory.
+in `webapps/syncope/WEB-INF/classes/core-embedded.properties` for `persistence.domain[0].jdbcURL` property (`Master`
+domain) and / or
+
+[source,java]
+jdbc:h2:mem:syncopetwo;DB_CLOSE_DELAY=-1
+
+with
+
+[source,java]
+jdbc:h2:~/syncopetwo;DB_CLOSE_DELAY=-1
+
+for `persistence.domain[1].jdbcURL` property (`Two` domain), from the Apache Tomcat directory.
 This will create H2 database files in the home directory of the user running Apache Syncope.
 
 Please refer to the http://www.h2database.com/[H2 documentation^] for more options.
@@ -103,6 +113,15 @@ https://docs.docker.com/compose/[Docker Compose^] or https://kubernetes.io/[Kube
 
 ==== Docker images
 
+All images share a commong set of environment variables:
+
+* `KEYMASTER_ADDRESS`: Keymaster address
+* `KEYMASTER_USERNAME`: username for Keymaster authentication
+* `KEYMASTER_PASSWORD`: password for Keymaster authentication
+* `SERVICE_DISCOVERY_ADDRESS`: address to publish to Keymaster for the current instance
+* `ANONYMOUS_USER`: username for service-to-service authentication
+* `ANONYMOUS_KEY`: password for service-to-service authentication
+
 ===== Core
 
 Apache Syncope Core, see <<a-birds-eye-view-on-the-architecture,above>> for information.
@@ -111,8 +130,6 @@ Port exposed: `8080`.
 
 Environment variables:
 
-* `DBMS`: which type of relational DBMS is to be used as internal storage for Syncope Core; valid values are
-`postgresql`, `mariadb`, `mssql`, `mysql`
 * `DB_URL`: JDBC URL of internal storage
 * `DB_USER`: username for internal storage authentication
 * `DB_PASSWORD`: password for internal storage authentication
@@ -120,7 +137,7 @@ Environment variables:
 * `DB_POOL_MIN`: internal storage connection pool: floor
 * `OPENJPA_REMOTE_COMMIT`: configure multiple instances, with high availability; valid values are the ones accepted by
 OpenJPA for
-http://openjpa.apache.org/builds/3.0.0/apache-openjpa/docs/ref_guide_event.html[remote event notification^] including
+http://openjpa.apache.org/builds/3.1.0/apache-openjpa/docs/ref_guide_event.html[remote event notification^] including
 `sjvm` (single instance)
 
 ===== Console
@@ -129,27 +146,32 @@ Apache Syncope Admin UI, see <<a-birds-eye-view-on-the-architecture,above>> for 
 
 Port exposed: `8080`.
 
-Environment variables:
-
-* `CORE_SCHEME`: URL scheme to connect to Syncope Core; valid values are `http` or `https`
-* `CORE_HOST`: host name or IP address to connect to Syncope Core
-* `CORE_PORT`: port number to connect to Syncope Core
-
 ===== Enduser
 
 Apache Syncope Enduser UI, see <<a-birds-eye-view-on-the-architecture,above>> for information.
 
 Port exposed: `8080`.
 
+===== WA
+
+Apache Syncope Web Access, see <<a-birds-eye-view-on-the-architecture,above>> for information.
+
+Port exposed: `8080`.
+
 Environment variables:
 
-* `CORE_SCHEME`: URL scheme to connect to Syncope Core; valid values are `http` or `https`
-* `CORE_HOST`: host name or IP address to connect to Syncope Core
-* `CORE_PORT`: port number to connect to Syncope Core
+* `CAS_SERVER_NAME`: public base URL to reach this instance; in case of clustered setup, this is the public-facing
+address and not the individual node address
+
+===== SRA
+
+Apache Syncope Secure Remote Access, see <<a-birds-eye-view-on-the-architecture,above>> for information.
+
+Port exposed: `8080`.
 
 ==== Docker Compose samples
 
-Besides the one reported below, more samples are
+Besides the ones reported below, more samples are
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/docker/src/main/resources/docker-compose[available^].
 endif::[]
@@ -157,10 +179,14 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/tree/master/docker/src/main/resources/docker-compose[available^].
 endif::[]
 
-.Syncope Core, Admin UI and Enduser UI with PostgreSQL
+.Core, Admin UI and Enduser UI with PostgreSQL, with embedded Keymaster
 ====
-The `docker-compose.yml` below will create and connect 4 Docker containers to provide a full-fledged, single
+The `docker-compose.yml` below will create and connect 4 Docker containers to provide an IdM-only, single
 instance, Apache Syncope deployment. All referenced images are available on Docker Hub.
+
+[NOTE]
+In this sample we are configuring an embedded, REST-based Keymaster hence `KEYMASTER_USERNAME` / `KEYMASTER_PASSWORD`
+are passed with same values as `ANONYMOUS_USER` / `ANONYMOUS_KEY`.
 
 [source,yaml,subs="verbatim,attributes"]
 ----
@@ -183,13 +209,19 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       DBMS: postgresql
+       SPRING_PROFILES_ACTIVE: docker,postgresql
        DB_URL: jdbc:postgresql://db:5432/syncope
        DB_USER: syncope
        DB_PASSWORD: syncope
        DB_POOL_MAX: 10
        DB_POOL_MIN: 2
        OPENJPA_REMOTE_COMMIT: sjvm
+       KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: ${ANONYMOUS_USER}
+       KEYMASTER_PASSWORD: ${ANONYMOUS_KEY}
+       SERVICE_DISCOVERY_ADDRESS: https://syncope:8080/syncope/rest/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}
 
    syncope-console: // <3>
      depends_on:
@@ -199,9 +231,13 @@ services:
        - "28080:8080"
      restart: always
      environment:
-       CORE_SCHEME: http
-       CORE_HOST: syncope
-       CORE_PORT: 8080
+       SPRING_PROFILES_ACTIVE: docker
+       KEYMASTER_ADDRESS: https://syncope:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: ${ANONYMOUS_USER}
+       KEYMASTER_PASSWORD: ${ANONYMOUS_KEY}
+       SERVICE_DISCOVERY_ADDRESS: https://syncope-console:8080/syncope-console/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}
 
    syncope-enduser: // <4>
      depends_on:
@@ -211,17 +247,138 @@ services:
        - "38080:8080"
      restart: always
      environment:
-       CORE_SCHEME: http
-       CORE_HOST: syncope
-       CORE_PORT: 8080
+       SPRING_PROFILES_ACTIVE: docker
+       KEYMASTER_ADDRESS: https://syncope:8080/syncope/rest/keymaster
+       KEYMASTER_USERNAME: ${ANONYMOUS_USER}
+       KEYMASTER_PASSWORD: ${ANONYMOUS_KEY}
+       SERVICE_DISCOVERY_ADDRESS: https://syncope-enduser:8080/syncope-enduser/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}
 ----
 <1> Database container for usage as internal storage, based on latest PostgreSQL image available
 <2> Apache Syncope Core, single instance, port `18080` exposed
 <3> Apache Syncope Admin UI, port `28080` exposed
-<4> Apache Syncope Enduser UI, port `38080` exposed, working with `Master` domain
+<4> Apache Syncope Enduser UI, port `38080` exposed
 ====
 
-How to start the containers:
+.Full deployment (Core, Admin UI, Enduser UI, WA, SRA) on PostgreSQL, with Keymaster on Zookeeper
+====
+The `docker-compose.yml` below will create and connect 7 Docker containers to provide a full-fledged, single
+instance, Apache Syncope deployment. All referenced images are available on Docker Hub.
+
+[NOTE]
+Zookeeper is configured without JAAS, hence empty `KEYMASTER_USERNAME` / `KEYMASTER_PASSWORD` are passed to other
+containers.
+
+[source,yaml,subs="verbatim,attributes"]
+----
+version: '3.3'
+
+services:
+   keymaster: // <1>
+     image: zookeeper:3.7.0
+     restart: always
+
+   db: // <2>
+     image: postgres:latest
+     restart: always
+     environment:
+       POSTGRES_DB: syncope
+       POSTGRES_USER: syncope
+       POSTGRES_PASSWORD: syncope
+
+   syncope: // <3>
+     depends_on:
+       - db
+       - keymaster
+     image: apache/syncope:{docVersion}
+     ports:
+       - "18080:8080"
+     restart: always
+     environment:
+       SPRING_PROFILES_ACTIVE: docker,postgresql
+       DB_URL: jdbc:postgresql://db:5432/syncope
+       DB_USER: syncope
+       DB_PASSWORD: syncope
+       DB_POOL_MAX: 10
+       DB_POOL_MIN: 2
+       OPENJPA_REMOTE_COMMIT: sjvm
+       KEYMASTER_ADDRESS: keymaster:2181
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
+       SERVICE_DISCOVERY_ADDRESS: https://syncope:8080/syncope/rest/
+
+   syncope-console: // <4>
+     depends_on:
+       - syncope
+       - keymaster
+     image: apache/syncope-console:{docVersion}
+     ports:
+       - "28080:8080"
+     restart: always
+     environment:
+       SPRING_PROFILES_ACTIVE: docker
+       KEYMASTER_ADDRESS: keymaster:2181
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
+       SERVICE_DISCOVERY_ADDRESS: https://syncope-console:8080/syncope-console/
+
+   syncope-enduser: // <5>
+     depends_on:
+       - syncope
+       - keymaster
+     image: apache/syncope-enduser:{docVersion}
+     ports:
+       - "38080:8080"
+     restart: always
+     environment:
+       SPRING_PROFILES_ACTIVE: docker
+       KEYMASTER_ADDRESS: keymaster:2181
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
+       SERVICE_DISCOVERY_ADDRESS: https://syncope-enduser:8080/syncope-enduser/
+
+   syncope-wa: // <6>
+     depends_on:
+       - syncope
+       - keymaster
+     image: apache/syncope-wa:{docVersion}
+     ports:
+       - "48080:8080"
+     restart: always
+     environment:
+       SPRING_PROFILES_ACTIVE: docker
+       KEYMASTER_ADDRESS: keymaster:2181
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
+       SERVICE_DISCOVERY_ADDRESS: https://syncope-wa:8080/syncope-wa/
+       CAS_SERVER_NAME: http://localhost:48080
+
+   syncope-sra: // <7>
+     depends_on:
+       - syncope
+       - keymaster
+     image: apache/syncope-sra:{docVersion}
+     ports:
+       - "58080:8080"
+     restart: always
+     environment:
+       SPRING_PROFILES_ACTIVE: docker
+       KEYMASTER_ADDRESS: keymaster:2181
+       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
+       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
+       SERVICE_DISCOVERY_ADDRESS: https://syncope-sra:8080/
+----
+<1> Apache Syncope Keymaster, based on https://zookeeper.apache.org/[Apache Zookeeper^]
+<2> Database container for usage as internal storage, based on latest PostgreSQL image available
+<3> Apache Syncope Core, single instance, port `18080` exposed
+<4> Apache Syncope Admin UI, port `28080` exposed
+<5> Apache Syncope Enduser UI, port `38080` exposed
+<6> Apache Syncope WA, port `48080` exposed
+<7> Apache Syncope SRA, port `58080` exposed
+====
+
+===== How to start the containers
 
 . Save the example file locally.
 . Download and start the containers:
@@ -236,15 +393,21 @@ The following services will be available:
 [cols="1,2"]
 |===
 
-| Complete REST API reference
-| http://localhost:18080/syncope/index.html
+| REST API reference
+| http://localhost:18080/syncope/
 
-| Administration console
-| http://localhost:28080/syncope-console +
+| Admin UI
+| http://localhost:28080/syncope-console/ +
 Credentials: `admin` / `password`
 
 | End-user UI
-| http://localhost:38080/syncope-enduser
+| http://localhost:38080/syncope-enduser/
+
+| WA (only with Example 2)
+| http://localhost:48080/syncope-wa/
+
+| SRA (only with Example 2)
+| http://localhost:58080/
 
 |===
 
@@ -325,7 +488,7 @@ Provides access to the full capabilities of Apache Syncope, and almost all exten
 [[maven-prerequisites]]
 ==== Prerequisites
 
- . http://maven.apache.org/[Apache Maven^] (version 3.0.3 or higher) installed
+ . http://maven.apache.org/[Apache Maven^] (version 3.5.0 or higher) installed
  . Some basic knowledge about Maven
  . Some basic knowledge about http://maven.apache.org/guides/introduction/introduction-to-archetypes.html[Maven archetypes^].
 
@@ -401,18 +564,20 @@ anonymousKey::
     Provide any pseudo-random string here that will be used as an authentication key for anonymous requests.
 
 Maven will create a project for you (in a newly created directory named after the value of the `artifactId` property 
-specified above) containing four modules: `common`, `core`, `console` and `enduser`.
+specified above) containing seven modules: `common`, `core`, `console`, `enduser`, `wa`, `sra` and `fit`.
 
 You are now able to perform the first build via
 
 [source,bash]
 $ mvn clean install
 
-After downloading all of the needed dependencies, three WAR files will be produced:
+After downloading all of the needed dependencies, the following artifacts will be produced:
 
 . `core/target/syncope.war`
 . `console/target/syncope-console.war`
 . `enduser/target/syncope-enduser.war`
+. `wa/target/syncope-wa.war`
+. `sra/target/syncope-sra.jar`
 
 If no failures are encountered, your basic Apache Syncope project is now ready to go.
 
@@ -421,10 +586,10 @@ If no failures are encountered, your basic Apache Syncope project is now ready t
 Before actual deployment as executbale or onto a Java EE container, you need to further check the **Customization**
 chapter of the
 ifeval::["{backend}" == "html5"]
-http://syncope.apache.org/docs/reference-guide.html[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/reference-guide.html[Apache Syncope Reference Guide.]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-http://syncope.apache.org/docs/reference-guide.pdf[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/reference-guide.pdf[Apache Syncope Reference Guide.]
 endif::[]
 ====
 
@@ -452,14 +617,14 @@ configured for the embedded mode.
 When building for production, instead, it is recommended to check the **Customization** chapter of
 the
 ifeval::["{backend}" == "html5"]
-http://syncope.apache.org/docs/reference-guide.html[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/reference-guide.html[Apache Syncope Reference Guide.]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-http://syncope.apache.org/docs/reference-guide.pdf[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/reference-guide.pdf[Apache Syncope Reference Guide.]
 endif::[]
 ====
 
-then, from the `enduser` subdirectory, execute:
+then, from the `fit` subdirectory, execute:
 
 [source,bash]
 $ mvn -P embedded,all
@@ -470,20 +635,26 @@ $ mvn -P embedded,all
 |===
 
 | Log files
-| Available under `core/target/log`, `console/target/log` and `enduser/target/log`
+| Available under `core/target/log`, `console/target/log`, `enduser/target/log`, `wa/target/log` and `sra/target/log`
 
 | ConnId bundles
 | Available under `core/target/bundles`
 
-| Complete REST API reference
-| http://localhost:9080/syncope/index.html
+| REST API reference
+| http://localhost:9080/syncope/
 
-| Administration console
+| Admini UI
 | http://localhost:9080/syncope-console/ +
 Credentials: `admin` / `password`
 
 | End-user UI
 | http://localhost:9080/syncope-enduser/
+
+| WA
+| http://localhost:9080/syncope-wa/
+
+| SRA
+| http://localhost:8080/
 
 | Internal storage
 | A SQL web interface is available at http://localhost:9080/syncope/h2 +
@@ -502,11 +673,8 @@ You can configure any LDAP client (such as http://jxplorer.org/[JXplorer^], for 
  bind DN: `uid=admin,ou=system` +
  bind password: `secret`
 
-| External resource: SOAP
-| An example SOAP service is available at http://localhost:9080/syncope-fit-build-tools/cxf/soap
-
-| External resource: REST
-| An example REST service is available at http://localhost:9080/syncope-fit-build-tools/cxf/rest
+| External resource: SOAP and REST
+| Example SOAP and REST services are available at http://localhost:9080/syncope-fit-build-tools/cxf/
 
 | External resource: database
 | http://www.h2database.com/[H2^] TCP database is available. +

@@ -19,4 +19,4 @@ under the License.
 **Apache Syncope** is an Open Source system for managing digital identities in enterprise environments, 
 implemented in Java EE technology and released under Apache 2.0 license.
 
-Would you like to contribute? Visit http://syncope.apache.org/contributing.html
+Would you like to contribute? Visit https://syncope.apache.org/contributing.html

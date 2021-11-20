@@ -125,7 +125,7 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
             ExternalDocumentation extDoc = new ExternalDocumentation();
             extDoc.setDescription("Apache Syncope Reference Guide");
-            extDoc.setUrl("http://syncope.apache.org/docs/3.0/reference-guide.html#domains");
+            extDoc.setUrl("https://syncope.apache.org/docs/3.0/reference-guide.html#domains");
 
             Schema<String> schema = new Schema<>();
             schema.setDescription("Domains are built to facilitate multitenancy.");
@@ -146,7 +146,7 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
             ExternalDocumentation extDoc = new ExternalDocumentation();
             extDoc.setDescription("Apache Syncope Reference Guide");
-            extDoc.setUrl("http://syncope.apache.org/docs/3.0/reference-guide.html#delegation");
+            extDoc.setUrl("https://syncope.apache.org/docs/3.0/reference-guide.html#delegation");
 
             Schema<String> schema = new Schema<>();
             schema.setDescription("Acton behalf of someone else");

@@ -96,10 +96,10 @@ Please also note that the actual list of Spring context files to include might d
 
 In general, the Embedded Mode (see the
 ifeval::["{backend}" == "html5"]
-http://syncope.apache.org/docs/getting-started.html[Apache Syncope Getting Started Guide]
+https://syncope.apache.org/docs/getting-started.html[Apache Syncope Getting Started Guide]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-http://syncope.apache.org/docs/getting-started.pdf[Apache Syncope Getting Started Guide]
+https://syncope.apache.org/docs/getting-started.pdf[Apache Syncope Getting Started Guide]
 endif::[]
 for details) allows the user to work comfortably from a single workstation, with no need of additional setup; it is
 effectively implemented as the `all`

@@ -32,7 +32,7 @@ where `protocol`, `host` and `port` reflect your deployment.
 .REST Reference
 ====
 A complete REST reference generated from https://en.wikipedia.org/wiki/Web_Application_Description_Language[WADL^] is
-http://syncope.apache.org/rest/2.1/index.html[published^] as well as made available with each deployment at
+https://syncope.apache.org/rest/3.0/index.html[published^] as well as made available with each deployment at
 
 ....
 protocol://host:port/syncope/
@@ -265,7 +265,7 @@ Accept: application/xml
 Content-Length: 628
 Content-Type: application/xml
 ^M
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?><syncope30:group xmlns:syncope30="http://syncope.apache.org/3.0">
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><syncope30:group xmlns:syncope30="https://syncope.apache.org/3.0">
 </syncope30:group>
 --batch_61bfef8d-0a00-41aa-b775-7b6efff37652
 Content-Type: application/http
@@ -341,7 +341,7 @@ X-Syncope-Domain: Master
 X-Syncope-Key: 843b2fc3-b8a8-4a8b-bb2f-c3b8a87a8b2e
 ^M
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<syncope30:provisioningResult xmlns:syncope30="http://syncope.apache.org/3.0"></syncope30:provisioningResult>
+<syncope30:provisioningResult xmlns:syncope30="https://syncope.apache.org/3.0"></syncope30:provisioningResult>
 --batch_61bfef8d-0a00-41aa-b775-7b6efff37652
 Content-Type: application/http
 Content-Transfer-Encoding: binary
@@ -573,7 +573,7 @@ than JSON (default), to select
 https://en.wikipedia.org/wiki/HTTP_compression[HTTP compression^] or to set the
 https://cxf.apache.org/javadoc/latest/org/apache/cxf/configuration/jsse/TLSClientParameters.html[TLS client configuration^]
 (more options in the
-http://syncope.apache.org/apidocs/2.1/org/apache/syncope/client/lib/SyncopeClientFactoryBean.html[Javadoc^]):
+https://syncope.apache.org/apidocs/3.0/org/apache/syncope/client/lib/SyncopeClientFactoryBean.html[Javadoc^]):
 
 [source,java]
 ----
@@ -606,7 +606,7 @@ SyncopeClient client = new SyncopeClientFactoryBean().
 ===== Usage
 
 Select one of the
-http://syncope.apache.org/apidocs/2.1/org/apache/syncope/common/rest/api/service/package-summary.html[RESTful services^]
+https://syncope.apache.org/apidocs/3.0/org/apache/syncope/common/rest/api/service/package-summary.html[RESTful services^]
 and invoke one of the available methods:
 
 [source,java]
@@ -621,21 +621,21 @@ loggerService.update(LoggerType.LOG, loggerTO);
 
 [NOTE]
 More RESTful services could be available besides the 
-http://syncope.apache.org/apidocs/2.1/org/apache/syncope/common/rest/api/service/package-summary.html[default set^],
+https://syncope.apache.org/apidocs/3.0/org/apache/syncope/common/rest/api/service/package-summary.html[default set^],
 as there might be <<extensions,extensions>> installed in the given deployment; the
 <<apache-camel-provisioning-manager>> provides the
-http://syncope.apache.org/apidocs/2.1/org/apache/syncope/common/rest/api/service/CamelRouteService.html[CamelRouteService^],
+https://syncope.apache.org/apidocs/3.0/org/apache/syncope/common/rest/api/service/CamelRouteService.html[CamelRouteService^],
 for instance.
 
 [TIP]
 Advanced REST features are also available from `SyncopeClient` instances: check
-http://syncope.apache.org/apidocs/2.1/org/apache/syncope/client/lib/SyncopeClient.html[the javadoc^]
+https://syncope.apache.org/apidocs/3.0/org/apache/syncope/client/lib/SyncopeClient.html[the javadoc^]
 for more information.
 
 .Search for Users, Groups or Any Objects
 ====
 All search operations return
-http://syncope.apache.org/apidocs/2.1/org/apache/syncope/common/lib/to/PagedResult.html[paged result handlers^]
+https://syncope.apache.org/apidocs/3.0/org/apache/syncope/common/lib/to/PagedResult.html[paged result handlers^]
 which can be exploited both for getting the actual results and for extrapolating pagination coordinates.
 
 [source,java]
@@ -722,7 +722,7 @@ Pair<Map<String, Set<String>>, UserTO> self = client.self();
 UserTO userTO = self.getRight(); // <1>
 Map<String, Set<String>> realm2entitlements = self.getLeft(); // <2>
 ----
-<1> http://syncope.apache.org/apidocs/2.1/org/apache/syncope/common/lib/to/UserTO.html[UserTO^] of the requesting user
+<1> https://syncope.apache.org/apidocs/3.0/org/apache/syncope/common/lib/to/UserTO.html[UserTO^] of the requesting user
 <2> for each <<realms,realm>>, the owned <<entitlements,entitlements>>
 ====
 

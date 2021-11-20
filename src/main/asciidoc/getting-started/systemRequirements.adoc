@@ -25,12 +25,12 @@ The hardware requirements depend greatly on the given deployment, in particular 
 managed entities (Users, Groups and Any Objects), their attributes and resources.
 
  * CPU: dual core, 2 GHz (minimum)
- * RAM: 2 GB (minimum)
- * Disk: 100 MB (minimum) 
+ * RAM: 4 GB (minimum)
+ * Disk: 200 MB (minimum) 
 
 === Java
 
-Apache Syncope {docVersion} requires the latest JDK 11 that is available.
+Apache Syncope {docVersion} requires the latest JDK 11 that is available. Works with JDK 14 and JDK 17.
 
 === Java EE Container
 

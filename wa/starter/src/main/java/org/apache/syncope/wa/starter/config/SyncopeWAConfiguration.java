@@ -119,7 +119,7 @@ public class SyncopeWAConfiguration {
                         contact(new Contact().
                                 name("The Apache Syncope community").
                                 email("dev@syncope.apache.org").
-                                url("http://syncope.apache.org")).
+                                url("https://syncope.apache.org")).
                         version(version())).
                 schemaRequirement("BasicAuthentication",
                         new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("basic")).

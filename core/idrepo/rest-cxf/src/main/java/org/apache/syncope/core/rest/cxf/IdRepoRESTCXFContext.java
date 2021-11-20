@@ -258,7 +258,7 @@ public class IdRepoRESTCXFContext {
         openapiFeature.setDescription("Apache Syncope " + version());
         openapiFeature.setContactName("The Apache Syncope community");
         openapiFeature.setContactEmail("dev@syncope.apache.org");
-        openapiFeature.setContactUrl("http://syncope.apache.org");
+        openapiFeature.setContactUrl("https://syncope.apache.org");
         openapiFeature.setScan(false);
         openapiFeature.setResourcePackages(Set.of("org.apache.syncope.common.rest.api.service"));
 

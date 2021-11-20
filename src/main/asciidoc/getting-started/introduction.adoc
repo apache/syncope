@@ -22,18 +22,26 @@
 *Apache Syncope* is an Open Source system for managing digital identities in enterprise environments, implemented in 
 Java EE technology and released under the Apache 2.0 license. 
 
-*Identity Management* (or IdM) means to manage user data on systems and applications, using the combination of
-business processes and IT. IdM involves considering user attributes, roles, resources and entitlements in trying to answer the
-following thorny question:
+Often, Identity Management and Access Management are jointly referred, mainly because their two management worlds likely
+coexist in the same project or in the same environment.
 
-[.text-center]
-_Who has access to What, When, How, and Why?_ 
+The two topics are however completely different: each one has its own context, its own rules, its own best practices.
+
+*Identity Management* (or IdM) consists of tools and practices to keep identity data consistent and synchronized across
+repositories, data formats and models.
+
+*Access Management* (or AM) is about systems, protocols and technologies supporting user _authentication_
+(how users are let accessing a given system) and __authorization__ (which capabilities each user owns on a given system).
+
+From the definitions above, Identity Management and Access Management can be seen as complementary: very often, the
+data synchronized by the former are then used by the latter to provide its features - e.g. authentication and
+authorization.
 
 === What is Identity Management, anyway?
 
 ****
-Account:: Computers work with records of data about people. Such records contain technical information needed by the system for 
-which the account is created and managed.
+Account:: Computers work with records of data about people. Such records contain technical information needed by the
+system for  which the account is created and managed.
 (Digital) Identity:: A representation of a set of claims made by one digital subject about itself. *It's you!*
 ****
 
@@ -52,10 +60,27 @@ image::identityLifecycle.png[title="Identity Lifecycle",alt="Identity Lifecycle"
 
 .Users, Groups and Any Objects
 ****
-With Apache Syncope 2.0.0, the managed identities are not limited anymore to Users and Groups. New object types can be
+Since Apache Syncope 2.0.0, the managed identities are not limited anymore to Users and Groups. New object types can be
 defined so that Any Object's data can be managed through Syncope: workstations, printers, folders, sensors, services,
 and so on. This positions Apache Syncope at the forefront for bringing Identity Management to the IoT world.
 ****
+
+=== What is Access Management, anyway?
+
+Authenticate, authorize and audit access to applications and IT systems: access management solutions help strengthen
+security and reduce risk by tightly controlling access to on-premises and cloud-based applications, services, and IT
+infrastructure. +
+Access Management help ensure the right users have access to the right resources at the right times for the right
+reasons.
+
+Single sign-on (SSO) is an authentication scheme that allows a user to access multiple, independent applications with a
+single set of login credentials, without re-entering authentication factors. +
+Very often, SSO is achieved by implementing some of the most popular protocols as
+https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language[SAML^] and http://openid.net/connect/[OpenID Connect^].
+
+Social login, designed to simplify logins, is a form of single sign-on using existing information from a social
+networking service to sign into a third party website instead of creating a new login account specifically for that
+website.
 
 === Identity and Access Management - Reference Scenario
 
@@ -64,18 +89,13 @@ image::iam-scenario.png[title="IAM Scenario",alt="IAM Scenario"]
 
 The picture above shows the technologies involved in a complete IAM solution:
 
-* *_Identity Store_* (as RDBMS, LDAP, Active Directory, meta- and virtual-directories) - the repository for account data
-* *_Provisioning Engine_* - synchronizes account data across Identity Stores and a broad range of data formats, models, 
+* *_Identity Store_* (examples are relational databases, LDAP, Active Directory, meta- and virtual-directories, 
+cloud resources, ...): the repository for account data
+* *_Identity Manager_*: synchronizes account data across Identity Stores and a broad range of data formats, models, 
 meanings and purposes
-* *_Access Manager_* - access mediator to all applications, focused on application front-end, taking care of
-authentication (https://en.wikipedia.org/wiki/Single_sign-on[Single Sign-On^]), authorization
-(http://oauth.net/[OAuth^], https://en.wikipedia.org/wiki/XACML[XACML^]) and federation
-(https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language[SAML^], http://openid.net/connect/[OpenID Connect^]).
-
-[NOTE]
-====
-From a technology point of view, *Apache Syncope* is primarily a *Provisioning Engine*.
-====
+* *_Access Manager_*: security mediator to all applications, focused on application front-end, taking care of
+authentication, authorization and federation
+* *_Secure Proxy_*: enforces security policies on API and legacy applications
 
 ==== Aren't Identity Stores enough?
 
@@ -94,13 +114,19 @@ are a few drawbacks with this approach:
 [.text-center]
 image::architecture.png[title="Architecture",alt="Architecture"]
 
+*_Keymaster_* allows for dynamic service discovery so that other components are able to find each other.
+
 *_Admin UI_* is the web-based console for configuring and administering running deployments, with full support
 for delegated administration.
 
 *_End-user UI_* is the web-based application for self-registration, self-service and password reset.
 
-*_Core_* is the central component, providing all services offered by Apache Syncope. +
-It exposes a fully-compliant https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services[JAX-RS 2.0^] 
+*_Web Access_* or *_WA_* is the central hub for authentication, authorization and single sign-on.
+
+*_Secure Remote Access_* or *_SRA_* is a security-enabled API gateway with HTTP reverse proxying capabilities.
+
+*_Core_* is the component providing IdM services and acting as central repository for other components' configuration. +
+It exposes a fully-compliant https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services[JAX-RS 2.1^] 
 https://en.wikipedia.org/wiki/Representational_state_transfer[RESTful^] interface which enables third-party applications,
 written in any programming language, to consume IdM services.
 

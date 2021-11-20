@@ -22,23 +22,24 @@
 Once you have obtained a working installation of Apache Syncope using one of the methods reported above, you should consider 
 reading the
 ifeval::["{backend}" == "html5"]
-http://syncope.apache.org/docs/reference-guide.html[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/reference-guide.html[Apache Syncope Reference Guide.]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-http://syncope.apache.org/docs/reference-guide.pdf[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/reference-guide.pdf[Apache Syncope Reference Guide.]
 endif::[]
 to understand how to configure, extend, customize and deploy your new Apache Syncope project.
 
 Before deploying your Apache Syncope installation into production, it is essential to ensure that the default values for 
 various security properties have been changed to values specific to your deployment. 
 
-The following values must be changed from the defaults in the `security.properties` file:
+The following values must be changed from the defaults in the `core.properties` file:
 
-* *adminPassword* - The cleartext password as encoded per the "adminPasswordAlgorithm" value (SSHA256 by default), the default value of which is "password".
+* *adminPassword* - The cleartext password as encoded per the `adminPasswordAlgorithm` value (SSHA256 by default), the
+default value of which is "password".
 * *secretKey* - The secret key value used for AES ciphering. Only required if either:
 ** the value for "*adminPasswordAlgorithm*" is "AES" or
-** the configuration parameter "password.cipher.algorithm" is changed to "AES" (See section 4.6.14 "Configuration Parameters" of
-the Reference Guide for more information).
+** the configuration parameter "password.cipher.algorithm" is changed to "AES" (See section 4.6.14 "Configuration
+Parameters" of the Reference Guide for more information).
 * *anonymousKey* - The key value to use for anonymous requests.
 * *jwsKey* - The symmetric signing key used to sign access tokens. See section 4.4.1 "REST Authentication and 
 Authorization" of the Reference Guide for more information.

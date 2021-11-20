@@ -68,7 +68,7 @@ public class AnyQuery extends AbstractQuery {
             + "primarily meant for containing Users, Groups and Any Objects", schema =
             @Schema(implementation = String.class, defaultValue = SyncopeConstants.ROOT_REALM, externalDocs =
                     @ExternalDocumentation(description = "Apache Syncope Reference Guide",
-                            url = "http://syncope.apache.org/docs/2.1/reference-guide.html#realms")))
+                            url = "https://syncope.apache.org/docs/3.0/reference-guide.html#realms")))
     public String getRealm() {
         return realm;
     }
@@ -102,7 +102,7 @@ public class AnyQuery extends AbstractQuery {
             + "feed.", example = "username==rossini", schema =
             @Schema(implementation = String.class, externalDocs =
                     @ExternalDocumentation(description = "Apache Syncope Reference Guide",
-                            url = "http://syncope.apache.org/docs/2.1/reference-guide.html#search")))
+                            url = "https://syncope.apache.org/docs/3.0/reference-guide.html#search")))
     @QueryParam(JAXRSService.PARAM_FIQL)
     public void setFiql(final String fiql) {
         this.fiql = fiql;
