@@ -2343,7 +2343,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>1.12.1</version>
+        <version>1.13.1</version>
         <dependencies>
           <dependency>
             <groupId>org.apache.groovy</groupId>
