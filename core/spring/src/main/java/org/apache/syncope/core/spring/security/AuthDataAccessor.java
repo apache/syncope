@@ -183,17 +183,23 @@ public class AuthDataAccessor {
     }
 
     protected String getDelegationKey(final SyncopeAuthenticationDetails details, final String delegatedKey) {
-        return Optional.ofNullable(details.getDelegatedBy()).
-                map(delegatingKey -> SyncopeConstants.UUID_PATTERN.matcher(delegatingKey).matches()
-                ? delegatingKey
-                : userDAO.findKey(delegatingKey)).map(delegatingKey -> {
+        if (details.getDelegatedBy() == null) {
+            return null;
+        }
 
-            LOG.debug("Delegation request: delegating:{}, delegated:{}", delegatingKey, delegatedKey);
+        String delegatingKey = SyncopeConstants.UUID_PATTERN.matcher(details.getDelegatedBy()).matches()
+                ? details.getDelegatedBy()
+                : userDAO.findKey(details.getDelegatedBy());
+        if (delegatingKey == null) {
+            throw new SessionAuthenticationException(
+                    "Delegating user " + details.getDelegatedBy() + " cannot be found");
+        }
 
-            return delegationDAO.findValidFor(delegatingKey, delegatedKey).
-                    orElseThrow(() -> new SessionAuthenticationException(
-                    "Delegation by " + delegatingKey + " was requested but none found"));
-        }).orElse(null);
+        LOG.debug("Delegation request: delegating:{}, delegated:{}", delegatingKey, delegatedKey);
+
+        return delegationDAO.findValidFor(delegatingKey, delegatedKey).
+                orElseThrow(() -> new SessionAuthenticationException(
+                "Delegation by " + delegatingKey + " was requested but none found"));
     }
 
     /**
