@@ -59,7 +59,8 @@ endif::[]
 .
 ====
 
-==== SAML 2.0 Service Provider
+[[saml2sp4ui]]
+==== SAML 2.0 Service Provider for UI
 
 This extension can be leveraged to provide
 https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language[SAML 2.0^]-based
@@ -90,7 +91,8 @@ This extension adds features to all components and layers that are available, an
 <<customization-extensions,new extensions>>.
 ====
 
-==== OpenID Connect Client 
+[[oidcc4ui]]
+==== OpenID Connect Client for UI
 
 This extension can be leveraged to provide http://openid.net/connect/[OpenID Connect^]-based
 https://en.wikipedia.org/wiki/Single_sign-on[Single Sign-On^] access to the <<admin-console-component>>,
@@ -129,7 +131,7 @@ This extension provides an alternate internal search engine for <<users-groups-a
 https://www.elastic.co/[Elasticsearch^] cluster.
 
 [WARNING]
-This extension supports Elasticsearch server versions starting from 6.x.
+This extension supports Elasticsearch server versions starting from 7.x.
 
 [TIP]
 As search operations are central for different aspects of the <<provisioning,provisioning process>>, the global

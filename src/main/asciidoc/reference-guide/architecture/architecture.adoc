@@ -24,171 +24,59 @@ Apache Syncope is made of several components, which are logically summarized in 
 [.text-center]
 image::architecture.png[title="Architecture",alt="Architecture"]
 
+=== Keymaster
+
+The *_Keymaster_* allows for dynamic service discovery so that other components are able to find each other. +
+On startup, all other component instances will register themselves into Keymaster so that their references
+can be found later, for intra-component communication.
+
+In addition, the Keymaster is also used as key / value store for <<configuration-parameters, configuration parameters>>
+and as a directory for defined <<domains,domains>>.
+
+Two different implementations are provided, following the actual needs:
+
+. as an additional set of RESTful services exposed by the Core, for traditional deployments
+(also known as _Self Keymaster_);
+. as a separate container / pod based on https://zookeeper.apache.org/[Apache Zookeeper^], for microservice-oriented
+deployments.
+
 include::core.adoc[]
+
+=== Web Access
+
+The *_Web Access_* component is based on https://apereo.github.io/cas/[Apereo CAS^].
+
+In addition to all the configuration options and features from Apereo CAS, the Web Access is integrated with Keymaster,
+Core and Admin UI to offer centralized configuration and management.
+
+=== Secure Remote Access
+
+The *_Secure Remote Access_* component is built on https://spring.io/projects/spring-cloud-gateway[Spring Cloud Gateway^].
+
+In addition to all the configuration options and features from Spring Cloud Gateway, theSecure Remote Access is
+integrated with Keymaster, Core and Admin UI to offer centralized configuration and management.
+
+The Secure Remote Access allows to protect legacy applications by integrating with the Web Access or other third-party
+Access Managers implementing standard protocols as OpenID Connect or SAML.
 
 [[admin-console-component]]
 === Admin UI
 
-The Admin UI is the web-based console for configuring and administering running deployments, with full support
+The *_Admin UI_* is the web-based console for configuring and administering running deployments, with full support
 for delegated administration.
 
 The communication between Admin UI and Core is exclusively REST-based.
 
 More details are available in the dedicated <<admin-console,usage>> section.
 
-[[admin-console-accessibility]]
-==== Accessibility
-
-The Admin Console UI is accessible to the visually impaired.
-
-Two icons are present in the main login page and in the menu on the right:
-
-[.text-center]
-image::accessibility-console01.png[title="Admin Console accessibility buttons",alt="Admin Console accessibility buttons"]
-
-By clicking the top right corner icon image:accessibility-icon01.png[Accessibility HC mode,30,30] it is possible to 
-toggle the "High contrast mode".
-In this mode, the website colors are switched to a higher contrast color schema.
-
-[TIP]
-====
-The `H` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
-be used to easily toggle "High contrast mode" by using the keyboard.
-
-E.g. 
-|===
-|Shortcut |Purpose
-
-|`Alt` + `Shift` + `H`
-|Toggle "High contrast mode" on Firefox and Chrome browsers on Linux
-|===
-
-====
-
-By clicking the second icon image:accessibility-icon02.png[Accessibility Increased Font mode,30,30] it is possible 
-to toggle the "Increased font mode".
-In this mode, the website font size is increased.
-
-[TIP]
-====
-The `F` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
-be used to easily toggle "Increased font mode" by using the keyboard.
-
-E.g. 
-|===
-|Shortcut |Purpose
-
-|`Alt` + `Shift` + `F`
-|Toggle "Increased font mode" on Firefox and Chrome browsers on Linux
-|===
-
-====
-
-To reset to the default mode, it is enough to click again on the specific icon.
-
 [[enduser-component]]
 === End-user UI
 
-The End-user UI is the web-based application for self-registration, self-service and <<password-reset,password reset>>.
+The *_End-user UI_* is the web-based application for self-registration, self-service and <<password-reset,password reset>>.
 
 The communication between End-user UI and Core is exclusively REST-based.
 
-==== Password Reset
-
-When users lost their password, a feature is available to help gaining back access to Apache Syncope: password reset.
-
-The process can be outlined as follows:
-
-. user asks for password reset, typically via end-user
-. user is asked to provide an answer to the security question that was selected during self-registration or self-update
-. if the expected answer is provided, a unique token with time-constrained validity is internally generated and an
-e-mail is sent to the configured address for the user with a link - again, typically to the
-end-user - containing such token value
-. user clicks on the received link and provides new password value, typically via end-user
-. user receives confirmation via e-mail
-
-[WARNING]
-====
-The outlined procedure requires a working <<e-mail-configuration,e-mail configuration>>.
-
-In particular:
-
-* the first e-mail is generated from the `requestPasswordReset` <<notification-templates, notification template>>:
-hence, the token-based access link to the end-user is managed there;
-* the second e-mail is generated from the `confirmPasswordReset` <<notification-templates, notification template>>.
-====
-
-[TIP]
-====
-The process above requires the availability of <<console-configuration-security-questions,security questions>> that
-users can pick up and provide answers for.
-
-The usage of security questions can be however disabled by setting the `passwordReset.securityQuestion` value - see
-<<configuration-parameters, below>> for details.
-====
-
-[[password-reset-no-security-answer]]
-[WARNING]
-====
-Once provided via Enduser Application, the answers to security questions are *never* reported, neither via REST or Admin UI to
-administrators, nor to end-users via Enduser Application.
-
-This to avoid any information disclosure which can potentially lead attackers to reset other users' passwords.
-====
-
-[NOTE]
-In addition to the password reset feature, administrators can set a flag on a given user so that he / she is forced to
-update their password value at next login.
-
-[[enduser-accessibility]]
-==== Accessibility
-
-The End-user UI is accessible to the visually impaired.
-
-Two icons are present in the main page, in the right corner:
-
-[.text-center]
-image::accessibility-enduser01.png[title="Enduser accessibility icons",alt="Enduser accessibility icons"]
-
-By clicking the top right corner icon image:accessibility-icon01.png[Accessibility HC mode,30,30] it is possible to 
-toggle the "High contrast mode".
-In this mode, the website colors are switched to a higher contrast color schema.
-
-[TIP]
-====
-The `H` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
-be used to easily toggle "High contrast mode" by using the keyboard.
-
-E.g. 
-|===
-|Shortcut |Purpose
-
-|`Alt` + `Shift` + `H`
-|Toggle "High contrast mode" on Firefox and Chrome browsers on Linux
-|===
-
-====
-
-By clicking the second icon image:accessibility-icon02.png[Accessibility Increased Font mode,30,30] it is possible 
-to toggle the "Increased font mode".
-In this mode, the website font size is increased.
-
-[TIP]
-====
-The `F` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
-be used to easily toggle "Increased font mode" by using the keyboard.
-
-E.g. 
-|===
-|Shortcut |Purpose
-
-|`Alt` + `Shift` + `F`
-|Toggle "Increased font mode" on Firefox and Chrome browsers on Linux
-|===
-
-====
-
-To reset to the default mode, it is enough to click again on the specific icon.
+More details are available in the dedicated <<enduser-application,usage>> section.
 
 === Third Party Applications
 

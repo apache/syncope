@@ -230,7 +230,7 @@ There can be many reasons for this situation, including existence of so-called _
 Active Directory), or simply the uncomfortable reality that system integrators keep encountering when legacy systems
 are to be enrolled into a brand new IAM system.
 
-Starting with Apache Syncope 2.1.6, Users can have, on a given External Resource with `USER` mapping defined:
+Users can have, on a given External Resource with `USER` mapping defined:
 
 . zero or one _mapped account_ +
 if the External Resource is assigned either directly or via Group membership.

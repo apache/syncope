@@ -1,0 +1,45 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+[[console-keymaster]]
+===== Keymaster
+
+[[console-keymaster_domains]]
+====== Domains
+
+Allows for <<domains,domain>> management.
+
+image::keymaster_domains.png[]
+
+[[console-keymaster_networkservices]]
+====== Network Services
+
+Displays the components as registered in the configured <<keymaster,keymaster>> instance.
+
+image::keymaster_networkservices.png[]
+
+[[console-keymaster_parameters]]
+====== Parameters
+
+Presents the administrators with the list of defined <<configuration-parameters,configuration parameters>> used in the
+given deployment such as `token.expireTime` and `password.cipher.algorithm`.
+These can be edited to further customize the deployment. +
+New parameters can also be added, for use with custom code. 
+
+image::keymaster_parameters.png[]

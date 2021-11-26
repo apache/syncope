@@ -22,14 +22,12 @@ In order to manage which attributes can be owned by Users, Groups and any object
 Apache Syncope defines a simple yet powerful type management system, vaguely inspired by the LDAP/X.500 information
 model.
 
-[NOTE]
-Starting with Apache Syncope 2.1, it is possible to define i18n labels for each schema, with purpose of improving
-presentation with Admin and End-user UIs.
-
 ==== Schema
 
 A schema instance describes the values that attributes with that schema will hold; it can be defined plain, derived or
 virtual.
+
+It is possible to define i18n labels for each schema, with purpose of improving presentation with Admin and End-user UIs.
 
 ===== Plain
 
@@ -133,7 +131,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/CaffeineVirAttrCache.java[CaffeineVirAttrCache^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/MemoryVirAttrCache.java[CaffeineVirAttrCache^]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/CaffeineVirAttrCache.java[CaffeineVirAttrCache^]
 endif::[]
 | In-memory cache based on https://github.com/ben-manes/caffeine[Caffeine Cache^].
 

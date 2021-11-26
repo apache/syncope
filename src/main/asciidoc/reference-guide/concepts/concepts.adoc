@@ -46,6 +46,12 @@ include::reports.adoc[]
 
 include::audit.adoc[]
 
+include::routes.adoc[]
+
+include::authenticationmodules.adoc[]
+
+include::clientapplications.adoc[]
+
 include::domains.adoc[]
 
 include::implementations.adoc[]

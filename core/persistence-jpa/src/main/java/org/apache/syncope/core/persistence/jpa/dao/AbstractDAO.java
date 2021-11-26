@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import javax.persistence.EntityManager;
 import org.apache.syncope.core.persistence.api.dao.DAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -30,6 +33,10 @@ import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DAO.class);
+
+    protected Date convert(final LocalDateTime localDateTime) {
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    }
 
     protected EntityManager entityManager() {
         EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(

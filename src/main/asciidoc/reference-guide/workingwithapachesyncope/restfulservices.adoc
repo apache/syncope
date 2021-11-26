@@ -31,19 +31,25 @@ where `protocol`, `host` and `port` reflect your deployment.
 [NOTE]
 .REST Reference
 ====
-A complete REST reference generated from https://en.wikipedia.org/wiki/Web_Application_Description_Language[WADL^] is
-https://syncope.apache.org/rest/3.0/index.html[published^] as well as made available with each deployment at
+A complete REST reference generated from https://swagger.io/specification/[OpenAPI specification 3.0^] is
+https://syncope.apache.org/rest/3.0/openapi.json[published^] as well as made available with each deployment at
+
+....
+protocol://host:port/syncope/rest/openapi.json
+....
+
+where `protocol`, `host` and `port` reflect your deployment.
+
+REST APIs are available to visualize and interact via https://swagger.io/tools/swagger-ui/[Swagger UI^] at
 
 ....
 protocol://host:port/syncope/
 ....
-
-where `protocol`, `host` and `port` reflect your deployment.
 ====
 
 ==== REST Authentication and Authorization
 
-The <<core>> authentication and authorization is based on http://projects.spring.io/spring-security/[Spring Security^].
+The <<core>> authentication and authorization is based on https://spring.io/projects/spring-security[Spring Security^].
 
 As an initial step, authentication is required to obtain, in the `X-Syncope-Token` HTTP header, the
 unique signed https://en.wikipedia.org/wiki/JSON_Web_Token[JSON Web Token^] to include in all subsequent requests.
@@ -91,7 +97,7 @@ The set of RESTful services provided by Apache Syncope can be divided as:
 . endpoints disclosing information about the given Syncope deployment (available <<schema,schema>>, configured
 <<extensions,extensions>>, Groups, ...), requiring some sort of shared authentication defined by the
 `anonymousKey` value  in the `security.properties` file - for more information, read about Spring Security's
-http://docs.spring.io/spring-security/site/docs/4.2.x/reference/htmlsingle/#anonymous[Anonymous Authentication^];
+https://docs.spring.io/spring-security/site/docs/5.5.x/reference/html5/#anonymous[Anonymous Authentication^];
 . endpoints for self-service (self-update, password change, ...), requiring user authentication and no entitlements;
 . endpoints for administrative operations, requiring user authentication with authorization granted by the related
 <<entitlements,entitlements>>, handed over to users via <<roles,roles>>.
@@ -149,10 +155,10 @@ the entity key (which may be auto-generated) and the absolute URI identifying th
 
 If the requested operation is in error, `X-Application-Error-Code` will contain the error code (mostly from
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/types/ClientExceptionType.java[ClientExceptionType^])
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/types/ClientExceptionType.java[ClientExceptionType^])
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/types/ClientExceptionType.java[ClientExceptionType^])
+https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/types/ClientExceptionType.java[ClientExceptionType^])
 endif::[]
 and `X-Application-Error-Info` might be optionally populated with more details, if available.
 
@@ -531,8 +537,8 @@ The library is available as a Maven artifact:
 [source,xml,subs="verbatim,attributes"]
 ----
 <dependency>
-  <groupId>org.apache.syncope.client.idm</groupId>
-  <artifactId>syncope-client-idm-lib</artifactId>
+  <groupId>org.apache.syncope.client.idrepo</groupId>
+  <artifactId>syncope-client-idrepo-lib</artifactId>
   <version>{docVersion}</version>
 </dependency>
 ----
@@ -646,8 +652,8 @@ int count = userService.search(new AnyQuery.Builder().page(0).size(0).build()).g
 
 PagedResult<UserTO> matchingUsers = userService.search(
     new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-    fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("ros*ini").query()).
-    build()); // <2>
+    fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").
+    equalTo("ros*ini").query()).build()); // <2>
 
 PagedResult<UserTO> matchingUsers = userService.search(
     new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -718,12 +724,14 @@ List<BatchResponseItem> batchResponseItems = batchResponse.getItems(); // <6>
 ====
 [source,java]
 ----
-Pair<Map<String, Set<String>>, UserTO> self = client.self();
+Triple<Map<String, Set<String>>, List<String>, UserTO> self = client.self();
 UserTO userTO = self.getRight(); // <1>
 Map<String, Set<String>> realm2entitlements = self.getLeft(); // <2>
+List<String> delegations = self.getMiddle(); // <3>
 ----
 <1> https://syncope.apache.org/apidocs/3.0/org/apache/syncope/common/lib/to/UserTO.html[UserTO^] of the requesting user
 <2> for each <<realms,realm>>, the owned <<entitlements,entitlements>>
+<3> <<delegation,delegations>> assigned to the requesting user
 ====
 
 .Change user status

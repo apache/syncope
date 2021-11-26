@@ -28,7 +28,7 @@ recent, targeted products.
 
 include::identitystores.adoc[]
 
-include::provisioningengines.adoc[]
+include::identitymanagers.adoc[]
 
 include::accessmanagers.adoc[]
 

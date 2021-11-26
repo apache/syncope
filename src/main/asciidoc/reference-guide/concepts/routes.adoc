@@ -1,0 +1,120 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Routes
+
+Routes represents the main configuration to instruct <<secure-remote-access,SRA>> to respond to HTTP requests.
+
+Every route is defined by providing the following information:
+
+. name - unique reference to the current route
+. target - base URI to proxy requests for
+. error URI - where to redirect in case of errors
+. type - `PUBLIC` or `PROTECTED`: the latter requires authentication against the configured Access Manager
+. logout - whether to proceed with logout against the configured Access Manager
+. post-logout URI - where to redirect after logging out
+. CSRF - whether protection against https://en.wikipedia.org/wiki/Cross-site_request_forgery[Cross-Site Request Forgery]
+shall be applied to incoming requests
+. order - value to sort routes for evaluation
+. predicates - composed condition, supporting logic operators as `AND`, `OR` and `NOT`, to specify if incoming requests
+shall match the owning route
+. filters - ordered list of elements allowing to perform modification of the incoming request and / or outgoing response
+
+image::sra-request.png[title="SRA request processing",alt="SRA request processing"]
+
+When an HTTP request is received, SRA evaluates all the configured _predicates_, sorted by their owning _route_'s _order_,
+to determine the first matching route among the ones defined.
+
+If the matching route has _type_ `PROTECTED`, the configured Access Manager is involved to authorize the request; while
+<<web-access,WA>> works out-of-the-box, others can be configured, provided that they implement standard protocols as
+OpenID Connect or SAML.
+
+The incoming request is then pre-processed by matching route's _filters_ and sent to the configured _target_. +
+The received response, after being post-processed by matching route's _filters_, is finally returned to the initial caller.
+
+==== Predicates
+
+Inside Route definition, each predicate will be referring to some Spring Cloud Gateway's 
+https://docs.spring.io/spring-cloud-gateway/docs/3.1.x/reference/html/#gateway-request-predicates-factories[Predicate factory^]:
+
+   * `AFTER` matches requests that happen after the specified datetime;
+   * `BEFORE` matches requests that happen before the specified datetime;
+   * `BETWEEN` matches requests that happen after first datetime and before second datetime;
+   * `COOKIE` matches cookies that have the given name and whose values match the regular expression;
+   * `HEADER` matches with a header that has the given name whose value matches the regular expression;
+   * `HOST` matches the `Host` header;
+   * `METHOD` matches the provided HTTP method(s);
+   * `PATH` matches the request path;
+   * `QUERY` matches the query string;
+   * `REMOTE_ADDR` matches the caller IP address;
+   * `WEIGHT` matches according to the weights provided per group of target URIs;
+   * `CUSTOM` matches according to a provided class extending
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/sra/src/main/java/org/apache/syncope/sra/predicates/CustomRoutePredicateFactory.java[CustomRoutePredicateFactory^].
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/sra/src/main/java/org/apache/syncope/sra/predicates/CustomRoutePredicateFactory.java[CustomRoutePredicateFactory^].
+endif::[]
+
+==== Filters
+
+Inside Route definition, each filter will be referring to some Spring Cloud Gateway's 
+https://docs.spring.io/spring-cloud-gateway/docs/3.1.x/reference/html/#gatewayfilter-factories[Filter factory^]:
+
+   * `ADD_REQUEST_HEADER` adds a header to the downstream request's headers;
+   * `ADD_REQUEST_PARAMETER` adds a parameter too the downstream request's query string;
+   * `ADD_RESPONSE_HEADER` adds a header to the downstream response’s headers;
+   * `CLIENT_CERTS_TO_REQUEST_HEADER` takes SSL certificates associated with the request to downstream request's headers;
+   * `DEDUPE_RESPONSE_HEADER` removes duplicate values of response headers;
+   * `FALLBACK_HEADERS` after an execution exception occurs, the request is forwarded to a fallback endpoint; the
+headers with the exception type, message and (if available) root cause exception type and message are added to that
+request;
+   * `LINK_REWRITE` rewrites HTTP links in the response body before it is sent back to the client;
+   * `MAP_REQUEST_HEADER` creates a new named header with the value extracted out of an existing named header from
+the incoming request;
+   * `PREFIX_PATH` will prefix a part to the path of the incoming request;
+   * `PRESERVE_HOST_HEADER` sets a request attribute that the routing filter inspects to determine if the original host
+header should be sent, rather than the host header determined by the HTTP client;
+   * `PRINCIPAL_TO_REQUEST_HEADER` takes authenticated principal to downstream request's headers;
+   * `QUERY_PARAM_TO_REQUEST_HEADER` takes incoming query params to downstream request's headers;
+   * `REDIRECT_TO` will send a HTTP status `30x` with a `Location` header to perform a redirect;
+   * `REMOVE_REQUEST_HEADER` removes a header to the downstream request's headers;
+   * `REMOVE_RESPONSE_HEADER` removes a header to the downstream response’s headers;
+   * `REQUEST_HEADER_TO_REQUEST_URI` changes the request URI by a request header;
+   * `REQUEST_RATE_LIMITER` determines if the current request is allowed to proceed: if it is not, a HTTP status `429`
+is returned;
+   * `RETRY` attempts to connect to downstream request's target for the given number of retries before giving up;
+   * `REWRITE_PATH` uses regular expressions to rewrite the request path;
+   * `REWRITE_LOCATION` modifies the value of the `Location` response header;
+   * `REWRITE_RESPONSE_HEADER` modifies the value of response header;
+   * `SECURE_HEADERS` adds a number of recommended security headers to the response;
+   * `SAVE_SESSION` forces to save the current HTTP session before forwarding the call downstream;
+   * `SET_PATH` manipulates the request path;
+   * `SET_REQUEST_HEADER` replaces a header to the downstream request's headers;
+   * `SET_RESPONSE_HEADER` replaces a header to the downstream response’s headers;
+   * `SET_STATUS` sets HTTP status to return to caller;
+   * `SET_REQUEST_SIZE` restricts a request from reaching the downstream service;
+   * `SET_REQUEST_HOST` sets host header to the downstream request's headers;
+   * `STRIP_PREFIX` removes parts from the path of the incoming request;
+   * `CUSTOM` will manipulate downstream request or response according to a provided class extending
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/sra/src/main/java/org/apache/syncope/sra/filters/CustomGatewayFilterFactory.java[CustomGatewayFilterFactory^].
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/sra/src/main/java/org/apache/syncope/sra/filters/CustomGatewayFilterFactory.java[CustomGatewayFilterFactory^].
+endif::[]

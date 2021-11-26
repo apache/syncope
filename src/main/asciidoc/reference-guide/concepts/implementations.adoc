@@ -18,8 +18,7 @@
 //
 === Implementations
 
-Starting with Apache Syncope 2.1, it is possible to provide implementations suitable for
-<<customization-core,customization>> as:
+It is possible to provide implementations suitable for <<customization-core,customization>> as:
 
 . Java classes
 . http://www.groovy-lang.org/[Apache Groovy^] classes

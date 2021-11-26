@@ -79,6 +79,5 @@ file is located at:
 
 
 * `$TOMCAT_HOME/webapps/syncope/WEB-INF/classes/domains/MasterContent.xml` for Standalone
-* `/usr/share/tomcat8/webapps/syncope/WEB-INF/classes/domains/MasterContent.xml` for Debian packages
 * `core/src/test/resources/domains/MasterContent.xml` for Maven projects in embedded mode
 * `core/src/main/resources/domains/MasterContent.xml` for Maven projects

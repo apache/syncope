@@ -45,12 +45,12 @@ http://connid.tirasa.net/apidocs/1.5/org/identityconnectors/framework/common/obj
 
 [NOTE]
 ====
-Propagation tasks are automatically generated via the
+Propagation tasks are automatically generated via the configured
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PropagationManagerImpl.java[PropagationManager^],
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/DefaultPropagationManager.java[PropagationManager^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PropagationManagerImpl.java[PropagationManager^],
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/DefaultPropagationManager.java[PropagationManager^],
 endif::[]
 executed (by default) via the
 ifeval::["{snapshotOrRelease}" == "release"]

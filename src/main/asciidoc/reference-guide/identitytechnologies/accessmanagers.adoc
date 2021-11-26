@@ -19,12 +19,21 @@
 ==== Access Managers
 
 _Access Managers_ focus on the application front-end, enforcing application access via authentication
-(how Users are let access a given system) and authorization (which capabilities each user owns on a given system).
+(how users are let access a given system) and authorization (which capabilities each user owns on a given system).
 
 Several practices and standards can be implemented by Access Managers:
 
 * https://en.wikipedia.org/wiki/Single_sign-on[Single Sign-On^]
-* http://oauth.net/[OAuth^]
-* https://en.wikipedia.org/wiki/XACML[XACML^]
+* https://en.wikipedia.org/wiki/Multi-factor_authentication[Multi-Factor Authentication^]
+* https://oauth.net/[OAuth^]
 * https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language[SAML^]
-* http://openid.net/connect/[OpenID Connect^]
+* https://openid.net/connect/[OpenID Connect^]
+
+[NOTE]
+====
+Applications can typically integrate with Access Managers by:
+
+* implementing at least one of the most diffuse protocols as OpenID Connect or SAML - also called _native integration_;
+* being protected by a security-enabled HTTP reverse proxy, which will in turn interact with Access Managers - also
+called _legacy integration_.
+====

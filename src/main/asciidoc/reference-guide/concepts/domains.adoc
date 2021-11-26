@@ -22,7 +22,7 @@ Domains are built to facilitate https://en.wikipedia.org/wiki/Multitenancy[multi
 
 Domains allow the physical separation of all data managed by Apache Syncope, by storing the data for different domains
 into different database instances. Therefore, Apache Syncope can facilitate Users, Groups, Any Objects,
-External Resources, Policies, Tasks, etc. from different domains (e.g. tenants) in a single <<core,core>> instance. 
+External Resources, Policies, Tasks, etc. from different domains (e.g. tenants) in a single <<core>> instance. 
 
 By default, a single `Master` domain is defined, which also bears the configuration for additional domains.
 

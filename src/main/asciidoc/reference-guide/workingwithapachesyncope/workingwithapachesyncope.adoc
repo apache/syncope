@@ -30,7 +30,7 @@ to check system requirements and to choose among the various options for obtaini
 
 include::adminconsole/adminconsole.adoc[]
 
-include::enduser.adoc[]
+include::enduser/enduser.adoc[]
 
 include::restfulservices.adoc[]
 

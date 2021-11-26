@@ -16,9 +16,9 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-==== Provisioning Engines
+==== Identity Managers
 
-The main role of _Provisioning Engines_ is to keep Identity Stores synchronized as much as possible.
+The main role of _Identity Managers_ is to keep Identity Stores synchronized as much as possible.
 
 Some other characteristics and features provided:
 
@@ -29,7 +29,7 @@ Some other characteristics and features provided:
 * Permit workflow definition, with transitions subject to approval
 * Focused on application back-end
 
-In brief, provisioning engines take heterogeneous Identity Stores (and business requirements) as input and build up
+In brief, Identity Managers take heterogeneous Identity Stores (and business requirements) as input and build up
 high-level identity data management throughout what is called the *Identity Lifecycle*.
 
 [.text-center]
@@ -37,5 +37,9 @@ image::identityLifecycle.png[title="Identity Lifecycle",alt="Identity Lifecycle"
 
 [NOTE]
 ====
-From a technology point of view, *Apache Syncope* is primarily a *Provisioning Engine*.
+Applications can typically integrate with Identity Managers by:
+
+* exposing some sort of provisioning API (often via REST or SOAP) being invoked by Identity Managers - also called
+_native integration_;
+* having their identity repository externally managed by Identity Managers - also called _legacy integration_.
 ====

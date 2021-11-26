@@ -21,7 +21,7 @@
 Users, Groups and Any Objects are definitely the key entities to manage: as explained <<introduction,above>>
 in fact, the whole identity management concept is literally about managing identity data.
 
-Starting with Apache Syncope 2.0, the following identities are supported:
+The following identities are supported:
 
 * *Users* represent the virtual identities build up of account information fragmented across the associated external 
 resources
@@ -75,4 +75,12 @@ With group definition, however, a condition can be expressed so that all matchin
 _dynamic_ members of the group. +
 Dynamic memberships have some limitations: for example, <<type-extensions,type extensions>> do not apply;
 group-based provisioning is still effective.
+====
+
+[[security-questions]]
+[NOTE]
+.Security Questions
+====
+The <<password-reset,password reset>> process can be strengthened by requesting users to provide their configured
+answer to a given security question, chosen among the ones defined.
 ====

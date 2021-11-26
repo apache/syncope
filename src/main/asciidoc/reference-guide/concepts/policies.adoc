@@ -18,8 +18,8 @@
 //
 === Policies
 
-Policies control different aspects of the <<provisioning,provisioning>> process. They can be used to fine-tune and adapt
-the overall mechanism to the particularities of the specific domain in which a given Apache Syncope deployment is running.
+Policies control different aspects. They can be used to fine-tune and adapt the overall mechanisms to the
+particularities of the specific domain in which a given Apache Syncope deployment is running.
 
 [[policy-composition]]
 [TIP]
@@ -66,10 +66,10 @@ As `JAVA` <<implementations,implementation>>, writing custom account rules means
 
 . providing configuration parameters in an implementation of
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
+https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
 endif::[]
 . enforcing in an implementation of
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -100,17 +100,17 @@ endif::[]
 
 The default account rule (enforced by
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultAccountRule.java[DefaultAccountRule^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/java/org/apache/syncope/core/spring/policy/DefaultAccountRule.java[DefaultAccountRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultAccountRule.java[DefaultAccountRule^]
+https://github.com/apache/syncope/blob/master/core/spring/src/main/java/org/apache/syncope/core/spring/policy/DefaultAccountRule.java[DefaultAccountRule^]
 endif::[]
 and configurable via
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccountRuleConf.java[DefaultAccountRuleConf^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccountRuleConf.java[DefaultAccountRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccountRuleConf.java[DefaultAccountRuleConf^]
+https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccountRuleConf.java[DefaultAccountRuleConf^]
 endif::[]
 ) contains the following controls:
 
@@ -170,10 +170,10 @@ As `JAVA` <<implementations,implementation>>, writing custom password rules mean
 
 . providing configuration parameters in an implementation of
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/PasswordRuleConf.java[PasswordRuleConf^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/PasswordRuleConf.java[PasswordRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/PasswordRuleConf.java[PasswordRuleConf^]
+https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/PasswordRuleConf.java[PasswordRuleConf^]
 endif::[]
 . enforcing in an implementation of
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -204,17 +204,17 @@ endif::[]
 
 The default password rule (enforced by
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPasswordRule.java[DefaultPasswordRule^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/java/org/apache/syncope/core/spring/policy/DefaultPasswordRule.java[DefaultPasswordRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPasswordRule.java[DefaultPasswordRule^]
+https://github.com/apache/syncope/blob/master/core/spring/src/main/java/org/apache/syncope/core/spring/policy/DefaultPasswordRule.java[DefaultPasswordRule^]
 endif::[]
 and configurable via
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
+https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
 endif::[]
 ) contains the following controls:
 
@@ -252,17 +252,17 @@ class.
 
 This password rule (enforced by
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/HaveIBeenPwnedPasswordRule.java[HaveIBeenPwnedPasswordRule^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/java/org/apache/syncope/core/spring/policy/HaveIBeenPwnedPasswordRule.java[HaveIBeenPwnedPasswordRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/HaveIBeenPwnedPasswordRule.java[HaveIBeenPwnedPasswordRule^]
+https://github.com/apache/syncope/blob/master/core/spring/src/main/java/org/apache/syncope/core/spring/policy/HaveIBeenPwnedPasswordRule.java[HaveIBeenPwnedPasswordRule^]
 endif::[]
 and configurable via
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/policy/HaveIBeenPwnedPasswordRuleConf.java[HaveIBeenPwnedPasswordRuleConf^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/HaveIBeenPwnedPasswordRuleConf.java[HaveIBeenPwnedPasswordRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/policy/HaveIBeenPwnedPasswordRuleConf.java[HaveIBeenPwnedPasswordRuleConf^]
+https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/HaveIBeenPwnedPasswordRuleConf.java[HaveIBeenPwnedPasswordRuleConf^]
 endif::[]
 ) checks the provided password values against the popular
 https://haveibeenpwned.com["Have I Been Pwned?"^] service.
@@ -271,6 +271,61 @@ https://haveibeenpwned.com["Have I Been Pwned?"^] service.
 Before being able to configure the "Have I Been Pwned?" password rule as mentioned above, you will need to first create
 a `JAVA` `PASSWORD_RULE` <<implementations,implementation>> for the
 `org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf` class.
+
+[[policies-access]]
+==== Access
+
+Access policies provide fine-grained control over the authorization rules to apply to
+<<client-applications,client applications>>.
+
+An access policy describes whether the client application is allowed to use WA, allowed to participate in
+single sign-on authentication, etc. Additionally, it may be configured to require a certain set of principal attributes
+that must exist before access can be granted to the client application. This behavior allows one to configure various
+attributes in terms of access roles for the application and define rules that would be enacted and validated when an
+authentication request from the application arrives.
+
+[NOTE]
+Access Policy instances are dynamically translated into
+https://apereo.github.io/cas/6.4.x/services/Configuring-Service-Access-Strategy.html#configure-service-access-strategy[CAS Service Access Strategy^].
+
+[[policies-attribute-release]]
+==== Attribute Release
+
+Attribute Release policies decide how attributes are selected and provided to a given 
+<<client-applications,client application>> in the final WA response. +
+Additionally, each instance has the ability to apply an optional filter to weed out their attributes based on their
+values.
+
+[NOTE]
+Attribute Release Policy instances are dynamically translated into
+https://apereo.github.io/cas/6.4.x/integration/Attribute-Release-Policies.html#attribute-release-policies[CAS Attribute Release Policy^].
+
+[[policies-authentication]]
+==== Authentication
+
+WA presents a number of strategies for handling authentication security policies, based on the defined
+<<authentication-modules,authentication modules>>. +
+Authentication Policies in general control the following:
+
+. Should the authentication chain be stopped after a certain kind of authentication failure?
+. Given multiple authentication handlers in a chain, what constitutes a successful authentication event?
+
+Authentication Policies are typically activated after:
+
+. An authentication failure has occurred.
+. The authentication chain has finished execution.
+
+Typical use cases of authentication policies may include:
+
+. Enforce a specific authentication module's successful execution, for the entire authentication event to be considered
+successful.
+. Ensure a specific class of failure is not evident in the authentication chain’s execution log.
+. Ensure that all authentication modules in the chain are executed successfully, for the entire authentication event to
+be considered successful.
+
+[NOTE]
+Authentication Policy instances are dynamically translated into
+https://apereo.github.io/cas/6.4.x/authentication/Configuring-Authentication-Policy.html#authentication-policy[CAS Authentication Policy^].
 
 [[policies-pull]]
 ==== Pull

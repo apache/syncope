@@ -19,8 +19,7 @@
 === Customization
 
 [CAUTION]
-Only Maven projects can be customized: if using Standalone or Debian packages, none of the customizations discussed
-below can be applied.
+Only Maven projects can be customized: if using Standalone, none of the customizations discussed below can be applied.
 
 Apache Syncope is designed to be as flexible as possible, to best suit the various environments
 in which it can be deployed. Besides other aspects, this means that every feature and component can be extended or
@@ -354,7 +353,7 @@ Add the following dependencies to `core/pom.xml`:
 Copy `core/src/main/resources/all/provisioning.properties` to `core/src/main/resources/provisioning.properties`.
 
 [discrete]
-===== Enable the <<saml-2-0-service-provider>> extension
+===== Enable the <<saml2sp4ui>> extension
 
 Add the following dependencies to `core/pom.xml`:
 
@@ -378,7 +377,7 @@ Setup a <<keystore,keystore>> and place it under the <<properties-files-location
 the content of `core/src/main/resources/saml2sp4ui-logic.properties` accordingly.
 
 [discrete]
-===== Enable the <<openid-connect-client>> extension
+===== Enable the <<oidcc4ui>> extension
 
 Add the following dependencies to `core/pom.xml`:
 
@@ -562,7 +561,7 @@ Add the following dependency to `console/pom.xml`:
 ----
 
 [discrete]
-===== Enable the <<saml-2-0-service-provider>> extension
+===== Enable the <<saml2sp4ui>> extension
 
 Add the following dependencies to `console/pom.xml`:
 
@@ -576,7 +575,7 @@ Add the following dependencies to `console/pom.xml`:
 ----
 
 [discrete]
-===== Enable the <<openid-connect-client>> extension
+===== Enable the <<oidcc4ui>> extension
 
 Add the following dependencies to `console/pom.xml`:
 
@@ -630,7 +629,7 @@ Add the following dependency to `enduser/pom.xml`:
 ----
 
 [discrete]
-===== Enable the <<saml-2-0-service-provider>> extension
+===== Enable the <<saml2sp4ui>> extension
 
 Add the following dependencies to `enduser/pom.xml`:
 
@@ -644,7 +643,7 @@ Add the following dependencies to `enduser/pom.xml`:
 ----
 
 [discrete]
-===== Enable the <<openid-connect-client>> extension
+===== Enable the <<oidcc4ui>> extension
 
 Add the following dependencies to `enduser/pom.xml`:
 
@@ -656,61 +655,6 @@ Add the following dependencies to `enduser/pom.xml`:
   <version>${syncope.version}</version>
 </dependency>
 ----
-
-[[customization-enduser-i18n]]
-===== i18n 
-
-The <<enduser-application>> comes with a native internationalization mechanism.
-
-Under the `enduser/src/main/webapp/app/languages/` directory, a sub-directory for each supported language is available;
-each language sub-directory contains two JSON files:
-
-* `static.json` for application messages;
-* `dynamic.json` for labels (including attributes).
-
-Changing the content of these files will result in updating the Enduser messages accordingly.
-
-[TIP]
-====
-In order to add support for a new language (taking French as reference):
-
-* add the support for the new language by updating `index.html`:
-```
-  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.it.js"></script>
-  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.en.js"></script>
-  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.de.js"></script>
-```
-in
-```
-  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.it.js"></script>
-  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.en.js"></script>
-  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.de.js"></script>
-  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.fr.js"></script>
-```
-* add the new language entry in `js/app.js` under `availableLanguages`, by updating
-```
-    $rootScope.languages = {
-      availableLanguages: [
-        {id: '1', name: 'Italiano', code: 'it', format: 'dd/MM/yyyy HH:mm'},
-        {id: '2', name: 'English', code: 'en', format: 'MM/dd/yyyy HH:mm'},
-        {id: '3', name: 'Deutsch', code: 'de', format: 'dd/MM/yyyy HH:mm'}
-      ]
-    };
-```
-as
-```
-    $rootScope.languages = {
-      availableLanguages: [
-        {id: '1', name: 'Italiano', code: 'it', format: 'dd/MM/yyyy HH:mm'},
-        {id: '2', name: 'English', code: 'en', format: 'MM/dd/yyyy HH:mm'},
-        {id: '3', name: 'Deutsch', code: 'de', format: 'dd/MM/yyyy HH:mm'}
-        {id: '4', name: 'Français', code: 'fr', format: 'dd/MM/yyyy HH:mm'}
-      ]
-    };
-```
-* copy the `enduser/src/main/webapp/app/languages/en/` directory into `enduser/src/main/webapp/app/languages/fr/`
-and modify the JSON files under the new directory
-====
 
 [[customization-enduser-form]]
 ===== Form customization

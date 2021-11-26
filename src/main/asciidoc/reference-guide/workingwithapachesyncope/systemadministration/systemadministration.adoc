@@ -31,12 +31,6 @@ was unzipped, the configuration files are located under
 * `$CATALINA_HOME/webapps/syncope-console/WEB-INF/classes/`
 * `$CATALINA_HOME/webapps/syncope-enduser/WEB-INF/classes/`
 
-Debian packages:: The configuration files will be first searched in `/etc/apache-syncope`, then under
-
-* `/usr/share/tomcat8/webapps/syncope/WEB-INF/classes/`
-* `/usr/share/tomcat8/webapps/syncope-console/WEB-INF/classes/`
-* `/usr/share/tomcat8/webapps/syncope-enduser/WEB-INF/classes/`
-
 Maven project:: Assuming that `$CONF_DIRECTORY` is the directory passed among
 <<deployment-directories,deployment directories>> at build time and that `$SOURCE` is the path where the Maven project
 was generated, the configuration files will be first searched in

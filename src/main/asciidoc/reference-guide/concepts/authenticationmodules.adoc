@@ -1,0 +1,61 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Authentication Modules
+
+Authentication Modules allow to specify how <<web-access,WA>> shall check the provided credentials against specific
+technology or repository, in the context of a certain <<policies-authentication,Authentication Policy>>.
+
+Several authentication modules are provided:
+
+* Principal Authentication:
+    ** https://apereo.github.io/cas/6.4.x/authentication/Database-Authentication.html[Database^]
+    ** https://apereo.github.io/cas/6.4.x/authentication/JAAS-Authentication.html[JAAS^]
+    ** https://apereo.github.io/cas/6.4.x/authentication/LDAP-Authentication.html[LDAP^]
+    ** https://apereo.github.io/cas/6.4.x/integration/Delegate-Authentication.html[OpenID Connect^]
+    ** https://apereo.github.io/cas/6.4.x/mfa/RADIUS-Authentication.html[Radius^]
+    ** https://apereo.github.io/cas/6.4.x/authentication/Syncope-Authentication.html[Static^]
+    ** https://apereo.github.io/cas/6.4.x/authentication/Syncope-Authentication.html[Syncope^]
+    ** https://apereo.github.io/cas/6.4.x/integration/Delegate-Authentication.html[SAML^]
+* MFA:
+    ** https://apereo.github.io/cas/6.4.x/mfa/DuoSecurity-Authentication.html[Duo Security^]
+    ** https://apereo.github.io/cas/6.4.x/mfa/FIDO-U2F-Authentication.html[Fido U2F^]
+    ** https://apereo.github.io/cas/6.4.x/mfa/GoogleAuthenticator-Authentication.html[Google Authenticator^]
+
+[TIP]
+====
+Custom authentication modules can be provided by implementing the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/am/lib/src/main/java/org/apache/syncope/common/lib/auth/AuthModuleConf.java[AuthModuleConf^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/common/am/lib/src/main/java/org/apache/syncope/common/lib/auth/AuthModuleConf.java[AuthModuleConf^]
+endif::[]
+interface and extending appropriately the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/wa/bootstrap/src/main/java/org/apache/syncope/wa/bootstrap/SyncopeWAPropertySourceLocator.java[SyncopeWAPropertySourceLocator^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/wa/bootstrap/src/main/java/org/apache/syncope/wa/bootstrap/SyncopeWAPropertySourceLocator.java[SyncopeWAPropertySourceLocator^]
+endif::[]
+class.
+====
+
+[NOTE]
+Authentication Modules are dynamically translated into
+https://apereo.github.io/cas/6.4.x/authentication/Configuring-Authentication-Components.html#authentication-handlers[CAS Authentication Handlers^].
