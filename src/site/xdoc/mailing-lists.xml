@@ -56,16 +56,6 @@ under the License.
               <a href="http://syncope.markmail.org/">syncope.markmail.org</a>
             </td>
           </tr>
-          <tr class="a">
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>
-              <a href="http://syncope-user.1051894.n5.nabble.com/">syncope-user.1051894.n5.nabble.com</a>
-            </td>
-          </tr>
           <tr class="b">
             <td>-</td>
             <td>-</td>
@@ -92,16 +82,6 @@ under the License.
             </td>
             <td>
               <a href="http://syncope.markmail.org/">syncope.markmail.org</a>
-            </td>
-          </tr>
-          <tr class="b">
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>
-              <a href="http://syncope-dev.1063484.n5.nabble.com/">syncope-dev.1063484.n5.nabble.com</a>
             </td>
           </tr>
           <tr class="a">
@@ -156,11 +136,10 @@ under the License.
 
     <section name="IRC">
       <p>
-        Join the <strong>#apache-syncope</strong> channel on FreeNode.
+        Join the <strong>#apache-syncope</strong> channel on <a href="https://libera.chat/">Libera.Chat</a>.
       </p>
       <p>
-        Communication archives are <a href="http://wilderness.apache.org/channels/#logs-%23apache-syncope">available</a>
-        for reference.
+        Join the <strong>#syncope</strong> channel on <a href="https://the-asf.slack.com/archives/CEUPMC04T">Slack</a>.
       </p>
     </section>
   </body>

@@ -90,7 +90,7 @@ All data (users, groups, attributes, resources, ...) is internally managed at a 
 https://en.wikipedia.org/wiki/Java_Persistence_API[JPA 2.2^] approach based on http://openjpa.apache.org[Apache OpenJPA^].
 The data is persisted into an underlying 
 database, referred to as *_Internal Storage_*. Consistency is ensured via the comprehensive
-https://docs.spring.io/spring/docs/5.1.x/spring-framework-reference/data-access.html#transaction[transaction management^] 
+https://docs.spring.io/spring-framework/docs/5.2.x/spring-framework-reference/data-access.html#transaction[transaction management^]
 provided by the Spring Framework.
 
 Globally, this offers the ability to easily scale up to a million entities and at the same time allows great portability

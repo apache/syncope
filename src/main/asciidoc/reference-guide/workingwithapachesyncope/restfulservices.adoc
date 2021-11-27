@@ -46,7 +46,7 @@ The <<swagger,Swagger extension>> might also help greatly when working with REST
 
 ==== REST Authentication and Authorization
 
-The <<core>> authentication and authorization is based on http://projects.spring.io/spring-security/[Spring Security^].
+The <<core>> authentication and authorization is based on https://spring.io/projects/spring-security[Spring Security^].
 
 As an initial step, authentication is required to obtain, in the `X-Syncope-Token` HTTP header, the
 unique signed https://en.wikipedia.org/wiki/JSON_Web_Token[JSON Web Token^] to include in all subsequent requests.
@@ -94,7 +94,7 @@ The set of RESTful services provided by Apache Syncope can be divided as:
 . endpoints disclosing information about the given Syncope deployment (available <<schema,schema>>, configured
 <<extensions,extensions>>, Groups, ...), requiring some sort of shared authentication defined by the
 `anonymousKey` value  in the `security.properties` file - for more information, read about Spring Security's
-http://docs.spring.io/spring-security/site/docs/4.2.x/reference/htmlsingle/#anonymous[Anonymous Authentication^];
+https://docs.spring.io/spring-security/site/docs/5.2.x/reference/html5/#anonymous[Anonymous Authentication^];
 . endpoints for self-service (self-update, password change, ...), requiring user authentication and no entitlements;
 . endpoints for administrative operations, requiring user authentication with authorization granted by the related
 <<entitlements,entitlements>>, handed over to users via <<roles,roles>>.
@@ -649,8 +649,8 @@ int count = userService.search(new AnyQuery.Builder().page(0).size(0).build()).g
 
 PagedResult<UserTO> matchingUsers = userService.search(
     new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-    fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("ros*ini").query()).
-    build()); // <2>
+    fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").
+    equalTo("ros*ini").query()).build()); // <2>
 
 PagedResult<UserTO> matchingUsers = userService.search(
     new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -721,12 +721,14 @@ List<BatchResponseItem> batchResponseItems = batchResponse.getItems(); // <6>
 ====
 [source,java]
 ----
-Pair<Map<String, Set<String>>, UserTO> self = client.self();
+Triple<Map<String, Set<String>>, List<String>, UserTO> self = client.self();
 UserTO userTO = self.getRight(); // <1>
 Map<String, Set<String>> realm2entitlements = self.getLeft(); // <2>
+List<String> delegations = self.getMiddle(); // <3>
 ----
 <1> http://syncope.apache.org/apidocs/2.1/org/apache/syncope/common/lib/to/UserTO.html[UserTO^] of the requesting user
 <2> for each <<realms,realm>>, the owned <<entitlements,entitlements>>
+<3> <<delegation,delegations>> assigned to the requesting user
 ====
 
 .Change user status

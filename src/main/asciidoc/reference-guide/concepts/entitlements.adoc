@@ -21,7 +21,7 @@
 Entitlements are basically strings describing the right to perform an operation on Syncope.
 
 The components in the <<logic,logic layer>> are annotated with
-http://projects.spring.io/spring-security/[Spring Security^] to implement declarative security; in the following
+https://spring.io/projects/spring-security[Spring Security^] to implement declarative security; in the following
 code snippet taken from
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/RealmLogic.java[RealmLogic^]
@@ -30,7 +30,7 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/2_1_X/core/logic/src/main/java/org/apache/syncope/core/logic/RealmLogic.java[RealmLogic^]
 endif::[]
 , the
-http://docs.spring.io/spring-security/site/docs/4.2.x/reference/htmlsingle/#el-common-built-in[`hasRole` expression^]
+https://docs.spring.io/spring-security/site/docs/5.2.x/reference/html5/#el-common-built-in[`hasRole` expression^]
 is used together with one of the standard entitlements to restrict access only to Users owning the `REALM_LIST`
 entitlement.
 

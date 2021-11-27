@@ -60,10 +60,10 @@ The Identity Store can be queried in different ways, depending on the _pull mode
 FULL RECONCILIATION:: The complete list of entities available is processed.
 FILTERED RECONCILIATION:: The subset matching the filter (provided by the selected implementation of
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/ReconciliationFilterBuilder.java[ReconciliationFilterBuilder^])
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/ReconFilterBuilder.java[ReconFilterBuilder^])
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_1_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/ReconciliationFilterBuilder.java[ReconciliationFilterBuilder^])
+https://github.com/apache/syncope/blob/2_1_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/ReconFilterBuilder.java[ReconFilterBuilder^])
 endif::[]
 of all available entities is processed.
 INCREMENTAL:: Only the actual modifications performed since the last pull task execution are considered. This mode
