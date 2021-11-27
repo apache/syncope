@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -143,8 +144,12 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         Date creationDate = null;
         Date lastChangeDate = null;
         if (!result.isEmpty()) {
-            creationDate = (Date) result.get(0)[0];
-            lastChangeDate = (Date) result.get(0)[1];
+            creationDate = result.get(0)[0] instanceof LocalDateTime
+                    ? convert((LocalDateTime) result.get(0)[0])
+                    : (Date) result.get(0)[0];
+            lastChangeDate = result.get(0)[1] instanceof LocalDateTime
+                    ? convert((LocalDateTime) result.get(0)[1])
+                    : (Date) result.get(0)[1];
         }
 
         return lastChangeDate == null ? creationDate : lastChangeDate;

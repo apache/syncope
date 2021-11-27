@@ -539,12 +539,12 @@ under the License.
 
     <docker.postgresql.version>12</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
-    <docker.mariadb.version>10.6</docker.mariadb.version>
+    <docker.mariadb.version>10</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.2.22</jdbc.postgresql.version>
-    <jdbc.mysql.version>8.0.22</jdbc.mysql.version>
-    <jdbc.mariadb.version>2.7.3</jdbc.mariadb.version>
-    <jdbc.mssql.version>9.2.1.jre</jdbc.mssql.version>
+    <jdbc.postgresql.version>42.3.1</jdbc.postgresql.version>
+    <jdbc.mysql.version>8.0.27</jdbc.mysql.version>
+    <jdbc.mariadb.version>2.7.4</jdbc.mariadb.version>
+    <jdbc.mssql.version>9.4.0.jre</jdbc.mssql.version>
 
     <adminUser>admin</adminUser>
     <anonymousUser>anonymous</anonymousUser>
