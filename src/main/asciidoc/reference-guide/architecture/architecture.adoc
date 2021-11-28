@@ -53,7 +53,7 @@ Core and Admin UI to offer centralized configuration and management.
 
 The *_Secure Remote Access_* component is built on https://spring.io/projects/spring-cloud-gateway[Spring Cloud Gateway^].
 
-In addition to all the configuration options and features from Spring Cloud Gateway, theSecure Remote Access is
+In addition to all the configuration options and features from Spring Cloud Gateway, the Secure Remote Access is
 integrated with Keymaster, Core and Admin UI to offer centralized configuration and management.
 
 The Secure Remote Access allows to protect legacy applications by integrating with the Web Access or other third-party

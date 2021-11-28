@@ -29,12 +29,13 @@ sra --> sra : matching route found: PROTECTED
 sra --> user: authentication required
 
 user --> wa : authentication credentials
+wa --> wa: authentication process
 wa --> user : authentication successful, redirect to original request
 
 user --> sra : authenticated request
 sra --> sra : applying configured filters before sending request downstream
 sra --> target : downstream request
-target --> sra : downsream response
+target --> sra : downstream response
 sra --> sra : applying configured filters before sending response back
 sra --> user: response
 @enduml
