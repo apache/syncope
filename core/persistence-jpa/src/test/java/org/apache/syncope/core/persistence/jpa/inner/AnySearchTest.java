@@ -216,6 +216,24 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
+    public void searchByRealm() {
+        AnyCond anyCond = new AnyCond(AttrCond.Type.EQ);
+        anyCond.setSchema("realm");
+        anyCond.setExpression("c5b75db1-fce7-470f-b780-3b9934d82a9d");
+
+        List<User> users = searchDAO.search(SearchCond.getLeaf(anyCond), AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertEquals("rossini", users.get(0).getUsername());
+
+        anyCond.setExpression("/even");
+        users = searchDAO.search(SearchCond.getLeaf(anyCond), AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertEquals("rossini", users.get(0).getUsername());
+    }
+
+    @Test
     public void searchByPageAndSize() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.LIKE);
         fullnameLeafCond.setSchema("fullname");

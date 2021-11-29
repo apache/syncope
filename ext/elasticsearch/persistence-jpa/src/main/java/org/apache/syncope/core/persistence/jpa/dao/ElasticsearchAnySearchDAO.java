@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
@@ -527,6 +528,17 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected QueryBuilder getQueryBuilder(final AnyCond cond, final AnyTypeKind kind) {
+        if (JAXRSService.PARAM_REALM.equals(cond.getSchema())
+                && SyncopeConstants.UUID_PATTERN.matcher(cond.getExpression()).matches()) {
+
+            Realm realm = realmDAO.find(cond.getExpression());
+            if (realm == null) {
+                LOG.warn("Invalid Realm key: {}", cond.getExpression());
+                return MATCH_NONE_QUERY_BUILDER;
+            }
+            cond.setExpression(realm.getFullPath());
+        }
+
         Triple<PlainSchema, PlainAttrValue, AnyCond> checked;
         try {
             checked = check(cond, kind);
