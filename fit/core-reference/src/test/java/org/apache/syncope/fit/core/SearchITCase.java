@@ -287,6 +287,18 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
+    public void searchByRealm() {
+        PagedResult<UserTO> users = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("realm").
+                        equalTo("c5b75db1-fce7-470f-b780-3b9934d82a9d").query()).build());
+        assertTrue(users.getResult().stream().anyMatch(user -> "rossini".equals(user.getUsername())));
+
+        users = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("realm").equalTo("/even").query()).build());
+        assertTrue(users.getResult().stream().anyMatch(user -> "rossini".equals(user.getUsername())));
+    }
+
+    @Test
     public void searchByBooleanAnyCond() {
         PagedResult<GroupTO> groups = groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("show").equalTo("true").query()).build());

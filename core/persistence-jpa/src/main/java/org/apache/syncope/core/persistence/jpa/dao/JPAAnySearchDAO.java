@@ -32,9 +32,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -1110,6 +1112,17 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final boolean not,
             final List<Object> parameters,
             final SearchSupport svs) {
+
+        if (JAXRSService.PARAM_REALM.equals(cond.getSchema())
+                && !SyncopeConstants.UUID_PATTERN.matcher(cond.getExpression()).matches()) {
+
+            Realm realm = realmDAO.findByFullPath(cond.getExpression());
+            if (realm == null) {
+                LOG.warn("Invalid Realm full path: {}", cond.getExpression());
+                return EMPTY_QUERY;
+            }
+            cond.setExpression(realm.getKey());
+        }
 
         Triple<PlainSchema, PlainAttrValue, AnyCond> checked;
         try {
