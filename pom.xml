@@ -1773,7 +1773,7 @@ under the License.
       <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
-        <version>1.69</version>
+        <version>1.70</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -2099,7 +2099,7 @@ under the License.
         <plugin>
           <groupId>org.vafer</groupId>
           <artifactId>jdeb</artifactId>
-          <version>1.9</version>
+          <version>1.10</version>
         </plugin>
 
         <plugin>
