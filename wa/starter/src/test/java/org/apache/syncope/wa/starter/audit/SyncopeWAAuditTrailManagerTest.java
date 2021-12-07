@@ -50,7 +50,7 @@ public class SyncopeWAAuditTrailManagerTest extends AbstractTest {
     @Test
     public void saveAuditRecord() {
         AuditActionContext audit = new AuditActionContext("principal", "resourceOperatedUpon", "actionPerformed",
-                "applicationCode", new Date(), "clientIpAddress", "serverIpAddress");
+                "applicationCode", new Date(), "clientIpAddress", "serverIpAddress", "userAgent");
         SyncopeWAAuditTrailManager auditTrailManager = new SyncopeWAAuditTrailManager(getWaRestClient());
         auditTrailManager.saveAuditRecord(audit);
         verify(loggerService).create(any(AuditEntry.class));

@@ -84,8 +84,8 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
 
     public static void main(final String[] args) {
         new SpringApplicationBuilder(SyncopeWAApplication.class).
-                properties("spring.config.name:wa").
-                build().run(args);
+            properties(Map.of("spring.config.name", "wa", "spring.cloud.bootstrap.name", "wa")).
+            build().run(args);
     }
 
     @Autowired
@@ -96,7 +96,8 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
-        return builder.properties(Map.of("spring.config.name", "wa")).sources(SyncopeWAApplication.class);
+        return builder.properties(Map.of("spring.config.name", "wa",
+            "spring.cloud.bootstrap.name", "wa")).sources(SyncopeWAApplication.class);
     }
 
     /**

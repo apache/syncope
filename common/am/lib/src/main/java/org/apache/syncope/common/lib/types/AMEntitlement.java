@@ -88,6 +88,8 @@ public final class AMEntitlement {
 
     public static final String OIDC_JWKS_READ = "OIDC_JWKS_READ";
 
+    public static final String OIDC_JWKS_SET = "OIDC_JWKS_SET";
+
     public static final String OIDC_JWKS_DELETE = "OIDC_JWKS_DELETE";
 
     public static final String WA_CONFIG_LIST = "WA_CONFIG_LIST";

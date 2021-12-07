@@ -41,6 +41,11 @@ public class OIDCJWKSServiceImpl extends AbstractService implements OIDCJWKSServ
     }
 
     @Override
+    public void set(final OIDCJWKSTO entityTO) {
+        logic.set(entityTO);
+    }
+
+    @Override
     public Response generate(final int size, final JWSAlgorithm algorithm) {
         OIDCJWKSTO jwks = logic.generate(size, algorithm);
         URI location = uriInfo.getAbsolutePathBuilder().build();

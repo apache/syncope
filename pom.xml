@@ -409,8 +409,8 @@ under the License.
 
     <jackson.version>2.13.0</jackson.version>
 
-    <spring-boot.version>2.5.7</spring-boot.version>
-    <spring-cloud-gateway.version>3.0.5</spring-cloud-gateway.version>
+    <spring-boot.version>2.6.1</spring-boot.version>
+    <spring-cloud-gateway.version>3.1.0</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.0</openjpa.version>
     <hikaricp.version>5.0.0</hikaricp.version>
@@ -428,7 +428,7 @@ under the License.
 
     <camel.version>3.13.0</camel.version>
 
-    <slf4j.version>2.0.0-alpha5</slf4j.version>
+    <slf4j.version>1.7.32</slf4j.version>
 
     <elasticsearch.version>7.15.2</elasticsearch.version>
 
@@ -448,7 +448,7 @@ under the License.
 
     <pac4j.version>5.1.4</pac4j.version>
 
-    <cas.version>6.4.2</cas.version>
+    <cas.version>6.5.0-SNAPSHOT</cas.version>
     <cas-client.version>3.6.2</cas-client.version>
 
     <h2.version>1.4.200</h2.version>
@@ -1740,7 +1740,7 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-slf4j18-impl</artifactId>
+        <artifactId>log4j-slf4j-impl</artifactId>
         <version>${log4j.version}</version>
       </dependency>
       <dependency>
@@ -1922,6 +1922,13 @@ under the License.
         <enabled>true</enabled>
       </releases>
     </repository>
+    <repository>
+      <id>spring</id>
+      <url>https://repo.spring.io/milestone</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -1954,6 +1961,13 @@ under the License.
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
+    </pluginRepository>
+    <pluginRepository>
+      <id>spring</id>
+      <url>https://repo.spring.io/milestone</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
     </pluginRepository>
   </pluginRepositories>
 

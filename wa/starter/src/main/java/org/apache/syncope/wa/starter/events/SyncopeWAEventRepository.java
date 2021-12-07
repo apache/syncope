@@ -20,10 +20,11 @@ package org.apache.syncope.wa.starter.events;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.audit.AuditEntry;
@@ -100,7 +101,7 @@ public class SyncopeWAEventRepository extends AbstractCasEventRepository {
     }
 
     @Override
-    public Collection<? extends CasEvent> load() {
+    public Stream<? extends CasEvent> load() {
         throw new UnsupportedOperationException("Fetching authentication events from WA is not supported");
     }
 }
