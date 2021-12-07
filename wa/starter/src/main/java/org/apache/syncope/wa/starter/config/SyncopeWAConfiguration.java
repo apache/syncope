@@ -73,7 +73,7 @@ import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.mfa.u2f.U2FCoreMultifactorAuthenticationProperties;
-import org.apereo.cas.oidc.jwks.OidcJsonWebKeystoreGeneratorService;
+import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
 import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;

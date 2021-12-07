@@ -76,4 +76,12 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
         }
         return binder.getOIDCJWKSTO(jwks);
     }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_SET + "') "
+        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public OIDCJWKSTO set(final OIDCJWKSTO entityTO) {
+        OIDCJWKS jwks = dao.get();
+        jwks.setJson(entityTO.getJson());
+        return binder.getOIDCJWKSTO(dao.save(jwks));
+    }
 }
