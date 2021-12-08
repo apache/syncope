@@ -57,23 +57,19 @@ public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
     @Transactional(readOnly = true)
     @Override
     public List<String> getValuesAsStrings(final String key) {
-        Optional<? extends CPlainAttr> attr = find(key);
-        return attr.isPresent() ? attr.get().getValuesAsStrings() : Collections.<String>emptyList();
+        return find(key).map(CPlainAttr::getValuesAsStrings).orElse(Collections.emptyList());
     }
 
     @Transactional(readOnly = true)
     @Override
     public <T> T find(final String key, final T defaultValue) {
-        Optional<? extends CPlainAttr> result = find(key);
-        if (!result.isPresent()) {
-            return defaultValue;
-        }
-
-        return result.get().getUniqueValue() == null
-                ? result.get().getValues().isEmpty()
+        return find(key).
+                map(attr -> attr.getUniqueValue() == null
+                ? attr.getValues().isEmpty()
                 ? null
-                : result.get().getValues().get(0).<T>getValue()
-                : result.get().getUniqueValue().<T>getValue();
+                : attr.getValues().get(0).<T>getValue()
+                : attr.getUniqueValue().<T>getValue()).
+                orElse(defaultValue);
     }
 
     @Override
