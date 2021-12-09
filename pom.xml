@@ -1888,9 +1888,7 @@ under the License.
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-contract-wiremock</artifactId>
-        <version>3.0.4</version>
-        <!-- unfortunately, not always aligned with spring-cloud-gateway -->
-        <!--<version>${spring-cloud-gateway.version}</version>-->
+        <version>${spring-cloud-gateway.version}</version>
         <scope>test</scope>
       </dependency>
 
