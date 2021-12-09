@@ -42,6 +42,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -241,7 +242,8 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 options.add(new SortOptions.Builder().field(
                         new FieldSort.Builder().
                                 field(sortName).
-                                order(SortOrder.valueOf(clause.getDirection().name())).
+                                order(SortOrder.valueOf(
+                                        StringUtils.capitalize(clause.getDirection().name().toLowerCase()))).
                                 build()).
                         build());
             }
