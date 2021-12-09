@@ -18,13 +18,12 @@
  */
 package org.apache.syncope.ext.elasticsearch.client;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import java.util.List;
-
 import org.apache.http.HttpHost;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -61,7 +60,7 @@ public class ElasticsearchClientContext {
     @Bean
     @Autowired
     public ElasticsearchIndexManager elasticsearchIndexManager(
-            final RestHighLevelClient client,
+            final ElasticsearchClient client,
             final ElasticsearchUtils elasticsearchUtils) {
 
         return new ElasticsearchIndexManager(client, elasticsearchUtils);
