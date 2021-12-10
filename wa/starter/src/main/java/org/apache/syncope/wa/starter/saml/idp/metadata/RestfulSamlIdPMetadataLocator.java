@@ -87,11 +87,16 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
 
             LOG.warn("Not a valid SAML2 IdP metadata document");
             return null;
-        } catch (SyncopeClientException e) {
-            if (e.getType() == ClientExceptionType.NotFound) {
+        } catch (Exception e) {
+            if (e instanceof SyncopeClientException
+                && ((SyncopeClientException) e).getType() == ClientExceptionType.NotFound) {
                 LOG.info(e.getMessage());
             } else {
-                LOG.error("While fetching SAML2 IdP metadata", e);
+                if (LOG.isDebugEnabled()) {
+                    LOG.error("While fetching SAML2 IdP metadata", e);
+                } else {
+                    LOG.error("While fetching SAML2 IdP metadata: " + e.getMessage());
+                }
             }
         }
 

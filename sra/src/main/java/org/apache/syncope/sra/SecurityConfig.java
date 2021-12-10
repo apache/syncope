@@ -63,6 +63,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.MappedJwtClaimSetConverter;
@@ -146,8 +147,11 @@ public class SecurityConfig {
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OIDC")
     public ReactiveJwtDecoder oidcJWTDecoder() {
-        NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withJwkSetUri(
-                oidcClientRegistrationRepository().iterator().next().getProviderDetails().getJwkSetUri()).build();
+        String jwkSetUri = oidcClientRegistrationRepository().iterator().next().getProviderDetails().getJwkSetUri();
+        NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri)
+            .jwsAlgorithm(SignatureAlgorithm.RS256)
+            .jwsAlgorithm(SignatureAlgorithm.RS512)
+            .build();
         jwtDecoder.setJwtValidator(oidcJWTValidator());
         jwtDecoder.setClaimSetConverter(jwtClaimSetConverter());
         return jwtDecoder;
