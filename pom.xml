@@ -446,7 +446,7 @@ under the License.
 
     <modernizer-maven.version>2.3.0</modernizer-maven.version>
 
-    <pac4j.version>5.1.4</pac4j.version>
+    <pac4j.version>5.2.0</pac4j.version>
 
     <cas.version>6.5.0-SNAPSHOT</cas.version>
     <cas-client.version>3.6.2</cas-client.version>
@@ -1888,9 +1888,7 @@ under the License.
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-contract-wiremock</artifactId>
-        <version>3.0.4</version>
-        <!-- unfortunately, not always aligned with spring-cloud-gateway -->
-        <!--<version>${spring-cloud-gateway.version}</version>-->
+        <version>${spring-cloud-gateway.version}</version>
         <scope>test</scope>
       </dependency>
 
