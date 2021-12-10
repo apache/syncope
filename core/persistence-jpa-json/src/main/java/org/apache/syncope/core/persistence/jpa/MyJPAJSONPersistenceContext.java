@@ -54,7 +54,7 @@ public class MyJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
     @ConditionalOnMissingBean(name = "myJPAJSONAnyDAO")
     @Bean
     @Autowired
-    public JPAJSONAnyDAO anyDAO(final PlainSchemaDAO plainSchemaDAO) {
+    public JPAJSONAnyDAO anyDAO(final @Lazy PlainSchemaDAO plainSchemaDAO) {
         return new MyJPAJSONAnyDAO(plainSchemaDAO);
     }
 
