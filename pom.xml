@@ -422,7 +422,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>4.0.0-beta-2</groovy.version>
+    <groovy.version>4.0.0-rc-1</groovy.version>
 
     <flowable.version>6.7.1</flowable.version>
 
@@ -435,7 +435,7 @@ under the License.
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
 
-    <log4j.version>2.14.1</log4j.version>
+    <log4j.version>2.15.0</log4j.version>
     <disruptor.version>3.4.4</disruptor.version>
     
     <commons-jexl.version>3.2.1</commons-jexl.version>
@@ -502,7 +502,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.55</tomcat.version>
+    <tomcat.version>9.0.56</tomcat.version>
     <wildfly.version>25.0.1.Final</wildfly.version>
     <payara.version>5.2021.9</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
@@ -977,7 +977,7 @@ under the License.
       <dependency>
         <groupId>com.github.ben-manes.caffeine</groupId>
         <artifactId>caffeine</artifactId>
-        <version>3.0.4</version>
+        <version>3.0.5</version>
       </dependency>
 
       <dependency>
@@ -1693,6 +1693,11 @@ under the License.
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>${log4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
