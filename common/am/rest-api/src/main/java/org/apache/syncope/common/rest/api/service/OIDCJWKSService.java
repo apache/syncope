@@ -52,6 +52,13 @@ public interface OIDCJWKSService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     OIDCJWKSTO get();
 
+    @ApiResponses(
+        @ApiResponse(responseCode = "204", description = "Operation was successful"))
+    @POST
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void set(@NotNull OIDCJWKSTO entityTO);
+
     @ApiResponses({
         @ApiResponse(responseCode = "201",
                 description = "JWKS successfully created", headers = {
@@ -63,6 +70,7 @@ public interface OIDCJWKSService extends JAXRSService {
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Path("new")
     Response generate(
             @NotNull @QueryParam("size") @DefaultValue("2048") int size,
             @NotNull @QueryParam("algorithm") @DefaultValue("RS256") JWSAlgorithm algorithm);

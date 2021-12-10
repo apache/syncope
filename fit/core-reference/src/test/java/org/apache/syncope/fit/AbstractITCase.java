@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.fit;
 
-import static org.apache.syncope.fit.AbstractUIITCase.ANONYMOUS_KEY;
-import static org.apache.syncope.fit.AbstractUIITCase.ANONYMOUS_UNAME;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
