@@ -471,7 +471,7 @@ under the License.
     <wicket.version>9.7.0</wicket.version>
     <wicketstuff.version>9.6.0</wicketstuff.version>
     <wicket-jqueryui.version>9.5.0</wicket-jqueryui.version>
-    <wicket-bootstrap.version>5.0.5</wicket-bootstrap.version>
+    <wicket-bootstrap.version>5.0.6</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.0.4</wicket-spring-boot.version>
 
     <antlr4.version>4.9.3</antlr4.version>
