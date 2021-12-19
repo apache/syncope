@@ -27,6 +27,7 @@ import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
+import org.apereo.cas.util.model.TriStateBoolean;
 
 @ClientAppMapFor(clientAppClass = SAML2SPClientAppTO.class)
 public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
@@ -46,7 +47,7 @@ public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
 
         service.setMetadataLocation(sp.getMetadataLocation());
         service.setMetadataSignatureLocation(sp.getMetadataSignatureLocation());
-        service.setSignAssertions(sp.isSignAssertions());
+        service.setSignAssertions(TriStateBoolean.fromBoolean(sp.isSignAssertions()));
         service.setSignResponses(sp.isSignResponses());
         service.setEncryptionOptional(sp.isEncryptionOptional());
         service.setEncryptAssertions(sp.isEncryptAssertions());
