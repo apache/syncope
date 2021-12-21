@@ -167,12 +167,10 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
             taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
             assertNotNull(taskTO);
             assertTrue(taskTO.isExecuted());
-            assertEquals(1, taskTO.getExecutions().size());
+            assertFalse(taskTO.getExecutions().isEmpty());
         } finally {
             // Remove execution to make test re-runnable
-            if (!taskTO.getExecutions().isEmpty()) {
-                taskService.deleteExecution(taskTO.getExecutions().get(0).getKey());
-            }
+            taskTO.getExecutions().forEach(e -> taskService.deleteExecution(e.getKey()));
         }
     }
 
