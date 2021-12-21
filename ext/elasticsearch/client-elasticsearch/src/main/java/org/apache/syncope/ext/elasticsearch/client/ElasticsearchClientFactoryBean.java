@@ -34,12 +34,13 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.message.BasicHeader;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
  * Spring {@link FactoryBean} for getting the {@link ElasticsearchClient} singleton instance.
  */
-public class ElasticsearchClientFactoryBean implements FactoryBean<ElasticsearchClient> {
+public class ElasticsearchClientFactoryBean implements FactoryBean<ElasticsearchClient>, DisposableBean {
 
     private final List<HttpHost> hosts;
 
@@ -52,6 +53,8 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Elasticsearch
     private String apiKeyId;
 
     private String apiKeySecret;
+
+    private RestClient restClient;
 
     private ElasticsearchClient client;
 
@@ -95,24 +98,24 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Elasticsearch
     public ElasticsearchClient getObject() throws Exception {
         synchronized (this) {
             if (client == null) {
-                RestClientBuilder restClient = RestClient.builder(hosts.toArray(new HttpHost[0]));
+                RestClientBuilder builder = RestClient.builder(hosts.toArray(HttpHost[]::new));
                 if (username != null && password != null) {
                     CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
                     credentialsProvider.setCredentials(
                             AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-                    restClient.setHttpClientConfigCallback(b -> b.setDefaultCredentialsProvider(credentialsProvider));
+                    builder.setHttpClientConfigCallback(b -> b.setDefaultCredentialsProvider(credentialsProvider));
                 } else if (serviceToken != null) {
-                    restClient.setDefaultHeaders(
+                    builder.setDefaultHeaders(
                             new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "Bearer " + serviceToken) });
                 } else if (apiKeyId != null && apiKeySecret != null) {
                     String apiKeyAuth = Base64.getEncoder().encodeToString(
                             (apiKeyId + ":" + apiKeySecret).getBytes(StandardCharsets.UTF_8));
-                    restClient.setDefaultHeaders(
+                    builder.setDefaultHeaders(
                             new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "ApiKey " + apiKeyAuth) });
                 }
 
-                client = new ElasticsearchClient(new RestClientTransport(
-                        restClient.build(), new JacksonJsonpMapper()));
+                restClient = builder.build();
+                client = new ElasticsearchClient(new RestClientTransport(restClient, new JacksonJsonpMapper()));
             }
         }
         return client;
@@ -121,5 +124,12 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Elasticsearch
     @Override
     public Class<?> getObjectType() {
         return ElasticsearchClient.class;
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        if (restClient != null) {
+            restClient.close();
+        }
     }
 }
