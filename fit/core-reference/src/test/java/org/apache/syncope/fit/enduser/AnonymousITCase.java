@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.fit.enduser;
 
-import static org.apache.syncope.fit.enduser.AbstractEnduserITCase.securityQuestionService;
-import static org.apache.syncope.fit.enduser.AbstractEnduserITCase.userService;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 

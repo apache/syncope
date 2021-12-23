@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Resource;
 import javax.jws.WebService;
 import javax.sql.DataSource;
 import net.tirasa.connid.bundles.soap.exceptions.ProvisioningException;
@@ -43,18 +42,19 @@ import org.identityconnectors.common.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.springframework.stereotype.Service;
 
 @WebService(
         endpointInterface = "net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning",
         serviceName = "Provisioning")
-@Service
 public class ProvisioningImpl implements Provisioning {
 
     private static final Logger LOG = LoggerFactory.getLogger(Provisioning.class);
 
-    @Resource(name = "testDataSource")
-    private DataSource dataSource;
+    private final DataSource dataSource;
+
+    public ProvisioningImpl(final DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Override
     public String delete(final String accountid) throws ProvisioningException {
@@ -184,7 +184,7 @@ public class ProvisioningImpl implements Provisioning {
         try {
 
             String queryString = "SELECT * FROM user" + (Optional.ofNullable(query)
-                .map(operand -> " WHERE " + operand.toString()).orElse(""));
+                    .map(operand -> " WHERE " + operand.toString()).orElse(""));
 
             queryString = queryString.replaceAll("__NAME__", "userId").
                     replaceAll("__UID__", "userId").
