@@ -250,8 +250,8 @@ public class SyncopeWAConfiguration {
     @Autowired
     @Bean
     public CasEventRepository casEventRepository(final WARestClient restClient,
-                                                 @Qualifier("syncopeWAEventRepositoryFilter")
-                                                 final CasEventRepositoryFilter syncopeWAEventRepositoryFilter) {
+            @Qualifier("syncopeWAEventRepositoryFilter")
+            final CasEventRepositoryFilter syncopeWAEventRepositoryFilter) {
         return new SyncopeWAEventRepository(syncopeWAEventRepositoryFilter, restClient);
     }
 
@@ -263,8 +263,8 @@ public class SyncopeWAConfiguration {
 
     @Bean
     public OneTimeTokenRepository oneTimeTokenAuthenticatorTokenRepository(
-        final CasConfigurationProperties casProperties,
-        final WARestClient restClient) {
+            final CasConfigurationProperties casProperties,
+            final WARestClient restClient) {
         return new SyncopeWAGoogleMfaAuthTokenRepository(
                 restClient, casProperties.getAuthn().getMfa().getGauth().getCore().getTimeStepSize());
     }
@@ -280,8 +280,8 @@ public class SyncopeWAConfiguration {
     @Autowired
     @Bean
     public OidcJsonWebKeystoreGeneratorService oidcJsonWebKeystoreGeneratorService(
-        final ConfigurableApplicationContext ctx,
-        final WARestClient restClient) {
+            final ConfigurableApplicationContext ctx,
+            final WARestClient restClient) {
         int size = ctx.getEnvironment().
                 getProperty("cas.authn.oidc.jwks.size", int.class, 2048);
         JWSAlgorithm algorithm = ctx.getEnvironment().
@@ -292,23 +292,24 @@ public class SyncopeWAConfiguration {
     @RefreshScope
     @Bean
     public WebAuthnCredentialRepository webAuthnCredentialRepository(
-        final CasConfigurationProperties casProperties,
-        final WARestClient restClient) {
+            final CasConfigurationProperties casProperties,
+            final WARestClient restClient) {
         return new SyncopeWAWebAuthnCredentialRepository(casProperties, restClient);
     }
 
     @Bean
     @RefreshScope
     public U2FDeviceRepository u2fDeviceRepository(
-        final CasConfigurationProperties casProperties,
-        final WARestClient restClient) {
+            final CasConfigurationProperties casProperties,
+            final WARestClient restClient) {
+
         U2FCoreMultifactorAuthenticationProperties u2f = casProperties.getAuthn().getMfa().getU2f().getCore();
         LocalDate expirationDate = LocalDate.now(ZoneId.systemDefault()).
                 minus(u2f.getExpireDevices(), DateTimeUtils.toChronoUnit(u2f.getExpireDevicesTimeUnit()));
         LoadingCache<String, String> requestStorage = Caffeine.newBuilder().
                 expireAfterWrite(u2f.getExpireRegistrations(), u2f.getExpireRegistrationsTimeUnit()).
                 build(key -> StringUtils.EMPTY);
-        return new SyncopeWAU2FDeviceRepository(requestStorage, restClient, expirationDate);
+        return new SyncopeWAU2FDeviceRepository(casProperties, requestStorage, restClient, expirationDate);
     }
 
     @Bean
@@ -342,7 +343,7 @@ public class SyncopeWAConfiguration {
 
     @Bean
     public CasThymeleafLoginFormDirector casThymeleafLoginFormDirector(
-        @Qualifier("casWebflowExecutionPlan") final CasWebflowExecutionPlan webflowExecutionPlan) {
+            @Qualifier("casWebflowExecutionPlan") final CasWebflowExecutionPlan webflowExecutionPlan) {
         return new CasThymeleafLoginFormDirector(webflowExecutionPlan);
     }
 }
