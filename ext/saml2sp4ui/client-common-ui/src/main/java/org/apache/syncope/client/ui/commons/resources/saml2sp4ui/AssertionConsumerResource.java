@@ -32,14 +32,10 @@ import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AssertionConsumerResource extends AbstractSAML2SP4UIResource {
 
     private static final long serialVersionUID = 3858609271031003370L;
-
-    protected static final Logger LOG = LoggerFactory.getLogger(AssertionConsumerResource.class);
 
     protected static final ObjectMapper MAPPER =
             new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);

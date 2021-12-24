@@ -16,31 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.resources;
+package org.apache.syncope.client.console.resources.oidcc4ui;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.pages.OIDCClientLogin;
+import org.apache.syncope.client.console.pages.OIDCClientLogout;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
-import org.apache.syncope.client.ui.commons.resources.oidcc4ui.CodeConsumerResource;
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.client.ui.commons.resources.oidcc4ui.LogoutResource;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 @Resource(
-        key = OIDCC4UIConstants.URL_CONTEXT + ".codeConsumer",
-        path = "/" + OIDCC4UIConstants.URL_CONTEXT + "/code-consumer")
-public class ConsoleCodeConsumerResource extends CodeConsumerResource {
+        key = OIDCC4UIConstants.URL_CONTEXT + ".logout",
+        path = "/" + OIDCC4UIConstants.URL_CONTEXT + "/logout")
+public class ConsoleLogoutResource extends LogoutResource {
 
-    private static final long serialVersionUID = 8348262380011763032L;
-
-    @Override
-    protected Class<? extends WebPage> getLoginPageClass() {
-        return OIDCClientLogin.class;
-    }
+    private static final long serialVersionUID = -4250716706885039749L;
 
     @Override
-    protected Pair<Class<? extends WebPage>, PageParameters> getSelfRegInfo(final UserTO newUser) {
-        throw new UnsupportedOperationException("Self-registration not supported by Admin Console");
+    protected Class<? extends WebPage> getLogoutPageClass() {
+        return OIDCClientLogout.class;
     }
 }

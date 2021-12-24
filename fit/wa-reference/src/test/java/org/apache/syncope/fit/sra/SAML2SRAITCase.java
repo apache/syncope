@@ -104,21 +104,23 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
         HttpGet get = new HttpGet(SRA_ADDRESS + "/public/get?" + QUERY_STRING);
         get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
-        CloseableHttpResponse response = httpclient.execute(get, context);
-
-        ObjectNode headers = checkGetResponse(response, get.getURI().toASCIIString().replace("/public", ""));
-        assertFalse(headers.has(HttpHeaders.COOKIE));
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            ObjectNode headers = checkGetResponse(response, get.getURI().toASCIIString().replace("/public", ""));
+            assertFalse(headers.has(HttpHeaders.COOKIE));
+        }
 
         // 2. protected
         get = new HttpGet(SRA_ADDRESS + "/protected/get?" + QUERY_STRING);
         String originalRequestURI = get.getURI().toASCIIString();
         get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
-        response = httpclient.execute(get, context);
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        String responseBody;
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            responseBody = EntityUtils.toString(response.getEntity());
+        }
 
         // 2a. post SAML request
-        String responseBody = EntityUtils.toString(response.getEntity());
         Triple<String, String, String> parsed = parseSAMLRequestForm(responseBody);
 
         HttpPost post = new HttpPost(parsed.getLeft());
@@ -127,22 +129,42 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
         post.setEntity(new UrlEncodedFormEntity(
                 List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
                         new BasicNameValuePair("SAMLRequest", parsed.getRight())), Consts.UTF_8));
-        response = httpclient.execute(post, context);
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+        String location;
+        try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+            assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+            location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+        }
 
         // 2b. authenticate
-        get = new HttpGet(response.getFirstHeader(HttpHeaders.LOCATION).getValue());
-        get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
-        get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
-        response = httpclient.execute(get, context);
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        post = new HttpPost(location);
+        post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            responseBody = EntityUtils.toString(response.getEntity());
+        }
 
-        responseBody = EntityUtils.toString(response.getEntity());
-        response = authenticateToCas("bellini", "password", responseBody, httpclient, context);
+        boolean isOk = false;
+        try (CloseableHttpResponse response =
+                authenticateToCas("bellini", "password", responseBody, httpclient, context)) {
+
+            switch (response.getStatusLine().getStatusCode()) {
+                case HttpStatus.SC_OK:
+                    isOk = true;
+                    responseBody = EntityUtils.toString(response.getEntity());
+                    break;
+
+                case HttpStatus.SC_MOVED_TEMPORARILY:
+                    location = response.getFirstHeader(org.apache.http.HttpHeaders.LOCATION).getValue();
+                    break;
+
+                default:
+                    fail();
+            }
+        }
 
         // 2c. WA attribute consent screen
-        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            responseBody = EntityUtils.toString(response.getEntity());
+        if (isOk) {
             String execution = extractCASExecution(responseBody);
 
             List<NameValuePair> form = new ArrayList<>();
@@ -153,48 +175,54 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
             form.add(new BasicNameValuePair("reminderTimeUnit", "days"));
 
             post = new HttpPost(WA_ADDRESS + "/login");
-            post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
-            post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+            post.addHeader(org.apache.http.HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+            post.addHeader(org.apache.http.HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
             post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
-            response = httpclient.execute(post, context);
+            try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+                assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+                location = response.getFirstHeader(org.apache.http.HttpHeaders.LOCATION).getValue();
+            }
         }
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
 
-        get = new HttpGet(response.getFirstHeader(HttpHeaders.LOCATION).getValue());
-        get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
-        get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
-        response = httpclient.execute(get, context);
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        get = new HttpGet(location);
+        get.addHeader(org.apache.http.HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        get.addHeader(org.apache.http.HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            responseBody = EntityUtils.toString(response.getEntity());
+        }
 
         // 2d. post SAML response
-        responseBody = EntityUtils.toString(response.getEntity());
         parsed = parseSAMLResponseForm(responseBody);
 
         post = new HttpPost(parsed.getLeft());
-        post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
-        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        post.addHeader(org.apache.http.HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        post.addHeader(org.apache.http.HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         post.setEntity(new UrlEncodedFormEntity(
                 List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
                         new BasicNameValuePair("SAMLResponse", parsed.getRight())), Consts.UTF_8));
-        response = httpclient.execute(post, context);
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+        try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+            assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+            location = response.getFirstHeader(org.apache.http.HttpHeaders.LOCATION).getValue();
+        }
 
         // 2e. finally get requested content
-        get = new HttpGet(response.getFirstHeader(HttpHeaders.LOCATION).getValue());
+        get = new HttpGet(location);
         get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
-        response = httpclient.execute(get, context);
-
-        headers = checkGetResponse(response, originalRequestURI.replace("/protected", ""));
-        assertFalse(headers.get(HttpHeaders.COOKIE).asText().isBlank());
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            ObjectNode headers = checkGetResponse(response, originalRequestURI.replace("/protected", ""));
+            assertFalse(headers.get(HttpHeaders.COOKIE).asText().isBlank());
+        }
 
         // 3. logout
         get = new HttpGet(SRA_ADDRESS + "/protected/logout");
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
-        response = httpclient.execute(get, context);
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            responseBody = EntityUtils.toString(response.getEntity());
+        }
 
         // 3a. post SAML request
-        responseBody = EntityUtils.toString(response.getEntity());
         parsed = parseSAMLRequestForm(responseBody);
 
         post = new HttpPost(parsed.getLeft());
@@ -203,15 +231,17 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
         post.setEntity(new UrlEncodedFormEntity(
                 List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
                         new BasicNameValuePair("SAMLRequest", parsed.getRight())), Consts.UTF_8));
-        response = httpclient.execute(post, context);
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+        try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+            assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+            location = response.getFirstHeader(org.apache.http.HttpHeaders.LOCATION).getValue();
+        }
 
-        get = new HttpGet(response.getFirstHeader(HttpHeaders.LOCATION).getValue());
+        get = new HttpGet(location);
         get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
-        response = httpclient.execute(get, context);
-
         // 3b. check logout
-        checkLogout(response);
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            checkLogout(response);
+        }
     }
 }

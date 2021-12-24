@@ -181,40 +181,62 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
         // 1. fetch login page
         HttpGet get = new HttpGet(baseURL);
-        CloseableHttpResponse response = httpclient.execute(get, context);
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        }
 
         // 2. click on the SAML 2.0 IdP
         get = new HttpGet(baseURL + SAML2SP4UIConstants.URL_CONTEXT
                 + "/login?idp=http%3A//localhost%3A9080/syncope-wa/saml");
-        response = httpclient.execute(get, context);
-
-        // 2a. post SAML request
-        String responseBody = EntityUtils.toString(response.getEntity());
+        String responseBody;
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            responseBody = EntityUtils.toString(response.getEntity());
+        }
         Triple<String, String, String> parsed = parseSAMLRequestForm(responseBody);
 
+        // 2a. post SAML request
         HttpPost post = new HttpPost(parsed.getLeft());
         post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         post.setEntity(new UrlEncodedFormEntity(
                 List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
                         new BasicNameValuePair("SAMLRequest", parsed.getRight())), Consts.UTF_8));
-        response = httpclient.execute(post, context);
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+        String location;
+        try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+            assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+            location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+        }
 
         // 2b. authenticate
-        get = new HttpGet(response.getFirstHeader(HttpHeaders.LOCATION).getValue());
-        get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
-        get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
-        response = httpclient.execute(get, context);
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        post = new HttpPost(location);
+        post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        post.addHeader(HttpHeaders.REFERER, get.getURI().toASCIIString());
+        try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            responseBody = EntityUtils.toString(response.getEntity());
+        }
+        boolean isOk = false;
+        try (CloseableHttpResponse response =
+                authenticateToCas(username, password, responseBody, httpclient, context)) {
 
-        responseBody = EntityUtils.toString(response.getEntity());
-        response = authenticateToCas(username, password, responseBody, httpclient, context);
+            switch (response.getStatusLine().getStatusCode()) {
+                case HttpStatus.SC_OK:
+                    isOk = true;
+                    responseBody = EntityUtils.toString(response.getEntity());
+                    break;
+
+                case HttpStatus.SC_MOVED_TEMPORARILY:
+                    location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+                    break;
+
+                default:
+                    fail();
+            }
+        }
 
         // 2c. WA attribute consent screen
-        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            responseBody = EntityUtils.toString(response.getEntity());
+        if (isOk) {
             String execution = extractCASExecution(responseBody);
 
             List<NameValuePair> form = new ArrayList<>();
@@ -228,18 +250,21 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
             post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
             post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
             post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
-            response = httpclient.execute(post, context);
+            try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+                assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+            }
         }
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
 
-        get = new HttpGet(response.getFirstHeader(HttpHeaders.LOCATION).getValue());
+        get = new HttpGet(location);
         get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
-        response = httpclient.execute(get, context);
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            responseBody = EntityUtils.toString(response.getEntity());
+        }
 
         // 2d. post SAML response
-        responseBody = EntityUtils.toString(response.getEntity());
         parsed = parseSAMLResponseForm(responseBody);
 
         post = new HttpPost(parsed.getLeft());
@@ -248,15 +273,17 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         post.setEntity(new UrlEncodedFormEntity(
                 List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
                         new BasicNameValuePair("SAMLResponse", parsed.getRight())), Consts.UTF_8));
-        response = httpclient.execute(post, context);
-        assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+        try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+            assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+            location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+        }
 
         // 3. verify that user is now authenticated
-        get = new HttpGet(baseURL + StringUtils.removeStart(
-                response.getFirstHeader(HttpHeaders.LOCATION).getValue(), "../"));
-        response = httpclient.execute(get, context);
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-        assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
+        get = new HttpGet(baseURL + StringUtils.removeStart(location, "../"));
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
+        }
     }
 
     @Override
