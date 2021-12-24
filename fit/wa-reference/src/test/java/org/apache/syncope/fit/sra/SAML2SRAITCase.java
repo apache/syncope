@@ -155,7 +155,7 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
                     break;
 
                 case HttpStatus.SC_MOVED_TEMPORARILY:
-                    location = response.getFirstHeader(org.apache.http.HttpHeaders.LOCATION).getValue();
+                    location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
                     break;
 
                 default:
@@ -175,18 +175,18 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
             form.add(new BasicNameValuePair("reminderTimeUnit", "days"));
 
             post = new HttpPost(WA_ADDRESS + "/login");
-            post.addHeader(org.apache.http.HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
-            post.addHeader(org.apache.http.HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+            post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+            post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
             post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
             try (CloseableHttpResponse response = httpclient.execute(post, context)) {
                 assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
-                location = response.getFirstHeader(org.apache.http.HttpHeaders.LOCATION).getValue();
+                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue().replace(":8080", ":9080");
             }
         }
 
         get = new HttpGet(location);
-        get.addHeader(org.apache.http.HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
-        get.addHeader(org.apache.http.HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         try (CloseableHttpResponse response = httpclient.execute(get, context)) {
             assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
             responseBody = EntityUtils.toString(response.getEntity());
@@ -196,14 +196,14 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
         parsed = parseSAMLResponseForm(responseBody);
 
         post = new HttpPost(parsed.getLeft());
-        post.addHeader(org.apache.http.HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
-        post.addHeader(org.apache.http.HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         post.setEntity(new UrlEncodedFormEntity(
                 List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
                         new BasicNameValuePair("SAMLResponse", parsed.getRight())), Consts.UTF_8));
         try (CloseableHttpResponse response = httpclient.execute(post, context)) {
             assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
-            location = response.getFirstHeader(org.apache.http.HttpHeaders.LOCATION).getValue();
+            location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
         }
 
         // 2e. finally get requested content
@@ -233,7 +233,7 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
                         new BasicNameValuePair("SAMLRequest", parsed.getRight())), Consts.UTF_8));
         try (CloseableHttpResponse response = httpclient.execute(post, context)) {
             assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
-            location = response.getFirstHeader(org.apache.http.HttpHeaders.LOCATION).getValue();
+            location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
         }
 
         get = new HttpGet(location);
