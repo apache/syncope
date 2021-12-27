@@ -44,6 +44,6 @@ jobs:
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
     - name: 'Tail logs directory'
-      run: tail -F --lines=50 fit/wa-reference/target/logs &
+      run: tail -f --retry --lines=50 fit/wa-reference/target/logs &
     - name: 'WA / SRA / CAS Client'
       run: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.sra.CASSRAITCase
