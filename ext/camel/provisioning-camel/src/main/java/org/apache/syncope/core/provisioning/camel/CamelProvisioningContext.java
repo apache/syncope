@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class CamelProvisioningContext {
 
     @Bean

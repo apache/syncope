@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class CamelLogicContext {
 
     @javax.annotation.Resource(name = "userRoutes")

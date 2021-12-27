@@ -75,7 +75,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 @EnableConfigurationProperties(KeymasterProperties.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @AutoConfigureBefore(WebSecurityContext.class)
 public class SelfKeymasterContext {
 
