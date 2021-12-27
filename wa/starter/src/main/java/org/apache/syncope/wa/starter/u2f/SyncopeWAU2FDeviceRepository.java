@@ -34,6 +34,7 @@ import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.adaptors.u2f.storage.BaseU2FDeviceRepository;
 import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRegistration;
+import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.util.crypto.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +49,12 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
     private final LocalDate expirationDate;
 
     public SyncopeWAU2FDeviceRepository(
+            final CasConfigurationProperties casProperties,
             final LoadingCache<String, String> requestStorage,
             final WARestClient waRestClient,
             final LocalDate expirationDate) {
 
-        super(requestStorage, CipherExecutor.noOpOfSerializableToString());
+        super(casProperties, requestStorage, CipherExecutor.noOpOfSerializableToString());
         this.waRestClient = waRestClient;
         this.expirationDate = expirationDate;
     }

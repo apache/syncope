@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM adoptopenjdk/openjdk11:debian-slim
+FROM eclipse-temurin:11-focal
 MAINTAINER dev@syncope.apache.org
 
 RUN set -x

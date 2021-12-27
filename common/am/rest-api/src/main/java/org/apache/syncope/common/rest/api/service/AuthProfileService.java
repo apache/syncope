@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import static org.apache.syncope.common.rest.api.service.JAXRSService.PARAM_PAGE;
-import static org.apache.syncope.common.rest.api.service.JAXRSService.PARAM_SIZE;
-
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.headers.Header;

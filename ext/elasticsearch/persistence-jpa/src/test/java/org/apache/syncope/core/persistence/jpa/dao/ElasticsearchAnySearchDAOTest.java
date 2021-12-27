@@ -18,11 +18,17 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.SearchType;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -48,11 +54,6 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -87,7 +88,7 @@ public class ElasticsearchAnySearchDAOTest {
     private ElasticsearchAnySearchDAO searchDAO;
 
     @Test
-    public void getAdminRealmsFilter_realm() {
+    public void getAdminRealmsFilter_realm() throws IOException {
         // 1. mock
         Realm root = mock(Realm.class);
         when(root.getFullPath()).thenReturn(SyncopeConstants.ROOT_REALM);
@@ -97,11 +98,15 @@ public class ElasticsearchAnySearchDAOTest {
 
         // 2. test
         Set<String> adminRealms = Set.of(SyncopeConstants.ROOT_REALM);
-        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter =
+        Triple<Optional<Query>, Set<String>, Set<String>> filter =
                 searchDAO.getAdminRealmsFilter(AnyTypeKind.USER, adminRealms);
-        assertEquals(
-                QueryBuilders.disMaxQuery().add(QueryBuilders.termQuery("realm", SyncopeConstants.ROOT_REALM)),
-                filter.getLeft().get());
+
+        assertThat(
+                new Query.Builder().disMax(QueryBuilders.disMax().queries(
+                        new Query.Builder().term(QueryBuilders.term().field("realm").value(
+                                FieldValue.of(SyncopeConstants.ROOT_REALM)).build()).build()).build()).
+                        build()).
+                usingRecursiveComparison().isEqualTo(filter.getLeft().get());
         assertEquals(Set.of(), filter.getMiddle());
         assertEquals(Set.of(), filter.getRight());
     }
@@ -116,7 +121,7 @@ public class ElasticsearchAnySearchDAOTest {
 
         // 2. test
         Set<String> adminRealms = Set.of("dyn");
-        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter =
+        Triple<Optional<Query>, Set<String>, Set<String>> filter =
                 searchDAO.getAdminRealmsFilter(AnyTypeKind.USER, adminRealms);
         assertFalse(filter.getLeft().isPresent());
         assertEquals(Set.of("dyn"), filter.getMiddle());
@@ -126,7 +131,7 @@ public class ElasticsearchAnySearchDAOTest {
     @Test
     public void getAdminRealmsFilter_groupOwner() {
         Set<String> adminRealms = Set.of(RealmUtils.getGroupOwnerRealm("/any", "groupKey"));
-        Triple<Optional<QueryBuilder>, Set<String>, Set<String>> filter =
+        Triple<Optional<Query>, Set<String>, Set<String>> filter =
                 searchDAO.getAdminRealmsFilter(AnyTypeKind.USER, adminRealms);
         assertFalse(filter.getLeft().isPresent());
         assertEquals(Set.of(), filter.getMiddle());
@@ -156,22 +161,21 @@ public class ElasticsearchAnySearchDAOTest {
             AnyCond anyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
             anyCond.setSchema("id");
 
-            SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().
-                    query(searchDAO.getQueryBuilder(adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER)).
+            SearchRequest request = new SearchRequest.Builder().
+                    index(ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
+                    searchType(SearchType.QueryThenFetch).
+                    query(searchDAO.getQuery(adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER)).
                     from(1).
-                    size(10);
-            searchDAO.sortBuilders(AnyTypeKind.USER, List.of()).forEach(sourceBuilder::sort);
+                    size(10).
+                    build();
 
-            SearchRequest request = new SearchRequest(
-                    ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
-                    searchType(SearchType.QUERY_THEN_FETCH).
-                    source(sourceBuilder);
-
-            assertEquals(
-                    QueryBuilders.boolQuery().
-                            must(QueryBuilders.existsQuery("id")).
-                            must(QueryBuilders.termQuery("memberships", "groupKey")),
-                    request.source().query());
+            assertThat(
+                    new Query.Builder().bool(QueryBuilders.bool().
+                            must(new Query.Builder().exists(QueryBuilders.exists().field("id").build()).build()).
+                            must(new Query.Builder().term(QueryBuilders.term().field("memberships").value(
+                                    FieldValue.of("groupKey")).build()).build()).
+                            build()).build()).
+                    usingRecursiveComparison().isEqualTo(request.query());
         }
     }
 }

@@ -21,8 +21,10 @@ package org.apache.syncope.ext.elasticsearch.client;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -37,8 +39,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -60,9 +60,9 @@ public class ElasticsearchUtils {
 
     protected int retryOnConflict = 5;
 
-    protected int numberOfShards = 1;
+    protected String numberOfShards = "1";
 
-    protected int numberOfReplicas = 1;
+    protected String numberOfReplicas = "1";
 
     public ElasticsearchUtils(final UserDAO userDAO, final GroupDAO groupDAO, final AnyObjectDAO anyObjectDAO) {
         this.userDAO = userDAO;
@@ -86,32 +86,32 @@ public class ElasticsearchUtils {
         return retryOnConflict;
     }
 
-    public int getNumberOfShards() {
+    public String getNumberOfShards() {
         return numberOfShards;
     }
 
     public void setNumberOfShards(final int numberOfShards) {
-        this.numberOfShards = numberOfShards;
+        this.numberOfShards = String.valueOf(numberOfShards);
     }
 
-    public int getNumberOfReplicas() {
+    public String getNumberOfReplicas() {
         return numberOfReplicas;
     }
 
     public void setNumberOfReplicas(final int numberOfReplicas) {
-        this.numberOfReplicas = numberOfReplicas;
+        this.numberOfReplicas = String.valueOf(numberOfReplicas);
     }
 
     /**
-     * Returns the builder specialized with content from the provided any.
+     * Returns the document specialized with content from the provided any.
      *
      * @param any user, group or any object to index
      * @param domain tenant information
-     * @return builder specialized with content from the provided any
+     * @return document specialized with content from the provided any
      * @throws IOException in case of errors
      */
     @Transactional
-    public XContentBuilder builder(final Any<?> any, final String domain) throws IOException {
+    public Map<String, Object> document(final Any<?> any, final String domain) throws IOException {
         Set<String> resources = new HashSet<>();
         List<String> dynRealms = new ArrayList<>();
         AuthContextUtils.callAsAdmin(domain, () -> {
@@ -128,28 +128,27 @@ public class ElasticsearchUtils {
             return null;
         });
 
-        XContentBuilder builder = XContentFactory.jsonBuilder().
-                startObject().
-                field("id", any.getKey()).
-                field("realm", any.getRealm().getFullPath()).
-                field("anyType", any.getType().getKey()).
-                field("creationDate", any.getCreationDate()).
-                field("creationContext", any.getCreationContext()).
-                field("creator", any.getCreator()).
-                field("lastChangeDate", any.getLastChangeDate()).
-                field("lastModifier", any.getLastModifier()).
-                field("lastChangeContext", any.getLastChangeContext()).
-                field("status", any.getStatus()).
-                field("resources", resources).
-                field("dynRealms", dynRealms);
+        Map<String, Object> builder = new HashMap<>();
+        builder.put("id", any.getKey());
+        builder.put("realm", any.getRealm().getFullPath());
+        builder.put("anyType", any.getType().getKey());
+        builder.put("creationDate", any.getCreationDate());
+        builder.put("creationContext", any.getCreationContext());
+        builder.put("creator", any.getCreator());
+        builder.put("lastChangeDate", any.getLastChangeDate());
+        builder.put("lastModifier", any.getLastModifier());
+        builder.put("lastChangeContext", any.getLastChangeContext());
+        builder.put("status", any.getStatus());
+        builder.put("resources", resources);
+        builder.put("dynRealms", dynRealms);
 
         if (any instanceof AnyObject) {
             AnyObject anyObject = ((AnyObject) any);
-            builder = builder.field("name", anyObject.getName());
+            builder.put("name", anyObject.getName());
 
             Collection<String> memberships = AuthContextUtils.callAsAdmin(
                     domain, () -> anyObjectDAO.findAllGroupKeys(anyObject));
-            builder = builder.field("memberships", memberships);
+            builder.put("memberships", memberships);
 
             List<String> relationships = new ArrayList<>();
             List<String> relationshipTypes = new ArrayList<>();
@@ -160,18 +159,18 @@ public class ElasticsearchUtils {
                 });
                 return null;
             });
-            builder = builder.field("relationships", relationships);
-            builder = builder.field("relationshipTypes", relationshipTypes);
+            builder.put("relationships", relationships);
+            builder.put("relationshipTypes", relationshipTypes);
 
-            builder = customizeBuilder(builder, anyObject, domain);
+            ElasticsearchUtils.this.customizeDocument(builder, anyObject, domain);
         } else if (any instanceof Group) {
             Group group = ((Group) any);
-            builder = builder.field("name", group.getName());
+            builder.put("name", group.getName());
             if (group.getUserOwner() != null) {
-                builder = builder.field("userOwner", group.getUserOwner().getKey());
+                builder.put("userOwner", group.getUserOwner().getKey());
             }
             if (group.getGroupOwner() != null) {
-                builder = builder.field("groupOwner", group.getGroupOwner().getKey());
+                builder.put("groupOwner", group.getGroupOwner().getKey());
             }
 
             Set<String> members = new HashSet<>();
@@ -184,20 +183,19 @@ public class ElasticsearchUtils {
                 members.addAll(groupDAO.findADynMembers(group));
                 return null;
             });
-            builder = builder.field("members", members);
+            builder.put("members", members);
 
-            builder = customizeBuilder(builder, group, domain);
+            ElasticsearchUtils.this.customizeDocument(builder, group, domain);
         } else if (any instanceof User) {
             User user = ((User) any);
-            builder = builder.
-                    field("username", user.getUsername()).
-                    field("token", user.getToken()).
-                    field("tokenExpireTime", user.getTokenExpireTime()).
-                    field("changePwdDate", user.getChangePwdDate()).
-                    field("failedLogins", user.getFailedLogins()).
-                    field("lastLoginDate", user.getLastLoginDate()).
-                    field("suspended", user.isSuspended()).
-                    field("mustChangePassword", user.isMustChangePassword());
+            builder.put("username", user.getUsername());
+            builder.put("token", user.getToken());
+            builder.put("tokenExpireTime", user.getTokenExpireTime());
+            builder.put("changePwdDate", user.getChangePwdDate());
+            builder.put("failedLogins", user.getFailedLogins());
+            builder.put("lastLoginDate", user.getLastLoginDate());
+            builder.put("suspended", user.isSuspended());
+            builder.put("mustChangePassword", user.isMustChangePassword());
 
             List<String> roles = new ArrayList<>();
             Set<String> privileges = new HashSet<>();
@@ -208,12 +206,12 @@ public class ElasticsearchUtils {
                 });
                 return null;
             });
-            builder = builder.field("roles", roles);
-            builder = builder.field("privileges", privileges);
+            builder.put("roles", roles);
+            builder.put("privileges", privileges);
 
             Collection<String> memberships = AuthContextUtils.callAsAdmin(
                     domain, () -> userDAO.findAllGroupKeys(user));
-            builder = builder.field("memberships", memberships);
+            builder.put("memberships", memberships);
 
             List<String> relationships = new ArrayList<>();
             Set<String> relationshipTypes = new HashSet<>();
@@ -221,10 +219,10 @@ public class ElasticsearchUtils {
                 relationships.add(relationship.getRightEnd().getKey());
                 relationshipTypes.add(relationship.getType().getKey());
             });
-            builder = builder.field("relationships", relationships);
-            builder = builder.field("relationshipTypes", relationshipTypes);
+            builder.put("relationships", relationships);
+            builder.put("relationshipTypes", relationshipTypes);
 
-            builder = customizeBuilder(builder, user, domain);
+            customizeDocument(builder, user, domain);
         }
 
         for (PlainAttr<?> plainAttr : any.getPlainAttrs()) {
@@ -235,29 +233,23 @@ public class ElasticsearchUtils {
                 values.add(plainAttr.getUniqueValue().getValue());
             }
 
-            builder = builder.field(plainAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
+            builder.put(plainAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
         }
 
-        return builder.endObject();
-    }
-
-    protected XContentBuilder customizeBuilder(
-            final XContentBuilder builder, final AnyObject anyObject, final String domain)
-            throws IOException {
-
         return builder;
     }
 
-    protected XContentBuilder customizeBuilder(
-            final XContentBuilder builder, final Group group, final String domain)
+    protected void customizeDocument(
+            final Map<String, Object> builder, final AnyObject anyObject, final String domain)
             throws IOException {
-
-        return builder;
     }
 
-    protected XContentBuilder customizeBuilder(final XContentBuilder builder, final User user, final String domain)
+    protected void customizeDocument(
+            final Map<String, Object> builder, final Group group, final String domain)
             throws IOException {
+    }
 
-        return builder;
+    protected void customizeDocument(final Map<String, Object> builder, final User user, final String domain)
+            throws IOException {
     }
 }

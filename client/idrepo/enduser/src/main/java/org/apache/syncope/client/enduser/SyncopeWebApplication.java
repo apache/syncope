@@ -168,6 +168,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
             try {
                 AbstractResource instance = resource.getDeclaredConstructor().newInstance();
 
+                LOG.debug("Mounting {} under {}", resource.getName(), annotation.path());
                 mountResource(annotation.path(), new ResourceReference(annotation.key()) {
 
                     private static final long serialVersionUID = -128426276529456602L;

@@ -18,17 +18,43 @@
  */
 package org.apache.syncope.fit.buildtools.cxf;
 
+import com.icegreen.greenmail.smtp.InterruptableSmtpServer;
+import com.icegreen.greenmail.util.GreenMail;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
+import org.apache.cxf.jaxrs.ext.MessageContext;
+import org.apache.syncope.fit.buildtools.GreenMailStartStopListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("greenMail")
-public interface GreenMailService {
+public class GreenMailService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(GreenMailService.class);
+
+    @Context
+    private MessageContext messageContext;
 
     @POST
     @Path("start")
-    void start();
+    public void start() {
+        GreenMail greenMail = (GreenMail) messageContext.getServletContext().
+                getAttribute(GreenMailStartStopListener.GREENMAIL);
+        if (greenMail != null) {
+            ((InterruptableSmtpServer) greenMail.getSmtp()).setRejectRequests(false);
+            LOG.info("SMTP server is accepting requests");
+        }
+    }
 
     @POST
     @Path("stop")
-    void stop();
+    public void stop() {
+        GreenMail greenMail = (GreenMail) messageContext.getServletContext().
+                getAttribute(GreenMailStartStopListener.GREENMAIL);
+        if (greenMail != null) {
+            ((InterruptableSmtpServer) greenMail.getSmtp()).setRejectRequests(true);
+            LOG.info("SMTP server is rejecting requests");
+        }
+    }
 }
