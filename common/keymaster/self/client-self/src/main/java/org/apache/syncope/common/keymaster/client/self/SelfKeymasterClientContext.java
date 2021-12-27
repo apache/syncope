@@ -28,6 +28,7 @@ import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
@@ -39,7 +40,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 @EnableConfigurationProperties(KeymasterProperties.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SelfKeymasterClientContext {
 
     private static final Pattern HTTP = Pattern.compile("^http.+");
@@ -77,21 +78,24 @@ public class SelfKeymasterClientContext {
     @Conditional(SelfKeymasterCondition.class)
     @Bean
     @ConditionalOnMissingBean(name = "selfConfParamOps")
-    public ConfParamOps selfConfParamOps() {
-        return new SelfKeymasterConfParamOps(selfKeymasterRESTClientFactoryBean());
+    public ConfParamOps selfConfParamOps(@Qualifier("selfKeymasterRESTClientFactoryBean")
+                                         final JAXRSClientFactoryBean selfKeymasterRESTClientFactoryBean) {
+        return new SelfKeymasterConfParamOps(selfKeymasterRESTClientFactoryBean);
     }
 
     @Conditional(SelfKeymasterCondition.class)
     @Bean
     @ConditionalOnMissingBean(name = "selfServiceOps")
-    public ServiceOps selfServiceOps() {
-        return new SelfKeymasterServiceOps(selfKeymasterRESTClientFactoryBean(), 5);
+    public ServiceOps selfServiceOps(@Qualifier("selfKeymasterRESTClientFactoryBean")
+                                     final JAXRSClientFactoryBean selfKeymasterRESTClientFactoryBean) {
+        return new SelfKeymasterServiceOps(selfKeymasterRESTClientFactoryBean, 5);
     }
 
     @Conditional(SelfKeymasterCondition.class)
     @Bean
     @ConditionalOnMissingBean(name = "domainOps")
-    public DomainOps domainOps() {
-        return new SelfKeymasterDomainOps(selfKeymasterRESTClientFactoryBean());
+    public DomainOps domainOps(@Qualifier("selfKeymasterRESTClientFactoryBean")
+                               final JAXRSClientFactoryBean selfKeymasterRESTClientFactoryBean) {
+        return new SelfKeymasterDomainOps(selfKeymasterRESTClientFactoryBean);
     }
 }

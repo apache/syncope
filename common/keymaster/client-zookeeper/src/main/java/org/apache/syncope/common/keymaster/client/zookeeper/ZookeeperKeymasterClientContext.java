@@ -46,7 +46,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 @EnableConfigurationProperties(KeymasterProperties.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class ZookeeperKeymasterClientContext {
 
     private static final Pattern IPV4 = Pattern.compile(
