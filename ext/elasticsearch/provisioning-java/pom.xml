@@ -43,7 +43,7 @@ under the License.
       <artifactId>syncope-core-provisioning-java</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.syncope.ext.elasticsearch</groupId>
       <artifactId>syncope-ext-elasticsearch-client</artifactId>

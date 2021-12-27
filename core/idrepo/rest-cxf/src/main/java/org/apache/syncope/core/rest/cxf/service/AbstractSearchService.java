@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import static org.apache.syncope.core.rest.cxf.service.AbstractService.LOG;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;

@@ -120,7 +120,7 @@ public class AbstractITCase {
         assertNotEquals(-1, begin);
         int end = responseBody.indexOf("\"/>", begin);
         assertNotEquals(-1, end);
-        String relayState = responseBody.substring(begin + 25, end);
+        String relayState = StringEscapeUtils.unescapeXml(responseBody.substring(begin + 25, end));
         assertNotNull(relayState);
 
         begin = responseBody.indexOf("name=\"SAMLRequest\" value=\"");

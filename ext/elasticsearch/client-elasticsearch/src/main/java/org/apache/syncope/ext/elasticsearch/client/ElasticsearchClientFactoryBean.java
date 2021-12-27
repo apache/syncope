@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.ext.elasticsearch.client;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -31,14 +34,13 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.message.BasicHeader;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
- * Spring {@link FactoryBean} for getting the Elasticsearch's {@link RestHighLevelClient} singleton instance.
+ * Spring {@link FactoryBean} for getting the {@link ElasticsearchClient} singleton instance.
  */
-public class ElasticsearchClientFactoryBean implements FactoryBean<RestHighLevelClient>, DisposableBean {
+public class ElasticsearchClientFactoryBean implements FactoryBean<ElasticsearchClient>, DisposableBean {
 
     private final List<HttpHost> hosts;
 
@@ -52,7 +54,9 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<RestHighLevel
 
     private String apiKeySecret;
 
-    private RestHighLevelClient client;
+    private RestClient restClient;
+
+    private ElasticsearchClient client;
 
     public ElasticsearchClientFactoryBean(final List<HttpHost> hosts) {
         this.hosts = hosts;
@@ -91,25 +95,27 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<RestHighLevel
     }
 
     @Override
-    public RestHighLevelClient getObject() throws Exception {
+    public ElasticsearchClient getObject() throws Exception {
         synchronized (this) {
             if (client == null) {
-                RestClientBuilder restClient = RestClient.builder(hosts.toArray(new HttpHost[0]));
+                RestClientBuilder builder = RestClient.builder(hosts.toArray(HttpHost[]::new));
                 if (username != null && password != null) {
                     CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
                     credentialsProvider.setCredentials(
                             AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-                    restClient.setHttpClientConfigCallback(b -> b.setDefaultCredentialsProvider(credentialsProvider));
+                    builder.setHttpClientConfigCallback(b -> b.setDefaultCredentialsProvider(credentialsProvider));
                 } else if (serviceToken != null) {
-                    restClient.setDefaultHeaders(
+                    builder.setDefaultHeaders(
                             new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "Bearer " + serviceToken) });
                 } else if (apiKeyId != null && apiKeySecret != null) {
                     String apiKeyAuth = Base64.getEncoder().encodeToString(
                             (apiKeyId + ":" + apiKeySecret).getBytes(StandardCharsets.UTF_8));
-                    restClient.setDefaultHeaders(
+                    builder.setDefaultHeaders(
                             new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "ApiKey " + apiKeyAuth) });
                 }
-                client = new RestHighLevelClient(restClient);
+
+                restClient = builder.build();
+                client = new ElasticsearchClient(new RestClientTransport(restClient, new JacksonJsonpMapper()));
             }
         }
         return client;
@@ -117,13 +123,13 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<RestHighLevel
 
     @Override
     public Class<?> getObjectType() {
-        return RestHighLevelClient.class;
+        return ElasticsearchClient.class;
     }
 
     @Override
     public void destroy() throws Exception {
-        if (client != null) {
-            client.close();
+        if (restClient != null) {
+            restClient.close();
         }
     }
 }

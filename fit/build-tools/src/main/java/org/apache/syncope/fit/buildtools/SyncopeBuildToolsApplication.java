@@ -19,20 +19,23 @@
 package org.apache.syncope.fit.buildtools;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-
 import java.util.List;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
+import javax.sql.DataSource;
 import javax.xml.ws.Endpoint;
+import net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.syncope.fit.buildtools.cxf.DateParamConverterProvider;
+import org.apache.syncope.fit.buildtools.cxf.GreenMailService;
 import org.apache.syncope.fit.buildtools.cxf.ProvisioningImpl;
+import org.apache.syncope.fit.buildtools.cxf.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -44,11 +47,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
-@SpringBootApplication(scanBasePackages = "org.apache.syncope.fit.buildtools",
-        exclude = {
-            ErrorMvcAutoConfiguration.class,
-            WebMvcAutoConfiguration.class,
-            HttpMessageConvertersAutoConfiguration.class })
+@SpringBootApplication(exclude = {
+    ErrorMvcAutoConfiguration.class,
+    WebMvcAutoConfiguration.class,
+    HttpMessageConvertersAutoConfiguration.class })
 public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
 
     public static void main(final String[] args) {
@@ -71,9 +73,6 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
     private Bus bus;
 
     @Autowired
-    private ProvisioningImpl provisioningImpl;
-
-    @Autowired
     private ApplicationContext ctx;
 
     @Bean
@@ -84,21 +83,39 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    public Endpoint soapProvisioning() {
-        EndpointImpl soapProvisioning = new EndpointImpl(provisioningImpl);
+    @Autowired
+    public Provisioning provisioningImpl(@Qualifier("testDataSource") final DataSource dataSource) {
+        return new ProvisioningImpl(dataSource);
+    }
+
+    @Bean
+    @Autowired
+    public Endpoint soapProvisioning(final Provisioning provisioning) {
+        EndpointImpl soapProvisioning = new EndpointImpl(provisioning);
         soapProvisioning.setBus(bus);
         soapProvisioning.publish("/soap");
         return soapProvisioning;
     }
 
     @Bean
-    public Server restProvisioning() {
+    public GreenMailService greenMailService() {
+        return new GreenMailService();
+    }
+
+    @Bean
+    public UserService userService() {
+        return new UserService();
+    }
+
+    @Bean
+    @Autowired
+    public Server restProvisioning(final GreenMailService greenMailService, final UserService userService) {
         SpringJAXRSServerFactoryBean restProvisioning = new SpringJAXRSServerFactoryBean();
         restProvisioning.setApplicationContext(ctx);
         restProvisioning.setBus(bus);
         restProvisioning.setAddress("/rest");
         restProvisioning.setStaticSubresourceResolution(true);
-        restProvisioning.setBasePackages(List.of("org.apache.syncope.fit.buildtools.cxf"));
+        restProvisioning.setServiceBeans(List.of(greenMailService, userService));
         restProvisioning.setProviders(List.of(new JacksonJsonProvider(), new DateParamConverterProvider()));
         return restProvisioning.create();
     }

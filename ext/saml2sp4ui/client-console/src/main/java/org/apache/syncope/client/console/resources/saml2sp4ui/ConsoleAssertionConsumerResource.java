@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.resources;
+package org.apache.syncope.client.console.resources.saml2sp4ui;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.pages.SAML2SPLogin;

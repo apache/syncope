@@ -18,7 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
+import co.elastic.clients.elasticsearch.core.IndexRequest;
+import co.elastic.clients.elasticsearch.core.IndexResponse;
+import co.elastic.clients.elasticsearch.indices.IndexSettings;
 import java.io.IOException;
+import java.util.Map;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -28,11 +34,6 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
 
     @Autowired
-    protected RestHighLevelClient client;
+    protected ElasticsearchClient client;
 
     @Autowired
     protected ElasticsearchIndexManager indexManager;
@@ -60,27 +61,27 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
     @Autowired
     protected AnyObjectDAO anyObjectDAO;
 
-    protected XContentBuilder userSettings() throws IOException {
+    protected IndexSettings userSettings() throws IOException {
         return indexManager.defaultSettings();
     }
 
-    protected XContentBuilder groupSettings() throws IOException {
+    protected IndexSettings groupSettings() throws IOException {
         return indexManager.defaultSettings();
     }
 
-    protected XContentBuilder anyObjectSettings() throws IOException {
+    protected IndexSettings anyObjectSettings() throws IOException {
         return indexManager.defaultSettings();
     }
 
-    protected XContentBuilder userMapping() throws IOException {
+    protected TypeMapping userMapping() throws IOException {
         return indexManager.defaultMapping();
     }
 
-    protected XContentBuilder groupMapping() throws IOException {
+    protected TypeMapping groupMapping() throws IOException {
         return indexManager.defaultMapping();
     }
 
-    protected XContentBuilder anyObjectMapping() throws IOException {
+    protected TypeMapping anyObjectMapping() throws IOException {
         return indexManager.defaultMapping();
     }
 
@@ -104,13 +105,14 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 LOG.debug("Indexing users...");
                 for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (String user : userDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                        IndexRequest request = new IndexRequest(
-                                ElasticsearchUtils.getContextDomainName(
+                        IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
+                                index(ElasticsearchUtils.getContextDomainName(
                                         AuthContextUtils.getDomain(), AnyTypeKind.USER)).
                                 id(user).
-                                source(utils.builder(userDAO.find(user), AuthContextUtils.getDomain()));
+                                document(utils.document(userDAO.find(user), AuthContextUtils.getDomain())).
+                                build();
                         try {
-                            IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+                            IndexResponse response = client.index(request);
                             LOG.debug("Index successfully created for {}: {}", user, response);
                         } catch (Exception e) {
                             LOG.error("Could not create index for {} {}", AnyTypeKind.USER, user);
@@ -121,13 +123,14 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 LOG.debug("Indexing groups...");
                 for (int page = 1; page <= (groupDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (String group : groupDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                        IndexRequest request = new IndexRequest(
-                                ElasticsearchUtils.getContextDomainName(
+                        IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
+                                index(ElasticsearchUtils.getContextDomainName(
                                         AuthContextUtils.getDomain(), AnyTypeKind.GROUP)).
                                 id(group).
-                                source(utils.builder(groupDAO.find(group), AuthContextUtils.getDomain()));
+                                document(utils.document(groupDAO.find(group), AuthContextUtils.getDomain())).
+                                build();
                         try {
-                            IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+                            IndexResponse response = client.index(request);
                             LOG.debug("Index successfully created for {}: {}", group, response);
                         } catch (Exception e) {
                             LOG.error("Could not create index for {} {}", AnyTypeKind.GROUP, group);
@@ -138,13 +141,14 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 LOG.debug("Indexing any objects...");
                 for (int page = 1; page <= (anyObjectDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (String anyObject : anyObjectDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                        IndexRequest request = new IndexRequest(
-                                ElasticsearchUtils.getContextDomainName(
+                        IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
+                                index(ElasticsearchUtils.getContextDomainName(
                                         AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT)).
                                 id(anyObject).
-                                source(utils.builder(anyObjectDAO.find(anyObject), AuthContextUtils.getDomain()));
+                                document(utils.document(anyObjectDAO.find(anyObject), AuthContextUtils.getDomain())).
+                                build();
                         try {
-                            IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+                            IndexResponse response = client.index(request);
                             LOG.debug("Index successfully created for {}: {}", anyObject, response);
                         } catch (Exception e) {
                             LOG.error("Could not create index for {} {}", AnyTypeKind.ANY_OBJECT, anyObject);
