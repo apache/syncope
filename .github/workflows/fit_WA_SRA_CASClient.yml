@@ -43,6 +43,8 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
     - name: 'Tail logs directory'
       run: tail -f --retry --lines=50 fit/wa-reference/target/logs &
     - name: 'WA / SRA / CAS Client'
