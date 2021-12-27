@@ -2204,7 +2204,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>9.2</version>
+              <version>9.2.1</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2633,6 +2633,31 @@ under the License.
 
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-ext-images</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <resources>
+                    <resource>
+                      <directory>${rootpom.basedir}/src/site/resources/images</directory>
+                      <includes>
+                        <include>apache-syncope-logo-small.jpg</include>
+                      </includes>
+                    </resource>
+                  </resources>
+                  <outputDirectory>${rootpom.basedir}/target/generated-docs/images</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
             <version>2.2.1</version>
@@ -2678,7 +2703,7 @@ under the License.
                   <backend>html</backend>
                   <attributes>
                     <title>Apache Syncope ${project.version} - Getting Started</title>
-                    <imagesdir>images</imagesdir>
+                    <imagesdir>${rootpom.basedir}/target/generated-docs/images</imagesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2695,7 +2720,7 @@ under the License.
                   <attributes>
                     <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
                     <pdf-style>syncope</pdf-style>
-                    <imagesdir>${basedir}/src/main/asciidoc/images</imagesdir>
+                    <imagesdir>${rootpom.basedir}/target/generated-docs/images</imagesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2711,7 +2736,7 @@ under the License.
                   <backend>html</backend>
                   <attributes>
                     <title>Apache Syncope ${project.version} - Reference Guide</title>
-                    <imagesdir>images</imagesdir>
+                    <imagesdir>${rootpom.basedir}/target/generated-docs/images</imagesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2728,7 +2753,7 @@ under the License.
                   <attributes>
                     <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
                     <pdf-style>syncope</pdf-style>
-                    <imagesdir>${basedir}/src/main/asciidoc/images</imagesdir>
+                    <imagesdir>${rootpom.basedir}/target/generated-docs/images</imagesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2845,7 +2870,7 @@ under the License.
                   <path>
                     <groupId>org.projectlombok</groupId>
                     <artifactId>lombok</artifactId>
-                    <version>1.18.18</version>
+                    <version>1.18.22</version>
                   </path>
                 </annotationProcessorPaths>
               </configuration>

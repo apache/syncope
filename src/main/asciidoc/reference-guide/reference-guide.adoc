@@ -36,7 +36,7 @@
 :toc: right
 :toclevels: 4
 
-image::http://syncope.apache.org/images/apache-syncope-logo-small.jpg[Apache Syncope logo]
+image::apache-syncope-logo-small.jpg[Apache Syncope logo]
 
 [NOTE]
 .This document is under active development and discussion!
@@ -84,4 +84,8 @@ include::architecture/architecture.adoc[]
 
 include::concepts/concepts.adoc[]
 
-include::workingwithapachesyncope/workingwithapachesyncope.adoc[]
+include::usage/usage.adoc[]
+
+include::configuration/configuration.adoc[]
+
+include::howto/howto.adoc[]

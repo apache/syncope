@@ -137,7 +137,7 @@ Environment variables:
 * `DB_POOL_MIN`: internal storage connection pool: floor
 * `OPENJPA_REMOTE_COMMIT`: configure multiple instances, with high availability; valid values are the ones accepted by
 OpenJPA for
-http://openjpa.apache.org/builds/3.1.0/apache-openjpa/docs/ref_guide_event.html[remote event notification^] including
+http://openjpa.apache.org/builds/3.1.2/apache-openjpa/docs/ref_guide_event.html[remote event notification^] including
 `sjvm` (single instance)
 
 ===== Console

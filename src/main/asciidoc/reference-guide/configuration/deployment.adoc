@@ -1,0 +1,265 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Deployment
+
+Apache Syncope <<architecture,components>> are built on https://spring.io/projects/spring-boot[Spring Boot^],
+hence components can be generally deployed either as standalone applications or into one of the supported
+Java EE containers.
+
+[WARNING]
+The only exception is <<secure-remote-access>> that, being based on Spring Cloud Gateway - which in turn is built on 
+https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html[Spring WebFlux^] and
+https://projectreactor.io/docs[Project Reactor^], is only available as standalone application.
+
+==== Standalone
+
+Projects generated from Maven archetype feature a dedicated `executable` profile, which will re-package all
+applications according to Spring Boot's
+https://docs.spring.io/spring-boot/docs/current/reference/html/executable-jar.html[executable format^].
+
+[TIP]
+Spring Boot applications can also be
+https://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html[installed as system services^].
+
+.Run Core application as executable under GNU / Linux
+====
+Assuming that the JDBC driver JAR file for the configured <<dbms>> is available under `/opt/syncope/lib`,
+the Core application can be built and run as follows:
+
+[source,bash]
+----
+$ mvn -P executable clean verify \
+   -Dconf.directory=/opt/syncope/conf \
+   -Dbundles.directory=/opt/syncope/bundles \
+   -Dlog.directory=/opt/syncope/log
+$ cp core/target/syncope.war /opt/syncope/lib
+$ cp core/target/classes/*properties /opt/syncope/conf
+
+$ export LOADER_PATH=/opt/syncope/conf,/opt/syncope/lib
+$ java -jar /opt/syncope/lib/syncope.war
+----
+Further options can be passed to last command, according to Spring Boot
+https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html[documentation^];
+for example:
+
+* `--spring.config.location=/path` +
+ to customize the location of the configuration files
+* `--server.port=8080` +
+ to change the default HTTP port
+====
+
+==== JavaEE Container
+
+Deployment into the Java EE containers listed below might require Maven project changes or tweaking some configuration
+settings.
+
+[[dbcp]]
+.Database Connection Pool
+****
+The <<persistence,internal storage>> is the central place where all data of a given <<Core>> deployment are located.
+
+After choosing the appropriate <<DBMS>>, it is of fundamental importance to provide an adequate configuration for the
+related database https://en.wikipedia.org/wiki/Connection_pool[connection pool^]. 
+
+The database connection pool can be:
+
+. Application-managed (default); based on http://brettwooldridge.github.io/HikariCP/[HikariCP^], the related
+parameters can be tuned in the related <<domains,domain>> configuration file, e.g. `domains/Master.properties`,
+for the Master domain.
+. <<JavaEE Container>>-managed, via the JNDI resource matching the name specified for a given <<domains,domain>>, e.g.
+`java:comp/env/jdbc/syncopeMasterDataSource` for the `Master` domain. +
+Each JavaEE Container provides its own way to accomplish this task:
+  * https://tomcat.apache.org/tomcat-9.0-doc/jdbc-pool.html[Apache Tomcat 9^]
+  * https://docs.payara.fish/community/docs/documentation/user-guides/connection-pools/connection-pools.html[Payara Server 5^]
+  * https://docs.wildfly.org/25/Admin_Guide.html#DataSource[Wildfly 25^]
+****
+
+==== Apache Tomcat 9
+
+On GNU / Linux - Mac OS X, create `$CATALINA_HOME/bin/setenv.sh` with similar content
+(keep everything on a single line):
+
+....
+JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
+-Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC \
+-Djava.security.egd=file:/dev/./urandom"
+....
+
+On MS Windows, create `%CATALINA_HOME%\bin\setenv.bat` with similar content (keep everything on a single line):
+
+....
+set JAVA_OPTS=-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server
+-Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC
+....
+
+==== Payara Server 5
+
+Add
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>jakarta.faces</artifactId>
+      <version>${javax.faces.version}</version>
+    </dependency>
+....
+
+to `core/pom.xml`, `console/pom.xml`, `enduser/pom.xml` and `wa/pom.xml`,
+
+then replace
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-persistence-jpa</artifactId>
+    </dependency>
+....
+
+with
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-persistence-jpa</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.bval</groupId>
+          <artifactId>bval-jsr</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+....
+
+in `core/pom.xml`.
+
+When using a datasource for internal storage, be sure to add
+
+[source,xml]
+....
+<resource-ref>
+  <res-ref-name>jdbc/syncopeMasterDataSource</res-ref-name>
+  <jndi-name>jdbc/syncopeMasterDataSource</jndi-name>
+</resource-ref>
+....
+
+right after `</context-root>` in `core/src/main/webapp/WEB-INF/glassfish-web.xml`, assuming that your Payara Server
+instance provides a datasource named `jdbc/syncopeMasterDataSource`.
+
+[TIP]
+====
+For better performance under GNU / Linux, do not forget to include
+....
+-Djava.security.egd=file:/dev/./urandom
+....
+among JVM options.
+====
+
+==== Wildfly 25
+
+Add
+
+[source,xml]
+....
+    <dependency>
+      <groupId>jakarta.xml.ws</groupId>
+      <artifactId>jakarta.xml.ws-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-core</artifactId>
+      <version>${cxf.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-transports-http</artifactId>
+      <version>${cxf.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-ws-policy</artifactId>
+      <version>${cxf.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-wsdl</artifactId>
+      <version>${cxf.version}</version>
+    </dependency>
+....
+
+as additional dependencies in `core/pom.xml`, `console/pom.xml`, `enduser/pom.xml` and `wa/pom.xml`,
+
+then replace
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-starter</artifactId>
+    </dependency>
+....
+
+with
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-starter</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tomcat.embed</groupId>
+          <artifactId>tomcat-embed-el</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+....
+
+in `core/pom.xml`.
+
+Finally, create
+
+[source]
+....
+persistence.metaDataFactory=jpa(URLs=\
+vfs:/content/${project.build.finalName}.war/WEB-INF/lib/syncope-core-persistence-jpa-${syncope.version}.jar; \
+vfs:/content/${project.build.finalName}.war/WEB-INF/lib/syncope-core-self-keymaster-starter-${syncope.version}.jar, \
+Resources=##orm##)
+
+javadocPaths=/WEB-INF/lib/syncope-common-idrepo-rest-api-${syncope.version}-javadoc.jar,\
+/WEB-INF/lib/syncope-common-idm-rest-api-${syncope.version}-javadoc.jar,\
+/WEB-INF/lib/syncope-common-am-rest-api-${syncope.version}-javadoc.jar
+....
+
+as `core/src/main/resources/core-wildfy.properties`.
+
+Do not forget to include `widlfly` as 
+https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+for the Core application.
+
+[TIP]
+====
+For better performance under GNU / Linux, do not forget to include
+....
+-Djava.security.egd=file:/dev/./urandom
+....
+among JVM options.
+====

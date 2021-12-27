@@ -57,8 +57,6 @@ public class LinkedAccountDetailsPanel extends WizardStep {
 
     private static final int SEARCH_SIZE = 20;
 
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
-
     private List<String> connObjectKeyFieldValues;
 
     public LinkedAccountDetailsPanel(final LinkedAccountTO linkedAccountTO) {
@@ -70,7 +68,7 @@ public class LinkedAccountDetailsPanel extends WizardStep {
                 "resource",
                 new PropertyModel<>(linkedAccountTO, "resource"),
                 false);
-        dropdownResourceField.setChoices(resourceRestClient.list().stream().
+        dropdownResourceField.setChoices(ResourceRestClient.list().stream().
                 filter(resource -> resource.getProvision(AnyTypeKind.USER.name()).isPresent()
                 && resource.getProvision(AnyTypeKind.USER.name()).get().getMapping() != null
                 && !resource.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems().isEmpty()).
@@ -159,7 +157,7 @@ public class LinkedAccountDetailsPanel extends WizardStep {
 
         AtomicReference<String> resourceRemoteKey = new AtomicReference<>(ConnIdSpecialName.NAME);
         try {
-            resourceRemoteKey.set(resourceRestClient.read(resource).getProvision(AnyTypeKind.USER.name()).get().
+            resourceRemoteKey.set(ResourceRestClient.read(resource).getProvision(AnyTypeKind.USER.name()).get().
                     getMapping().getConnObjectKeyItem().getExtAttrName());
         } catch (Exception ex) {
             LOG.error("While reading mapping for resource {}", resource, ex);
@@ -170,7 +168,8 @@ public class LinkedAccountDetailsPanel extends WizardStep {
             builder.fiql(SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                     is(resourceRemoteKey.get()).equalTo(searchTerm + "*").query()).build();
         }
-        Pair<String, List<ConnObjectTO>> items = resourceRestClient.searchConnObjects(resource,
+        Pair<String, List<ConnObjectTO>> items = ResourceRestClient.searchConnObjects(
+                resource,
                 AnyTypeKind.USER.name(),
                 builder,
                 new SortParam<>(resourceRemoteKey.get(), true));

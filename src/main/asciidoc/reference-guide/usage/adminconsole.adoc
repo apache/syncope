@@ -1,0 +1,243 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Admin Console
+Once the deployment is ready, the admin console can be accessed at:
+
+....
+protocol://host:port/syncope-console/
+....
+
+where `protocol`, `host` and `port` reflect your deployment.
+
+You should be greeted by the following web page.
+
+[.text-center]
+image::consoleLogin.png[console-login]
+
+You can use the <<set-admin-credentials,default admin credentials>> to login.
+
+[[admin-console-accessibility]]
+==== Accessibility
+
+The Admin UI is accessible to the visually impaired.
+
+Two icons are present in the main login page and in the menu on the right:
+
+[.text-center]
+image::accessibility-console01.png[title="Admin Console accessibility buttons",alt="Admin Console accessibility buttons"]
+
+By clicking the top right corner icon image:accessibility-icon01.png[Accessibility HC mode,30,30] it is possible to 
+toggle the "High contrast mode".
+In this mode, the website colors are switched to a higher contrast color schema.
+
+[TIP]
+====
+The `H` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
+be used to easily toggle "High contrast mode" by using the keyboard.
+
+E.g. 
+|===
+|Shortcut |Purpose
+
+|`Alt` + `Shift` + `H`
+|Toggle "High contrast mode" on Firefox and Chrome browsers on Linux
+|===
+
+====
+
+By clicking the second icon image:accessibility-icon02.png[Accessibility Increased Font mode,30,30] it is possible 
+to toggle the "Increased font mode".
+In this mode, the website font size is increased.
+
+[TIP]
+====
+The `F` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
+be used to easily toggle "Increased font mode" by using the keyboard.
+
+E.g. 
+|===
+|Shortcut |Purpose
+
+|`Alt` + `Shift` + `F`
+|Toggle "Increased font mode" on Firefox and Chrome browsers on Linux
+|===
+
+====
+
+To reset to the default mode, it is enough to click again on the specific icon.
+
+==== Pages
+
+[discrete]
+===== Dashboard
+
+The dashboard provides an overall view of the current state of the Apache Syncope deployment. It
+consists of various widgets and tabs that show the different metrics and details of each component that is available.
+
+image::consoleDashboard.png[console-dashboard]
+
+[[console-realms]]
+[discrete]
+===== Realms
+
+The realms page provides the designated administrators with the power to manage <<realms>> as well as
+<<users-groups-and-any-objects>>, for all <<anytype, Any Types>> that are defined.
+
+image::realmsUser.png[console-realms-user]
+
+[[console-reports]]
+[discrete]
+===== Reports
+
+The reports page presents the designated administrators with the list of <<reports,reports>> configured on the given
+deployment. +
+This page also allows the administratorss to create and edit <<report-templates,report templates>>.
+
+image::consoleReports.png[console-reports]
+
+[discrete]
+===== Topology
+
+The topology page provides a mapped view of the <<connector-instance-details,connectors>> and
+<<external-resource-details,external resources>> that are available and configured in the given deployment. +
+Different actions are available when clicking on the various nodes.
+
+image::consoleTopology.png[console-topology]
+
+[[console-sra]]
+[discrete]
+===== SRA
+
+From the SRA page it is possible to manage the <<routes,routes>> served and to immediately deploy the updated
+configuration.
+
+image::sra.png[console-sra]
+
+[[console-wa]]
+[discrete]
+===== WA
+
+The WA page allows to manage <<authentication-modules,authentication modules>>,
+<<client-applications,client applications>> and other access management features, and to immediately deploy the updated
+configuration.
+
+image::wa.png[console-wa]
+
+[[console-keymaster]]
+[discrete]
+===== Keymaster
+
+[[console-keymaster_domains]]
+[discrete]
+====== Domains
+
+Allows for <<domains,domain>> management.
+
+image::keymaster_domains.png[]
+
+[[console-keymaster_networkservices]]
+[discrete]
+====== Network Services
+
+Displays the components as registered in the configured <<keymaster,keymaster>> instance.
+
+image::keymaster_networkservices.png[]
+
+[[console-keymaster_parameters]]
+[discrete]
+====== Parameters
+
+Presents the administrators with the list of defined <<configuration-parameters,configuration parameters>> used in the
+given deployment such as `token.expireTime` and `password.cipher.algorithm`.
+These can be edited to further customize the deployment. +
+New parameters can also be added, for use with custom code. 
+
+image::keymaster_parameters.png[]
+
+[discrete]
+===== Configuration
+
+The configuration pages allow the designated administrators to customize the given deployment to fit the needs of the
+organization.
+
+[[console-configuration-audit]]
+Audit::
+
+Controls the configuration of the <<audit,auditing>> features.
+
+[[console-configuration-implementations]]
+Implementations::
+
+Allows the administrators to manage <<implementations,implementations>>.
+
+[[console-configuration-logs]]
+Logs::
+
+The logging levels available can be dynamically adjusted; for example, the admin can set it
+to display only the errors of `io.swagger`, in which case the warning and information logs will not be reported.
+
+[[console-configuration-notifications]]
+Notifications::
+
+Gives access to the <<notifications,notification>> management. +
+This page also allows the administrators to create and edit <<notification-templates,notification templates>>.
+
+[[console-configuration-policies]]
+Policies::
+
+Allows the administrators to manage all available type of <<policies,policies>>.
+
+[[console-configuration-security]]
+Security::
+
+Displays and provides editing functionality for the security aspects, including <<roles,roles>>,
+<<delegation,delegations>> and <<security-questions,security questions>>.
+
+[[console-configuration-types]]
+Types::
+
+Entry point for <<type-management,type management>>.
+
+[discrete]
+[[console-extensions]]
+===== Extensions
+
+The <<extensions,extensions>> configured for the given deployment are dynamically reported in the navigation menu: each
+extension generally produces one or more pages and makes one or more widgets available in the <<dashboard,dashboard>>.
+
+[[console-approval]]
+[discrete]
+===== Approval
+
+The images below refer to the self-registration approval <<sample-selfreg-approval,sample>> and to the typical approval
+flow as explained <<approval,above>>.
+
+image::approval1.png[title="Approval notification",alt="Approval notification"]
+image::approval2.png[title="Claiming an approval",alt="Claiming an approval"]
+image::approval3.png[title="Managing an approval",alt="Managing an approval"]
+image::approval4.png[title="Approval form",alt="Approval form"]
+image::approval5.png[title="Reviewing modifications",alt="Reviewing modifications"]
+image::approval6.png[title="Approving modifications",alt="Approving modifications"]
+
+[[console-user-requests]]
+[discrete]
+===== User Requests
+
+User requests are managed exactly in the same way how <<console-approval,approvals>> are managed: check the
+typical request management flow as explained <<request-management,above>>.
