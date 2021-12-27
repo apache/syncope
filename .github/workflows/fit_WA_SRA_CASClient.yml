@@ -44,7 +44,6 @@ jobs:
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
     - name: 'WA / SRA / CAS Client'
-      continue-on-error: true
       run: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.sra.CASSRAITCase
     - name: Output logs
-      run: awk ' { print FILENAME "\n" $0 } ' fit/core-reference/target/log/core*.log
+      run: awk ' { print FILENAME "\n" $0 } ' fit/wa-reference/target/log/cargo*.log fit/wa-reference/target/log/wa*.log
