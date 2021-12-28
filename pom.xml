@@ -652,6 +652,10 @@ under the License.
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
@@ -679,7 +683,7 @@ under the License.
       <dependency>
         <groupId>co.elastic.clients</groupId>
         <artifactId>elasticsearch-java</artifactId>
-	<version>${elasticsearch.version}</version>
+        <version>${elasticsearch.version}</version>
       </dependency>
       <dependency>
         <groupId>org.elasticsearch.client</groupId>
@@ -2842,42 +2846,8 @@ under the License.
       </activation>
 
       <properties>
-        <argLine>-Xms512m -Xmx1024m -Xss256k -Dnet.bytebuddy.experimental=true --add-opens java.base/java.net=ALL-UNNAMED</argLine>
+        <argLine>-Xms512m -Xmx1024m -Xss256k --add-opens java.base/java.net=ALL-UNNAMED</argLine>
       </properties>
-
-      <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-compiler-plugin</artifactId>
-              <configuration>
-                <release>16</release>
-                <fork>true</fork>
-                <compilerArgs>
-                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
-                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
-                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
-                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
-                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-                  <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
-                </compilerArgs>
-                <annotationProcessorPaths>
-                  <path>
-                    <groupId>org.projectlombok</groupId>
-                    <artifactId>lombok</artifactId>
-                    <version>1.18.22</version>
-                  </path>
-                </annotationProcessorPaths>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-      </build>
     </profile>
   </profiles>
 
