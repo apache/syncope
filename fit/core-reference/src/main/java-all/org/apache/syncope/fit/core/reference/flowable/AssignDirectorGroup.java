@@ -28,17 +28,15 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AssignDirectorGroup extends FlowableServiceTask {
+    private final UserDataBinder dataBinder;
+    private final UserDAO userDAO;
 
-    @Autowired
-    private UserDataBinder dataBinder;
-
-    @Autowired
-    private UserDAO userDAO;
+    public AssignDirectorGroup(final UserDataBinder dataBinder, final UserDAO userDAO) {
+        this.dataBinder = dataBinder;
+        this.userDAO = userDAO;
+    }
 
     @Override
     protected void doExecute(final DelegateExecution execution) {

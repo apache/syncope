@@ -18,19 +18,6 @@
  */
 package org.apache.syncope.core.starter.actuate;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
-import java.lang.management.RuntimeMXBean;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.info.JavaImplInfo;
@@ -82,13 +69,25 @@ import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContributor, InfoContributor {
 
@@ -156,119 +155,161 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
         }
     }
 
-    @Autowired
-    protected SecurityProperties securityProperties;
+    private final SecurityProperties securityProperties;
 
-    @Autowired
-    protected PersistenceProperties persistenceProperties;
+    private final PersistenceProperties persistenceProperties;
 
-    @Autowired
-    protected ProvisioningProperties provisioningProperties;
+    private final ProvisioningProperties provisioningProperties;
 
-    @Autowired
-    protected LogicProperties logicProperties;
+    private final LogicProperties logicProperties;
 
-    @Autowired
-    protected AnyTypeDAO anyTypeDAO;
+    private final AnyTypeDAO anyTypeDAO;
 
-    @Autowired
-    protected AnyTypeClassDAO anyTypeClassDAO;
+    private final AnyTypeClassDAO anyTypeClassDAO;
 
-    @Autowired
-    protected UserDAO userDAO;
+    private final UserDAO userDAO;
 
-    @Autowired
-    protected GroupDAO groupDAO;
+    private final GroupDAO groupDAO;
 
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
+    private final AnyObjectDAO anyObjectDAO;
 
-    @Autowired
-    protected ExternalResourceDAO resourceDAO;
+    private final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    protected ConfParamOps confParamOps;
+    private final ConfParamOps confParamOps;
 
-    @Autowired
-    protected ServiceOps serviceOps;
+    private final ServiceOps serviceOps;
 
-    @Autowired
-    protected ConnIdBundleManager bundleManager;
+    private final ConnIdBundleManager bundleManager;
 
-    @Autowired
-    protected PropagationTaskExecutor propagationTaskExecutor;
+    private final PropagationTaskExecutor propagationTaskExecutor;
 
-    @Autowired
-    protected AnyObjectWorkflowAdapter awfAdapter;
+    private final AnyObjectWorkflowAdapter awfAdapter;
 
-    @Autowired
-    protected UserWorkflowAdapter uwfAdapter;
+    private final UserWorkflowAdapter uwfAdapter;
 
-    @Autowired
-    protected GroupWorkflowAdapter gwfAdapter;
+    private final GroupWorkflowAdapter gwfAdapter;
 
-    @Autowired
-    protected AnyObjectProvisioningManager aProvisioningManager;
+    private final AnyObjectProvisioningManager aProvisioningManager;
 
-    @Autowired
-    protected UserProvisioningManager uProvisioningManager;
+    private final UserProvisioningManager uProvisioningManager;
 
-    @Autowired
-    protected GroupProvisioningManager gProvisioningManager;
+    private final GroupProvisioningManager gProvisioningManager;
 
-    @Autowired
-    protected VirAttrCache virAttrCache;
+    private final VirAttrCache virAttrCache;
 
-    @Autowired
-    protected NotificationManager notificationManager;
+    private final NotificationManager notificationManager;
 
-    @Autowired
-    protected AuditManager auditManager;
+    private final AuditManager auditManager;
 
-    @Autowired
-    protected PasswordGenerator passwordGenerator;
+    private final PasswordGenerator passwordGenerator;
 
-    @Autowired
-    protected EntityFactory entityFactory;
+    private final EntityFactory entityFactory;
 
-    @Autowired
-    protected PlainSchemaDAO plainSchemaDAO;
+    private final PlainSchemaDAO plainSchemaDAO;
 
-    @Autowired
-    protected PlainAttrDAO plainAttrDAO;
+    private final PlainAttrDAO plainAttrDAO;
 
-    @Autowired
-    protected PlainAttrValueDAO plainAttrValueDAO;
+    private final PlainAttrValueDAO plainAttrValueDAO;
 
-    @Autowired
-    protected AnySearchDAO anySearchDAO;
+    private final AnySearchDAO anySearchDAO;
 
-    @Autowired
-    protected ImplementationLookup implLookup;
+    private final ImplementationLookup implLookup;
 
-    @Autowired
-    protected PolicyDAO policyDAO;
+    private final PolicyDAO policyDAO;
 
-    @Autowired
-    protected NotificationDAO notificationDAO;
+    private final NotificationDAO notificationDAO;
 
-    @Autowired
-    protected TaskDAO taskDAO;
+    private final TaskDAO taskDAO;
 
-    @Autowired
-    protected VirSchemaDAO virSchemaDAO;
+    private final VirSchemaDAO virSchemaDAO;
 
-    @Autowired
-    protected RoleDAO roleDAO;
+    private final RoleDAO roleDAO;
 
-    @Autowired
-    protected SecurityQuestionDAO securityQuestionDAO;
+    private final SecurityQuestionDAO securityQuestionDAO;
 
-    @Resource(name = "asyncConnectorFacadeExecutor")
-    protected ThreadPoolTaskExecutor asyncConnectorFacadeExecutor;
+    private final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor;
 
-    @Resource(name = "propagationTaskExecutorAsyncExecutor")
-    protected ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor;
+    private final ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor;
+
+    public DefaultSyncopeCoreInfoContributor(
+        final SecurityProperties securityProperties,
+        final PersistenceProperties persistenceProperties,
+        final ProvisioningProperties provisioningProperties,
+        final LogicProperties logicProperties,
+        final AnyTypeDAO anyTypeDAO,
+        final AnyTypeClassDAO anyTypeClassDAO,
+        final UserDAO userDAO,
+        final GroupDAO groupDAO,
+        final AnyObjectDAO anyObjectDAO,
+        final ExternalResourceDAO resourceDAO,
+        final ConfParamOps confParamOps,
+        final ServiceOps serviceOps,
+        final ConnIdBundleManager bundleManager,
+        final PropagationTaskExecutor propagationTaskExecutor,
+        final AnyObjectWorkflowAdapter awfAdapter,
+        final UserWorkflowAdapter uwfAdapter,
+        final GroupWorkflowAdapter gwfAdapter,
+        final AnyObjectProvisioningManager aProvisioningManager,
+        final UserProvisioningManager uProvisioningManager,
+        final GroupProvisioningManager gProvisioningManager,
+        final VirAttrCache virAttrCache,
+        final NotificationManager notificationManager,
+        final AuditManager auditManager,
+        final PasswordGenerator passwordGenerator,
+        final EntityFactory entityFactory,
+        final PlainSchemaDAO plainSchemaDAO,
+        final PlainAttrDAO plainAttrDAO,
+        final PlainAttrValueDAO plainAttrValueDAO,
+        final AnySearchDAO anySearchDAO,
+        final ImplementationLookup implLookup,
+        final PolicyDAO policyDAO,
+        final NotificationDAO notificationDAO,
+        final TaskDAO taskDAO,
+        final VirSchemaDAO virSchemaDAO,
+        final RoleDAO roleDAO,
+        final SecurityQuestionDAO securityQuestionDAO,
+        final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor,
+        final ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor) {
+
+        this.securityProperties = securityProperties;
+        this.persistenceProperties = persistenceProperties;
+        this.provisioningProperties = provisioningProperties;
+        this.logicProperties = logicProperties;
+        this.anyTypeDAO = anyTypeDAO;
+        this.anyTypeClassDAO = anyTypeClassDAO;
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.anyObjectDAO = anyObjectDAO;
+        this.resourceDAO = resourceDAO;
+        this.confParamOps = confParamOps;
+        this.serviceOps = serviceOps;
+        this.bundleManager = bundleManager;
+        this.propagationTaskExecutor = propagationTaskExecutor;
+        this.awfAdapter = awfAdapter;
+        this.uwfAdapter = uwfAdapter;
+        this.gwfAdapter = gwfAdapter;
+        this.aProvisioningManager = aProvisioningManager;
+        this.uProvisioningManager = uProvisioningManager;
+        this.gProvisioningManager = gProvisioningManager;
+        this.virAttrCache = virAttrCache;
+        this.notificationManager = notificationManager;
+        this.auditManager = auditManager;
+        this.passwordGenerator = passwordGenerator;
+        this.entityFactory = entityFactory;
+        this.plainSchemaDAO = plainSchemaDAO;
+        this.plainAttrDAO = plainAttrDAO;
+        this.plainAttrValueDAO = plainAttrValueDAO;
+        this.anySearchDAO = anySearchDAO;
+        this.implLookup = implLookup;
+        this.policyDAO = policyDAO;
+        this.notificationDAO = notificationDAO;
+        this.taskDAO = taskDAO;
+        this.virSchemaDAO = virSchemaDAO;
+        this.roleDAO = roleDAO;
+        this.securityQuestionDAO = securityQuestionDAO;
+        this.asyncConnectorFacadeExecutor = asyncConnectorFacadeExecutor;
+        this.propagationTaskExecutorAsyncExecutor = propagationTaskExecutorAsyncExecutor;
+    }
 
     protected boolean isSelfRegAllowed() {
         return confParamOps.get(AuthContextUtils.getDomain(), "selfRegistration.allowed", false, Boolean.class);

@@ -24,7 +24,6 @@ import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.CamelRouteDataBinder;
 import org.apache.syncope.core.provisioning.camel.data.CamelRouteDataBinderImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,13 +50,11 @@ public class CamelProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SyncopeCamelContext syncopeCamelContext(final CamelRouteDAO routeDAO) {
         return new SyncopeCamelContext(routeDAO);
     }
 
     @Bean
-    @Autowired
     public UserProvisioningManager userProvisioningManager(
             final CamelRouteDAO routeDAO,
             final SyncopeCamelContext contextFactory) {
@@ -66,7 +63,6 @@ public class CamelProvisioningContext {
     }
 
     @Bean
-    @Autowired
     public GroupProvisioningManager groupProvisioningManager(
             final CamelRouteDAO routeDAO,
             final SyncopeCamelContext contextFactory) {
@@ -75,7 +71,6 @@ public class CamelProvisioningContext {
     }
 
     @Bean
-    @Autowired
     public AnyObjectProvisioningManager anyObjectProvisioningManager(
             final CamelRouteDAO routeDAO,
             final SyncopeCamelContext contextFactory) {
@@ -85,7 +80,6 @@ public class CamelProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public CamelRouteDataBinder camelRouteDataBinder(final CamelRouteDAO routeDAO) {
         return new CamelRouteDataBinderImpl(routeDAO);
     }

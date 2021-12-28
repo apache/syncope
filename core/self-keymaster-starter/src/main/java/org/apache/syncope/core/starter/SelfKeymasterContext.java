@@ -61,7 +61,6 @@ import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
 import org.apache.syncope.core.spring.security.WebSecurityContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -92,16 +91,11 @@ public class SelfKeymasterContext {
         }
     }
 
-    @Autowired
-    private Bus bus;
-
-    @Autowired
-    private ApplicationContext ctx;
-
     @Conditional(SelfKeymasterCondition.class)
     @Bean
-    @Autowired
-    public Server selfKeymasterContainer(final JacksonJsonProvider jsonProvider) {
+    public Server selfKeymasterContainer(final JacksonJsonProvider jsonProvider,
+                                         final ApplicationContext ctx,
+                                         final Bus bus) {
         SpringJAXRSServerFactoryBean selfKeymasterContainer = new SpringJAXRSServerFactoryBean();
         selfKeymasterContainer.setBus(bus);
         selfKeymasterContainer.setAddress("/keymaster");
@@ -128,7 +122,6 @@ public class SelfKeymasterContext {
 
     @Conditional(SelfKeymasterCondition.class)
     @Bean
-    @Autowired
     public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider(
             final DomainOps domainOps,
             final AuthDataAccessor dataAccessor,
@@ -148,14 +141,12 @@ public class SelfKeymasterContext {
 
     @Conditional(SelfKeymasterCondition.class)
     @Bean
-    @Autowired
     public ConfParamOps internalConfParamOps(final ConfParamLogic confParamLogic, final KeymasterProperties props) {
         return new SelfKeymasterInternalConfParamOps(confParamLogic, props);
     }
 
     @Conditional(SelfKeymasterCondition.class)
     @Bean
-    @Autowired
     public ServiceOps internalServiceOps(
             final NetworkServiceLogic networkServiceLogic,
             final KeymasterProperties props) {
@@ -165,14 +156,12 @@ public class SelfKeymasterContext {
 
     @Conditional(SelfKeymasterCondition.class)
     @Bean
-    @Autowired
     public DomainOps domainOps(final DomainLogic domainLogic, final KeymasterProperties props) {
         return new SelfKeymasterInternalDomainOps(domainLogic, props);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ConfParamLogic confParamLogic(
             final ConfParamDAO confParamDAO,
             final SelfKeymasterEntityFactory selfKeymasterEntityFactory) {
@@ -182,7 +171,6 @@ public class SelfKeymasterContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public DomainLogic domainLogic(
             final DomainDAO domainDAO,
             final SelfKeymasterEntityFactory selfKeymasterEntityFactory,
@@ -193,7 +181,6 @@ public class SelfKeymasterContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public NetworkServiceLogic networkServiceLogic(
             final NetworkServiceDAO serviceDAO,
             final SelfKeymasterEntityFactory selfKeymasterEntityFactory) {
@@ -227,21 +214,18 @@ public class SelfKeymasterContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ConfParamService confParamService(final ConfParamLogic confParamLogic) {
         return new ConfParamServiceImpl(confParamLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public DomainService domainService(final DomainLogic domainLogic) {
         return new DomainServiceImpl(domainLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public NetworkServiceService networkServiceService(final NetworkServiceLogic networkServiceLogic) {
         return new NetworkServiceServiceImpl(networkServiceLogic);
     }
