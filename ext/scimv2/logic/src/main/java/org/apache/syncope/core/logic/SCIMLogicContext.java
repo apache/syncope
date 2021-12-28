@@ -27,7 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SCIMLogicContext {
 
     @ConditionalOnMissingBean
@@ -38,14 +38,12 @@ public class SCIMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SCIMConfManager scimConfManager(final ConfParamOps confParamOps, final SchemaLogic schemaLogic) {
         return new SCIMConfManager(confParamOps, schemaLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SCIMDataBinder scimDataBinder(
             final SCIMConfManager confManager,
             final UserLogic userLogic,

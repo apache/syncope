@@ -89,7 +89,6 @@ public class AMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AuthModuleLogic authModuleLogic(
             final AuthModuleDataBinder binder,
             final AuthModuleDAO authModuleDAO) {
@@ -99,14 +98,12 @@ public class AMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AuthProfileLogic authProfileLogic() {
         return new AuthProfileLogic(authProfileDAO, authProfileDataBinder);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ClientAppLogic clientAppLogic(
             final ClientAppUtilsFactory clientAppUtilsFactory,
             final ClientAppDataBinder binder) {
@@ -123,7 +120,6 @@ public class AMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public OIDCJWKSLogic oidcJWKSLogic(
             final OIDCJWKSDataBinder binder,
             final OIDCJWKSDAO dao) {
@@ -133,7 +129,6 @@ public class AMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SAML2IdPEntityLogic saml2IdPEntityLogic(
             final SAML2IdPEntityDataBinder binder,
             final SAML2IdPEntityDAO entityDAO) {
@@ -143,7 +138,6 @@ public class AMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SAML2SPEntityLogic saml2SPEntityLogic(
             final SAML2SPEntityDataBinder binder,
             final SAML2SPEntityDAO entityDAO) {
@@ -153,7 +147,6 @@ public class AMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SRARouteLogic sraRouteLogic(
             final SRARouteDAO routeDAO,
             final SRARouteDataBinder binder) {
@@ -187,14 +180,12 @@ public class AMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public WAClientAppLogic waClientAppLogic(final WAClientAppDataBinder binder) {
         return new WAClientAppLogic(binder, saml2spDAO, oidcrpDAO, casspDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public WAConfigLogic waConfigLogic(
             final WAConfigDataBinder binder,
             final WAConfigDAO waConfigDAO) {

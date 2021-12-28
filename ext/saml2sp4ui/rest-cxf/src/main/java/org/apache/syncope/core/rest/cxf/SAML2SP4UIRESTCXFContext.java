@@ -24,24 +24,21 @@ import org.apache.syncope.core.logic.SAML2SP4UIIdPLogic;
 import org.apache.syncope.core.logic.SAML2SP4UILogic;
 import org.apache.syncope.core.rest.cxf.service.SAML2SP4UIIdPServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.SAML2SP4UIServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SAML2SP4UIRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SAML2SP4UIService saml2SP4UIService(final SAML2SP4UILogic saml2SP4UIService) {
         return new SAML2SP4UIServiceImpl(saml2SP4UIService);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SAML2SP4UIIdPService saml2SP4UIIdPService(final SAML2SP4UIIdPLogic saml2SP4UIIdPLogic) {
         return new SAML2SP4UIIdPServiceImpl(saml2SP4UIIdPLogic);
     }

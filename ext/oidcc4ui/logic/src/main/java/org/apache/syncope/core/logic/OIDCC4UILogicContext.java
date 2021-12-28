@@ -36,11 +36,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class OIDCC4UILogicContext {
-
-    @Autowired
-    private OIDCC4UIProviderDAO opDAO;
 
     @ConditionalOnMissingBean
     @Bean
@@ -76,8 +73,8 @@ public class OIDCC4UILogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public OIDCC4UILogic oidcc4UILogic(
+            final OIDCC4UIProviderDAO opDAO,
             final OIDCClientCache oidcClientCache,
             final AuthDataAccessor authDataAccessor,
             final AccessTokenDataBinder accessTokenDataBinder,
@@ -90,6 +87,7 @@ public class OIDCC4UILogicContext {
     @Bean
     @Autowired
     public OIDCC4UIProviderLogic oidcc4UIProviderLogic(
+            final OIDCC4UIProviderDAO opDAO,
             final OIDCClientCache oidcClientCache,
             final OIDCC4UIProviderDataBinder binder) {
 

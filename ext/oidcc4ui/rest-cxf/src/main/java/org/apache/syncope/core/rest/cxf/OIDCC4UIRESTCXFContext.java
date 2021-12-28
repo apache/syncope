@@ -24,24 +24,21 @@ import org.apache.syncope.core.logic.OIDCC4UILogic;
 import org.apache.syncope.core.logic.OIDCC4UIProviderLogic;
 import org.apache.syncope.core.rest.cxf.service.OIDCC4UIProviderServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.OIDCC4UIServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class OIDCC4UIRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public OIDCC4UIService oidcc4UIService(final OIDCC4UILogic oidcc4UILogic) {
         return new OIDCC4UIServiceImpl(oidcc4UILogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public OIDCC4UIProviderService oidcc4UIProviderService(final OIDCC4UIProviderLogic oidcc4UIProviderLogic) {
         return new OIDCC4UIProviderServiceImpl(oidcc4UIProviderLogic);
     }

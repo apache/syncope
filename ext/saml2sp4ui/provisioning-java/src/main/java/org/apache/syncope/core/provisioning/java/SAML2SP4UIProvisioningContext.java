@@ -25,17 +25,15 @@ import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIEntityFactory;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.data.SAML2SP4UIIdPDataBinder;
 import org.apache.syncope.core.provisioning.java.data.SAML2SP4UIIdPDataBinderImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SAML2SP4UIProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SAML2SP4UIIdPDataBinder saml2SP4UIIdPDataBinder(
             final AnyTypeDAO anyTypeDAO,
             final SAML2SP4UIIdPDAO idapDAO,

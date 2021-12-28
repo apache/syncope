@@ -56,14 +56,12 @@ public class SAML2SP4UILogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SAML2SP4UILoader saml2SP4UILoader(final ResourcePatternResolver resourceResolver) {
         return new SAML2SP4UILoader(props, resourceResolver);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SAML2SP4UIIdPLogic saml2SP4UIIdPLogic(
             final SAML2ClientCache saml2ClientCache,
             final SAML2SP4UILoader loader,
@@ -95,7 +93,6 @@ public class SAML2SP4UILogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SAML2SP4UILogic saml2SP4UILogic(
             final SAML2ClientCache saml2ClientCache,
             final SAML2SP4UILoader loader,

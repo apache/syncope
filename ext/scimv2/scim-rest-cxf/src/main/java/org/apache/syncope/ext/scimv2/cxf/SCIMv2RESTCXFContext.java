@@ -103,7 +103,6 @@ public class SCIMv2RESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SCIMService scimService(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -118,7 +117,6 @@ public class SCIMv2RESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public GroupService scimv2GroupService(
             final UserDAO userDAO,
             final GroupDAO groupDAO,

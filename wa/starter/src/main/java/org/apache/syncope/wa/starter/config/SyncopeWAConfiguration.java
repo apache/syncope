@@ -91,7 +91,6 @@ import org.apereo.cas.web.flow.CasWebflowExecutionPlan;
 import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
 import org.pac4j.core.client.Client;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -202,7 +201,6 @@ public class SyncopeWAConfiguration {
                 clientAppTOMappers);
     }
 
-    @Autowired
     @Bean
     public ServiceRegistryExecutionPlanConfigurer syncopeServiceRegistryConfigurer(
             final ConfigurableApplicationContext ctx,
@@ -217,7 +215,6 @@ public class SyncopeWAConfiguration {
         return plan -> plan.registerServiceRegistry(registry);
     }
 
-    @Autowired
     @Bean
     public SamlIdPMetadataGenerator samlIdPMetadataGenerator(
             final WARestClient restClient,
@@ -226,7 +223,6 @@ public class SyncopeWAConfiguration {
         return new RestfulSamlIdPMetadataGenerator(context, restClient);
     }
 
-    @Autowired
     @Bean
     public SamlIdPMetadataLocator samlIdPMetadataLocator(final WARestClient restClient) {
         return new RestfulSamlIdPMetadataLocator(
@@ -235,7 +231,6 @@ public class SyncopeWAConfiguration {
                 restClient);
     }
 
-    @Autowired
     @Bean
     public AuditTrailExecutionPlanConfigurer auditConfigurer(final WARestClient restClient) {
         return plan -> plan.registerAuditTrailManager(new SyncopeWAAuditTrailManager(restClient));
@@ -247,7 +242,6 @@ public class SyncopeWAConfiguration {
         return CasEventRepositoryFilter.noOp();
     }
 
-    @Autowired
     @Bean
     public CasEventRepository casEventRepository(final WARestClient restClient,
             @Qualifier("syncopeWAEventRepositoryFilter")
@@ -255,7 +249,6 @@ public class SyncopeWAConfiguration {
         return new SyncopeWAEventRepository(syncopeWAEventRepositoryFilter, restClient);
     }
 
-    @Autowired
     @Bean
     public DelegatedClientFactoryCustomizer<Client> delegatedClientCustomizer(final WARestClient restClient) {
         return new SyncopeWASAML2ClientCustomizer(restClient);
@@ -269,7 +262,6 @@ public class SyncopeWAConfiguration {
                 restClient, casProperties.getAuthn().getMfa().getGauth().getCore().getTimeStepSize());
     }
 
-    @Autowired
     @Bean
     public OneTimeTokenCredentialRepository googleAuthenticatorAccountRegistry(
             final IGoogleAuthenticator googleAuthenticatorInstance, final WARestClient restClient) {
@@ -277,7 +269,6 @@ public class SyncopeWAConfiguration {
         return new SyncopeWAGoogleMfaAuthCredentialRepository(restClient, googleAuthenticatorInstance);
     }
 
-    @Autowired
     @Bean
     public OidcJsonWebKeystoreGeneratorService oidcJsonWebKeystoreGeneratorService(
             final ConfigurableApplicationContext ctx,
@@ -313,14 +304,12 @@ public class SyncopeWAConfiguration {
     }
 
     @Bean
-    @Autowired
     public SurrogateAuthenticationService surrogateAuthenticationService(final WARestClient restClient) {
         return new SyncopeWASurrogateAuthenticationService(restClient);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator(final WARestClient restClient) {
         return new SyncopeCoreHealthIndicator(restClient);
     }

@@ -53,14 +53,12 @@ public class PGJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
 
     @ConditionalOnMissingBean(name = "pgJPAJSONAnyDAO")
     @Bean
-    @Autowired
     public JPAJSONAnyDAO anyDAO(final @Lazy PlainSchemaDAO plainSchemaDAO) {
         return new PGJPAJSONAnyDAO(plainSchemaDAO);
     }
 
     @ConditionalOnMissingBean(name = "pgJPAJSONAnySearchDAO")
     @Bean
-    @Autowired
     public AnySearchDAO anySearchDAO(
             final @Lazy RealmDAO realmDAO,
             final @Lazy DynRealmDAO dynRealmDAO,

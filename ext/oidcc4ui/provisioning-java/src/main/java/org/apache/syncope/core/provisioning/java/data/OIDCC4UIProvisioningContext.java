@@ -24,17 +24,15 @@ import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIEntityFactory;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.data.OIDCC4UIProviderDataBinder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class OIDCC4UIProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public OIDCC4UIProviderDataBinder oidcc4UIProviderDataBinder(
             final AnyTypeDAO anyTypeDAO,
             final OIDCC4UIProviderDAO oidcOPDAO,

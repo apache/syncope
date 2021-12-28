@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.wa.bootstrap;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.bootstrap.config.PropertySourceLocator;
 import org.springframework.context.annotation.Bean;
@@ -49,7 +48,6 @@ public class SyncopeWABootstrapConfiguration {
 
     @Configuration(proxyBeanMethods = false)
     public static class PropertySourceConfiguration {
-        @Autowired
         @Bean
         public PropertySourceLocator configPropertySourceLocator(final WARestClient waRestClient) {
             return new SyncopeWAPropertySourceLocator(waRestClient);
