@@ -100,7 +100,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
-@EnableAspectJAutoProxy
+@EnableAspectJAutoProxy(proxyTargetClass = false)
 @EnableConfigurationProperties(LogicProperties.class)
 @Configuration
 public class IdRepoLogicContext {
@@ -200,7 +200,6 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public LogicInvocationHandler logicInvocationHandler(final NotificationManager notificationManager) {
         return new LogicInvocationHandler(notificationManager, auditManager);
     }
@@ -219,7 +218,6 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AuditLoader auditLoader(final AuditAccessor auditAccessor, final ImplementationLookup implementationLookup) {
         return new AuditLoader(auditAccessor, implementationLookup, logicProperties);
     }
@@ -244,14 +242,12 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AccessTokenLogic accessTokenLogic(final AccessTokenDataBinder binder) {
         return new AccessTokenLogic(securityProperties, binder, accessTokenDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyObjectLogic anyObjectLogic(
             final AnyObjectDataBinder binder,
             final AnyObjectProvisioningManager provisioningManager) {
@@ -268,21 +264,18 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyTypeClassLogic anyTypeClassLogic(final AnyTypeClassDataBinder binder) {
         return new AnyTypeClassLogic(binder, anyTypeClassDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyTypeLogic anyTypeLogic(final AnyTypeDataBinder binder) {
         return new AnyTypeLogic(binder, anyTypeDAO, anyObjectDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ApplicationLogic applicationLogic(
             final ApplicationDataBinder binder,
             final ApplicationDAO applicationDAO) {
@@ -292,7 +285,6 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AuditLogic auditLogic(
             final AuditLoader auditLoader,
             final AuditDataBinder binder) {
@@ -308,14 +300,12 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public DelegationLogic delegationLogic(final DelegationDataBinder binder) {
         return new DelegationLogic(binder, delegationDAO, userDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public DynRealmLogic dynRealmLogic(
             final DynRealmDataBinder binder,
             final DynRealmDAO dynRealmDAO) {
@@ -325,7 +315,6 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public GroupLogic groupLogic(final GroupProvisioningManager provisioningManager) {
         return new GroupLogic(
                 realmDAO,
@@ -348,7 +337,6 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ImplementationLogic implementationLogic(final ImplementationDataBinder binder) {
         return new ImplementationLogic(
                 binder,
@@ -364,21 +352,18 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public MailTemplateLogic mailTemplateLogic(final MailTemplateDAO mailTemplateDAO) {
         return new MailTemplateLogic(mailTemplateDAO, notificationDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public NotificationLogic notificationLogic(final NotificationDataBinder binder) {
         return new NotificationLogic(jobManager, scheduler, notificationDAO, binder);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public PolicyLogic policyLogic(
             final PolicyDataBinder binder,
             final PolicyUtilsFactory policyUtilsFactory) {
@@ -388,14 +373,12 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RealmLogic realmLogic(final RealmDataBinder binder) {
         return new RealmLogic(realmDAO, anySearchDAO, binder, propagationManager, taskExecutor);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RelationshipTypeLogic relationshipTypeLogic(
             final RelationshipTypeDataBinder binder,
             final RelationshipTypeDAO relationshipTypeDAO) {
@@ -405,7 +388,6 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ReportLogic reportLogic(
             final ReportDataBinder binder,
             final ReportExecDAO reportExecDAO) {
@@ -415,14 +397,12 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ReportTemplateLogic reportTemplateLogic(final ReportTemplateDAO reportTemplateDAO) {
         return new ReportTemplateLogic(reportTemplateDAO, reportDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RoleLogic roleLogic(
             final RoleDataBinder binder,
             final RoleDAO roleDAO) {
@@ -432,14 +412,12 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SchemaLogic schemaLogic(final SchemaDataBinder binder) {
         return new SchemaLogic(plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyTypeClassDAO, binder);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SecurityQuestionLogic securityQuestionLogic(
             final SecurityQuestionDataBinder binder,
             final SecurityQuestionDAO securityQuestionDAO) {
@@ -449,7 +427,6 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SyncopeLogic syncopeLogic(
             final ContentExporter exporter,
             final UserWorkflowAdapter uwfAdapter,
@@ -470,7 +447,6 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public TaskLogic taskLogic(
             final TaskExecDAO taskExecDAO,
             final NotificationJobDelegate notificationJobDelegate,
@@ -492,7 +468,6 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UserLogic userLogic(
             final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,

@@ -21,7 +21,6 @@ package org.apache.syncope.core.rest.cxf;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.core.logic.CamelRouteLogic;
 import org.apache.syncope.core.rest.cxf.service.CamelRouteServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +30,6 @@ public class CamelRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public CamelRouteService camelRouteService(final CamelRouteLogic camelRouteLogic) {
         return new CamelRouteServiceImpl(camelRouteLogic);
     }

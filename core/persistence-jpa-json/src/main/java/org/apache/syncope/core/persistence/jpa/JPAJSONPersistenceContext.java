@@ -59,7 +59,6 @@ public abstract class JPAJSONPersistenceContext {
 
     @ConditionalOnMissingBean(name = "jpaJSONAnyObjectDAO")
     @Bean
-    @Autowired
     public AnyObjectDAO anyObjectDAO(
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
@@ -82,7 +81,6 @@ public abstract class JPAJSONPersistenceContext {
 
     @ConditionalOnMissingBean(name = "jpaJSONGroupDAO")
     @Bean
-    @Autowired
     public GroupDAO groupDAO(
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
@@ -125,7 +123,6 @@ public abstract class JPAJSONPersistenceContext {
 
     @ConditionalOnMissingBean(name = "jpaJSONUserDAO")
     @Bean
-    @Autowired
     public UserDAO userDAO(
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,

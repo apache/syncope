@@ -40,20 +40,13 @@ import org.apache.syncope.ext.scimv2.api.service.UserService;
 import org.apache.syncope.ext.scimv2.cxf.service.GroupServiceImpl;
 import org.apache.syncope.ext.scimv2.cxf.service.SCIMServiceImpl;
 import org.apache.syncope.ext.scimv2.cxf.service.UserServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SCIMv2RESTCXFContext {
-
-    @Autowired
-    private Bus bus;
-
-    @Autowired
-    private ApplicationContext ctx;
 
     @ConditionalOnMissingBean
     @Bean
@@ -75,7 +68,10 @@ public class SCIMv2RESTCXFContext {
 
     @ConditionalOnMissingBean(name = "scimv2Container")
     @Bean
-    public Server scimv2Container() {
+    public Server scimv2Container(final ApplicationContext ctx, final Bus bus,
+                                  final SCIMJacksonJsonProvider scimJacksonJsonProvider,
+                                  final SCIMExceptionMapper scimExceptionMapper,
+                                  final AddETagFilter scimAddETagFilter) {
         SpringJAXRSServerFactoryBean scimv2Container = new SpringJAXRSServerFactoryBean();
         scimv2Container.setBus(bus);
         scimv2Container.setAddress("/scim");
@@ -93,9 +89,9 @@ public class SCIMv2RESTCXFContext {
                 ctx.getBean(GZIPOutInterceptor.class)));
 
         scimv2Container.setProviders(List.of(
-                scimJacksonJsonProvider(),
-                scimExceptionMapper(),
-                scimAddETagFilter()));
+                scimJacksonJsonProvider,
+                scimExceptionMapper,
+                scimAddETagFilter));
 
         scimv2Container.setApplicationContext(ctx);
         return scimv2Container.create();
@@ -130,7 +126,6 @@ public class SCIMv2RESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UserService scimv2UserService(
             final UserDAO userDAO,
             final GroupDAO groupDAO,

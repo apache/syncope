@@ -49,37 +49,12 @@ import org.apache.syncope.core.provisioning.api.data.SRARouteDataBinder;
 import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
 import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
 public class AMLogicContext {
-
-    @Autowired
-    private SecurityProperties securityProperties;
-
-    @Autowired
-    private ServiceOps serviceOps;
-
-    @Autowired
-    private AuthProfileDAO authProfileDAO;
-
-    @Autowired
-    private AuthProfileDataBinder authProfileDataBinder;
-
-    @Autowired
-    private CASSPDAO casspDAO;
-
-    @Autowired
-    private OIDCRPDAO oidcrpDAO;
-
-    @Autowired
-    private SAML2SPDAO saml2spDAO;
-
-    @Autowired
-    private EntityFactory entityFactory;
 
     @ConditionalOnMissingBean
     @Bean
@@ -98,13 +73,19 @@ public class AMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthProfileLogic authProfileLogic() {
+    public AuthProfileLogic authProfileLogic(final AuthProfileDAO authProfileDAO,
+                                             final AuthProfileDataBinder authProfileDataBinder) {
         return new AuthProfileLogic(authProfileDAO, authProfileDataBinder);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public ClientAppLogic clientAppLogic(
+            final ServiceOps serviceOps,
+            final CASSPDAO casspDAO,
+            final OIDCRPDAO oidcrpDAO,
+            final SAML2SPDAO saml2spDAO,
+            final SecurityProperties securityProperties,
             final ClientAppUtilsFactory clientAppUtilsFactory,
             final ClientAppDataBinder binder) {
 
@@ -148,6 +129,9 @@ public class AMLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public SRARouteLogic sraRouteLogic(
+            final EntityFactory entityFactory,
+            final ServiceOps serviceOps,
+            final SecurityProperties securityProperties,
             final SRARouteDAO routeDAO,
             final SRARouteDataBinder binder) {
 
@@ -156,37 +140,50 @@ public class AMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public GoogleMfaAuthAccountLogic googleMfaAuthAccountLogic() {
+    public GoogleMfaAuthAccountLogic googleMfaAuthAccountLogic(final AuthProfileDAO authProfileDAO,
+                                                               final AuthProfileDataBinder authProfileDataBinder,
+                                                               final EntityFactory entityFactory) {
         return new GoogleMfaAuthAccountLogic(entityFactory, authProfileDAO, authProfileDataBinder);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public GoogleMfaAuthTokenLogic googleMfaAuthTokenLogic() {
+    public GoogleMfaAuthTokenLogic googleMfaAuthTokenLogic(final AuthProfileDAO authProfileDAO,
+                                                           final AuthProfileDataBinder authProfileDataBinder,
+                                                           final EntityFactory entityFactory) {
         return new GoogleMfaAuthTokenLogic(entityFactory, authProfileDAO, authProfileDataBinder);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public ImpersonationLogic impersonationLogic() {
+    public ImpersonationLogic impersonationLogic(final AuthProfileDAO authProfileDAO,
+                                                 final AuthProfileDataBinder authProfileDataBinder,
+                                                 final EntityFactory entityFactory) {
         return new ImpersonationLogic(entityFactory, authProfileDAO, authProfileDataBinder);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public U2FRegistrationLogic u2fRegistrationLogic() {
+    public U2FRegistrationLogic u2fRegistrationLogic(final AuthProfileDAO authProfileDAO,
+                                                     final AuthProfileDataBinder authProfileDataBinder,
+                                                     final EntityFactory entityFactory) {
         return new U2FRegistrationLogic(entityFactory, authProfileDAO, authProfileDataBinder);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public WAClientAppLogic waClientAppLogic(final WAClientAppDataBinder binder) {
+    public WAClientAppLogic waClientAppLogic(final WAClientAppDataBinder binder,
+                                             final SAML2SPDAO saml2spDAO,
+                                             final OIDCRPDAO oidcrpDAO,
+                                             final CASSPDAO casspDAO) {
         return new WAClientAppLogic(binder, saml2spDAO, oidcrpDAO, casspDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public WAConfigLogic waConfigLogic(
+            final ServiceOps serviceOps,
+            final SecurityProperties securityProperties,
             final WAConfigDataBinder binder,
             final WAConfigDAO waConfigDAO) {
 
@@ -195,7 +192,9 @@ public class AMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public WebAuthnRegistrationLogic webAuthnRegistrationLogic() {
+    public WebAuthnRegistrationLogic webAuthnRegistrationLogic(final AuthProfileDAO authProfileDAO,
+                                                               final AuthProfileDataBinder authProfileDataBinder,
+                                                               final EntityFactory entityFactory) {
         return new WebAuthnRegistrationLogic(entityFactory, authProfileDAO, authProfileDataBinder);
     }
 }

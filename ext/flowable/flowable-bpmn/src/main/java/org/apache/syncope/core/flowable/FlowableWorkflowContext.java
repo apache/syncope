@@ -52,7 +52,6 @@ import org.flowable.common.engine.impl.persistence.StrongUuidGenerator;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.idm.spring.configurator.SpringIdmEngineConfigurator;
 import org.flowable.spring.SpringProcessEngineConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -63,24 +62,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
 @EnableConfigurationProperties(WorkflowFlowableProperties.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class FlowableWorkflowContext {
-
-    @Autowired
-    private WorkflowFlowableProperties props;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
-
-    @Autowired
-    private ConfigurableApplicationContext ctx;
-
-    @Autowired
-    private SecurityProperties securityProperties;
 
     @ConditionalOnMissingBean
     @Bean
-    public SpringIdmEngineConfiguration syncopeIdmEngineConfiguration() {
+    public SpringIdmEngineConfiguration syncopeIdmEngineConfiguration(final ConfigurableApplicationContext ctx) {
         SpringIdmEngineConfiguration conf = new SpringIdmEngineConfiguration();
         conf.setIdmIdentityService(new SyncopeIdmIdentityService(conf, ctx));
         return conf;
@@ -88,9 +75,9 @@ public class FlowableWorkflowContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SpringIdmEngineConfigurator syncopeIdmEngineConfigurator() {
+    public SpringIdmEngineConfigurator syncopeIdmEngineConfigurator(final SpringIdmEngineConfiguration syncopeIdmEngineConfiguration) {
         SpringIdmEngineConfigurator configurator = new SpringIdmEngineConfigurator();
-        configurator.setIdmEngineConfiguration(syncopeIdmEngineConfiguration());
+        configurator.setIdmEngineConfiguration(syncopeIdmEngineConfiguration);
         return configurator;
     }
 
@@ -102,15 +89,14 @@ public class FlowableWorkflowContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public FlowableBpmnProcessManager bpmnProcessManager(final DomainProcessEngine engine) {
         return new FlowableBpmnProcessManager(engine);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public FlowableUserRequestHandler userRequestHandler(
+            final SecurityProperties securityProperties,
             final UserDataBinder userDataBinder,
             final DomainProcessEngine engine,
             final UserDAO userDAO,
@@ -126,7 +112,6 @@ public class FlowableWorkflowContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public FlowableWorkflowUtils flowableUtils(final DomainProcessEngine engine) {
         return new FlowableWorkflowUtils(engine);
     }
@@ -146,34 +131,39 @@ public class FlowableWorkflowContext {
     @ConditionalOnMissingBean
     @Bean
     @Scope("prototype")
-    public SpringProcessEngineConfiguration processEngineConfiguration() {
+    public SpringProcessEngineConfiguration processEngineConfiguration(
+        final WorkflowFlowableProperties props,
+        final SpringIdmEngineConfigurator syncopeIdmEngineConfigurator,
+        final IdGenerator idGenerator,
+        final SyncopeEntitiesVariableType syncopeEntitiesVariableType,
+        final SyncopeFormHandlerHelper syncopeFormHandlerHelper) {
         SpringProcessEngineConfiguration conf = new SpringProcessEngineConfiguration();
         conf.setDatabaseSchemaUpdate(AbstractEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
         conf.setJpaHandleTransaction(true);
         conf.setJpaCloseEntityManager(false);
         conf.setHistoryLevel(props.getHistoryLevel());
-        conf.setIdmEngineConfigurator(syncopeIdmEngineConfigurator());
-        conf.setCustomPreVariableTypes(List.of(syncopeEntitiesVariableType()));
-        conf.setFormHandlerHelper(syncopeFormHandlerHelper());
-        conf.setIdGenerator(idGenerator());
+        conf.setIdmEngineConfigurator(syncopeIdmEngineConfigurator);
+        conf.setCustomPreVariableTypes(List.of(syncopeEntitiesVariableType));
+        conf.setFormHandlerHelper(syncopeFormHandlerHelper);
+        conf.setIdGenerator(idGenerator);
         conf.setPreBpmnParseHandlers(List.of(new ShellServiceTaskDisablingBpmnParseHandler()));
         return conf;
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public DomainProcessEngineFactoryBean domainProcessEngineFactoryBean() {
+    public DomainProcessEngineFactoryBean domainProcessEngineFactoryBean(final ConfigurableApplicationContext ctx) {
         return new DomainProcessEngineFactoryBean(ctx);
     }
 
     @Bean
-    public Resource userWorkflowDef() {
+    public Resource userWorkflowDef(final WorkflowFlowableProperties props,
+                                    final ResourceLoader resourceLoader) {
         return resourceLoader.getResource(props.getUserWorkflowDef());
     }
 
     @ConditionalOnMissingBean(name = "flowableUWFAdapter")
     @Bean
-    @Autowired
     public UserWorkflowAdapter uwfAdapter(
             final UserDataBinder userDataBinder,
             final UserDAO userDAO,
@@ -191,14 +181,12 @@ public class FlowableWorkflowContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AutoActivate autoActivate(final UserDataBinder userDataBinder, final UserDAO userDAO) {
         return new AutoActivate(userDataBinder, userDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public Create create(final UserDataBinder userDataBinder, final EntityFactory entityFactory) {
         return new Create(userDataBinder, entityFactory);
     }
@@ -211,21 +199,18 @@ public class FlowableWorkflowContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public GenerateToken generateToken(final ConfParamOps confParamOps) {
         return new GenerateToken(confParamOps);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public Notify notify(final NotificationManager notificationManager) {
         return new Notify(notificationManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public PasswordReset passwordReset(final UserDataBinder userDataBinder, final UserDAO userDAO) {
         return new PasswordReset(userDataBinder, userDAO);
     }
@@ -244,7 +229,6 @@ public class FlowableWorkflowContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public Update update(final UserDataBinder userDataBinder, final UserDAO userDAO) {
         return new Update(userDataBinder, userDAO);
     }

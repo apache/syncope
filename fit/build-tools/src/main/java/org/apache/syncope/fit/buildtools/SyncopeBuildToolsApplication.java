@@ -50,7 +50,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 @SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
     WebMvcAutoConfiguration.class,
-    HttpMessageConvertersAutoConfiguration.class })
+    HttpMessageConvertersAutoConfiguration.class }, proxyBeanMethods = false)
 public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
 
     public static void main(final String[] args) {
@@ -83,13 +83,11 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    @Autowired
     public Provisioning provisioningImpl(@Qualifier("testDataSource") final DataSource dataSource) {
         return new ProvisioningImpl(dataSource);
     }
 
     @Bean
-    @Autowired
     public Endpoint soapProvisioning(final Provisioning provisioning) {
         EndpointImpl soapProvisioning = new EndpointImpl(provisioning);
         soapProvisioning.setBus(bus);
@@ -108,7 +106,6 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    @Autowired
     public Server restProvisioning(final GreenMailService greenMailService, final UserService userService) {
         SpringJAXRSServerFactoryBean restProvisioning = new SpringJAXRSServerFactoryBean();
         restProvisioning.setApplicationContext(ctx);

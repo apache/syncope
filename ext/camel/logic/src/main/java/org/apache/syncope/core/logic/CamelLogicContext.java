@@ -22,7 +22,6 @@ import org.apache.syncope.core.logic.init.CamelRouteLoader;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.provisioning.api.data.CamelRouteDataBinder;
 import org.apache.syncope.core.provisioning.camel.SyncopeCamelContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,7 +47,6 @@ public class CamelLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public CamelRouteLogic camelRouteLogic(
             final CamelRouteDAO routeDAO,
             final CamelRouteDataBinder binder,

@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import org.apache.syncope.core.logic.init.OIDCC4UILoader;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.logic.oidc.OIDCUserManager;
+import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
@@ -31,7 +32,6 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,13 +47,12 @@ public class OIDCC4UILogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public OIDCC4UILoader oidcc4UILoader() {
+    public SyncopeCoreLoader oidcc4UILoader() {
         return new OIDCC4UILoader();
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public OIDCUserManager oidcUserManager(
             final InboundMatcher inboundMatcher,
             final UserDAO userDAO,
@@ -80,12 +79,12 @@ public class OIDCC4UILogicContext {
             final AccessTokenDataBinder accessTokenDataBinder,
             final OIDCUserManager userManager) {
 
-        return new OIDCC4UILogic(oidcClientCache, authDataAccessor, accessTokenDataBinder, opDAO, userManager);
+        return new OIDCC4UILogic(oidcClientCache, authDataAccessor,
+            accessTokenDataBinder, opDAO, userManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public OIDCC4UIProviderLogic oidcc4UIProviderLogic(
             final OIDCC4UIProviderDAO opDAO,
             final OIDCClientCache oidcClientCache,

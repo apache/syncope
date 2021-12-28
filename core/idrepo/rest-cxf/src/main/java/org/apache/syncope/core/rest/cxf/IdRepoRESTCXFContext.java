@@ -121,7 +121,6 @@ import org.apache.syncope.core.rest.cxf.service.SyncopeServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.TaskServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.UserSelfServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.UserServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.ApplicationContext;
@@ -134,15 +133,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @PropertySource("classpath:errorMessages.properties")
 @Configuration
 public class IdRepoRESTCXFContext {
-
-    @Autowired
-    private SearchCondVisitor searchCondVisitor;
-
-    @Autowired
-    private Bus bus;
-
-    @Autowired
-    private ApplicationContext ctx;
 
     @ConditionalOnMissingBean
     @Bean
@@ -192,9 +182,9 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public JAXRSBeanValidationInInterceptor validationInInterceptor() {
+    public JAXRSBeanValidationInInterceptor validationInInterceptor(final BeanValidationProvider validationProvider) {
         JAXRSBeanValidationInInterceptor validationInInterceptor = new JAXRSBeanValidationInInterceptor();
-        validationInInterceptor.setProvider(validationProvider());
+        validationInInterceptor.setProvider(validationProvider);
         return validationInInterceptor;
     }
 
@@ -215,7 +205,6 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RestServiceExceptionMapper restServiceExceptionMapper(final Environment env) {
         return new RestServiceExceptionMapper(env);
     }
@@ -228,7 +217,6 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public CheckDomainFilter checkDomainFilter(final DomainHolder domainHolder) {
         return new CheckDomainFilter(domainHolder);
     }
@@ -245,17 +233,14 @@ public class IdRepoRESTCXFContext {
         return new AddETagFilter();
     }
 
-    private String version() {
-        return ctx.getEnvironment().getProperty("version");
-    }
-
     @ConditionalOnMissingBean
     @Bean
-    public OpenApiFeature openapiFeature() {
+    public OpenApiFeature openapiFeature(final ApplicationContext ctx) {
+        String version = ctx.getEnvironment().getProperty("version");
         OpenApiFeature openapiFeature = new OpenApiFeature();
         openapiFeature.setTitle("Apache Syncope");
-        openapiFeature.setVersion(version());
-        openapiFeature.setDescription("Apache Syncope " + version());
+        openapiFeature.setVersion(version);
+        openapiFeature.setDescription("Apache Syncope " + version);
         openapiFeature.setContactName("The Apache Syncope community");
         openapiFeature.setContactEmail("dev@syncope.apache.org");
         openapiFeature.setContactUrl("https://syncope.apache.org");
@@ -284,8 +269,13 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public Server restContainer(
+            final JAXRSBeanValidationInInterceptor validationInInterceptor,
+            final GZIPInInterceptor gzipInInterceptor,
+            final GZIPOutInterceptor gzipOutInterceptor,
+            final OpenApiFeature openapiFeature,
+            final Bus bus,
+            final ApplicationContext ctx,
             final CheckDomainFilter checkDomainFilter,
             final RestServiceExceptionMapper restServiceExceptionMapper) {
 
@@ -315,12 +305,12 @@ public class IdRepoRESTCXFContext {
                 addETagFilter()));
 
         restContainer.setInInterceptors(List.of(
-                gzipInInterceptor(),
-                validationInInterceptor()));
+                gzipInInterceptor,
+                validationInInterceptor));
 
-        restContainer.setOutInterceptors(List.of(gzipOutInterceptor()));
+        restContainer.setOutInterceptors(List.of(gzipOutInterceptor));
 
-        restContainer.setFeatures(List.of(openapiFeature()));
+        restContainer.setFeatures(List.of(openapiFeature));
 
         restContainer.setApplicationContext(ctx);
         return restContainer.create();
@@ -336,148 +326,130 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AccessTokenService accessTokenService(final AccessTokenLogic accessTokenLogic) {
         return new AccessTokenServiceImpl(accessTokenLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public AnyObjectService anyObjectService(final AnyObjectDAO anyObjectDAO, final AnyObjectLogic anyObjectLogic) {
+    public AnyObjectService anyObjectService(final AnyObjectDAO anyObjectDAO, final AnyObjectLogic anyObjectLogic,
+                                             final SearchCondVisitor searchCondVisitor) {
         return new AnyObjectServiceImpl(searchCondVisitor, anyObjectDAO, anyObjectLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyTypeClassService anyTypeClassService(final AnyTypeClassLogic anyTypeClassLogic) {
         return new AnyTypeClassServiceImpl(anyTypeClassLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyTypeService anyTypeService(final AnyTypeLogic anyTypeLogic) {
         return new AnyTypeServiceImpl(anyTypeLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ApplicationService applicationService(final ApplicationLogic applicationLogic) {
         return new ApplicationServiceImpl(applicationLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AuditService auditService(final AuditLogic auditLogic) {
         return new AuditServiceImpl(auditLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public DelegationService delegationService(final DelegationLogic delegationLogic) {
         return new DelegationServiceImpl(delegationLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public DynRealmService dynRealmService(final DynRealmLogic dynRealmLogic) {
         return new DynRealmServiceImpl(dynRealmLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public GroupService groupService(final GroupDAO groupDAO, final GroupLogic groupLogic) {
+    public GroupService groupService(final GroupDAO groupDAO, final GroupLogic groupLogic,
+                                     final SearchCondVisitor searchCondVisitor) {
         return new GroupServiceImpl(searchCondVisitor, groupDAO, groupLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ImplementationService implementationService(final ImplementationLogic implementationLogic) {
         return new ImplementationServiceImpl(implementationLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public MailTemplateService mailTemplateService(final MailTemplateLogic mailTemplateLogic) {
         return new MailTemplateServiceImpl(mailTemplateLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public NotificationService notificationService(final NotificationLogic notificationLogic) {
         return new NotificationServiceImpl(notificationLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public PolicyService policyService(final PolicyLogic policyLogic) {
         return new PolicyServiceImpl(policyLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RealmService realmService(final RealmLogic realmLogic) {
         return new RealmServiceImpl(realmLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RelationshipTypeService relationshipTypeService(final RelationshipTypeLogic relationshipTypeLogic) {
         return new RelationshipTypeServiceImpl(relationshipTypeLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ReportService reportService(final ReportLogic reportLogic) {
         return new ReportServiceImpl(reportLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ReportTemplateService reportTemplateService(final ReportTemplateLogic reportTemplateLogic) {
         return new ReportTemplateServiceImpl(reportTemplateLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RoleService roleService(final RoleLogic roleLogic) {
         return new RoleServiceImpl(roleLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SchemaService schemaService(final SchemaLogic schemaLogic) {
         return new SchemaServiceImpl(schemaLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SecurityQuestionService securityQuestionService(final SecurityQuestionLogic securityQuestionLogic) {
         return new SecurityQuestionServiceImpl(securityQuestionLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SyncopeService syncopeService(
+            final Bus bus,
             final SyncopeLogic syncopeLogic,
             final ThreadPoolTaskExecutor batchExecutor,
             final BatchDAO batchDAO,
@@ -488,22 +460,20 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public TaskService taskService(final TaskLogic taskLogic) {
         return new TaskServiceImpl(taskLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UserSelfService userSelfService(final UserLogic userLogic, final SyncopeLogic syncopeLogic) {
         return new UserSelfServiceImpl(userLogic, syncopeLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public UserService userService(final UserDAO userDAO, final UserLogic userLogic) {
+    public UserService userService(final UserDAO userDAO, final UserLogic userLogic,
+                                   final SearchCondVisitor searchCondVisitor) {
         return new UserServiceImpl(searchCondVisitor, userDAO, userLogic);
     }
 }

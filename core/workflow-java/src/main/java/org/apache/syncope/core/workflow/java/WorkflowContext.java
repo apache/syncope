@@ -29,7 +29,6 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,7 +38,6 @@ public class WorkflowContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UserWorkflowAdapter uwfAdapter(
             final UserDataBinder userDataBinder,
             final UserDAO userDAO,
@@ -51,7 +49,6 @@ public class WorkflowContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public GroupWorkflowAdapter gwfAdapter(
             final GroupDataBinder groupDataBinder,
             final GroupDAO groupDAO,
@@ -62,7 +59,6 @@ public class WorkflowContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyObjectWorkflowAdapter awfAdapter(
             final AnyObjectDataBinder anyObjectDataBinder,
             final AnyObjectDAO anyObjectDAO,

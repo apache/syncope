@@ -34,7 +34,6 @@ import org.apache.syncope.core.rest.cxf.service.ConnectorServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.ReconciliationServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.RemediationServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.ResourceServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,14 +43,12 @@ public class IdMRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ConnectorService connectorService(final ConnectorLogic connectorLogic) {
         return new ConnectorServiceImpl(connectorLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ReconciliationService reconciliationService(
             final SearchCondVisitor searchCondVisitor,
             final ReconciliationLogic reconciliationLogic) {
@@ -61,7 +58,6 @@ public class IdMRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RemediationService remediationService(
             final RemediationLogic remediationLogic,
             final UserDAO userDAO,
@@ -73,7 +69,6 @@ public class IdMRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ResourceService resourceService(final ResourceLogic resourceLogic) {
         return new ResourceServiceImpl(resourceLogic);
     }

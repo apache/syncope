@@ -134,7 +134,6 @@ import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUn
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -147,7 +146,7 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @EnableConfigurationProperties(PersistenceProperties.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class PersistenceContext {
 
     private static final Logger OPENJPA_LOG = LoggerFactory.getLogger("org.apache.openjpa");
@@ -156,21 +155,6 @@ public class PersistenceContext {
     public static BeanFactoryPostProcessor domainTransactionInterceptorInjector() {
         return new DomainTransactionInterceptorInjector();
     }
-
-    @Autowired
-    private PersistenceProperties persistenceProperties;
-
-    @Autowired
-    private SecurityProperties securityProperties;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
-
-    @Autowired
-    private ApplicationEventPublisher publisher;
-
-    @Autowired
-    private Environment env;
 
     @ConditionalOnMissingBean
     @Bean
@@ -185,7 +169,7 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public CommonEntityManagerFactoryConf commonEMFConf() {
+    public CommonEntityManagerFactoryConf commonEMFConf(final PersistenceProperties persistenceProperties) {
         CommonEntityManagerFactoryConf commonEMFConf = new CommonEntityManagerFactoryConf();
         commonEMFConf.setPackagesToScan("org.apache.syncope.core.persistence.jpa.entity");
         commonEMFConf.setValidationMode(ValidationMode.NONE);
@@ -218,7 +202,9 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public XMLContentLoader xmlContentLoader() {
+    public XMLContentLoader xmlContentLoader(final PersistenceProperties persistenceProperties,
+                                             final ResourceLoader resourceLoader,
+                                             final Environment env) {
         return new XMLContentLoader(
                 resourceLoader.getResource(persistenceProperties.getViewsXML()),
                 resourceLoader.getResource(persistenceProperties.getIndexesXML()),
@@ -227,27 +213,24 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public XMLContentExporter xmlContentExporter(final DomainHolder domainHolder, final RealmDAO realmDAO) {
         return new XMLContentExporter(domainHolder, realmDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public KeymasterConfParamLoader keymasterConfParamLoader(final ConfParamOps confParamOps) {
         return new KeymasterConfParamLoader(confParamOps);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public DomainRegistry domainRegistry() {
+    public DomainRegistry domainRegistry(final Environment env) {
         return new DomainConfFactory(env);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RuntimeDomainLoader runtimeDomainLoader(
             final DomainHolder domainHolder,
             final DomainRegistry domainRegistry) {
@@ -257,8 +240,9 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public StartupDomainLoader startupDomainLoader(
+            final PersistenceProperties persistenceProperties,
+            final ResourceLoader resourceLoader,
             final DomainOps domainOps,
             final DomainHolder domainHolder,
             final DomainRegistry domainRegistry) {
@@ -274,7 +258,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyUtilsFactory anyUtilsFactory(
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
@@ -298,7 +281,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public TaskUtilsFactory taskUtilsFactory(final @Lazy EntityFactory entityFactory) {
         return new JPATaskUtilsFactory(entityFactory);
     }
@@ -311,14 +293,12 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ApplicationDAO applicationDAO(final RoleDAO roleDAO, final @Lazy UserDAO userDAO) {
         return new JPAApplicationDAO(roleDAO, userDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyMatchDAO anyMatchDAO(
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
@@ -332,8 +312,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyObjectDAO anyObjectDAO(
+            final ApplicationEventPublisher publisher,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
@@ -353,7 +333,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnySearchDAO anySearchDAO(
             final RealmDAO realmDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
@@ -377,14 +356,12 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyTypeDAO anyTypeDAO(final RemediationDAO remediationDAO) {
         return new JPAAnyTypeDAO(remediationDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyTypeClassDAO anyTypeClassDAO(
             final AnyTypeDAO anyTypeDAO,
             final PlainSchemaDAO plainSchemaDAO,
@@ -428,7 +405,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ConnInstanceDAO connInstanceDAO(final @Lazy ExternalResourceDAO resourceDAO) {
         return new JPAConnInstanceDAO(resourceDAO);
     }
@@ -441,15 +417,14 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public DerSchemaDAO derSchemaDAO(final @Lazy ExternalResourceDAO resourceDAO) {
         return new JPADerSchemaDAO(resourceDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public DynRealmDAO dynRealmDAO(
+            final ApplicationEventPublisher publisher,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
@@ -469,8 +444,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public GroupDAO groupDAO(
+            final ApplicationEventPublisher publisher,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
@@ -510,7 +485,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public NotificationDAO notificationDAO(final TaskDAO taskDAO) {
         return new JPANotificationDAO(taskDAO);
     }
@@ -541,7 +515,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public PlainSchemaDAO plainSchemaDAO(
             final AnyUtilsFactory anyUtilsFactory,
             final PlainAttrDAO plainAttrDAO,
@@ -552,7 +525,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public PolicyDAO policyDAO(
             final @Lazy RealmDAO realmDAO,
             final @Lazy ExternalResourceDAO resourceDAO) {
@@ -562,7 +534,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RealmDAO realmDAO(final @Lazy RoleDAO roleDAO) {
         return new JPARealmDAO(roleDAO);
     }
@@ -599,7 +570,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ExternalResourceDAO resourceDAO(
             final TaskDAO taskDAO,
             final AnyObjectDAO anyObjectDAO,
@@ -614,8 +584,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RoleDAO roleDAO(
+            final ApplicationEventPublisher publisher,
             final @Lazy AnyMatchDAO anyMatchDAO,
             final @Lazy AnySearchDAO anySearchDAO,
             final DelegationDAO delegationDAO,
@@ -644,7 +614,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SecurityQuestionDAO securityQuestionDAO(final UserDAO userDAO) {
         return new JPASecurityQuestionDAO(userDAO);
     }
@@ -657,22 +626,21 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public TaskDAO taskDAO(final RemediationDAO remediationDAO) {
         return new JPATaskDAO(remediationDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public TaskExecDAO taskExecDAO(final TaskDAO taskDAO) {
         return new JPATaskExecDAO(taskDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UserDAO userDAO(
+            final ApplicationEventPublisher publisher,
+            final SecurityProperties securityProperties,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
@@ -699,7 +667,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public VirSchemaDAO virSchemaDAO(final @Lazy ExternalResourceDAO resourceDAO) {
         return new JPAVirSchemaDAO(resourceDAO);
     }

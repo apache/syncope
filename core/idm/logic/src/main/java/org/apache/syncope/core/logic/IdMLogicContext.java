@@ -94,7 +94,6 @@ public class IdMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ConnectorLogic connectorLogic(final ConnIdBundleManager connIdBundleManager) {
         return new ConnectorLogic(
                 connIdBundleManager,
@@ -106,7 +105,6 @@ public class IdMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ReconciliationLogic reconciliationLogic(
             final RealmDAO realmDAO,
             final PlainSchemaDAO plainSchemaDAO,
@@ -131,7 +129,6 @@ public class IdMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RemediationLogic remediationLogic(
             final UserLogic userLogic,
             final GroupLogic groupLogic,
@@ -144,7 +141,6 @@ public class IdMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ResourceLogic resourceLogic(final ResourceDataBinder resourceDataBinder) {
         return new ResourceLogic(
                 resourceDAO,
