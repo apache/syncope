@@ -150,7 +150,6 @@ public class WebSecurityContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AuthDataAccessor authDataAccessor(
             final SecurityProperties securityProperties,
             final RealmDAO realmDAO,

@@ -77,8 +77,8 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeEnduserInfoContributor syncopeEnduserInfoContributor() {
-        return new SyncopeEnduserInfoContributor();
+    public SyncopeEnduserInfoContributor syncopeEnduserInfoContributor(final EnduserProperties enduserProperties) {
+        return new SyncopeEnduserInfoContributor(enduserProperties);
     }
 
     @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")

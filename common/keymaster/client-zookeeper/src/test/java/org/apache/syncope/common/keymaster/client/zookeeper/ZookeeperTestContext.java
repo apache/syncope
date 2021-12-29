@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @PropertySource("classpath:test.properties")
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class ZookeeperTestContext {
 
     @Bean

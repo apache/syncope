@@ -41,11 +41,10 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:core-test.properties")
 @Import({ IdRepoLogicContext.class, IdMLogicContext.class, SecurityContext.class,
     PersistenceContext.class, MasterDomain.class, ProvisioningContext.class, WorkflowContext.class })
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class IdMLogicTestContext {
 
     @Bean
-    @Autowired
     public TestInitializer testInitializer(
             final StartupDomainLoader domainLoader,
             final DomainHolder domainHolder,
@@ -66,7 +65,6 @@ public class IdMLogicTestContext {
     }
 
     @Bean
-    @Autowired
     public DomainOps domainOps(final DomainRegistry domainRegistry) {
         return new DummyDomainOps(domainRegistry);
     }

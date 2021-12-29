@@ -38,6 +38,7 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.common.lib.types.JWSAlgorithm;
+import org.apache.syncope.wa.bootstrap.WAProperties;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.wa.starter.actuate.SyncopeWAInfoContributor;
@@ -98,7 +99,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration(value = "SyncopeWAConfiguration", proxyBeanMethods = false)
+@Configuration(proxyBeanMethods = false)
 public class SyncopeWAConfiguration {
 
     private static String version(final ConfigurableApplicationContext ctx) {
@@ -280,7 +281,6 @@ public class SyncopeWAConfiguration {
         return new SyncopeWAOIDCJWKSGeneratorService(restClient, size, algorithm);
     }
 
-    @RefreshScope
     @Bean
     public WebAuthnCredentialRepository webAuthnCredentialRepository(
             final CasConfigurationProperties casProperties,
@@ -289,7 +289,6 @@ public class SyncopeWAConfiguration {
     }
 
     @Bean
-    @RefreshScope
     public U2FDeviceRepository u2fDeviceRepository(
             final CasConfigurationProperties casProperties,
             final WARestClient restClient) {
@@ -316,8 +315,8 @@ public class SyncopeWAConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeWAInfoContributor syncopeWAInfoContributor() {
-        return new SyncopeWAInfoContributor();
+    public SyncopeWAInfoContributor syncopeWAInfoContributor(final WAProperties waProperties) {
+        return new SyncopeWAInfoContributor(waProperties);
     }
 
     @Bean
@@ -328,11 +327,5 @@ public class SyncopeWAConfiguration {
     @Bean
     public KeymasterStop keymasterStop() {
         return new KeymasterStop(NetworkService.Type.WA);
-    }
-
-    @Bean
-    public CasThymeleafLoginFormDirector casThymeleafLoginFormDirector(
-            @Qualifier("casWebflowExecutionPlan") final CasWebflowExecutionPlan webflowExecutionPlan) {
-        return new CasThymeleafLoginFormDirector(webflowExecutionPlan);
     }
 }

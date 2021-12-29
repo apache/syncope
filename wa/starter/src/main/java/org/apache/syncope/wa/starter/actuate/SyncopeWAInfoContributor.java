@@ -26,8 +26,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 public class SyncopeWAInfoContributor implements InfoContributor {
 
-    @Autowired
-    protected WAProperties waProperties;
+    protected final WAProperties waProperties;
+
+    public SyncopeWAInfoContributor(final WAProperties waProperties) {
+        this.waProperties = waProperties;
+    }
 
     @PreAuthorize("isAuthenticated()")
     @Override

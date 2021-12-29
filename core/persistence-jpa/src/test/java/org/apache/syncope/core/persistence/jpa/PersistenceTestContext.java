@@ -40,7 +40,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 
 @Import(PersistenceContext.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class PersistenceTestContext {
 
     @Bean

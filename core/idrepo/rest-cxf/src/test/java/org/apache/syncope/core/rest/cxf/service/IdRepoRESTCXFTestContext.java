@@ -37,7 +37,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class IdRepoRESTCXFTestContext {
 
     @Autowired
@@ -75,9 +75,10 @@ public class IdRepoRESTCXFTestContext {
     }
 
     @Bean
-    public JAXRSBeanValidationInInterceptor validationInInterceptor() {
+    public JAXRSBeanValidationInInterceptor validationInInterceptor(
+        final BeanValidationProvider validationProvider) {
         JAXRSBeanValidationInInterceptor validationInInterceptor = new JAXRSBeanValidationInInterceptor();
-        validationInInterceptor.setProvider(validationProvider());
+        validationInInterceptor.setProvider(validationProvider);
         return validationInInterceptor;
     }
 

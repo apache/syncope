@@ -39,47 +39,12 @@ import org.apache.syncope.core.provisioning.api.data.RemediationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
 public class IdMLogicContext {
-
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
-
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private ConnInstanceDAO connInstanceDAO;
-
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
-
-    @Autowired
-    private VirAttrHandler virAttrHandler;
-
-    @Autowired
-    private ConnInstanceDataBinder connInstanceDataBinder;
-
-    @Autowired
-    private ConnectorManager connectorManager;
-
-    @Autowired
-    private InboundMatcher inboundMatcher;
-
-    @Autowired
-    private OutboundMatcher outboundMatcher;
-
-    @Autowired
-    private MappingManager mappingManager;
-
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
-
     @ConditionalOnMissingBean
     @Bean
     public IdMEntitlementLoader idmEntitlementLoader() {
@@ -94,7 +59,12 @@ public class IdMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ConnectorLogic connectorLogic(final ConnIdBundleManager connIdBundleManager) {
+    public ConnectorLogic connectorLogic(
+        final ConnIdBundleManager connIdBundleManager,
+        final ExternalResourceDAO resourceDAO,
+        final ConnInstanceDAO connInstanceDAO,
+        final ConnInstanceDataBinder connInstanceDataBinder,
+        final ConnectorManager connectorManager) {
         return new ConnectorLogic(
                 connIdBundleManager,
                 connectorManager,
@@ -107,9 +77,18 @@ public class IdMLogicContext {
     @Bean
     public ReconciliationLogic reconciliationLogic(
             final RealmDAO realmDAO,
+            final AnyUtilsFactory anyUtilsFactory,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final AnySearchDAO anySearchDAO) {
+            final AnySearchDAO anySearchDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final ExternalResourceDAO resourceDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final VirAttrHandler virAttrHandler,
+            final ConnectorManager connectorManager,
+            final InboundMatcher inboundMatcher,
+            final OutboundMatcher outboundMatcher,
+            final MappingManager mappingManager) {
 
         return new ReconciliationLogic(
                 anyUtilsFactory,
@@ -141,7 +120,19 @@ public class IdMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ResourceLogic resourceLogic(final ResourceDataBinder resourceDataBinder) {
+    public ResourceLogic resourceLogic(
+        final ResourceDataBinder resourceDataBinder,
+        final AnyUtilsFactory anyUtilsFactory,
+        final AnyTypeDAO anyTypeDAO,
+        final ExternalResourceDAO resourceDAO,
+        final ConnInstanceDAO connInstanceDAO,
+        final VirSchemaDAO virSchemaDAO,
+        final VirAttrHandler virAttrHandler,
+        final ConnInstanceDataBinder connInstanceDataBinder,
+        final ConnectorManager connectorManager,
+        final OutboundMatcher outboundMatcher,
+        final MappingManager mappingManager) {
+        
         return new ResourceLogic(
                 resourceDAO,
                 anyTypeDAO,

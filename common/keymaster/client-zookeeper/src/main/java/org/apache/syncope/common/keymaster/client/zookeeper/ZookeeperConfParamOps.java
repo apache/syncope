@@ -41,11 +41,14 @@ public class ZookeeperConfParamOps implements ConfParamOps {
 
     private static final String CONF_PATH = "/conf";
 
-    @Autowired
-    private CuratorFramework client;
+    private final CuratorFramework client;
 
     private static String buildConfPath(final String... parts) {
         return CONF_PATH + '/' + String.join("/", parts);
+    }
+
+    public ZookeeperConfParamOps(final CuratorFramework client) {
+        this.client = client;
     }
 
     @Override
