@@ -25,6 +25,9 @@ import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.sra.actuate.SRASessions;
 import org.apache.syncope.sra.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.sra.actuate.SyncopeSRAInfoContributor;
+import org.apache.syncope.sra.security.CsrfRouteMatcher;
+import org.apache.syncope.sra.security.LogoutRouteMatcher;
+import org.apache.syncope.sra.security.PublicRouteMatcher;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -35,6 +38,7 @@ import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.server.WebExceptionHandler;
 import reactor.core.publisher.Flux;
 
 @SpringBootApplication(proxyBeanMethods = false)
@@ -45,6 +49,21 @@ public class SyncopeSRAApplication {
         new SpringApplicationBuilder(SyncopeSRAApplication.class).
                 properties("spring.config.name:sra").
                 build().run(args);
+    }
+
+    @Bean
+    public LogoutRouteMatcher logoutRouteMatcher() {
+        return new LogoutRouteMatcher();
+    }
+
+    @Bean
+    public PublicRouteMatcher publicRouteMatcher() {
+        return new PublicRouteMatcher();
+    }
+    
+    @Bean
+    public CsrfRouteMatcher csrfRouteMatcher(final PublicRouteMatcher publicRouteMatcher) {
+        return new CsrfRouteMatcher(publicRouteMatcher);
     }
 
     @ConditionalOnMissingBean
@@ -97,5 +116,12 @@ public class SyncopeSRAApplication {
     @Bean
     public KeymasterStop keymasterStop() {
         return new KeymasterStop(NetworkService.Type.SRA);
+    }
+
+    @Bean
+    public WebExceptionHandler syncopeSRAWebExceptionHandler(
+        @Qualifier("routeProvider") final RouteProvider routeProvider,
+        final SRAProperties props) {
+        return new SyncopeSRAWebExceptionHandler(routeProvider, props);
     }
 }
