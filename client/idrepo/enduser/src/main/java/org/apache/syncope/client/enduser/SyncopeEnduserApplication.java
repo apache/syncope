@@ -30,7 +30,6 @@ import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
@@ -42,7 +41,7 @@ import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
-    HttpMessageConvertersAutoConfiguration.class })
+    HttpMessageConvertersAutoConfiguration.class }, proxyBeanMethods = false)
 @EnableConfigurationProperties(EnduserProperties.class)
 public class SyncopeEnduserApplication extends SpringBootServletInitializer {
 
@@ -51,12 +50,6 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
                 properties("spring.config.name:enduser").
                 build().run(args);
     }
-
-    @Autowired
-    private ServiceOps serviceOps;
-
-    @Autowired
-    private EnduserProperties props;
 
     @Override
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
@@ -73,7 +66,8 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator() {
+    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator(final ServiceOps serviceOps,
+                                                                 final EnduserProperties props) {
         return new SyncopeCoreHealthIndicator(
                 serviceOps,
                 props.getAnonymousUser(),

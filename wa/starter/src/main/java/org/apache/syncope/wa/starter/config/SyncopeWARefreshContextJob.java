@@ -63,7 +63,7 @@ public class SyncopeWARefreshContextJob implements Job {
 
             advertiseReady();
 
-        } catch (RuntimeException e) {
+        } catch (final Exception e) {
             throw new JobExecutionException("While generating SAML2 IdP metadata", e);
         }
     }

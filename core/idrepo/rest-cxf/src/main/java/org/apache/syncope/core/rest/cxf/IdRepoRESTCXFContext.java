@@ -29,6 +29,8 @@ import java.util.Set;
 import javax.servlet.ServletRequestListener;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.jaxrs.ext.ContextProvider;
+import org.apache.cxf.jaxrs.ext.search.SearchContext;
 import org.apache.cxf.jaxrs.ext.search.SearchContextImpl;
 import org.apache.cxf.jaxrs.ext.search.SearchContextProvider;
 import org.apache.cxf.jaxrs.ext.search.SearchUtils;
@@ -131,7 +133,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @PropertySource("classpath:errorMessages.properties")
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
@@ -211,7 +213,7 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SearchContextProvider searchContextProvider() {
+    public ContextProvider<SearchContext> searchContextProvider() {
         return new SearchContextProvider();
     }
 
@@ -270,6 +272,13 @@ public class IdRepoRESTCXFContext {
     @ConditionalOnMissingBean
     @Bean
     public Server restContainer(
+            final AddETagFilter addETagFilter,
+            final AddDomainFilter addDomainFilter,
+            final ContextProvider<SearchContext> searchContextProvider,
+            final JacksonYAMLProvider yamlProvider,
+            final JacksonXMLProvider xmlProvider,
+            final JacksonJsonProvider jsonProvider,
+            final DateParamConverterProvider dateParamConverterProvider,
             final JAXRSBeanValidationInInterceptor validationInInterceptor,
             final GZIPInInterceptor gzipInInterceptor,
             final GZIPOutInterceptor gzipOutInterceptor,
@@ -294,15 +303,15 @@ public class IdRepoRESTCXFContext {
         restContainer.setProperties(properties);
 
         restContainer.setProviders(List.of(
-                dateParamConverterProvider(),
-                jsonProvider(),
-                xmlProvider(),
-                yamlProvider(),
+                dateParamConverterProvider,
+                jsonProvider,
+                xmlProvider,
+                yamlProvider,
                 restServiceExceptionMapper,
-                searchContextProvider(),
+                searchContextProvider,
                 checkDomainFilter,
-                addDomainFilter(),
-                addETagFilter()));
+                addDomainFilter,
+                addETagFilter));
 
         restContainer.setInInterceptors(List.of(
                 gzipInInterceptor,

@@ -50,7 +50,6 @@ import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
@@ -63,7 +62,7 @@ import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
-    HttpMessageConvertersAutoConfiguration.class })
+    HttpMessageConvertersAutoConfiguration.class }, proxyBeanMethods = false)
 @EnableConfigurationProperties(ConsoleProperties.class)
 public class SyncopeConsoleApplication extends SpringBootServletInitializer {
 
@@ -72,15 +71,6 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
                 properties("spring.config.name:console").
                 build().run(args);
     }
-
-    @Autowired
-    private ServiceOps serviceOps;
-
-    @Autowired
-    private ConsoleProperties props;
-
-    @Autowired
-    private ApplicationContext ctx;
 
     @Override
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
@@ -97,7 +87,8 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator() {
+    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator(final ServiceOps serviceOps,
+                                                                 final ConsoleProperties props) {
         return new SyncopeCoreHealthIndicator(
                 serviceOps,
                 props.getAnonymousUser(),
@@ -113,7 +104,7 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
 
     @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")
     @Bean
-    public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
+    public ClassPathScanImplementationLookup classPathScanImplementationLookup(final ApplicationContext ctx) {
         ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup(
                 ctx.getBeansOfType(ClassPathScanImplementationContributor.class).values());
         lookup.load();
