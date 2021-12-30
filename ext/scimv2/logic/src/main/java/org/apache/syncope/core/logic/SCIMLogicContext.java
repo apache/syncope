@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.logic.init.SCIMLoader;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
-import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +31,7 @@ public class SCIMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeCoreLoader scimLoader() {
+    public SCIMLoader scimLoader() {
         return new SCIMLoader();
     }
 

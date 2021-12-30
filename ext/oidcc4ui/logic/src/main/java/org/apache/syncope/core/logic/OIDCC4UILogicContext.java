@@ -47,7 +47,7 @@ public class OIDCC4UILogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeCoreLoader oidcc4UILoader() {
+    public OIDCC4UILoader oidcc4UILoader() {
         return new OIDCC4UILoader();
     }
 
