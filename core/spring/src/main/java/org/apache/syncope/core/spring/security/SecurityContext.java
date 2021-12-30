@@ -29,7 +29,6 @@ import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -43,33 +42,8 @@ public class SecurityContext {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityContext.class);
 
     @Bean
-    public String adminUser(final SecurityProperties props) {
-        return props.getAdminUser();
-    }
-
-    @Bean
-    public String adminPassword(final SecurityProperties props) {
-        return props.getAdminPassword();
-    }
-
-    @Bean
     public CipherAlgorithm adminPasswordAlgorithm(final SecurityProperties props) {
         return props.getAdminPasswordAlgorithm();
-    }
-
-    @Bean
-    public String anonymousUser(final SecurityProperties props) {
-        return props.getAnonymousUser();
-    }
-
-    @Bean
-    public String anonymousKey(final SecurityProperties props) {
-        return props.getAnonymousKey();
-    }
-
-    @Bean
-    public String jwtIssuer(final SecurityProperties props) {
-        return props.getJwtIssuer();
     }
 
     @Bean
@@ -77,9 +51,7 @@ public class SecurityContext {
         return JWSAlgorithm.parse(props.getJwsAlgorithm().toUpperCase());
     }
 
-    @Bean
-    public String jwsKey(final JWSAlgorithm jwsAlgorithm,
-                         final SecurityProperties props) {
+    private static String jwsKey(final JWSAlgorithm jwsAlgorithm, final SecurityProperties props) {
         String jwsKey = props.getJwsKey();
         if (jwsKey == null) {
             throw new IllegalArgumentException("No JWS key provided");
@@ -104,28 +76,28 @@ public class SecurityContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DefaultCredentialChecker credentialChecker(@Qualifier("jwsKey") final String jwsKey,
-                                                      @Qualifier("adminPassword") final String adminPassword,
-                                                      @Qualifier("anonymousKey") final String anonymousKey) {
-        return new DefaultCredentialChecker(jwsKey, adminPassword, anonymousKey);
+    public DefaultCredentialChecker credentialChecker(final SecurityProperties props,
+                                                      final JWSAlgorithm jwsAlgorithm) {
+        return new DefaultCredentialChecker(jwsKey(jwsAlgorithm, props),
+            props.getAdminPassword(), props.getAnonymousKey());
     }
 
     @ConditionalOnMissingBean
     @Bean
     public AccessTokenJWSVerifier accessTokenJWSVerifier(final JWSAlgorithm jwsAlgorithm,
-                                                         @Qualifier("jwsKey") final String jwsKey)
+                                                         final SecurityProperties props)
             throws JOSEException, NoSuchAlgorithmException, InvalidKeySpecException {
 
-        return new AccessTokenJWSVerifier(jwsAlgorithm, jwsKey);
+        return new AccessTokenJWSVerifier(jwsAlgorithm, jwsKey(jwsAlgorithm, props));
     }
 
     @ConditionalOnMissingBean
     @Bean
     public AccessTokenJWSSigner accessTokenJWSSigner(final JWSAlgorithm jwsAlgorithm,
-                                                     @Qualifier("jwsKey") final String jwsKey)
+                                                     final SecurityProperties props)
             throws KeyLengthException, NoSuchAlgorithmException, InvalidKeySpecException {
 
-        return new AccessTokenJWSSigner(jwsAlgorithm, jwsKey);
+        return new AccessTokenJWSSigner(jwsAlgorithm, jwsKey(jwsAlgorithm, props));
     }
 
     @ConditionalOnMissingBean
