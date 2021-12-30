@@ -1,0 +1,83 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Internal storage export - import
+
+Almost every configurable aspect of a given deployment is contained in the <<persistence,internal storage>>:
+schemas, connectors, resources, mapping, roles, groups, tasks and other parameters.
+
+During the implementation phase of an Apache Syncope-based project, it might be useful to move such configuration back
+and forth from one Apache Syncope instance to another (say developer's laptop and production server). +
+One option is clearly to act at a low level by empowering DBMS' dump & restore capabilities, but what if the developer is
+running MySQL (or even in-memory H2) while the sysadmin features Oracle?
+
+[CAUTION]
+.Wipe existing content
+=====
+When not running in-memory H2, the internal storage's content must be wiped before starting Apache Syncope, otherwise
+the provided content will be just ignored.
+
+Check `core-persistence.log` for message
+
+....
+Empty database found, loading default content
+....
+
+If the internal storage is not empty, instead, you will get
+
+....
+Data found in the database, leaving untouched
+....
+=====
+
+[WARNING]
+=====
+All references in the following are set to `MasterContent.xml`; when other <<domains,domains>> are defined, the content
+file is renamed accordingly. For example, `TwoContent.xml` if domain name is `Two`.
+=====
+
+[WARNING]
+.MySQL and lower case table names
+=====
+On some platforms (namely, Mac OS X) MySQL is configured by default to be case insensitive: in such cases, you might
+want to edit the `/etc/my.cnf` file and add the following line in the `[mysqld]` section:
+
+....
+lower_case_table_names=1
+....
+=====
+
+==== Export
+
+This task can be accomplished either via the admin console or by barely invoking the REST layer through
+http://curl.haxx.se/[curl^], for example:
+
+....
+curl -X GET -u admin:password -o MasterContent.xml \
+  http://localhost:9080/syncope/rest/configurations/stream
+....
+
+==== Import
+
+Basically, all you need to do is to replace the local `MasterContent.xml` with the one exported as explained above; this
+file is located at:
+
+
+* `$TOMCAT_HOME/webapps/syncope/WEB-INF/classes/domains/MasterContent.xml` for Standalone
+* `core/src/test/resources/domains/MasterContent.xml` for Maven projects in embedded mode
+* `core/src/main/resources/domains/MasterContent.xml` for Maven projects

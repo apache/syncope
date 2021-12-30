@@ -1,0 +1,124 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Install connector bundles
+
+<<connector-bundles,Connector bundles>> are made available as JAR files and can be configured, for a given deployment:
+
+* for Maven project, in local sources;
+* for all distributions, at run-time.
+
+==== Local sources
+
+===== Different version of predefined connector bundle
+
+First of all, verify which connector bundles are predefined in your project by looking at your project's parent
+ifeval::["{snapshotOrRelease}" == "release"]
+https://repo1.maven.org/maven2/org/apache/syncope/syncope/{docVersion}[POM^].
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://repository.apache.org/content/groups/snapshots/org/apache/syncope/syncope/{docVersion}[POM^].
+endif::[]
+
+As you can see, there are several Maven properties on the form `connid.*.version`, controlling the related connector
+bundle's version.
+
+If you want your own project to use a different version of a given connector bundle, all you need to do is to override
+the related property in your own project's root pom.xml.
+
+Hence, supposing that you would like to use `net.tirasa.connid.bundles.db.table` version `2.2.8-SNAPSHOT` rather than
+`2.2.7` shipped with Apache Syncope, add the following property to your own project's root `pom.xml`:
+
+[source,xml]
+....
+<properties>
+   ...
+   <connid.database.version>2.2.8-SNAPSHOT</connid.database.version>
+</properties>
+....
+
+===== Non-predefined connector bundle
+
+If the needed connector bundle is not in the predefined set as shown above, you will need to add a new property into
+your own project's root `pom.xml`:
+
+[source,xml]
+....
+<properties>
+   ...
+   <my.new.connector.version>1.0.0</my.new.connector.version>
+</properties>
+....
+
+then change the `maven-dependency-plugin` configuration both in `core/pom.xml` and `console/pom.xml` from
+
+[source,xml]
+....
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-dependency-plugin</artifactId>
+  <inherited>true</inherited>
+  <executions>
+    <execution>
+      <id>set-bundles</id>
+      <phase>process-test-resources</phase>
+      <goals>
+        <goal>copy</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+....
+
+to
+
+[source,xml]
+....
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-dependency-plugin</artifactId>
+  <inherited>true</inherited>
+  <configuration>                
+    <artifactItems>
+      <artifactItem>
+        <groupId>my.new.connector.groupId</groupId>
+        <artifactId>my.new.connector.artifactId</artifactId>
+        <version>${my.new.connector.version}</version>
+      </artifactItem>
+    </artifactItems>
+  </configuration>
+  <executions>
+    <execution>
+      <id>set-bundles</id>
+      <phase>process-test-resources</phase>
+      <goals>
+        <goal>copy</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+....
+
+==== Run-time
+
+Connector bundles can be added or replaced at run-time by performing the following steps:
+
+. https://github.com/Tirasa/ConnId/#available-connectors[Download^] the required connector bundle
+JAR file;
+. Copy the downloaded JAR file into one of configured <<connid-locations>>, typically the
+`bundles` directory where the other connector bundles are already available.

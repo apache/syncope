@@ -92,3 +92,5 @@ include::propagation.adoc[]
 include::pull.adoc[]
 
 include::push.adoc[]
+
+include::passwordreset.adoc[]

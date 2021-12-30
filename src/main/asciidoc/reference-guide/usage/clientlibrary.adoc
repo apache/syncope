@@ -1,0 +1,243 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+=== Client Library
+
+The Java client library simplifies the interaction with the <<core>> by hiding the underlying HTTP
+communication details and providing native methods and payload objects.
+
+The library is available as a Maven artifact:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.client.idrepo</groupId>
+  <artifactId>syncope-client-idrepo-lib</artifactId>
+  <version>{docVersion}</version>
+</dependency>
+----
+
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+
+[WARNING]
+====
+Do not forget to add the following repository to your `pom.xml`:
+
+[source,xml]
+----
+<repository>
+  <id>ASF</id>
+  <url>https://repository.apache.org/content/repositories/snapshots/</url>
+  <snapshots>
+    <enabled>true</enabled>
+  </snapshots>
+</repository>
+----
+====
+
+endif::[]
+
+[discrete]
+===== Initialization
+
+First you need to build an instance of `SyncopeClientFactoryBean` by providing the deployment base URL, as follows:
+
+[source,java]
+----
+SyncopeClientFactoryBean clientFactory = new SyncopeClientFactoryBean().
+              setAddress("http://localhost:9080/syncope/rest/");
+----
+
+You might also select a specific <<domains,domain>> - other than `Master`, choose to exchange XML payloads - rather
+than JSON (default), to select 
+https://en.wikipedia.org/wiki/HTTP_compression[HTTP compression^] or to set the
+https://cxf.apache.org/javadoc/latest/org/apache/cxf/configuration/jsse/TLSClientParameters.html[TLS client configuration^]
+(more options in the
+https://syncope.apache.org/apidocs/3.0/org/apache/syncope/client/lib/SyncopeClientFactoryBean.html[Javadoc^]):
+
+[source,java]
+----
+TLSClientParameters tlsClientParameters = ...;
+SyncopeClientFactoryBean clientFactory = new SyncopeClientFactoryBean().
+              setAddress("http://localhost:9080/syncope/rest/").
+              setDomain("Two").
+              setContentType(SyncopeClientFactoryBean.ContentType.XML).
+              setUseCompression(true).
+              setTlsClientParameters(tlsClientParameters);
+----
+
+At this point an instance of `SyncopeClient` can be obtained by passing the login credentials via:
+
+[source,java]
+----
+SyncopeClient client = clientFactory.create("admin", "password");
+----
+
+Or you can combine into a single statement as:
+
+[source,java]
+----
+SyncopeClient client = new SyncopeClientFactoryBean().
+              setAddress("http://localhost:9080/syncope/rest/").
+              create("admin", "password");
+----
+
+[discrete]
+===== Examples
+
+Select one of the
+https://syncope.apache.org/apidocs/3.0/org/apache/syncope/common/rest/api/service/package-summary.html[RESTful services^]
+and invoke one of the available methods:
+
+[source,java]
+----
+LoggerService loggerService = client.getService(LoggerService.class);
+
+LoggerTO loggerTO = loggerService.read(LoggerType.LOG, "org.apache.syncope.core.connid");
+loggerTO.setLevel(LoggerLevel.DEBUG);
+
+loggerService.update(LoggerType.LOG, loggerTO);
+----
+
+[NOTE]
+More RESTful services could be available besides the 
+https://syncope.apache.org/apidocs/3.0/org/apache/syncope/common/rest/api/service/package-summary.html[default set^],
+as there might be <<extensions,extensions>> installed in the given deployment; the
+<<apache-camel-provisioning-manager>> provides the
+https://syncope.apache.org/apidocs/3.0/org/apache/syncope/common/rest/api/service/CamelRouteService.html[CamelRouteService^],
+for instance.
+
+[TIP]
+Advanced REST features are also available from `SyncopeClient` instances: check
+https://syncope.apache.org/apidocs/3.0/org/apache/syncope/client/lib/SyncopeClient.html[the javadoc^]
+for more information.
+
+.Search for Users, Groups or Any Objects
+====
+All search operations return
+https://syncope.apache.org/apidocs/3.0/org/apache/syncope/common/lib/to/PagedResult.html[paged result handlers^]
+which can be exploited both for getting the actual results and for extrapolating pagination coordinates.
+
+[source,java]
+----
+UserService userService = client.getService(UserService.class);
+
+int count = userService.search(new AnyQuery.Builder().page(0).size(0).build()).getTotalCount(); // <1>
+
+PagedResult<UserTO> matchingUsers = userService.search(
+    new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+    fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").
+    equalTo("ros*ini").query()).build()); // <2>
+
+PagedResult<UserTO> matchingUsers = userService.search(
+    new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+    fiql(SyncopeClient.getUserSearchConditionBuilder().isNull("loginDate").query()).
+    build()); // <3>
+
+PagedResult<UserTO> matchingUsers = userService.search(
+    new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+    fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles("Other").query()).
+    build()); // <4>
+
+AnyObjectService anyObjectService = client.getService(AnyObjectService.class);
+
+PagedResult<AnyObjectTO> matchingAnyObjects = anyObjectService.search(
+    new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+    fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").query()).
+    build()); // <5>
+
+GroupService groupService = client.getService(GroupService.class);
+
+PagedResult<GroupTO> matchingGroups = groupService.search(
+    new AnyQuery.Builder().realm("/even/two").page(3).size(150).
+    fiql(SyncopeClient.getGroupSearchConditionBuilder().isAssignable().
+        and("name").equalTo("palo*").query()).
+    build()); // <6>
+----
+<1> get the total number of users available in the given deployment (and <<domains,domain>>)
+<2> get users in the root realm with username matching the provided wildcard expression
+<3> get users in the root realm with no values for `loginDate`, i.e. that have never authenticated to the
+given deployment
+<4> get users in the root realm with <<roles,role>> `Other` assigned
+<5> get all any objects in the root realm with <<anytype,type>> `PRINTER`
+<6> get all groups that can be assigned to users or any objects in the `/even/two` realm - third page of the result,
+where each page contains 150 items
+====
+
+.Delete several users at once
+====
+[source,java]
+----
+BatchRequest batchRequest = client.batch(); // <1>
+
+UserService batchUserService = batchRequest.getService(UserService.class);
+
+final int pageSize = 100;
+final int count = userService.search(
+        new AnyQuery.Builder().page(0).size(0).build()).getTotalCount(); // <2>
+for (int page = 1; page <= (count / pageSize) + 1; page++) {
+    for (UserTO user : userService.search(
+            new AnyQuery.Builder().page(page).size(pageSize).build()).getResult()) {  // <3>  
+
+        batchUserService.delete(user.getKey()); // <4>
+    }       
+}       
+
+BatchResponse batchResponse = batchRequest.commit();  // <5>  
+List<BatchResponseItem> batchResponseItems = batchResponse.getItems(); // <6>
+----
+<1> begin the batch request
+<2> get the total number of users available in the given deployment (and <<domains,domain>>)
+<3> loop through all users available, using paginated search
+<4> add each user's deletion to the batch request
+<5> send the batch request for processing
+<6> examine the batch results
+====
+
+.Self-read own profile information
+====
+[source,java]
+----
+Triple<Map<String, Set<String>>, List<String>, UserTO> self = client.self();
+UserTO userTO = self.getRight(); // <1>
+Map<String, Set<String>> realm2entitlements = self.getLeft(); // <2>
+List<String> delegations = self.getMiddle(); // <3>
+----
+<1> https://syncope.apache.org/apidocs/3.0/org/apache/syncope/common/lib/to/UserTO.html[UserTO^] of the requesting user
+<2> for each <<realms,realm>>, the owned <<entitlements,entitlements>>
+<3> <<delegation,delegations>> assigned to the requesting user
+====
+
+.Change user status
+====
+[source,java]
+----
+String key = ...; // <1>
+StatusR statusR = new StatusR();
+statusR.setKey(key);
+statusR.setType(StatusRType.SUSPEND); // <2>
+UserTO userTO = userService.status(statusR).
+  readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+  }).getEntity(); // <3>
+----
+<1> assume the key of the user to be suspended is known in advance
+<2> `ACTIVATE`, `SUSPEND`, `REACTIVATE` values are accepted, and honoured depending on the actual status of the user
+being updated
+<3> request for user update and read back the updated entity
+====

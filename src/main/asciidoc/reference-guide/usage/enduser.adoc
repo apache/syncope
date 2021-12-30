@@ -1,0 +1,118 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Enduser Application
+Once the deployment is ready, the enduser application can be accessed at:
+
+....
+protocol://host:port/syncope-enduser/
+....
+
+where `protocol`, `host` and `port` reflect your deployment.
+
+The scope of the enduser application is primarily to provide a dedicated web-based entry-point for self-registration,
+self-service and <<password-reset,password reset>>.
+
+[.text-center]
+image::enduserLogin.png[enduser-login]
+
+[[enduser-accessibility]]
+==== Accessibility
+
+The End-user UI is accessible to the visually impaired.
+
+Two icons are present in the main page, in the right corner:
+
+[.text-center]
+image::accessibility-enduser01.png[title="Enduser accessibility icons",alt="Enduser accessibility icons"]
+
+By clicking the top right corner icon image:accessibility-icon01.png[Accessibility HC mode,30,30] it is possible to 
+toggle the "High contrast mode".
+In this mode, the website colors are switched to a higher contrast color schema.
+
+[TIP]
+====
+The `H` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
+be used to easily toggle "High contrast mode" by using the keyboard.
+
+E.g. 
+|===
+|Shortcut |Purpose
+
+|`Alt` + `Shift` + `H`
+|Toggle "High contrast mode" on Firefox and Chrome browsers on Linux
+|===
+
+====
+
+By clicking the second icon image:accessibility-icon02.png[Accessibility Increased Font mode,30,30] it is possible 
+to toggle the "Increased font mode".
+In this mode, the website font size is increased.
+
+[TIP]
+====
+The `F` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
+be used to easily toggle "Increased font mode" by using the keyboard.
+
+E.g. 
+|===
+|Shortcut |Purpose
+
+|`Alt` + `Shift` + `F`
+|Toggle "Increased font mode" on Firefox and Chrome browsers on Linux
+|===
+
+====
+
+To reset to the default mode, it is enough to click again on the specific icon.
+
+==== Pages
+
+[[enduser-home]]
+[discrete]
+===== Home
+
+The Home page provides a welcome page for logged-in users.
+
+image::enduserHome.png[enduser-home]
+
+[discrete]
+===== Personal Information
+
+image::enduserEditProfile.png[enduser-edit-profile]
+image::enduserChangePassword.png[enduser-change-password]
+image::enduserSecurityQuestion.png[enduser-security-question]
+
+[[enduser-user-requests]]
+[discrete]
+===== User Requests
+
+The images below refer to the printer assignment <<sample-user-request,sample>> and to the typical request management
+flow as explained <<request-management,above>>.
+
+image::enduser_userrequests_none.png[title="Initial situation: no active requests",alt="Initial situation: no active requests"]
+image::enduser_userrequests_start.png[title="Starting new request",alt="Starting new request"]
+image::enduser_userrequests_started.png[title="Filling request form",alt="Filling request form"]
+
+After submit, the request is ready to be <<console-user-requests,managed>> by the configured administrators.
+
+[[enduser-password-reset]]
+[discrete]
+===== Password Reset
+
+image::passwordreset.png[title="Password reset",alt="Password reset"]

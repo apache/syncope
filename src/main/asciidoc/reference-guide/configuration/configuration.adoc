@@ -1,0 +1,63 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+== Configuration
+
+[[properties-files-location]]
+.Where are the configuration files?
+****
+Depending on which Apache Syncope distribution you are running, the configuration files mentioned in the following
+text might reside in different locations.
+
+Standalone:: Assuming that `$CATALINA_HOME` is the Apache Tomcat base directory created when the distribution archive
+was unzipped, the configuration files are located under
+
+* `$CATALINA_HOME/webapps/syncope/WEB-INF/classes/`
+* `$CATALINA_HOME/webapps/syncope-console/WEB-INF/classes/`
+* `$CATALINA_HOME/webapps/syncope-enduser/WEB-INF/classes/`
+* `$CATALINA_HOME/webapps/syncope-wa/WEB-INF/classes/`
+
+Maven project:: Assuming that `$CONF_DIRECTORY` is the directory passed among
+<<deployment-directories,deployment directories>> at build time and that `$SOURCE` is the path where the Maven project
+was generated, the configuration files will be first searched in
+`$CONF_DIRECTORY`, then under the selected deployment's application classpath, according to the content of
+
+* `$SOURCE/core/target/classes/`
+* `$SOURCE/console/target/classes/`
+* `$SOURCE/enduser/target/classes/`
+* `$SOURCE/wa/target/classes/`
+* `$SOURCE/sra/target/classes/`
+****
+
+include::deployment.adoc[]
+
+include::dbms.adoc[]
+
+include::highavailability.adoc[]
+
+include::domainsmanagement.adoc[]
+
+include::connidlocations.adoc[]
+
+include::connectorbundles.adoc[]
+
+include::email.adoc[]
+
+include::jws.adoc[]
+
+include::configurationparameters.adoc[]

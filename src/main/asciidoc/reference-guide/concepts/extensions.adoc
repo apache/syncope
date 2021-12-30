@@ -100,9 +100,9 @@ the <<enduser-component>> or any other Java application dealing with the <<core>
 
 Once installed, one or more OpenID Providers can be created either from 
 the http://openid.net/specs/openid-connect-discovery-1_0.html[discovery document^] if it is supported or from inserting 
-manually the required attributes, in any case the client_id and the secret_id from the OAuth 2.0 credential and the issuer 
+manually the required attributes, in any case the `client_id` and the `client_secret` from the OAuth 2.0 credential and the issuer
 are required.
-After configuration the OpenID provider, the http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[Authorization Code Flow^]
+After configuring the OpenID provider, the http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[Authorization Code Flow^]
 is going to be implemented in order to reach the user information to be used by Syncope to match the internal users.
 
 
@@ -135,7 +135,7 @@ This extension supports Elasticsearch server versions starting from 7.x.
 
 [TIP]
 As search operations are central for different aspects of the <<provisioning,provisioning process>>, the global
-performances are expected to improve when using this extension.
+performance is expected to improve when using this extension.
 
 [NOTE]
 .Extension Sources

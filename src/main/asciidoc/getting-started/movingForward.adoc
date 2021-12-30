@@ -34,15 +34,18 @@ various security properties have been changed to values specific to your deploym
 
 The following values must be changed from the defaults in the `core.properties` file:
 
-* *adminPassword* - The cleartext password as encoded per the `adminPasswordAlgorithm` value (SSHA256 by default), the
+* *adminPassword* - The cleartext password as encoded per the `adminPasswordAlgorithm` value (`SSHA256` by default), the
 default value of which is "password".
-* *secretKey* - The secret key value used for AES ciphering. Only required if either:
-** the value for "*adminPasswordAlgorithm*" is "AES" or
-** the configuration parameter "password.cipher.algorithm" is changed to "AES" (See section 4.6.14 "Configuration
-Parameters" of the Reference Guide for more information).
+* *secretKey* - The secret key value used for AES ciphering; AES is used by the use cases below:
+  ** if the value for `adminPasswordAlgorithm` is `AES` or the configuration parameter `password.cipher.algorithm` is
+changed to `AES`
+  ** if set for Encrypted Plain Schema instances
+  ** for Linked Accounts' password values
+  ** to securely store Access Token's cached authorities
+  ** within some of the predefined rules used by Password Policies
 * *anonymousKey* - The key value to use for anonymous requests.
 * *jwsKey* - The symmetric signing key used to sign access tokens. See section 4.4.1 "REST Authentication and 
 Authorization" of the Reference Guide for more information.
 
-Note that if you installed Syncope using either the maven archetype method, then you will have already
-supplied custom values for `secretKey`, `anonymousKey` and `jwsKey`.
+Note that if you installed Syncope using the maven archetype method, then you will have already supplied custom values
+for `secretKey`, `anonymousKey` and `jwsKey`.
