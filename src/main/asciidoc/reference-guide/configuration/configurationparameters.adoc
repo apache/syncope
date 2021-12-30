@@ -1,0 +1,77 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+=== Configuration Parameters
+
+Most run-time configuration options are available as parameters and can be tuned via the admin console:
+
+* `password.cipher.algorithm` - which cipher algorithm shall be used for encrypting password values; supported 
+algorithms include `SHA-1`, `SHA-256`, `SHA-512`, `AES`, `S-MD5`, `S-SHA-1`, `S-SHA-256`, `S-SHA-512` and `BCRYPT`;
+salting options are available in the `core.properties` file;
+[WARNING]
+The value of the `security.secretKey` property in the `core.properties` file is used for AES-based encryption / decryption.
+Besides password values, this is also used whenever reversible encryption is needed, throughout the whole system. +
+When the `secretKey` value has length less than 16, it is right-padded by random characters during startup, to reach
+such mininum value. +
+It is *strongly* recommended to provide a value long at least 16 characters, in order to avoid unexpected behaviors
+at runtime, expecially with high-availability. 
+* `jwt.lifetime.minutes` - validity of https://en.wikipedia.org/wiki/JSON_Web_Token[JSON Web Token^] values used for
+<<rest-authentication-and-authorization,authentication>> (in minutes);
+* `notificationjob.cronExpression` -
+http://www.quartz-scheduler.org/documentation/quartz-2.2.x/tutorials/crontrigger.html[cron^] expression describing how
+frequently the pending <<tasks-notification,notification tasks>> are processed: empty means disabled;
+[NOTE]
+Restarting the deployment is required when changing value for this parameter.
+* `notification.maxRetries` - how many times the delivery of a given notification should be attempted before giving up;
+[NOTE]
+Restarting the deployment is required when changing value for this parameter.
+* `token.length` - the length of the random tokens that can be generated as part of various <<workflow,workflow>>
+processes, including <<password-reset,password reset>>;
+* `token.expireTime` - the time after which the generated random tokens expire;
+* `selfRegistration.allowed` - whether self-registration (typically via the enduser application) is allowed;
+* `passwordReset.allowed` - whether the <<password-reset,password reset>> feature (typically via the enduser
+application) is allowed;
+* `passwordReset.securityQuestion` - whether the <<password-reset,password reset>> feature involves security questions;
+* `authentication.attributes` - the list of attributes whose values can be passed as login name for authentication,
+defaults to `username`; please note that the related <<plain,plain schemas>> must impose the unique constraint, for this
+mechanism to work properly;
+* `authentication.statuses` - the list of <<workflow,workflow>> statuses for which users are allowed to authenticate;
+[WARNING]
+Suspended Users are anyway not allowed to authenticate.
+* `log.lastlogindate` - whether the system updates the `lastLoginDate` field of users upon authentication;
+* `return.password.value` - whether the hashed password value shall be returned when reading users;
+* `connector.test.timeout` - timeout (in seconds) to check connector connection in <<Admin Console>>;
+`0` to skip any check;
+
+[NOTE]
+====
+This parameter is useful to avoid waiting for the default connector timeout, by setting a shorter value; 
+or to completely disable connector connection testing.
+====
+
+* `resource.test.timeout` - timeout (in seconds) to check resource connection in <<Admin Console>>;
+`0` to skip any check;
+
+[NOTE]
+====
+This parameter is useful to avoid waiting for the default resource timeout, by setting a shorter value; 
+or to completely disable resource connection testing.
+====
+
+Besides this default set, new configuration parameters can be defined to support <<customization,custom>> code.

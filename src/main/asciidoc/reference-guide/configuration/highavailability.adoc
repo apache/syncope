@@ -1,0 +1,79 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== High-Availability
+
+[discrete]
+===== OpenJPA
+
+When deploying multiple Syncope <<core>> instances with a single database or database cluster, it is of
+fundamental importance that the contained OpenJPA instances are correctly configured for
+http://openjpa.apache.org/builds/3.1.2/apache-openjpa/docs/ref_guide_event.html[remote event notification^]. +
+Such configuration, in fact, allows the OpenJPA data cache to remain synchronized when deployed in multiple JVMs, thus
+enforcing data consistency across all Syncope Core instances.
+
+The default configuration in `core.properties` is
+
+[source]
+....
+persistence.remoteCommitProvider=sjvm
+....
+
+which is suited for single JVM installations; with multiple instances, more options like as TCP or JMS are available;
+see the OpenJPA documentation for reference.
+
+[WARNING]
+====
+The http://openjpa.apache.org/builds/3.1.2/apache-openjpa/docs/ref_guide_event.html[OpenJPA documentation^]'s XML
+snippets refer to a different configuration style; for example, when used in `core.properties`, this:
+
+[source,xml]
+....
+<property name="openjpa.RemoteCommitProvider" value="tcp(Addresses=10.0.1.10;10.0.1.11)"/>
+....
+
+becomes:
+
+[source]
+....
+persistence.remoteCommitProvider=tcp(Addresses=10.0.1.10;10.0.1.11)
+....
+====
+
+[discrete]
+===== Quartz
+
+The http://www.quartz-scheduler.org[Quartz^] scheduler is largely used within <<core>> to schedule the execution
+of jobs, including <<tasks-pull,pull>>, <<tasks-push,push>>, <<tasks-notification,notification>> and 
+<<tasks-custom,custom>> tasks, and <<reportlets,reportlets>>.
+
+By default, Quartz is configured for
+http://www.quartz-scheduler.org/documentation/quartz-2.2.x/configuration/ConfigJDBCJobStoreClustering.html[clustering^],
+where each node is automatically handled via the underlying JDBC store, and all cluster nodes are equally selectable
+for processing jobs.
+
+There are deployment scenarios which might have different requirements: for example, there could be three Core nodes
+configured with OpenJPA remote commit provider (see above), where two of them are dedicated to serve REST requests,
+leaving the third for running Quartz jobs.
+
+In such cases, it is possible to prevent Quartz from running on a given node by setting the following parameter in
+`core.properties`:
+
+....
+provisioning.quartz.disableInstance=true
+....

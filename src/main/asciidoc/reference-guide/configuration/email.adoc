@@ -1,0 +1,86 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== E-mail Configuration
+
+The `core.properties` file holds the configuration options to enable the effective delivery of
+<<notifications,notification>> e-mails:
+
+* `provisioning.smtp.host` - the mail server host, typically an SMTP host;
+* `provisioning.smtp.port` - the mail server port;
+* `provisioning.smtp.username` - (optional) the username for the account at the mail host;
+* `provisioning.smtp.password` - (optional) the password for the account at the mail host;
+* `provisioning.smtp.protocol` - the message transport protocol: `smtp` (default) and `smtps` are supported;
+* `provisioning.smtp.defaultEncoding` - the default encoding to use for MIME messages;
+* `provisioning.smtp.debug` - when `true`, enable the debugging of email processing including the handshake, authentication, delivery
+ and disconnection; in order for this setting to be effective, it is also required to add the following elements to the
+`log4j2.xml` configuration file:
+[source,xml]
+<asyncLogger name="org.apache.syncope.core.provisioning.java.job.notification"
+             additivity="false" level="DEBUG">
+  <appender-ref ref="mainFile"/>
+  <appender-ref ref="main"/>
+</asyncLogger>
+<asyncLogger name="javax.mail" additivity="false" level="DEBUG">
+  <appender-ref ref="mainFile"/>
+  <appender-ref ref="main"/>
+</asyncLogger>
+* `provisioning.smtp.javamailProperties[provisioning.smtp.javamailProperties[mail.smtp.starttls.enable]]` - when `true`, enable the use of the `STARTTLS` command to switch the connection to a
+TLS-protected connection before issuing any login commands;
+* `provisioning.smtp.javamailProperties[provisioning.smtp.javamailProperties[mail.smtp.connectiontimeout]]` - the connection timeout value in milliseconds, to the mail host;
+
+All the https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html#properties[JavaMail(TM) properties^]
+are available for usage.
+
+.Basic configuration, no authentication
+====
+....
+provisioning.smtp.host=your.local.smtp.server
+provisioning.smtp.port=25
+provisioning.smtp.username=
+provisioning.smtp.password=
+provisioning.smtp.protocol=smtp
+provisioning.smtp.defaultEncoding=UTF-8
+provisioning.smtp.debug=false
+provisioning.smtp.javamailProperties[mail.smtp.connectiontimeout]=3000
+provisioning.smtp.javamailProperties[mail.smtp.starttls.enable]=false
+....
+====
+
+.STARTTLS configuration, with authentication
+====
+....
+provisioning.smtp.host=smtp.gmail.com
+provisioning.smtp.port=587
+provisioning.smtp.username=your_username@gmail.com
+provisioning.smtp.password=your_password
+provisioning.smtp.protocol=smtp
+provisioning.smtp.defaultEncoding=UTF-8
+provisioning.smtp.debug=false
+provisioning.smtp.javamailProperties[mail.smtp.connectiontimeout]=3000
+provisioning.smtp.javamailProperties[mail.smtp.starttls.enable]=true
+....
+====
+
+[NOTE]
+In order to make the changes to `core.properties` effective, the deployment needs to be restarted.
+
+[WARNING]
+Be sure to provide a sensible value for the `notificationjob.cronExpression` configuration parameter, otherwise
+the <<tasks-notification, notification tasks>> will not be triggered; see <<configuration-parameters, below>> for
+details.

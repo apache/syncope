@@ -1,0 +1,71 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== ConnId locations
+
+Core can be configured to use either local or remote <<connector-bundles,connector bundles>>:
+
+* *local* connector bundles are located somewhere in the same filesystem where Apache Syncope is deployed;
+* *remote* connector bundles are provided via Java or .NET
+https://connid.atlassian.net/wiki/display/BASE/Connector+Servers[connector server^].
+
+While local connector bundles feature an easy setup, remote connector bundles allow enhanced deployment scenarios and
+are particularly useful when it is needed to deal with architectural security constraints or when a connector bundle
+requires to run on a specific platform OS (say MS Windows) while Apache Syncope is deployed on another platform OS
+(say GNU/Linux).
+
+The `core.properties` file holds the configuration for defining which ConnId locations (either local or remote)
+will be considered.
+
+The format is quite straightforward:
+
+....
+provisioning.connIdLocation=location1,\
+location2,\
+...
+locationN
+....
+
+where each location is the string representation of an URI of the form `file:/path/to/directory/` for local locations,
+`connid://key@host:port` for remote non-SSL connector servers or finally `connids://key@host:port[?trustAllcerts=true]`
+for remote SSL connector servers, with optional flag to disable certificate check. +
+
+.Single local location
+====
+....
+provisioning.connIdLocation=file:/opt/syncope/bundles/
+....
+====
+
+.Single remote location
+====
+....
+provisioning.connIdLocation=connid://sampleKey@windows2008:4554
+....
+====
+
+.Multiple locations
+====
+....
+provisioning.connIdLocation=file:/opt/syncope/bundles/,\
+file:/var/tmp/bundles/,\
+connid://sampleKey@windows2008:4554,\
+connids://anotherKey@windows2008:4559,\
+connids://aThirdKey@linuxbox:9001?trustAllCerts=true
+....
+====

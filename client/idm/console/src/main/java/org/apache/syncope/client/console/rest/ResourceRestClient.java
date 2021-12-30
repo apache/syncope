@@ -93,7 +93,7 @@ public class ResourceRestClient extends BaseRestClient {
         return null;
     }
 
-    public Pair<String, List<ConnObjectTO>> searchConnObjects(
+    public static Pair<String, List<ConnObjectTO>> searchConnObjects(
             final String resource,
             final String anyTypeKey,
             final ConnObjectTOQuery.Builder queryBuilder,

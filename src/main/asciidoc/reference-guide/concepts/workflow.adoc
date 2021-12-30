@@ -168,7 +168,8 @@ http://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Mo
 [source,xml]
 ----
 <userTask id="createApproval" name="Create approval"
-          flowable:candidateGroups="managingDirector" flowable:formKey="createApproval"> // <1>
+          flowable:candidateGroups="managingDirector"
+          flowable:formKey="createApproval"> // <1>
   <extensionElements>
     <flowable:formProperty id="username" name="Username" type="string"
                            expression="${userTO.username}" writable="false"/> // <2>

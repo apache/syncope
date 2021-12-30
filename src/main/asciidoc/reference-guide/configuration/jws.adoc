@@ -1,0 +1,78 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Control JWT signature
+
+As explained <<rest-authentication-and-authorization,above>>, the REST authentication process generates, in case of
+success, a unique signed JWT (JSON Web Token). +
+Such JWT values are signed by Apache Syncope according to the https://tools.ietf.org/html/rfc7515[JWS^]
+(JSON Web Signature) specification.
+
+[[jws-hmac]]
+==== Hash-based Message Authentication Code
+
+This is the default configuration, where Core and clients posses a shared secret, configured under `core.properties`
+as the `jwsKey` property value.
+
+.Default JWS configuration
+====
+[source,properties]
+----
+security.jwsAlgorithm=HS512 // <1>
+security.jwsKey=ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f // <2>
+----
+<1> Valid values are `HS256`, `HS384` and `HS512`
+<2> Any alphanumeric value satisfying the https://tools.ietf.org/html/rfc7518#section-3.2[length requirement^] can be
+used
+====
+
+
+[[jws-rsa]]
+==== RSA Public-Key Cryptography
+
+This configuration requires to specify a key pair: the former key value, said _private_, must be kept secret for internal
+Core usage while the latter key value, said _public_, is to be shared with clients.
+
+The commands below will generate the required key pair via OpenSSL and format their values for usage with
+`core.properties`:
+
+[source,bash]
+----
+$ openssl genrsa -out private_key.pem 2048
+$ openssl pkcs8 -topk8 -in private_key.pem -inform pem -out jws.privateKey -outform pem -nocrypt
+$ openssl rsa -pubout -in private_key.pem -out jws.publicKey
+$ echo `sed '1d;$d' jws.privateKey | awk '{printf "%s", $0}'`:`sed '1d;$d' jws.publicKey | awk '{printf "%s", $0}'`
+----
+
+.JWS configuration with RSA PKCS#1
+====
+[source,properties]
+----
+security.jwsAlgorithm=RS512 // <1>
+security.jwsKey=MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCdXTaAPRoIAvWjm5MskNtcGakkME4HEhZ8oQ2J8XNU29ZT7Qq5TP769/O8OH5Pb56mPULswYSocycrAARPzjAKpxr+YN7w2/zo5MsBRZsASgpCxnCeYLCWtJzmzY/YYlAHdsu3jj/4wuAcYozR1xE5e2gEj0BQ6Xz7NELhceEZpbXIeKSDolLdCKrVZ1vdD0q/HdjY2qeBACqeG8yYXsj2MiAMJY6df80ZCqpHkcD9mhfzqUo5EcWCD7XzcOJQRNUKkBEObemq//tt5NHFbWnBeGeTJBcyXV7Uqqbjnd6hwBBS1d6usAagGQ4RWDHPBMk02BdEFyrZjgJXM1C1iU/9AgMBAAECggEBAJpbnaNKzCcBqCuU5ld3vARqk1QRIeijoHUdkWc29TdO8LygLr22vgI1h9qf255V0dwlCWmtJVAKrGfse05A5TT912egY+8FCt7z1gFoYnN1LP11I3DnTTB299UZ3DiXrwKzT368xRlhJm4RaSpIePfWiiC215LGhTbve48iongBXzkpzFYe1SCV1FmNl5Px6FE3C9GcTrFpe+rqVcIVrTLZ95+JDF4/YLgTRccW8V/YO+4OtqUo+vt8tckDGhrHrfwgTo53kxDQttecB4AryDg1eUe8vPMx1+yJz8VFwx0yaUa5fqEYlxPehRQiVJi0+YMosRqKtcm1mLxoGcwSyo0CgYEAynhB/FM9DnARwg/PsE/AuXVpXlxPU5F+shpYX2sF3rItTD4EWFr/glo26LT/MLw2ckNkLT11yAWdR8hAzVZ48Ly3Ur8Fi88iInLPEixunBIsPcR3dI2UoI9dswnTM+H/Z83yQ16VWGjtE3437LWSXBHEw/am9W9pArEunt3TQz8CgYEAxvgS7BAokIqASi0zBpmyogRVHGs0eC3mMWLG+t5VXJ5M1z1pV9dOuInnI29wJqBscefueOPcT6mNJngW/kHlcGGOxij+hRUnAdVltTod4CJ3Q/IyM6h/FzunEeumZyZ1BW3G5KTcpegcBquUW6impyJbnUvKV4p9rpLTEBooKcMCgYEAhB1skUWPdbhTHhpLH3UrANlIZDY/3Pv3fCgMulaPgf0p6bIeC7l1OI29fqN8UUS/Elg/KfYMwPRI6OoWvuZKDGxYAzp6V/xU/b2EuQsdMeH51GQ6vmcUMKDcN1OV6SjzC70q9CLnuMTezfVycJcaZdGCX4y27ThBgWw0S53bmOkCgYAdCHfiYF068irUKBJJBUZuo8kzk2UdoDz1ud8lHipAkIzP35MukSlYfi7vGcS4rjIE0P4YP8+XBDungGCCi2UKaAHoYnT5QGPnvZbQwgE4Am96x62RoiWhYz/2uncWmCL9Ps6F8JSN1Pe59XF5int+6eGKa1PEQF4kiiIoOFjh9wKBgG6XXGl84fBaOaTsCPu+oQcAAp1GzweSy4l1Y1L71YvbxU1bs5338vgiH5OeUA4d5w0Ei9d/bSw0PWV4aACWWGGclLhzv8ia6bEWqt0TskUiUJVzgTXWp3ojpsP/QE36Ty+uWWqckBXv6dnEXEgrLqzbA6qTAohSSFjV4FAjxBxa:MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnV02gD0aCAL1o5uTLJDbXBmpJDBOBxIWfKENifFzVNvWU+0KuUz++vfzvDh+T2+epj1C7MGEqHMnKwAET84wCqca/mDe8Nv86OTLAUWbAEoKQsZwnmCwlrSc5s2P2GJQB3bLt44/+MLgHGKM0dcROXtoBI9AUOl8+zRC4XHhGaW1yHikg6JS3Qiq1Wdb3Q9Kvx3Y2NqngQAqnhvMmF7I9jIgDCWOnX/NGQqqR5HA/ZoX86lKORHFgg+183DiUETVCpARDm3pqv/7beTRxW1pwXhnkyQXMl1e1Kqm453eocAQUtXerrAGoBkOEVgxzwTJNNgXRBcq2Y4CVzNQtYlP/QIDAQAB // <2>
+----
+<1> Valid values are `RS256`, `RS384` and `RS512`
+<2> Value is obtained by the commands above; the public key value is the string after the `:` sign, e.g.
+```
+QB3bLt44/+MLgHGKM0dcROXtoBI9AUOl8+zRC4XHhGaW1yHikg6JS3Qiq1Wdb3Q9Kvx3Y2NqngQAqnhvMmF7I9jIgDCWOnX/NGQqqR5HA/ZoX86lKORHFgg+183DiUETVCpARDm3pqv/7beTRxW1pwXhnkyQXMl1e1Kqm453eocAQUtXerrAGoBkOEVgxzwTJNNgXRBcq2Y4CVzNQtYlP/QIDAQAB
+``` 
+====
+
+[TIP]
+Longer RSA keys offer stronger protection against cracking. The JWS specification suggests at least 2048 bits.
+Please consider that higher CPU usage is involved with longer keys.
