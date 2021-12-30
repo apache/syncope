@@ -34,7 +34,6 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -74,9 +73,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
     RedisRepositoriesAutoConfiguration.class
 })
 @EnableConfigurationProperties({ WAProperties.class, CasConfigurationProperties.class })
-@EnableAsync
-@EnableAspectJAutoProxy(proxyTargetClass = true)
-@EnableTransactionManagement(proxyTargetClass = true)
+@EnableAsync(proxyTargetClass = false)
+@EnableAspectJAutoProxy(proxyTargetClass = false)
+@EnableTransactionManagement(proxyTargetClass = false)
 @EnableScheduling
 public class SyncopeWAApplication extends SpringBootServletInitializer {
 
@@ -87,12 +86,6 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
             properties(Map.of("spring.config.name", "wa", "spring.cloud.bootstrap.name", "wa")).
             build().run(args);
     }
-
-    @Autowired
-    protected WAProperties waProperties;
-
-    @Autowired
-    protected SchedulerFactoryBean scheduler;
 
     @Override
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
@@ -108,10 +101,13 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
     @EventListener
     public void handleApplicationReadyEvent(final ApplicationReadyEvent event) {
         new CasConfigurationPropertiesValidator(event.getApplicationContext()).validate();
-        scheduleJobToRefreshContext();
+        final WAProperties waProperties = event.getApplicationContext().getBean(WAProperties.class);
+        final SchedulerFactoryBean scheduler = event.getApplicationContext().getBean(SchedulerFactoryBean.class);
+        scheduleJobToRefreshContext(waProperties, scheduler);
     }
 
-    protected void scheduleJobToRefreshContext() {
+    protected void scheduleJobToRefreshContext(final  WAProperties waProperties,
+                                               final SchedulerFactoryBean scheduler) {
         try {
             Date date = Date.from(LocalDateTime.now().plusSeconds(waProperties.getContextRefreshDelay()).
                     atZone(ZoneId.systemDefault()).toInstant());

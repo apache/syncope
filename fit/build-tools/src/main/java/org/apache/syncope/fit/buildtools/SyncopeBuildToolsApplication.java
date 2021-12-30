@@ -34,7 +34,6 @@ import org.apache.syncope.fit.buildtools.cxf.DateParamConverterProvider;
 import org.apache.syncope.fit.buildtools.cxf.GreenMailService;
 import org.apache.syncope.fit.buildtools.cxf.ProvisioningImpl;
 import org.apache.syncope.fit.buildtools.cxf.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -69,12 +68,6 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
     @Value("${testdb.password}")
     private String testDbPassword;
 
-    @Autowired
-    private Bus bus;
-
-    @Autowired
-    private ApplicationContext ctx;
-
     @Bean
     public DriverManagerDataSource testDataSource() {
         DriverManagerDataSource testDataSource = new DriverManagerDataSource(testDbUrl, testDbUsername, testDbPassword);
@@ -88,7 +81,8 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    public Endpoint soapProvisioning(final Provisioning provisioning) {
+    public Endpoint soapProvisioning(final Provisioning provisioning,
+                                     final Bus bus) {
         EndpointImpl soapProvisioning = new EndpointImpl(provisioning);
         soapProvisioning.setBus(bus);
         soapProvisioning.publish("/soap");
@@ -106,7 +100,8 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    public Server restProvisioning(final GreenMailService greenMailService, final UserService userService) {
+    public Server restProvisioning(final GreenMailService greenMailService, final UserService userService,
+                                   final ApplicationContext ctx, final Bus bus) {
         SpringJAXRSServerFactoryBean restProvisioning = new SpringJAXRSServerFactoryBean();
         restProvisioning.setApplicationContext(ctx);
         restProvisioning.setBus(bus);

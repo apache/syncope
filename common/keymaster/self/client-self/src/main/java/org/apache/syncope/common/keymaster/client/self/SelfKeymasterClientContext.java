@@ -56,13 +56,10 @@ public class SelfKeymasterClientContext {
         }
     }
 
-    @Autowired
-    private KeymasterProperties props;
-
     @Conditional(SelfKeymasterCondition.class)
     @Bean
     @ConditionalOnMissingBean(name = "selfKeymasterRESTClientFactoryBean")
-    public JAXRSClientFactoryBean selfKeymasterRESTClientFactoryBean() {
+    public JAXRSClientFactoryBean selfKeymasterRESTClientFactoryBean(final KeymasterProperties props) {
         JAXRSClientFactoryBean restClientFactoryBean = new JAXRSClientFactoryBean();
         restClientFactoryBean.setAddress(props.getAddress());
         restClientFactoryBean.setUsername(props.getUsername());
