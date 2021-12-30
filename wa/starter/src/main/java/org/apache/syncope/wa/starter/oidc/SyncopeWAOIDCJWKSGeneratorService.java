@@ -58,7 +58,7 @@ public class SyncopeWAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGen
     @Override
     public JsonWebKeySet store(final JsonWebKeySet jsonWebKeySet) throws Exception {
         if (!WARestClient.isReady()) {
-            throw new RuntimeException("Syncope core is not yet ready");
+            throw new IllegalStateException("Syncope core is not yet ready");
         }
         OIDCJWKSService service = waRestClient.getSyncopeClient().getService(OIDCJWKSService.class);
         OIDCJWKSTO to = new OIDCJWKSTO();
@@ -75,7 +75,7 @@ public class SyncopeWAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGen
     @Override
     public Resource generate() {
         if (!WARestClient.isReady()) {
-            throw new RuntimeException("Syncope core is not yet ready");
+            throw new IllegalStateException("Syncope core is not yet ready");
         }
 
         OIDCJWKSService service = waRestClient.getSyncopeClient().getService(OIDCJWKSService.class);
@@ -95,7 +95,7 @@ public class SyncopeWAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGen
             }
         }
         if (jwksTO == null) {
-            throw new RuntimeException("Unable to determine OIDC JWKS resource");
+            throw new IllegalStateException("Unable to determine OIDC JWKS resource");
         }
         return new ByteArrayResource(jwksTO.getJson().getBytes(StandardCharsets.UTF_8), "OIDC JWKS");
     }

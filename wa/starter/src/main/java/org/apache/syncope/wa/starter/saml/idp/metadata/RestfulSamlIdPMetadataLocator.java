@@ -20,10 +20,13 @@ package org.apache.syncope.wa.starter.saml.idp.metadata;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Optional;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.support.saml.idp.metadata.locator.AbstractSamlIdPMetadataLocator;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
@@ -31,10 +34,6 @@ import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument
 import org.apereo.cas.util.crypto.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Base64;
-import java.util.Optional;
-import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 
 public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
 
@@ -89,7 +88,7 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
             return null;
         } catch (Exception e) {
             if (e instanceof SyncopeClientException
-                && ((SyncopeClientException) e).getType() == ClientExceptionType.NotFound) {
+                    && ((SyncopeClientException) e).getType() == ClientExceptionType.NotFound) {
                 LOG.info(e.getMessage());
             } else {
                 if (LOG.isDebugEnabled()) {
@@ -125,7 +124,7 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
     private SyncopeClient getSyncopeClient() {
         if (!WARestClient.isReady()) {
             LOG.info("Syncope client is not yet ready");
-            throw new RuntimeException("Syncope core is not yet ready to access requests");
+            throw new IllegalStateException("Syncope core is not yet ready to access requests");
         }
         return restClient.getSyncopeClient();
     }
