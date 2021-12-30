@@ -19,7 +19,6 @@
 package org.apache.syncope.wa.starter.actuate;
 
 import org.apache.syncope.wa.bootstrap.WAProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.security.access.prepost.PreAuthorize;

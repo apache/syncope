@@ -33,7 +33,6 @@ import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -69,11 +68,11 @@ public class WebSecurityContext {
         return firewall;
     }
 
-
     @Bean
-    public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter(final ApplicationContext ctx,
-                                                                     final SecurityProperties securityProperties,
-                                                                     final HttpFirewall allowUrlEncodedSlashHttpFirewall) {
+    public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter(
+        final ApplicationContext ctx,
+        final SecurityProperties securityProperties,
+        final HttpFirewall allowUrlEncodedSlashHttpFirewall) {
         return new WebSecurityConfigurerAdapter(true) {
             @Override
             public void configure(final WebSecurity web) {

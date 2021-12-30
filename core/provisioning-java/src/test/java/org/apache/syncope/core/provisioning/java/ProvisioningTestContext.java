@@ -29,7 +29,6 @@ import org.apache.syncope.core.persistence.jpa.PersistenceContext;
 import org.apache.syncope.core.persistence.jpa.StartupDomainLoader;
 import org.apache.syncope.core.spring.security.SecurityContext;
 import org.apache.syncope.core.workflow.java.WorkflowContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

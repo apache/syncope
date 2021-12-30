@@ -75,7 +75,8 @@ public class FlowableWorkflowContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SpringIdmEngineConfigurator syncopeIdmEngineConfigurator(final SpringIdmEngineConfiguration syncopeIdmEngineConfiguration) {
+    public SpringIdmEngineConfigurator syncopeIdmEngineConfigurator(
+        final SpringIdmEngineConfiguration syncopeIdmEngineConfiguration) {
         SpringIdmEngineConfigurator configurator = new SpringIdmEngineConfigurator();
         configurator.setIdmEngineConfiguration(syncopeIdmEngineConfiguration);
         return configurator;
