@@ -85,19 +85,21 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
     @Override
     public Pair<String, String> buildSelfSignedEncryptionCert(final Optional<SamlRegisteredService> registeredService)
         throws Exception {
+
         return generateCertificateAndKey();
     }
 
     @Override
     public Pair<String, String> buildSelfSignedSigningCert(final Optional<SamlRegisteredService> registeredService)
         throws Exception {
+
         return generateCertificateAndKey();
     }
 
     private SyncopeClient getSyncopeClient() {
         if (!WARestClient.isReady()) {
             LOG.info("Syncope client is not yet ready");
-            throw new RuntimeException("Syncope core is not yet ready to access requests");
+            throw new IllegalStateException("Syncope core is not yet ready to access requests");
         }
         return restClient.getSyncopeClient();
     }

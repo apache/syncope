@@ -64,7 +64,7 @@ public class SyncopeWASurrogateAuthenticationService implements SurrogateAuthent
 
     private ImpersonationService getImpersonationService() {
         if (!WARestClient.isReady()) {
-            throw new RuntimeException("Syncope core is not yet ready");
+            throw new IllegalStateException("Syncope core is not yet ready");
         }
         return waRestClient.getSyncopeClient().getService(ImpersonationService.class);
     }
