@@ -52,7 +52,7 @@ public class SyncopeWARefreshContextJob implements Job {
             LOG.debug("Attempting to refresh WA application context");
             if (!WARestClient.isReady()) {
                 LOG.debug("Syncope client is not yet ready");
-                throw new RuntimeException("Syncope core is not yet ready to access requests");
+                throw new IllegalStateException("Syncope core is not yet ready to access requests");
             }
             contextRefresher.refresh();
             LOG.info("Refreshed application context to bootstrap property sources, etc...");
@@ -62,8 +62,7 @@ public class SyncopeWARefreshContextJob implements Job {
             LOG.info("Generated SAML2 IdP metadata for {}", document.getAppliesTo());
 
             advertiseReady();
-
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             throw new JobExecutionException("While generating SAML2 IdP metadata", e);
         }
     }
