@@ -30,7 +30,6 @@ import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.spring.security.DefaultPasswordGenerator;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -41,7 +40,7 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 
 @Import(PersistenceContext.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class PersistenceTestContext {
 
     @Bean
@@ -76,7 +75,6 @@ public class PersistenceTestContext {
     }
 
     @Bean
-    @Autowired
     public TestInitializer testInitializer(
             final StartupDomainLoader domainLoader,
             final DomainHolder domainHolder,
@@ -107,7 +105,6 @@ public class PersistenceTestContext {
     }
 
     @Bean
-    @Autowired
     public DomainOps domainOps(final DomainRegistry domainRegistry) {
         return new DummyDomainOps(domainRegistry);
     }

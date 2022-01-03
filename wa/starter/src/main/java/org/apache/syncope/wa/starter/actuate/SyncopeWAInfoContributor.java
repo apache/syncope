@@ -19,15 +19,17 @@
 package org.apache.syncope.wa.starter.actuate;
 
 import org.apache.syncope.wa.bootstrap.WAProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 public class SyncopeWAInfoContributor implements InfoContributor {
 
-    @Autowired
-    protected WAProperties waProperties;
+    protected final WAProperties waProperties;
+
+    public SyncopeWAInfoContributor(final WAProperties waProperties) {
+        this.waProperties = waProperties;
+    }
 
     @PreAuthorize("isAuthenticated()")
     @Override

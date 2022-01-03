@@ -40,7 +40,8 @@ import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -56,11 +57,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrations;
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
@@ -76,14 +79,8 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import reactor.core.publisher.Mono;
 
 @EnableWebFluxSecurity
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SecurityConfig {
-
-    @Autowired
-    private ResourcePatternResolver resourceResolver;
-
-    @Autowired
-    private SRAProperties props;
 
     @Bean
     @Order(0)
@@ -109,7 +106,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public MapReactiveUserDetailsService userDetailsService() {
+    public ReactiveUserDetailsService userDetailsService(final SRAProperties props) {
         UserDetails user = User.builder().
                 username(props.getAnonymousUser()).
                 password("{noop}" + props.getAnonymousKey()).
@@ -120,20 +117,26 @@ public class SecurityConfig {
 
     @Bean
     @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OIDC")
-    public InMemoryReactiveClientRegistrationRepository oidcClientRegistrationRepository() {
-        return new InMemoryReactiveClientRegistrationRepository(
-                ClientRegistrations.fromOidcIssuerLocation(props.getOidc().getConfiguration()).
-                        registrationId(SRAProperties.AMType.OIDC.name()).
-                        clientId(props.getOidc().getClientId()).
-                        clientSecret(props.getOidc().getClientSecret()).
-                        scope(props.getOidc().getScopes().toArray(new String[0])).
-                        build());
+    public ClientRegistration oidcClientRegistration(final SRAProperties props) {
+        return ClientRegistrations.fromOidcIssuerLocation(props.getOidc().getConfiguration()).
+            registrationId(SRAProperties.AMType.OIDC.name()).
+            clientId(props.getOidc().getClientId()).
+            clientSecret(props.getOidc().getClientSecret()).
+            scope(props.getOidc().getScopes().toArray(new String[0])).
+            build();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OIDC")
+    public ReactiveClientRegistrationRepository oidcClientRegistrationRepository(
+        @Qualifier("oidcClientRegistration") final ClientRegistration oidcClientRegistration) {
+        return new InMemoryReactiveClientRegistrationRepository(oidcClientRegistration);
     }
 
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OIDC")
-    public OAuth2TokenValidator<Jwt> oidcJWTValidator() {
+    public OAuth2TokenValidator<Jwt> oidcJWTValidator(final SRAProperties props) {
         return JwtValidators.createDefaultWithIssuer(props.getOidc().getConfiguration());
     }
 
@@ -146,39 +149,51 @@ public class SecurityConfig {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OIDC")
-    public ReactiveJwtDecoder oidcJWTDecoder() {
-        String jwkSetUri = oidcClientRegistrationRepository().iterator().next().getProviderDetails().getJwkSetUri();
+    public ReactiveJwtDecoder oidcJWTDecoder(
+        @Qualifier("oidcClientRegistration")
+        final ClientRegistration oidcClientRegistration,
+        @Qualifier("oidcJWTValidator")
+        final OAuth2TokenValidator<Jwt> oidcJWTValidator,
+        @Qualifier("jwtClaimSetConverter")
+        final Converter<Map<String, Object>, Map<String, Object>> jwtClaimSetConverter) {
+        String jwkSetUri = oidcClientRegistration.getProviderDetails().getJwkSetUri();
         NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri)
             .jwsAlgorithm(SignatureAlgorithm.RS256)
             .jwsAlgorithm(SignatureAlgorithm.RS512)
             .build();
-        jwtDecoder.setJwtValidator(oidcJWTValidator());
-        jwtDecoder.setClaimSetConverter(jwtClaimSetConverter());
+        jwtDecoder.setJwtValidator(oidcJWTValidator);
+        jwtDecoder.setClaimSetConverter(jwtClaimSetConverter);
         return jwtDecoder;
     }
 
     @Bean
     @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OAUTH2")
-    public InMemoryReactiveClientRegistrationRepository oauth2ClientRegistrationRepository() {
-        return new InMemoryReactiveClientRegistrationRepository(
-                ClientRegistration.withRegistrationId(SRAProperties.AMType.OAUTH2.name()).
-                        redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}").
-                        tokenUri(props.getOauth2().getTokenUri()).
-                        authorizationUri(props.getOauth2().getAuthorizationUri()).
-                        userInfoUri(props.getOauth2().getUserInfoUri()).
-                        userNameAttributeName(props.getOauth2().getUserNameAttributeName()).
-                        clientId(props.getOauth2().getClientId()).
-                        clientSecret(props.getOauth2().getClientSecret()).
-                        scope(props.getOauth2().getScopes().toArray(new String[0])).
-                        authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).
-                        jwkSetUri(props.getOauth2().getJwkSetUri()).
-                        build());
+    public ClientRegistration oauth2ClientRegistration(final SRAProperties props) {
+        return ClientRegistration.withRegistrationId(SRAProperties.AMType.OAUTH2.name()).
+            redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}").
+            tokenUri(props.getOauth2().getTokenUri()).
+            authorizationUri(props.getOauth2().getAuthorizationUri()).
+            userInfoUri(props.getOauth2().getUserInfoUri()).
+            userNameAttributeName(props.getOauth2().getUserNameAttributeName()).
+            clientId(props.getOauth2().getClientId()).
+            clientSecret(props.getOauth2().getClientSecret()).
+            scope(props.getOauth2().getScopes().toArray(new String[0])).
+            authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).
+            jwkSetUri(props.getOauth2().getJwkSetUri()).
+            build();
+    }
+    
+    @Bean
+    @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OAUTH2")
+    public ReactiveClientRegistrationRepository oauth2ClientRegistrationRepository(
+        @Qualifier("oauth2ClientRegistration") final ClientRegistration oauth2ClientRegistration) {
+        return new InMemoryReactiveClientRegistrationRepository(oauth2ClientRegistration);
     }
 
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OAUTH2")
-    public OAuth2TokenValidator<Jwt> oauth2JWTValidator() {
+    public OAuth2TokenValidator<Jwt> oauth2JWTValidator(final SRAProperties props) {
         return props.getOauth2().getIssuer() == null
                 ? JwtValidators.createDefault()
                 : JwtValidators.createDefaultWithIssuer(props.getOauth2().getIssuer());
@@ -187,8 +202,15 @@ public class SecurityConfig {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "OAUTH2")
-    public ReactiveJwtDecoder oauth2JWTDecoder() {
-        String jwkSetUri = oauth2ClientRegistrationRepository().iterator().next().getProviderDetails().getJwkSetUri();
+    public ReactiveJwtDecoder oauth2JWTDecoder(
+        @Qualifier("oauth2ClientRegistration")
+        final ClientRegistration oauth2ClientRegistration,
+        @Qualifier("oauth2JWTValidator")
+        final OAuth2TokenValidator<Jwt> oauth2JWTValidator,
+        @Qualifier("jwtClaimSetConverter")
+        final Converter<Map<String, Object>, Map<String, Object>> jwtClaimSetConverter) {
+
+        String jwkSetUri = oauth2ClientRegistration.getProviderDetails().getJwkSetUri();
         NimbusReactiveJwtDecoder jwtDecoder;
         if (StringUtils.isBlank(jwkSetUri)) {
             jwtDecoder = new NimbusReactiveJwtDecoder(jwt -> {
@@ -201,15 +223,16 @@ public class SecurityConfig {
         } else {
             jwtDecoder = NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).build();
         }
-        jwtDecoder.setJwtValidator(oauth2JWTValidator());
-        jwtDecoder.setClaimSetConverter(jwtClaimSetConverter());
+        jwtDecoder.setJwtValidator(oauth2JWTValidator);
+        jwtDecoder.setClaimSetConverter(jwtClaimSetConverter);
         return jwtDecoder;
     }
 
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "SAML2")
-    public SAML2Client saml2Client() {
+    public SAML2Client saml2Client(final ResourcePatternResolver resourceResolver,
+                              final SRAProperties props) {
         SAML2Configuration cfg = new SAML2Configuration(
                 resourceResolver.getResource(props.getSaml2().getKeystore()),
                 props.getSaml2().getKeystoreStorePass(),
@@ -265,6 +288,8 @@ public class SecurityConfig {
     @Order(2)
     @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE)
     public SecurityWebFilterChain routesSecurityFilterChain(
+            @Qualifier("saml2Client") final ObjectProvider<SAML2Client> saml2Client,
+            final SRAProperties props,
             final ServerHttpSecurity http,
             final CacheManager cacheManager,
             final LogoutRouteMatcher logoutRouteMatcher,
@@ -285,9 +310,10 @@ public class SecurityConfig {
                 break;
 
             case SAML2:
-                SAML2Client saml2Client = saml2Client();
-                SAML2SecurityConfigUtils.forLogin(http, saml2Client, publicRouteMatcher);
-                SAML2SecurityConfigUtils.forLogout(builder, saml2Client, cacheManager, logoutRouteMatcher, ctx);
+                saml2Client.ifAvailable(client -> {
+                    SAML2SecurityConfigUtils.forLogin(http, client, publicRouteMatcher);
+                    SAML2SecurityConfigUtils.forLogout(builder, client, cacheManager, logoutRouteMatcher, ctx);
+                });
                 break;
 
             case CAS:

@@ -63,7 +63,7 @@ under the License.
       <appender-ref ref="main"/>
     </asyncLogger>
 
-    <asyncLogger name="org.apache.cxf" additivity="false" level="ERROR">
+    <asyncLogger name="org.apache.cxf" additivity="false" level="DEBUG">
       <appender-ref ref="main"/>
     </asyncLogger>
 

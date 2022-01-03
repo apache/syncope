@@ -31,7 +31,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableCaching
 @EnableSpringWebSession
 public class SessionConfig {

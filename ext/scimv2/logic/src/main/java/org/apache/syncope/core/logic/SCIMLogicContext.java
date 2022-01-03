@@ -22,12 +22,11 @@ import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.logic.init.SCIMLoader;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SCIMLogicContext {
 
     @ConditionalOnMissingBean
@@ -38,14 +37,12 @@ public class SCIMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SCIMConfManager scimConfManager(final ConfParamOps confParamOps, final SchemaLogic schemaLogic) {
         return new SCIMConfManager(confParamOps, schemaLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SCIMDataBinder scimDataBinder(
             final SCIMConfManager confManager,
             final UserLogic userLogic,
@@ -56,7 +53,6 @@ public class SCIMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SCIMLogic scimLogic(final SCIMConfManager confManager) {
         return new SCIMLogic(confManager);
     }

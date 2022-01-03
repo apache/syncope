@@ -29,17 +29,17 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.flowable.engine.delegate.DelegateExecution;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class CreateARelationship extends FlowableServiceTask {
 
-    @Autowired
-    private UserDataBinder dataBinder;
+    private final UserDataBinder dataBinder;
 
-    @Autowired
-    private UserDAO userDAO;
+    private final UserDAO userDAO;
+
+    public CreateARelationship(final UserDataBinder dataBinder, final UserDAO userDAO) {
+        this.dataBinder = dataBinder;
+        this.userDAO = userDAO;
+    }
 
     @Override
     protected void doExecute(final DelegateExecution execution) {

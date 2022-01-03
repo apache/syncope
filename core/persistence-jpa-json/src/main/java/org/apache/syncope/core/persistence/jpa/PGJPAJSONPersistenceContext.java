@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONAuditConfDAO;
 import org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONPlainSchemaDAO;
 import org.apache.syncope.core.persistence.jpa.entity.PGJPAJSONEntityFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -53,14 +52,12 @@ public class PGJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
 
     @ConditionalOnMissingBean(name = "pgJPAJSONAnyDAO")
     @Bean
-    @Autowired
     public JPAJSONAnyDAO anyDAO(final @Lazy PlainSchemaDAO plainSchemaDAO) {
         return new PGJPAJSONAnyDAO(plainSchemaDAO);
     }
 
     @ConditionalOnMissingBean(name = "pgJPAJSONAnySearchDAO")
     @Bean
-    @Autowired
     public AnySearchDAO anySearchDAO(
             final @Lazy RealmDAO realmDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
@@ -90,7 +87,6 @@ public class PGJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
 
     @ConditionalOnMissingBean(name = "pgJPAJSONPlainSchemaDAO")
     @Bean
-    @Autowired
     public PlainSchemaDAO plainSchemaDAO(
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainAttrDAO plainAttrDAO,

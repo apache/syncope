@@ -18,7 +18,7 @@ name: "FIT WA SRA CASClient"
 
 on:
   push:
-    branches: [master]
+    branches: ['master', 'pr-*']
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [master]
@@ -43,5 +43,7 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
+#    - name: Setup tmate session
+#      uses: mxschmitt/action-tmate@v3
     - name: 'WA / SRA / CAS Client'
       run: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.sra.CASSRAITCase

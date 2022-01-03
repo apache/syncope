@@ -35,7 +35,6 @@ import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.server.auth.DigestLoginModule;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -46,7 +45,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 @EnableConfigurationProperties(KeymasterProperties.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class ZookeeperKeymasterClientContext {
 
     private static final Pattern IPV4 = Pattern.compile(
@@ -63,12 +62,9 @@ public class ZookeeperKeymasterClientContext {
         }
     }
 
-    @Autowired
-    private KeymasterProperties props;
-
     @Conditional(ZookeeperCondition.class)
     @Bean
-    public CuratorFramework curatorFramework() throws InterruptedException {
+    public CuratorFramework curatorFramework(final KeymasterProperties props) throws InterruptedException {
         if (StringUtils.isNotBlank(props.getUsername()) && StringUtils.isNotBlank(props.getPassword())) {
             javax.security.auth.login.Configuration.setConfiguration(new javax.security.auth.login.Configuration() {
 
@@ -115,8 +111,8 @@ public class ZookeeperKeymasterClientContext {
 
     @Conditional(ZookeeperCondition.class)
     @Bean
-    public ConfParamOps selfConfParamOps() {
-        return new ZookeeperConfParamOps();
+    public ConfParamOps selfConfParamOps(final CuratorFramework client) {
+        return new ZookeeperConfParamOps(client);
     }
 
     @Conditional(ZookeeperCondition.class)

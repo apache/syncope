@@ -31,7 +31,6 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -39,14 +38,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
 @EnableConfigurationProperties(SAML2SP4UIProperties.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SAML2SP4UILogicContext {
-
-    @Autowired
-    private SAML2SP4UIProperties props;
-
-    @Autowired
-    private SAML2SP4UIIdPDAO idpDAO;
 
     @ConditionalOnMissingBean
     @Bean
@@ -56,15 +49,15 @@ public class SAML2SP4UILogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public SAML2SP4UILoader saml2SP4UILoader(final ResourcePatternResolver resourceResolver) {
+    public SAML2SP4UILoader saml2SP4UILoader(final ResourcePatternResolver resourceResolver,
+                                             final SAML2SP4UIProperties props) {
         return new SAML2SP4UILoader(props, resourceResolver);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SAML2SP4UIIdPLogic saml2SP4UIIdPLogic(
+            final SAML2SP4UIIdPDAO idpDAO,
             final SAML2ClientCache saml2ClientCache,
             final SAML2SP4UILoader loader,
             final SAML2SP4UIIdPDataBinder binder) {
@@ -74,8 +67,8 @@ public class SAML2SP4UILogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SAML2SP4UIUserManager saml2SP4UIUserManager(
+            final SAML2SP4UIIdPDAO idpDAO,
             final InboundMatcher inboundMatcher,
             final UserDAO userDAO,
             final IntAttrNameParser intAttrNameParser,
@@ -95,8 +88,8 @@ public class SAML2SP4UILogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SAML2SP4UILogic saml2SP4UILogic(
+            final SAML2SP4UIIdPDAO idpDAO,
             final SAML2ClientCache saml2ClientCache,
             final SAML2SP4UILoader loader,
             final AccessTokenDataBinder accessTokenDataBinder,

@@ -31,7 +31,6 @@ import org.apache.syncope.core.persistence.jpa.StartupDomainLoader;
 import org.apache.syncope.core.provisioning.java.ProvisioningContext;
 import org.apache.syncope.core.spring.security.SecurityContext;
 import org.apache.syncope.core.workflow.java.WorkflowContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,11 +40,10 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:core-test.properties")
 @Import({ IdRepoLogicContext.class, IdMLogicContext.class, SecurityContext.class,
     PersistenceContext.class, MasterDomain.class, ProvisioningContext.class, WorkflowContext.class })
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class IdMLogicTestContext {
 
     @Bean
-    @Autowired
     public TestInitializer testInitializer(
             final StartupDomainLoader domainLoader,
             final DomainHolder domainHolder,
@@ -66,7 +64,6 @@ public class IdMLogicTestContext {
     }
 
     @Bean
-    @Autowired
     public DomainOps domainOps(final DomainRegistry domainRegistry) {
         return new DummyDomainOps(domainRegistry);
     }

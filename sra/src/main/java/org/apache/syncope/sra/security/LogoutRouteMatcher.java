@@ -21,9 +21,7 @@ package org.apache.syncope.sra.security;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.springframework.cloud.gateway.route.Route;
-import org.springframework.stereotype.Component;
 
-@Component
 public class LogoutRouteMatcher extends AbstractRouteMatcher {
 
     private static final String CACHE_NAME = LogoutRouteMatcher.class.getName();

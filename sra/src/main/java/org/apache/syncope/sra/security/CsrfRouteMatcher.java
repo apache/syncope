@@ -21,15 +21,12 @@ package org.apache.syncope.sra.security;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.syncope.common.lib.to.SRARouteTO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-@Component
 public class CsrfRouteMatcher extends AbstractRouteMatcher {
 
     private static final String CACHE_NAME = CsrfRouteMatcher.class.getName();
@@ -41,8 +38,11 @@ public class CsrfRouteMatcher extends AbstractRouteMatcher {
         CACHE.put(CACHE_NAME, new ConcurrentHashMap<>());
     }
 
-    @Autowired
-    private PublicRouteMatcher publicRouteMatcher;
+    private final PublicRouteMatcher publicRouteMatcher;
+
+    public CsrfRouteMatcher(final PublicRouteMatcher publicRouteMatcher) {
+        this.publicRouteMatcher = publicRouteMatcher;
+    }
 
     @Override
     protected String getCacheName() {

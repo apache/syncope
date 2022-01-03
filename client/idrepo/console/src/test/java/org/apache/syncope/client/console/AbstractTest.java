@@ -85,7 +85,7 @@ import org.springframework.context.annotation.Configuration;
 public abstract class AbstractTest {
 
     @ImportAutoConfiguration
-    @Configuration
+    @Configuration(proxyBeanMethods = false)
     public static class SyncopeConsoleWebApplicationTestConfig {
 
         @Bean

@@ -50,7 +50,7 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
     @Override
     protected SamlIdPMetadataDocument finalizeMetadataDocument(
             final SamlIdPMetadataDocument doc,
-            final Optional<SamlRegisteredService> registeredService) {
+            final Optional<SamlRegisteredService> registeredService) throws Exception {
 
         LOG.info("Generating new SAML2 IdP metadata document");
 
@@ -84,14 +84,14 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
 
     @Override
     public Pair<String, String> buildSelfSignedEncryptionCert(final Optional<SamlRegisteredService> registeredService)
-            throws Exception {
+        throws Exception {
 
         return generateCertificateAndKey();
     }
 
     @Override
     public Pair<String, String> buildSelfSignedSigningCert(final Optional<SamlRegisteredService> registeredService)
-            throws Exception {
+        throws Exception {
 
         return generateCertificateAndKey();
     }

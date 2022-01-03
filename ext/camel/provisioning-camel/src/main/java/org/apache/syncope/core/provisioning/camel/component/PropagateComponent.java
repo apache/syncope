@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.camel.component;
 
 import java.util.Map;
-import javax.annotation.Resource;
 import org.apache.camel.Endpoint;
 import org.apache.camel.support.DefaultComponent;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -28,6 +27,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -54,8 +54,8 @@ public class PropagateComponent extends DefaultComponent {
     @Autowired
     protected UserWorkflowAdapter uwfAdapter;
 
-    @Resource(name = "adminUser")
-    protected String adminUser;
+    @Autowired
+    protected SecurityProperties props;
 
     @Override
     protected Endpoint createEndpoint(
@@ -82,7 +82,7 @@ public class PropagateComponent extends DefaultComponent {
             executor = (String) parameters.get("eraser");
         }
         if (executor == null) {
-            executor = adminUser;
+            executor = props.getAdminUser();
         }
         endpoint.setExecutor(executor);
 

@@ -25,7 +25,10 @@ import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.sra.actuate.SRASessions;
 import org.apache.syncope.sra.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.sra.actuate.SyncopeSRAInfoContributor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.sra.security.CsrfRouteMatcher;
+import org.apache.syncope.sra.security.LogoutRouteMatcher;
+import org.apache.syncope.sra.security.PublicRouteMatcher;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -35,9 +38,10 @@ import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.server.WebExceptionHandler;
 import reactor.core.publisher.Flux;
 
-@SpringBootApplication
+@SpringBootApplication(proxyBeanMethods = false)
 @EnableConfigurationProperties(SRAProperties.class)
 public class SyncopeSRAApplication {
 
@@ -47,21 +51,26 @@ public class SyncopeSRAApplication {
                 build().run(args);
     }
 
-    @Autowired
-    private ServiceOps serviceOps;
+    @Bean
+    public LogoutRouteMatcher logoutRouteMatcher() {
+        return new LogoutRouteMatcher();
+    }
 
-    @Autowired
-    private SRAProperties props;
-
-    @Autowired
-    private CacheManager cacheManager;
-
-    @Autowired
-    private ConfigurableApplicationContext ctx;
+    @Bean
+    public PublicRouteMatcher publicRouteMatcher() {
+        return new PublicRouteMatcher();
+    }
+    
+    @Bean
+    public CsrfRouteMatcher csrfRouteMatcher(final PublicRouteMatcher publicRouteMatcher) {
+        return new CsrfRouteMatcher(publicRouteMatcher);
+    }
 
     @ConditionalOnMissingBean
     @Bean
-    public RouteProvider routeProvider() {
+    public RouteProvider routeProvider(final ConfigurableApplicationContext ctx,
+                                       final ServiceOps serviceOps,
+                                       final SRAProperties props) {
         return new RouteProvider(
                 serviceOps,
                 ctx,
@@ -72,19 +81,20 @@ public class SyncopeSRAApplication {
 
     @ConditionalOnMissingBean
     @Bean
-    public RouteLocator routes() {
-        return () -> Flux.fromIterable(routeProvider().fetch()).map(Route.AbstractBuilder::build);
+    public RouteLocator routes(@Qualifier("routeProvider") final RouteProvider routeProvider) {
+        return () -> Flux.fromIterable(routeProvider.fetch()).map(Route.AbstractBuilder::build);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public SRASessions sraSessionsActuatorEndpoint() {
+    public SRASessions sraSessionsActuatorEndpoint(final CacheManager cacheManager) {
         return new SRASessions(cacheManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator() {
+    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator(final ServiceOps serviceOps,
+                                                                 final SRAProperties props) {
         return new SyncopeCoreHealthIndicator(
                 serviceOps,
                 props.getAnonymousUser(),
@@ -106,5 +116,12 @@ public class SyncopeSRAApplication {
     @Bean
     public KeymasterStop keymasterStop() {
         return new KeymasterStop(NetworkService.Type.SRA);
+    }
+
+    @Bean
+    public WebExceptionHandler syncopeSRAWebExceptionHandler(
+        @Qualifier("routeProvider") final RouteProvider routeProvider,
+        final SRAProperties props) {
+        return new SyncopeSRAWebExceptionHandler(routeProvider, props);
     }
 }

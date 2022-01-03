@@ -16,28 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa;
 
-import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
-import org.apache.syncope.core.persistence.api.entity.OIDCC4UIEntityFactory;
-import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCC4UIProviderDAO;
-import org.apache.syncope.core.persistence.jpa.entity.JPAOIDCC4UIEntityFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+package org.apache.syncope.fit.core.reference.flowable;
+
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
-public class OIDCC4UIPersistenceContext {
-
-    @ConditionalOnMissingBean
+public class FlowableConfiguration {
     @Bean
-    public OIDCC4UIEntityFactory oidcc4UIEntityFactory() {
-        return new JPAOIDCC4UIEntityFactory();
+    public AssignDirectorGroup assignDirectorGroup(final UserDataBinder dataBinder,
+                                                   final UserDAO userDAO) {
+        return new AssignDirectorGroup(dataBinder, userDAO);
     }
 
-    @ConditionalOnMissingBean
     @Bean
-    public OIDCC4UIProviderDAO oidcc4UIProviderDAO() {
-        return new JPAOIDCC4UIProviderDAO();
+    public CreateARelationship createARelationship(final UserDataBinder dataBinder,
+                                                   final UserDAO userDAO) {
+        return new CreateARelationship(dataBinder, userDAO);
+    }
+
+    @Bean
+    public PrintersValueProvider printersValueProvider(final AnySearchDAO anySearchDAO) {
+        return new PrintersValueProvider(anySearchDAO);
     }
 }

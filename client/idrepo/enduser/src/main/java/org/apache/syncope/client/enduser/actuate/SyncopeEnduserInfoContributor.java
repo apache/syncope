@@ -19,15 +19,17 @@
 package org.apache.syncope.client.enduser.actuate;
 
 import org.apache.syncope.client.enduser.EnduserProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 public class SyncopeEnduserInfoContributor implements InfoContributor {
 
-    @Autowired
-    protected EnduserProperties enduserProperties;
+    protected final EnduserProperties enduserProperties;
+
+    public SyncopeEnduserInfoContributor(final EnduserProperties enduserProperties) {
+        this.enduserProperties = enduserProperties;
+    }
 
     @PreAuthorize("isAuthenticated()")
     @Override

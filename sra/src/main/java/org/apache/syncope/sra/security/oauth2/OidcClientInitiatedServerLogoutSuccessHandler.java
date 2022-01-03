@@ -20,8 +20,9 @@ package org.apache.syncope.sra.security.oauth2;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import javax.annotation.Resource;
 import org.apache.syncope.sra.security.AbstractServerLogoutSuccessHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import reactor.core.publisher.Mono;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -41,7 +42,8 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public class OidcClientInitiatedServerLogoutSuccessHandler extends AbstractServerLogoutSuccessHandler {
 
-    @Resource(name = "oidcClientRegistrationRepository")
+    @Autowired
+    @Qualifier("oidcClientRegistrationRepository")
     private ReactiveClientRegistrationRepository clientRegistrationRepository;
 
     protected final RedirectServerLogoutSuccessHandler serverLogoutSuccessHandler =
