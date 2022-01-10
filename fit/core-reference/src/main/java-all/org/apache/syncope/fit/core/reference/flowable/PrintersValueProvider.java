@@ -29,11 +29,8 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class PrintersValueProvider implements DropdownValueProvider {
 
     private static final SearchCond PRINTER_COND;
@@ -51,8 +48,11 @@ public class PrintersValueProvider implements DropdownValueProvider {
         ORDER_BY = List.of(orderByNameAsc);
     }
 
-    @Autowired
-    private AnySearchDAO anySearchDAO;
+    private final AnySearchDAO anySearchDAO;
+
+    public PrintersValueProvider(final AnySearchDAO anySearchDAO) {
+        this.anySearchDAO = anySearchDAO;
+    }
 
     @Transactional(readOnly = true)
     @Override

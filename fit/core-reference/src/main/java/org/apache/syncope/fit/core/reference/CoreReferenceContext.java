@@ -26,7 +26,6 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -34,11 +33,10 @@ import org.springframework.context.annotation.Configuration;
 
 @AutoConfigureBefore(IdRepoLogicContext.class)
 @ComponentScan("org.apache.syncope.fit.core.reference")
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class CoreReferenceContext {
 
     @Bean
-    @Autowired
     public ElasticsearchInit elasticsearchInit(
             final ImplementationDAO implementationDAO,
             final EntityFactory entityFactory,
@@ -48,13 +46,11 @@ public class CoreReferenceContext {
     }
 
     @Bean
-    @Autowired
     public EnableFlowableForTestUsers enableFlowableForTestUsers(final UserDAO userDAO) {
         return new EnableFlowableForTestUsers(userDAO);
     }
 
     @Bean
-    @Autowired
     public ImplementationLookup implementationLookup(
             final UserWorkflowAdapter uwf,
             final AnySearchDAO anySearchDAO,

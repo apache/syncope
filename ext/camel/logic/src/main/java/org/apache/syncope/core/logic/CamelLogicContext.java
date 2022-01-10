@@ -22,33 +22,26 @@ import org.apache.syncope.core.logic.init.CamelRouteLoader;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.provisioning.api.data.CamelRouteDataBinder;
 import org.apache.syncope.core.provisioning.camel.SyncopeCamelContext;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class CamelLogicContext {
-
-    @javax.annotation.Resource(name = "userRoutes")
-    private Resource userRoutes;
-
-    @javax.annotation.Resource(name = "groupRoutes")
-    private Resource groupRoutes;
-
-    @javax.annotation.Resource(name = "anyObjectRoutes")
-    private Resource anyObjectRoutes;
 
     @ConditionalOnMissingBean
     @Bean
-    public CamelRouteLoader camelRouteLoader() {
+    public CamelRouteLoader camelRouteLoader(
+        @Qualifier("anyObjectRoutes") final Resource anyObjectRoutes,
+        @Qualifier("groupRoutes") final Resource groupRoutes,
+        @Qualifier("userRoutes") final Resource userRoutes) {
         return new CamelRouteLoader(userRoutes, groupRoutes, anyObjectRoutes);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public CamelRouteLogic camelRouteLogic(
             final CamelRouteDAO routeDAO,
             final CamelRouteDataBinder binder,

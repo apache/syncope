@@ -33,10 +33,10 @@ import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -54,16 +54,10 @@ import org.springframework.security.web.firewall.HttpFirewall;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityContext extends WebSecurityConfigurerAdapter {
-
-    @Autowired
-    private SecurityProperties securityProperties;
-
-    @Autowired
-    private ApplicationContext ctx;
+@Configuration(proxyBeanMethods = false)
+public class WebSecurityContext {
 
     public WebSecurityContext() {
-        super(true);
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
     }
 
@@ -74,15 +68,61 @@ public class WebSecurityContext extends WebSecurityConfigurerAdapter {
         return firewall;
     }
 
-    @Override
-    public void configure(final WebSecurity web) {
-        web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
+    @Bean
+    public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter(
+        final ApplicationContext ctx,
+        final SecurityProperties securityProperties,
+        final HttpFirewall allowUrlEncodedSlashHttpFirewall) {
+        return new WebSecurityConfigurerAdapter(true) {
+            @Override
+            public void configure(final WebSecurity web) {
+                web.httpFirewall(allowUrlEncodedSlashHttpFirewall);
+            }
+
+            @Override
+            protected void configure(final HttpSecurity http) throws Exception {
+                SyncopeBasicAuthenticationEntryPoint basicAuthenticationEntryPoint =
+                    new SyncopeBasicAuthenticationEntryPoint();
+                basicAuthenticationEntryPoint.setRealmName("Apache Syncope authentication");
+
+                SyncopeAuthenticationDetailsSource authenticationDetailsSource =
+                    new SyncopeAuthenticationDetailsSource();
+
+                JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter(
+                    authenticationManager(),
+                    basicAuthenticationEntryPoint,
+                    authenticationDetailsSource,
+                    ctx.getBean(AuthDataAccessor.class),
+                    ctx.getBean(DefaultCredentialChecker.class));
+
+                http.authorizeRequests().
+                    antMatchers("/**").permitAll().and().
+                    sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().
+                    securityContext().securityContextRepository(new NullSecurityContextRepository()).and().
+                    anonymous().principal(securityProperties.getAnonymousUser()).and().
+                    httpBasic().authenticationEntryPoint(basicAuthenticationEntryPoint).
+                    authenticationDetailsSource(authenticationDetailsSource).and().
+                    exceptionHandling().accessDeniedHandler(accessDeniedHandler()).and().
+                    addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class).
+                    addFilterBefore(new MustChangePasswordFilter(), FilterSecurityInterceptor.class).
+                    headers().disable().
+                    csrf().disable();
+            }
+
+
+            @Override
+            protected void configure(final AuthenticationManagerBuilder builder) throws Exception {
+                builder.
+                    authenticationProvider(ctx.getBean(UsernamePasswordAuthenticationProvider.class)).
+                    authenticationProvider(ctx.getBean(JWTAuthenticationProvider.class));
+            }
+        };
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider(
+            final SecurityProperties securityProperties,
             final DomainOps domainOps,
             final AuthDataAccessor dataAccessor,
             final UserProvisioningManager provisioningManager,
@@ -98,16 +138,8 @@ public class WebSecurityContext extends WebSecurityConfigurerAdapter {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public JWTAuthenticationProvider jwtAuthenticationProvider(final AuthDataAccessor authDataAccessor) {
         return new JWTAuthenticationProvider(authDataAccessor);
-    }
-
-    @Override
-    protected void configure(final AuthenticationManagerBuilder builder) throws Exception {
-        builder.
-                authenticationProvider(ctx.getBean(UsernamePasswordAuthenticationProvider.class)).
-                authenticationProvider(ctx.getBean(JWTAuthenticationProvider.class));
     }
 
     @Bean
@@ -115,38 +147,10 @@ public class WebSecurityContext extends WebSecurityConfigurerAdapter {
         return new SyncopeAccessDeniedHandler();
     }
 
-    @Override
-    protected void configure(final HttpSecurity http) throws Exception {
-        SyncopeBasicAuthenticationEntryPoint basicAuthenticationEntryPoint = new SyncopeBasicAuthenticationEntryPoint();
-        basicAuthenticationEntryPoint.setRealmName("Apache Syncope authentication");
-
-        SyncopeAuthenticationDetailsSource authenticationDetailsSource = new SyncopeAuthenticationDetailsSource();
-
-        JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter(
-                authenticationManager(),
-                basicAuthenticationEntryPoint,
-                authenticationDetailsSource,
-                ctx.getBean(AuthDataAccessor.class),
-                ctx.getBean(DefaultCredentialChecker.class));
-
-        http.authorizeRequests().
-                antMatchers("/**").permitAll().and().
-                sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().
-                securityContext().securityContextRepository(new NullSecurityContextRepository()).and().
-                anonymous().principal(securityProperties.getAnonymousUser()).and().
-                httpBasic().authenticationEntryPoint(basicAuthenticationEntryPoint).
-                authenticationDetailsSource(authenticationDetailsSource).and().
-                exceptionHandling().accessDeniedHandler(accessDeniedHandler()).and().
-                addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class).
-                addFilterBefore(new MustChangePasswordFilter(), FilterSecurityInterceptor.class).
-                headers().disable().
-                csrf().disable();
-    }
-
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AuthDataAccessor authDataAccessor(
+            final SecurityProperties securityProperties,
             final RealmDAO realmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,

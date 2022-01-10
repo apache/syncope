@@ -39,7 +39,7 @@ import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActi
 import org.apache.syncope.client.console.init.ClassPathScanImplementationContributor;
 import org.apache.syncope.client.console.init.IdMClassPathScanImplementationContributor;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SyncopeIdMConsoleContext {
 
     @Bean

@@ -27,50 +27,37 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class FlowableLogicContext {
-
-    @javax.annotation.Resource(name = "userWorkflowDef")
-    private Resource userWorkflowDef;
-
-    @Autowired
-    private BpmnProcessManager bpmnProcessManager;
-
-    @Autowired
-    private PropagationManager propagationManager;
-
-    @Autowired
-    private PropagationTaskExecutor taskExecutor;
-
-    @Autowired
-    private UserDataBinder binder;
-
-    @Autowired
-    private UserDAO userDAO;
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public FlowableLoader flowableLoader(final DomainProcessEngine engine) {
+    public FlowableLoader flowableLoader(final DomainProcessEngine engine,
+                                         @Qualifier("userWorkflowDef")
+                                         final Resource userWorkflowDef) {
         return new FlowableLoader(userWorkflowDef, engine);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public BpmnProcessLogic bpmnProcessLogic() {
+    public BpmnProcessLogic bpmnProcessLogic(final BpmnProcessManager bpmnProcessManager) {
         return new BpmnProcessLogic(bpmnProcessManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public UserRequestLogic userRequestLogic(final UserRequestHandler userRequestHandler) {
+    public UserRequestLogic userRequestLogic(final UserRequestHandler userRequestHandler,
+                                             final UserDataBinder binder,
+                                             final BpmnProcessManager bpmnProcessManager,
+                                             final PropagationTaskExecutor taskExecutor,
+                                             final UserDAO userDAO,
+                                             final PropagationManager propagationManager) {
         return new UserRequestLogic(
                 bpmnProcessManager,
                 userRequestHandler,
@@ -82,8 +69,11 @@ public class FlowableLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public UserWorkflowTaskLogic userWorkflowTaskLogic(final WorkflowTaskManager wfTaskManager) {
+    public UserWorkflowTaskLogic userWorkflowTaskLogic(final WorkflowTaskManager wfTaskManager,
+                                                       final UserDataBinder binder,
+                                                       final UserDAO userDAO,
+                                                       final PropagationTaskExecutor taskExecutor,
+                                                       final PropagationManager propagationManager) {
         return new UserWorkflowTaskLogic(wfTaskManager, propagationManager, taskExecutor, binder, userDAO);
     }
 }

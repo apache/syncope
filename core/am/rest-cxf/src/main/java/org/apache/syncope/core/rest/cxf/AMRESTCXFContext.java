@@ -60,38 +60,33 @@ import org.apache.syncope.core.rest.cxf.service.wa.U2FRegistrationServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.WAClientAppServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.WAConfigServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.WebAuthnRegistrationServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class AMRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AuthModuleService authModuleService(final AuthModuleLogic authModuleLogic) {
         return new AuthModuleServiceImpl(authModuleLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AuthProfileService authProfileService(final AuthProfileLogic authProfileLogic) {
         return new AuthProfileServiceImpl(authProfileLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ClientAppService clientAppService(final ClientAppLogic clientAppLogic) {
         return new ClientAppServiceImpl(clientAppLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public GoogleMfaAuthAccountService googleMfaAuthAccountService(
             final GoogleMfaAuthAccountLogic googleMfaAuthAccountLogic) {
 
@@ -100,7 +95,6 @@ public class AMRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public GoogleMfaAuthTokenService googleMfaAuthTokenService(
             final GoogleMfaAuthTokenLogic googleMfaAuthTokenLogic) {
 
@@ -109,63 +103,54 @@ public class AMRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ImpersonationService impersonationService(final ImpersonationLogic impersonationLogic) {
         return new ImpersonationServiceImpl(impersonationLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public OIDCJWKSService oidcJWKSService(final OIDCJWKSLogic oidcJWKSLogic) {
         return new OIDCJWKSServiceImpl(oidcJWKSLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SAML2IdPEntityService saml2IdPEntityService(final SAML2IdPEntityLogic saml2IdPEntityLogic) {
         return new SAML2IdPEntityServiceImpl(saml2IdPEntityLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SAML2SPEntityService saml2SPEntityService(final SAML2SPEntityLogic saml2SPEntityLogic) {
         return new SAML2SPEntityServiceImpl(saml2SPEntityLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SRARouteService sraRouteService(final SRARouteLogic sraRouteLogic) {
         return new SRARouteServiceImpl(sraRouteLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public U2FRegistrationService u2fRegistrationService(final U2FRegistrationLogic u2fRegistrationLogic) {
         return new U2FRegistrationServiceImpl(u2fRegistrationLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public WAClientAppService waClientAppService(final WAClientAppLogic waClientAppLogic) {
         return new WAClientAppServiceImpl(waClientAppLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public WAConfigService waConfigService(final WAConfigLogic waConfigLogic) {
         return new WAConfigServiceImpl(waConfigLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public WebAuthnRegistrationService webAuthnRegistrationService(
             final WebAuthnRegistrationLogic webAuthnRegistrationLogic) {
 

@@ -26,7 +26,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 @PropertySource("classpath:test.properties")
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class CoreITContext {
 
     @Value("${testdb.driver}")

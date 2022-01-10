@@ -28,31 +28,27 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.rest.cxf.service.BpmnProcessServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.UserRequestServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.UserWorkflowTaskServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class FlowableRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public BpmnProcessService bpmnProcessService(final BpmnProcessLogic bpmnProcessLogic) {
         return new BpmnProcessServiceImpl(bpmnProcessLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UserRequestService userRequestService(final UserRequestLogic userRequestLogic, final UserDAO userDAO) {
         return new UserRequestServiceImpl(userRequestLogic, userDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UserWorkflowTaskService userWorkflowTaskService(final UserWorkflowTaskLogic userWorkflowTaskLogic) {
         return new UserWorkflowTaskServiceImpl(userWorkflowTaskLogic);
     }

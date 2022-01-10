@@ -31,25 +31,22 @@ import org.apache.syncope.core.persistence.jpa.dao.ElasticsearchAnySearchDAO;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class ElasticsearchPersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public DomainIndexLoader domainIndexLoader(final ElasticsearchIndexManager indexManager) {
         return new DomainIndexLoader(indexManager);
     }
 
     @ConditionalOnMissingBean(name = "elasticsearchAnySearchDAO")
     @Bean
-    @Autowired
     public AnySearchDAO anySearchDAO(
             final RealmDAO realmDAO,
             final @Lazy DynRealmDAO dynRealmDAO,

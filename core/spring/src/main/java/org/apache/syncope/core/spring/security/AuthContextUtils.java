@@ -143,9 +143,10 @@ public final class AuthContextUtils {
     }
 
     public static <T> T callAsAdmin(final String domain, final Callable<T> callable) {
+        SecurityProperties properties = ApplicationContextProvider.getBeanFactory().getBean(SecurityProperties.class);
         return callAs(
                 domain,
-                ApplicationContextProvider.getBeanFactory().getBean("adminUser", String.class),
+                properties.getAdminUser(),
                 EntitlementsHolder.getInstance().getValues(),
                 callable);
     }

@@ -29,7 +29,7 @@ import javax.sql.DataSource;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
 import org.apache.syncope.core.persistence.jpa.spring.DomainEntityManagerFactoryBean;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -45,21 +45,12 @@ import org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @EnableConfigurationProperties(PersistenceProperties.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class MasterDomain {
-
-    @Autowired
-    private CommonEntityManagerFactoryConf commonEMFConf;
-
-    @Autowired
-    private ResourceLoader resourceLoader;
-
-    @Autowired
-    private PersistenceProperties props;
 
     @ConditionalOnMissingBean(name = "MasterDataSource")
     @Bean(name = "MasterDataSource")
-    public JndiObjectFactoryBean masterDataSource() {
+    public JndiObjectFactoryBean masterDataSource(final PersistenceProperties props) {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setDriverClassName(props.getDomain().get(0).getJdbcDriver());
         hikariConfig.setJdbcUrl(props.getDomain().get(0).getJdbcURL());
@@ -77,7 +68,10 @@ public class MasterDomain {
 
     @ConditionalOnMissingBean(name = "MasterDataSourceInitializer")
     @Bean(name = "MasterDataSourceInitializer")
-    public DataSourceInitializer masterDataSourceInitializer() {
+    public DataSourceInitializer masterDataSourceInitializer(
+        final PersistenceProperties props,
+        @Qualifier("MasterDataSource")
+        final JndiObjectFactoryBean masterDataSource) {
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
         databasePopulator.setContinueOnError(true);
         databasePopulator.setIgnoreFailedDrops(true);
@@ -85,7 +79,7 @@ public class MasterDomain {
         databasePopulator.addScript(new ClassPathResource("/audit/" + props.getDomain().get(0).getAuditSql()));
 
         DataSourceInitializer dataSourceInitializer = new DataSourceInitializer();
-        dataSourceInitializer.setDataSource((DataSource) Objects.requireNonNull(masterDataSource().getObject()));
+        dataSourceInitializer.setDataSource((DataSource) Objects.requireNonNull(masterDataSource.getObject()));
         dataSourceInitializer.setEnabled(true);
         dataSourceInitializer.setDatabasePopulator(databasePopulator);
         return dataSourceInitializer;
@@ -94,7 +88,11 @@ public class MasterDomain {
     @ConditionalOnMissingBean(name = "MasterEntityManagerFactory")
     @DependsOn("commonEMFConf")
     @Bean(name = "MasterEntityManagerFactory")
-    public DomainEntityManagerFactoryBean masterEntityManagerFactory() {
+    public DomainEntityManagerFactoryBean masterEntityManagerFactory(
+        final PersistenceProperties props,
+        @Qualifier("MasterDataSource")
+        final JndiObjectFactoryBean masterDataSource,
+        final CommonEntityManagerFactoryConf commonEMFConf) {
         OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
         vendorAdapter.setGenerateDdl(true);
@@ -103,7 +101,7 @@ public class MasterDomain {
         DomainEntityManagerFactoryBean masterEntityManagerFactory = new DomainEntityManagerFactoryBean();
         masterEntityManagerFactory.setMappingResources(props.getDomain().get(0).getOrm());
         masterEntityManagerFactory.setPersistenceUnitName(SyncopeConstants.MASTER_DOMAIN);
-        masterEntityManagerFactory.setDataSource(Objects.requireNonNull((DataSource) masterDataSource().getObject()));
+        masterEntityManagerFactory.setDataSource(Objects.requireNonNull((DataSource) masterDataSource.getObject()));
         masterEntityManagerFactory.setJpaVendorAdapter(vendorAdapter);
         masterEntityManagerFactory.setCommonEntityManagerFactoryConf(commonEMFConf);
 
@@ -118,22 +116,26 @@ public class MasterDomain {
 
     @ConditionalOnMissingBean(name = "MasterTransactionManager")
     @Bean(name = { "MasterTransactionManager", "Master" })
-    public PlatformTransactionManager transactionManager() {
-        return new JpaTransactionManager(Objects.requireNonNull(masterEntityManagerFactory().getObject()));
+    public PlatformTransactionManager transactionManager(
+        @Qualifier("MasterEntityManagerFactory")
+        final DomainEntityManagerFactoryBean masterEntityManagerFactory) {
+        return new JpaTransactionManager(Objects.requireNonNull(masterEntityManagerFactory.getObject()));
     }
 
     @Bean(name = "MasterContentXML")
-    public InputStream masterContentXML() throws IOException {
+    public InputStream masterContentXML(final ResourceLoader resourceLoader,
+                                        final PersistenceProperties props) throws IOException {
         return resourceLoader.getResource(props.getDomain().get(0).getContent()).getInputStream();
     }
 
     @Bean(name = "MasterKeymasterConfParamsJSON")
-    public InputStream masterKeymasterConfParamsJSON() throws IOException {
+    public InputStream masterKeymasterConfParamsJSON(final ResourceLoader resourceLoader,
+                                                     final PersistenceProperties props) throws IOException {
         return resourceLoader.getResource(props.getDomain().get(0).getKeymasterConfParams()).getInputStream();
     }
 
     @Bean(name = "MasterDatabaseSchema")
-    public String masterDatabaseSchema() {
+    public String masterDatabaseSchema(final PersistenceProperties props) {
         return props.getDomain().get(0).getDbSchema();
     }
 }

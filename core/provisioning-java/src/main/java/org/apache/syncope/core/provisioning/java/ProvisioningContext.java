@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -179,7 +178,7 @@ import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -201,8 +200,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @EnableAsync
 @EnableConfigurationProperties(ProvisioningProperties.class)
-@Configuration
-public class ProvisioningContext implements AsyncConfigurer {
+@Configuration(proxyBeanMethods = false)
+public class ProvisioningContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProvisioningContext.class);
 
@@ -211,33 +210,6 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @Resource(name = "MasterTransactionManager")
     private PlatformTransactionManager masterTransactionManager;
-
-    @Autowired
-    private ProvisioningProperties provisioningProperties;
-
-    @Autowired
-    private SecurityProperties securityProperties;
-
-    @Autowired
-    private EntityFactory entityFactory;
-
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
-
-    @Autowired
-    private TaskUtilsFactory taskUtilsFactory;
-
-    @Autowired
-    private PasswordGenerator passwordGenerator;
-
-    @Autowired
-    private SearchCondVisitor searchCondVisitor;
-
-    @Autowired
-    private DomainHolder domainHolder;
-
-    @Autowired
-    private ApplicationContext ctx;
 
     @ConditionalOnMissingBean
     @Bean
@@ -252,7 +224,7 @@ public class ProvisioningContext implements AsyncConfigurer {
      */
     @Bean
     @Primary
-    public Executor asyncConnectorFacadeExecutor() {
+    public ThreadPoolTaskExecutor asyncConnectorFacadeExecutor(final ProvisioningProperties provisioningProperties) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(provisioningProperties.getAsyncConnectorFacadeExecutor().getCorePoolSize());
         executor.setMaxPoolSize(provisioningProperties.getAsyncConnectorFacadeExecutor().getMaxPoolSize());
@@ -263,18 +235,26 @@ public class ProvisioningContext implements AsyncConfigurer {
         return executor;
     }
 
-    @Override
-    public Executor getAsyncExecutor() {
-        return asyncConnectorFacadeExecutor();
+    @Bean
+    public AsyncConfigurer asyncConfigurer(@Qualifier("asyncConnectorFacadeExecutor")
+                                           final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor) {
+        return new AsyncConfigurer() {
+            @Override
+            public Executor getAsyncExecutor() {
+                return asyncConnectorFacadeExecutor;
+            }
+        };
     }
 
     /**
      * Used by {@link org.apache.syncope.core.provisioning.java.propagation.PriorityPropagationTaskExecutor}.
      *
-     * @return executor
+     * @param provisioningProperties the provisioning properties
+     * @return executor thread pool task executor
      */
     @Bean
-    public ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor() {
+    public ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor(
+        final ProvisioningProperties provisioningProperties) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(provisioningProperties.getPropagationTaskExecutorAsyncExecutor().getCorePoolSize());
         executor.setMaxPoolSize(provisioningProperties.getPropagationTaskExecutorAsyncExecutor().getMaxPoolSize());
@@ -286,7 +266,7 @@ public class ProvisioningContext implements AsyncConfigurer {
     }
 
     @Bean
-    public SchedulerDBInit quartzDataSourceInit() throws JsonProcessingException {
+    public SchedulerDBInit quartzDataSourceInit(final ProvisioningProperties provisioningProperties) {
         SchedulerDBInit init = new SchedulerDBInit();
         init.setDataSource(masterDataSource);
 
@@ -303,7 +283,8 @@ public class ProvisioningContext implements AsyncConfigurer {
     @DependsOn("quartzDataSourceInit")
     @Lazy(false)
     @Bean
-    public SchedulerFactoryBean scheduler() {
+    public SchedulerFactoryBean scheduler(final ApplicationContext ctx,
+                                          final ProvisioningProperties provisioningProperties) {
         SchedulerFactoryBean scheduler = new SchedulerFactoryBean();
         scheduler.setAutoStartup(true);
         scheduler.setApplicationContext(ctx);
@@ -334,14 +315,16 @@ public class ProvisioningContext implements AsyncConfigurer {
     }
 
     @Bean
-    public SchedulerShutdown schedulerShutdown() {
+    public SchedulerShutdown schedulerShutdown(final ApplicationContext ctx) {
         return new SchedulerShutdown(ctx);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public JobManager jobManager(
+            final ProvisioningProperties provisioningProperties,
+            final DomainHolder domainHolder,
+            final SecurityProperties securityProperties,
             final SchedulerFactoryBean scheduler,
             final TaskDAO taskDAO,
             final ReportDAO reportDAO,
@@ -362,7 +345,8 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    public JavaMailSender mailSender() throws IllegalArgumentException, NamingException, IOException {
+    public JavaMailSender mailSender(final ProvisioningProperties provisioningProperties)
+        throws IllegalArgumentException, IOException {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl() {
 
             @Override
@@ -431,8 +415,8 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ConnectorManager connectorManager(
+            final EntityFactory entityFactory,
             final ConnIdBundleManager connIdBundleManager,
             final RealmDAO realmDAO,
             final ExternalResourceDAO resourceDAO,
@@ -450,15 +434,14 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ConnectorLoader connectorLoader(final ConnectorManager connectorManager) {
         return new ConnectorLoader(connectorManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public InboundMatcher inboundMatcher(
+            final AnyUtilsFactory anyUtilsFactory,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
             final GroupDAO groupDAO,
@@ -482,8 +465,8 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public OutboundMatcher outboundMatcher(
+            final AnyUtilsFactory anyUtilsFactory,
             final MappingManager mappingManager,
             final UserDAO userDAO,
             final VirSchemaDAO virSchemaDAO,
@@ -494,14 +477,14 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    public DerAttrHandler derAttrHandler() {
+    public DerAttrHandler derAttrHandler(final AnyUtilsFactory anyUtilsFactory) {
         return new DefaultDerAttrHandler(anyUtilsFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public VirAttrHandler virAttrHandler(
+            final AnyUtilsFactory anyUtilsFactory,
             final ConnectorManager connectorManager,
             final VirAttrCache virAttrCache,
             @Lazy final OutboundMatcher outboundMatcher) {
@@ -511,8 +494,9 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public MappingManager mappingManager(
+            final PasswordGenerator passwordGenerator,
+            final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
@@ -543,15 +527,15 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public TemplateUtils templateUtils(final UserDAO userDAO, final GroupDAO groupDAO) {
         return new TemplateUtils(userDAO, groupDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ConnObjectUtils connObjectUtils(
+            final PasswordGenerator passwordGenerator,
+            final AnyUtilsFactory anyUtilsFactory,
             final MappingManager mappingManager,
             final TemplateUtils templateUtils,
             final RealmDAO realmDAO,
@@ -570,8 +554,9 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public PropagationManager propagationManager(
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory,
             final VirSchemaDAO virSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final ConnObjectUtils connObjectUtils,
@@ -590,14 +575,14 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    public ConnIdBundleManager connIdBundleManager() {
+    public ConnIdBundleManager connIdBundleManager(final ProvisioningProperties provisioningProperties) {
         return new DefaultConnIdBundleManager(provisioningProperties.getConnIdLocation());
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public IntAttrNameParser intAttrNameParser(
+        public IntAttrNameParser intAttrNameParser(
+            final AnyUtilsFactory anyUtilsFactory,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final VirSchemaDAO virSchemaDAO) {
@@ -607,8 +592,12 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public PropagationTaskExecutor propagationTaskExecutor(
+            @Qualifier("propagationTaskExecutorAsyncExecutor")
+            final ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor,
+            final EntityFactory entityFactory,
+            final TaskUtilsFactory taskUtilsFactory,
+            final AnyUtilsFactory anyUtilsFactory,
             final ConnectorManager connectorManager,
             final ConnObjectUtils connObjectUtils,
             final UserDAO userDAO,
@@ -636,12 +625,11 @@ public class ProvisioningContext implements AsyncConfigurer {
                 taskUtilsFactory,
                 entityFactory,
                 outboundMatcher,
-                propagationTaskExecutorAsyncExecutor());
+                propagationTaskExecutorAsyncExecutor);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UserProvisioningManager userProvisioningManager(
             final UserWorkflowAdapter uwfAdapter,
             final PropagationManager propagationManager,
@@ -659,7 +647,6 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public GroupProvisioningManager groupProvisioningManager(
             final GroupWorkflowAdapter gwfAdapter,
             final PropagationManager propagationManager,
@@ -679,7 +666,6 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyObjectProvisioningManager anyObjectProvisioningManager(
             final AnyObjectWorkflowAdapter awfAdapter,
             final PropagationManager propagationManager,
@@ -697,7 +683,7 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    public VirAttrCache virAttrCache() {
+    public VirAttrCache virAttrCache(final ProvisioningProperties provisioningProperties) {
         VirAttrCache virAttrCache = new CaffeineVirAttrCache();
         virAttrCache.setCacheSpec(provisioningProperties.getVirAttrCacheSpec());
         return virAttrCache;
@@ -705,8 +691,9 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public NotificationManager notificationManager(
+            final EntityFactory entityFactory,
+            final SearchCondVisitor searchCondVisitor,
             final DerSchemaDAO derSchemaDAO,
             final VirSchemaDAO virSchemaDAO,
             final NotificationDAO notificationDAO,
@@ -747,21 +734,20 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AuditManager auditManager(final AuditConfDAO auditConfDAO) {
         return new DefaultAuditManager(auditConfDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public SystemLoadReporterJob systemLoadReporterJob() {
+    public SystemLoadReporterJob systemLoadReporterJob(final ApplicationContext ctx) {
         return new SystemLoadReporterJob(ctx);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public NotificationJobDelegate notificationJobDelegate(
+            final EntityFactory entityFactory,
             final TaskDAO taskDAO,
             final JavaMailSender mailSender,
             final AuditManager auditManager,
@@ -777,22 +763,24 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public NotificationJob notificationJob(final NotificationJobDelegate delegate) {
+    public NotificationJob notificationJob(final NotificationJobDelegate delegate,
+                                           final DomainHolder domainHolder,
+                                           final SecurityProperties securityProperties) {
         return new NotificationJob(securityProperties, domainHolder, delegate);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public ReportJobDelegate reportJobDelegate(final ReportDAO reportDAO, final ReportExecDAO reportExecDAO) {
+    public ReportJobDelegate reportJobDelegate(final ReportDAO reportDAO, final ReportExecDAO reportExecDAO,
+                                               final EntityFactory entityFactory) {
         return new DefaultReportJobDelegate(reportDAO, reportExecDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AccessTokenDataBinder accessTokenDataBinder(
+            final EntityFactory entityFactory,
+            final SecurityProperties securityProperties,
             final AccessTokenJWSSigner jwsSigner,
             final AccessTokenDAO accessTokenDAO,
             final ConfParamOps confParamOps,
@@ -809,8 +797,9 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyObjectDataBinder anyObjectDataBinder(
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
             final RealmDAO realmDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
@@ -851,8 +840,8 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyTypeClassDataBinder anyTypeClassDataBinder(
+            final EntityFactory entityFactory,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final VirSchemaDAO virSchemaDAO,
@@ -863,8 +852,9 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public AnyTypeDataBinder anyTypeDataBinder(
+            final EntityFactory entityFactory,
+            final SecurityProperties securityProperties,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final AccessTokenDAO accessTokenDAO) {
@@ -879,8 +869,8 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public ApplicationDataBinder applicationDataBinder(final ApplicationDAO applicationDAO) {
+    public ApplicationDataBinder applicationDataBinder(final ApplicationDAO applicationDAO,
+                                                       final EntityFactory entityFactory) {
         return new ApplicationDataBinderImpl(applicationDAO, entityFactory);
     }
 
@@ -892,27 +882,27 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthModuleDataBinder authModuleDataBinder() {
+    public AuthModuleDataBinder authModuleDataBinder(final EntityFactory entityFactory) {
         return new AuthModuleDataBinderImpl(entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthProfileDataBinder authProfileDataBinder() {
+    public AuthProfileDataBinder authProfileDataBinder(final EntityFactory entityFactory) {
         return new AuthProfileDataBinderImpl(entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public ClientAppDataBinder clientAppDataBinder(final PolicyDAO policyDAO) {
+    public ClientAppDataBinder clientAppDataBinder(final PolicyDAO policyDAO,
+                                                   final EntityFactory entityFactory) {
         return new ClientAppDataBinderImpl(policyDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ConnInstanceDataBinder connInstanceDataBinder(
+            final EntityFactory entityFactory,
             final ConnIdBundleManager connIdBundleManager,
             final ConnInstanceDAO connInstanceDAO,
             final RealmDAO realmDAO) {
@@ -922,22 +912,25 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public DelegationDataBinder delegationDataBinder(final UserDAO userDAO, final RoleDAO roleDAO) {
+    public DelegationDataBinder delegationDataBinder(final UserDAO userDAO, final RoleDAO roleDAO,
+                                                     final EntityFactory entityFactory) {
         return new DelegationDataBinderImpl(userDAO, roleDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public DynRealmDataBinder dynRealmDataBinder(final AnyTypeDAO anyTypeDAO, final DynRealmDAO dynRealmDAO) {
+    public DynRealmDataBinder dynRealmDataBinder(final AnyTypeDAO anyTypeDAO, final DynRealmDAO dynRealmDAO,
+                                                 final SearchCondVisitor searchCondVisitor,
+                                                 final EntityFactory entityFactory) {
         return new DynRealmDataBinderImpl(anyTypeDAO, dynRealmDAO, entityFactory, searchCondVisitor);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public GroupDataBinder groupDataBinder(
+            final EntityFactory entityFactory,
+            final SearchCondVisitor searchCondVisitor,
+            final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
             final RealmDAO realmDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
@@ -979,14 +972,14 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    public ImplementationDataBinder implementationDataBinder() {
+    public ImplementationDataBinder implementationDataBinder(final EntityFactory entityFactory) {
         return new ImplementationDataBinderImpl(entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public NotificationDataBinder notificationDataBinder(
+            final EntityFactory entityFactory,
             final MailTemplateDAO mailTemplateDAO,
             final AnyTypeDAO anyTypeDAO,
             final ImplementationDAO implementationDAO,
@@ -1003,14 +996,14 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    public OIDCJWKSDataBinder oidcJWKSDataBinder() {
+    public OIDCJWKSDataBinder oidcJWKSDataBinder(final EntityFactory entityFactory) {
         return new OIDCJWKSDataBinderImpl(entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public PolicyDataBinder policyDataBinder(
+            final EntityFactory entityFactory,
             final ExternalResourceDAO resourceDAO,
             final RealmDAO realmDAO,
             final AnyTypeDAO anyTypeDAO,
@@ -1021,8 +1014,8 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RealmDataBinder realmDataBinder(
+            final EntityFactory entityFactory,
             final AnyTypeDAO anyTypeDAO,
             final ImplementationDAO implementationDAO,
             final RealmDAO realmDAO,
@@ -1040,7 +1033,7 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    public RelationshipTypeDataBinder relationshipTypeDataBinder() {
+    public RelationshipTypeDataBinder relationshipTypeDataBinder(final EntityFactory entityFactory) {
         return new RelationshipTypeDataBinderImpl(entityFactory);
     }
 
@@ -1052,7 +1045,6 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ReportDataBinder reportDataBinder(
             final ReportTemplateDAO reportTemplateDAO,
             final ReportExecDAO reportExecDAO,
@@ -1064,8 +1056,8 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ResourceDataBinder resourceDataBinder(
+            final EntityFactory entityFactory,
             final AnyTypeDAO anyTypeDAO,
             final ConnInstanceDAO connInstanceDAO,
             final PolicyDAO policyDAO,
@@ -1089,8 +1081,9 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public RoleDataBinder roleDataBinder(
+            final EntityFactory entityFactory,
+            final SearchCondVisitor searchCondVisitor,
             final RealmDAO realmDAO,
             final DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
@@ -1101,13 +1094,13 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    public SAML2IdPEntityDataBinder saml2IdPEntityDataBinder() {
+    public SAML2IdPEntityDataBinder saml2IdPEntityDataBinder(final EntityFactory entityFactory) {
         return new SAML2IdPEntityDataBinderImpl(entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public SAML2SPEntityDataBinder saml2SPEntityDataBinder() {
+    public SAML2SPEntityDataBinder saml2SPEntityDataBinder(final EntityFactory entityFactory) {
         return new SAML2SPEntityDataBinderImpl(entityFactory);
     }
 
@@ -1119,8 +1112,9 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public SchemaDataBinder schemaDataBinder(
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
@@ -1143,14 +1137,15 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    public SecurityQuestionDataBinder securityQuestionDataBinder() {
+    public SecurityQuestionDataBinder securityQuestionDataBinder(final EntityFactory entityFactory) {
         return new SecurityQuestionDataBinderImpl(entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public TaskDataBinder taskDataBinder(
+            final EntityFactory entityFactory,
+            final TaskUtilsFactory taskUtilsFactory,
             final RealmDAO realmDAO,
             final ExternalResourceDAO resourceDAO,
             final TaskExecDAO taskExecDAO,
@@ -1171,8 +1166,10 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public UserDataBinder userDataBinder(
+            final EntityFactory entityFactory,
+            final AnyUtilsFactory anyUtilsFactory,
+            final SecurityProperties securityProperties,
             final AnyTypeDAO anyTypeDAO,
             final RealmDAO realmDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
@@ -1226,14 +1223,13 @@ public class ProvisioningContext implements AsyncConfigurer {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
-    public WAConfigDataBinder waConfigDataBinder(final WAConfigDAO waConfigDAO) {
+    public WAConfigDataBinder waConfigDataBinder(final WAConfigDAO waConfigDAO,
+                                                 final EntityFactory entityFactory) {
         return new WAConfigDataBinderImpl(waConfigDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public WAClientAppDataBinder waClientAppDataBinder(
             final ClientAppDataBinder clientAppDataBinder,
             final PolicyDataBinder policyDataBinder,

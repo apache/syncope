@@ -24,13 +24,12 @@ import org.apache.http.HttpHost;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class ElasticsearchClientContext {
 
     @ConditionalOnMissingBean
@@ -42,7 +41,6 @@ public class ElasticsearchClientContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ElasticsearchUtils elasticsearchUtils(
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
@@ -58,7 +56,6 @@ public class ElasticsearchClientContext {
 
     @ConditionalOnMissingBean
     @Bean
-    @Autowired
     public ElasticsearchIndexManager elasticsearchIndexManager(
             final ElasticsearchClient client,
             final ElasticsearchUtils elasticsearchUtils) {

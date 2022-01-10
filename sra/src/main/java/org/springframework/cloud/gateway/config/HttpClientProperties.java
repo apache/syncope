@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.net.ssl.KeyManagerFactory;
-import javax.validation.constraints.Max;
 
 import reactor.netty.resources.ConnectionProvider;
 import reactor.netty.tcp.SslProvider;
@@ -42,17 +41,19 @@ import org.springframework.boot.web.server.WebServerException;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.unit.DataSize;
-//import org.springframework.validation.annotation.Validated;
+import org.springframework.util.unit.DataUnit;
+import org.springframework.validation.annotation.Validated;
 
 // CHECKSTYLE:OFF
-// Semi-blind copy from Spring Cloud Gateway sources, to keep until
-// https://github.com/spring-cloud/spring-cloud-gateway/issues/2303
-// is fixed.
+// Semi-blind copy from Spring Cloud Gateway sources, to keep until they are tied
+// to Hibernate Validator and not Jakarta Validation API - see
+// https://lists.apache.org/thread/km7c4ojrlw5q5j42cbw7nht6b0f4z5r2
+// for details.
 /**
  * Configuration properties for the Netty {@link reactor.netty.http.client.HttpClient}.
  */
 @ConfigurationProperties("spring.cloud.gateway.httpclient")
-//@Validated
+@Validated
 @SuppressWarnings("deprecation")
 public class HttpClientProperties {
 
@@ -102,7 +103,7 @@ public class HttpClientProperties {
 		this.responseTimeout = responseTimeout;
 	}
 
-	@Max(Integer.MAX_VALUE)
+	@DataSizeMax(value = Integer.MAX_VALUE, unit = DataUnit.BYTES)
 	public DataSize getMaxHeaderSize() {
 		return maxHeaderSize;
 	}
@@ -111,7 +112,7 @@ public class HttpClientProperties {
 		this.maxHeaderSize = maxHeaderSize;
 	}
 
-	@Max(Integer.MAX_VALUE)
+	@DataSizeMax(value = Integer.MAX_VALUE, unit = DataUnit.BYTES)
 	public DataSize getMaxInitialLineLength() {
 		return maxInitialLineLength;
 	}
@@ -422,6 +423,7 @@ public class HttpClientProperties {
 		private Duration closeNotifyReadTimeout = Duration.ZERO;
 
 		/** The default ssl configuration type. Defaults to TCP. */
+		@Deprecated
 		private SslProvider.DefaultConfigurationType defaultConfigurationType = SslProvider.DefaultConfigurationType.TCP;
 
 		/** Keystore path for Netty HttpClient. */
@@ -587,10 +589,12 @@ public class HttpClientProperties {
 			this.closeNotifyReadTimeout = closeNotifyReadTimeout;
 		}
 
+		@Deprecated
 		public SslProvider.DefaultConfigurationType getDefaultConfigurationType() {
 			return defaultConfigurationType;
 		}
 
+		@Deprecated
 		public void setDefaultConfigurationType(SslProvider.DefaultConfigurationType defaultConfigurationType) {
 			this.defaultConfigurationType = defaultConfigurationType;
 		}

@@ -30,7 +30,6 @@ import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
 import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
@@ -42,12 +41,10 @@ import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
-import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
 import reactor.core.publisher.Mono;
 
-@Component
 @Order(-2)
 public class SyncopeSRAWebExceptionHandler implements WebExceptionHandler, ApplicationListener<RefreshRoutesEvent> {
 
@@ -55,11 +52,14 @@ public class SyncopeSRAWebExceptionHandler implements WebExceptionHandler, Appli
 
     private static final Map<String, Optional<URI>> CACHE = new ConcurrentHashMap<>();
 
-    @Autowired
-    private RouteProvider routeProvider;
+    private final RouteProvider routeProvider;
 
-    @Autowired
-    private SRAProperties props;
+    private final SRAProperties props;
+
+    public SyncopeSRAWebExceptionHandler(final RouteProvider routeProvider, final SRAProperties props) {
+        this.routeProvider = routeProvider;
+        this.props = props;
+    }
 
     @Override
     public void onApplicationEvent(final RefreshRoutesEvent event) {

@@ -64,7 +64,7 @@ import org.springframework.test.context.support.TestPropertySourceUtils;
 public abstract class AbstractEnduserITCase extends AbstractUIITCase {
 
     @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
-    @Configuration
+    @Configuration(proxyBeanMethods = false)
     public static class SyncopeEnduserWebApplicationTestConfig {
 
         @Bean

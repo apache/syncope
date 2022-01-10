@@ -20,7 +20,6 @@ under the License.
 <configuration status="WARN">
 
   <appenders>
-
     <RollingRandomAccessFile name="main" fileName="${log.directory}/core.log"
                              filePattern="${log.directory}/core-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">

@@ -19,8 +19,8 @@
 package org.apache.syncope.client.enduser;
 
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,27 +28,29 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 @EnableWebSecurity
-@Configuration
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+@Configuration(proxyBeanMethods = false)
+public class SecurityConfig {
 
-    @Autowired
-    private EnduserProperties props;
+    @Bean
+    public WebSecurityConfigurerAdapter enduserSecurityAdapter(final EnduserProperties props) {
+        return new WebSecurityConfigurerAdapter() {
+            @Override
+            protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
+                auth.inMemoryAuthentication().
+                    withUser(props.getAnonymousUser()).
+                    password("{noop}" + props.getAnonymousKey()).
+                    roles(IdRepoEntitlement.ANONYMOUS);
+            }
 
-    @Override
-    protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication().
-                withUser(props.getAnonymousUser()).
-                password("{noop}" + props.getAnonymousKey()).
-                roles(IdRepoEntitlement.ANONYMOUS);
-    }
-
-    @Override
-    protected void configure(final HttpSecurity http) throws Exception {
-        http.csrf().disable().
-                authorizeRequests().
-                requestMatchers(EndpointRequest.toAnyEndpoint()).
-                authenticated().
-                and().
-                httpBasic();
+            @Override
+            protected void configure(final HttpSecurity http) throws Exception {
+                http.csrf().disable().
+                    authorizeRequests().
+                    requestMatchers(EndpointRequest.toAnyEndpoint()).
+                    authenticated().
+                    and().
+                    httpBasic();
+            }
+        };
     }
 }

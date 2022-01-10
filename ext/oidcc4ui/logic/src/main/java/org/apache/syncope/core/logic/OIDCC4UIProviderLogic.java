@@ -141,7 +141,7 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
         if (key != null) {
             try {
                 return binder.getOIDCProviderTO(opDAO.find(key));
-            } catch (Throwable ignore) {
+            } catch (final Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);
             }
