@@ -18,57 +18,60 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
+import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
-import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.AuditManager;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
+import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
-import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.apache.syncope.core.persistence.api.dao.PullMatch;
-import org.apache.syncope.core.persistence.api.dao.TaskDAO;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional(rollbackFor = Throwable.class)
 public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHandler<PullTask, PullActions>
@@ -88,6 +91,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     @Autowired
     protected UserDAO userDAO;
+
+    @Autowired
+    protected AnyTypeDAO anyTypeDAO;
 
     @Autowired
     protected TaskDAO taskDAO;
@@ -250,18 +256,12 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 if (profile.getTask().isRemediation()) {
                     // set to SUCCESS to let the incremental flow go on in case of errors
                     resultStatus = Result.SUCCESS;
-                    Remediation entity = entityFactory.newEntity(Remediation.class);
-                    entity.setAnyType(provision.getAnyType());
-                    entity.setOperation(ResourceOperation.CREATE);
-                    entity.setPayload(anyTO);
-                    entity.setError(result.getMessage());
-                    entity.setInstant(new Date());
-                    entity.setRemoteName(delta.getObject().getName().getNameValue());
-                    if (taskDAO.find(profile.getTask().getKey()) != null) {
-                        entity.setPullTask(profile.getTask());
-                    }
-
-                    remediationDAO.save(entity);
+                    createRemediation(
+                            provision.getAnyType(),
+                            anyTO,
+                            taskDAO.find(profile.getTask().getKey()) != null ? profile.getTask() : null,
+                            result,
+                            delta);
                 } else {
                     resultStatus = Result.FAILURE;
                 }
@@ -378,17 +378,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                         if (profile.getTask().isRemediation()) {
                             // set to SUCCESS to let the incremental flow go on in case of errors
                             resultStatus = Result.SUCCESS;
-
-                            Remediation entity = entityFactory.newEntity(Remediation.class);
-                            entity.setAnyType(provision.getAnyType());
-                            entity.setOperation(ResourceOperation.UPDATE);
-                            entity.setPayload(anyPatch);
-                            entity.setError(result.getMessage());
-                            entity.setInstant(new Date());
-                            entity.setRemoteName(delta.getObject().getName().getNameValue());
-                            entity.setPullTask(profile.getTask());
-
-                            remediationDAO.save(entity);
+                            createRemediation(provision.getAnyType(), anyPatch, profile.getTask(), result, delta);
                         } else {
                             resultStatus = Result.FAILURE;
                         }
@@ -682,16 +672,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                         if (profile.getTask().isRemediation()) {
                             // set to SUCCESS to let the incremental flow go on in case of errors
                             resultStatus = Result.SUCCESS;
-                            Remediation entity = entityFactory.newEntity(Remediation.class);
-                            entity.setAnyType(provision.getAnyType());
-                            entity.setOperation(ResourceOperation.DELETE);
-                            entity.setPayload(match.getAny().getKey());
-                            entity.setError(result.getMessage());
-                            entity.setInstant(new Date());
-                            entity.setRemoteName(delta.getObject().getName().getNameValue());
-                            entity.setPullTask(profile.getTask());
-
-                            remediationDAO.save(entity);
+                            createRemediation(
+                                    provision.getAnyType(), match.getAny().getKey(), profile.getTask(), result, delta);
                         }
                     }
 
@@ -948,4 +930,59 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 delta,
                 furtherInput);
     }
+
+    protected Remediation createRemediation(
+            final AnyType anyType,
+            final String anyKey,
+            final PullTask pullTask,
+            final ProvisioningReport result,
+            final SyncDelta delta) {
+        return createRemediation(anyType, anyKey, null, null, pullTask, result, delta);
+    }
+
+    protected Remediation createRemediation(
+            final AnyType anyType,
+            final AnyTO anyTO,
+            final PullTask pullTask,
+            final ProvisioningReport result,
+            final SyncDelta delta) {
+        return createRemediation(anyType, null, anyTO, null, pullTask, result, delta);
+    }
+
+    protected Remediation createRemediation(
+            final AnyType anyType,
+            final AnyPatch anyPatch,
+            final PullTask pullTask,
+            final ProvisioningReport result,
+            final SyncDelta delta) {
+        return createRemediation(anyType, null, null, anyPatch, pullTask, result, delta);
+    }
+
+    protected Remediation createRemediation(
+            final AnyType anyType,
+            final String anyKey,
+            final AnyTO anyTO,
+            final AnyPatch anyPatch,
+            final PullTask pullTask,
+            final ProvisioningReport result,
+            final SyncDelta delta) {
+        Remediation entity = entityFactory.newEntity(Remediation.class);
+
+        entity.setAnyType(anyType);
+        entity.setOperation(anyPatch == null ? ResourceOperation.CREATE : ResourceOperation.UPDATE);
+        if (StringUtils.isNotBlank(anyKey)) {
+            entity.setPayload(anyKey);
+        } else if (anyTO != null) {
+            entity.setPayload(anyTO);
+        } else if (anyPatch != null) {
+            entity.setPayload(anyPatch);
+        }
+        entity.setError(result.getMessage());
+        entity.setInstant(new Date());
+        entity.setRemoteName(delta.getObject().getName().getNameValue());
+        entity.setPullTask(pullTask);
+
+        return remediationDAO.save(entity);
+    }
+
 }
