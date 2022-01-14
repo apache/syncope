@@ -42,10 +42,12 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -867,8 +869,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     "SyncopeClientCompositeException: {[RequiredValuesMissing [userId]]}"));
         } finally {
             resourceService.delete(ldap.getKey());
-            remediationService.list(new RemediationQuery.Builder().page(1).size(10).build()).getResult().forEach(
-                    r -> remediationService.delete(r.getKey()));
+            cleanUpRemediations();
         }
     }
 
@@ -1392,6 +1393,77 @@ public class PullTaskITCase extends AbstractTaskITCase {
             if (user != null) {
                 userService.delete(user.getKey());
             }
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE1656() throws NamingException {
+        // preliminary create a new LDAP object
+        createLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, prepareLdapAttributes(
+                "pullFromLDAP_issue1656",
+                "pullFromLDAP_issue1656@syncope.apache.org",
+                "Active",
+                "pullFromLDAP_issue1656",
+                "Surname",
+                "5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8",
+                "odd",
+                "password"));
+        try {
+            // 1. Pull from resource-ldap
+            PullTaskTO pullTask = new PullTaskTO();
+            pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+            pullTask.setName("SYNCOPE1656");
+            pullTask.setActive(true);
+            pullTask.setPerformCreate(true);
+            pullTask.setPerformUpdate(true);
+            pullTask.setRemediation(true);
+            pullTask.setPullMode(PullMode.FULL_RECONCILIATION);
+            pullTask.setResource(RESOURCE_NAME_LDAP);
+
+            Response taskResponse = taskService.create(TaskType.PULL, pullTask);
+            pullTask = getObject(taskResponse.getLocation(), TaskService.class, PullTaskTO.class);
+            assertNotNull(pullTask);
+
+            ExecTO execution = execProvisioningTask(
+                    taskService, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+
+            UserTO pullFromLDAP_issue1656 = userService.read("pullFromLDAP_issue1656");
+            assertEquals("pullFromLDAP_issue1656@syncope.apache.org",
+                    pullFromLDAP_issue1656.getPlainAttr("email").get().getValues().get(0));
+            // 2. Edit mail attribute directly on the resource in order to have a not valid email
+            ConnObjectTO connObject =
+                    resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(),
+                            pullFromLDAP_issue1656.getKey());
+            assertNotNull(connObject);
+            assertEquals("pullFromLDAP_issue1656@syncope.apache.org",
+                    connObject.getAttr("mail").get().getValues().get(0));
+            AttrTO userDn = connObject.getAttr(Name.NAME).get();
+            assertNotNull(userDn);
+            assertEquals(1, userDn.getValues().size());
+            updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
+                    userDn.getValues().get(0), Collections.singletonMap("mail", "pullFromLDAP_issue1656@"));
+            // 3. Pull again from resource-ldap
+            execution = execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            assertTrue(execution.getMessage().contains("UPDATE FAILURE"));
+            pullFromLDAP_issue1656 = userService.read("pullFromLDAP_issue1656");
+            assertEquals("pullFromLDAP_issue1656@syncope.apache.org",
+                    pullFromLDAP_issue1656.getPlainAttr("email").get().getValues().get(0));
+
+            // a remediation should have been created
+            PagedResult<RemediationTO> remediations =
+                    remediationService.list(new RemediationQuery.Builder().page(1).size(10).build());
+            assertEquals(1, remediations.getSize());
+            assertEquals(pullFromLDAP_issue1656.getKey(),
+                    remediations.getResult().get(0).getAnyPatchPayload().getKey());
+            assertTrue(StringUtils.contains(remediations.getResult().get(0).getError(),
+                    "\"pullFromLDAP_issue1656@\" is not a valid email address"));
+        } finally {
+            // restore previous value
+            removeLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
+                    "uid=pullFromLDAP_issue1656,ou=People,o=isp");
+            cleanUpRemediations();
         }
     }
 }

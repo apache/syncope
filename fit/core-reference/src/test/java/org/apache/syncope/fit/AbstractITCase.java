@@ -30,14 +30,18 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.ModificationItem;
@@ -77,6 +81,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
+import org.apache.syncope.common.rest.api.beans.RemediationQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -606,6 +611,34 @@ public abstract class AbstractITCase {
         }
     }
 
+    protected void createLdapRemoteObject(
+            final String bindDn,
+            final String bindPwd,
+            final Pair<String, Set<Attribute>> entryAttrs) throws NamingException {
+
+        InitialDirContext ctx = null;
+        try {
+            ctx = getLdapResourceDirContext(bindDn, bindPwd);
+
+            BasicAttributes entry = new BasicAttributes();
+            entryAttrs.getRight().forEach(item -> entry.put(item));
+
+            ctx.createSubcontext(entryAttrs.getLeft(), entry);
+
+        } catch (NamingException e) {
+            LOG.error("While creating {} with {}", entryAttrs.getLeft(), entryAttrs.getRight(), e);
+            throw e;
+        } finally {
+            if (ctx != null) {
+                try {
+                    ctx.close();
+                } catch (NamingException e) {
+                    // ignore
+                }
+            }
+        }
+    }
+
     protected void updateLdapRemoteObject(
             final String bindDn,
             final String bindPwd,
@@ -633,6 +666,38 @@ public abstract class AbstractITCase {
                 }
             }
         }
+    }
+
+    protected Pair<String, Set<Attribute>> prepareLdapAttributes(
+            final String uid,
+            final String email,
+            final String description,
+            final String givenName,
+            final String sn,
+            final String registeredAddress,
+            final String title,
+            final String password) {
+        String entryDn = "uid=" + uid + ",ou=People,o=isp";
+        Set<Attribute> attributes = new HashSet<>();
+
+        attributes.add(new BasicAttribute("description", description));
+        attributes.add(new BasicAttribute("givenName", givenName));
+        attributes.add(new BasicAttribute("mail", email));
+        attributes.add(new BasicAttribute("sn", sn));
+        attributes.add(new BasicAttribute("cn", uid));
+        attributes.add(new BasicAttribute("uid", uid));
+        attributes.add(new BasicAttribute("registeredaddress", registeredAddress));
+        attributes.add(new BasicAttribute("title", title));
+        attributes.add(new BasicAttribute("userpassword", password));
+
+        Attribute oc = new BasicAttribute("objectClass");
+        oc.add("top");
+        oc.add("person");
+        oc.add("inetOrgPerson");
+        oc.add("organizationalPerson");
+        attributes.add(oc);
+
+        return Pair.of(entryDn, attributes);
     }
 
     protected void removeLdapRemoteObject(
@@ -701,5 +766,10 @@ public abstract class AbstractITCase {
             i++;
         } while (results.isEmpty() && i < maxWaitSeconds);
         return results;
+    }
+
+    protected void cleanUpRemediations() {
+        remediationService.list(new RemediationQuery.Builder().page(1).size(100).build()).getResult().forEach(
+                r -> remediationService.delete(r.getKey()));
     }
 }

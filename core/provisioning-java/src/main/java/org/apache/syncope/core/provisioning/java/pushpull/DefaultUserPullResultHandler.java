@@ -18,13 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -35,6 +28,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -47,7 +41,6 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -56,14 +49,19 @@ import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
-import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 public class DefaultUserPullResultHandler extends AbstractPullResultHandler implements UserPullResultHandler {
 
@@ -126,6 +124,11 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 enabled(delta),
                 Collections.singleton(profile.getTask().getResource().getKey()),
                 true);
+
+        if (ProvisioningReport.Status.FAILURE == result.getStatus() && profile.getTask().isRemediation()) {
+            createRemediation(anyTypeDAO.find(result.getAnyType()), anyPatch, profile.getTask(), result,
+                    delta);
+        }
 
         return updated.getLeft();
     }
@@ -395,16 +398,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 resultStatus = Result.FAILURE;
 
                 if (profile.getTask().isRemediation()) {
-                    Remediation entity = entityFactory.newEntity(Remediation.class);
-                    entity.setAnyType(provision.getAnyType());
-                    entity.setOperation(ResourceOperation.UPDATE);
-                    entity.setPayload(patch);
-                    entity.setError(report.getMessage());
-                    entity.setInstant(new Date());
-                    entity.setRemoteName(delta.getObject().getName().getNameValue());
-                    entity.setPullTask(profile.getTask());
-
-                    remediationDAO.save(entity);
+                    createRemediation(provision.getAnyType(), patch, profile.getTask(), report, delta);
                 }
             }
 
@@ -520,16 +514,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 resultStatus = Result.FAILURE;
 
                 if (profile.getTask().isRemediation()) {
-                    Remediation entity = entityFactory.newEntity(Remediation.class);
-                    entity.setAnyType(provision.getAnyType());
-                    entity.setOperation(ResourceOperation.UPDATE);
-                    entity.setPayload(patch);
-                    entity.setError(report.getMessage());
-                    entity.setInstant(new Date());
-                    entity.setRemoteName(delta.getObject().getName().getNameValue());
-                    entity.setPullTask(profile.getTask());
-
-                    remediationDAO.save(entity);
+                    createRemediation(provision.getAnyType(), patch, profile.getTask(), report, delta);
                 }
             }
 
@@ -601,16 +586,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     output = e;
 
                     if (profile.getTask().isRemediation()) {
-                        Remediation entity = entityFactory.newEntity(Remediation.class);
-                        entity.setAnyType(provision.getAnyType());
-                        entity.setOperation(ResourceOperation.UPDATE);
-                        entity.setPayload(patch);
-                        entity.setError(report.getMessage());
-                        entity.setInstant(new Date());
-                        entity.setRemoteName(delta.getObject().getName().getNameValue());
-                        entity.setPullTask(profile.getTask());
-
-                        remediationDAO.save(entity);
+                        createRemediation(provision.getAnyType(), patch, profile.getTask(), report, delta);
                     }
                 }
 
