@@ -1453,17 +1453,16 @@ public class PullTaskITCase extends AbstractTaskITCase {
             pullFromLDAP_issue1656 = userService.read("pullFromLDAP_issue1656");
             assertEquals("pullFromLDAP_issue1656@syncope.apache.org",
                     pullFromLDAP_issue1656.getPlainAttr("email").get().getValues().get(0));
-
-            // a remediation should have been created
+            final String pullFromLDAP_issue1656_key = pullFromLDAP_issue1656.getKey();
+            // a remediation for pullFromLDAP_issue1656 email should have been created
             PagedResult<RemediationTO> remediations =
                     remediationService.list(new RemediationQuery.Builder().page(1).size(10).build());
-            assertEquals(1, remediations.getSize());
-            assertEquals(pullFromLDAP_issue1656.getKey(),
-                    remediations.getResult().get(0).getAnyPatchPayload().getKey());
-            assertTrue(StringUtils.contains(remediations.getResult().get(0).getError(),
-                    "\"pullFromLDAP_issue1656@\" is not a valid email address"));
+            assertTrue(remediations.getResult().stream().anyMatch(
+                    r -> pullFromLDAP_issue1656_key.equals(r.getAnyPatchPayload().getKey())));
+            assertTrue(remediations.getResult().stream().anyMatch(r -> StringUtils.contains(r.getError(),
+                    "\"pullFromLDAP_issue1656@\" is not a valid email address")));
         } finally {
-            // restore previous value
+            // remove test entity
             removeLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
                     "uid=pullFromLDAP_issue1656,ou=People,o=isp");
             cleanUpRemediations();
