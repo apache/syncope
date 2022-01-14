@@ -43,11 +43,14 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -1465,5 +1468,42 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     "uid=pullFromLDAP_issue1656,ou=People,o=isp");
             cleanUpRemediations();
         }
+    }
+
+    private void cleanUpRemediations() {
+        remediationService.list(new RemediationQuery.Builder().page(1).size(100).build()).getResult().forEach(
+                r -> remediationService.delete(r.getKey()));
+    }
+
+    private Pair<String, Set<Attribute>> prepareLdapAttributes(
+            final String uid,
+            final String email,
+            final String description,
+            final String givenName,
+            final String sn,
+            final String registeredAddress,
+            final String title,
+            final String password) {
+        String entryDn = "uid=" + uid + ",ou=People,o=isp";
+        Set<Attribute> attributes = new HashSet<>();
+
+        attributes.add(new BasicAttribute("description", description));
+        attributes.add(new BasicAttribute("givenName", givenName));
+        attributes.add(new BasicAttribute("mail", email));
+        attributes.add(new BasicAttribute("sn", sn));
+        attributes.add(new BasicAttribute("cn", uid));
+        attributes.add(new BasicAttribute("uid", uid));
+        attributes.add(new BasicAttribute("registeredaddress", registeredAddress));
+        attributes.add(new BasicAttribute("title", title));
+        attributes.add(new BasicAttribute("userpassword", password));
+
+        Attribute oc = new BasicAttribute("objectClass");
+        oc.add("top");
+        oc.add("person");
+        oc.add("inetOrgPerson");
+        oc.add("organizationalPerson");
+        attributes.add(oc);
+
+        return Pair.of(entryDn, attributes);
     }
 }

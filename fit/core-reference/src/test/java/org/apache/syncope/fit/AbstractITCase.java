@@ -30,7 +30,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -81,7 +80,6 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
-import org.apache.syncope.common.rest.api.beans.RemediationQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -668,38 +666,6 @@ public abstract class AbstractITCase {
         }
     }
 
-    protected Pair<String, Set<Attribute>> prepareLdapAttributes(
-            final String uid,
-            final String email,
-            final String description,
-            final String givenName,
-            final String sn,
-            final String registeredAddress,
-            final String title,
-            final String password) {
-        String entryDn = "uid=" + uid + ",ou=People,o=isp";
-        Set<Attribute> attributes = new HashSet<>();
-
-        attributes.add(new BasicAttribute("description", description));
-        attributes.add(new BasicAttribute("givenName", givenName));
-        attributes.add(new BasicAttribute("mail", email));
-        attributes.add(new BasicAttribute("sn", sn));
-        attributes.add(new BasicAttribute("cn", uid));
-        attributes.add(new BasicAttribute("uid", uid));
-        attributes.add(new BasicAttribute("registeredaddress", registeredAddress));
-        attributes.add(new BasicAttribute("title", title));
-        attributes.add(new BasicAttribute("userpassword", password));
-
-        Attribute oc = new BasicAttribute("objectClass");
-        oc.add("top");
-        oc.add("person");
-        oc.add("inetOrgPerson");
-        oc.add("organizationalPerson");
-        attributes.add(oc);
-
-        return Pair.of(entryDn, attributes);
-    }
-
     protected void removeLdapRemoteObject(
             final String bindDn,
             final String bindPwd,
@@ -768,8 +734,4 @@ public abstract class AbstractITCase {
         return results;
     }
 
-    protected void cleanUpRemediations() {
-        remediationService.list(new RemediationQuery.Builder().page(1).size(100).build()).getResult().forEach(
-                r -> remediationService.delete(r.getKey()));
-    }
 }
