@@ -34,12 +34,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.ModificationItem;
@@ -734,6 +737,34 @@ public abstract class AbstractITCase {
         }
     }
 
+    protected void createLdapRemoteObject(
+            final String bindDn,
+            final String bindPwd,
+            final Pair<String, Set<Attribute>> entryAttrs) throws NamingException {
+
+        InitialDirContext ctx = null;
+        try {
+            ctx = getLdapResourceDirContext(bindDn, bindPwd);
+
+            BasicAttributes entry = new BasicAttributes();
+            entryAttrs.getRight().forEach(item -> entry.put(item));
+
+            ctx.createSubcontext(entryAttrs.getLeft(), entry);
+
+        } catch (NamingException e) {
+            LOG.error("While creating {} with {}", entryAttrs.getLeft(), entryAttrs.getRight(), e);
+            throw e;
+        } finally {
+            if (ctx != null) {
+                try {
+                    ctx.close();
+                } catch (NamingException e) {
+                    // ignore
+                }
+            }
+        }
+    }
+
     protected void updateLdapRemoteObject(
             final String bindDn,
             final String bindPwd,
@@ -923,4 +954,5 @@ public abstract class AbstractITCase {
         } while (results.isEmpty() && i < maxWaitSeconds);
         return results;
     }
+
 }
