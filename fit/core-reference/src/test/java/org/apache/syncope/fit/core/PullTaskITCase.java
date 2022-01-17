@@ -387,7 +387,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         // 2. verify that pulled group is found
         PagedResult<GroupTO> matchingGroups = groupService.search(new AnyQuery.Builder().realm(
-                SyncopeConstants.ROOT_REALM).
+                        SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
                 build());
         assertNotNull(matchingGroups);
@@ -787,7 +787,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 3b. remediation was created
             Optional<RemediationTO> remediation = remediationService.list(
-                    new RemediationQuery.Builder().page(1).size(1000).build()).getResult().stream().
+                            new RemediationQuery.Builder().page(1).size(1000).build()).getResult().stream().
                     filter(r -> "uid=pullFromLDAP,ou=People,o=isp".equalsIgnoreCase(r.getRemoteName())).
                     findFirst();
             assertTrue(remediation.isPresent());
@@ -861,7 +861,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 assertEquals(ClientExceptionType.Reconciliation, sce.getType());
             }
             Optional<RemediationTO> remediation = remediationService.list(
-                    new RemediationQuery.Builder().page(1).size(1000).build()).getResult().stream().
+                            new RemediationQuery.Builder().page(1).size(1000).build()).getResult().stream().
                     filter(r -> "uid=pullFromLDAP,ou=People,o=isp".equalsIgnoreCase(r.getRemoteName())).
                     findFirst();
             assertTrue(remediation.isPresent());
@@ -1455,7 +1455,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // a remediation for pullFromLDAP_issue1656 email should have been created
             PagedResult<RemediationTO> remediations =
                     remediationService.list(new RemediationQuery.Builder().page(1).size(10).build());
-            assertTrue(remediations.getResult().stream().anyMatch(
+            assertTrue(remediations.getResult().stream().filter(r -> r.getAnyURPayload() != null).anyMatch(
                     r -> pullFromLDAP_issue1656_key.equals(r.getAnyURPayload().getKey())));
             assertTrue(remediations.getResult().stream().anyMatch(r -> StringUtils.contains(r.getError(),
                     "\"pullFromLDAP_issue1656@\" is not a valid email address")));
