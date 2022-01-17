@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.request.AnyCR;
@@ -35,10 +36,12 @@ import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -89,6 +92,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     @Autowired
     protected UserDAO userDAO;
+
+    @Autowired
+    protected AnyTypeDAO anyTypeDAO;
 
     @Autowired
     protected TaskDAO taskDAO;
@@ -254,18 +260,12 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 if (profile.getTask().isRemediation()) {
                     // set to SUCCESS to let the incremental flow go on in case of errors
                     resultStatus = Result.SUCCESS;
-                    Remediation entity = entityFactory.newEntity(Remediation.class);
-                    entity.setAnyType(provision.getAnyType());
-                    entity.setOperation(ResourceOperation.CREATE);
-                    entity.setPayload(anyCR);
-                    entity.setError(result.getMessage());
-                    entity.setInstant(new Date());
-                    entity.setRemoteName(delta.getObject().getName().getNameValue());
-                    if (taskDAO.find(profile.getTask().getKey()) != null) {
-                        entity.setPullTask(profile.getTask());
-                    }
-
-                    remediationDAO.save(entity);
+                    createRemediation(
+                            provision.getAnyType(),
+                            anyCR,
+                            taskDAO.find(profile.getTask().getKey()) != null ? profile.getTask() : null,
+                            result,
+                            delta);
                 } else {
                     resultStatus = Result.FAILURE;
                 }
@@ -382,17 +382,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                         if (profile.getTask().isRemediation()) {
                             // set to SUCCESS to let the incremental flow go on in case of errors
                             resultStatus = Result.SUCCESS;
-
-                            Remediation entity = entityFactory.newEntity(Remediation.class);
-                            entity.setAnyType(provision.getAnyType());
-                            entity.setOperation(ResourceOperation.UPDATE);
-                            entity.setPayload(anyUR);
-                            entity.setError(result.getMessage());
-                            entity.setInstant(new Date());
-                            entity.setRemoteName(delta.getObject().getName().getNameValue());
-                            entity.setPullTask(profile.getTask());
-
-                            remediationDAO.save(entity);
+                            createRemediation(provision.getAnyType(), anyUR, profile.getTask(), result, delta);
                         } else {
                             resultStatus = Result.FAILURE;
                         }
@@ -689,16 +679,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                         if (profile.getTask().isRemediation()) {
                             // set to SUCCESS to let the incremental flow go on in case of errors
                             resultStatus = Result.SUCCESS;
-                            Remediation entity = entityFactory.newEntity(Remediation.class);
-                            entity.setAnyType(provision.getAnyType());
-                            entity.setOperation(ResourceOperation.DELETE);
-                            entity.setPayload(match.getAny().getKey());
-                            entity.setError(result.getMessage());
-                            entity.setInstant(new Date());
-                            entity.setRemoteName(delta.getObject().getName().getNameValue());
-                            entity.setPullTask(profile.getTask());
-
-                            remediationDAO.save(entity);
+                            createRemediation(
+                                    provision.getAnyType(), match.getAny().getKey(), profile.getTask(), result, delta);
                         }
                     }
 
@@ -955,4 +937,59 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 delta,
                 furtherInput);
     }
+
+    protected Remediation createRemediation(
+            final AnyType anyType,
+            final String anyKey,
+            final PullTask pullTask,
+            final ProvisioningReport result,
+            final SyncDelta delta) {
+        return createRemediation(anyType, anyKey, null, null, pullTask, result, delta);
+    }
+
+    protected Remediation createRemediation(
+            final AnyType anyType,
+            final AnyCR anyCR,
+            final PullTask pullTask,
+            final ProvisioningReport result,
+            final SyncDelta delta) {
+        return createRemediation(anyType, null, anyCR, null, pullTask, result, delta);
+    }
+
+    protected Remediation createRemediation(
+            final AnyType anyType,
+            final AnyUR anyUR,
+            final PullTask pullTask,
+            final ProvisioningReport result,
+            final SyncDelta delta) {
+        return createRemediation(anyType, null, null, anyUR, pullTask, result, delta);
+    }
+
+    protected Remediation createRemediation(
+            final AnyType anyType,
+            final String anyKey,
+            final AnyCR anyCR,
+            final AnyUR anyUR,
+            final PullTask pullTask,
+            final ProvisioningReport result,
+            final SyncDelta delta) {
+        Remediation entity = entityFactory.newEntity(Remediation.class);
+
+        entity.setAnyType(anyType);
+        entity.setOperation(anyUR == null ? ResourceOperation.CREATE : ResourceOperation.UPDATE);
+        if (StringUtils.isNotBlank(anyKey)) {
+            entity.setPayload(anyKey);
+        } else if (anyCR != null) {
+            entity.setPayload(anyCR);
+        } else if (anyUR != null) {
+            entity.setPayload(anyUR);
+        }
+        entity.setError(result.getMessage());
+        entity.setInstant(new Date());
+        entity.setRemoteName(delta.getObject().getName().getNameValue());
+        entity.setPullTask(pullTask);
+
+        return remediationDAO.save(entity);
+    }
+
 }
