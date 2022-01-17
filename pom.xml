@@ -428,9 +428,9 @@ under the License.
 
     <camel.version>3.14.0</camel.version>
 
-    <slf4j.version>1.7.32</slf4j.version>
+    <slf4j.version>1.7.33</slf4j.version>
 
-    <elasticsearch.version>7.16.2</elasticsearch.version>
+    <elasticsearch.version>7.16.3</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -1972,7 +1972,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.1</version>
+          <version>3.9.0</version>
           <configuration>
             <release>${targetJdk}</release>
             <useIncrementalCompilation>false</useIncrementalCompilation>
@@ -2107,7 +2107,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.2.1</version>
+          <version>3.2.2</version>
         </plugin>
 
         <plugin>
