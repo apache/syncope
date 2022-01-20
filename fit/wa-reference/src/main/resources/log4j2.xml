@@ -56,14 +56,14 @@ under the License.
       <appender-ref ref="main"/>
     </asyncLogger>
 
+    <asyncLogger name="org.apache.cxf" additivity="false" level="ERROR">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+
     <asyncLogger name="org.apache.syncope.client.lib" additivity="false" level="OFF">
       <appender-ref ref="main"/>
     </asyncLogger>
     <asyncLogger name="org.apache.syncope.wa" additivity="false" level="INFO">
-      <appender-ref ref="main"/>
-    </asyncLogger>
-
-    <asyncLogger name="org.apache.cxf" additivity="false" level="DEBUG">
       <appender-ref ref="main"/>
     </asyncLogger>
 

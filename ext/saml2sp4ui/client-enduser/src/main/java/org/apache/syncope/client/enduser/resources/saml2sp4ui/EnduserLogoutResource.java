@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.enduser.resources;
+package org.apache.syncope.client.enduser.resources.saml2sp4ui;
 
 import org.apache.syncope.client.enduser.pages.SAML2SPBeforeLogout;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;

@@ -260,11 +260,11 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         return leaf;
     }
 
-    protected SearchCond visitCompount(final SearchCondition<SearchBean> sc) {
+    protected SearchCond visitCompound(final SearchCondition<SearchBean> sc) {
         List<SearchCond> searchConds = new ArrayList<>();
         sc.getSearchConditions().forEach(searchCond -> {
             searchConds.add(searchCond.getStatement() == null
-                    ? visitCompount(searchCond)
+                    ? visitCompound(searchCond)
                     : visitPrimitive(searchCond));
         });
 
@@ -288,7 +288,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
     @Override
     public void visit(final SearchCondition<SearchBean> sc) {
-        SEARCH_COND.set(sc.getStatement() == null ? visitCompount(sc) : visitPrimitive(sc));
+        SEARCH_COND.set(sc.getStatement() == null ? visitCompound(sc) : visitPrimitive(sc));
     }
 
     @Override
