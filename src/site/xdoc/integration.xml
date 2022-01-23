@@ -35,20 +35,20 @@ under the License.
     <section name="GitHub Actions">
       <p>
         <a href="https://github.com/apache/syncope/actions/workflows/crosschecks.yml">
-          <img src="https://github.com/apache/syncope/actions/workflows/crosschecks.yml/badge.svg" style="max-width:100%;">
+          <img src="https://github.com/apache/syncope/actions/workflows/crosschecks.yml/badge.svg" style="max-width:100%;"/>
         </a>
         <a href="https://github.com/apache/syncope/actions/workflows/codeql-analysis.yml">
-          <img src="https://github.com/apache/syncope/actions/workflows/codeql-analysis.yml/badge.svg" style="max-width:100%;">
+          <img src="https://github.com/apache/syncope/actions/workflows/codeql-analysis.yml/badge.svg" style="max-width:100%;"/>
         </a>
       </p>
     </section>
 
     <section name="Buildbot">
       <p>
-        <source><a href="https://ci.apache.org/builders/syncope-master-docs">https://ci.apache.org/builders/syncope-master-docs</a></source>
+        <source><a href="https://ci2.apache.org/#/builders/56">master</a></source>
       </p>
       <p>
-        <source><a href="https://ci.apache.org/builders/syncope-2_1_X-docs">https://ci.apache.org/builders/syncope-2_1_X-docs</a></source>
+        <source><a href="https://ci2.apache.org/#/builders/55">2_1_X</a></source>
       </p>
     </section>
   </body>

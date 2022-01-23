@@ -2665,6 +2665,7 @@ under the License.
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
             <version>2.2.1</version>
+            <inherited>false</inherited>
             <dependencies>
               <dependency>
                 <groupId>org.asciidoctor</groupId>
@@ -2704,7 +2705,7 @@ under the License.
                 <configuration>
                   <sourceDocumentName>getting-started/getting-started.adoc</sourceDocumentName>
                   <baseDir>${rootpom.basedir}/src/main/asciidoc/getting-started</baseDir>
-                  <backend>html</backend>
+                  <backend>html5</backend>
                   <attributes>
                     <title>Apache Syncope ${project.version} - Getting Started</title>
                     <imagesdir>images</imagesdir>
@@ -2737,7 +2738,7 @@ under the License.
                 <configuration>
                   <sourceDocumentName>reference-guide/reference-guide.adoc</sourceDocumentName>
                   <baseDir>${rootpom.basedir}/src/main/asciidoc/reference-guide</baseDir>
-                  <backend>html</backend>
+                  <backend>html5</backend>
                   <attributes>
                     <title>Apache Syncope ${project.version} - Reference Guide</title>
                     <imagesdir>images</imagesdir>
@@ -2772,30 +2773,6 @@ under the License.
               <locales>en</locales>
               <generateProjectInfo>false</generateProjectInfo>
             </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>fix-FacebookLike-width</id>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <phase>post-site</phase>
-                <configuration>
-                  <target>
-                    <replace dir="${rootpom.basedir}/target/site" token="48px" value="72px">
-                      <include name="**/*.html" />
-                    </replace>
-                    <replace dir="${rootpom.basedir}/target/site" token="dropdown-toggle&quot;" value="dropdown-toggle&quot; data-toggle=&quot;dropdown&quot;">
-                      <include name="**/*.html" />
-                    </replace>
-                  </target>
-                </configuration>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>

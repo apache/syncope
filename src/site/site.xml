@@ -30,7 +30,7 @@ under the License.
   <skin>
     <groupId>org.apache.maven.skins</groupId>
     <artifactId>maven-fluido-skin</artifactId>
-    <version>1.5</version>
+    <version>1.10.0</version>
   </skin>
   <custom>
     <fluidoSkin>
@@ -46,13 +46,12 @@ under the License.
         <showFollowers>false</showFollowers>
       </twitter>
       <facebookLike/>
-      <googlePlusOne/>
     </fluidoSkin>
   </custom>
   
   <body>
     <breadcrumbs>
-      <item name="Apache" href="http://www.apache.org/"/>
+      <item name="Apache" href="https://www.apache.org/"/>
       <item name="Apache Syncope" href="https://syncope.apache.org/"/>
     </breadcrumbs>
         
@@ -70,7 +69,7 @@ under the License.
     </menu>
         
     <menu name="Development">
-      <item name="Roadmap" href="http://cwiki.apache.org/confluence/display/SYNCOPE/Roadmap"/>
+      <item name="Roadmap" href="https://cwiki.apache.org/confluence/display/SYNCOPE/Roadmap"/>
       <item name="How to contribute?" href="contributing"/>
       <item name="Source Repository" href="source-repository"/>
       <item name="Continuous Integration" href="integration"/>
@@ -80,15 +79,15 @@ under the License.
     </menu>
 
     <menu name="ASF">
-      <item name="How Apache Works" href="http://www.apache.org/foundation/how-it-works"/>
-      <item name="Foundation" href="http://www.apache.org/foundation/"/>
-      <item name="Sponsoring Apache" href="http://www.apache.org/foundation/sponsorship"/>
-      <item name="Thanks" href="http://www.apache.org/foundation/thanks"/>
+      <item name="How Apache Works" href="https://www.apache.org/foundation/how-it-works"/>
+      <item name="Foundation" href="https://www.apache.org/foundation/"/>
+      <item name="Sponsoring Apache" href="https://www.apache.org/foundation/sponsorship"/>
+      <item name="Thanks" href="https://www.apache.org/foundation/thanks"/>
     </menu>
 
     <footer>
       <![CDATA[
-Copyright &copy; 2021, the Apache Software Foundation.<br/>
+Copyright &copy; 2022, the Apache Software Foundation.<br/>
 Apache, Syncope, Apache Syncope, the Apache feather logo and the Apache Syncope project logo are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.
     
     <div class="pull-right">

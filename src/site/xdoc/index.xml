@@ -37,20 +37,20 @@ under the License.
       </p>
 
       <p>
-        <span style="font-weight: bold">Identity management</span> (or IdM) means to manage user data on systems and 
-        applications, using the combination of business processes and IT. IdM involves considering user attributes, 
-        roles, resources and entitlements in trying to answer the following thorny question:
-      </p>
-
-      <p style="text-align:center;">
-        <i>Who has access to What, When, How, and Why?</i>
+        Often, <span style="font-weight: bold">Identity Management</span> and
+        <span style="font-weight: bold">Access Management</span> are jointly referred, mainly because their two
+        management worlds likely coexist in the same project or in the same environment.<br/>
+        The two topics are however completely different: each one has its own context, its own rules, its own best
+        practices.<br/>
+        On the other hand, some products provide unorthodox implementations so it is indeed possible to do the same
+        thing with both of them.
       </p>
     </div>
     
     <div class="row" style="margin-bottom: 20px;">
       <div class="col-sm-offset-5 col-sm-2 text-center">
         <div class="btn-group" data-toggle="buttons">
-          <a class="btn btn-large btn-success center-block" style="width: 250px;" href="downloads">I want to build my IdM with<br/>Apache Syncope</a>
+          <a class="btn btn-large btn-success center-block" style="width: 250px;" href="downloads">I want to build my IAM with<br/>Apache Syncope</a>
         </div>
         <div class="btn-group" data-toggle="buttons">
           <a class="btn btn-large btn-info center-block" style="width: 250px;" href="contributing">I want to contribute to<br/>Apache Syncope</a>
@@ -58,35 +58,22 @@ under the License.
       </div>
     </div>
 
-    <h4>What is Identity Management, anyway?</h4>
     <dl>
-      <dt>Account</dt>
+      <dt>Identity Management</dt>
       <dd>
-        <p>Computers work with records of data about people. Such records contain technical information needed by 
-          the system for which the account is created and managed.</p>
+        <p>Tools and practices to keep identity data consistent and synchronized across repositories, data formats and
+          models.</p>
       </dd>
-      <dt>(Digital) Identity</dt>
+      <dt>Access Management</dt>
       <dd>
-        <p>A representation of a set of claims made by one digital subject about itself.
-          <strong>It’s you!</strong>
-        </p>
+        <p>Systems, protocols and technologies supporting user authentication (how Users are let accessing a given
+          system) and authorization (which capabilities each user owns on a given system).</p>
       </dd>
     </dl>
       
-    <p>Have you ever been hired by a company, entered an organization or just created a new Google account?
-      Companies, organizations and cloud entities work with applications that need your data to function properly:
-      username, password, e-mail, first name, surname, and more.</p>
-        
-    <p>Where is this information going to come from? And what happens when you need to be enabled for more 
-      applications? And what if you get promoted and acquire more rights on the applications you already had access 
-      to? Most importantly, what happens when you quit or they gently let you go?</p>
-        
-    <p>In brief, Identity Management takes care of managing identity data throughout what is called the 
-      <strong>Identity Lifecycle</strong>.</p>
-        
-    <p style="text-align:center;">
-      <img src="docs/images/identityLifecycle.png" alt="Identity lifecycle" width="500"/>
-    </p>
+    <p>From the definitions above, Identity Management and Access Management can be seen as complementary: very often,
+      the data synchronized by the former are then used by the latter to provide its features - e.g. authentication
+      and authorization.</p>
 
     <p>    
       <a href="https://www.apache.org/events/current-event">

@@ -37,7 +37,7 @@ under the License.
         <a href="https://repository.apache.org">Apache Nexus repository</a> for releasing SNAPSHOT and release artifacts.
         <br/>
         More details on
-        <a href="http://www.apache.org/dev/publishing-maven-artifacts.html#maven">releasing Maven artifacts</a>
+        <a href="https://www.apache.org/dev/publishing-maven-artifacts.html#maven">releasing Maven artifacts</a>
         at The Apache Software Foundation.
       </p>
     </section>
@@ -45,24 +45,24 @@ under the License.
     <section name="Prerequisites">
       <subsection name="GIT">
         <p>Install GIT; 
-          <a href="http://www.git-scm.com/downloads">binary packages</a> for various platforms are available.
+          <a href="https://www.git-scm.com/downloads">binary packages</a> for various platforms are available.
         </p>
       </subsection>
       
       <subsection name="GPG">
         <p>Install/Configure GPG - The artifacts that are deployed to the ASF central repository need to
           be signed. To do this you will need to have a public and private keypair. There is a very good
-          <a href="http://www.sonatype.com/people/2010/01/how-to-generate-pgp-signatures-with-maven/">guide</a> that 
+          <a href="https://blog.sonatype.com/2010/01/how-to-generate-pgp-signatures-with-maven/">guide</a> that 
           will walk you though this.</p>
       </subsection>
 
       <subsection name="Apache Maven">
         <p>Install Apache Maven 3.0.3 or higher; we strongly encourage our committers to install 
-          the latest <a href="http://maven.apache.org/download.html">Apache Maven</a> version available.
+          the latest <a href="https://maven.apache.org/download.html">Apache Maven</a> version available.
         </p>
       
         <p>Maven allows you to encrypt your servers' passwords. We highly recommend that you follow this
-          <a href="http://maven.apache.org/guides/mini/guide-encryption.html">guide</a> to set your master password and
+          <a href="https://maven.apache.org/guides/mini/guide-encryption.html">guide</a> to set your master password and
           use it to encrypt your ASF password in the next section.
         </p>
       </subsection>
@@ -70,7 +70,7 @@ under the License.
       <subsection name="ASF settings">
         <p>Using the instructions from the previous step encrypt your Apache Nexus repository password and add the 
           following servers to your 
-          <tt>~/.m2/settings.xml</tt> file. You may already have other servers in this file, if not just create
+          <code>~/.m2/settings.xml</code> file. You may already have other servers in this file, if not just create
           the file.
         </p>
 
@@ -139,17 +139,6 @@ under the License.
         </dl>
       </p>
       
-      <subsection name="Verify DBMSes and Java EE containers">
-        <p>
-          This is an optional step.<br/>
-          These verifications take some time and have quite strong environment requirements. However, it is of 
-          fundamental importance to go through these at least once for every major release.
-        </p>
-        <p>
-          For more information please take a look at <a href="building#fit.2Fcore-reference">build instructions</a>.
-        </p>
-      </subsection>
-      
       <subsection name="Prepare the source for release">
         <ol>
           <li>Clean up JIRA so the <b>Fix Version</b> in issues resolved since the last
@@ -157,30 +146,13 @@ under the License.
             <b>Resolved</b> issues to the <b>Closed</b> state.
           </li>
           <li>
-            From <tt>$SYNCOPE_RELEASE_DIR</tt>, update the <tt>CHANGES</tt> file,
+            From <tt>$SYNCOPE_RELEASE_DIR</tt>, update the <tt>CHANGES</tt> file, 
             based on the text release reports from JIRA, then commit and push:
             <source><![CDATA[git commit -m "Updating CHANGES for release" CHANGES
 git push]]></source>
           </li>
           <li>
-            From <tt>$SYNCOPE_RELEASE_DIR</tt>, update
-            <ol>
-              <li>
-                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/META-INF/MANIFEST.MF</tt>
-              </li>
-              <li>
-                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/META-INF/MANIFEST.MF</tt>
-              </li>
-              <li>
-                <tt>ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/category.xml</tt>
-              </li>
-            </ol>
-            with <tt>$VERSION</tt>, then commit and push:
-            <source><![CDATA[git commit -a -m "Updating Eclipse files for release"
-git push]]></source>
-          </li>
-          <li>
-            From <tt>$SYNCOPE_SITE_DIR</tt>, update the <tt>src/site/xdoc/downloads.xml</tt>
+            From <tt>$SYNCOPE_SITE_DIR</tt>, update the <tt>src/site/xdoc/downloads.xml</tt> 
             site page by changing the relevant URLs, then commit and push:
             <source><![CDATA[git commit -m "Updating downloads site page for release" src/site/xdoc/downloads.xml
 git push]]></source>
@@ -192,59 +164,63 @@ git push]]></source>
         <p>Perform the steps below from <tt>$SYNCOPE_RELEASE_DIR</tt>.</p>
         <ol>
           <li>
-            Do a dry run of the <tt>release:prepare</tt> step.
-            <source>mvn -P apache-release release:prepare -Darguments="-P all,docker -DbuildNumber=syncope-$VERSION" -DdryRun=true</source>
-
-            The dry run will not commit any changes and gives you the opportunity to verify that the 
-            release process will complete as expected.
-          
-            <p>
-              <em>If you cancel a 
-                <tt>release:prepare</tt> before it updates the pom.xml versions, then use the
-                <tt>release:clean</tt> goal to just remove the extra files that were created.
-              </em>
-            </p>
+            Set release version
+            <source><![CDATA[mvn -T 1C -P all,docker,skipTests versions:set -DnewVersion=$VERSION
+mvn -T 1C -P all,docker,skipTests versions:commit]]></source>
           </li>
           <li>
-            Verify that the release process completed as expected:
-            <ol>
-              <li>The release plugin will create <tt>pom.xml.tag</tt> files which contain the changes that would
-                have been committed. The only differences between <tt>pom.xml.tag</tt> and its corresponding
-                <tt>pom.xml</tt> file should be the version number.
-              </li>
-              <li>
-                If other formatting changes have been made you should review the changes and then commit them:
-                <source>git commit -a -m "Fixing formatting for release"</source>
-              </li>
-              <li>
-                Assuming the <tt>.tag</tt> files look OK you may proceed and do any other validation you feel
-                necessary. The following list may be helpful:
-                <ol>
-                  <li>Check <tt>release.properties</tt> and make sure that the scm properties have the
-                    right version. Sometimes the scm location can be the previous version not the next version.
-                  </li>
-                  <li>
-                    Verify signatures: On Un*x platforms the following command can be executed:
-                    <source><![CDATA[
+            In the root <code>pom.xml</code>, replace
+            <source><![CDATA[<tag>HEAD</tag>]]></source>
+            with
+            <source><![CDATA[<tag>syncope-$VERSION</tag>]]></source>
+            then set
+            <source><![CDATA[<project.build.outputTimestamp>2021-07-16T09:00:00Z</project.build.outputTimestamp>]]></source>
+            to the current date and time (for reproducible builds).
+          </li>
+          <li>
+            Build artifacts for release
+            <source>mvn -T 1C -P apache-release,all,docker,skipTests -DbuildNumber=syncope-$VERSION</source>
+          </li>
+          <li>
+            Create release tag
+            <source><![CDATA[git commit -a -m "prepare release syncope-$VERSION"
+git tag syncope-$VERSION -a -m "copy for tag syncope-$VERSION"
+git push --tags]]></source>
+          </li>
+          <li>
+            Set next version
+            <source><![CDATA[mvn -T 1C -P all,docker,skipTests versions:set -DnewVersion=$VERSION+1-SNAPSHOT
+mvn -T 1C -P all,docker,skipTests versions:commit]]></source>
+          </li>
+          <li>
+            In the root <code>pom.xml</code>, replace
+            <source><![CDATA[<tag>syncope-$VERSION</tag>]]></source>
+            with
+            <source><![CDATA[<tag>HEAD</tag>]]></source>
+          </li>
+          <li>
+            Finally
+            <source><![CDATA[git commit -a -m "prepare for next development iteration"]]></source>
+          </li>
+          <li>
+            Verify signatures: On Un*x platforms the following command can be executed:
+            <source><![CDATA[
 for file in `find . -type f -iname '*.asc'`
 do
   gpg --verify ${file} 
 done]]></source>
-                    You'll need to look at the output to ensure it contains only good signatures:
-                    <source><![CDATA[
+            You'll need to look at the output to ensure it contains only good signatures:
+            <source><![CDATA[
 gpg: Good signature from ...
 gpg: Signature made ...]]></source>
-                  </li>
-                </ol>
-              </li>
-              <li>
-                Once any failures or required updates have been committed to GIT, rollback the release prepare files:
-                <source>mvn -P apache-release release:rollback</source>
-              </li>
-            </ol>
           </li>
           <li>
-            Run the <tt>release:prepare</tt> step for real this time. You'll be prompted for the same version
+            Create a <code>release.properties</code> file in the root directory, with content:
+           <source><![CDATA[scm.url=scm:git:https://gitbox.apache.org/repos/asf/syncope.git
+scm.tag=syncope-$VERSION]]></source>
+          </li>
+          <li>
+            Run the <code>release:prepare</code> step for real this time. You'll be prompted for the same version 
             information and optionally your GPG passphrase again.
             <source>mvn -P apache-release release:prepare -Darguments="-P all,docker -DbuildNumber=syncope-$VERSION"</source>
           </li>
@@ -273,6 +249,7 @@ cp $SYNCOPE_RELEASE_DIR/target/syncope-*-source-release.zip .
 cp $SYNCOPE_RELEASE_DIR/target/syncope-*-source-release.zip.asc .
 cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip .
 cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip.asc .
+# only for 2_1_X
 cp $SYNCOPE_RELEASE_DIR/installer/target/syncope-installer-*-uber.jar .
 cp $SYNCOPE_RELEASE_DIR/installer/target/syncope-installer-*-uber.jar.asc .
 cp $SYNCOPE_RELEASE_DIR/deb/core/target/apache-syncope-*.deb .           
@@ -287,7 +264,6 @@ cp $SYNCOPE_RELEASE_DIR/ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/t
 cp $SYNCOPE_RELEASE_DIR/ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/target/org.apache.syncope.ide.eclipse.site-*.zip.asc .
 cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/syncope-ide-netbeans-*.nbm .
 cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/syncope-ide-netbeans-*.nbm.asc .
-# only for 2_1_X
 cp $SYNCOPE_RELEASE_DIR/core/upgrade/target/syncope-core-upgrade-*.zip .
 cp $SYNCOPE_RELEASE_DIR/core/upgrade/target/syncope-core-upgrade-*.zip.asc .
               
@@ -312,26 +288,10 @@ cd syncope-$VERSION
 mvn -PskipTests,all
 
 cd standalone/target/standalone/apache-tomcat-* && chmod 755 bin/*.sh && ./bin/startup.sh
+curl -o /tmp/openapi.json http://localhost:9080/syncope/rest/openapi.json
+./bin/shutdown.sh && cd -
 
-curl -o /tmp/syncope.wadl http://localhost:9080/syncope/syncope.wadl
-
-curl -o /tmp/index.html http://localhost:9080/syncope/index.html
-sed -i 's/\/syncope\/webjars\/jquery\/3.3.1-1\/jquery.min.js/https:\/\/code.jquery.com\/jquery-3.3.1.min.js/' /tmp/index.html 
-sed -i 's/\/syncope\/webjars\/jquery-ui\/1.12.1\/jquery-ui.min.js/http:\/\/code.jquery.com\/ui\/1.12.1\/jquery-ui.min.js/' /tmp/index.html               
-sed -i 's/\/syncope\/webjars\/jquery-ui-themes\/1.12.1\/smoothness\/jquery-ui.min.css/https:\/\/code.jquery.com\/ui\/1.12.1\/themes\/smoothness\/jquery-ui.css/' /tmp/index.html 
-
-# if releasing from 2_0_X
-curl -o /tmp/schema_1_syncope2.html http://localhost:9080/syncope/schema_1_syncope2.html
-sed -i 's/\/syncope\/webjars\/highlightjs\/9.15.10\/styles\/default.min.css/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.15.10\/styles\/default.min.css/' /tmp/schema_1_syncope2.html 
-sed -i 's/\/syncope\/webjars\/highlightjs\/9.15.10\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.15.10\/highlight.min.js/' /tmp/schema_1_syncope2.html 
-
-# else if releasing from 2_1_X
-curl -o /tmp/schema_1_syncope21.html http://localhost:9080/syncope/schema_1_syncope21.html
-sed -i 's/\/syncope\/webjars\/highlightjs\/9.15.10\/styles\/default.min.css/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.15.10\/styles\/default.min.css/' /tmp/schema_1_syncope21.html 
-sed -i 's/\/syncope\/webjars\/highlightjs\/9.15.10\/highlight.min.js/http:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/9.15.10\/highlight.min.js/' /tmp/schema_1_syncope21.html 
-
-./bin/shutdown.sh && cd - 
-              
+cd syncope-$VERSION                            
 svn checkout https://svn.apache.org/repos/asf/syncope/site/ site
 
 cd $SYNCOPE_SITE_DIR
@@ -339,46 +299,48 @@ mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to/site>/$VERSION
 
 cd <absolute path to/site>/$VERSION
 
-# if releasing from 2_0_X
-mkdir -p rest/2.0
-mv /tmp/index.html rest/2.0
-mv /tmp/schema_1_syncope2.html rest/2.0
-mv /tmp/syncope.wadl rest/2.0
-cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/2.0/
-cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/2.0/
-cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/2.0/
-cd docs
-ln -s 2.1/reference-guide.html .
-ln -s 2.1/getting-started.html .
-ln -s 2.1/images/ .
-cd ../..
-svn add $VERSION
-svn copy apidocs/2.1 $VERSION/apidocs/
-svn copy rest/2.1 $VERSION/rest/
-svn copy docs/2.1/ $VERSION/docs/
-
-# else if releasing from 2_1_X
+# if releasing from 2_1_X
 mkdir -p rest/2.1
-mv /tmp/index.html rest/2.1
-mv /tmp/schema_1_syncope21.html rest/2.1
-mv /tmp/syncope.wadl rest/2.1
+mv /tmp/openapi.json rest/2.1/
+cp -r $SYNCOPE_RELEASE_DIR/ext/swagger-ui/target/swagger-ui/META-INF/resources/webjars/swagger-ui/*/* rest/2.1/
+sed 's/..\/rest\/openapi.json/openapi.json/' $SYNCOPE_RELEASE_DIR/ext/swagger-ui/target/classes/META-INF/resources/swagger/index.html > rest/2.1/index.html
+mkdir -p docs/2.1
 cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/2.1/
 cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/2.1/
 cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/2.1/
 cd docs
-ln -s 2.1/reference-guide.html .
-ln -s 2.1/getting-started.html .
-ln -s 2.1/images/ .
+ln -s 3.0/reference-guide.html .
+ln -s 3.0/getting-started.html .
+ln -s 3.0/images/ .
 cd ../..
 svn add $VERSION
-svn copy apidocs/2.0 $VERSION/apidocs/
-svn copy rest/2.0 $VERSION/rest/
-svn copy docs/2.0/ $VERSION/docs/
+svn copy apidocs/3.0 $VERSION/apidocs/
+svn copy rest/3.0 $VERSION/rest/
+svn copy docs/3.0 $VERSION/docs/
+
+# else if releasing from master
+mkdir -p rest/3.0
+mv /tmp/openapi.json rest/3.0/              
+cp -r $SYNCOPE_RELEASE_DIR/core/starter/target/swagger-ui/META-INF/resources/webjars/swagger-ui/*/* rest/3.0/
+sed 's/..\/rest\/openapi.json/openapi.json/' $SYNCOPE_RELEASE_DIR/core/starter/target/classes/META-INF/resources/index.html > rest/3.0/index.html
+mkdir -p docs/3.0
+cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/3.0/
+cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/3.0/
+cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/3.0/
+cd docs
+ln -s 3.0/reference-guide.html .
+ln -s 3.0/getting-started.html .
+ln -s 3.0/images/ .
+cd ../..
+svn add $VERSION
+svn copy apidocs/2.1 $VERSION/apidocs/
+svn copy rest/2.1 $VERSION/rest/
+svn copy docs/2.1 $VERSION/docs/
 
 svn commit -m "Staging site for release"]]></source>
           </li>
           <li>
-            From <tt>$SYNCOPE_RELEASE_DIR</tt> execute (this step will create a maven staging repository):
+            From <code>$SYNCOPE_RELEASE_DIR</code> execute (this step will create a maven staging repository):
             <source>mvn -P apache-release release:perform -Darguments="-P all,docker -DbuildNumber=syncope-$VERSION" [-Duser.name=&lt;your_apache_uid&gt;]</source>
         
             <p>
@@ -401,14 +363,14 @@ svn commit -m "Staging site for release"]]></source>
                     <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
                   </li>
                   <li>Navigate through the artifact tree and make sure that all binary, 
-                    <tt>javadoc</tt>,
-                    <tt>sources</tt>, and
-                    <tt>tests</tt> jars, as well as
-                    <tt>poms</tt>s, ... have
-                    <tt>.asc</tt> (GPG signature) and
+                    <code>javadoc</code>,
+                    <code>sources</code>, and 
+                    <code>tests</code> jars, as well as 
+                    <code>poms</code>s, ... have 
+                    <code>.asc</code> (GPG signature) and 
                     files
                     <br/>
-                    The <tt>syncope-$VERSION-source-release.zip</tt>
+                    The <code>syncope-$VERSION-source-release.zip</code> 
                     should likewise have signature and checksum files.
                   </li>
                 </ol>
@@ -425,33 +387,13 @@ svn commit -m "Staging site for release"]]></source>
                     <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
                   </li>
                   <li>Right click on the open 
-                    <tt>org.apache.syncope-XXX</tt> staging repo
+                    <code>org.apache.syncope-XXX</code> staging repo
                     and select 
                     <strong>Close</strong>.
                   </li>
                 </ol>
               </li>
             </ol>
-          </li>
-          <li>
-            Set the updated version for next development iteration (as provided above to <tt>release:prepare</tt>) in
-            <ol>
-              <li>
-                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/META-INF/MANIFEST.MF</tt>
-              </li>
-              <li>
-                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/META-INF/MANIFEST.MF</tt>
-              </li>
-              <li>
-                <tt>ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/category.xml</tt>
-              </li>
-              <li>
-                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/pom.xml</tt>
-              </li>
-            </ol>
-            then commit and push:
-            <source><![CDATA[git commit -a -m "Updating Eclipse files for next development iteration"
-git push]]></source>            
           </li>
         </ol>
       </subsection>
@@ -460,7 +402,7 @@ git push]]></source>
         <ol>
           <li>
             Create a 
-            <tt>VOTE</tt> email thread on
+            <code>VOTE</code> email thread on 
             <a href="mailto:dev@syncope.apache.org">syncope-dev</a> to record votes as replies, e.g.:
             <pre><![CDATA[
 To: dev@syncope.apache.org
@@ -481,7 +423,7 @@ Maven staging repo:
 https://repository.apache.org/content/repositories/orgapachesyncope-ZZZZ/
 
 Staging site:
-https://syncope.apache.org/$VERSION/
+http://syncope.apache.org/$VERSION/
 
 PGP release keys (signed using ABCDEFG):
 https://downloads.apache.org/syncope/KEYS
@@ -494,7 +436,7 @@ Vote will be open for 72 hours.
           </li>
           <li>
             Perform a review of the release and cast your vote; more details on
-            <a href="http://www.apache.org/dev/release.html">Apache releases</a>.
+            <a href="https://www.apache.org/dev/release.html">Apache releases</a>.
           </li>
           <li>A -1 vote does not necessarily mean that the vote must be redone,
             however it is usually a good idea to rollback the release if a -1 vote is
@@ -547,7 +489,7 @@ Best regards.
                 <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
               </li>
               <li>Right click on the closed 
-                <tt>org.apache.syncope-XXX</tt> staging repo and select
+                <code>org.apache.syncope-XXX</code> staging repo and select 
                 <strong>Release</strong>.
               </li>
             </ol>
@@ -604,7 +546,7 @@ svn commit -m "Promoting the staging site"]]></source>
       <ol>
         <li>
           <p>Reply to the initial vote email prepending 
-            <tt>[CANCELED]</tt> to the original subject.
+            <code>[CANCELED]</code> to the original subject.
           </p>
         </li>
         <li>
@@ -624,7 +566,7 @@ svn commit -m "Promoting the staging site"]]></source>
         </li>
         <li>
           <p>Delete the GIT tag created by the 
-            <tt>release:perform</tt> step:
+            <code>release:perform</code> step:
           </p>
           <source>git tag -d $VERSION &amp;&amp; git push origin</source>
         </li>
@@ -646,7 +588,7 @@ svn commit -m "Promoting the staging site"]]></source>
               <strong>Staging tab --&gt; Name column --&gt; org.apache.syncope</strong>
             </li>
             <li>Right click on the closed 
-              <tt>org.apache.syncope-XXX</tt> staging repo and select
+              <code>org.apache.syncope-XXX</code> staging repo and select 
               <strong>Drop</strong>.
             </li>
           </ol>

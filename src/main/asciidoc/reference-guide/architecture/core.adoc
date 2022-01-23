@@ -62,7 +62,7 @@ The default implementation can be sometimes tailored to meet the requirements of
 it is the crucial decision point for defining and enforcing the consistency and transformations between internal and 
 external data.
 
-In addition, an http://camel.apache.org/[Apache Camel^]-based implementation is also available as an 
+In addition, an https://camel.apache.org/[Apache Camel^]-based implementation is also available as an 
 <<apache-camel-provisioning-manager,extension>>, which brings all the power of runtime changes and adaptation.
 
 [[workflow-layer]]
@@ -70,10 +70,10 @@ In addition, an http://camel.apache.org/[Apache Camel^]-based implementation is 
 
 The Workflow layer is responsible for managing the internal lifecycle of Users, Groups and Any Objects.
 
-Besides the default engine, another engine is available based on http://www.flowable.org/[Flowable^], the 
+Besides the default engine, another engine is available based on https://www.flowable.org/[Flowable^], the 
 reference open source http://www.bpmn.org/[BPMN 2.0^] implementation. It enables advanced features such
 as approval management and new statuses definitions; a web-based GUI editor, the
-http://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Modeler^], is also available.
+https://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Modeler^], is also available.
 
 [.text-center]
 image::userWorkflow.png[title="Default Flowable user workflow",alt="Default Flowable user workflow"] 

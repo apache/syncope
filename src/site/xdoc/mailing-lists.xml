@@ -63,7 +63,7 @@ under the License.
             <td>-</td>
             <td>-</td>
             <td>
-              <a href="http://www.mail-archive.com/user@syncope.apache.org/">www.mail-archive.com</a>
+              <a href="https://www.mail-archive.com/user@syncope.apache.org/">www.mail-archive.com</a>
             </td>
           </tr>
           <tr class="a">
@@ -91,7 +91,7 @@ under the License.
             <td>-</td>
             <td>-</td>
             <td>
-              <a href="http://www.mail-archive.com/dev@syncope.apache.org/">www.mail-archive.com</a>
+              <a href="https://www.mail-archive.com/dev@syncope.apache.org/">www.mail-archive.com</a>
             </td>
           </tr>
           <tr class="b">
@@ -119,7 +119,7 @@ under the License.
             <td>-</td>
             <td>-</td>
             <td>
-              <a href="http://www.mail-archive.com/commits@syncope.apache.org/">www.mail-archive.com</a>
+              <a href="https://www.mail-archive.com/commits@syncope.apache.org/">www.mail-archive.com</a>
             </td>
           </tr>
         </tbody>
@@ -138,9 +138,6 @@ under the License.
       <p>
         Join the <strong>#apache-syncope</strong> channel on <a href="https://libera.chat/">Libera.Chat</a>.
       </p>
-    </section>
-
-    <section name="Slack">
       <p>
         Join the <strong>#syncope</strong> channel on <a href="https://the-asf.slack.com/archives/CEUPMC04T">Slack</a>.
       </p>

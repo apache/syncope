@@ -35,6 +35,12 @@ under the License.
       
       <p>
         <strong>
+          <em>Keymaster</em>
+        </strong> allows for dynamic service discovery so that other components are able to find each other.
+      </p>
+
+      <p>
+        <strong>
           <em>Admin UI</em>
         </strong> is the web-based console for configuring and administering running deployments, with full support
         for delegated administration.
@@ -43,14 +49,21 @@ under the License.
       <p>
         <strong>
           <em>End-user UI</em>
-        </strong> is the web-based application for self-registration, self-service and password reset
+        </strong> is the web-based application for self-registration, self-service and password reset.
       </p>
 
       <p>
         <strong>
-          <em>CLI</em>
-        </strong> is the command-line application for interacting with Apache Syncope from scripts, particularly 
-        useful for system administrators.
+          <em>Web Access</em>
+        </strong> is the Access Management component, based on
+        <a target="_blank" href="https://apereo.github.io/cas/">Apereo CAS</a>.
+      </p>
+
+      <p>
+        <strong>
+          <em>Secure Remote Access</em>
+        </strong> allows to protect legacy applications by integrating with the Web Access or other third-party
+        Access Managers implementing standard protocols as OpenID Connect or SAML.
       </p>
 
       <p>
@@ -82,7 +95,7 @@ under the License.
             This component often needs to be tailored to meet the requirements of a specific deployment, as it is the 
             crucial decision point for defining and enforcing the consistency and transformations between internal and 
             external data. The default all-Java implementation can be extended for this purpose.
-            In addition, an <a target="_blank" href="http://camel.apache.org/">Apache Camel</a>-based
+            In addition, an <a target="_blank" href="https://camel.apache.org/">Apache Camel</a>-based
             implementation is also available as an extension, which brings all the power of runtime changes and 
             adaptation.
           </p>
@@ -93,8 +106,8 @@ under the License.
               <em>Workflow</em>
             </strong> is one of the pluggable aspects of Apache Syncope: this lets every deployment choose the preferred 
             engine from a provided list - including the one based on 
-            <a target="_blank" href="http://www.flowable.org/">Flowable BPM</a>, the reference open source
-            <a target="_blank" href="http://www.bpmn.org/">BPMN 2.0</a> implementation - or define new, custom ones.
+            <a target="_blank" href="https://www.flowable.org/">Flowable BPM</a>, the reference open source
+            <a target="_blank" href="https://www.bpmn.org/">BPMN 2.0</a> implementation - or define new, custom ones.
           </p>
         </li>
         <li>
@@ -102,15 +115,16 @@ under the License.
             <strong>
               <em>Persistence</em>
             </strong> manages all data (users, groups, attributes, resources, …&#8203;) at a high level
-            using a standard <a target="_blank" href="https://en.wikipedia.org/wiki/Java_Persistence_API">JPA 2.0</a> 
+            using a standard <a target="_blank" href="https://en.wikipedia.org/wiki/Java_Persistence_API">JPA 2.2</a> 
             approach. The data is persisted to an underlying database, referred to as <strong>
               <em>Internal Storage</em>
             </strong>. Consistency is ensured via the comprehensive
-            <a target="_blank" href="http://docs.spring.io/spring/docs/4.2.x/spring-framework-reference/html/transaction.html">transaction management</a>
+            <a target="_blank" href="https://docs.spring.io/spring-framework/docs/5.3.x/reference/html/data-access.html#transaction">transaction management</a>
             provided by the Spring Framework.<br/>
             Globally, this offers the ability to easily scale up to a million entities and at the same time allows great 
             portability with no code changes: MySQL, MariaDB, PostgreSQL, Oracle and MS SQL Server are fully supported 
-            deployment options.
+            deployment options.<br/>
+            Domains allow to manage data belonging to different tenants into separate database instances.
           </p>
         </li>
         <li>
@@ -125,7 +139,7 @@ under the License.
       
       <p>
         Third-party applications are provided full access to IdM services by leveraging the REST interface, either 
-        via the Java <em>SyncopeClient</em> library (the basis of Admin UI, End-user UI and CLI) or plain HTTP calls.
+        via the Java <em>SyncopeClient</em> library (the basis of Admin UI and End-user UI) or plain HTTP calls.
       </p>
       
       <subsection name="ConnId">

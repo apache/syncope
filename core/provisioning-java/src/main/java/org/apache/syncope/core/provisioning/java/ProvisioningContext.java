@@ -219,7 +219,8 @@ public class ProvisioningContext {
 
     /**
      * Annotated as {@code @Primary} because it will be used by {@code @Async} in {@link AsyncConnectorFacade}.
-     *
+     * @param provisioningProperties configuration properties
+     * 
      * @return executor
      */
     @Bean
