@@ -405,7 +405,7 @@ under the License.
 
     <cxf.version>3.5.0</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.15.2</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.16</nimbus-jose-jwt.version>
 
     <jackson.version>2.13.1</jackson.version>
 
@@ -428,7 +428,7 @@ under the License.
 
     <camel.version>3.14.0</camel.version>
 
-    <slf4j.version>1.7.33</slf4j.version>
+    <slf4j.version>1.7.34</slf4j.version>
 
     <elasticsearch.version>7.16.3</elasticsearch.version>
 
