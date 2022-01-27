@@ -96,6 +96,15 @@ under the License.
     <property name="realmName" value="Apache Syncope authentication"/>
   </bean>
   
+  <bean id="anonymousAuthenticationFilter" class="org.apache.syncope.core.spring.security.SyncopeAnonymousAuthenticationFilter">
+    <constructor-arg value="doesNotMatter"/>
+    <constructor-arg value="${anonymousUser}"/>
+    <property name="authenticationDetailsSource" ref="authenticationDetailsSource"/>
+  </bean>
+  <bean id="anonymousAuthenticationProvider" class="org.springframework.security.authentication.AnonymousAuthenticationProvider">
+    <constructor-arg value="doesNotMatter"/>
+  </bean>
+
   <bean id="jwtAuthenticationFilter" class="org.apache.syncope.core.spring.security.JWTAuthenticationFilter">
     <property name="authenticationManager" ref="authenticationManager"/>
     <property name="authenticationEntryPoint" ref="basicAuthenticationEntryPoint"/>
@@ -112,12 +121,13 @@ under the License.
                  use-expressions="false" disable-url-rewriting="false"
                  pattern="/**">
 
-    <security:anonymous username="${anonymousUser}"/>
+    <security:anonymous enabled="false"/>
+    <security:custom-filter ref="anonymousAuthenticationFilter" position="ANONYMOUS_FILTER"/>
 
     <security:custom-filter ref="jwtAuthenticationFilter" before="BASIC_AUTH_FILTER"/>
     <security:http-basic authentication-details-source-ref="authenticationDetailsSource"/>
     
-    <security:custom-filter before="FILTER_SECURITY_INTERCEPTOR" ref="mustChangePasswordFilter"/>
+    <security:custom-filter ref="mustChangePasswordFilter" before="FILTER_SECURITY_INTERCEPTOR"/>
     
     <security:access-denied-handler ref="syncopeAccessDeniedHandler"/>
     
