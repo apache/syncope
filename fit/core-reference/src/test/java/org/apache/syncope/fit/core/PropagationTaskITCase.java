@@ -301,8 +301,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                 .build()).getResult().isEmpty());
         // delete all remaining SUCCESS tasks
         response = taskService.purgePropagations(
-                oneWeekAgo.getTime(), Collections.singletonList(ExecStatus.SUCCESS),
-                Collections.emptyList());
+                oneWeekAgo.getTime(), Collections.singletonList(ExecStatus.SUCCESS), List.of());
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         deleted = response.readEntity(new GenericType<List<PropagationTaskTO>>() {

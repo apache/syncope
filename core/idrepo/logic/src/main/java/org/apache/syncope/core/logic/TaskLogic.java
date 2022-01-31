@@ -479,8 +479,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             final List<ExecStatus> statuses,
             final List<String> resources) {
         return taskDAO.purgePropagations(since, statuses, Optional.ofNullable(resources).
-                map(r -> r.stream().map(resourceDAO::find).
-                        filter(Objects::nonNull).collect(Collectors.toList()))
+                map(r -> r.stream().map(resourceDAO::find).filter(Objects::nonNull).collect(Collectors.toList()))
                 .orElse(null));
     }
 
