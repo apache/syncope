@@ -284,8 +284,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         Calendar oneWeekAgo = Calendar.getInstance();
         oneWeekAgo.add(Calendar.WEEK_OF_YEAR, -1);
         Response response = taskService.purgePropagations(
-                oneWeekAgo.getTime(), Collections.singletonList(ExecStatus.SUCCESS),
-                Collections.singletonList(RESOURCE_NAME_WS1));
+                oneWeekAgo.getTime(), List.of(ExecStatus.SUCCESS),
+                List.of(RESOURCE_NAME_WS1));
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         List<PropagationTaskTO> deleted = response.readEntity(new GenericType<List<PropagationTaskTO>>() {
