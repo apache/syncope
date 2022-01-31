@@ -405,7 +405,7 @@ under the License.
 
     <cxf.version>3.5.0</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.16.1</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.17</nimbus-jose-jwt.version>
 
     <jackson.version>2.13.1</jackson.version>
 
@@ -422,7 +422,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>4.0.0-rc-2</groovy.version>
+    <groovy.version>4.0.0</groovy.version>
 
     <flowable.version>6.7.2</flowable.version>
 
@@ -512,10 +512,10 @@ under the License.
     <docker.mariadb.version>10</docker.mariadb.version>
 
     <jdbc.postgresql.version>42.3.1</jdbc.postgresql.version>
-    <jdbc.mysql.version>8.0.27</jdbc.mysql.version>
-    <jdbc.mariadb.version>2.7.4</jdbc.mariadb.version>
-    <jdbc.mssql.version>9.4.0.jre</jdbc.mssql.version>
-    <jdbc.oracle.version>21.3.0.0</jdbc.oracle.version>
+    <jdbc.mysql.version>8.0.28</jdbc.mysql.version>
+    <jdbc.mariadb.version>3.0.3</jdbc.mariadb.version>
+    <jdbc.mssql.version>9.4.1.jre</jdbc.mssql.version>
+    <jdbc.oracle.version>21.4.0.0.1</jdbc.oracle.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>

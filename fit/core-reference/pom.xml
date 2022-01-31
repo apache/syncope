@@ -1188,6 +1188,7 @@ under the License.
                     <env>
                       <ORACLE_ALLOW_REMOTE>true</ORACLE_ALLOW_REMOTE>
                       <ORACLE_ENABLE_XDB>true</ORACLE_ENABLE_XDB>
+                      <ORACLE_DISABLE_ASYNCH_IO>true</ORACLE_DISABLE_ASYNCH_IO>
                     </env>
                     <wait>
                       <log>Disconnected from Oracle Database 11g Express Edition</log>
