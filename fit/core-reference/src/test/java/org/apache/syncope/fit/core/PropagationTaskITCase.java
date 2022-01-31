@@ -275,7 +275,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     @Test
     public void purgePropagations() {
         try {
-            taskService.purgePropagations(null, null);
+            taskService.purgePropagations(null, null, null);
             fail();
         } catch (WebServiceException e) {
             assertNotNull(e);
@@ -284,10 +284,27 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         Calendar oneWeekAgo = Calendar.getInstance();
         oneWeekAgo.add(Calendar.WEEK_OF_YEAR, -1);
         Response response = taskService.purgePropagations(
-                oneWeekAgo.getTime(), Collections.singletonList(ExecStatus.SUCCESS));
+                oneWeekAgo.getTime(), List.of(ExecStatus.SUCCESS),
+                List.of(RESOURCE_NAME_WS1));
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         List<PropagationTaskTO> deleted = response.readEntity(new GenericType<List<PropagationTaskTO>>() {
+        });
+        assertNotNull(deleted);
+        // only ws-target-resource-1 PROPAGATION tasks should have been deleted
+        assertEquals(1, deleted.size());
+        assertTrue(deleted.stream().allMatch(d -> RESOURCE_NAME_WS1.equals(d.getResource())));
+        // check that other propagation tasks haven't been affected
+        assertFalse(taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION)
+                .anyTypeKind(AnyTypeKind.USER)
+                .page(0).size(10)
+                .build()).getResult().isEmpty());
+        // delete all remaining SUCCESS tasks
+        response = taskService.purgePropagations(
+                oneWeekAgo.getTime(), List.of(ExecStatus.SUCCESS), List.of());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        deleted = response.readEntity(new GenericType<List<PropagationTaskTO>>() {
         });
         assertNotNull(deleted);
     }
