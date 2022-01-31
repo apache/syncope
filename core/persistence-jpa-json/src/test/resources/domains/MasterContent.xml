@@ -1038,6 +1038,11 @@ under the License.
   <Task DTYPE="PropagationTask" id="316285cc-ae52-4ea2-a33b-7355e189ac3f" operation="DELETE"
         objectClassName="__ACCOUNT__" resource_id="ws-target-resource-2" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"type","value":["type"]}]'/>
+  <!--SYNCOPE-1641 to be purged-->
+  <Task DTYPE="PropagationTask" id="025c956d-ea88-4bd7-9e44-2f35e0aa7055" operation="UPDATE"
+        objectClassName="__ACCOUNT__" resource_id="ws-target-resource-1" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
+        attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
+  <TaskExec id="c3290f8b-caf9-4a85-84fb-fb619b65cd49" task_id="025c956d-ea88-4bd7-9e44-2f35e0aa7055" startDate="2015-12-17 09:40:00.506" endDate="2015-12-17 09:42:00.506" status="SUCCESS"/>
   <Task DTYPE="PullTask" remediation="0" id="c41b9b71-9bfa-4f90-89f2-84787def4c5c" name="CSV (update matching; assign unmatching)" resource_id="resource-csv"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         pullMode="INCREMENTAL" unmatchingRule="ASSIGN" matchingRule="UPDATE" active="1"
