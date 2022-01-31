@@ -544,6 +544,7 @@ under the License.
     <jdbc.postgresql.version>42.3.1</jdbc.postgresql.version>
     <jdbc.mysql.version>8.0.28</jdbc.mysql.version>
     <jdbc.mariadb.version>3.0.3</jdbc.mariadb.version>
+    <jdbc.mssql.version>9.4.1.jre</jdbc.mssql.version>
     <jdbc.oracle.version>21.4.0.0.1</jdbc.oracle.version>
 
     <adminUser>admin</adminUser>
