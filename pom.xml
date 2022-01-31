@@ -405,7 +405,7 @@ under the License.
 
     <cxf.version>3.5.0</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.17</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.18</nimbus-jose-jwt.version>
 
     <jackson.version>2.13.1</jackson.version>
 
@@ -2209,7 +2209,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>9.2.1</version>
+              <version>9.3</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2665,7 +2665,7 @@ under the License.
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>2.2.1</version>
+            <version>2.2.2</version>
             <inherited>false</inherited>
             <dependencies>
               <dependency>
