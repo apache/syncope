@@ -76,5 +76,8 @@ public interface TaskDAO extends DAO<Task> {
 
     void deleteAll(ExternalResource resource, TaskType type);
 
-    List<PropagationTaskTO> purgePropagations(Date since, List<ExecStatus> statuses);
+    List<PropagationTaskTO> purgePropagations(
+            Date since, 
+            List<ExecStatus> statuses,
+            List<ExternalResource> externalResources);
 }

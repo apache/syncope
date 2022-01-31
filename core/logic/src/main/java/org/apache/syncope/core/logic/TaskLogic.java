@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ArrayUtils;
@@ -454,8 +455,13 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
-    public List<PropagationTaskTO> purgePropagations(final Date since, final List<ExecStatus> statuses) {
-        return taskDAO.purgePropagations(since, statuses);
+    public List<PropagationTaskTO> purgePropagations(
+            final Date since,
+            final List<ExecStatus> statuses,
+            final List<String> resources) {
+        return taskDAO.purgePropagations(since, statuses, resources == null 
+                ? null
+                : resources.stream().map(resourceDAO::find).filter(Objects::nonNull).collect(Collectors.toList()));
     }
 
     @Override
