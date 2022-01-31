@@ -463,7 +463,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             final List<ExecStatus> statuses,
             final List<String> resources) {
         return taskDAO.purgePropagations(since, statuses, resources == null 
-                ? Collections.<ExternalResource>emptyList()
+                ? null
                 : resources.stream().map(resourceDAO::find).filter(Objects::nonNull).collect(Collectors.toList()));
     }
 
