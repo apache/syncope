@@ -487,7 +487,10 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
     }
 
     @Override
-    public List<PropagationTaskTO> purgePropagations(final Date since, final List<ExecStatus> statuses) {
+    public List<PropagationTaskTO> purgePropagations(
+            final Date since, 
+            final List<ExecStatus> statuses, 
+            final List<ExternalResource> externalResources) {
         StringBuilder queryString = new StringBuilder("SELECT t.task_id "
                 + "FROM TaskExec t INNER JOIN Task z ON t.task_id=z.id AND z.dtype='PropagationTask' "
                 + "WHERE t.enddate=(SELECT MAX(e.enddate) FROM TaskExec e WHERE e.task_id=t.task_id) ");
@@ -502,6 +505,14 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
                     append(statuses.stream().map(status -> {
                         queryParameters.add(status.name());
                         return "t.status = ?" + queryParameters.size();
+                    }).collect(Collectors.joining(" OR "))).
+                    append(")");
+        }
+        if (!CollectionUtils.isEmpty(externalResources)) {
+            queryString.append("AND (").
+                    append(externalResources.stream().map(externalResource -> {
+                        queryParameters.add(externalResource.getKey());
+                        return "z.resource_id = ?" + queryParameters.size();
                     }).collect(Collectors.joining(" OR "))).
                     append(")");
         }

@@ -88,12 +88,12 @@ public class TaskTest extends AbstractTest {
         assertNotNull(tasks);
         assertTrue(tasks.isEmpty());
 
-        assertEquals(5, taskDAO.count(TaskType.PROPAGATION, null, null, null, null));
+        assertEquals(6, taskDAO.count(TaskType.PROPAGATION, null, null, null, null));
     }
 
     @Test
     public void findAll() {
-        assertEquals(5, taskDAO.findAll(TaskType.PROPAGATION).size());
+        assertEquals(6, taskDAO.findAll(TaskType.PROPAGATION).size());
         assertEquals(1, taskDAO.findAll(TaskType.NOTIFICATION).size());
         assertEquals(3, taskDAO.findAll(TaskType.SCHEDULED).size());
         assertEquals(10, taskDAO.findAll(TaskType.PULL).size());
