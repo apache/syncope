@@ -18,23 +18,15 @@
  */
 package org.apache.syncope.core.logic;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -44,11 +36,15 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
+import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -56,12 +52,8 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
@@ -73,6 +65,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import javax.ws.rs.core.Response;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
@@ -188,9 +188,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, entityKey);
 
             List<T> result = taskDAO.findAll(
-                    type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, entityKey,
-                    page, size, orderByClauses).stream().
-                    <T>map(task -> binder.getTaskTO(task, taskUtilsFactory.getInstance(type), details)).
+                            type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind,
+                            entityKey,
+                            page, size, orderByClauses).stream().
+                            <T>map(task -> binder.getTaskTO(task, taskUtilsFactory.getInstance(type), details)).
                     collect(Collectors.toList());
 
             return Pair.of(count, result);
@@ -454,8 +455,12 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
-    public List<PropagationTaskTO> purgePropagations(final Date since, final List<ExecStatus> statuses) {
-        return taskDAO.purgePropagations(since, statuses);
+    public List<PropagationTaskTO> purgePropagations(
+            final Date since,
+            final List<ExecStatus> statuses,
+            final List<String> resources) {
+        return taskDAO.purgePropagations(since, statuses, resources.stream()
+                .map(r -> resourceDAO.find(r)).collect(Collectors.toList()));
     }
 
     @Override

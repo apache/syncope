@@ -148,6 +148,7 @@ public interface TaskService extends ExecutableService {
      *
      * @param since match all executions started afterwards
      * @param statuses execution status(es) to match
+     * @param resources external resource(s) to match
      * @return deleted propagation tasks
      */
     @ApiResponses({
@@ -157,5 +158,7 @@ public interface TaskService extends ExecutableService {
     @Path("PROPAGATION/purge")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response purgePropagations(
-            @QueryParam("since") Date since, @QueryParam("statuses") List<ExecStatus> statuses);
+            @QueryParam("since") Date since, 
+            @QueryParam("statuses") List<ExecStatus> statuses, 
+            @QueryParam("resources") List<String> resources);
 }
