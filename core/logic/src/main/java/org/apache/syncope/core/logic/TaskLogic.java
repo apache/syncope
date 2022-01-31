@@ -189,8 +189,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, entityKey);
 
             List<T> result = taskDAO.findAll(
-                            type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind,
-                            entityKey,
+                            type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, entityKey,
                             page, size, orderByClauses).stream().
                             <T>map(task -> binder.getTaskTO(task, taskUtilsFactory.getInstance(type), details)).
                     collect(Collectors.toList());
