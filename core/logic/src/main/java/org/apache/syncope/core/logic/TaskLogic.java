@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -49,6 +51,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
@@ -459,8 +462,9 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             final Date since,
             final List<ExecStatus> statuses,
             final List<String> resources) {
-        return taskDAO.purgePropagations(since, statuses,
-                resources.stream().map(resourceDAO::find).filter(Objects::nonNull).collect(Collectors.toList()));
+        return taskDAO.purgePropagations(since, statuses, resources == null 
+                ? Collections.<ExternalResource>emptyList()
+                : resources.stream().map(resourceDAO::find).filter(Objects::nonNull).collect(Collectors.toList()));
     }
 
     @Override

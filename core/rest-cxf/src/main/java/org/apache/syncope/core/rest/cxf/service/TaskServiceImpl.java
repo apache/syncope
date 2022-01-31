@@ -97,7 +97,7 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
 
     @Override
     public Response purgePropagations(final Date since, final List<ExecStatus> statuses, final List<String> resources) {
-        if (since == null && CollectionUtils.isEmpty(statuses)) {
+        if (since == null && CollectionUtils.isEmpty(statuses) && CollectionUtils.isEmpty(resources)) {
             return Response.status(Response.Status.PRECONDITION_FAILED).build();
         }
 
