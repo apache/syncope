@@ -72,6 +72,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -459,8 +460,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             final Date since,
             final List<ExecStatus> statuses,
             final List<String> resources) {
-        return taskDAO.purgePropagations(since, statuses, resources.stream()
-                .map(r -> resourceDAO.find(r)).collect(Collectors.toList()));
+        return taskDAO.purgePropagations(since, statuses,
+                resources.stream().map(resourceDAO::find).filter(Objects::nonNull).collect(Collectors.toList()));
     }
 
     @Override
