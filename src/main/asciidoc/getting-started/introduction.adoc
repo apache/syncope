@@ -139,10 +139,10 @@ features (notifications, reports and auditing)
 representation of Users, Groups and Any Objects. +
 This component often needs to be tailored to meet the requirements of a specific deployment, as it is the crucial decision 
 point for defining and enforcing the consistency and transformations between internal and external data. The default
-all-Java implementation can be extended for this purpose. In addition, an http://camel.apache.org/[Apache Camel^]-based 
+all-Java implementation can be extended for this purpose. In addition, an https://camel.apache.org/[Apache Camel^]-based 
 implementation is also available as an extension, which brings all the power of runtime changes and adaptation.
  * *_Workflow_*  is one of the pluggable aspects of Apache Syncope: this lets every deployment choose the preferred engine
-from a provided list - including one based on http://www.flowable.org/[Flowable^], the reference open source
+from a provided list - including one based on https://www.flowable.org/[Flowable^], the reference open source
 http://www.bpmn.org/[BPMN 2.0^] implementations - or define new, custom ones. 
  * *_Persistence_* manages all data (users, groups, attributes, resources, ...) at a high level 
 using a standard https://en.wikipedia.org/wiki/Java_Persistence_API[JPA 2.2^] approach. The data is persisted to an underlying 

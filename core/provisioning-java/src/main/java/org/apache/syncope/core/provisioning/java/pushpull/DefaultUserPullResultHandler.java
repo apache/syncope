@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,6 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -137,6 +135,11 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 true,
                 profile.getExecutor(),
                 getContext());
+
+        if (ProvisioningReport.Status.FAILURE == result.getStatus() && profile.getTask().isRemediation()) {
+            createRemediation(anyTypeDAO.find(result.getAnyType()), anyUR, profile.getTask(), result,
+                    delta);
+        }
 
         return updated.getLeft();
     }
@@ -409,16 +412,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 resultStatus = Result.FAILURE;
 
                 if (profile.getTask().isRemediation()) {
-                    Remediation entity = entityFactory.newEntity(Remediation.class);
-                    entity.setAnyType(provision.getAnyType());
-                    entity.setOperation(ResourceOperation.UPDATE);
-                    entity.setPayload(req);
-                    entity.setError(report.getMessage());
-                    entity.setInstant(new Date());
-                    entity.setRemoteName(delta.getObject().getName().getNameValue());
-                    entity.setPullTask(profile.getTask());
-
-                    remediationDAO.save(entity);
+                    createRemediation(provision.getAnyType(), req, profile.getTask(), report, delta);
                 }
             }
 
@@ -486,13 +480,13 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             });
             update.getPlainAttrs().removeIf(attr -> attrsToRemove.contains(attr.getSchema()));
 
-            UserUR patch = new UserUR();
-            patch.setKey(account.getOwner().getKey());
-            patch.getLinkedAccounts().add(new LinkedAccountUR.Builder().
+            UserUR userUR = new UserUR();
+            userUR.setKey(account.getOwner().getKey());
+            userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().
                     operation(PatchOperation.ADD_REPLACE).linkedAccountTO(update).build());
 
             for (PullActions action : profile.getActions()) {
-                action.beforeUpdate(profile, delta, before, patch);
+                action.beforeUpdate(profile, delta, before, userUR);
             }
 
             Result resultStatus;
@@ -500,7 +494,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
             try {
                 userProvisioningManager.update(
-                        patch,
+                        userUR,
                         report,
                         null,
                         Set.of(profile.getTask().getResource().getKey()),
@@ -509,12 +503,11 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         getContext());
                 resultStatus = Result.SUCCESS;
 
-                LinkedAccountTO updated = userDAO.find(patch.getKey()).
+                LinkedAccountTO updated = userDAO.find(userUR.getKey()).
                         getLinkedAccount(account.getResource().getKey(), account.getConnObjectKeyValue()).
                         map(acct -> userDataBinder.getLinkedAccountTO(acct)).
                         orElse(null);
                 output = updated;
-                resultStatus = Result.SUCCESS;
 
                 for (PullActions action : profile.getActions()) {
                     action.after(profile, delta, updated, report);
@@ -537,16 +530,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 resultStatus = Result.FAILURE;
 
                 if (profile.getTask().isRemediation()) {
-                    Remediation entity = entityFactory.newEntity(Remediation.class);
-                    entity.setAnyType(provision.getAnyType());
-                    entity.setOperation(ResourceOperation.UPDATE);
-                    entity.setPayload(patch);
-                    entity.setError(report.getMessage());
-                    entity.setInstant(new Date());
-                    entity.setRemoteName(delta.getObject().getName().getNameValue());
-                    entity.setPullTask(profile.getTask());
-
-                    remediationDAO.save(entity);
+                    createRemediation(provision.getAnyType(), userUR, profile.getTask(), report, delta);
                 }
             }
 
@@ -620,16 +604,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     output = e;
 
                     if (profile.getTask().isRemediation()) {
-                        Remediation entity = entityFactory.newEntity(Remediation.class);
-                        entity.setAnyType(provision.getAnyType());
-                        entity.setOperation(ResourceOperation.UPDATE);
-                        entity.setPayload(req);
-                        entity.setError(report.getMessage());
-                        entity.setInstant(new Date());
-                        entity.setRemoteName(delta.getObject().getName().getNameValue());
-                        entity.setPullTask(profile.getTask());
-
-                        remediationDAO.save(entity);
+                        createRemediation(provision.getAnyType(), req, profile.getTask(), report, delta);
                     }
                 }
 

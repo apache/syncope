@@ -36,7 +36,7 @@ ones detailed below;
 ==== Apache Camel Provisioning Manager
 
 This extension delegates the <<provisioning,provisioning>> process execution to a set of
-http://camel.apache.org[Apache Camel^] routes.
+https://camel.apache.org[Apache Camel^] routes.
 
 The pre-loaded routes can be dynamically changed at runtime via REST or admin console, and modifications are immediately
 made available for processing.
@@ -44,7 +44,7 @@ made available for processing.
 For example, on creating a new user, you may wish to send an email to an administrator; or if a user is
 reactivated, you may wish to reactivate the user's home page on a web server. +
 All these things and more are possible using the myriad of
-http://camel.apache.org/components.html[components^] that are available to be used in Apache Camel routes.
+https://camel.apache.org/components.html[components^] that are available to be used in Apache Camel routes.
 
 [NOTE]
 .Extension Sources

@@ -59,12 +59,12 @@ under the License.
 
       <subsection name="Documentation">
         <p>The website is managed via the 
-          <a href="http://maven.apache.org/plugins/maven-site-plugin/">maven-site-plugin</a> and the guides are being
-          maintained with <a href="http://asciidoctor.org/">Asciidoctor</a>, hence contributing site content or
+          <a href="https://maven.apache.org/plugins/maven-site-plugin/">maven-site-plugin</a> and the guides are being
+          maintained with <a href="https://asciidoctor.org/">Asciidoctor</a>, hence contributing site content or
           guides is similar to contributing <a href="#Code">source code</a>.
         </p>
         <p>The project 
-          <a href="http://cwiki.apache.org/confluence/display/SYNCOPE">Wiki</a> is also available to gather any other 
+          <a href="https://cwiki.apache.org/confluence/display/SYNCOPE">Wiki</a> is also available to gather any other 
           kind of documentation or contribution you would like to contribute, and does not require any GIT, Maven or 
           other technical skills.
         </p>
@@ -76,13 +76,13 @@ under the License.
         contributions over time are invited to become committers. The difference is that committers have direct write 
         access to the project GIT repositories, while contributors post their contributions to JIRA issues where they're
         first reviewed, and then committed by a committer to the project's GIT repository. See 
-        <a href="http://www.apache.org/dev/contributors.html">http://www.apache.org/dev/contributors.html</a> for a good
+        <a href="https://www.apache.org/dev/contributors.html">https://www.apache.org/dev/contributors.html</a> for a good
         overview of working as a contributor.
       </p>
       <p>We ask contributors of significant amounts of code to fill out and send into Apache, an 
-        <a href="http://www.apache.org/licenses/#clas">Individual Contributors License Agreement (ICLA)</a> 
+        <a href="https://www.apache.org/licenses/#clas">Individual Contributors License Agreement (ICLA)</a> 
         (and perhaps also a 
-        <a href="http://www.apache.org/licenses/#clas">Corporate Contributors License Agreement (CCLA)</a>).
+        <a href="https://www.apache.org/licenses/#clas">Corporate Contributors License Agreement (CCLA)</a>).
       </p>
       <p>If you're interested in committing to the project, you need to establish a history over time of successful 
         contributions to the project. After that, you may be invited to become a committer.
@@ -90,16 +90,16 @@ under the License.
       <ul>
         <li>
           You'll need to fill out some legal paperwork and go through a process to get an Apache committer account: See 
-          <a rel="nofollow" href="http://apache.org/dev/new-committers-guide.html"> New Committers Guide</a>, 
-          <a rel="nofollow" href="http://apache.org/dev/contributors.html"> Contributors</a>, and 
-          <a rel="nofollow" href="http://apache.org/dev/committers.html"> Committers</a> for more details.
+          <a rel="nofollow" href="https://apache.org/dev/new-committers-guide.html"> New Committers Guide</a>, 
+          <a rel="nofollow" href="https://apache.org/dev/contributors.html"> Contributors</a>, and 
+          <a rel="nofollow" href="https://apache.org/dev/committers.html"> Committers</a> for more details.
         </li>
         <li>
           After you've received an email from 
           <a href="mailto:root@apache.org">root@apache.org</a> with your committer account information, change your 
           initial password using the 
           <a href="https://id.apache.org">Apache Account Utility</a>. For more details see 
-          <a rel="nofollow" href="http://apache.org/dev/version-control.html">Committer GIT Access</a>.
+          <a rel="nofollow" href="https://apache.org/dev/version-control.html">Committer GIT Access</a>.
         </li>
       </ul>
       <p>All Committers and Contributors should:</p>
@@ -108,7 +108,7 @@ under the License.
           <a rel="nofollow" href="https://cwiki.apache.org/confluence/signup.action">Wiki</a> account.
         </li>
         <li>Sign up for an 
-          <a rel="nofollow" href="http://issues.apache.org/jira/">ASF JIRA</a> account.
+          <a rel="nofollow" href="https://issues.apache.org/jira/">ASF JIRA</a> account.
         </li>
       </ul>
     </section>

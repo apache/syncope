@@ -60,20 +60,14 @@ under the License.
             of <u>authentication</u>
             (<a href="https://en.wikipedia.org/wiki/Single_sign-on" target="_blank">Single Sign-On</a>),
             <u>authorization</u>
-            (<a href="http://oauth.net/" target="_blank">OAuth</a>, 
+            (<a href="https://oauth.net/" target="_blank">OAuth</a>, 
             <a href="https://en.wikipedia.org/wiki/XACML">XACML</a>) and <u>federation</u>
             (<a href="https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language" target="_blank">SAML</a>, 
-            <a href="http://openid.net/connect/" target="_blank">OpenID Connect</a>).
+            <a href="https://openid.net/connect/" target="_blank">OpenID Connect</a>).
           </li>
         </ul>
       </p>
 
-      <hr/>
-      <p style="text-align:center;">
-        As you can notice,<b>
-          <u>Apache Syncope is primarily a provisioning engine</u>
-        </b>.
-      </p>
       <hr/>
       
       <subsection name="Aren't Identity Stores enough?">

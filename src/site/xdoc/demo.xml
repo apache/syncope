@@ -55,40 +55,36 @@ under the License.
 
       <subsection name="Available components">
         <div class="btn-group">
-          <a class="btn btn-large dropdown-toggle" data-toggle="dropdown" href="#">
+          <button type="button" class="btn btn-large dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Apache Syncope Core
-            <span class="caret"></span>
-          </a>
-          <ul class="dropdown-menu">
-            <li>
-              <a href="https://syncope-vm.apache.org/syncope/">REST documentation</a>
-            </li>
-            <li>
-              <a href="https://syncope-vm.apache.org/syncope/swagger/">Swagger UI</a>
-            </li>
-          </ul>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="https://syncope-vm.apache.org/syncope/">Swagger UI</a>
+          </div>                    
         </div>
         <div class="btn-group">
-          <a class="btn btn-large dropdown-toggle" data-toggle="dropdown" href="#">
+          <button type="button" class="btn btn-large dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Apache Syncope Console
-            <span class="caret"></span>
-          </a>
-          <ul class="dropdown-menu">
-            <li>
-              <a href="https://syncope-vm.apache.org/syncope-console/">Web UI</a>
-            </li>
-          </ul>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="https://syncope-vm.apache.org/syncope-console/">Web UI</a>
+          </div>
         </div>
         <div class="btn-group">
-          <a class="btn btn-large dropdown-toggle" data-toggle="dropdown" href="#">
+          <button type="button" class="btn btn-large dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Apache Syncope Enduser
-            <span class="caret"></span>
-          </a>
-          <ul class="dropdown-menu">
-            <li>
-              <a href="https://syncope-vm.apache.org/syncope-enduser/">Web UI</a>
-            </li>
-          </ul>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="https://syncope-vm.apache.org/syncope-enduser/">Web UI</a>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-large dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Apache Syncope Web Access
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="https://syncope-vm.apache.org/syncope-wa/">Web UI</a>
+          </div>
         </div>
       </subsection>
     </section>

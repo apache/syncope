@@ -35,9 +35,9 @@ under the License.
     <section name="Prerequisites">
       <p>
         <ul>
-          <li>JDK 7 or higher for &le; 2.0; JDK 8 or higher for later versions</li>
+          <li>JDK 8 or higher for &le; 2.1; JDK 11 or higher for later versions</li>
           <li>
-            Latest <a href="http://maven.apache.org/download.html">Apache Maven</a>
+            Latest <a href="https://maven.apache.org/download.html">Apache Maven</a>
           </li>
           <li>
             <a href="source-repository.html">Latest source code</a>
@@ -47,7 +47,7 @@ under the License.
 
       <subsection name="Additional tools">
         <p>
-          The <a href="http://www.gnu.org/software/patch/patch.html">patch</a> program is needed.
+          The <a href="https://www.gnu.org/software/patch/patch.html">patch</a> program is needed.
         </p>
         <p>
           For Debian GNU / Linux and derivatives (as Ubuntu), install with
@@ -73,16 +73,8 @@ under the License.
         Before building Syncope, you need to setup an environment variable to give Maven more memory.
       </p>
       <p>
-        On Unix with JDK 7
-        <source>export MAVEN_OPTS="-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m"</source>
-      </p>
-      <p>
         On Unix with JDK 8 or later
         <source>export MAVEN_OPTS="-Xms512m -Xmx1024m"</source>
-      </p>
-      <p>
-        On Windows with JDK 7
-        <source>set MAVEN_OPTS=-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m</source>
       </p>
       <p>
         On Windows with JDK 8 or later
@@ -130,9 +122,9 @@ under the License.
       </p>
       <subsection name="fit/core-reference">
         <h4>Other Content-Type values</h4>
-        By default, integration tests are run using <tt>application/json</tt> for both <tt>Accept</tt> and
-        <tt>Content-Type</tt> HTTP headers; it is possible, however, to use <tt>application/xml</tt> or
-        <tt>application/yaml</tt>.
+        By default, integration tests are run using <code>application/json</code> for both <code>Accept</code> and
+        <code>Content-Type</code> HTTP headers; it is possible, however, to use <code>application/xml</code> or
+        <code>application/yaml</code>.
         <source>$ mvn clean verify -DjaxrsContentType=application/xml</source>
         <source>$ mvn clean verify -DjaxrsContentType=application/yaml</source>
         
@@ -163,25 +155,23 @@ under the License.
         </div>
 
         <h5>PostgreSQL</h5>
-        Perform the full test suite against a real <a href="http://www.postgresql.org/">PostgreSQL</a> database via
-        <source>$ mvn -Ppostgres-it</source>
+        Perform the full test suite against a real <a href="https://www.postgresql.org/">PostgreSQL</a> database via
+        <source>$ mvn -Ppostgres-it</source> or <source>$ mvn -Ppgjsonb-it</source> (for JSONB support)
 
         <h5>MySQL</h5>
-        Perform the full test suite against a real <a href="http://www.mysql.com/">MySQL</a> database via
-        <source>$ mvn -Pmysql-it</source>
+        Perform the full test suite against a real <a href="https://www.mysql.com/">MySQL</a> database via
+        <source>$ mvn -Pmysql-it</source> or <source>$ mvn -Pmyjson-it</source> (for JSON support)
 
         <h5>MariaDB</h5>
-        Perform the full test suite against a <a href="https://mariadb.org/">MariaDB</a> database via
+        Perform the full test suite against a real <a href="https://mariadb.org/">MariaDB</a> database via
         <source>$ mvn -Pmariadb-it</source>
 
         <h5>Oracle database</h5>
-        After having <a href="http://www.mkyong.com/maven/how-to-add-oracle-jdbc-driver-in-your-maven-local-repository/">
-          set up the appropriate JDBC driver in your local Maven repository</a>, perform the full test suite
-        against a real <a href="http://www.oracle.com/products/database/">Oracle</a> database via
+        Perform the full test suite against a real <a href="https://www.oracle.com/products/database/">Oracle</a> database via
         <source>$ mvn -Poracle-it</source>
 
         <h5>MS SQL Server</h5>
-        Prform the full test suite against a real <a href="http://www.microsoft.com/sqlserver/en/us/default.aspx">MS SQL Server</a> database via
+        Prform the full test suite against a real <a href="https://www.microsoft.com/en-us/sql-server/">MS SQL Server</a> database via
         <source>$ mvn -Psqlserver-it</source>
 
         <h4>Java EE containers</h4>
@@ -204,11 +194,11 @@ under the License.
         Perform the full test suite relying on a real <a href="https://www.elastic.co/">Elasticsearch</a> instance via
         <source>$ mvn -Pelasticsearch-it</source>
       </subsection>
-      
+
       <subsection name="fit/console-reference">
         <h4>Debug</h4>
         Starts the full environment used by core's integration tests (with same components available when running new 
-        project in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>, including console) and 
+        project in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>, including Console) and 
         enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug</source>
 
@@ -222,15 +212,9 @@ under the License.
       <subsection name="fit/enduser-reference">
         <h4>Debug</h4>
         Starts the full environment used by core's integration tests (with same components available when running new 
-        project in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>, including console and 
-        enduser) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
+        project in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>, including Console and 
+        Enduser) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug</source>
-
-        <p>
-          Once started in debug mode, the test cases can be executed as follows:
-          <source>$ cd target/enduser-test &amp;&amp; nodejs/node/node nodejs/bin/protractor protractor-conf.js</source>
-          where the actual tests to be run can be selected by modifying the <tt>protractor-conf.js</tt> content.
-        </p>
 
         <h4>HotSwapAgent</h4>
         Similar to Debug, but with <a href="http://hotswapagent.org/">HotSwapAgent</a> features enabled (requires
@@ -239,12 +223,18 @@ under the License.
         <source>$ mvn -Photswap</source>
       </subsection>
 
-      <subsection name="ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests">
-        <h4>Eclipse IDE Plugin</h4>
+      <subsection name="fit/wa-reference">
+        <h4>Debug</h4>
         Starts the full environment used by core's integration tests (with same components available when running new 
-        project in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>, and runs the Eclipse IDE
-        plugin tests against it. Cannot run headless.
-        <source>$ mvn -Peclipse-it</source>
+        project in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>, including Console, 
+        Enduser and WA) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
+        <source>$ mvn -Pdebug</source>
+
+        <h4>HotSwapAgent</h4>
+        Similar to Debug, but with <a href="http://hotswapagent.org/">HotSwapAgent</a> features enabled (requires
+        <a href="https://github.com/dcevm/dcevm">DCEVM Java</a> installed as "alternative JVM" and IDE of choice
+        <a href="http://hotswapagent.org/mydoc_setup_netbeans.html">set up properly</a>).
+        <source>$ mvn -Photswap</source>
       </subsection>
     </section>
   </body>
