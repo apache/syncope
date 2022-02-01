@@ -42,7 +42,6 @@ import org.apache.syncope.client.console.tasks.PullTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.resources.AbstractResourceWizardBuilder;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -624,7 +623,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         fragment.add(history);
 
         // [SYNCOPE-1161] - Option to clone a resource
-        AjaxLink<String> clone = new IndicatingOnConfirmAjaxLink<String>("clone", "confirmClone", true) {
+        AjaxLink<String> clone = new IndicatingAjaxLink<String>("clone") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -646,18 +645,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                         }
                         provision.getVirSchemas().clear();
                     });
-                    resourceRestClient.create(resource);
+                    target.add(modal.setContent(new ResourceWizardBuilder(resource, pageRef).
+                            build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
-                    // refresh Topology
-                    send(pageRef.getPage(), Broadcast.DEPTH, new AbstractResourceWizardBuilder.CreateEvent(
-                            resource.getKey(),
-                            resource.getKey(),
-                            TopologyNode.Kind.RESOURCE,
-                            resource.getConnector(),
-                            target));
-
-                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                    toggle(target, false);
+                    modal.header(new Model<>(MessageFormat.format(getString("resource.clone"), node.getKey())));
+                    modal.show(true);
+                    
                 } catch (SyncopeClientException e) {
                     LOG.error("While cloning resource {}", node.getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
