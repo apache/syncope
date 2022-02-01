@@ -626,7 +626,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         fragment.add(history);
 
         // [SYNCOPE-1161] - Option to clone a resource
-        // [SYNCOPE-1657] - Unable to define a new name for a cloned resource
         AjaxLink<String> clone = new IndicatingAjaxLink<>("clone") {
 
             private static final long serialVersionUID = -7978723352517770644L;
@@ -634,20 +633,19 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    ResourceTO modelObject = ResourceRestClient.read(node.getKey());
-                    modelObject.setKey("Copy of " + node.getKey());
+                    ResourceTO resource = ResourceRestClient.read(node.getKey());
+                    resource.setKey("Copy of " + node.getKey());
 
                     // reset some resource objects keys
-                    if (modelObject.getOrgUnit() != null) {
-                        modelObject.getOrgUnit().setKey(null);
-                        for (ItemTO item : modelObject.getOrgUnit().getItems()) {
+                    if (resource.getOrgUnit() != null) {
+                        resource.getOrgUnit().setKey(null);
+                        for (ItemTO item : resource.getOrgUnit().getItems()) {
                             item.setKey(null);
                         }
                     }
-                    for (ProvisionTO provision : modelObject.getProvisions()) {
+                    for (ProvisionTO provision : resource.getProvisions()) {
                         provision.setKey(null);
                         if (provision.getMapping() != null) {
-
                             for (ItemTO item : provision.getMapping().getItems()) {
                                 item.setKey(null);
                             }
@@ -655,7 +653,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                         }
                         provision.getVirSchemas().clear();
                     }
-                    target.add(modal.setContent(new ResourceWizardBuilder(modelObject, pageRef).
+                    target.add(modal.setContent(new ResourceWizardBuilder(resource, pageRef).
                             build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
                     modal.header(new Model<>(MessageFormat.format(getString("resource.clone"), node.getKey())));
