@@ -60,13 +60,13 @@ public class AbstractITCase {
 
     protected static final String ADMIN_PWD = "password";
 
-    protected static final String CORE_ADDRESS = "http://localhost:9080/syncope/rest";
+    protected static final String CORE_ADDRESS = "https://localhost:9443/syncope/rest";
 
-    protected static final String CONSOLE_ADDRESS = "http://localhost:9080/syncope-console/";
+    protected static final String CONSOLE_ADDRESS = "https://localhost:9443/syncope-console/";
 
-    protected static final String ENDUSER_ADDRESS = "http://localhost:9080/syncope-enduser/";
+    protected static final String ENDUSER_ADDRESS = "https://localhost:9443/syncope-enduser/";
 
-    protected static final String WA_ADDRESS = "http://localhost:9080/syncope-wa";
+    protected static final String WA_ADDRESS = "https://localhost:9443/syncope-wa";
 
     protected static final String EN_LANGUAGE = "en-US,en;q=0.5";
 
