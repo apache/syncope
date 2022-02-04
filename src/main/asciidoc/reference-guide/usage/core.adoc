@@ -481,6 +481,20 @@ $roles==Other
 ----
 ====
 
+.Relationship type match (only for Users and Any Objects)
+====
+----
+$relationshipTypes==neighborhood
+----
+====
+
+.Relationship match (only for Users and Any Objects)
+====
+----
+$relationships==Canon MF 8030c
+----
+====
+
 .Type match (only for Any Objects)
 ====
 ----
