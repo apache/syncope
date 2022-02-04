@@ -59,12 +59,12 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
             final Map<String, String> responses,
             final Set<String> running) {
 
-        String response;
+        String response = null;
         try {
-            if (timeout == null || timeout <= 0) {
+            if (timeout == null) {
                 LOG.debug("No timeouts for resource connection checking ... ");
-                response = checker.call();
-            } else {
+                response = SyncopeConsoleSession.get().execute(checker).get();
+            } else if (timeout > 0) {
                 LOG.debug("Timeouts provided for resource connection checking ... ");
                 response = SyncopeConsoleSession.get().execute(checker).get(timeout, TimeUnit.SECONDS);
             }
@@ -78,7 +78,9 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                     TopologyNode.Status.FAILURE, checker.key);
         }
 
-        responses.put(checker.key, response);
+        if (response != null) {
+            responses.put(checker.key, response);
+        }
 
         running.remove(checker.key);
     }
