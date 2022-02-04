@@ -61,9 +61,9 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
         String response = null;
         try {
-            if (timeout == null) {
+            if (timeout == null || timeout < 0) {
                 LOG.debug("No timeouts for resource connection checking ... ");
-                response = SyncopeConsoleSession.get().execute(checker).get();
+                response = checker.call();
             } else if (timeout > 0) {
                 LOG.debug("Timeouts provided for resource connection checking ... ");
                 response = SyncopeConsoleSession.get().execute(checker).get(timeout, TimeUnit.SECONDS);
