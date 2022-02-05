@@ -187,7 +187,7 @@ under the License.
     </profile>
 
     <profile>
-      <id>postgres</id>
+      <id>pgjsonb</id>
       
       <dependencies>
         <dependency>
@@ -303,7 +303,7 @@ under the License.
     </profile>
     
     <profile>
-      <id>mysql</id>
+      <id>myjson</id>
       
       <dependencies>
         <dependency>
