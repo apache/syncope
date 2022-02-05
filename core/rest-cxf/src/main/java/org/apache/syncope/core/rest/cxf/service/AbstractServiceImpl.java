@@ -174,7 +174,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
         } catch (Exception e) {
             LOG.error("Invalid FIQL expression: {}", fiql, e);
 
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
             sce.getElements().add(fiql);
             sce.getElements().add(ExceptionUtils.getRootCauseMessage(e));
             throw sce;

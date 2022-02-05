@@ -188,7 +188,7 @@ public class AnySearchTest extends AbstractTest {
             searchDAO.search(searchCondition, orderByClauses, AnyTypeKind.USER);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
         }
     }
 

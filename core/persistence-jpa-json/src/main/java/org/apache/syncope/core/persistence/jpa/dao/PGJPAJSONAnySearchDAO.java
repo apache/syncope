@@ -592,8 +592,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
             Realm realm = realmDAO.findByFullPath(cond.getExpression());
             if (realm == null) {
-                LOG.warn("Invalid Realm full path: {}", cond.getExpression());
-                return EMPTY_QUERY;
+                throw new IllegalArgumentException("Invalid Realm full path: " + cond.getExpression());
             }
             cond.setExpression(realm.getKey());
         }

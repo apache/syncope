@@ -57,7 +57,7 @@ public class DynRealmDataBinderImpl implements DynRealmDataBinder {
     private void setDynMembership(final DynRealm dynRealm, final AnyType anyType, final String dynMembershipFIQL) {
         SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, dynMembershipFIQL);
         if (!dynMembershipCond.isValid()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
             sce.getElements().add(dynMembershipFIQL);
             throw sce;
         }

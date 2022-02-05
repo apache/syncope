@@ -85,7 +85,7 @@ public class ReconciliationServiceImpl extends AbstractServiceImpl implements Re
             } catch (Exception e) {
                 LOG.error("Invalid FIQL expression: {}", reconQuery.getFiql(), e);
 
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
                 sce.getElements().add(reconQuery.getFiql());
                 sce.getElements().add(ExceptionUtils.getRootCauseMessage(e));
                 throw sce;

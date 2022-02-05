@@ -66,8 +66,6 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
-import org.elasticsearch.index.query.MatchAllQueryBuilder;
-import org.elasticsearch.index.query.MatchNoneQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -81,10 +79,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Search engine implementation for users, groups and any objects, based on Elasticsearch.
  */
 public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
-
-    protected static final QueryBuilder MATCH_NONE_QUERY_BUILDER = new MatchNoneQueryBuilder();
-
-    protected static final QueryBuilder MATCH_ALL_QUERY_BUILDER = new MatchAllQueryBuilder();
 
     protected static final char[] ELASTICSEARCH_REGEX_CHARS = new char[] {
         '.', '?', '+', '*', '|', '{', '}', '[', ']', '(', ')', '"', '\\', '&' };
@@ -334,7 +328,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 }
 
                 if (builder == null) {
-                    builder = MATCH_NONE_QUERY_BUILDER;
+                    throw new IllegalArgumentException("Cannot construct QueryBuilder");
                 }
 
                 if (cond.getType() == SearchCond.Type.NOT_LEAF) {
@@ -369,23 +363,13 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected QueryBuilder getQueryBuilder(final RelationshipCond cond) {
-        String rightAnyObjectKey;
-        try {
-            rightAnyObjectKey = check(cond);
-        } catch (IllegalArgumentException e) {
-            return MATCH_NONE_QUERY_BUILDER;
-        }
+        String rightAnyObjectKey = check(cond);
 
         return QueryBuilders.termQuery("relationships", rightAnyObjectKey);
     }
 
     protected QueryBuilder getQueryBuilder(final MembershipCond cond) {
-        List<String> groupKeys;
-        try {
-            groupKeys = check(cond);
-        } catch (IllegalArgumentException e) {
-            return MATCH_NONE_QUERY_BUILDER;
-        }
+        List<String> groupKeys = check(cond);
 
         if (groupKeys.size() == 1) {
             return QueryBuilders.termQuery("memberships", groupKeys.get(0));
@@ -397,12 +381,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected QueryBuilder getQueryBuilder(final AssignableCond cond) {
-        Realm realm;
-        try {
-            realm = check(cond);
-        } catch (IllegalArgumentException e) {
-            return MATCH_NONE_QUERY_BUILDER;
-        }
+        Realm realm = check(cond);
 
         DisMaxQueryBuilder builder = QueryBuilders.disMaxQuery();
         if (cond.isFromGroup()) {
@@ -431,12 +410,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected QueryBuilder getQueryBuilder(final MemberCond cond) {
-        String memberKey;
-        try {
-            memberKey = check(cond);
-        } catch (IllegalArgumentException e) {
-            return MATCH_NONE_QUERY_BUILDER;
-        }
+        String memberKey = check(cond);
 
         return QueryBuilders.termQuery("members", memberKey);
     }
@@ -454,7 +428,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 ? attrValue.getDateValue().getTime()
                 : attrValue.getValue();
 
-        QueryBuilder builder = MATCH_NONE_QUERY_BUILDER;
+        QueryBuilder builder = null;
 
         switch (cond.getType()) {
             case ISNOTNULL:
@@ -517,12 +491,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected QueryBuilder getQueryBuilder(final AttrCond cond, final AnyTypeKind kind) {
-        Pair<PlainSchema, PlainAttrValue> checked;
-        try {
-            checked = check(cond, kind);
-        } catch (IllegalArgumentException e) {
-            return MATCH_NONE_QUERY_BUILDER;
-        }
+        Pair<PlainSchema, PlainAttrValue> checked = check(cond, kind);
 
         return fillAttrQuery(checked.getLeft(), checked.getRight(), cond);
     }
@@ -533,23 +502,17 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
             Realm realm = realmDAO.find(cond.getExpression());
             if (realm == null) {
-                LOG.warn("Invalid Realm key: {}", cond.getExpression());
-                return MATCH_NONE_QUERY_BUILDER;
+                throw new IllegalArgumentException("Invalid Realm key: " + cond.getExpression());
             }
             cond.setExpression(realm.getFullPath());
         }
 
-        Triple<PlainSchema, PlainAttrValue, AnyCond> checked;
-        try {
-            checked = check(cond, kind);
-        } catch (IllegalArgumentException e) {
-            return MATCH_NONE_QUERY_BUILDER;
-        }
+        Triple<PlainSchema, PlainAttrValue, AnyCond> checked = check(cond, kind);
 
         return fillAttrQuery(checked.getLeft(), checked.getMiddle(), checked.getRight());
     }
 
     protected QueryBuilder getQueryBuilderForCustomConds(final SearchCond cond, final AnyTypeKind kind) {
-        return MATCH_ALL_QUERY_BUILDER;
+        return null;
     }
 }
