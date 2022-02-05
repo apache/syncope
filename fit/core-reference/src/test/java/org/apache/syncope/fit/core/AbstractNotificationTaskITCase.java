@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -49,7 +51,7 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
         assertNotNull(POP3_PORT);
     }
 
-    private boolean pop3(final String sender, final String subject, final String mailAddress) throws Exception {
+    private static boolean pop3(final String sender, final String subject, final String mailAddress) throws Exception {
         boolean found = false;
         Session session = Session.getDefaultInstance(System.getProperties());
         Store store = session.getStore("pop3");
@@ -72,31 +74,20 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
         return found;
     }
 
-    protected boolean verifyMail(
+    protected static void verifyMail(
             final String sender,
             final String subject,
             final String mailAddress,
             final int maxWaitSeconds) throws Exception {
 
-        boolean read = false;
-
-        int i = 0;
-
-        // wait for completion (executions incremented)
-        do {
+        AtomicReference<Boolean> read = new AtomicReference<>(false);
+        await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                read.set(pop3(sender, subject, mailAddress));
+                return read.get();
+            } catch (Exception e) {
+                return false;
             }
-
-            read = pop3(sender, subject, mailAddress);
-
-            i++;
-        } while (!read && i < maxWaitSeconds);
-        if (i == maxWaitSeconds) {
-            fail("Timeout when attempting to read e-mail to  " + mailAddress);
-        }
-
-        return read;
+        });
     }
 }

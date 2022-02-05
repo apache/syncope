@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -42,6 +43,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
@@ -74,7 +77,6 @@ import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RemediationTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -381,6 +383,10 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // 1. verify execution status
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
+        // SYNCOPE-898
+        PullTaskTO task = taskService.read(TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", false);
+        assertEquals(SyncopeConstants.ROOT_REALM, task.getDestinationRealm());
+
         // 2. verify that pulled group is found
         PagedResult<GroupTO> matchingGroups = groupService.search(new AnyQuery.Builder().realm(
                 SyncopeConstants.ROOT_REALM).
@@ -388,10 +394,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 build());
         assertNotNull(matchingGroups);
         assertEquals(1, matchingGroups.getResult().size());
-        // SYNCOPE-898
-        PullTaskTO task = taskService.read(TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", false);
-        assertEquals("/", task.getDestinationRealm());
-        assertEquals("/", matchingGroups.getResult().get(0).getRealm());
+        assertEquals(SyncopeConstants.ROOT_REALM, matchingGroups.getResult().get(0).getRealm());
 
         // 3. verify that pulled user is found
         PagedResult<UserTO> matchingUsers = userService.search(
@@ -414,11 +417,11 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // Check for SYNCOPE-1343
         assertEquals("odd", matchingUsers.getResult().get(0).getPlainAttr("title").get().getValues().get(0));
 
-        GroupTO groupTO = matchingGroups.getResult().iterator().next();
+        GroupTO groupTO = matchingGroups.getResult().get(0);
         assertNotNull(groupTO);
         assertEquals("testLDAPGroup", groupTO.getName());
         assertEquals("true", groupTO.getPlainAttr("show").get().getValues().get(0));
-        assertEquals(matchingUsers.getResult().iterator().next().getKey(), groupTO.getUserOwner());
+        assertEquals(matchingUsers.getResult().get(0).getKey(), groupTO.getUserOwner());
         assertNull(groupTO.getGroupOwner());
         // SYNCOPE-1343, set value title to null on LDAP
         ConnObjectTO userConnObject = resourceService.readConnObject(
@@ -434,25 +437,20 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", MAX_WAIT_SECONDS, false);
 
         // 4. verify that LDAP group membership is pulled as Syncope membership
-        int i = 0;
-        PagedResult<UserTO> members;
-        do {
+        AtomicReference<Integer> numMembers = new AtomicReference<>();
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                PagedResult<UserTO> members = userService.search(
+                        new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
+                                build());
+                numMembers.set(members.getResult().size());
+                return !members.getResult().isEmpty();
+            } catch (Exception e) {
+                return false;
             }
-
-            members = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                    fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
-                    build());
-            assertNotNull(members);
-
-            i++;
-        } while (members.getResult().isEmpty() && i < MAX_WAIT_SECONDS);
-        if (i == MAX_WAIT_SECONDS) {
-            fail("Timeout while checking for memberships of " + groupTO.getName());
-        }
-        assertEquals(1, members.getResult().size());
+        });
+        assertEquals(1, numMembers.get());
 
         // SYNCOPE-1343, verify that the title attribute has been reset
         matchingUsers = userService.search(
@@ -473,24 +471,16 @@ public class PullTaskITCase extends AbstractTaskITCase {
         execProvisioningTask(
                 taskService, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", MAX_WAIT_SECONDS, false);
 
-        i = 0;
-        do {
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                return userService.search(
+                        new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
+                                build()).getResult().isEmpty();
+            } catch (Exception e) {
+                return false;
             }
-
-            members = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                    fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
-                    build());
-            assertNotNull(members);
-
-            i++;
-        } while (!members.getResult().isEmpty() && i < MAX_WAIT_SECONDS);
-        if (i == MAX_WAIT_SECONDS) {
-            fail("Timeout while checking for memberships of " + groupTO.getName());
-        }
-        assertEquals(0, members.getResult().size());
+        });
     }
 
     @Test
@@ -503,8 +493,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         ImplementationTO transformer = null;
         try {
-            transformer = implementationService.read(
-                    ImplementationType.ITEM_TRANSFORMER, "PrefixItemTransformer");
+            transformer = implementationService.read(ImplementationType.ITEM_TRANSFORMER, "PrefixItemTransformer");
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 transformer = new ImplementationTO();
@@ -549,8 +538,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 2. verify that PrefixMappingItemTransformer was applied during propagation
             // (location starts with given prefix on external resource)
-            ConnObjectTO connObjectTO = resourceService.
-                    readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
+            ConnObjectTO connObjectTO = resourceService.readConnObject(
+                    RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
             assertFalse(anyObjectTO.getPlainAttr("location").get().getValues().get(0).startsWith(prefix));
             assertTrue(connObjectTO.getAttr("LOCATION").get().getValues().get(0).startsWith(prefix));
 
@@ -573,6 +562,14 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 4. pull
             execProvisioningTask(taskService, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
+
+            if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
 
             // 5. verify that printer was re-created in Syncope (implies that location does not start with given prefix,
             // hence PrefixItemTransformer was applied during pull)
@@ -1106,19 +1103,17 @@ public class PullTaskITCase extends AbstractTaskITCase {
         template.setPassword("'password123'");
         template.getResources().add(RESOURCE_NAME_DBVIRATTR);
         template.getVirAttrs().add(attrTO("virtualdata", "'virtualvalue'"));
+
         task.getTemplates().put(AnyTypeKind.USER.name(), template);
 
         taskService.update(TaskType.PULL, task);
 
         // exec task: one user from CSV will match the user created above and template will be applied
-        execProvisioningTask(taskService, TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
+        ExecTO exec = execProvisioningTask(taskService, TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
 
         // check that template was successfully applied
         // 1. propagation to db
-        PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
-                anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).resource(RESOURCE_NAME_DBVIRATTR).build());
-        assertFalse(tasks.getResult().isEmpty());
-        assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
+        assertEquals(ExecStatus.SUCCESS.name(), exec.getStatus());
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String value = queryForObject(jdbcTemplate,

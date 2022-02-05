@@ -214,10 +214,9 @@ public class AuthDataAccessor {
     public Triple<User, Boolean, String> authenticate(final Authentication authentication) {
         User user = null;
 
-        Optional<? extends CPlainAttr> authAttrs = confDAO.find("authentication.attributes");
-        List<String> authAttrValues = authAttrs.isPresent()
-                ? authAttrs.get().getValuesAsStrings()
-                : Collections.singletonList("username");
+        List<String> authAttrValues = confDAO.find("authentication.attributes").
+                map(CPlainAttr::getValuesAsStrings).
+                orElseGet(() -> Collections.singletonList("username"));
         for (int i = 0; user == null && i < authAttrValues.size(); i++) {
             if ("username".equals(authAttrValues.get(i))) {
                 user = userDAO.findByUsername(authentication.getName());
@@ -225,12 +224,15 @@ public class AuthDataAccessor {
                 AttrCond attrCond = new AttrCond(AttrCond.Type.EQ);
                 attrCond.setSchema(authAttrValues.get(i));
                 attrCond.setExpression(authentication.getName());
-                List<User> users = searchDAO.search(SearchCond.getLeaf(attrCond), AnyTypeKind.USER);
-                if (users.size() == 1) {
-                    user = users.get(0);
-                } else {
-                    LOG.warn("Value {} provided for {} does not uniquely identify a user",
-                            authentication.getName(), authAttrValues.get(i));
+                try {
+                    List<User> users = searchDAO.search(SearchCond.getLeaf(attrCond), AnyTypeKind.USER);
+                    if (users.size() == 1) {
+                        user = users.get(0);
+                    } else {
+                        LOG.warn("Search condition {} does not uniquely match a user", attrCond);
+                    }
+                } catch (IllegalArgumentException e) {
+                    LOG.error("While searching user for authentication via {}", attrCond, e);
                 }
             }
         }
