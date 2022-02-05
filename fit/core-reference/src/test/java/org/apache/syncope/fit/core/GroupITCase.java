@@ -254,10 +254,12 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void patch() {
         GroupCR createReq = getBasicSample("patch");
-        createReq.setUDynMembershipCond("(($groups==3;$resources!=ws-target-resource-1);aLong==1)");
+        createReq.setUDynMembershipCond(
+                "(($groups==ebf97068-aa4b-4a85-9f01-680e8c4cf227;$resources!=ws-target-resource-1);aLong==1)");
         createReq.getADynMembershipConds().put(
                 PRINTER,
-                "(($groups==7;cool==ss);$resources==ws-target-resource-2);$type==PRINTER");
+                "(($groups==ece66293-8f31-4a84-8e8d-23da36e70846;cool==ss);$resources==ws-target-resource-2);"
+                + "$type==PRINTER");
 
         GroupTO created = createGroup(createReq).getEntity();
 

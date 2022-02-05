@@ -127,7 +127,7 @@ public class ResourceServiceImpl extends AbstractService implements ResourceServ
             } catch (Exception e) {
                 LOG.error("Invalid FIQL expression: {}", query.getFiql(), e);
 
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
                 sce.getElements().add(query.getFiql());
                 sce.getElements().add(ExceptionUtils.getRootCauseMessage(e));
                 throw sce;

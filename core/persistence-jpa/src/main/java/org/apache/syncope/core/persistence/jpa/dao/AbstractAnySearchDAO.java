@@ -189,8 +189,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
         PlainSchema schema = plainSchemaDAO.find(cond.getSchema());
         if (schema == null) {
-            LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Invalid schema " + cond.getSchema());
         }
 
         PlainAttrValue attrValue = schema.isUniqueConstraint()
@@ -205,8 +204,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                 ((JPAPlainSchema) schema).validator().validate(cond.getExpression(), attrValue);
             }
         } catch (ValidationException e) {
-            LOG.error("Could not validate expression '" + cond.getExpression() + '\'', e);
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Could not validate expression " + cond.getExpression());
         }
 
         return Pair.of(schema, attrValue);
@@ -221,8 +219,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
         Field anyField = anyUtils.getField(computed.getSchema());
         if (anyField == null) {
-            LOG.warn("Ignoring invalid field '{}'", computed.getSchema());
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Invalid schema " + computed.getSchema());
         }
         // Keeps track of difference between entity's getKey() and JPA @Id fields
         if ("key".equals(computed.getSchema())) {
@@ -268,8 +265,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             try {
                 ((JPAPlainSchema) schema).validator().validate(computed.getExpression(), attrValue);
             } catch (ValidationException e) {
-                LOG.error("Could not validate expression '" + computed.getExpression() + '\'', e);
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Could not validate expression " + computed.getExpression());
             }
         }
 
@@ -285,8 +281,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                 ? Optional.ofNullable(groupDAO.findKey(cond.getGroup())).map(List::of).orElseGet(List::of)
                 : groupDAO.findKeysByNamePattern(cond.getGroup());
         if (matching.isEmpty()) {
-            LOG.error("Could not find group(s) for '{}'", cond.getGroup());
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Could not find group(s) for " + cond.getGroup());
         }
 
         return matching;
@@ -301,8 +296,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             rightAnyObjectKey = Optional.ofNullable(anyObject).map(Entity::getKey).orElse(null);
         }
         if (rightAnyObjectKey == null) {
-            LOG.error("Could not find any object for '" + cond.getAnyObject() + '\'');
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Could not find any object for " + cond.getAnyObject());
         }
 
         return rightAnyObjectKey;
@@ -311,8 +305,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     protected Realm check(final AssignableCond cond) {
         Realm realm = realmDAO.findByFullPath(cond.getRealmFullPath());
         if (realm == null) {
-            LOG.error("Could not find realm for '" + cond.getRealmFullPath() + '\'');
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Could not find realm for " + cond.getRealmFullPath());
         }
 
         return realm;
@@ -330,8 +323,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             memberKey = Optional.ofNullable(member).map(Entity::getKey).orElse(null);
         }
         if (memberKey == null) {
-            LOG.error("Could not find user or any object for '" + cond.getMember() + '\'');
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Could not find user or any object for " + cond.getMember());
         }
 
         return memberKey;

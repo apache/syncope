@@ -72,8 +72,6 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
  */
 public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
-    protected static final String EMPTY_QUERY = "SELECT any_id FROM user_search WHERE 1=2";
-
     public JPAAnySearchDAO(
             final RealmDAO realmDAO,
             final DynRealmDAO dynRealmDAO,
@@ -248,9 +246,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             if (parameters.get(i) instanceof Date) {
                 query.setParameter(i + 1, (Date) parameters.get(i), TemporalType.TIMESTAMP);
             } else if (parameters.get(i) instanceof Boolean) {
-                query.setParameter(i + 1, ((Boolean) parameters.get(i))
-                        ? 1
-                        : 0);
+                query.setParameter(i + 1, ((Boolean) parameters.get(i)) ? 1 : 0);
             } else {
                 query.setParameter(i + 1, parameters.get(i));
             }
@@ -461,7 +457,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         }
                         if (orderByUniquePlainSchemas.size() > 1 || orderByNonUniquePlainSchemas.size() > 1) {
                             SyncopeClientException invalidSearch =
-                                    SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+                                    SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
                             invalidSearch.getElements().add("Order by more than one attribute is not allowed; "
                                     + "remove one from " + (orderByUniquePlainSchemas.size() > 1
                                     ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas));
@@ -661,12 +657,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        String rightAnyObjectKey;
-        try {
-            rightAnyObjectKey = check(cond);
-        } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY;
-        }
+        String rightAnyObjectKey = check(cond);
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
@@ -691,12 +682,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        List<String> groupKeys;
-        try {
-            groupKeys = check(cond);
-        } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY;
-        }
+        List<String> groupKeys = check(cond);
 
         String where = groupKeys.stream().
                 map(key -> "group_id=?" + setParameter(parameters, key)).
@@ -858,12 +844,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        Realm realm;
-        try {
-            realm = check(cond);
-        } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY;
-        }
+        Realm realm = check(cond);
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE (");
@@ -889,12 +870,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        String memberKey;
-        try {
-            memberKey = check(cond);
-        } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY;
-        }
+        String memberKey = check(cond);
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
@@ -1062,12 +1038,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        Pair<PlainSchema, PlainAttrValue> checked;
-        try {
-            checked = check(cond, svs.anyTypeKind);
-        } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY;
-        }
+        Pair<PlainSchema, PlainAttrValue> checked = check(cond, svs.anyTypeKind);
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ");
         switch (cond.getType()) {
@@ -1118,18 +1089,12 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             Realm realm = realmDAO.findByFullPath(cond.getExpression());
             if (realm == null) {
-                LOG.warn("Invalid Realm full path: {}", cond.getExpression());
-                return EMPTY_QUERY;
+                throw new IllegalArgumentException("Invalid Realm full path: " + cond.getExpression());
             }
             cond.setExpression(realm.getKey());
         }
 
-        Triple<PlainSchema, PlainAttrValue, AnyCond> checked;
-        try {
-            checked = check(cond, svs.anyTypeKind);
-        } catch (IllegalArgumentException e) {
-            return EMPTY_QUERY;
-        }
+        Triple<PlainSchema, PlainAttrValue, AnyCond> checked = check(cond, svs.anyTypeKind);
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
