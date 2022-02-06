@@ -53,7 +53,7 @@ public enum ClientExceptionType {
     InvalidAnyObject(Response.Status.BAD_REQUEST),
     InvalidGroup(Response.Status.BAD_REQUEST),
     InvalidSchemaDefinition(Response.Status.BAD_REQUEST),
-    InvalidSearchExpression(Response.Status.BAD_REQUEST),
+    InvalidSearchParameters(Response.Status.BAD_REQUEST),
     InvalidPageOrSize(Response.Status.BAD_REQUEST),
     InvalidPropagationTaskExecReport(Response.Status.BAD_REQUEST),
     InvalidPlainSchema(Response.Status.BAD_REQUEST),

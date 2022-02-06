@@ -26,7 +26,9 @@ import java.util.stream.Collectors;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
@@ -38,6 +40,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
@@ -134,15 +137,22 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                 ? null
                 : getSearchCond(anyQuery.getFiql(), realm);
 
-        Pair<Integer, List<TO>> result = getAnyLogic().search(
-                searchCond,
-                anyQuery.getPage(),
-                anyQuery.getSize(),
-                getOrderByClauses(anyQuery.getOrderBy()),
-                isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
-                anyQuery.getDetails());
+        try {
+            Pair<Integer, List<TO>> result = getAnyLogic().search(
+                    searchCond,
+                    anyQuery.getPage(),
+                    anyQuery.getSize(),
+                    getOrderByClauses(anyQuery.getOrderBy()),
+                    isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
+                    anyQuery.getDetails());
 
-        return buildPagedResult(result.getRight(), anyQuery.getPage(), anyQuery.getSize(), result.getLeft());
+            return buildPagedResult(result.getRight(), anyQuery.getPage(), anyQuery.getSize(), result.getLeft());
+        } catch (IllegalArgumentException e) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
+            sce.getElements().add(anyQuery.getFiql());
+            sce.getElements().add(ExceptionUtils.getRootCauseMessage(e));
+            throw sce;
+        }
     }
 
     protected Date findLastChange(final String key) {

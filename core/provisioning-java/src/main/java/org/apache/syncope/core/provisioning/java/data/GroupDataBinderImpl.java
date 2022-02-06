@@ -124,7 +124,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     protected void setDynMembership(final Group group, final AnyType anyType, final String dynMembershipFIQL) {
         SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, dynMembershipFIQL);
         if (!dynMembershipCond.isValid()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
             sce.getElements().add(dynMembershipFIQL);
             throw sce;
         }
