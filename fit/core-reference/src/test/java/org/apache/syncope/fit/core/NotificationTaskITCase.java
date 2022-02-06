@@ -62,7 +62,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
 
-        assertTrue(verifyMail(sender, subject, created.getRight(), 50));
+        verifyMail(sender, subject, created.getRight(), MAX_WAIT_SECONDS);
 
         // verify message body
         taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
@@ -85,7 +85,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
 
-        assertTrue(verifyMail(sender, subject, created.getRight(), 50));
+        verifyMail(sender, subject, created.getRight(), MAX_WAIT_SECONDS);
     }
 
     @Test
@@ -193,7 +193,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         } catch (InterruptedException e) {
         }
 
-        assertTrue(verifyMail(sender, subject, created.getRight(), 50));
+        verifyMail(sender, subject, created.getRight(), MAX_WAIT_SECONDS);
 
         // verify that last exec status was updated
         taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
@@ -216,7 +216,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
 
-        assertTrue(verifyMail(sender, subject, created.getRight(), 50));
+        verifyMail(sender, subject, created.getRight(), MAX_WAIT_SECONDS);
 
         // verify task
         taskTO = taskService.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
@@ -286,7 +286,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
 
-        assertTrue(verifyMail(sender, subject, "notificationtest@syncope.apache.org", 50));
+        verifyMail(sender, subject, "notificationtest@syncope.apache.org", MAX_WAIT_SECONDS);
     }
 
     @Test
@@ -301,5 +301,4 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
                 taskService.search(new TaskQuery.Builder(TaskType.NOTIFICATION).notification(created.getLeft()).build());
         assertEquals(0, tasks.getSize());
     }
-
 }

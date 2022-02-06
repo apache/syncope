@@ -18,9 +18,8 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
@@ -118,38 +118,28 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
     }
 
     protected static ExecTO execTask(
-            final TaskService taskService, final TaskType type, final String taskKey,
-            final String initialStatus, final int maxWaitSeconds, final boolean dryRun) {
+            final TaskService taskService,
+            final TaskType type,
+            final String taskKey,
+            final String initialStatus,
+            final int maxWaitSeconds,
+            final boolean dryRun) {
 
-        TaskTO taskTO = taskService.read(type, taskKey, true);
-        assertNotNull(taskTO);
-        assertNotNull(taskTO.getExecutions());
-
-        int preSyncSize = taskTO.getExecutions().size();
-        ExecTO execution = taskService.execute(
-                new ExecuteQuery.Builder().key(taskTO.getKey()).dryRun(dryRun).build());
+        AtomicReference<TaskTO> taskTO = new AtomicReference<>(taskService.read(type, taskKey, true));
+        int preSyncSize = taskTO.get().getExecutions().size();
+        ExecTO execution = taskService.execute(new ExecuteQuery.Builder().key(taskKey).dryRun(dryRun).build());
         assertEquals(initialStatus, execution.getStatus());
 
-        int i = 0;
-
-        // wait for completion (executions incremented)
-        do {
+        await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                taskTO.set(taskService.read(type, taskKey, true));
+                return preSyncSize < taskTO.get().getExecutions().size();
+            } catch (Exception e) {
+                return false;
             }
+        });
 
-            taskTO = taskService.read(type, taskTO.getKey(), true);
-
-            assertNotNull(taskTO);
-            assertNotNull(taskTO.getExecutions());
-
-            i++;
-        } while (preSyncSize == taskTO.getExecutions().size() && i < maxWaitSeconds);
-        if (i == maxWaitSeconds) {
-            fail("Timeout when executing task " + taskKey);
-        }
-        return taskTO.getExecutions().get(taskTO.getExecutions().size() - 1);
+        return taskTO.get().getExecutions().get(taskTO.get().getExecutions().size() - 1);
     }
 
     public static ExecTO execProvisioningTask(
@@ -189,28 +179,20 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
     }
 
     protected NotificationTaskTO findNotificationTask(final String notification, final int maxWaitSeconds) {
-        int i = 0;
-        int maxit = maxWaitSeconds;
-
-        NotificationTaskTO notificationTask = null;
-        do {
+        AtomicReference<NotificationTaskTO> notificationTask = new AtomicReference<>();
+        await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                PagedResult<NotificationTaskTO> tasks = taskService.search(
+                        new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).build());
+                if (!tasks.getResult().isEmpty()) {
+                    notificationTask.set(tasks.getResult().get(0));
+                }
+            } catch (Exception e) {
+                // ignore
             }
+            return notificationTask.get() != null;
+        });
 
-            PagedResult<NotificationTaskTO> tasks =
-                    taskService.search(new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).build());
-            if (!tasks.getResult().isEmpty()) {
-                notificationTask = tasks.getResult().get(0);
-            }
-
-            i++;
-        } while (notificationTask == null && i < maxit);
-        if (notificationTask == null) {
-            fail("Timeout when looking for notification tasks from notification " + notification);
-        }
-
-        return notificationTask;
+        return notificationTask.get();
     }
 }

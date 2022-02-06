@@ -1773,6 +1773,12 @@ under the License.
 
       <!-- TEST -->
       <dependency>
+        <groupId>org.awaitility</groupId>
+        <artifactId>awaitility</artifactId>
+        <version>4.1.1</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.bouncycastle</groupId>
         <artifactId>bcpkix-jdk15on</artifactId>
         <version>1.70</version>

@@ -42,7 +42,7 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     - name: Build
-      run: mvn -U -T 1C -P 'skipTests,all'
+      run: mvn -U -T 1C -P 'skipTests,all,without-eclipse'
     - name: 'Unit Tests: PostgreSQL JPA JSON'
       run: mvn -f core/persistence-jpa-json/pom.xml -P pgjsonb -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.phase=none -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
     - name: 'Unit Tests: MySQL JPA JSON'

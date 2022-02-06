@@ -42,6 +42,6 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     - name: Build
-      run: mvn -U -T 1C -P 'skipTests,all'
+      run: mvn -U -T 1C -P 'skipTests,all,without-eclipse'
     - name: 'Elasticsearch / H2 / JSON'
       run: mvn -f fit/core-reference/pom.xml -P elasticsearch-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
