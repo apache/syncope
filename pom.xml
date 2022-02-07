@@ -412,7 +412,7 @@ under the License.
     <spring.version>5.2.19.RELEASE</spring.version>
     <spring-security.version>5.2.13.RELEASE</spring-security.version>
 
-    <openjpa.version>3.2.0</openjpa.version>
+    <openjpa.version>3.2.1</openjpa.version>
     <hikaricp.version>4.0.3</hikaricp.version>
     <bval.version>2.0.5</bval.version>
 
