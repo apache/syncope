@@ -703,6 +703,14 @@ public class SearchITCase extends AbstractITCase {
         patch.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("ctype", "ou=sample,o=isp")).build());
         userService.update(patch);
 
+        if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
         try {
             PagedResult<UserTO> users = userService.search(new AnyQuery.Builder().fiql(
                     SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("ou=sample%252Co=isp").query()).
