@@ -1031,7 +1031,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>2.2.1</version>
+        <version>2.3.0</version>
       </dependency>
 
       <dependency>
