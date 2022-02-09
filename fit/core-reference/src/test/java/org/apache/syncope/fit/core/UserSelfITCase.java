@@ -329,10 +329,6 @@ public class UserSelfITCase extends AbstractITCase {
         UserTO read = authClient.self().getRight();
         assertNotNull(read);
 
-        // SYNCOPE-1293:get users with token not null before requesting password reset
-        PagedResult<UserTO> before = userService.search(new AnyQuery.Builder().fiql("token!=$null").build());
-        boolean notBefore = before.getResult().stream().noneMatch(u -> user.getUsername().equals(u.getUsername()));
-
         // 3. request password reset (as anonymous) providing the expected security answer
         SyncopeClient anonClient = clientFactory.create();
         try {
@@ -351,10 +347,8 @@ public class UserSelfITCase extends AbstractITCase {
                 // ignore
             }
         }
-        if (notBefore) {
-            PagedResult<UserTO> after = userService.search(new AnyQuery.Builder().fiql("token!=$null").build());
-            assertEquals(before.getTotalCount() + 1, after.getTotalCount());
-        }
+        PagedResult<UserTO> tokenized = userService.search(new AnyQuery.Builder().fiql("token!=$null").build());
+        assertTrue(tokenized.getResult().stream().anyMatch(u -> user.getUsername().equals(u.getUsername())));
 
         // 4. get token (normally sent via e-mail, now reading as admin)
         String token = userService.read(read.getKey()).getToken();
