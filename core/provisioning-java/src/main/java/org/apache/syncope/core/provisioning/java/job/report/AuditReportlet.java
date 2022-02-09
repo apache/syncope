@@ -111,8 +111,11 @@ public class AuditReportlet extends AbstractReportlet {
             }
 
             handler.startElement("", "", "throwable", null);
-            char[] throwable = row.get("THROWABLE").toString().toCharArray();
-            handler.characters(throwable, 0, throwable.length);
+            Object throwableValue = row.get("THROWABLE");
+            if (throwableValue != null) {
+                char[] throwable = throwableValue.toString().toCharArray();
+                handler.characters(throwable, 0, throwable.length);
+            }
             handler.endElement("", "", "throwable");
 
             handler.endElement("", "", "event");
