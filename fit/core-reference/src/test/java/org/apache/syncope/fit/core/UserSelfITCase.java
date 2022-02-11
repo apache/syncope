@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -329,9 +331,6 @@ public class UserSelfITCase extends AbstractITCase {
         UserTO read = authClient.self().getRight();
         assertNotNull(read);
 
-        // SYNCOPE-1293:get users with token not null before requesting password reset
-        PagedResult<UserTO> before = userService.search(new AnyQuery.Builder().fiql("token!=$null").build());
-
         // 3. request password reset (as anonymous) providing the expected security answer
         SyncopeClient anonClient = clientFactory.create();
         try {
@@ -350,8 +349,14 @@ public class UserSelfITCase extends AbstractITCase {
                 // ignore
             }
         }
-        PagedResult<UserTO> after = userService.search(new AnyQuery.Builder().fiql("token!=$null").build());
-        assertEquals(before.getTotalCount() + 1, after.getTotalCount());
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+            try {
+                PagedResult<UserTO> tokenized = userService.search(new AnyQuery.Builder().fiql("token!=$null").build());
+                return tokenized.getResult().stream().anyMatch(u -> user.getUsername().equals(u.getUsername()));
+            } catch (Exception e) {
+                return false;
+            }
+        });
 
         // 4. get token (normally sent via e-mail, now reading as admin)
         String token = userService.read(read.getKey()).getToken();

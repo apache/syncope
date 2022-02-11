@@ -540,7 +540,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        List<String> groupKeys =check(cond);
+        List<String> groupKeys = check(cond);
 
         String where = groupKeys.stream().
                 map(key -> "group_id=?" + setParameter(parameters, key)).
