@@ -12,8 +12,8 @@
   "passwordManagement": true,
   "detailsManagement": true,
   "sidebarLayout": {
-    "editUserEnabled": false,
-    "passwordManagementEnabled": false,
-    "securityQuestionManagementEnabled": false
+    "editUserEnabled": true,
+    "passwordManagementEnabled": true,
+    "securityQuestionManagementEnabled": true
   }
 }
