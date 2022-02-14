@@ -73,7 +73,7 @@ public class ConnidLocations extends
     @Override
     public ActionsPanel<Serializable> getActions(final IModel<Serializable> model) {
         final ActionsPanel<Serializable> panel = super.getActions(model);
-        
+
         panel.add(new ActionLink<Serializable>() {
 
             private static final long serialVersionUID = 293293495682202660L;
