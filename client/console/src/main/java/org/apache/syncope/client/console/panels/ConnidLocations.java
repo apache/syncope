@@ -92,9 +92,9 @@ public class ConnidLocations extends
                 modal.header(new Model<>(MessageFormat.format(getString("connector.new"), (String) ignore)));
                 modal.show(true);
             }
-            
+
         }, ActionLink.ActionType.CREATE, String.format("%s", StandardEntitlement.CONNECTOR_CREATE));
-        
+
         return panel;
     }
 

@@ -102,7 +102,7 @@ public class ResourceDirectoryPanel extends
     }
 
     @Override
-    public void onEvent(final IEvent<?> event){
+    public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof ResourceSearchEvent) {
             ResourceSearchEvent payload = (ResourceSearchEvent) event.getPayload();
             AjaxRequestTarget target = payload.getTarget();

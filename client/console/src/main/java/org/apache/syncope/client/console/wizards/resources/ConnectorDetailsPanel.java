@@ -217,7 +217,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                 map(ConnBundleTO::getVersion).collect(Collectors.toList());
     }
 
-    private List<String> getBundles(final ConnInstanceTO connInstanceTO, List<ConnBundleTO> bundles){
+    private List<String> getBundles(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
         return bundles.stream().filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).
                 map(ConnBundleTO::getBundleName).collect(Collectors.toList());
     }

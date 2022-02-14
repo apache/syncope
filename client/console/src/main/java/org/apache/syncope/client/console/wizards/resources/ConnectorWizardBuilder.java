@@ -52,7 +52,7 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
     }
 
     @Override
-    protected WizardModel buildModelSteps(Serializable modelObject, final WizardModel wizardModel) {
+    protected WizardModel buildModelSteps(final Serializable modelObject, final WizardModel wizardModel) {
         ConnInstanceTO connInstanceTO = ConnInstanceTO.class.cast(modelObject);
         wizardModel.add(new ConnectorDetailsPanel(connInstanceTO, bundles));
         wizardModel.add(new ConnectorConfPanel(connInstanceTO, bundles) {

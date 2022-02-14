@@ -191,13 +191,13 @@ public class ConnectorDirectoryPanel extends
                       pageRef) {
             
                   private static final long serialVersionUID = -3225348282675513648L;
-            
+
                   @Override
                   protected void restore(final String json, final AjaxRequestTarget target) {
                       try {
                           ConnInstanceTO updated = MAPPER.readValue(json, ConnInstanceTO.class);
                           restClient.update(updated);
-            
+
                           SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                       } catch (Exception e) {
                           LOG.error("While restoring connector {}",
@@ -207,14 +207,14 @@ public class ConnectorDirectoryPanel extends
                       ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                   }
               }));
-            
+
               altDefaultModal.header(
                       new Model<>(MessageFormat.format(getString("connector.menu.history"),
                               ((ConnInstanceTO) model.getObject()).getDisplayName())));
-            
+
               altDefaultModal.show(true);
             }
-            
+
             }, ActionLink.ActionType.VIEW_AUDIT_HISTORY,
             String.format("%s,%s", StandardEntitlement.CONNECTOR_READ, StandardEntitlement.AUDIT_LIST));
 
