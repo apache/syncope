@@ -46,6 +46,7 @@ import org.apache.syncope.client.console.pages.MustChangePassword;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.console.panels.AnyPanel;
 import org.apache.syncope.client.console.themes.AdminLTE;
+import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.PropertyUtils;
@@ -120,6 +121,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     private String defaultAnyLayoutClass;
 
+    private String defaultTopologyClass;
+
     @SuppressWarnings("unchecked")
     protected void populatePageClasses(final Properties props) {
         Enumeration<String> propNames = (Enumeration<String>) props.propertyNames();
@@ -185,6 +188,9 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         maxPoolSize = Integer.valueOf(props.getProperty("topology.maxPoolSize", "10"));
         queueCapacity = Integer.valueOf(props.getProperty("topology.queueCapacity", "50"));
 
+        // topology page
+        defaultTopologyClass = props.getProperty("page.topology", Topology.class.getName());
+        
         // process page properties
         pageClasses = new HashMap<>();
         populatePageClasses(props);
@@ -332,6 +338,10 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public String getDefaultAnyLayoutClass() {
         return defaultAnyLayoutClass;
+    }
+
+    public String getDefaultTopologyClass() {
+        return defaultTopologyClass;
     }
 
     public SyncopeClientFactoryBean newClientFactory() {

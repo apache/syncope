@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
+import java.util.Collections;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
@@ -72,8 +73,12 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
             }
 
         });
-        wizardModel.add(new ResourceConnCapabilitiesPanel(
-                resourceTO, connectorRestClient.read(resourceTO.getConnector()).getCapabilities()));
+        if (resourceTO.getConnector() != null) {
+            wizardModel.add(new ResourceConnCapabilitiesPanel(
+                    resourceTO, connectorRestClient.read(resourceTO.getConnector()).getCapabilities()));
+        } else {
+            wizardModel.add(new ResourceConnCapabilitiesPanel(resourceTO, Collections.emptySet()));
+        }
 
         wizardModel.add(new ResourceSecurityPanel(resourceTO));
         return wizardModel;
@@ -81,7 +86,7 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
 
     @Override
     protected ResourceTO onApplyInternal(final Serializable modelObject) {
-        ResourceTO resourceTO = ResourceTO.class.cast(modelObject);
+        ResourceTO resourceTO = (ResourceTO) modelObject;
         if (createFlag) {
             resourceTO = resourceRestClient.create(resourceTO);
         } else {
