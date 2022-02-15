@@ -329,5 +329,4 @@ public class SearchCondConverterTest {
 
         assertEquals(SearchCond.getLeaf(cond), SearchCondConverter.convert(VISITOR, fiql));
     }
-
 }

@@ -41,7 +41,6 @@ import org.apache.syncope.client.console.tasks.PullTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.resources.AbstractResourceWizardBuilder;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvision;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
@@ -627,7 +626,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         fragment.add(history);
 
         // [SYNCOPE-1161] - Option to clone a resource
-        AjaxLink<String> clone = new IndicatingOnConfirmAjaxLink<>("clone", "confirmClone", true) {
+        AjaxLink<String> clone = new IndicatingAjaxLink<>("clone") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -635,7 +634,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public void onClick(final AjaxRequestTarget target) {
                 try {
                     ResourceTO resource = ResourceRestClient.read(node.getKey());
-                    resource.setKey("Copy of " + resource.getKey());
+                    resource.setKey("Copy of " + node.getKey());
+
                     // reset some resource objects keys
                     if (resource.getOrgUnit() != null) {
                         resource.getOrgUnit().setKey(null);
@@ -653,18 +653,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                         }
                         provision.getVirSchemas().clear();
                     }
-                    ResourceRestClient.create(resource);
+                    target.add(modal.setContent(new ResourceWizardBuilder(resource, pageRef).
+                            build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
-                    // refresh Topology
-                    send(pageRef.getPage(), Broadcast.DEPTH, new AbstractResourceWizardBuilder.CreateEvent(
-                        resource.getKey(),
-                        resource.getKey(),
-                        TopologyNode.Kind.RESOURCE,
-                        resource.getConnector(),
-                        target));
+                    modal.header(new Model<>(MessageFormat.format(getString("resource.clone"), node.getKey())));
+                    modal.show(true);
 
-                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                    toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While cloning resource {}", node.getKey(), e);
                     SyncopeConsoleSession.get().onException(e);

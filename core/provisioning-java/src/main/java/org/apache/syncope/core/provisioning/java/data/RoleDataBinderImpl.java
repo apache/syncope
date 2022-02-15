@@ -75,7 +75,7 @@ public class RoleDataBinderImpl implements RoleDataBinder {
     protected void setDynMembership(final Role role, final String dynMembershipFIQL) {
         SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, dynMembershipFIQL);
         if (!dynMembershipCond.isValid()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
             sce.getElements().add(dynMembershipFIQL);
             throw sce;
         }

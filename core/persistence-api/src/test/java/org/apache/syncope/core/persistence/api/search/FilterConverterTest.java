@@ -117,7 +117,7 @@ public class FilterConverterTest {
             FilterConverter.convert(fiql);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
         }
     }
 
@@ -130,7 +130,7 @@ public class FilterConverterTest {
             FilterConverter.convert(fiql);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
         }
     }
 
@@ -143,7 +143,7 @@ public class FilterConverterTest {
             FilterConverter.convert(fiql);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
         }
     }
 
@@ -178,7 +178,7 @@ public class FilterConverterTest {
             FilterConverter.convert(SpecialAttr.DYNREALMS + "==realm");
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
         }
     }
 
@@ -188,7 +188,7 @@ public class FilterConverterTest {
             FilterConverter.convert(SpecialAttr.DYNREALMS + "!=realm");
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
         }
     }
 
@@ -198,7 +198,7 @@ public class FilterConverterTest {
             FilterConverter.convert(SpecialAttr.RESOURCES + "==resource");
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
         }
     }
 
@@ -208,7 +208,7 @@ public class FilterConverterTest {
             FilterConverter.convert(SpecialAttr.RESOURCES + "!=resource");
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
         }
     }
 

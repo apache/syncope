@@ -55,7 +55,7 @@ public final class SearchCondConverter {
 
             return visitor.getQuery();
         } catch (Exception e) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
             sce.getElements().add(fiql);
             sce.getElements().add(ExceptionUtils.getRootCauseMessage(e));
             throw sce;

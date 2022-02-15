@@ -1140,10 +1140,10 @@ under the License.
         </plugins>
       </build>
     </profile>
-    
+
     <profile>
       <id>oracle-it</id>
-      
+
       <properties>
         <jdbcdriver.groupId>com.oracle.database.jdbc</jdbcdriver.groupId>
         <jdbcdriver.artifactId>ojdbc11</jdbcdriver.artifactId>
@@ -1183,22 +1183,17 @@ under the License.
               <images>
                 <image>
                   <alias>oracle</alias>
-                  <name>oracleinanutshell/oracle-xe-11g:latest</name>
+                  <name>gvenzl/oracle-xe:18-slim</name>
                   <run>
                     <env>
-                      <ORACLE_ALLOW_REMOTE>true</ORACLE_ALLOW_REMOTE>
-                      <ORACLE_ENABLE_XDB>true</ORACLE_ENABLE_XDB>
-                      <ORACLE_DISABLE_ASYNCH_IO>true</ORACLE_DISABLE_ASYNCH_IO>
+                      <ORACLE_PASSWORD>password</ORACLE_PASSWORD>
+                      <APP_USER>syncope</APP_USER>
+                      <APP_USER_PASSWORD>syncope</APP_USER_PASSWORD>
                     </env>
                     <wait>
-                      <log>Disconnected from Oracle Database 11g Express Edition</log>
+                      <log>DATABASE IS READY TO USE</log>
                       <time>120000</time>
-                    </wait>                
-                    <volumes>
-                      <bind>
-                        <volume>${project.build.outputDirectory}/oracle/:/docker-entrypoint-initdb.d/</volume>
-                      </bind>
-                    </volumes>
+                    </wait>
                   </run>
                 </image>
               </images>
@@ -1228,7 +1223,7 @@ under the License.
               </execution>
             </executions>
           </plugin>
-          
+
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven3-plugin</artifactId>

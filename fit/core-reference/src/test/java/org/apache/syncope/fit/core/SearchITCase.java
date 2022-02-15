@@ -430,12 +430,15 @@ public class SearchITCase extends AbstractITCase {
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO.getSecurityQuestion());
 
-        PagedResult<UserTO> matchingUsers = userService.search(
-                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql(SyncopeClient.getUserSearchConditionBuilder().
-                                is("securityAnswer").equalTo(securityAnswer).query()).build());
-        assertNotNull(matchingUsers);
-        assertTrue(matchingUsers.getResult().isEmpty());
+        try {
+            userService.search(
+                    new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                            fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                    is("securityAnswer").equalTo(securityAnswer).query()).build());
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
+        }
     }
 
     @Test
@@ -769,7 +772,7 @@ public class SearchITCase extends AbstractITCase {
                 fail();
             }
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchExpression, e.getType());
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
         }
     }
 
@@ -806,11 +809,26 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1648() {
-        PagedResult<UserTO> matching = userService.search(
-                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql(SyncopeClient.getUserSearchConditionBuilder().
-                                is("username").notEqualTo("verdi").query()).
-                        build());
+        PagedResult<UserTO> matching = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("username").notEqualTo("verdi").query()).build());
         assertTrue(matching.getResult().stream().noneMatch(user -> "verdi".equals(user.getUsername())));
+    }
+
+    @Test
+    public void issueSYNCOPE1663() {
+        try {
+            userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql("lastChangeDate=ge=2022-01-25T17:00:06Z").build());
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
+            assertTrue(e.getElements().stream().
+                    anyMatch(elem -> elem.contains("Could not validate expression 2022-01-25T17:00:06Z")));
+        }
+
+        PagedResult<UserTO> matching = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql("lastChangeDate=ge=2022-01-25T17:00:06+0000").build());
+        assertNotNull(matching);
     }
 }

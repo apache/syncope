@@ -39,6 +39,12 @@ public class UserFormLayoutInfo extends AbstractAnyFormBaseLayout<UserTO, UserFo
 
     private boolean detailsManagement = true;
 
+    private final SidebarLayout sidebarLayout;
+
+    public UserFormLayoutInfo() {
+        sidebarLayout = new SidebarLayout();
+    }
+
     public Map<String, CustomizationOption> getWhichPlainAttrs() {
         return whichPlainAttrs;
     }
@@ -71,4 +77,9 @@ public class UserFormLayoutInfo extends AbstractAnyFormBaseLayout<UserTO, UserFo
     public void setDetailsManagement(final boolean detailsManagement) {
         this.detailsManagement = detailsManagement;
     }
+
+    public SidebarLayout getSidebarLayout() {
+        return sidebarLayout;
+    }
+
 }

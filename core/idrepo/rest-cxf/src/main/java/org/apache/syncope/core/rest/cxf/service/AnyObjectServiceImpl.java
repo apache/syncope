@@ -86,7 +86,7 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
         if (StringUtils.isBlank(anyQuery.getFiql())
                 || -1 == anyQuery.getFiql().indexOf(SpecialAttr.TYPE.toString())) {
 
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
             sce.getElements().add(SpecialAttr.TYPE.toString() + " is required in the FIQL string");
             throw sce;
         }
