@@ -80,8 +80,7 @@ public class ConnidLocations extends
                 new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME) {
             @Override
             public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
-                SyncopeConsoleSession.get().getPlatformInfo().getConnIdLocations().forEach(location ->
-                        cellItem.add(new Label(componentId, location)));
+                cellItem.add(new Label(componentId, rowModel.getObject().toString()));
             }
         });
 

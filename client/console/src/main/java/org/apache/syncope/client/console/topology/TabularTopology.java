@@ -40,8 +40,6 @@ public class TabularTopology extends BasePage {
 
     private static final long serialVersionUID = -4434385801124981824L;
 
-    private final BaseModal<Serializable> schedTaskModal;
-
     public TabularTopology() {
         TopologyWebSocketBehavior websocket = new TopologyWebSocketBehavior();
         body.add(websocket);
@@ -50,19 +48,6 @@ public class TabularTopology extends BasePage {
         content.setOutputMarkupId(true);
         content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList()));
         body.add(content);
-
-        schedTaskModal = new BaseModal<Serializable>(Constants.OUTER) {
-
-            private static final long serialVersionUID = -1673561782333149836L;
-
-            @Override
-            protected void onConfigure() {
-                super.onConfigure();
-                setFooterVisible(false);
-            }
-        };
-        schedTaskModal.size(Modal.Size.Large);
-        add(schedTaskModal);
     }
 
     private List<ITab> buildTabList() {
@@ -74,6 +59,17 @@ public class TabularTopology extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
+                BaseModal<Serializable> schedTaskModal = new BaseModal<Serializable>(Constants.OUTER) {
+
+                    private static final long serialVersionUID = -1673561782333149836L;
+
+                    @Override
+                    protected void onConfigure() {
+                        super.onConfigure();
+                        setFooterVisible(false);
+                    }
+                };
+                schedTaskModal.size(Modal.Size.Large);
                 return new SchedTasks(schedTaskModal, getPageReference(), true, panelId);
             }
         });
