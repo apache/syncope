@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.ConnectorDataProvider;
@@ -82,7 +83,7 @@ public class ConnectorDirectoryPanel extends
         if (event.getPayload() instanceof ConnectorSearchEvent) {
             ConnectorSearchEvent payload = (ConnectorSearchEvent) event.getPayload();
             AjaxRequestTarget target = payload.getTarget();
-            if (payload.getKeyword() != null && !payload.getKeyword().isEmpty()) {
+            if (StringUtils.isNotBlank(payload.getKeyword())) {
                 keyword = payload.getKeyword().toLowerCase();
             }
             updateResultTable(target);

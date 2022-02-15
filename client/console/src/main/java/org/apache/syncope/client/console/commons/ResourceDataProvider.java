@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
@@ -72,7 +73,7 @@ public class ResourceDataProvider extends DirectoryDataProvider<Serializable> {
             if (currentPage < 0) {
                 currentPage = 0;
             }
-            if (keyword == null || keyword.isEmpty()) {
+            if (StringUtils.isBlank(keyword)) {
                 result = restClient.list();
             } else {
                 result = restClient.list().stream().filter(resource ->
@@ -123,7 +124,7 @@ public class ResourceDataProvider extends DirectoryDataProvider<Serializable> {
         long result = 0;
 
         try {
-            if (keyword == null || keyword.isEmpty()) {
+            if (StringUtils.isBlank(keyword)) {
                 result = restClient.list().size();
             } else {
                 result = restClient.list().stream().filter(resource ->

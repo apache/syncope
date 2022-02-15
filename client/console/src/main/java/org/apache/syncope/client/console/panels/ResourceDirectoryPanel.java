@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.Constants;
@@ -124,7 +125,7 @@ public class ResourceDirectoryPanel extends
         if (event.getPayload() instanceof ResourceSearchEvent) {
             ResourceSearchEvent payload = (ResourceSearchEvent) event.getPayload();
             AjaxRequestTarget target = payload.getTarget();
-            if (payload.getKeyword() != null && !payload.getKeyword().isEmpty()) {
+            if (StringUtils.isNotEmpty(payload.getKeyword())) {
                 keyword = payload.getKeyword().toLowerCase();
             }
             updateResultTable(target);
