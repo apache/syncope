@@ -82,7 +82,9 @@ public class ConnectorDirectoryPanel extends
         if (event.getPayload() instanceof ConnectorSearchEvent) {
             ConnectorSearchEvent payload = (ConnectorSearchEvent) event.getPayload();
             AjaxRequestTarget target = payload.getTarget();
-            keyword = payload.getKeyword().toLowerCase();
+            if (payload.getKeyword() != null && !payload.getKeyword().isEmpty()) {
+                keyword = payload.getKeyword().toLowerCase();
+            }
             updateResultTable(target);
         } else {
             super.onEvent(event);

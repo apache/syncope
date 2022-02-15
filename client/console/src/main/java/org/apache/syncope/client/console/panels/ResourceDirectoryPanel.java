@@ -124,7 +124,9 @@ public class ResourceDirectoryPanel extends
         if (event.getPayload() instanceof ResourceSearchEvent) {
             ResourceSearchEvent payload = (ResourceSearchEvent) event.getPayload();
             AjaxRequestTarget target = payload.getTarget();
-            keyword = payload.getKeyword();
+            if (payload.getKeyword() != null && !payload.getKeyword().isEmpty()) {
+                keyword = payload.getKeyword().toLowerCase();
+            }
             updateResultTable(target);
         } else {
             super.onEvent(event);
