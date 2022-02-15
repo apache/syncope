@@ -82,7 +82,7 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
     }
 
     @Override
-    protected Serializable onApplyInternal(final Serializable modelObject) {
+    protected ConnInstanceTO onApplyInternal(final Serializable modelObject) {
         ConnInstanceTO connInstanceTO = ConnInstanceTO.class.cast(modelObject);
         ConnBundleTO bundleTO = ConnectorWizardBuilder.getBundle(connInstanceTO, bundles);
 
@@ -124,7 +124,16 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
     }
 
     protected static ConnBundleTO getBundle(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
-        return bundles.stream().filter(bundle
+        List<ConnBundleTO> bundlesList;
+        if (bundles.isEmpty()) {
+            ConnectorRestClient connectorRestClient = new ConnectorRestClient();
+            bundlesList = connectorRestClient.getAllBundles().stream().
+                    filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).
+                    collect(Collectors.toList());
+        } else {
+            bundlesList = bundles;
+        }
+        return bundlesList.stream().filter(bundle
                 -> bundle.getBundleName().equals(connInstanceTO.getBundleName())
                 && bundle.getVersion().equals(connInstanceTO.getVersion())).
                 findFirst().orElse(null);

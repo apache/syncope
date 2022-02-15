@@ -22,13 +22,16 @@ import java.util.Map;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.chartjs.ChartJSPanel;
 import org.apache.syncope.client.console.chartjs.Doughnut;
 import org.apache.syncope.client.console.chartjs.DoughnutChartData;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Notifications;
 import org.apache.syncope.client.console.pages.Policies;
 import org.apache.syncope.client.console.pages.Security;
 import org.apache.syncope.client.console.pages.Types;
+import org.apache.syncope.client.console.topology.TabularTopology;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -48,7 +51,7 @@ public class CompletenessWidget extends BaseWidget {
 
     private final WebMarkupContainer actions;
 
-    private final BookmarkablePageLink<Topology> topology;
+    private final BookmarkablePageLink<? extends BasePage> topology;
 
     private final BookmarkablePageLink<Policies> policies;
 
@@ -76,7 +79,11 @@ public class CompletenessWidget extends BaseWidget {
 
         add(actions);
 
-        topology = BookmarkablePageLinkBuilder.build("topology", Topology.class);
+        if (SyncopeConsoleApplication.get().getDefaultTopologyClass().contains("TabularTopology")) {
+            topology = BookmarkablePageLinkBuilder.build("topology", TabularTopology.class);
+        } else {
+            topology = BookmarkablePageLinkBuilder.build("topology", Topology.class);
+        }
         topology.setOutputMarkupPlaceholderTag(true);
         actions.add(topology);
         MetaDataRoleAuthorizationStrategy.authorize(topology, WebPage.ENABLE,

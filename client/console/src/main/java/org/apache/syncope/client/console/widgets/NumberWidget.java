@@ -19,8 +19,10 @@
 package org.apache.syncope.client.console.widgets;
 
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.topology.TabularTopology;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -95,7 +97,11 @@ public class NumberWidget extends BaseWidget {
                     responsePage = Realms.class;
                     isAuthorized = SyncopeConsoleSession.get().owns(label + "_SEARCH");
                 } else {
-                    responsePage = Topology.class;
+                    if (SyncopeConsoleApplication.get().getDefaultTopologyClass().contains("TabularTopology")) {
+                        responsePage = TabularTopology.class;
+                    } else {
+                        responsePage = Topology.class;
+                    }
                     isAuthorized = SyncopeConsoleSession.get().owns(StandardEntitlement.CONNECTOR_LIST)
                             && SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_LIST);
                 }

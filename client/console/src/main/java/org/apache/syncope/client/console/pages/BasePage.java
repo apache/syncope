@@ -34,6 +34,7 @@ import org.apache.syncope.client.console.panels.DelegationSelectionPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.ResponseHolder;
+import org.apache.syncope.client.console.topology.TabularTopology;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
@@ -173,7 +174,11 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
         liContainer = new WebMarkupContainer(getLIContainerId("topology"));
         body.add(liContainer);
-        link = BookmarkablePageLinkBuilder.build("topology", Topology.class);
+        if (SyncopeConsoleApplication.get().getDefaultTopologyClass().contains("TabularTopology")) {
+            link = BookmarkablePageLinkBuilder.build("topology", TabularTopology.class);
+        } else {
+            link = BookmarkablePageLinkBuilder.build("topology", Topology.class);
+        }
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER,
                 String.format("%s,%s",
                         StandardEntitlement.CONNECTOR_LIST,
