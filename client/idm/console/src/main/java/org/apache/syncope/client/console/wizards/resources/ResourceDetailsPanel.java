@@ -18,22 +18,27 @@
  */
 package org.apache.syncope.client.console.wizards.resources;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -45,25 +50,27 @@ public class ResourceDetailsPanel extends WizardStep {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private final IModel<List<String>> propagationActions = new LoadableDetachableModel<>() {
+    private final ImplementationRestClient implRestClient = new ImplementationRestClient();
+
+    private final IModel<List<String>> propagationActions = new LoadableDetachableModel<List<String>>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
-            return ImplementationRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
-                map(EntityTO::getKey).sorted().collect(Collectors.toList());
+            return implRestClient.list(ImplementationType.PROPAGATION_ACTIONS).stream().
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
-    private final IModel<List<String>> provisionSorters = new LoadableDetachableModel<>() {
+    private final IModel<List<String>> provisionSorters = new LoadableDetachableModel<List<String>>() {
 
         private static final long serialVersionUID = 4659376149825914247L;
 
         @Override
         protected List<String> load() {
-            return ImplementationRestClient.list(IdMImplementationType.PROVISION_SORTER).stream().
-                map(EntityTO::getKey).sorted().collect(Collectors.toList());
+            return implRestClient.list(ImplementationType.PROVISION_SORTER).stream().
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
@@ -92,7 +99,7 @@ public class ResourceDetailsPanel extends WizardStep {
                 "propagationPriority",
                 "propagationPriority",
                 Integer.class,
-                new PropertyModel<>(resourceTO, "propagationPriority")));
+                new PropertyModel<Integer>(resourceTO, "propagationPriority")));
 
         container.add(new AjaxCheckBoxPanel("randomPwdIfNotProvided",
                 new ResourceModel("randomPwdIfNotProvided", "randomPwdIfNotProvided").getObject(),
@@ -102,7 +109,7 @@ public class ResourceDetailsPanel extends WizardStep {
         container.add(new AjaxPalettePanel.Builder<String>().
                 setAllowMoveAll(true).setAllowOrder(true).
                 build("propagationActions",
-                        new PropertyModel<>(resourceTO, "propagationActions"),
+                        new PropertyModel<List<String>>(resourceTO, "propagationActions"),
                         new ListModel<>(propagationActions.getObject())).
                 setOutputMarkupId(true));
 
@@ -139,10 +146,47 @@ public class ResourceDetailsPanel extends WizardStep {
                 false).
                 setChoices(Arrays.stream(TraceLevel.values()).collect(Collectors.toList())).setNullValid(false));
 
-        container.add(new AjaxTextFieldPanel(
-                "connector",
-                new ResourceModel("connector", "connector").getObject(),
-                new Model<>(resourceTO.getConnectorDisplayName()),
-                false).addRequiredLabel().setEnabled(false));
+        if (resourceTO.getConnector() != null) {
+            container.add(new AjaxTextFieldPanel(
+                    "connector",
+                    new ResourceModel("connector", "connector").getObject(),
+                    new Model<>(resourceTO.getConnectorDisplayName()),
+                    false).addRequiredLabel().setEnabled(false));
+        } else {
+            ConnectorRestClient connectorRestClient = new ConnectorRestClient();
+            final AjaxDropDownChoicePanel<String> connector = new AjaxDropDownChoicePanel<>(
+                    "connector",
+                    new ResourceModel("connector", "connector").getObject(),
+                    new PropertyModel<>(resourceTO, "connector"), false);
+            Map<String, String> connectorsMap = new HashMap<>();
+            connectorRestClient.getAllConnectors().forEach(conn -> connectorsMap.put(conn.getKey(),
+                    conn.getDisplayName()));
+            connector.setChoices(new ArrayList<>(connectorsMap.keySet()));
+            connector.setChoiceRenderer(new IChoiceRenderer<String>() {
+
+                private static final long serialVersionUID = 91313845533448846L;
+
+                private final Map<String, String> valueMap = connectorsMap;
+
+                @Override
+                public String getDisplayValue(final String value) {
+                    return valueMap.get(value) == null ? value : valueMap.get(value);
+                }
+
+                @Override
+                public String getIdValue(final String value, final int i) {
+                    return value;
+                }
+
+                @Override
+                public String getObject(final String id, final IModel<? extends List<? extends String>> choices) {
+                    return id;
+                }
+            });
+            connector.addRequiredLabel();
+            connector.setOutputMarkupId(true);
+            connector.getField().setOutputMarkupId(true);
+            container.add(connector);
+        }
     }
 }

@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
+import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
@@ -59,6 +59,26 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
         setShowResultPage(false);
     }
 
+    protected TaskDirectoryPanel(
+            final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanelRef, final PageReference pageRef,
+            final boolean wizardInModal) {
+        super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, wizardInModal);
+        this.baseModal = baseModal;
+        this.multiLevelPanelRef = multiLevelPanelRef;
+        restClient = new TaskRestClient();
+        setShowResultPage(false);
+    }
+
+    protected TaskDirectoryPanel(
+            final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanelRef, final PageReference pageRef,
+            final String id) {
+        super(id, pageRef, false);
+        this.baseModal = baseModal;
+        this.multiLevelPanelRef = multiLevelPanelRef;
+        restClient = new TaskRestClient();
+        setShowResultPage(false);
+    }
+
     @Override
     protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<T, String> resultTableBuilder) {
         resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
@@ -66,7 +86,7 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
 
     protected abstract void viewTask(T taskTO, AjaxRequestTarget target);
 
-    protected abstract static class TasksProvider<T extends TaskTO> extends DirectoryDataProvider<T> {
+    protected abstract class TasksProvider<T extends TaskTO> extends DirectoryDataProvider<T> {
 
         private static final long serialVersionUID = -20112718133295756L;
 
@@ -81,7 +101,7 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
 
         @Override
         public long size() {
-            return TaskRestClient.count(id);
+            return restClient.count(id);
         }
 
         @Override
@@ -93,7 +113,7 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
     @Override
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
-        if (event.getPayload() instanceof ExitEvent) {
+        if (event.getPayload() instanceof ExitEvent && modal != null) {
             final AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
             baseModal.show(false);
             baseModal.close(target);

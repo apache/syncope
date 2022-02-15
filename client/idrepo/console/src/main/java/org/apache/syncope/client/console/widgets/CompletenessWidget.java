@@ -22,15 +22,19 @@ import java.util.Map;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.chartjs.ChartJSPanel;
 import org.apache.syncope.client.console.chartjs.Doughnut;
 import org.apache.syncope.client.console.chartjs.DoughnutChartData;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Notifications;
 import org.apache.syncope.client.console.pages.Policies;
 import org.apache.syncope.client.console.pages.Security;
 import org.apache.syncope.client.console.pages.Types;
+import org.apache.syncope.client.console.topology.TabularTopology;
+import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.common.lib.info.NumbersInfo;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -46,6 +50,8 @@ public class CompletenessWidget extends BaseWidget {
     private final ChartJSPanel chart;
 
     private final WebMarkupContainer actions;
+
+    private final BookmarkablePageLink<? extends BasePage> topology;
 
     private final BookmarkablePageLink<Policies> policies;
 
@@ -73,9 +79,22 @@ public class CompletenessWidget extends BaseWidget {
 
         add(actions);
 
+        if (SyncopeConsoleApplication.get().getDefaultTopologyClass().contains("TabularTopology")) {
+            topology = BookmarkablePageLinkBuilder.build("topology", TabularTopology.class);
+        } else {
+            topology = BookmarkablePageLinkBuilder.build("topology", Topology.class);
+        }
+        topology.setOutputMarkupPlaceholderTag(true);
+        actions.add(topology);
+        MetaDataRoleAuthorizationStrategy.authorize(topology, WebPage.ENABLE,
+                String.format("%s,%s", StandardEntitlement.CONNECTOR_LIST, StandardEntitlement.RESOURCE_LIST));
+        topology.setVisible(
+                !confCompleteness.get(NumbersInfo.ConfItem.RESOURCE.name())
+                || !confCompleteness.get(NumbersInfo.ConfItem.PULL_TASK.name()));
+
         policies = BookmarkablePageLinkBuilder.build("policies", Policies.class);
         policies.setOutputMarkupPlaceholderTag(true);
-        MetaDataRoleAuthorizationStrategy.authorize(policies, WebPage.ENABLE, IdRepoEntitlement.POLICY_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(policies, WebPage.ENABLE, StandardEntitlement.POLICY_LIST);
         actions.add(policies);
         policies.setVisible(
                 !confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY.name())
@@ -84,13 +103,13 @@ public class CompletenessWidget extends BaseWidget {
         notifications = BookmarkablePageLinkBuilder.build("notifications", Notifications.class);
         notifications.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(
-                notifications, WebPage.ENABLE, IdRepoEntitlement.NOTIFICATION_LIST);
+                notifications, WebPage.ENABLE, StandardEntitlement.NOTIFICATION_LIST);
         actions.add(notifications);
         notifications.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.NOTIFICATION.name()));
 
         types = BookmarkablePageLinkBuilder.build("types", Types.class);
         types.setOutputMarkupPlaceholderTag(true);
-        MetaDataRoleAuthorizationStrategy.authorize(types, WebPage.ENABLE, IdRepoEntitlement.ANYTYPECLASS_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(types, WebPage.ENABLE, StandardEntitlement.ANYTYPECLASS_LIST);
         actions.add(types);
         types.setVisible(
                 !confCompleteness.get(NumbersInfo.ConfItem.VIR_SCHEMA.name())
@@ -103,7 +122,7 @@ public class CompletenessWidget extends BaseWidget {
 
         roles = BookmarkablePageLinkBuilder.build("roles", Security.class);
         roles.setOutputMarkupPlaceholderTag(true);
-        MetaDataRoleAuthorizationStrategy.authorize(roles, WebPage.ENABLE, IdRepoEntitlement.ROLE_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(roles, WebPage.ENABLE, StandardEntitlement.ROLE_LIST);
         actions.add(roles);
         roles.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.ROLE.name()));
     }
@@ -141,6 +160,10 @@ public class CompletenessWidget extends BaseWidget {
             chart.setDefaultModelObject(built.getLeft());
 
             actions.setVisible(built.getRight() > 0);
+
+            topology.setVisible(
+                    !confCompleteness.get(NumbersInfo.ConfItem.RESOURCE.name())
+                    || !confCompleteness.get(NumbersInfo.ConfItem.PULL_TASK.name()));
 
             policies.setVisible(
                     !confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY.name())

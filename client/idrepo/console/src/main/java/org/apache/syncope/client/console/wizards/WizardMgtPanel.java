@@ -18,15 +18,16 @@
  */
 package org.apache.syncope.client.console.wizards;
 
-import org.apache.syncope.client.ui.commons.wizards.ModalPanelBuilder;
-import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.wicket.Component;
@@ -36,6 +37,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
+import org.apache.wicket.event.IEventSource;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -45,16 +47,15 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.syncope.client.console.panels.WizardModalPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
-import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
-import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
-import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
-import org.apache.syncope.client.ui.commons.wizards.AbstractWizardMgtPanel;
 import org.apache.wicket.markup.html.basic.Label;
 
-public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWizardMgtPanel<T> {
+public abstract class WizardMgtPanel<T extends Serializable> extends Panel implements IEventSource {
 
     private static final long serialVersionUID = -4152438633429194882L;
+
+    protected static final String WIZARD_ID = "wizard";
 
     private boolean readOnly = false;
 
@@ -62,7 +63,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
 
     private final WebMarkupContainer container;
 
-    protected final Fragment initialFragment;
+    private final Fragment initialFragment;
 
     protected final boolean wizardInModal;
 
@@ -72,9 +73,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
 
     protected final AjaxLink<?> addAjaxLink;
 
-    protected Label utilityIcon;
-
-    protected AjaxLink<?> utilityAjaxLink;
+    protected final AjaxLink<?> exitAjaxLink;
 
     protected ModalPanelBuilder<T> newItemPanelBuilder;
 
@@ -86,7 +85,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
 
     private final List<Component> outerObjects = new ArrayList<>();
 
-    protected final BaseModal<T> modal = new BaseModal<>(Constants.OUTER) {
+    protected final BaseModal<T> modal = new BaseModal<T>(Constants.OUTER) {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -95,6 +94,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
             super.onConfigure();
             setFooterVisible(footerVisibility);
         }
+
     };
 
     protected WizardMgtPanel(final String id) {
@@ -134,7 +134,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
         addAjaxLink.setVisible(false);
         initialFragment.addOrReplace(addAjaxLink);
 
-        utilityAjaxLink = new AjaxLink<T>("utility") {
+        exitAjaxLink = new AjaxLink<T>("exit") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -144,14 +144,11 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
             }
         };
 
-        utilityAjaxLink.setEnabled(false);
-        utilityAjaxLink.setVisible(false);
-        initialFragment.addOrReplace(utilityAjaxLink);
+        exitAjaxLink.setEnabled(false);
+        exitAjaxLink.setVisible(false);
+        initialFragment.addOrReplace(exitAjaxLink);
 
-        utilityIcon = new Label("utilityIcon");
-        utilityAjaxLink.add(utilityIcon);
-
-        add(new ListView<>("outerObjectsRepeater", outerObjects) {
+        add(new ListView<Component>("outerObjectsRepeater", outerObjects) {
 
             private static final long serialVersionUID = -9180479401817023838L;
 
@@ -159,6 +156,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
             protected void populateItem(final ListItem<Component> item) {
                 item.add(item.getModelObject());
             }
+
         });
     }
 
@@ -166,23 +164,35 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
         return actualId;
     }
 
+    public boolean isWizardInModal() {
+        return wizardInModal;
+    }
+
+    public ModalPanelBuilder<T> getNewItemPanelBuilder() {
+        return newItemPanelBuilder;
+    }
+
+    public boolean isNewItemDefaultButtonEnabled() {
+        return addAjaxLink.isVisible() && addAjaxLink.isEnabled();
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof ExitEvent) {
-            AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
+        if (event.getPayload() instanceof ExitEvent && modal != null) {
+            final AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
             // default behaviour: change it catching the event if needed
             modal.close(target);
         } else if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
-            AjaxWizard.NewItemEvent<T> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
-            Optional<AjaxRequestTarget> target = newItemEvent.getTarget();
-            T item = newItemEvent.getItem();
+            final AjaxWizard.NewItemEvent<T> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
+            final Optional<AjaxRequestTarget> target = newItemEvent.getTarget();
+            final T item = newItemEvent.getItem();
 
-            boolean modalPanelAvailable = newItemEvent.getModalPanel() != null || newItemPanelBuilder != null;
+            final boolean modalPanelAvailable = newItemEvent.getModalPanel() != null || newItemPanelBuilder != null;
 
             if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && modalPanelAvailable) {
-                WizardModalPanel<?> modalPanel;
-                if (newItemEvent.getModalPanel() == null && newItemPanelBuilder != null) {
+                final WizardModalPanel<?> modalPanel;
+                if (newItemEvent.getModalPanel() == null) {
                     newItemPanelBuilder.setItem(item);
 
                     modalPanel = newItemPanelBuilder.build(
@@ -198,7 +208,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                 }
 
                 if (wizardInModal) {
-                    IModel<T> model = new CompoundPropertyModel<>(item);
+                    final IModel<T> model = new CompoundPropertyModel<>(item);
                     modal.setFormModel(model);
 
                     target.ifPresent(t -> t.add(modal.setContent(modalPanel)));
@@ -209,7 +219,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                             new Model<>(modalPanel.getItem())));
                     modal.show(true);
                 } else {
-                    Fragment fragment = new Fragment("content", "wizard", WizardMgtPanel.this);
+                    final Fragment fragment = new Fragment("content", "wizard", WizardMgtPanel.this);
 
                     fragment.add(new Label("title", newItemEvent.getResourceModel() == null
                             ? Model.of(StringUtils.EMPTY) : newItemEvent.getResourceModel()));
@@ -217,23 +227,30 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                     fragment.add(Component.class.cast(modalPanel));
                     container.addOrReplace(fragment);
                 }
-                target.ifPresent(this::customActionCallback);
+                if (target.isPresent()) {
+                    customActionCallback(target.get());
+                }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
                 if (wizardInModal) {
-                    target.ifPresent(modal::close);
+                    if (target.isPresent()) {
+                        modal.close(target.get());
+                    }
                 } else {
                     container.addOrReplace(initialFragment);
                 }
-                target.ifPresent(this::customActionOnCancelCallback);
+                if (target.isPresent()) {
+                    customActionOnCancelCallback(target.get());
+                }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                target.ifPresent(ajaxRequestTarget ->
-                    ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
+                if (target.isPresent()) {
+                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
+                }
 
                 if (wizardInModal && showResultPage) {
-                    modal.setContent(new ResultPage<>(
-                        item,
-                        AjaxWizard.NewItemFinishEvent.class.cast(newItemEvent).getResult()) {
+                    modal.setContent(new ResultPage<T>(
+                            item,
+                            AjaxWizard.NewItemFinishEvent.class.cast(newItemEvent).getResult()) {
 
                         private static final long serialVersionUID = -2630573849050255233L;
 
@@ -249,11 +266,15 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                     });
                     target.ifPresent(t -> t.add(modal.getForm()));
                 } else if (wizardInModal) {
-                    target.ifPresent(modal::close);
+                    if (target.isPresent()) {
+                        modal.close(target.get());
+                    }
                 } else {
                     container.addOrReplace(initialFragment);
                 }
-                target.ifPresent(this::customActionOnFinishCallback);
+                if (target.isPresent()) {
+                    customActionOnFinishCallback(target.get());
+                }
             }
 
             if (containerAutoRefresh) {
@@ -280,13 +301,13 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
     }
 
     /**
-     * Show utility button sending ExitEvent payload by default.
+     * Show exit button sending ExitEvent paylad.
      *
      * @return the current instance.
      */
-    protected final WizardMgtPanel<T> enableUtilityButton() {
-        utilityAjaxLink.setEnabled(true);
-        utilityAjaxLink.setVisible(true);
+    protected final WizardMgtPanel<T> enableExitButton() {
+        exitAjaxLink.setEnabled(true);
+        exitAjaxLink.setVisible(true);
         return this;
     }
 
@@ -313,13 +334,13 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
     /**
      * Add object outside the main container.
      * Use this method just to be not influenced by specific inner object css'.
-     * Be sure to provide {@code outer} as id.
+     * Be sure to provide <tt>outer</tt> as id.
      *
      * @param childs components to be added.
      * @return the current panel instance.
      */
     public final WizardMgtPanel<T> addOuterObject(final Component... childs) {
-        outerObjects.addAll(List.of(childs));
+        outerObjects.addAll(Arrays.asList(childs));
         return this;
     }
 
@@ -348,7 +369,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
     }
 
     protected WizardMgtPanel<T> addNotificationPanel(final NotificationPanel notificationPanel) {
-        this.notificationPanel = notificationPanel;
+        this.notificationPanel = ((BasePage) pageRef.getPage()).getNotificationPanel();
         return this;
     }
 
@@ -444,7 +465,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
          * Adds new item panel builder.
          *
          * @param panelBuilder new item panel builder.
-         * @param newItemDefaultButtonEnabled enable default button to adda new item.
+         * @param newItemDefaultButtonEnabled enable default button to add a new item.
          * @return the current builder.
          */
         public Builder<T> addNewItemPanelBuilder(
@@ -455,7 +476,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
         }
 
         /**
-         * Adds new item panel builder and enables default button to adda new item.
+         * Adds new item panel builder and enables default button to add a new item.
          *
          * @param notificationPanel new item panel builder.
          * @return the current builder.

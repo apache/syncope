@@ -16,19 +16,12 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" >
-  <wicket:head>
-    <style type="text/css">
-      div#actionsTogglePanel div.toggle-menu {
-        top: 0px !important;
-      }
-    </style>
-  </wicket:head>
-  <wicket:panel>
-    <ul class="menu">
-      <wicket:container wicket:id="actionRepeater">
-        <wicket:container wicket:id="action"/>
-      </wicket:container>
-    </ul>
-  </wicket:panel>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+<wicket:extend>
+  <section class="content" wicket:id="content">
+    <div class="box">
+      <div class="box-body" wicket:id="tabbedPanel"/>
+    </div>
+  </section>
+</wicket:extend>
 </html>

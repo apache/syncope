@@ -39,16 +39,37 @@ public class SchedTasks extends AbstractTasks {
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new SchedTaskDirectoryPanel<>(
-            baseModal, mlp, TaskType.SCHEDULED, SchedTaskTO.class, pageReference) {
+        mlp.setFirstLevel(new SchedTaskDirectoryPanel<SchedTaskTO>(
+                baseModal, mlp, TaskType.SCHEDULED, SchedTaskTO.class, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
             @Override
             protected void viewTask(final SchedTaskTO taskTO, final AjaxRequestTarget target) {
                 mlp.next(
-                    new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
-                    new TaskExecutionDetails<>(baseModal, taskTO, pageReference), target);
+                        new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
+                        new TaskExecutionDetails<>(baseModal, taskTO, pageReference), target);
+            }
+        });
+    }
+
+    public <T extends AnyTO> SchedTasks(final BaseModal<?> baseModal, final PageReference pageReference,
+                                        final boolean wizardInModal, final String id) {
+        super(id);
+
+        final MultilevelPanel mlp = new MultilevelPanel("tasks");
+        add(mlp);
+
+        mlp.setFirstLevel(new SchedTaskDirectoryPanel<SchedTaskTO>(
+                baseModal, mlp, TaskType.SCHEDULED, SchedTaskTO.class, pageReference, wizardInModal) {
+
+            private static final long serialVersionUID = -2195387360323687302L;
+
+            @Override
+            protected void viewTask(final SchedTaskTO taskTO, final AjaxRequestTarget target) {
+                mlp.next(
+                        new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
+                        new TaskExecutionDetails<>(baseModal, taskTO, pageReference), target);
             }
         });
     }
