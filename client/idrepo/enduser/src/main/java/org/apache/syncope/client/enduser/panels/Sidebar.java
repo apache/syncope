@@ -174,20 +174,34 @@ public class Sidebar extends Panel {
         add(profileLIContainer);
         profileULContainer = new WebMarkupContainer(getULContainerId("profile"));
         profileLIContainer.add(profileULContainer);
+        profileLIContainer.setVisible(SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout().
+                isEditUserEnabled()
+                || SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout().
+                isPasswordManagementEnabled()
+                || (SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout().
+                isSecurityQuestionManagementEnabled()
+                && SyncopeEnduserSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions()));
 
         WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("edituser"));
         profileULContainer.add(liContainer);
-        liContainer.add(BookmarkablePageLinkBuilder.build("edituser", EditUser.class));
 
+        liContainer.add(BookmarkablePageLinkBuilder.build("edituser", EditUser.class))
+                .setVisible(SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout()
+                        .isEditUserEnabled());
         liContainer = new WebMarkupContainer(getLIContainerId("editchangepassword"));
         profileULContainer.add(liContainer);
-        liContainer.add(BookmarkablePageLinkBuilder.build("editchangepassword", EditChangePassword.class));
+
+        liContainer.add(BookmarkablePageLinkBuilder.build("editchangepassword", EditChangePassword.class))
+                .setVisible(SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout().
+                        isPasswordManagementEnabled());
 
         liContainer = new WebMarkupContainer(getLIContainerId("editsecurityquestion"));
         profileULContainer.add(liContainer);
         liContainer.add(BookmarkablePageLinkBuilder.build("editsecurityquestion", EditSecurityQuestion.class));
         liContainer.setOutputMarkupPlaceholderTag(true);
-        liContainer.setVisible(SyncopeEnduserSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions());
+        liContainer.setVisible(SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout().
+                isSecurityQuestionManagementEnabled()
+                && SyncopeEnduserSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions());
     }
 
     protected String getLIContainerId(final String linkId) {
