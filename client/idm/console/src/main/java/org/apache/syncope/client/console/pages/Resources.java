@@ -20,9 +20,9 @@ package org.apache.syncope.client.console.pages;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.ResourceDirectoryPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -43,14 +43,10 @@ public class Resources extends Panel {
     public Resources(final String id, final PageReference pageRef) {
         super(id);
 
-        WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
-        add(content);
-
         Model<String> keywordModel = new Model<>(StringUtils.EMPTY);
 
         WebMarkupContainer searchBoxContainer = new WebMarkupContainer("searchBox");
-        content.add(searchBoxContainer);
+        add(searchBoxContainer);
 
         Form<?> form = new Form<>("form");
         searchBoxContainer.add(form);
@@ -79,6 +75,6 @@ public class Resources extends Panel {
                         build("resourceDirectoryPanel");
         resourceDirectoryPanel.setOutputMarkupId(true);
 
-        content.add(resourceDirectoryPanel);
+        add(resourceDirectoryPanel);
     }
 }

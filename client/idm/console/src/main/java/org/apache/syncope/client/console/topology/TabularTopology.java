@@ -20,13 +20,15 @@ package org.apache.syncope.client.console.topology;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.annotations.IdMPage;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Connectors;
 import org.apache.syncope.client.console.pages.Resources;
 import org.apache.syncope.client.console.panels.ConnidLocations;
 import org.apache.syncope.client.console.tasks.SchedTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -36,6 +38,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@IdMPage(label = "TabularTopology", icon = "fas fa-plug", listEntitlement = IdMEntitlement.RESOURCE_LIST, priority = 1)
 public class TabularTopology extends BasePage {
 
     private static final long serialVersionUID = -4434385801124981824L;
@@ -59,7 +62,7 @@ public class TabularTopology extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                BaseModal<Serializable> schedTaskModal = new BaseModal<Serializable>(Constants.OUTER) {
+                BaseModal<Serializable> schedTaskModal = new BaseModal<>(Constants.OUTER) {
 
                     private static final long serialVersionUID = -1673561782333149836L;
 

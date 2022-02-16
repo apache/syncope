@@ -39,7 +39,7 @@ public class SchedTasks extends AbstractTasks {
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new SchedTaskDirectoryPanel<SchedTaskTO>(
+        mlp.setFirstLevel(new SchedTaskDirectoryPanel<>(
                 baseModal, mlp, TaskType.SCHEDULED, SchedTaskTO.class, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
@@ -60,7 +60,7 @@ public class SchedTasks extends AbstractTasks {
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new SchedTaskDirectoryPanel<SchedTaskTO>(
+        mlp.setFirstLevel(new SchedTaskDirectoryPanel<>(
                 baseModal, mlp, TaskType.SCHEDULED, SchedTaskTO.class, pageReference, wizardInModal) {
 
             private static final long serialVersionUID = -2195387360323687302L;

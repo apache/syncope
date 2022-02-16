@@ -17,13 +17,19 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-<wicket:extend>
-  <section class="content" wicket:id="content">
-    <div class="container-fluid">
-      <div class="card card-outline">
-        <div class="card-body" wicket:id="tabbedPanel"/>
-      </div>
+  <wicket:panel>
+    <div wicket:id="searchBox">
+      <form wicket:id="form">
+        <div class="input-group mb-3">
+          <span wicket:id="filter">[FILTER]</span>
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default btn-flat" wicket:id="search">
+              <span class="fas fa-search" aria-hidden="true"></span>
+            </button>
+          </span>
+        </div>
+      </form>
     </div>
-  </section>
-</wicket:extend>
+    <div wicket:id="connectorDirectoryPanel"></div>
+  </wicket:panel>
 </html>

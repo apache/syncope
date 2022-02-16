@@ -24,7 +24,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode;
-import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -37,10 +37,6 @@ import org.apache.wicket.markup.ComponentTag;
 public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<ResourceTO> {
 
     private static final long serialVersionUID = 1734415311027284221L;
-
-    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
-
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
 
     private boolean createFlag;
 
@@ -64,7 +60,7 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
 
             @Override
             protected Pair<Boolean, String> check(final AjaxRequestTarget target) {
-                return resourceRestClient.check(modelObject);
+                return ResourceRestClient.check(modelObject);
             }
 
             @Override
@@ -75,7 +71,7 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
         });
         if (resourceTO.getConnector() != null) {
             wizardModel.add(new ResourceConnCapabilitiesPanel(
-                    resourceTO, connectorRestClient.read(resourceTO.getConnector()).getCapabilities()));
+                    resourceTO, ConnectorRestClient.read(resourceTO.getConnector()).getCapabilities()));
         } else {
             wizardModel.add(new ResourceConnCapabilitiesPanel(resourceTO, Collections.emptySet()));
         }
@@ -88,9 +84,9 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
     protected ResourceTO onApplyInternal(final Serializable modelObject) {
         ResourceTO resourceTO = (ResourceTO) modelObject;
         if (createFlag) {
-            resourceTO = resourceRestClient.create(resourceTO);
+            resourceTO = ResourceRestClient.create(resourceTO);
         } else {
-            resourceRestClient.update(resourceTO);
+            ResourceRestClient.update(resourceTO);
         }
         return resourceTO;
     }

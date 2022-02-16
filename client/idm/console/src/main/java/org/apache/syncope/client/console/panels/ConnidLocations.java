@@ -20,17 +20,18 @@ package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.rest.RestClient;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.rest.RestClient;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.resources.ConnectorWizardBuilder;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -69,14 +70,14 @@ public class ConnidLocations extends
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_DYNREALM_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_DYNREALM_PAGINATOR_ROWS;
     }
 
     @Override
     protected List<IColumn<Serializable, String>> getColumns() {
         final List<IColumn<Serializable, String>> columns = new ArrayList<>();
 
-        columns.add(new AbstractColumn<Serializable, String>(
+        columns.add(new AbstractColumn<>(
                 new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME) {
             @Override
             public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
@@ -91,7 +92,7 @@ public class ConnidLocations extends
     public ActionsPanel<Serializable> getActions(final IModel<Serializable> model) {
         final ActionsPanel<Serializable> panel = super.getActions(model);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 293293495682202660L;
 
@@ -106,11 +107,11 @@ public class ConnidLocations extends
                 target.add(modal.setContent(new ConnectorWizardBuilder(modelObject, pageRef).
                         build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
-                modal.header(new Model<>(MessageFormat.format(getString("connector.new"), (String) ignore)));
+                modal.header(new Model<>(MessageFormat.format(getString("connector.new"), ignore)));
                 modal.show(true);
             }
 
-        }, ActionLink.ActionType.CREATE, String.format("%s", StandardEntitlement.CONNECTOR_CREATE));
+        }, ActionLink.ActionType.CREATE, String.format("%s", IdMEntitlement.CONNECTOR_CREATE));
 
         return panel;
     }
@@ -135,7 +136,7 @@ public class ConnidLocations extends
         }
     }
 
-    protected class ConnidLocationsDataProvider extends DirectoryDataProvider<Serializable> {
+    protected static class ConnidLocationsDataProvider extends DirectoryDataProvider<Serializable> {
 
         private static final long serialVersionUID = 3161906945317209169L;
 

@@ -22,7 +22,8 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.audit.AuditHistoryModal;
-import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.IdRepoConstants;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.ResourceDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
@@ -34,7 +35,7 @@ import org.apache.syncope.client.console.tasks.PushTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanel;
 import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder;
@@ -42,7 +43,8 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -67,8 +69,6 @@ public class ResourceDirectoryPanel extends
     private static final long serialVersionUID = -5223129956783782225L;
 
     private String keyword;
-
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
 
     private final BaseModal<Serializable> propTaskModal;
 
@@ -97,7 +97,7 @@ public class ResourceDirectoryPanel extends
         propTaskModal.size(Modal.Size.Large);
         addOuterObject(propTaskModal);
 
-        schedTaskModal = new BaseModal<Serializable>(Constants.OUTER) {
+        schedTaskModal = new BaseModal<>(Constants.OUTER) {
 
             private static final long serialVersionUID = -6165152045136958913L;
 
@@ -146,7 +146,7 @@ public class ResourceDirectoryPanel extends
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_PARAMETERS_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_PARAMETERS_PAGINATOR_ROWS;
     }
 
     @Override
@@ -168,14 +168,14 @@ public class ResourceDirectoryPanel extends
     public ActionsPanel<Serializable> getActions(final IModel<Serializable> model) {
         final ActionsPanel<Serializable> panel = super.getActions(model);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7220222653598674870L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO resource = restClient.read(((ResourceTO) model.getObject()).getKey());
-                ConnInstanceTO connInstance = connectorRestClient.read(resource.getConnector());
+                ResourceTO resource = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
+                ConnInstanceTO connInstance = ConnectorRestClient.read(resource.getConnector());
 
                 IModel<ResourceTO> model = new CompoundPropertyModel<>(resource);
                 modal.setFormModel(model);
@@ -183,27 +183,27 @@ public class ResourceDirectoryPanel extends
                 target.add(modal.setContent(new ResourceWizardBuilder(resource, pageRef).
                         build(BaseModal.CONTENT_ID,
                                 SyncopeConsoleSession.get().
-                                        owns(StandardEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())
+                                        owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())
                                         ? AjaxWizard.Mode.EDIT
                                         : AjaxWizard.Mode.READONLY)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), model.getObject().getKey())));
                 modal.show(true);
             }
-        }, ActionLink.ActionType.EDIT, String.format("%s,%s", StandardEntitlement.RESOURCE_READ,
-                StandardEntitlement.RESOURCE_UPDATE));
+        }, ActionLink.ActionType.EDIT, String.format("%s,%s", IdMEntitlement.RESOURCE_READ,
+                IdMEntitlement.RESOURCE_UPDATE));
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -6467344504797047254L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO resource = restClient.read(((ResourceTO) model.getObject()).getKey());
-                ConnInstanceTO connInstance = connectorRestClient.read(resource.getConnector());
+                ResourceTO resource = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
+                ConnInstanceTO connInstance = ConnectorRestClient.read(resource.getConnector());
 
                 if (SyncopeConsoleSession.get().
-                        owns(StandardEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())) {
+                        owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())) {
 
                     provisionModal.addSubmitButton();
                 } else {
@@ -220,24 +220,24 @@ public class ResourceDirectoryPanel extends
                         model.getObject().getKey())));
                 provisionModal.show(true);
             }
-        }, ActionLink.ActionType.MAPPING, String.format("%s,%s", StandardEntitlement.RESOURCE_READ,
-                StandardEntitlement.RESOURCE_UPDATE));
+        }, ActionLink.ActionType.MAPPING, String.format("%s,%s", IdMEntitlement.RESOURCE_READ,
+                IdMEntitlement.RESOURCE_UPDATE));
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -1448897313753684142L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO resource = restClient.read(((ResourceTO) model.getObject()).getKey());
+                ResourceTO resource = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
 
                 target.add(propTaskModal.setContent(new ConnObjects(resource, pageRef)));
                 propTaskModal.header(new StringResourceModel("resource.explore.list", Model.of(model.getObject())));
                 propTaskModal.show(true);
             }
-        }, ActionLink.ActionType.EXPLORE_RESOURCE, StandardEntitlement.RESOURCE_LIST_CONNOBJECT);
+        }, ActionLink.ActionType.EXPLORE_RESOURCE, IdMEntitlement.RESOURCE_LIST_CONNOBJECT);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 4800323783814856195L;
 
@@ -249,9 +249,9 @@ public class ResourceDirectoryPanel extends
                         ((ResourceTO) model.getObject()).getKey())));
                 propTaskModal.show(true);
             }
-        }, ActionLink.ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST);
+        }, ActionLink.ActionType.PROPAGATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -4699610013584898667L;
 
@@ -263,9 +263,9 @@ public class ResourceDirectoryPanel extends
                         ((ResourceTO) model.getObject()).getKey())));
                 schedTaskModal.show(true);
             }
-        }, ActionLink.ActionType.PULL_TASKS, StandardEntitlement.TASK_LIST);
+        }, ActionLink.ActionType.PULL_TASKS, IdRepoEntitlement.TASK_LIST);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 2042227976628604686L;
 
@@ -277,37 +277,37 @@ public class ResourceDirectoryPanel extends
                         ((ResourceTO) model.getObject()).getKey())));
                 schedTaskModal.show(true);
             }
-        }, ActionLink.ActionType.PUSH_TASKS, StandardEntitlement.TASK_LIST);
+        }, ActionLink.ActionType.PUSH_TASKS, IdRepoEntitlement.TASK_LIST);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -5962061673680621813L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO modelObject = restClient.read(((ResourceTO) model.getObject()).getKey());
+                ResourceTO modelObject = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
                 target.add(propTaskModal.setContent(
                         new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
                 propTaskModal.header(new Model<>(MessageFormat.format(getString("resource.reconciliation"),
                         ((ResourceTO) model.getObject()).getKey())));
                 propTaskModal.show(true);
             }
-        }, ActionLink.ActionType.RECONCILIATION_RESOURCE, StandardEntitlement.USER_UPDATE);
+        }, ActionLink.ActionType.RECONCILIATION_RESOURCE, IdRepoEntitlement.USER_UPDATE);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -5432034353017728766L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO modelObject = restClient.read(((ResourceTO) model.getObject()).getKey());
+                ResourceTO modelObject = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
 
-                target.add(historyModal.setContent(new AuditHistoryModal<ResourceTO>(
+                target.add(historyModal.setContent(new AuditHistoryModal<>(
                         historyModal,
                         AuditElements.EventCategoryType.LOGIC,
                         "ResourceLogic",
                         modelObject,
-                        StandardEntitlement.RESOURCE_UPDATE,
+                        IdMEntitlement.RESOURCE_UPDATE,
                         pageRef) {
 
                     private static final long serialVersionUID = -3712506022627033811L;
@@ -316,7 +316,7 @@ public class ResourceDirectoryPanel extends
                     protected void restore(final String json, final AjaxRequestTarget target) {
                         try {
                             ResourceTO updated = MAPPER.readValue(json, ResourceTO.class);
-                            restClient.update(updated);
+                            ResourceRestClient.update(updated);
 
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
@@ -333,17 +333,17 @@ public class ResourceDirectoryPanel extends
 
                 historyModal.show(true);
             }
-        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY, String.format("%s,%s", StandardEntitlement.RESOURCE_READ,
-                StandardEntitlement.AUDIT_LIST));
+        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY, String.format("%s,%s", IdMEntitlement.RESOURCE_READ,
+                IdRepoEntitlement.AUDIT_LIST));
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 7019899256702149874L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
-                    ResourceTO resource = restClient.read(((ResourceTO) model.getObject()).getKey());
+                    ResourceTO resource = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
                     resource.setKey("Copy of " + resource.getKey());
                     // reset some resource objects keys
                     if (resource.getOrgUnit() != null) {
@@ -369,16 +369,16 @@ public class ResourceDirectoryPanel extends
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.CLONE, StandardEntitlement.RESOURCE_CREATE);
+        }, ActionLink.ActionType.CLONE, IdMEntitlement.RESOURCE_CREATE);
 
-        panel.add(new ActionLink<Serializable>() {
+        panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 4516186028545701573L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
-                    restClient.delete(((ResourceTO) model.getObject()).getKey());
+                    ResourceRestClient.delete(((ResourceTO) model.getObject()).getKey());
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');",
                             ((ResourceTO) model.getObject()).getKey()));
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
@@ -388,7 +388,7 @@ public class ResourceDirectoryPanel extends
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_DELETE, true);
+        }, ActionLink.ActionType.DELETE, IdMEntitlement.RESOURCE_DELETE, true);
 
         return panel;
     }
