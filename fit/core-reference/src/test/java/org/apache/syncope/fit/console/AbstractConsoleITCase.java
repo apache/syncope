@@ -39,6 +39,7 @@ import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.pages.Login;
+import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wizards.any.UserFormFinalizerUtils;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
@@ -71,6 +72,7 @@ public abstract class AbstractConsoleITCase extends AbstractUIITCase {
             consoleProperties.setAnonymousKey(ANONYMOUS_KEY);
 
             consoleProperties.setCsrf(false);
+            consoleProperties.getPage().put("topology", Topology.class);
 
             return consoleProperties;
         }
