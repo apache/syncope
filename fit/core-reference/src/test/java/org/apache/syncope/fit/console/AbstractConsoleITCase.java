@@ -102,7 +102,8 @@ public abstract class AbstractConsoleITCase extends AbstractUIITCase {
 
         @Bean
         public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
-            ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup(Set.of());
+            ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup(Set.of(),
+                    consoleProperties());
             lookup.load();
             return lookup;
         }
