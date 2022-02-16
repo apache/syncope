@@ -1282,15 +1282,15 @@ under the License.
       <id>oracle-it</id>
 
       <properties>
-        <jdbcdriver.groupId>com.oracle.jdbc</jdbcdriver.groupId>
+        <jdbcdriver.groupId>com.oracle.database.jdbc</jdbcdriver.groupId>
         <jdbcdriver.artifactId>ojdbc8</jdbcdriver.artifactId>
       </properties>
 
       <dependencies>
         <dependency>
-          <groupId>com.oracle.jdbc</groupId>
-          <artifactId>ojdbc8</artifactId>
-          <version>12.2.0.1</version>
+          <groupId>com.oracle.database.jdbc</groupId>
+          <artifactId>ojdbc11</artifactId>
+          <version>${jdbc.oracle.version}</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
