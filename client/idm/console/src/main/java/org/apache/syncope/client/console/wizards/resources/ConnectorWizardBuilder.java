@@ -122,7 +122,15 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
     }
 
     protected static ConnBundleTO getBundle(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
-        return bundles.stream().filter(bundle
+        List<ConnBundleTO> bundlesList;
+        if (bundles.isEmpty()) {
+            bundlesList = ConnectorRestClient.getAllBundles().stream().
+                    filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).
+                    collect(Collectors.toList());
+        } else {
+            bundlesList = bundles;
+        }
+        return bundlesList.stream().filter(bundle
                 -> bundle.getBundleName().equals(connInstanceTO.getBundleName())
                 && bundle.getVersion().equals(connInstanceTO.getVersion())).
                 findFirst().orElse(null);

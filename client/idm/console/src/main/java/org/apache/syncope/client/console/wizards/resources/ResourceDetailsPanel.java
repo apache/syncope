@@ -18,9 +18,13 @@
  */
 package org.apache.syncope.client.console.wizards.resources;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
@@ -34,6 +38,7 @@ import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -52,7 +57,7 @@ public class ResourceDetailsPanel extends WizardStep {
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
-                map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
@@ -63,7 +68,7 @@ public class ResourceDetailsPanel extends WizardStep {
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdMImplementationType.PROVISION_SORTER).stream().
-                map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
@@ -139,10 +144,46 @@ public class ResourceDetailsPanel extends WizardStep {
                 false).
                 setChoices(Arrays.stream(TraceLevel.values()).collect(Collectors.toList())).setNullValid(false));
 
-        container.add(new AjaxTextFieldPanel(
-                "connector",
-                new ResourceModel("connector", "connector").getObject(),
-                new Model<>(resourceTO.getConnectorDisplayName()),
-                false).addRequiredLabel().setEnabled(false));
+        if (resourceTO.getConnector() != null) {
+            container.add(new AjaxTextFieldPanel(
+                    "connector",
+                    new ResourceModel("connector", "connector").getObject(),
+                    new Model<>(resourceTO.getConnectorDisplayName()),
+                    false).addRequiredLabel().setEnabled(false));
+        } else {
+            final AjaxDropDownChoicePanel<String> connector = new AjaxDropDownChoicePanel<>(
+                    "connector",
+                    new ResourceModel("connector", "connector").getObject(),
+                    new PropertyModel<>(resourceTO, "connector"), false);
+            Map<String, String> connectorsMap = new HashMap<>();
+            ConnectorRestClient.getAllConnectors().forEach(conn -> connectorsMap.put(conn.getKey(),
+                    conn.getDisplayName()));
+            connector.setChoices(new ArrayList<>(connectorsMap.keySet()));
+            connector.setChoiceRenderer(new IChoiceRenderer<>() {
+
+                private static final long serialVersionUID = 91313845533448846L;
+
+                private final Map<String, String> valueMap = connectorsMap;
+
+                @Override
+                public String getDisplayValue(final String value) {
+                    return valueMap.get(value) == null ? value : valueMap.get(value);
+                }
+
+                @Override
+                public String getIdValue(final String value, final int i) {
+                    return value;
+                }
+
+                @Override
+                public String getObject(final String id, final IModel<? extends List<? extends String>> choices) {
+                    return id;
+                }
+            });
+            connector.addRequiredLabel();
+            connector.setOutputMarkupId(true);
+            connector.getField().setOutputMarkupId(true);
+            container.add(connector);
+        }
     }
 }
