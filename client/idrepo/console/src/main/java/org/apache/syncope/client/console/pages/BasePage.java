@@ -122,12 +122,12 @@ public class BasePage extends BaseWebPage {
             public void onClick() {
                 try {
                     HttpResourceStream stream = new HttpResourceStream(
-                            new ResponseHolder(SyncopeRestClient.exportInternalStorageContent()));
+                        new ResponseHolder(SyncopeRestClient.exportInternalStorageContent()));
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
                     rsrh.setFileName(stream.getFilename() == null
-                            ? SyncopeConsoleSession.get().getDomain() + "Content.xml"
-                            : stream.getFilename());
+                        ? SyncopeConsoleSession.get().getDomain() + "Content.xml"
+                        : stream.getFilename());
                     rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
                     rsrh.setCacheDuration(Duration.ZERO);
 
@@ -161,7 +161,7 @@ public class BasePage extends BaseWebPage {
 
         List<Class<? extends BasePage>> idmPageClasses = SyncopeWebApplication.get().getLookup().getIdMPageClasses();
         ListView<Class<? extends BasePage>> idmPages = new ListView<>(
-                "idmPages", idmPageClasses) {
+            "idmPages", idmPageClasses) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
@@ -201,7 +201,7 @@ public class BasePage extends BaseWebPage {
 
         List<Class<? extends BasePage>> amPageClasses = SyncopeWebApplication.get().getLookup().getAMPageClasses();
         ListView<Class<? extends BasePage>> amPages = new ListView<>(
-                "amPages", amPageClasses) {
+            "amPages", amPageClasses) {
 
             private static final long serialVersionUID = -9112553137618363167L;
 
@@ -324,8 +324,8 @@ public class BasePage extends BaseWebPage {
             public void onClick(final AjaxRequestTarget target) {
                 SyncopeConsoleSession.get().setAttribute(Constants.MENU_COLLAPSE,
                         SyncopeConsoleSession.get().getAttribute(Constants.MENU_COLLAPSE) == null
-                                ? true
-                                : !(Boolean) SyncopeConsoleSession.get().getAttribute(Constants.MENU_COLLAPSE));
+                        ? true
+                        : !(Boolean) SyncopeConsoleSession.get().getAttribute(Constants.MENU_COLLAPSE));
             }
         });
 
@@ -398,13 +398,13 @@ public class BasePage extends BaseWebPage {
             StreamSupport.stream(containingLI.spliterator(), false).filter(Link.class::isInstance).
                     forEach(child -> child.add(new Behavior() {
 
-                        private static final long serialVersionUID = -5775607340182293596L;
+                private static final long serialVersionUID = -5775607340182293596L;
 
-                        @Override
-                        public void onComponentTag(final Component component, final ComponentTag tag) {
-                            tag.append("class", "active", " ");
-                        }
-                    }));
+                @Override
+                public void onComponentTag(final Component component, final ComponentTag tag) {
+                    tag.append("class", "active", " ");
+                }
+            }));
 
             if (keymasterULContainer.getId().equals(containingLI.getParent().getId())) {
                 keymasterULContainer.add(new Behavior() {
@@ -467,7 +467,7 @@ public class BasePage extends BaseWebPage {
         List<Class<? extends ExtAlertWidget<?>>> extAlertWidgetClasses =
                 SyncopeWebApplication.get().getLookup().getExtAlertWidgetClasses();
         ListView<Class<? extends ExtAlertWidget<?>>> extAlertWidgets = new ListView<>(
-                "extAlertWidgets", extAlertWidgetClasses) {
+            "extAlertWidgets", extAlertWidgetClasses) {
 
             private static final long serialVersionUID = -9112553137618363167L;
 
@@ -475,7 +475,7 @@ public class BasePage extends BaseWebPage {
             protected void populateItem(final ListItem<Class<? extends ExtAlertWidget<?>>> item) {
                 try {
                     Constructor<? extends ExtAlertWidget<?>> constructor =
-                            item.getModelObject().getDeclaredConstructor(String.class, PageReference.class);
+                        item.getModelObject().getDeclaredConstructor(String.class, PageReference.class);
                     ExtAlertWidget<?> widget = constructor.newInstance("extAlertWidget", getPageReference());
 
                     SyncopeConsoleSession.get().setAttribute(widget.getClass().getName(), widget);
@@ -497,46 +497,46 @@ public class BasePage extends BaseWebPage {
         body.add(extensionsLI);
 
         ListView<Class<? extends BaseExtPage>> extPages =
-                new ListView<>("extPages", extPageClasses) {
+            new ListView<>("extPages", extPageClasses) {
 
-                    private static final long serialVersionUID = 4949588177564901031L;
+                private static final long serialVersionUID = 4949588177564901031L;
 
-                    @Override
-                    protected void populateItem(final ListItem<Class<? extends BaseExtPage>> item) {
-                        WebMarkupContainer containingLI = new WebMarkupContainer("extPageLI");
-                        item.add(containingLI);
+                @Override
+                protected void populateItem(final ListItem<Class<? extends BaseExtPage>> item) {
+                    WebMarkupContainer containingLI = new WebMarkupContainer("extPageLI");
+                    item.add(containingLI);
 
-                        ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);
+                    ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);
 
-                        BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
-                        link.add(new Label("extPageLabel", ann.label()));
-                        if (StringUtils.isNotBlank(ann.listEntitlement())) {
-                            MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, ann.listEntitlement());
-                        }
-                        if (item.getModelObject().equals(BasePage.this.getClass())) {
-                            link.add(new Behavior() {
-
-                                private static final long serialVersionUID = 1469628524240283489L;
-
-                                @Override
-                                public void renderHead(final Component component, final IHeaderResponse response) {
-                                    response.render(OnDomReadyHeaderItem.forScript(
-                                            "$('#extensionsLink').addClass('active')"));
-                                }
-
-                                @Override
-                                public void onComponentTag(final Component component, final ComponentTag tag) {
-                                    tag.append("class", "active", " ");
-                                }
-                            });
-                        }
-                        containingLI.add(link);
-
-                        Label extPageIcon = new Label("extPageIcon");
-                        extPageIcon.add(new AttributeModifier("class", "nav-icon " + ann.icon()));
-                        link.add(extPageIcon);
+                    BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
+                    link.add(new Label("extPageLabel", ann.label()));
+                    if (StringUtils.isNotBlank(ann.listEntitlement())) {
+                        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, ann.listEntitlement());
                     }
-                };
+                    if (item.getModelObject().equals(BasePage.this.getClass())) {
+                        link.add(new Behavior() {
+
+                            private static final long serialVersionUID = 1469628524240283489L;
+
+                            @Override
+                            public void renderHead(final Component component, final IHeaderResponse response) {
+                                response.render(OnDomReadyHeaderItem.forScript(
+                                    "$('#extensionsLink').addClass('active')"));
+                            }
+
+                            @Override
+                            public void onComponentTag(final Component component, final ComponentTag tag) {
+                                tag.append("class", "active", " ");
+                            }
+                        });
+                    }
+                    containingLI.add(link);
+
+                    Label extPageIcon = new Label("extPageIcon");
+                    extPageIcon.add(new AttributeModifier("class", "nav-icon " + ann.icon()));
+                    link.add(extPageIcon);
+                }
+            };
         extPages.setRenderBodyOnly(true);
         extPages.setOutputMarkupId(true);
         extensionsLI.add(extPages);

@@ -213,15 +213,15 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
 
         columns.add(new PropertyColumn<>(
-                new StringResourceModel("jobDelegate", this), "jobDelegate", "jobDelegate") {
+            new StringResourceModel("jobDelegate", this), "jobDelegate", "jobDelegate") {
 
             private static final long serialVersionUID = -3223917055078733093L;
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<T>> item,
-                    final String componentId,
-                    final IModel<T> rowModel) {
+                final Item<ICellPopulator<T>> item,
+                final String componentId,
+                final IModel<T> rowModel) {
 
                 IModel<?> model = getDataModel(rowModel);
                 if (model != null && model.getObject() instanceof String) {
@@ -255,17 +255,17 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
             @Override
             public void populateItem(
-                    final Item<ICellPopulator<T>> cellItem,
-                    final String componentId,
-                    final IModel<T> rowModel) {
+                final Item<ICellPopulator<T>> cellItem,
+                final String componentId,
+                final IModel<T> rowModel) {
 
                 Component panel;
                 try {
                     JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
                     panel = new JobActionPanel(componentId, jobTO, false, SchedTaskDirectoryPanel.this);
                     MetaDataRoleAuthorizationStrategy.authorize(
-                            panel, WebPage.ENABLE,
-                            String.format("%s,%s", IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));
+                        panel, WebPage.ENABLE,
+                        String.format("%s,%s", IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));
                 } catch (Exception e) {
                     LOG.error("Could not get job for task {}", rowModel.getObject().getKey(), e);
                     panel = new Label(componentId, Model.of());
@@ -314,12 +314,12 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             public void onClick(final AjaxRequestTarget target, final T ignore) {
                 SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(
-                                TaskRestClient.readTask(taskType, model.getObject().getKey()),
-                                target).setResourceModel(
-                                new StringResourceModel("inner.task.edit",
-                                        SchedTaskDirectoryPanel.this,
-                                        Model.of(Pair.of(ActionLink.ActionType.EDIT, model.getObject())))));
+                    new AjaxWizard.EditItemActionEvent<>(
+                        TaskRestClient.readTask(taskType, model.getObject().getKey()),
+                        target).setResourceModel(
+                        new StringResourceModel("inner.task.edit",
+                            SchedTaskDirectoryPanel.this,
+                            Model.of(Pair.of(ActionLink.ActionType.EDIT, model.getObject())))));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.TASK_UPDATE);
 
@@ -333,10 +333,10 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 final T clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(clone, target).setResourceModel(
-                                new StringResourceModel("inner.task.clone",
-                                        SchedTaskDirectoryPanel.this,
-                                        Model.of(Pair.of(ActionLink.ActionType.CLONE, model.getObject())))));
+                    new AjaxWizard.EditItemActionEvent<>(clone, target).setResourceModel(
+                        new StringResourceModel("inner.task.clone",
+                            SchedTaskDirectoryPanel.this,
+                            Model.of(Pair.of(ActionLink.ActionType.CLONE, model.getObject())))));
             }
         }, ActionLink.ActionType.CLONE, IdRepoEntitlement.TASK_CREATE);
 
@@ -419,7 +419,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         public Iterator<T> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
             return TaskRestClient.list(
-                            reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
+                    reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }
     }

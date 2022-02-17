@@ -190,8 +190,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                             ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(),
                             item != null
                                     ? isReadOnly()
-                                    ? AjaxWizard.Mode.READONLY
-                                    : AjaxWizard.Mode.EDIT
+                                            ? AjaxWizard.Mode.READONLY
+                                            : AjaxWizard.Mode.EDIT
                                     : AjaxWizard.Mode.CREATE);
                 } else {
                     modalPanel = newItemEvent.getModalPanel();
@@ -228,12 +228,12 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 target.ifPresent(ajaxRequestTarget ->
-                        ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
+                    ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
 
                 if (wizardInModal && showResultPage) {
                     modal.setContent(new ResultPage<>(
-                            item,
-                            AjaxWizard.NewItemFinishEvent.class.cast(newItemEvent).getResult()) {
+                        item,
+                        AjaxWizard.NewItemFinishEvent.class.cast(newItemEvent).getResult()) {
 
                         private static final long serialVersionUID = -2630573849050255233L;
 
@@ -444,7 +444,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
          * Adds new item panel builder.
          *
          * @param panelBuilder new item panel builder.
-         * @param newItemDefaultButtonEnabled enable default button to add a new item.
+         * @param newItemDefaultButtonEnabled enable default button to adda new item.
          * @return the current builder.
          */
         public Builder<T> addNewItemPanelBuilder(
@@ -455,7 +455,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
         }
 
         /**
-         * Adds new item panel builder and enables default button to add a new item.
+         * Adds new item panel builder and enables default button to adda new item.
          *
          * @param notificationPanel new item panel builder.
          * @return the current builder.

@@ -79,7 +79,7 @@ public class CompletenessWidget extends BaseWidget {
         actions.add(policies);
         policies.setVisible(
                 !confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY.name())
-                        || !confCompleteness.get(NumbersInfo.ConfItem.PASSWORD_POLICY.name()));
+                || !confCompleteness.get(NumbersInfo.ConfItem.PASSWORD_POLICY.name()));
 
         notifications = BookmarkablePageLinkBuilder.build("notifications", Notifications.class);
         notifications.setOutputMarkupPlaceholderTag(true);
@@ -94,7 +94,7 @@ public class CompletenessWidget extends BaseWidget {
         actions.add(types);
         types.setVisible(
                 !confCompleteness.get(NumbersInfo.ConfItem.VIR_SCHEMA.name())
-                        || !confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name()));
+                || !confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name()));
 
         securityquestions = BookmarkablePageLinkBuilder.build("securityquestions", Security.class);
         securityquestions.setOutputMarkupPlaceholderTag(true);
@@ -144,13 +144,13 @@ public class CompletenessWidget extends BaseWidget {
 
             policies.setVisible(
                     !confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY.name())
-                            || !confCompleteness.get(NumbersInfo.ConfItem.PASSWORD_POLICY.name()));
+                    || !confCompleteness.get(NumbersInfo.ConfItem.PASSWORD_POLICY.name()));
 
             notifications.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.NOTIFICATION.name()));
 
             types.setVisible(
                     !confCompleteness.get(NumbersInfo.ConfItem.VIR_SCHEMA.name())
-                            || !confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name()));
+                    || !confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name()));
 
             securityquestions.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.SECURITY_QUESTION.name()));
 

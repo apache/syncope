@@ -61,8 +61,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication(exclude = {
-        ErrorMvcAutoConfiguration.class,
-        HttpMessageConvertersAutoConfiguration.class }, proxyBeanMethods = false)
+    ErrorMvcAutoConfiguration.class,
+    HttpMessageConvertersAutoConfiguration.class }, proxyBeanMethods = false)
 @EnableConfigurationProperties(ConsoleProperties.class)
 public class SyncopeConsoleApplication extends SpringBootServletInitializer {
 
@@ -75,8 +75,8 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
     @Override
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
         return builder.properties(Map.of(
-                        WebSocketWicketWebInitializerAutoConfiguration.REGISTER_SERVER_ENDPOINT_ENABLED, false,
-                        "spring.config.name", "console")).
+                WebSocketWicketWebInitializerAutoConfiguration.REGISTER_SERVER_ENDPOINT_ENABLED, false,
+                "spring.config.name", "console")).
                 sources(SyncopeConsoleApplication.class);
     }
 

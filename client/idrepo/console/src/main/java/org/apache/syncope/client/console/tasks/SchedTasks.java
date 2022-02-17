@@ -40,15 +40,15 @@ public class SchedTasks extends AbstractTasks {
         add(mlp);
 
         mlp.setFirstLevel(new SchedTaskDirectoryPanel<>(
-                baseModal, mlp, TaskType.SCHEDULED, SchedTaskTO.class, pageReference) {
+            baseModal, mlp, TaskType.SCHEDULED, SchedTaskTO.class, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
             @Override
             protected void viewTask(final SchedTaskTO taskTO, final AjaxRequestTarget target) {
                 mlp.next(
-                        new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
-                        new TaskExecutionDetails<>(baseModal, taskTO, pageReference), target);
+                    new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
+                    new TaskExecutionDetails<>(baseModal, taskTO, pageReference), target);
             }
         });
     }

@@ -185,11 +185,8 @@ public class ClassPathScanImplementationLookup {
                         }
                     } else if (BasePage.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(IdMPage.class)) {
-                            if (clazz.getName().endsWith("Topology")) {
-                                if (props.getPage().get("topology").getName().equals(clazz.getName())) {
-                                    idmPages.add((Class<? extends BasePage>) clazz);
-                                }
-                            } else {
+                            if (!clazz.getName().endsWith("Topology")
+                                    || (clazz.getName().equals(props.getPage().get("topology").getName()))) {
                                 idmPages.add((Class<? extends BasePage>) clazz);
                             }
                         } else if (clazz.isAnnotationPresent(AMPage.class)) {
