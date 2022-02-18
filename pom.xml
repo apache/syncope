@@ -410,7 +410,7 @@ under the License.
     <jackson.version>2.13.1</jackson.version>
 
     <spring-boot.version>2.6.3</spring-boot.version>
-    <spring-cloud-gateway.version>3.1.0</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>3.1.1</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.1</openjpa.version>
     <hikaricp.version>5.0.1</hikaricp.version>
@@ -2157,7 +2157,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.9.9</version>
+          <version>1.9.10</version>
           <configuration>
             <configuration>
               <type>standalone</type>
