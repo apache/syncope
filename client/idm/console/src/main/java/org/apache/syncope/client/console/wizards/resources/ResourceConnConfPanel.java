@@ -92,7 +92,7 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
                     filter(ConnConfProperty::isOverridable).
                     forEachOrdered(props::add);
         }
-        if (createFlag || resourceTO.getConfOverride().isEmpty()) {
+        if (resourceTO.getConfOverride().isEmpty()) {
             resourceTO.getConfOverride().clear();
         } else {
             Map<String, ConnConfProperty> valuedProps = new HashMap<>();

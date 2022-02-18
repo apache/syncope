@@ -145,6 +145,63 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         addInnerObject(templates);
     }
 
+    protected SchedTaskDirectoryPanel(
+            final BaseModal<?> baseModal,
+            final MultilevelPanel multiLevelPanelRef,
+            final TaskType taskType,
+            final Class<T> reference,
+            final PageReference pageRef,
+            final boolean wizardInModal) {
+
+        super(baseModal, multiLevelPanelRef, pageRef, wizardInModal);
+        this.taskType = taskType;
+        this.reference = reference;
+
+        try {
+            schedTaskTO = reference.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            LOG.error("Failure instantiating task", e);
+        }
+
+        this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(taskType, schedTaskTO, pageRef), true);
+
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.TASK_CREATE);
+
+        enableUtilityButton();
+        setFooterVisibility(false);
+
+        initResultTable();
+
+        container.add(new IndicatorAjaxTimerBehavior(Duration.of(10, ChronoUnit.SECONDS)) {
+
+            private static final long serialVersionUID = -4661303265651934868L;
+
+            @Override
+            protected void onTimer(final AjaxRequestTarget target) {
+                container.modelChanged();
+                target.add(container);
+            }
+        });
+
+        startAt = new TaskStartAtTogglePanel(container, pageRef);
+        addInnerObject(startAt);
+
+        templates = new TemplatesTogglePanel(getActualId(), this, pageRef) {
+
+            private static final long serialVersionUID = -8765794727538618705L;
+
+            @Override
+            protected Serializable onApplyInternal(
+                    final TemplatableTO targetObject, final String type, final AnyTO anyTO) {
+
+                targetObject.getTemplates().put(type, anyTO);
+                TaskRestClient.update(taskType, SchedTaskTO.class.cast(targetObject));
+                return targetObject;
+            }
+        };
+        addInnerObject(templates);
+    }
+
     protected List<IColumn<T, String>> getFieldColumns() {
         List<IColumn<T, String>> columns = new ArrayList<>();
 

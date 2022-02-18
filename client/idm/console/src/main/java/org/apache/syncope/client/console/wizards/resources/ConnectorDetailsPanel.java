@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.RealmsUtils;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
@@ -66,7 +68,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                         ? RealmRestClient.search(RealmsUtils.buildQuery(input)).getResult()
                         : RealmRestClient.list()).
                         stream().filter(realm -> SyncopeConsoleSession.get().getAuthRealms().stream().anyMatch(
-                        authRealm -> realm.getFullPath().startsWith(authRealm))).
+                                authRealm -> realm.getFullPath().startsWith(authRealm))).
                         map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
             }
         };
@@ -81,17 +83,52 @@ public class ConnectorDetailsPanel extends WizardStep {
         displayName.addRequiredLabel();
         add(displayName);
 
-        AjaxTextFieldPanel location = new AjaxTextFieldPanel(
-                "location", "location", new PropertyModel<>(connInstanceTO, "location"), false);
-        location.addRequiredLabel();
-        location.setOutputMarkupId(true);
-        location.setEnabled(false);
-        add(location);
-
         final AjaxDropDownChoicePanel<String> bundleName = new AjaxDropDownChoicePanel<>(
                 "bundleName",
                 "bundleName",
                 new PropertyModel<>(connInstanceTO, "bundleName"), false);
+
+        if (StringUtils.isNotBlank(connInstanceTO.getLocation())) {
+            AjaxTextFieldPanel location = new AjaxTextFieldPanel(
+                    "location", "location", new PropertyModel<>(connInstanceTO, "location"), false);
+            location.addRequiredLabel();
+            location.setOutputMarkupId(true);
+            location.setEnabled(false);
+            add(location);
+        } else {
+            final AjaxDropDownChoicePanel<String> location = new AjaxDropDownChoicePanel<>(
+                    "location", "location", new PropertyModel<>(connInstanceTO, "location"), false);
+            location.setChoices(new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getConnIdLocations()));
+            location.addRequiredLabel();
+            location.setOutputMarkupId(true);
+            location.getField().setOutputMarkupId(true);
+            add(location);
+
+            location.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                private static final long serialVersionUID = -5609231641453245929L;
+
+                @Override
+                protected void onUpdate(final AjaxRequestTarget target) {
+                    ((DropDownChoice<String>) location.getField()).setNullValid(false);
+                    bundleName.setEnabled(true);
+
+                    List<ConnBundleTO> bundles = ConnectorRestClient.getAllBundles().stream().
+                            filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).
+                            collect(Collectors.toList());
+
+                    List<String> listBundles = getBundles(connInstanceTO, bundles);
+                    if (listBundles.size() == 1) {
+                        connInstanceTO.setBundleName(listBundles.get(0));
+                        bundleName.getField().setModelObject(listBundles.get(0));
+                    }
+                    bundleName.setChoices(listBundles);
+
+                    target.add(bundleName);
+                }
+            });
+        }
+
         ((DropDownChoice<String>) bundleName.getField()).setNullValid(true);
 
         List<String> bundleNames = new ArrayList<>();
@@ -124,7 +161,15 @@ public class ConnectorDetailsPanel extends WizardStep {
                 ((DropDownChoice<String>) bundleName.getField()).setNullValid(false);
                 version.setEnabled(true);
 
-                List<String> versions = getVersions(connInstanceTO, bundles);
+                List<String> versions;
+                if (bundles.isEmpty()) {
+                    List<ConnBundleTO> bundles = ConnectorRestClient.getAllBundles().stream().
+                            filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).
+                            collect(Collectors.toList());
+                    versions = getVersions(connInstanceTO, bundles);
+                } else {
+                    versions = getVersions(connInstanceTO, bundles);
+                }
                 if (versions.size() == 1) {
                     connInstanceTO.setVersion(versions.get(0));
                     version.getField().setModelObject(versions.get(0));
@@ -166,7 +211,12 @@ public class ConnectorDetailsPanel extends WizardStep {
 
     private static List<String> getVersions(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
         return bundles.stream().filter(object -> object.getLocation().equals(connInstanceTO.getLocation())
-                && object.getBundleName().equals(connInstanceTO.getBundleName())).
+                        && object.getBundleName().equals(connInstanceTO.getBundleName())).
                 map(ConnBundleTO::getVersion).collect(Collectors.toList());
+    }
+
+    private List<String> getBundles(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
+        return bundles.stream().filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).
+                map(ConnBundleTO::getBundleName).collect(Collectors.toList());
     }
 }

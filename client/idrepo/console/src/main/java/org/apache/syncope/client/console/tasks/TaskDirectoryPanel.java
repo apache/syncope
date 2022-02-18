@@ -59,6 +59,26 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
         setShowResultPage(false);
     }
 
+    protected TaskDirectoryPanel(
+            final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanelRef, final PageReference pageRef,
+            final boolean wizardInModal) {
+        super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, wizardInModal);
+        this.baseModal = baseModal;
+        this.multiLevelPanelRef = multiLevelPanelRef;
+        restClient = new TaskRestClient();
+        setShowResultPage(false);
+    }
+
+    protected TaskDirectoryPanel(
+            final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanelRef, final PageReference pageRef,
+            final String id) {
+        super(id, pageRef, false);
+        this.baseModal = baseModal;
+        this.multiLevelPanelRef = multiLevelPanelRef;
+        restClient = new TaskRestClient();
+        setShowResultPage(false);
+    }
+
     @Override
     protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<T, String> resultTableBuilder) {
         resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
