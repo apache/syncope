@@ -32,7 +32,7 @@ under the License.
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>24</version>
+    <version>25</version>
     <relativePath />
   </parent>
 
@@ -405,7 +405,7 @@ under the License.
 
     <cxf.version>3.5.0</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.19</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.20</nimbus-jose-jwt.version>
 
     <jackson.version>2.13.1</jackson.version>
 
