@@ -163,12 +163,19 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
         String keymasterClientJar = props.getProperty("keymaster-client.jar");
         assertNotNull(keymasterClientJar);
 
+        String trustStore = props.getProperty("trustStore");
+        assertNotNull(trustStore);
+        String trustStorePassword = props.getProperty("trustStorePassword");
+        assertNotNull(trustStorePassword);
+
         String targetTestClasses = props.getProperty("targetTestClasses");
         assertNotNull(targetTestClasses);
 
         ProcessBuilder processBuilder = new ProcessBuilder(
                 javaHome + "/bin/java",
                 "-Dreactor.netty.http.server.accessLogEnabled=true",
+                "-Djavax.net.ssl.trustStore=" + trustStore,
+                "-Djavax.net.ssl.trustStorePassword=" + trustStorePassword,
                 "-jar",
                 "-Xdebug",
                 "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8002",
