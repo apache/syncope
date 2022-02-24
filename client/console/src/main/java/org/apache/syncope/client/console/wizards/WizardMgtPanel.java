@@ -465,7 +465,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
          * Adds new item panel builder.
          *
          * @param panelBuilder new item panel builder.
-         * @param newItemDefaultButtonEnabled enable default button to adda new item.
+         * @param newItemDefaultButtonEnabled enable default button to add a new item.
          * @return the current builder.
          */
         public Builder<T> addNewItemPanelBuilder(
@@ -476,7 +476,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         }
 
         /**
-         * Adds new item panel builder and enables default button to adda new item.
+         * Adds new item panel builder and enables default button to add a new item.
          *
          * @param notificationPanel new item panel builder.
          * @return the current builder.

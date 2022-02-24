@@ -97,7 +97,7 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
                         props.add(property);
                     });
         }
-        if (createFlag || resourceTO.getConfOverride().isEmpty()) {
+        if (resourceTO.getConfOverride().isEmpty()) {
             resourceTO.getConfOverride().clear();
         } else {
             Map<String, ConnConfProperty> valuedProps = new HashMap<>();
