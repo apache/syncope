@@ -203,7 +203,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                     if (StringUtils.containsAny(value, POSTGRESQL_REGEX_CHARS) || lower) {
                         query.append(" like_regex \"").append(escapeForLikeRegex(value).replace("'", "''")).append('"');
                     } else if (isStr) {
-                        query.append(" == ''").append(value).append("'");
+                        query.append(" == \"").append(value.replace("'", "''")).append('"');
                     } else {
                         query.append(" == ").append(value);
                     }
