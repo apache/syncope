@@ -180,8 +180,11 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 case EQ:
                     query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
                             append("(@.").append(key);
-                    if (isStr) {
+                    if (POSTGRESQL_REGEX_CHARS.chars().mapToObj(c -> (char) c).
+                            anyMatch(c -> value.indexOf(c) > -1) || lower) {
                         query.append(" like_regex \"").append(escapeForLikeRegex(value).replace("'", "''")).append('"');
+                    } else if (isStr) {
+                        query.append(" == \"").append(value).append('"');
                     } else {
                         query.append(" == ").append(value);
                     }
