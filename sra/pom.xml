@@ -293,6 +293,7 @@ under the License.
               </systemPropertyVariables>
               <jvmArguments>
                 -Xdebug -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=n
+                -Djavax.net.ssl.trustStore=${basedir}/../fit/wa-reference/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password
               </jvmArguments>
               <profiles>
                 <profile>debug</profile>
