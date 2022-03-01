@@ -409,7 +409,7 @@ under the License.
 
     <jackson.version>2.13.1</jackson.version>
 
-    <spring-boot.version>2.6.3</spring-boot.version>
+    <spring-boot.version>2.6.4</spring-boot.version>
     <spring-cloud-gateway.version>3.1.1</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.1</openjpa.version>
@@ -435,7 +435,7 @@ under the License.
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
 
-    <log4j2.version>2.17.1</log4j2.version>
+    <log4j2.version>2.17.2</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
     
     <commons-jexl.version>3.2.1</commons-jexl.version>
@@ -469,8 +469,8 @@ under the License.
     <chartjs.version>1.0.2</chartjs.version>
 
     <wicket.version>9.8.0</wicket.version>
-    <wicketstuff.version>9.6.0</wicketstuff.version>
-    <wicket-jqueryui.version>9.7.0</wicket-jqueryui.version>
+    <wicketstuff.version>9.8.0</wicketstuff.version>
+    <wicket-jqueryui.version>9.8.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.6</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.1.6</wicket-spring-boot.version>
 
@@ -502,7 +502,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.58</tomcat.version>
+    <tomcat.version>9.0.59</tomcat.version>
     <wildfly.version>25.0.1.Final</wildfly.version>
     <payara.version>5.2022.1</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
@@ -1144,7 +1144,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.6.5</version>
+        <version>1.6.6</version>
         <exclusions>
           <exclusion>
             <groupId>junit</groupId>
@@ -2209,7 +2209,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>9.3</version>
+              <version>10.0</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2221,7 +2221,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.39.0</version>
+          <version>0.39.1</version>
         </plugin>
 
         <plugin>
