@@ -113,12 +113,12 @@ public class CASSRAITCase extends AbstractSRAITCase {
 
         // 2a. authenticate
         String responseBody = EntityUtils.toString(response.getEntity());
-        response = authenticateToCas("bellini", "password", responseBody, httpclient, context);
+        response = authenticateToWA("bellini", "password", responseBody, httpclient, context);
 
         // 2b. WA attribute consent screen
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             responseBody = EntityUtils.toString(response.getEntity());
-            String execution = extractCASExecution(responseBody);
+            String execution = extractWAExecution(responseBody);
 
             List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("_eventId", "confirm"));

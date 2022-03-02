@@ -218,7 +218,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         }
         boolean isOk = false;
         try (CloseableHttpResponse response =
-                authenticateToCas(username, password, responseBody, httpclient, context)) {
+                authenticateToWA(username, password, responseBody, httpclient, context)) {
 
             switch (response.getStatusLine().getStatusCode()) {
                 case HttpStatus.SC_OK:
@@ -237,7 +237,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
         // 2c. WA attribute consent screen
         if (isOk) {
-            String execution = extractCASExecution(responseBody);
+            String execution = extractWAExecution(responseBody);
 
             List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("_eventId", "confirm"));
