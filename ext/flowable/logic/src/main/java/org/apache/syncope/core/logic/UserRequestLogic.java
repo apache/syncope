@@ -126,7 +126,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
     protected void securityChecks(final String username, final String entitlement, final String errorMessage) {
         if (!AuthContextUtils.getUsername().equals(username)
                 && !AuthContextUtils.getAuthorities().stream().
-                        anyMatch(auth -> entitlement.equals(auth.getAuthority()))) {
+                anyMatch(auth -> entitlement.equals(auth.getAuthority()))) {
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
             sce.getElements().add(errorMessage);
@@ -237,7 +237,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
         } else {
             userTO = binder.getUserTO(wfResult.getResult().getKey());
         }
-        result.setEntity(binder.returnUserTO(userTO));
+        result.setEntity(userTO);
 
         return result;
     }

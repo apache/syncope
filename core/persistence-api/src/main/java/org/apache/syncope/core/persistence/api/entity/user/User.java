@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.user;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
@@ -54,8 +55,14 @@ public interface User extends Account, GroupableRelatable<User, UMembership, UPl
     void setSecurityQuestion(SecurityQuestion securityQuestion);
 
     String getSecurityAnswer();
+    
+    String getClearSecurityAnswer();
 
-    void setSecurityAnswer(String securityAnswer);
+    void setEncodedSecurityAnswer(String securityAnswer);
+    
+    void setSecurityAnswer(String securityAnswer,  CipherAlgorithm cipherAlgoritm);
+
+    boolean canDecodeSecurityAnswer();
 
     Integer getFailedLogins();
 

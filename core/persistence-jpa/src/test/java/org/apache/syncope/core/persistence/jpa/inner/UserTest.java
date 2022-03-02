@@ -18,34 +18,35 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
+import org.apache.syncope.core.spring.security.Encryptor;
+import org.apache.syncope.core.spring.security.PasswordGenerator;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
-import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
-import org.apache.syncope.core.spring.security.PasswordGenerator;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class UserTest extends AbstractTest {
@@ -67,6 +68,9 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;
+
+    @Autowired
+    private SecurityQuestionDAO securityQuestionDAO;
 
     @Test
     public void find() {
@@ -294,5 +298,23 @@ public class UserTest extends AbstractTest {
         User user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
         user.setPassword(password, CipherAlgorithm.SHA);
         userDAO.save(user);
+    }
+
+    @Test
+    public void issueSYNCOPE1666() {
+        User user = entityFactory.newEntity(User.class);
+        user.setUsername("username");
+        user.setRealm(realmDAO.findByFullPath("/even/two"));
+        user.setCreator("admin");
+        user.setCreationDate(new Date());
+        user.setPassword("password123", CipherAlgorithm.SSHA256);
+        user.setSecurityQuestion(securityQuestionDAO.find("887028ea-66fc-41e7-b397-620d7ea6dfbb"));
+        String securityAnswer = "my complex answer to @ $complex question è ? 12345";
+        user.setSecurityAnswer(securityAnswer, CipherAlgorithm.SSHA256);
+
+        User actual = userDAO.save(user);
+        assertNotNull(actual);
+        assertNotNull(actual.getSecurityAnswer());
+        assertTrue(Encryptor.getInstance().verify(securityAnswer, CipherAlgorithm.SSHA256, actual.getSecurityAnswer()));
     }
 }

@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.outer;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -44,7 +45,7 @@ public class SecurityQuestionTest extends AbstractTest {
         assertNull(user.getSecurityAnswer());
 
         user.setSecurityQuestion(securityQuestionDAO.find("887028ea-66fc-41e7-b397-620d7ea6dfbb"));
-        user.setSecurityAnswer("Rossi");
+        user.setSecurityAnswer("Rossi", CipherAlgorithm.SSHA1);
         userDAO.save(user);
 
         entityManager().flush();

@@ -185,6 +185,9 @@ public class JPAUser
     @Column(nullable = true)
     private String securityAnswer;
 
+    @Transient
+    private String clearSecurityAnswer;
+    
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
     @Valid
     private List<JPALinkedAccount> linkedAccounts = new ArrayList<>();
@@ -241,21 +244,21 @@ public class JPAUser
     }
 
     @Override
-    public void setEncodedPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
+    public void setEncodedPassword(final String password, final CipherAlgorithm cipherAlgorithm) {
         this.clearPassword = null;
 
         this.password = password;
-        this.cipherAlgorithm = cipherAlgoritm;
+        this.cipherAlgorithm = cipherAlgorithm;
         setMustChangePassword(false);
     }
 
     @Override
-    public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
+    public void setPassword(final String password, final CipherAlgorithm cipherAlgorithm) {
         this.clearPassword = password;
 
         try {
-            this.password = ENCRYPTOR.encode(password, cipherAlgoritm);
-            this.cipherAlgorithm = cipherAlgoritm;
+            this.password = ENCRYPTOR.encode(password, cipherAlgorithm);
+            this.cipherAlgorithm = cipherAlgorithm;
             setMustChangePassword(false);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
@@ -425,8 +428,32 @@ public class JPAUser
     }
 
     @Override
-    public void setSecurityAnswer(final String securityAnswer) {
+    public String getClearSecurityAnswer() {
+        return clearSecurityAnswer;
+    }
+
+    @Override
+    public void setEncodedSecurityAnswer(final String securityAnswer) {
+        this.clearSecurityAnswer = null;
+
         this.securityAnswer = securityAnswer;
+    }
+
+    @Override
+    public void setSecurityAnswer(final String securityAnswer, final CipherAlgorithm cipherAlgorithm) {
+        this.securityAnswer = securityAnswer;
+
+        try {
+            this.securityAnswer = ENCRYPTOR.encode(securityAnswer, cipherAlgorithm);
+        } catch (Exception e) {
+            LOG.error("Could not encode security answer", e);
+            this.securityAnswer = null;
+        }
+    }
+
+    @Override
+    public boolean canDecodeSecurityAnswer() {
+        return this.canDecodePassword();
     }
 
     @Override
