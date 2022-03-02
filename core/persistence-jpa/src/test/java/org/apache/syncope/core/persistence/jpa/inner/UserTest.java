@@ -18,35 +18,36 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
-import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
-import org.apache.syncope.core.spring.security.Encryptor;
-import org.apache.syncope.core.spring.security.PasswordGenerator;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
+import org.apache.syncope.core.spring.security.Encryptor;
+import org.apache.syncope.core.spring.security.PasswordGenerator;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class UserTest extends AbstractTest {
