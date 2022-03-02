@@ -405,7 +405,7 @@ under the License.
     <connid.scimv11.version>1.0.1</connid.scimv11.version>
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
-    <cxf.version>3.3.12</cxf.version>
+    <cxf.version>3.3.13</cxf.version>
 
     <jackson.version>2.11.4</jackson.version>
 
