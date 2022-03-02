@@ -26,11 +26,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.GenericType;
@@ -38,7 +42,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMUserConf;
@@ -61,7 +64,6 @@ import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
 import org.apache.syncope.ext.scimv2.api.data.Value;
 import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
-import org.apache.syncope.ext.scimv2.cxf.SCIMJacksonJsonProvider;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -73,12 +75,6 @@ public class SCIMITCase extends AbstractITCase {
     private static final SCIMConf CONF;
 
     private static Boolean ENABLED;
-
-    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = ThreadLocal.withInitial(() -> {
-        SimpleDateFormat sdf = new SimpleDateFormat();
-        sdf.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
-        return sdf;
-    });
 
     static {
         CONF = new SCIMConf();
@@ -117,7 +113,10 @@ public class SCIMITCase extends AbstractITCase {
     }
 
     private static WebClient webClient() {
-        return WebClient.create(SCIM_ADDRESS, List.of(new SCIMJacksonJsonProvider())).
+        return WebClient.create(
+                SCIM_ADDRESS,
+                List.of(new JacksonJsonProvider(JsonMapper.builder().
+                        findAndAddModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build()))).
                 accept(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 type(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT());
@@ -314,9 +313,9 @@ public class SCIMITCase extends AbstractITCase {
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
 
-        Date value = new Date(newUser.getCreationDate().getTime() - 1000);
+        OffsetDateTime value = newUser.getCreationDate().minusSeconds(1).truncatedTo(ChronoUnit.SECONDS);
         response = webClient().path("Users").query("filter", "meta.created gt \""
-                + DATE_FORMAT.get().format(value) + '"').get();
+                + DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(value) + '"').get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals(
                 SCIMConstants.APPLICATION_SCIM_JSON,

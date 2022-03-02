@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,9 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.persistence.Query;
-import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
-
 import org.apache.commons.jexl3.parser.Parser;
 import org.apache.commons.jexl3.parser.ParserConstants;
 import org.apache.commons.jexl3.parser.Token;
@@ -62,6 +61,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
+import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -136,7 +136,24 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         return result;
     }
 
-    protected Date findLastChange(final String key, final String table) {
+    protected OffsetDateTime toOffsetDateTime(final Object object) {
+        if (object instanceof OffsetDateTime) {
+            return (OffsetDateTime) object;
+        }
+
+        if (object instanceof LocalDateTime) {
+            return ((LocalDateTime) object).atOffset(FormatUtils.DEFAULT_OFFSET);
+        }
+
+        if (object instanceof Timestamp) {
+            return ((Timestamp) object).toLocalDateTime().atOffset(FormatUtils.DEFAULT_OFFSET);
+        }
+
+        LOG.debug("Could not convert to OffsetDateTime: {}", object);
+        return null;
+    }
+
+    protected OffsetDateTime findLastChange(final String key, final String table) {
         Query query = entityManager().createNativeQuery(
                 "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?");
         query.setParameter(1, key);
@@ -144,15 +161,11 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         @SuppressWarnings("unchecked")
         List<Object[]> result = query.getResultList();
 
-        Date creationDate = null;
-        Date lastChangeDate = null;
+        OffsetDateTime creationDate = null;
+        OffsetDateTime lastChangeDate = null;
         if (!result.isEmpty()) {
-            creationDate = result.get(0)[0] instanceof LocalDateTime
-                    ? convert((LocalDateTime) result.get(0)[0])
-                    : (Date) result.get(0)[0];
-            lastChangeDate = result.get(0)[1] instanceof LocalDateTime
-                    ? convert((LocalDateTime) result.get(0)[1])
-                    : (Date) result.get(0)[1];
+            creationDate = toOffsetDateTime(result.get(0)[0]);
+            lastChangeDate = toOffsetDateTime(result.get(0)[1]);
         }
 
         return Optional.ofNullable(lastChangeDate).orElse(creationDate);
@@ -231,7 +244,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         if (attrValue.getDateValue() == null) {
             query.setParameter("dateValue", null);
         } else {
-            query.setParameter("dateValue", attrValue.getDateValue(), TemporalType.TIMESTAMP);
+            query.setParameter("dateValue", attrValue.getDateValue().toInstant());
         }
         query.setParameter("longValue", attrValue.getLongValue());
         query.setParameter("doubleValue", attrValue.getDoubleValue());

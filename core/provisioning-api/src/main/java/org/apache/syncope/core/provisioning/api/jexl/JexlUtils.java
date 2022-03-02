@@ -22,9 +22,9 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -174,8 +174,8 @@ public final class JexlUtils {
                 if (fieldValue == null) {
                     fieldValue = StringUtils.EMPTY;
                 } else {
-                    fieldValue = fieldType.equals(Date.class)
-                            ? FormatUtils.format((Date) fieldValue, false)
+                    fieldValue = TemporalAccessor.class.isAssignableFrom(fieldType)
+                            ? FormatUtils.format((TemporalAccessor) fieldValue)
                             : fieldValue;
                 }
 

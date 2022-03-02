@@ -20,12 +20,14 @@ package org.apache.syncope.client.console.panels;
 
 import com.nimbusds.jwt.SignedJWT;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
@@ -95,14 +97,16 @@ public class AccessTokenDirectoryPanel
 
             @Override
             public void populateItem(
-                final Item<ICellPopulator<AccessTokenTO>> cellItem,
-                final String componentId,
-                final IModel<AccessTokenTO> model) {
+                    final Item<ICellPopulator<AccessTokenTO>> cellItem,
+                    final String componentId,
+                    final IModel<AccessTokenTO> model) {
 
                 try {
                     SignedJWT jwt = SignedJWT.parse(model.getObject().getBody());
-                    cellItem.add(new Label(componentId,
-                        SyncopeConsoleSession.get().getDateFormat().format(jwt.getJWTClaimsSet().getIssueTime())));
+                    cellItem.add(new Label(
+                            componentId,
+                            FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale()).
+                                    format(jwt.getJWTClaimsSet().getIssueTime())));
                 } catch (ParseException e) {
                     LOG.error("Could not parse JWT {}", model.getObject().getBody(), e);
                     cellItem.add(new Label(componentId, StringUtils.EMPTY));

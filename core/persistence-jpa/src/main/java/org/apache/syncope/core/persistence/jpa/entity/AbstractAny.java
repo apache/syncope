@@ -18,14 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.Date;
-import java.util.Optional;
+import java.time.OffsetDateTime;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -45,8 +42,7 @@ public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractGenera
     /**
      * Creation date.
      */
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date creationDate;
+    private OffsetDateTime creationDate;
 
     /**
      * Context information about create.
@@ -58,8 +54,7 @@ public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractGenera
      */
     private String lastModifier;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lastChangeDate;
+    private OffsetDateTime lastChangeDate;
 
     /**
      * Context information about last update.
@@ -83,13 +78,13 @@ public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractGenera
     }
 
     @Override
-    public Date getCreationDate() {
-        return Optional.ofNullable(creationDate).map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getCreationDate() {
+        return creationDate;
     }
 
     @Override
-    public void setCreationDate(final Date creationDate) {
-        this.creationDate = Optional.ofNullable(creationDate).map(date -> new Date(date.getTime())).orElse(null);
+    public void setCreationDate(final OffsetDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 
     @Override
@@ -113,19 +108,19 @@ public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractGenera
     }
 
     @Override
-    public Date getLastChangeDate() {
+    public OffsetDateTime getLastChangeDate() {
         if (lastChangeDate != null) {
-            return new Date(lastChangeDate.getTime());
+            return lastChangeDate;
         } else if (creationDate != null) {
-            return new Date(creationDate.getTime());
+            return creationDate;
         }
 
         return null;
     }
 
     @Override
-    public void setLastChangeDate(final Date lastChangeDate) {
-        this.lastChangeDate = Optional.ofNullable(lastChangeDate).map(date -> new Date(date.getTime())).orElse(null);
+    public void setLastChangeDate(final OffsetDateTime lastChangeDate) {
+        this.lastChangeDate = lastChangeDate;
     }
 
     @Override

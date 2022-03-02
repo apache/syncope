@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class SAML2LoginResponse implements Serializable {
 
     private String accessToken;
 
-    private Date accessTokenExpiryTime;
+    private OffsetDateTime accessTokenExpiryTime;
 
     private String username;
 
@@ -85,13 +86,12 @@ public class SAML2LoginResponse implements Serializable {
         this.accessToken = accessToken;
     }
 
-    public Date getAccessTokenExpiryTime() {
-        return Optional.ofNullable(accessTokenExpiryTime).map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getAccessTokenExpiryTime() {
+        return accessTokenExpiryTime;
     }
 
-    public void setAccessTokenExpiryTime(final Date accessTokenExpiryTime) {
-        this.accessTokenExpiryTime = Optional.ofNullable(accessTokenExpiryTime).
-                map(date -> new Date(date.getTime())).orElse(null);
+    public void setAccessTokenExpiryTime(final OffsetDateTime accessTokenExpiryTime) {
+        this.accessTokenExpiryTime = accessTokenExpiryTime;
     }
 
     public String getUsername() {

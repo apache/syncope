@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.java.job.report;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.Deflater;
@@ -35,17 +35,16 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
-
 import org.apache.syncope.common.lib.types.ReportExecStatus;
-import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
-import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
+import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,7 +120,7 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
         // 1. create execution
         ReportExec execution = entityFactory.newEntity(ReportExec.class);
         execution.setStatus(ReportExecStatus.STARTED);
-        execution.setStart(new Date());
+        execution.setStart(OffsetDateTime.now());
         execution.setReport(report);
 
         execution.setExecutor(executor);
@@ -220,7 +219,7 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
 
             execution.setExecResult(baos.toByteArray());
             execution.setMessage(reportExecutionMessage.toString());
-            execution.setEnd(new Date());
+            execution.setEnd(OffsetDateTime.now());
             reportExecDAO.save(execution);
         }
     }

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.sra.filters;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -51,7 +51,7 @@ public class BodyPropertyAddingGatewayFilterFactory extends CustomGatewayFilterF
 
     private static final Logger LOG = LoggerFactory.getLogger(BodyPropertyAddingGatewayFilterFactory.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private static boolean isCompressed(final byte[] bytes) {
         if ((bytes == null) || (bytes.length < 2)) {
@@ -126,8 +126,8 @@ public class BodyPropertyAddingGatewayFilterFactory extends CustomGatewayFilterF
                         }
 
                         if (compressed) {
-                            try (ByteArrayOutputStream baos = new ByteArrayOutputStream(output.length);
-                                    GZIPOutputStream gzipos = new GZIPOutputStream(baos)) {
+                            try ( ByteArrayOutputStream baos = new ByteArrayOutputStream(output.length);  GZIPOutputStream gzipos =
+                                    new GZIPOutputStream(baos)) {
 
                                 gzipos.write(output);
                                 gzipos.close();

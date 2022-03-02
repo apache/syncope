@@ -20,7 +20,6 @@ package org.apache.syncope.client.enduser;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -52,6 +51,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 
 public class SyncopeEnduserSession extends AuthenticatedWebSession implements BaseSession {
@@ -344,7 +345,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     }
 
     @Override
-    public FastDateFormat getDateFormat() {
-        return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale());
+    public DateOps.Format getDateFormat() {
+        return new DateOps.Format(FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale()));
     }
 }

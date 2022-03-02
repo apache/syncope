@@ -19,7 +19,7 @@
 package org.apache.syncope.client.ui.commons;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ public class MIMETypesLoader {
 
     protected static final Logger LOG = LoggerFactory.getLogger(MIMETypesLoader.class);
 
-    protected static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     protected Map<String, String> mimeTypesMap;
 

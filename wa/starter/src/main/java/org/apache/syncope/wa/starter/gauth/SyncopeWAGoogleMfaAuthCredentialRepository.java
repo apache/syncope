@@ -19,8 +19,8 @@
 package org.apache.syncope.wa.starter.gauth;
 
 import com.warrenstrange.googleauth.IGoogleAuthenticator;
+import java.time.OffsetDateTime;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -50,7 +50,7 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
 
     private static GoogleMfaAuthAccount mapGoogleMfaAuthAccount(final OneTimeTokenAccount account) {
         return new GoogleMfaAuthAccount.Builder()
-                .registrationDate(new Date())
+                .registrationDate(OffsetDateTime.now())
                 .scratchCodes(account.getScratchCodes())
                 .validationCode(account.getValidationCode())
                 .secretKey(account.getSecretKey())
@@ -132,7 +132,7 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
     @Override
     public OneTimeTokenAccount save(final OneTimeTokenAccount tokenAccount) {
         GoogleMfaAuthAccount account = new GoogleMfaAuthAccount.Builder()
-                .registrationDate(new Date())
+                .registrationDate(OffsetDateTime.now())
                 .scratchCodes(tokenAccount.getScratchCodes())
                 .validationCode(tokenAccount.getValidationCode())
                 .secretKey(tokenAccount.getSecretKey())

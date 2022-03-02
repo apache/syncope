@@ -20,10 +20,11 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 
 public class YAMLTest extends SerializationTest {
 
-    private static final YAMLMapper YAML_MAPPER = new YAMLMapper();
+    private static final YAMLMapper YAML_MAPPER = new SyncopeYAMLMapper();
 
     @Override
     protected ObjectMapper objectMapper() {

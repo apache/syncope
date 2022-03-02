@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Report;
@@ -38,7 +38,12 @@ public interface ReportExecDAO extends DAO<ReportExec> {
 
     List<ReportExec> findAll(Report report, int page, int itemsPerPage, List<OrderByClause> orderByClauses);
 
-    List<ReportExec> findAll(Report report, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
+    List<ReportExec> findAll(
+            Report report,
+            OffsetDateTime startedBefore,
+            OffsetDateTime startedAfter,
+            OffsetDateTime endedBefore,
+            OffsetDateTime endedAfter);
 
     ReportExec save(ReportExec execution);
 

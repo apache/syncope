@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.layout;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -43,7 +43,7 @@ public final class AnyLayoutUtils {
 
     private static final RoleRestClient ROLE_REST_CLIENT = new RoleRestClient();
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private static void setUserIfEmpty(final AnyLayout anyLayout) {
         if (anyLayout.getUser() == null) {

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -44,11 +44,11 @@ import org.slf4j.LoggerFactory;
 
 public class OIDC extends Panel {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 12898029694947L;
 
     private static final Logger LOG = LoggerFactory.getLogger(OIDC.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private final BaseModal<String> viewModal = new BaseModal<>("viewModal") {
 

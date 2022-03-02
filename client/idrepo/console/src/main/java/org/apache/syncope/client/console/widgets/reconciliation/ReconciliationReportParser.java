@@ -19,8 +19,8 @@
 package org.apache.syncope.client.console.widgets.reconciliation;
 
 import java.io.InputStream;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +40,7 @@ public final class ReconciliationReportParser {
         XML_INPUT_FACTORY.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
     }
 
-    public static ReconciliationReport parse(final Date run, final InputStream in)
+    public static ReconciliationReport parse(final OffsetDateTime run, final InputStream in)
             throws XMLStreamException, NumberFormatException {
 
         XMLStreamReader streamReader = XML_INPUT_FACTORY.createXMLStreamReader(in);

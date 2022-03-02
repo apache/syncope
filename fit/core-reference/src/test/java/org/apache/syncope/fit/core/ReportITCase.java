@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +53,7 @@ import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Assertions;
@@ -64,7 +64,7 @@ public class ReportITCase extends AbstractITCase {
     protected static String execReport(final String reportKey) {
         AtomicReference<ReportTO> reportTO = new AtomicReference<>(reportService.read(reportKey));
         int preExecSize = reportTO.get().getExecutions().size();
-        ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
+        ExecTO execution = reportService.execute(new ExecSpecs.Builder().key(reportKey).build());
         assertNotNull(execution.getExecutor());
 
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
@@ -261,7 +261,7 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void deleteExecutions() throws IOException {
-        Date start = new Date();
+        OffsetDateTime start = OffsetDateTime.now();
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -281,7 +281,7 @@ public class ReportITCase extends AbstractITCase {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
-        Date end = new Date();
+        OffsetDateTime end = OffsetDateTime.now();
 
         Response response = reportService.deleteExecutions(
                 new ExecDeleteQuery.Builder().key(reportTO.getKey()).startedAfter(start).endedBefore(end).build());
@@ -355,7 +355,7 @@ public class ReportITCase extends AbstractITCase {
 
         // Execute (multiple requests)
         for (int i = 0; i < 10; i++) {
-            assertNotNull(reportService.execute(new ExecuteQuery.Builder().key(reportKey).build()));
+            assertNotNull(reportService.execute(new ExecSpecs.Builder().key(reportKey).build()));
         }
 
         // Wait for one execution

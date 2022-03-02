@@ -19,7 +19,7 @@
 package org.apache.syncope.ext.scimv2.cxf;
 
 import java.io.IOException;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -36,7 +36,7 @@ public class AddETagFilter implements ContainerResponseFilter {
     @Override
     public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) throws IOException {
         if (resCtx.getEntityTag() == null) {
-            Date lastModified;
+            OffsetDateTime lastModified;
             if (resCtx.getEntity() instanceof SCIMUser) {
                 lastModified = ((SCIMUser) resCtx.getEntity()).getMeta().getLastModified();
                 if (resCtx.getEntity() instanceof SCIMGroup) {
@@ -44,7 +44,7 @@ public class AddETagFilter implements ContainerResponseFilter {
                 }
 
                 if (lastModified != null) {
-                    String etagValue = String.valueOf(lastModified.getTime());
+                    String etagValue = String.valueOf(lastModified.toInstant().toEpochMilli());
                     if (StringUtils.isNotBlank(etagValue)) {
                         resCtx.getHeaders().add(HttpHeaders.ETAG, new EntityTag(etagValue, true).toString());
                     }

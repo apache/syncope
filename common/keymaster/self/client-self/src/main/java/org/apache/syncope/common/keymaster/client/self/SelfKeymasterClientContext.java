@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.keymaster.client.self;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -66,8 +67,9 @@ public class SelfKeymasterClientContext {
         restClientFactoryBean.setThreadSafe(true);
         restClientFactoryBean.setInheritHeaders(true);
         restClientFactoryBean.setFeatures(List.of(new LoggingFeature()));
-        restClientFactoryBean.setProviders(
-                List.of(new JacksonJsonProvider(), new SelfKeymasterClientExceptionMapper()));
+        restClientFactoryBean.setProviders(List.of(
+                new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build()),
+                new SelfKeymasterClientExceptionMapper()));
         return restClientFactoryBean;
     }
 
@@ -75,7 +77,7 @@ public class SelfKeymasterClientContext {
     @Bean
     @ConditionalOnMissingBean(name = "selfConfParamOps")
     public ConfParamOps selfConfParamOps(@Qualifier("selfKeymasterRESTClientFactoryBean")
-                                         final JAXRSClientFactoryBean selfKeymasterRESTClientFactoryBean) {
+            final JAXRSClientFactoryBean selfKeymasterRESTClientFactoryBean) {
         return new SelfKeymasterConfParamOps(selfKeymasterRESTClientFactoryBean);
     }
 
@@ -83,7 +85,7 @@ public class SelfKeymasterClientContext {
     @Bean
     @ConditionalOnMissingBean(name = "selfServiceOps")
     public ServiceOps selfServiceOps(@Qualifier("selfKeymasterRESTClientFactoryBean")
-                                     final JAXRSClientFactoryBean selfKeymasterRESTClientFactoryBean) {
+            final JAXRSClientFactoryBean selfKeymasterRESTClientFactoryBean) {
         return new SelfKeymasterServiceOps(selfKeymasterRESTClientFactoryBean, 5);
     }
 
@@ -91,7 +93,7 @@ public class SelfKeymasterClientContext {
     @Bean
     @ConditionalOnMissingBean(name = "domainOps")
     public DomainOps domainOps(@Qualifier("selfKeymasterRESTClientFactoryBean")
-                               final JAXRSClientFactoryBean selfKeymasterRESTClientFactoryBean) {
+            final JAXRSClientFactoryBean selfKeymasterRESTClientFactoryBean) {
         return new SelfKeymasterDomainOps(selfKeymasterRESTClientFactoryBean);
     }
 }

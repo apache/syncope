@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.logic.scim;
 
+import java.time.OffsetDateTime;
 import java.util.Base64;
-import java.util.Date;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.scim.SCIMConf;
@@ -80,7 +80,7 @@ public class SCIMConfManager {
             schemaLogic.create(SchemaType.PLAIN, scimConf);
         }
         conf.setGeneralConf(new SCIMGeneralConf());
-        conf.getGeneralConf().setLastChangeDate(new Date());
+        conf.getGeneralConf().setLastChangeDate(OffsetDateTime.now());
 
         confParamOps.set(AuthContextUtils.getDomain(),
                 SCIMConf.KEY, Base64.getEncoder().encodeToString(POJOHelper.serialize(conf).getBytes()));

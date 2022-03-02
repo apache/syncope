@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.common.lib.wa;
 
-import java.util.Date;
-import java.util.Optional;
+import java.time.OffsetDateTime;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -33,7 +32,7 @@ public class U2FDevice implements BaseBean {
 
         private final U2FDevice instance = new U2FDevice();
 
-        public U2FDevice.Builder issueDate(final Date issued) {
+        public U2FDevice.Builder issueDate(final OffsetDateTime issued) {
             instance.setIssueDate(issued);
             return this;
         }
@@ -57,7 +56,7 @@ public class U2FDevice implements BaseBean {
 
     private String record;
 
-    private Date issueDate;
+    private OffsetDateTime issueDate;
 
     public String getRecord() {
         return record;
@@ -75,14 +74,12 @@ public class U2FDevice implements BaseBean {
         this.id = id;
     }
 
-    public Date getIssueDate() {
-        return Optional.ofNullable(this.issueDate).
-                map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getIssueDate() {
+        return issueDate;
     }
 
-    public void setIssueDate(final Date issueDate) {
-        this.issueDate = Optional.ofNullable(issueDate).
-                map(date -> new Date(date.getTime())).orElse(null);
+    public void setIssueDate(final OffsetDateTime issueDate) {
+        this.issueDate = issueDate;
     }
 
     @Override

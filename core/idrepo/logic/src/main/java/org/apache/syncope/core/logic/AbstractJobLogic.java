@@ -26,6 +26,7 @@ import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
 import org.apache.syncope.core.provisioning.java.job.SystemLoadReporterJob;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
@@ -84,7 +85,7 @@ abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactiona
                     jobTO.setScheduled(false);
                 } else {
                     jobTO.setScheduled(true);
-                    jobTO.setStart(jobTriggers.get(0).getStartTime());
+                    jobTO.setStart(jobTriggers.get(0).getStartTime().toInstant().atOffset(FormatUtils.DEFAULT_OFFSET));
                 }
 
                 jobTO.setRunning(jobManager.isRunning(jobKey));

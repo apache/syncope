@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.keymaster.client.zookeeper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -34,15 +34,15 @@ import org.slf4j.LoggerFactory;
  */
 public class ZookeeperConfParamOps implements ConfParamOps {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConfParamOps.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ConfParamOps.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    private static final String CONF_PATH = "/conf";
+    protected static final String CONF_PATH = "/conf";
 
-    private final CuratorFramework client;
+    protected final CuratorFramework client;
 
-    private static String buildConfPath(final String... parts) {
+    protected static String buildConfPath(final String... parts) {
         return CONF_PATH + '/' + String.join("/", parts);
     }
 

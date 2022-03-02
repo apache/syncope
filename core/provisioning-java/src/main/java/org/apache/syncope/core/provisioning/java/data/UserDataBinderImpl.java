@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -327,7 +327,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             LOG.debug("Password was not provided or not required to be stored");
         } else {
             setPassword(user, userCR.getPassword(), scce);
-            user.setChangePwdDate(new Date());
+            user.setChangePwdDate(OffsetDateTime.now());
         }
 
         user.setMustChangePassword(userCR.isMustChangePassword());
@@ -485,7 +485,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             } else if (StringUtils.isNotBlank(userUR.getPassword().getValue())) {
                 if (userUR.getPassword().isOnSyncope()) {
                     setPassword(user, userUR.getPassword().getValue(), scce);
-                    user.setChangePwdDate(new Date());
+                    user.setChangePwdDate(OffsetDateTime.now());
                 }
 
                 password = userUR.getPassword().getValue();

@@ -103,7 +103,7 @@ public class BatchITCase extends AbstractITCase {
         UserUR userUR = new UserUR();
         userUR.setKey(userCR.getUsername());
         userUR.setRealm(new StringReplacePatchItem.Builder().value("/odd").build());
-        String updateUserPayload = OBJECT_MAPPER.writeValueAsString(userUR);
+        String updateUserPayload = JSON_MAPPER.writeValueAsString(userUR);
 
         BatchRequestItem updateUser = new BatchRequestItem();
         updateUser.setMethod(HttpMethod.PATCH);
@@ -183,7 +183,7 @@ public class BatchITCase extends AbstractITCase {
         assertEquals(Response.Status.OK.getStatusCode(), resItems.get(5).getStatus());
         assertNotNull(resItems.get(5).getHeaders().get(RESTHeaders.DOMAIN));
         assertEquals(MediaType.APPLICATION_JSON, resItems.get(5).getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0));
-        group = OBJECT_MAPPER.readValue(
+        group = JSON_MAPPER.readValue(
                 resItems.get(5).getContent(), new TypeReference<>() {
             });
         assertNotNull(group);

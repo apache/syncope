@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.sra;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.net.Socket;
@@ -37,7 +37,7 @@ import org.springframework.test.context.TestPropertySource;
 @AutoConfigureWireMock(port = 0)
 public abstract class AbstractTest {
 
-    protected static final ObjectMapper MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
+    protected static final JsonMapper MAPPER = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
     public static boolean available(int port) {
         try (Socket ignored = new Socket("localhost", port)) {

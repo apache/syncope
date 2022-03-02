@@ -19,8 +19,7 @@
 package org.apache.syncope.common.lib.to;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Date;
-import java.util.Optional;
+import java.time.OffsetDateTime;
 import javax.ws.rs.PathParam;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
@@ -44,7 +43,7 @@ public class RemediationTO implements EntityTO {
 
     private String error;
 
-    private Date instant;
+    private OffsetDateTime instant;
 
     private String pullTask;
 
@@ -118,12 +117,12 @@ public class RemediationTO implements EntityTO {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    public Date getInstant() {
-        return Optional.ofNullable(instant).map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getInstant() {
+        return instant;
     }
 
-    public void setInstant(final Date instant) {
-        this.instant = Optional.ofNullable(instant).map(date -> new Date(date.getTime())).orElse(null);
+    public void setInstant(final OffsetDateTime instant) {
+        this.instant = instant;
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)

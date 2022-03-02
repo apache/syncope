@@ -26,7 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -207,7 +208,7 @@ public class UserTest extends AbstractTest {
         user.setUsername("username");
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
-        user.setCreationDate(new Date());
+        user.setCreationDate(OffsetDateTime.now());
         user.setCipherAlgorithm(CipherAlgorithm.SHA256);
         user.setPassword("pass");
 
@@ -225,7 +226,7 @@ public class UserTest extends AbstractTest {
         user.setUsername("username!");
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
-        user.setCreationDate(new Date());
+        user.setCreationDate(OffsetDateTime.now());
         user.setCipherAlgorithm(CipherAlgorithm.SHA256);
         user.setPassword("password123");
 
@@ -243,7 +244,7 @@ public class UserTest extends AbstractTest {
         user.setUsername("username");
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
-        user.setCreationDate(new Date());
+        user.setCreationDate(OffsetDateTime.now());
         user.setCipherAlgorithm(CipherAlgorithm.SHA256);
         user.setPassword("password123");
 
@@ -251,7 +252,9 @@ public class UserTest extends AbstractTest {
         assertNotNull(actual);
         assertEquals(1, actual.getPasswordHistory().size());
         assertNotNull(userDAO.findLastChange(actual.getKey()));
-        assertEquals(actual.getLastChangeDate(), userDAO.findLastChange(actual.getKey()));
+        assertEquals(
+                actual.getLastChangeDate().truncatedTo(ChronoUnit.SECONDS),
+                userDAO.findLastChange(actual.getKey()).truncatedTo(ChronoUnit.SECONDS));
     }
 
     @Test
@@ -270,7 +273,7 @@ public class UserTest extends AbstractTest {
         user.setUsername("username");
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
-        user.setCreationDate(new Date());
+        user.setCreationDate(OffsetDateTime.now());
 
         user.setCipherAlgorithm(CipherAlgorithm.AES);
         user.setPassword("password123");
@@ -332,7 +335,7 @@ public class UserTest extends AbstractTest {
         user.setUsername("username");
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
-        user.setCreationDate(new Date());
+        user.setCreationDate(OffsetDateTime.now());
         user.setCipherAlgorithm(CipherAlgorithm.SSHA256);
         user.setPassword("password123");
         user.setSecurityQuestion(securityQuestionDAO.find("887028ea-66fc-41e7-b397-620d7ea6dfbb"));

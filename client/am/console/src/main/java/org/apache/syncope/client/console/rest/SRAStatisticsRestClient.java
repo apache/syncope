@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
@@ -33,7 +34,8 @@ public final class SRAStatisticsRestClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(SRAStatisticsRestClient.class);
 
-    private static final List<?> JAX_RS_PROVIDERS = List.of(new JacksonJsonProvider());
+    private static final List<?> JAX_RS_PROVIDERS =
+            List.of(new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build()));
 
     private static String getActuatorEndpoint(final List<NetworkService> instances) {
         return instances.get(0).getAddress() + "actuator/metrics/spring.cloud.gateway.requests";

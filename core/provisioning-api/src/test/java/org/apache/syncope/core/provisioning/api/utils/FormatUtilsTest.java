@@ -20,44 +20,44 @@ package org.apache.syncope.core.provisioning.api.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.security.SecureRandom;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
-import org.apache.commons.lang3.time.DateUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.junit.jupiter.api.Test;
 
 public class FormatUtilsTest extends AbstractTest {
 
-    private final Calendar calendar = Calendar.getInstance();
+    private static final SecureRandom RANDOM = new SecureRandom();
 
-    private final Date date = calendar.getTime();
-
-    private String conversionPattern;
+    private static final OffsetDateTime DATE = OffsetDateTime.now();
 
     @Test
     public void formatDate() {
-        assertEquals(new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN).format(date),
-                FormatUtils.format(date));
+        assertEquals(
+                DATE.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+                FormatUtils.format(DATE));
 
-        conversionPattern = "dd/MM/yyyy";
-        assertEquals(new SimpleDateFormat(conversionPattern).format(date),
-                FormatUtils.format(date, false, conversionPattern));
+        String conversionPattern = "dd/MM/yyyy";
+        assertEquals(
+                DATE.format(DateTimeFormatter.ofPattern(conversionPattern)),
+                FormatUtils.format(DATE, conversionPattern));
     }
 
     @Test
     public void formatLongNumber() {
-        long number = date.getTime();
+        long number = RANDOM.nextLong();
         DecimalFormat df = new DecimalFormat();
         df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
         assertEquals(df.format(number), FormatUtils.format(number));
 
-        conversionPattern = "###,###";
+        String conversionPattern = "###,###";
         df = new DecimalFormat(conversionPattern);
         df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
         assertEquals(df.format(number), FormatUtils.format(number, conversionPattern));
@@ -65,12 +65,12 @@ public class FormatUtilsTest extends AbstractTest {
 
     @Test
     public void formatDoubleNumber() {
-        double number = date.getTime();
+        double number = RANDOM.nextDouble();
         DecimalFormat df = new DecimalFormat();
         df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
         assertEquals(df.format(number), FormatUtils.format(number));
 
-        conversionPattern = "###,###";
+        String conversionPattern = "###,###";
         df = new DecimalFormat(conversionPattern);
         df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
         assertEquals(df.format(number), FormatUtils.format(number, conversionPattern));
@@ -78,20 +78,23 @@ public class FormatUtilsTest extends AbstractTest {
 
     @Test
     public void parseDate() throws ParseException {
-        String source = new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN).format(date);
-        assertEquals(DateUtils.parseDate(source, SyncopeConstants.DATE_PATTERNS),
+        String source = DATE.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        assertEquals(
+                OffsetDateTime.parse(source, DateTimeFormatter.ISO_OFFSET_DATE_TIME),
                 FormatUtils.parseDate(source));
 
-        conversionPattern = "dd-MM-yyyy";
-        source = new SimpleDateFormat(conversionPattern).format(date);
-        assertEquals(DateUtils.parseDate(source, conversionPattern),
+        String conversionPattern = "dd-MM-yyyy";
+        source = DATE.format(DateTimeFormatter.ofPattern(conversionPattern));
+        assertEquals(
+                LocalDate.parse(source, DateTimeFormatter.ofPattern(conversionPattern)).
+                        atStartOfDay(FormatUtils.DEFAULT_OFFSET).toOffsetDateTime(),
                 FormatUtils.parseDate(source, conversionPattern));
     }
 
     @Test
     public void parseNumber() throws ParseException {
-        String source = String.valueOf(date.getTime());
-        conversionPattern = "###,###";
+        String source = String.valueOf(RANDOM.nextLong());
+        String conversionPattern = "###,###";
         assertEquals(Long.valueOf(source), FormatUtils.parseNumber(source, conversionPattern));
     }
 }

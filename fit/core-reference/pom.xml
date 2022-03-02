@@ -298,7 +298,9 @@ under the License.
             <systemProperties>
               <java.security.egd>file:/dev/./urandom</java.security.egd>
               <java.util.secureRandomSeed>true</java.util.secureRandomSeed>
-              
+
+              <h2.returnOffsetDateTime>true</h2.returnOffsetDateTime>
+
               <obscureSecretKey>${obscureSecretKey}</obscureSecretKey>
             </systemProperties>
             <dependencies>

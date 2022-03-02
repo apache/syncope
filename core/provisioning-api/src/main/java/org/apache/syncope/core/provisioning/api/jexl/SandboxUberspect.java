@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api.jexl;
 
 import java.time.Instant;
+import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -76,7 +77,7 @@ class SandboxUberspect extends Uberspect {
             return super.getMethod(obj, method, args);
         } else if (obj instanceof String) {
             return super.getMethod(obj, method, args);
-        } else if (obj instanceof Date || obj instanceof Instant) {
+        } else if (obj instanceof Date || obj instanceof Instant || obj instanceof TemporalAccessor) {
             return super.getMethod(obj, method, args);
         } else if (obj instanceof Map && MAP_METHODS.contains(method)) {
             return super.getMethod(obj, method, args);

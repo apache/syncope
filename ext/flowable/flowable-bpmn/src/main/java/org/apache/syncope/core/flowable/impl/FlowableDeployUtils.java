@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.flowable.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -39,7 +39,7 @@ import org.flowable.engine.repository.ProcessDefinition;
 
 public final class FlowableDeployUtils {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
 
@@ -62,14 +62,14 @@ public final class FlowableDeployUtils {
     public static void deployModel(final ProcessEngine engine, final ProcessDefinition procDef) {
         XMLStreamReader xtr = null;
         try (InputStream bpmnStream = engine.getRepositoryService().
-                getResourceAsStream(procDef.getDeploymentId(), procDef.getResourceName());
-                InputStreamReader isr = new InputStreamReader(bpmnStream)) {
+                getResourceAsStream(procDef.getDeploymentId(), procDef.getResourceName());  InputStreamReader isr =
+                new InputStreamReader(bpmnStream)) {
 
             xtr = XML_INPUT_FACTORY.createXMLStreamReader(isr);
             BpmnModel bpmnModel = new BpmnXMLConverter().convertToBpmnModel(xtr);
 
             Model model = engine.getRepositoryService().newModel();
-            ObjectNode modelObjectNode = OBJECT_MAPPER.createObjectNode();
+            ObjectNode modelObjectNode = MAPPER.createObjectNode();
             modelObjectNode.put(ModelDataJsonConstants.MODEL_NAME, procDef.getName());
             model.setMetaInfo(modelObjectNode.toString());
             model.setName(procDef.getName());

@@ -26,7 +26,8 @@ import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.Wicket
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
 import java.io.InputStream;
-import org.apache.commons.lang3.time.DateFormatUtils;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
@@ -53,7 +54,6 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -144,7 +144,7 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
         ctx.register(SyncopeWebApplication.class);
 
         String springActiveProfiles = null;
-        try (InputStream propStream = AbstractConsoleITCase.class.getResourceAsStream("/test.properties")) {
+        try ( InputStream propStream = AbstractConsoleITCase.class.getResourceAsStream("/test.properties")) {
             Properties props = new Properties();
             props.load(propStream);
 
@@ -194,7 +194,7 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
                 plainAttr(attr("ctype", "a type")).
                 plainAttr(attr("userId", "mustchangepassword@apache.org")).
                 plainAttr(attr("email", "mustchangepassword@apache.org")).
-                plainAttr(attr("loginDate", DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date()))).
+                plainAttr(attr("loginDate", DateTimeFormatter.ISO_LOCAL_DATE.format(OffsetDateTime.now()))).
                 build());
 
         // create test user for self password reset
@@ -206,7 +206,7 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
                 plainAttr(attr("ctype", "a type")).
                 plainAttr(attr("userId", "selfpwdreset@apache.org")).
                 plainAttr(attr("email", "selfpwdreset@apache.org")).
-                plainAttr(attr("loginDate", DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date()))).
+                plainAttr(attr("loginDate", DateTimeFormatter.ISO_LOCAL_DATE.format(OffsetDateTime.now()))).
                 build());
 
         // create test user for self update

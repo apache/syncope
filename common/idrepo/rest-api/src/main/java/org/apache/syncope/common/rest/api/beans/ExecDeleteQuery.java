@@ -19,7 +19,7 @@
 package org.apache.syncope.common.rest.api.beans;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -37,22 +37,22 @@ public class ExecDeleteQuery implements Serializable {
             return this;
         }
 
-        public Builder startedBefore(final Date date) {
+        public Builder startedBefore(final OffsetDateTime date) {
             instance.setStartedBefore(date);
             return this;
         }
 
-        public Builder startedAfter(final Date date) {
+        public Builder startedAfter(final OffsetDateTime date) {
             instance.setStartedAfter(date);
             return this;
         }
 
-        public Builder endedBefore(final Date date) {
+        public Builder endedBefore(final OffsetDateTime date) {
             instance.setEndedBefore(date);
             return this;
         }
 
-        public Builder endedAfter(final Date date) {
+        public Builder endedAfter(final OffsetDateTime date) {
             instance.setEndedAfter(date);
             return this;
         }
@@ -64,13 +64,13 @@ public class ExecDeleteQuery implements Serializable {
 
     private String key;
 
-    private Date startedBefore;
+    private OffsetDateTime startedBefore;
 
-    private Date startedAfter;
+    private OffsetDateTime startedAfter;
 
-    private Date endedBefore;
+    private OffsetDateTime endedBefore;
 
-    private Date endedAfter;
+    private OffsetDateTime endedAfter;
 
     public String getKey() {
         return key;
@@ -82,67 +82,39 @@ public class ExecDeleteQuery implements Serializable {
         this.key = key;
     }
 
-    public Date getStartedBefore() {
-        if (startedBefore != null) {
-            return new Date(startedBefore.getTime());
-        }
-        return null;
+    public OffsetDateTime getStartedBefore() {
+        return startedBefore;
     }
 
     @QueryParam("startedBefore")
-    public void setStartedBefore(final Date startedBefore) {
-        if (startedBefore != null) {
-            this.startedBefore = new Date(startedBefore.getTime());
-        } else {
-            this.startedBefore = null;
-        }
+    public void setStartedBefore(final OffsetDateTime startedBefore) {
+        this.startedBefore = startedBefore;
     }
 
-    public Date getStartedAfter() {
-        if (startedAfter != null) {
-            return new Date(startedAfter.getTime());
-        }
-        return null;
+    public OffsetDateTime getStartedAfter() {
+        return startedAfter;
     }
 
     @QueryParam("startedAfter")
-    public void setStartedAfter(final Date startedAfter) {
-        if (startedAfter != null) {
-            this.startedAfter = new Date(startedAfter.getTime());
-        } else {
-            this.startedAfter = null;
-        }
+    public void setStartedAfter(final OffsetDateTime startedAfter) {
+        this.startedAfter = startedAfter;
     }
 
-    public Date getEndedBefore() {
-        if (endedBefore != null) {
-            return new Date(endedBefore.getTime());
-        }
-        return null;
+    public OffsetDateTime getEndedBefore() {
+        return endedBefore;
     }
 
     @QueryParam("endedBefore")
-    public void setEndedBefore(final Date endedBefore) {
-        if (endedBefore != null) {
-            this.endedBefore = new Date(endedBefore.getTime());
-        } else {
-            this.endedBefore = null;
-        }
+    public void setEndedBefore(final OffsetDateTime endedBefore) {
+        this.endedBefore = endedBefore;
     }
 
-    public Date getEndedAfter() {
-        if (endedAfter != null) {
-            return new Date(endedAfter.getTime());
-        }
-        return null;
+    public OffsetDateTime getEndedAfter() {
+        return endedAfter;
     }
 
     @QueryParam("endedAfter")
-    public void setEndedAfter(final Date endedAfter) {
-        if (endedAfter != null) {
-            this.endedAfter = new Date(endedAfter.getTime());
-        } else {
-            this.endedAfter = null;
-        }
+    public void setEndedAfter(final OffsetDateTime endedAfter) {
+        this.endedAfter = endedAfter;
     }
 }

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.topology;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.text.MessageFormat;
@@ -71,7 +71,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -2025535531121434056L;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private final WebMarkupContainer container;
 
@@ -230,7 +230,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.setFormModel(model);
 
                 target.add(modal.setContent(new ConnectorWizardBuilder(modelObject, pageRef).
-                    build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
+                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("connector.new"), node.getKey())));
                 modal.show(true);
@@ -285,7 +285,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.setFormModel(model);
 
                 target.add(modal.setContent(new ResourceWizardBuilder(modelObject, pageRef).
-                    build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
+                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("resource.new"), node.getKey())));
                 modal.show(true);
@@ -312,14 +312,14 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.setFormModel(model);
 
                 target.add(modal.setContent(new ConnectorWizardBuilder(connInstance, pageRef).
-                    build(BaseModal.CONTENT_ID,
-                        SyncopeConsoleSession.get().
-                            owns(IdMEntitlement.CONNECTOR_UPDATE, connInstance.getAdminRealm())
-                            ? AjaxWizard.Mode.EDIT
-                            : AjaxWizard.Mode.READONLY)));
+                        build(BaseModal.CONTENT_ID,
+                                SyncopeConsoleSession.get().
+                                        owns(IdMEntitlement.CONNECTOR_UPDATE, connInstance.getAdminRealm())
+                                ? AjaxWizard.Mode.EDIT
+                                : AjaxWizard.Mode.READONLY)));
 
                 modal.header(
-                    new Model<>(MessageFormat.format(getString("connector.edit"), connInstance.getDisplayName())));
+                        new Model<>(MessageFormat.format(getString("connector.edit"), connInstance.getDisplayName())));
                 modal.show(true);
             }
 
@@ -340,12 +340,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ConnInstanceTO modelObject = ConnectorRestClient.read(node.getKey());
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
-                    historyModal,
-                    AuditElements.EventCategoryType.LOGIC,
-                    "ConnectorLogic",
-                    modelObject,
-                    IdMEntitlement.CONNECTOR_UPDATE,
-                    pageRef) {
+                        historyModal,
+                        AuditElements.EventCategoryType.LOGIC,
+                        "ConnectorLogic",
+                        modelObject,
+                        IdMEntitlement.CONNECTOR_UPDATE,
+                        pageRef) {
 
                     private static final long serialVersionUID = -3225348282675513648L;
 
@@ -366,7 +366,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 }));
 
                 historyModal.header(
-                    new Model<>(MessageFormat.format(getString("connector.menu.history"), node.getDisplayName())));
+                        new Model<>(MessageFormat.format(getString("connector.menu.history"), node.getDisplayName())));
 
                 historyModal.show(true);
             }
@@ -420,11 +420,11 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.setFormModel(model);
 
                 target.add(modal.setContent(new ResourceWizardBuilder(resource, pageRef).
-                    build(BaseModal.CONTENT_ID,
-                        SyncopeConsoleSession.get().
-                            owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())
-                            ? AjaxWizard.Mode.EDIT
-                            : AjaxWizard.Mode.READONLY)));
+                        build(BaseModal.CONTENT_ID,
+                                SyncopeConsoleSession.get().
+                                        owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())
+                                ? AjaxWizard.Mode.EDIT
+                                : AjaxWizard.Mode.READONLY)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
                 modal.show(true);
@@ -446,9 +446,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public void onClick(final AjaxRequestTarget target) {
                 ResourceTO modelObject = ResourceRestClient.read(node.getKey());
                 target.add(propTaskModal.setContent(
-                    new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
+                        new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
                 propTaskModal.header(
-                    new Model<>(MessageFormat.format(getString("resource.reconciliation"), node.getKey())));
+                        new Model<>(MessageFormat.format(getString("resource.reconciliation"), node.getKey())));
                 propTaskModal.show(true);
             }
 
@@ -470,7 +470,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ConnInstanceTO connInstance = ConnectorRestClient.read(resource.getConnector());
 
                 if (SyncopeConsoleSession.get().
-                    owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())) {
+                        owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())) {
 
                     provisionModal.addSubmitButton();
                 } else {
@@ -481,7 +481,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 provisionModal.setFormModel(model);
 
                 target.add(provisionModal.setContent(
-                    new ResourceProvisionPanel(provisionModal, resource, connInstance.getAdminRealm(), pageRef)));
+                        new ResourceProvisionPanel(provisionModal, resource, connInstance.getAdminRealm(), pageRef)));
 
                 provisionModal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
                 provisionModal.show(true);
@@ -524,9 +524,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @SuppressWarnings("unchecked")
             public void onClick(final AjaxRequestTarget target) {
                 target.add(propTaskModal.setContent(
-                    new PropagationTasks(propTaskModal, node.getKey(), pageRef)));
+                        new PropagationTasks(propTaskModal, node.getKey(), pageRef)));
                 propTaskModal.header(
-                    new Model<>(MessageFormat.format(getString("task.propagation.list"), node.getKey())));
+                        new Model<>(MessageFormat.format(getString("task.propagation.list"), node.getKey())));
                 propTaskModal.show(true);
             }
 
@@ -585,12 +585,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ResourceTO modelObject = ResourceRestClient.read(node.getKey());
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
-                    historyModal,
-                    AuditElements.EventCategoryType.LOGIC,
-                    "ResourceLogic",
-                    modelObject,
-                    IdMEntitlement.RESOURCE_UPDATE,
-                    pageRef) {
+                        historyModal,
+                        AuditElements.EventCategoryType.LOGIC,
+                        "ResourceLogic",
+                        modelObject,
+                        IdMEntitlement.RESOURCE_UPDATE,
+                        pageRef) {
 
                     private static final long serialVersionUID = -3712506022627033811L;
 
@@ -611,7 +611,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 }));
 
                 historyModal.header(
-                    new Model<>(MessageFormat.format(getString("resource.menu.history"), node.getDisplayName())));
+                        new Model<>(MessageFormat.format(getString("resource.menu.history"), node.getDisplayName())));
 
                 historyModal.show(true);
             }

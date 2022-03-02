@@ -21,94 +21,123 @@ package org.apache.syncope.core.provisioning.api.utils;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAccessor;
+import java.util.Arrays;
 import java.util.Locale;
-import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 
 /**
- * Utility class for parsing / formatting date and numbers.
+ * Utility class for parsing / formatting dates and numbers.
  */
 public final class FormatUtils {
 
-    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = ThreadLocal.withInitial(SimpleDateFormat::new);
+    private static final String NO_CONVERSION_PATTERN = "#,##0.###";
 
     private static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT = ThreadLocal.withInitial(() -> {
-        DecimalFormat df = new DecimalFormat();
+        DecimalFormat df = new DecimalFormat(NO_CONVERSION_PATTERN);
         df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
         return df;
     });
 
-    public static String format(final Date date) {
-        return format(date, true);
+    public static final ZoneOffset DEFAULT_OFFSET = OffsetDateTime.now().getOffset();
+
+    public static String format(final TemporalAccessor temporal) {
+        return OffsetDateTime.from(temporal).
+                truncatedTo(ChronoUnit.SECONDS).
+                format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 
-    public static String format(final Date date, final boolean lenient) {
-        return format(date, lenient, null);
-    }
-
-    public static String format(final Date date, final boolean lenient, final String conversionPattern) {
-        SimpleDateFormat sdf = DATE_FORMAT.get();
-
-        if (conversionPattern == null) {
-            sdf.applyPattern(SyncopeConstants.DEFAULT_DATE_PATTERN);
-        } else {
-            sdf.applyPattern(conversionPattern);
-        }
-
-        sdf.setLenient(lenient);
-
-        return sdf.format(date);
+    public static String format(final TemporalAccessor temporal, final String conversionPattern) {
+        return OffsetDateTime.from(temporal).format(DateTimeFormatter.ofPattern(conversionPattern));
     }
 
     public static String format(final long number) {
-        return format(number, null);
+        return format(number, NO_CONVERSION_PATTERN);
     }
 
     public static String format(final long number, final String conversionPattern) {
         DecimalFormat df = DECIMAL_FORMAT.get();
 
         String previous = df.toPattern();
-        if (conversionPattern != null) {
+        if (!previous.equals(conversionPattern)) {
             df.applyPattern(conversionPattern);
         }
 
         String formatted = df.format(number);
 
-        df.applyPattern(previous);
+        if (!previous.equals(conversionPattern)) {
+            df.applyPattern(previous);
+        }
 
         return formatted;
     }
 
     public static String format(final double number) {
-        return format(number, null);
+        return format(number, NO_CONVERSION_PATTERN);
     }
 
     public static String format(final double number, final String conversionPattern) {
         DecimalFormat df = DECIMAL_FORMAT.get();
 
         String previous = df.toPattern();
-        if (conversionPattern != null) {
+        if (!previous.equals(conversionPattern)) {
             df.applyPattern(conversionPattern);
         }
 
         String formatted = df.format(number);
 
-        df.applyPattern(previous);
+        if (!previous.equals(conversionPattern)) {
+            df.applyPattern(previous);
+        }
 
         return formatted;
     }
 
-    public static Date parseDate(final String source) throws ParseException {
-        return DateUtils.parseDate(source, SyncopeConstants.DATE_PATTERNS);
+    public static OffsetDateTime parseDate(final String source)
+            throws DateTimeParseException {
+
+        for (String pattern : SyncopeConstants.DATE_PATTERNS) {
+            try {
+                return parseDate(source, pattern);
+            } catch (DateTimeParseException e) {
+                // ignore
+            }
+        }
+
+        throw new DateTimeParseException(
+                "Could not parse with any of " + Arrays.asList(SyncopeConstants.DATE_PATTERNS), source, 0);
     }
 
-    public static Date parseDate(final String source, final String conversionPattern) throws ParseException {
-        SimpleDateFormat sdf = DATE_FORMAT.get();
-        sdf.applyPattern(conversionPattern);
-        sdf.setLenient(false);
-        return sdf.parse(source);
+    public static OffsetDateTime parseDate(final String source, final String conversionPattern)
+            throws DateTimeParseException {
+
+        DateTimeParseException dtpe;
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(conversionPattern);
+        try {
+            if (StringUtils.containsIgnoreCase(conversionPattern, "Z")) {
+                return OffsetDateTime.parse(source, dtf);
+            } else {
+                return LocalDateTime.parse(source, dtf).atZone(DEFAULT_OFFSET).toOffsetDateTime();
+            }
+        } catch (DateTimeParseException e) {
+            dtpe = e;
+        }
+        try {
+            return LocalDate.parse(source, dtf).atStartOfDay(DEFAULT_OFFSET).toOffsetDateTime();
+        } catch (DateTimeParseException e) {
+            dtpe = e;
+        }
+
+        throw dtpe;
     }
 
     public static Number parseNumber(final String source, final String conversionPattern) throws ParseException {
@@ -118,7 +147,6 @@ public final class FormatUtils {
     }
 
     public static void clear() {
-        DATE_FORMAT.remove();
         DECIMAL_FORMAT.remove();
     }
 

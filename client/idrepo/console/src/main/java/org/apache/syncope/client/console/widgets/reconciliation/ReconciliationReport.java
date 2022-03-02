@@ -19,16 +19,15 @@
 package org.apache.syncope.client.console.widgets.reconciliation;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 public class ReconciliationReport implements Serializable {
 
     private static final long serialVersionUID = 931063230006747313L;
 
-    private final Date run;
+    private final OffsetDateTime run;
 
     private Anys users;
 
@@ -36,16 +35,12 @@ public class ReconciliationReport implements Serializable {
 
     private final List<Anys> anyObjects = new ArrayList<>();
 
-    public ReconciliationReport(final Date run) {
-        if (run != null) {
-            this.run = new Date(run.getTime());
-        } else {
-            this.run = null;
-        }
+    public ReconciliationReport(final OffsetDateTime run) {
+        this.run = run;
     }
 
-    public Date getRun() {
-        return Optional.ofNullable(run).map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getRun() {
+        return run;
     }
 
     public Anys getUsers() {
@@ -67,5 +62,4 @@ public class ReconciliationReport implements Serializable {
     public List<Anys> getAnyObjects() {
         return anyObjects;
     }
-
 }

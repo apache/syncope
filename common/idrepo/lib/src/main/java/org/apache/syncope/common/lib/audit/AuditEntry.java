@@ -21,8 +21,8 @@ package org.apache.syncope.common.lib.audit;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -35,7 +35,7 @@ public class AuditEntry implements BaseBean {
 
     private String who;
 
-    private Date date;
+    private OffsetDateTime date;
 
     private AuditLoggerName logger;
 
@@ -57,16 +57,12 @@ public class AuditEntry implements BaseBean {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    public Date getDate() {
-        return date == null
-                ? null
-                : new Date(date.getTime());
+    public OffsetDateTime getDate() {
+        return date;
     }
 
-    public void setDate(final Date date) {
-        this.date = date == null
-                ? null
-                : new Date(date.getTime());
+    public void setDate(final OffsetDateTime date) {
+        this.date = date;
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)

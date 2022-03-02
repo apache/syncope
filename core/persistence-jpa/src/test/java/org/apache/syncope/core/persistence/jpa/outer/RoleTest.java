@@ -23,10 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -220,7 +220,7 @@ public class RoleTest extends AbstractTest {
         Delegation delegation = entityFactory.newEntity(Delegation.class);
         delegation.setDelegating(bellini);
         delegation.setDelegated(rossini);
-        delegation.setStart(new Date());
+        delegation.setStart(OffsetDateTime.now());
         delegation.add(reviewer);
         delegation = delegationDAO.save(delegation);
 

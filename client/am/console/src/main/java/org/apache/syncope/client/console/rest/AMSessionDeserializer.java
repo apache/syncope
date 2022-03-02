@@ -27,8 +27,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.text.ParseException;
-import org.apache.commons.lang3.time.DateFormatUtils;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import org.apache.syncope.common.lib.AMSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,8 +60,8 @@ public class AMSessionDeserializer extends StdDeserializer<AMSession> {
             String authenticationDate = node.get("authentication_date_formatted").textValue();
             try {
                 waSession.setAuthenticationDate(
-                        DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.parse(authenticationDate));
-            } catch (ParseException e) {
+                        OffsetDateTime.parse(authenticationDate, DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+            } catch (DateTimeParseException e) {
                 LOG.error("Unparsable date: {}", authenticationDate, e);
             }
         }

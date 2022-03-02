@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,7 +44,7 @@ public class JPADelegationDAO extends AbstractDAO<Delegation> implements Delegat
                 + "AND e.start <= :now AND (e.end IS NULL OR e.end >= :now)", Delegation.class);
         query.setParameter("delegating", delegating);
         query.setParameter("delegated", delegated);
-        query.setParameter("now", new Date());
+        query.setParameter("now", OffsetDateTime.now());
         query.setMaxResults(1);
 
         List<Delegation> raw = query.getResultList();
@@ -58,7 +58,7 @@ public class JPADelegationDAO extends AbstractDAO<Delegation> implements Delegat
                 + "WHERE e.delegated.id=:delegated "
                 + "AND e.start <= :now AND (e.end IS NULL OR e.end >= :now)", Delegation.class);
         query.setParameter("delegated", delegated);
-        query.setParameter("now", new Date());
+        query.setParameter("now", OffsetDateTime.now());
 
         return query.getResultList().stream().
                 map(delegation -> delegation.getDelegating().getUsername()).

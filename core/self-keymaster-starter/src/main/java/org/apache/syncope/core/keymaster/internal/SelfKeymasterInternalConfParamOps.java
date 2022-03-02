@@ -19,7 +19,7 @@
 package org.apache.syncope.core.keymaster.internal;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConfParamOps.class);
 
-    protected static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     protected final ConfParamLogic logic;
 

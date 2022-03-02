@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.text.ParseException;
+import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -419,7 +420,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
             LOG.error("Could not fetch authorities", e);
         }
 
-        Pair<String, Date> accessTokenInfo =
+        Pair<String, OffsetDateTime> accessTokenInfo =
                 accessTokenDataBinder.create(loginResp.getUsername(), claims, authorities, true);
         loginResp.setAccessToken(accessTokenInfo.getLeft());
         loginResp.setAccessTokenExpiryTime(accessTokenInfo.getRight());

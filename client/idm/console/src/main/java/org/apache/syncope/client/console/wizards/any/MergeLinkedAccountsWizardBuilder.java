@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +55,7 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
 
     private static final long serialVersionUID = -9142332740863374891L;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private final UserDirectoryPanel parentPanel;
 

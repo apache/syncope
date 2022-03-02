@@ -21,8 +21,7 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Date;
-import java.util.Optional;
+import java.time.OffsetDateTime;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -31,7 +30,7 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
 
     private static final long serialVersionUID = -5722284116974636425L;
 
-    private Date startAt;
+    private OffsetDateTime startAt;
 
     private String cronExpression;
 
@@ -41,9 +40,9 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
 
     private String description;
 
-    private Date lastExec;
+    private OffsetDateTime lastExec;
 
-    private Date nextExec;
+    private OffsetDateTime nextExec;
 
     private boolean active = true;
 
@@ -55,12 +54,12 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
         return getClass().getName();
     }
 
-    public Date getStartAt() {
-        return Optional.ofNullable(startAt).map(at -> new Date(at.getTime())).orElse(null);
+    public OffsetDateTime getStartAt() {
+        return startAt;
     }
 
-    public void setStartAt(final Date start) {
-        this.startAt = Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
+    public void setStartAt(final OffsetDateTime startAt) {
+        this.startAt = startAt;
     }
 
     public String getCronExpression() {
@@ -80,21 +79,21 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    public Date getLastExec() {
-        return Optional.ofNullable(lastExec).map(exec -> new Date(exec.getTime())).orElse(null);
+    public OffsetDateTime getLastExec() {
+        return lastExec;
     }
 
-    public void setLastExec(final Date lastExec) {
-        this.lastExec = Optional.ofNullable(lastExec).map(exec -> new Date(exec.getTime())).orElse(null);
+    public void setLastExec(final OffsetDateTime lastExec) {
+        this.lastExec = lastExec;
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    public Date getNextExec() {
-        return Optional.ofNullable(nextExec).map(exec -> new Date(exec.getTime())).orElse(null);
+    public OffsetDateTime getNextExec() {
+        return nextExec;
     }
 
-    public void setNextExec(final Date nextExec) {
-        this.nextExec = Optional.ofNullable(nextExec).map(exec -> new Date(exec.getTime())).orElse(null);
+    public void setNextExec(final OffsetDateTime nextExec) {
+        this.nextExec = nextExec;
     }
 
     public String getDescription() {

@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.wa.starter;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +73,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                 sf.setResourceProvider(
                         ImpersonationService.class,
                         new SingletonResourceProvider(new StubImpersonationService(), true));
-                sf.setProviders(List.of(new JacksonJsonProvider()));
+                sf.setProviders(List.of(new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build())));
                 sf.create();
 
                 // 2. register Core in Keymaster
@@ -123,7 +124,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         private final Map<String, GoogleMfaAuthToken> tokens = new HashMap<>();
 
         @Override
-        public void delete(final Date expirationDate) {
+        public void delete(final OffsetDateTime expirationDate) {
             if (expirationDate == null) {
                 tokens.clear();
             } else {

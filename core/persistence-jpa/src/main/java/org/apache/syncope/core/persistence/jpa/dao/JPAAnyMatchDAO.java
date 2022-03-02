@@ -21,8 +21,8 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -483,8 +483,8 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                     anyAttrValues.get(0).setDoubleValue((Double) anyAttrValue);
                 } else if (anyAttrValue instanceof Boolean) {
                     anyAttrValues.get(0).setBooleanValue((Boolean) anyAttrValue);
-                } else if (anyAttrValue instanceof Date) {
-                    anyAttrValues.get(0).setDateValue((Date) anyAttrValue);
+                } else if (anyAttrValue instanceof OffsetDateTime) {
+                    anyAttrValues.get(0).setDateValue((OffsetDateTime) anyAttrValue);
                 } else if (anyAttrValue instanceof byte[]) {
                     anyAttrValues.get(0).setBinaryValue((byte[]) anyAttrValue);
                 }

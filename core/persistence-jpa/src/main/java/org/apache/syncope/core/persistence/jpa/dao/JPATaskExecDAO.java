@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -80,7 +80,10 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec> implements TaskExecDAO
     @Override
     public <T extends Task> List<TaskExec> findAll(
             final T task,
-            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
+            final OffsetDateTime startedBefore,
+            final OffsetDateTime startedAfter,
+            final OffsetDateTime endedBefore,
+            final OffsetDateTime endedAfter) {
 
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPATaskExec.class.getSimpleName()).
                 append(" e WHERE e.task=:task ");

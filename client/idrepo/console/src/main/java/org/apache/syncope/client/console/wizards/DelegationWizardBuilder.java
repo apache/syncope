@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.DelegationRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
@@ -31,7 +31,6 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.DelegationTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
@@ -142,14 +141,14 @@ public class DelegationWizardBuilder extends BaseAjaxWizardBuilder<DelegationTO>
                     "start",
                     "start",
                     new PropertyModel<>(modelObject, "start"),
-                    FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN)).
+                    DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT).
                     addRequiredLabel());
 
             add(new AjaxDateTimeFieldPanel(
                     "end",
                     "end",
                     new PropertyModel<>(modelObject, "end"),
-                    FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN)));
+                    DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT));
         }
     }
 
@@ -172,23 +171,23 @@ public class DelegationWizardBuilder extends BaseAjaxWizardBuilder<DelegationTO>
                     setAllowOrder(true).
                     build("roles",
                             new PropertyModel<>(modelObject, "roles"),
-                        new AjaxPalettePanel.Builder.Query<>() {
+                            new AjaxPalettePanel.Builder.Query<>() {
 
-                            private static final long serialVersionUID = 3900199363626636719L;
+                        private static final long serialVersionUID = 3900199363626636719L;
 
-                            @Override
-                            public List<String> execute(final String filter) {
-                                if (StringUtils.isEmpty(filter) || "*".equals(filter)) {
-                                    return allRoles.size() > Constants.MAX_ROLE_LIST_SIZE
+                        @Override
+                        public List<String> execute(final String filter) {
+                            if (StringUtils.isEmpty(filter) || "*".equals(filter)) {
+                                return allRoles.size() > Constants.MAX_ROLE_LIST_SIZE
                                         ? allRoles.subList(0, Constants.MAX_ROLE_LIST_SIZE)
                                         : allRoles;
 
-                                }
-                                return allRoles.stream().
+                            }
+                            return allRoles.stream().
                                     filter(role -> StringUtils.containsIgnoreCase(role, filter)).
                                     collect(Collectors.toList());
-                            }
-                        }).
+                        }
+                    }).
                     hideLabel().
                     setOutputMarkupId(true));
         }

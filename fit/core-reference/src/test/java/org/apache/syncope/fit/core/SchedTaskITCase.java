@@ -26,14 +26,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -45,8 +44,8 @@ import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
-import org.apache.syncope.common.rest.api.beans.ExecQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
+import org.apache.syncope.common.rest.api.beans.ExecListQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.core.reference.TestSampleJobDelegate;
@@ -106,12 +105,12 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         String taskKey = task.getKey();
         assertNotNull(task);
 
-        Date initial = new Date();
-        Date later = DateUtils.addSeconds(initial, 2);
+        OffsetDateTime initial = OffsetDateTime.now();
+        OffsetDateTime later = initial.plusSeconds(2);
 
         AtomicReference<TaskTO> taskTO = new AtomicReference<>(task);
         int preSyncSize = taskTO.get().getExecutions().size();
-        ExecTO execution = taskService.execute(new ExecuteQuery.Builder().key(task.getKey()).startAt(later).build());
+        ExecTO execution = taskService.execute(new ExecSpecs.Builder().key(task.getKey()).startAt(later).build());
         assertNotNull(execution.getExecutor());
 
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
@@ -124,11 +123,11 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         });
 
         PagedResult<ExecTO> execs =
-                taskService.listExecutions(new ExecQuery.Builder().key(task.getKey()).build());
+                taskService.listExecutions(new ExecListQuery.Builder().key(task.getKey()).build());
         assertEquals(1, execs.getTotalCount());
-        assertTrue(execs.getResult().get(0).getStart().after(initial));
+        assertTrue(execs.getResult().get(0).getStart().isAfter(initial));
         // round 1 sec for safety
-        assertTrue(DateUtils.addSeconds(execs.getResult().get(0).getStart(), 1).after(later));
+        assertTrue(execs.getResult().get(0).getStart().plusSeconds(1).isAfter(later));
     }
 
     @Test

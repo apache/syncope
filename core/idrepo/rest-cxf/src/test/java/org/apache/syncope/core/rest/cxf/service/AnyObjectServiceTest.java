@@ -75,7 +75,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.rest.cxf.AddETagFilter;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeObjectMapper;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -234,7 +234,7 @@ public class AnyObjectServiceTest {
     public void jsonList() throws IOException {
         InputStream in = list(MediaType.APPLICATION_JSON_TYPE);
 
-        PagedResult<AnyObjectTO> list = new SyncopeObjectMapper().
+        PagedResult<AnyObjectTO> list = new SyncopeJsonMapper().
                 readValue(IOUtils.toString(in), new TypeReference<>() {
                 });
         checkList(list);

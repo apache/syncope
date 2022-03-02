@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
@@ -42,7 +42,7 @@ public class AccessTokenTest extends AbstractTest {
         AccessToken accessToken = entityFactory.newEntity(AccessToken.class);
         accessToken.setKey(UUID.randomUUID().toString());
         accessToken.setBody("pointless body");
-        accessToken.setExpirationTime(new Date());
+        accessToken.setExpirationTime(OffsetDateTime.now());
         accessToken.setOwner("bellini");
 
         accessToken = accessTokenDAO.save(accessToken);

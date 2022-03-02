@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -40,7 +40,7 @@ public class OIDCLoginResponse implements Serializable {
 
     private String accessToken;
 
-    private Date accessTokenExpiryTime;
+    private OffsetDateTime accessTokenExpiryTime;
 
     private final Set<Attr> attrs = new HashSet<>();
 
@@ -76,11 +76,11 @@ public class OIDCLoginResponse implements Serializable {
         this.accessToken = accessToken;
     }
 
-    public Date getAccessTokenExpiryTime() {
+    public OffsetDateTime getAccessTokenExpiryTime() {
         return accessTokenExpiryTime;
     }
 
-    public void setAccessTokenExpiryTime(final Date accessTokenExpiryTime) {
+    public void setAccessTokenExpiryTime(final OffsetDateTime accessTokenExpiryTime) {
         this.accessTokenExpiryTime = accessTokenExpiryTime;
     }
 

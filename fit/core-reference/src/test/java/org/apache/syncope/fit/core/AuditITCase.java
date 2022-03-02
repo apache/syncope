@@ -36,7 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -239,7 +239,7 @@ public class AuditITCase extends AbstractITCase {
         entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(pre + 1, entries.size());
 
-        ConnInstanceTO restore = OBJECT_MAPPER.readValue(entries.get(0).getBefore(), ConnInstanceTO.class);
+        ConnInstanceTO restore = JSON_MAPPER.readValue(entries.get(0).getBefore(), ConnInstanceTO.class);
         connectorService.update(restore);
 
         ldapConn = connectorService.read(connectorKey, null);
@@ -381,7 +381,7 @@ public class AuditITCase extends AbstractITCase {
                 AuditElements.AUTHENTICATION_CATEGORY.toUpperCase(),
                 "validate",
                 AuditElements.Result.SUCCESS));
-        auditEntry.setDate(new Date());
+        auditEntry.setDate(OffsetDateTime.now());
         auditEntry.setBefore(UUID.randomUUID().toString());
         auditEntry.setOutput(UUID.randomUUID().toString());
         assertDoesNotThrow(() -> auditService.create(auditEntry));
@@ -408,7 +408,7 @@ public class AuditITCase extends AbstractITCase {
                 "AuthenticationEvent",
                 "auth",
                 AuditElements.Result.SUCCESS));
-        auditEntry.setDate(new Date());
+        auditEntry.setDate(OffsetDateTime.now());
         auditEntry.setBefore(UUID.randomUUID().toString());
         auditEntry.setOutput(UUID.randomUUID().toString());
         assertDoesNotThrow(() -> auditService.create(auditEntry));

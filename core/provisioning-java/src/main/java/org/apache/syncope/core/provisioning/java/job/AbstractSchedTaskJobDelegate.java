@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -119,7 +119,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
                 orElse(securityProperties.getAdminUser());
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
-        execution.setStart(new Date());
+        execution.setStart(OffsetDateTime.now());
         execution.setTask(task);
         execution.setExecutor(executor);
 
@@ -138,7 +138,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
             execution.setMessage(ExceptionUtils2.getFullStackTrace(e));
             execution.setStatus(TaskJob.Status.FAILURE.name());
         }
-        execution.setEnd(new Date());
+        execution.setEnd(OffsetDateTime.now());
 
         if (hasToBeRegistered(execution)) {
             register(execution);

@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -150,6 +150,7 @@ public class AuthProfileTest extends AbstractTest {
 
         String secret = SecureRandomUtils.generateRandomUUID().toString();
         List<GoogleMfaAuthAccount> googleMfaAuthAccounts = authProfile.getGoogleMfaAuthAccounts();
+        assertFalse(googleMfaAuthAccounts.isEmpty());
         GoogleMfaAuthAccount googleMfaAuthAccount = googleMfaAuthAccounts.get(0);
         googleMfaAuthAccount.setSecretKey(secret);
 
@@ -183,10 +184,7 @@ public class AuthProfileTest extends AbstractTest {
     private AuthProfile createAuthProfileWithToken(final String owner, final Integer otp) {
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
         profile.setOwner(owner);
-        GoogleMfaAuthToken token = new GoogleMfaAuthToken.Builder()
-                .issueDate(new Date())
-                .token(otp)
-                .build();
+        GoogleMfaAuthToken token = new GoogleMfaAuthToken.Builder().issueDate(OffsetDateTime.now()).token(otp).build();
         profile.setGoogleMfaAuthTokens(List.of(token));
         return authProfileDAO.save(profile);
     }
@@ -194,7 +192,7 @@ public class AuthProfileTest extends AbstractTest {
     private AuthProfile createAuthProfileWithU2FDevice(final String owner, final String record) {
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
         profile.setOwner(owner);
-        U2FDevice device = new U2FDevice.Builder().issueDate(new Date()).record(record).build();
+        U2FDevice device = new U2FDevice.Builder().issueDate(OffsetDateTime.now()).record(record).build();
         profile.setU2FRegisteredDevices(List.of(device));
         return authProfileDAO.save(profile);
     }
@@ -213,7 +211,7 @@ public class AuthProfileTest extends AbstractTest {
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
         profile.setOwner(owner);
         GoogleMfaAuthAccount account = new GoogleMfaAuthAccount.Builder()
-                .registrationDate(new Date())
+                .registrationDate(OffsetDateTime.now())
                 .scratchCodes(List.of(1, 2, 3, 4, 5))
                 .secretKey(SecureRandomUtils.generateRandomUUID().toString())
                 .validationCode(123456)

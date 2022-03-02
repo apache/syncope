@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.ext.scimv2.cxf.service;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -131,13 +131,13 @@ abstract class AbstractService<R extends SCIMResource> {
     }
 
     protected ResponseBuilder checkETag(final Resource resource, final String key) {
-        Date lastChange = anyDAO(resource).findLastChange(key);
+        OffsetDateTime lastChange = anyDAO(resource).findLastChange(key);
         if (lastChange == null) {
             throw new NotFoundException("Resource" + key + " not found");
         }
 
         return messageContext.getRequest().
-                evaluatePreconditions(new EntityTag(String.valueOf(lastChange.getTime()), true));
+                evaluatePreconditions(new EntityTag(String.valueOf(lastChange.toInstant().toEpochMilli()), true));
     }
 
     @SuppressWarnings("unchecked")

@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity.auth;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
@@ -48,7 +49,7 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     private String owner;
 
     @Lob
-    private String impersonatedAccounts;
+    private String impersonationAccounts;
 
     @Lob
     private String googleMfaAuthAccounts;
@@ -74,67 +75,61 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
 
     @Override
     public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
-        return googleMfaAuthTokens == null
-                ? new ArrayList<>(0)
-                : POJOHelper.deserialize(googleMfaAuthTokens, new TypeReference<>() {
-        });
+        return Optional.ofNullable(googleMfaAuthTokens).
+                map(v -> POJOHelper.deserialize(v, new TypeReference<List<GoogleMfaAuthToken>>() {
+        })).orElseGet(() -> new ArrayList<>(0));
     }
 
     @Override
     public void setGoogleMfaAuthTokens(final List<GoogleMfaAuthToken> tokens) {
-        this.googleMfaAuthTokens = POJOHelper.serialize(tokens);
+        googleMfaAuthTokens = POJOHelper.serialize(tokens);
     }
 
     @Override
     public List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts() {
-        return googleMfaAuthAccounts == null
-                ? new ArrayList<>(0)
-                : POJOHelper.deserialize(googleMfaAuthAccounts, new TypeReference<>() {
-        });
+        return Optional.ofNullable(googleMfaAuthAccounts).
+                map(v -> POJOHelper.deserialize(v, new TypeReference<List<GoogleMfaAuthAccount>>() {
+        })).orElseGet(() -> new ArrayList<>(0));
     }
 
     @Override
     public void setGoogleMfaAuthAccounts(final List<GoogleMfaAuthAccount> accounts) {
-        this.googleMfaAuthAccounts = POJOHelper.serialize(accounts);
+        googleMfaAuthAccounts = POJOHelper.serialize(accounts);
     }
 
     @Override
     public List<U2FDevice> getU2FRegisteredDevices() {
-        return u2fRegisteredDevices == null
-                ? new ArrayList<>(0)
-                : POJOHelper.deserialize(u2fRegisteredDevices, new TypeReference<>() {
-        });
+        return Optional.ofNullable(u2fRegisteredDevices).
+                map(v -> POJOHelper.deserialize(v, new TypeReference<List<U2FDevice>>() {
+        })).orElseGet(() -> new ArrayList<>(0));
     }
 
     @Override
     public void setU2FRegisteredDevices(final List<U2FDevice> records) {
-        this.u2fRegisteredDevices = POJOHelper.serialize(records);
+        u2fRegisteredDevices = POJOHelper.serialize(records);
     }
 
     @Override
     public List<ImpersonationAccount> getImpersonationAccounts() {
-        return impersonatedAccounts == null
-                ? new ArrayList<>(0)
-                : POJOHelper.deserialize(impersonatedAccounts, new TypeReference<>() {
-        });
+        return Optional.ofNullable(impersonationAccounts).
+                map(v -> POJOHelper.deserialize(v, new TypeReference<List<ImpersonationAccount>>() {
+        })).orElseGet(() -> new ArrayList<>(0));
     }
 
     @Override
     public void setImpersonationAccounts(final List<ImpersonationAccount> accounts) {
-        this.impersonatedAccounts = POJOHelper.serialize(accounts);
+        impersonationAccounts = POJOHelper.serialize(accounts);
     }
 
     @Override
     public List<WebAuthnDeviceCredential> getWebAuthnDeviceCredentials() {
-        return webAuthnDeviceCredentials == null
-                ? new ArrayList<>(0)
-                : POJOHelper.deserialize(webAuthnDeviceCredentials,
-            new TypeReference<>() {
-            });
+        return Optional.ofNullable(webAuthnDeviceCredentials).
+                map(v -> POJOHelper.deserialize(v, new TypeReference<List<WebAuthnDeviceCredential>>() {
+        })).orElseGet(() -> new ArrayList<>(0));
     }
 
     @Override
     public void setWebAuthnDeviceCredentials(final List<WebAuthnDeviceCredential> credentials) {
-        this.webAuthnDeviceCredentials = POJOHelper.serialize(credentials);
+        webAuthnDeviceCredentials = POJOHelper.serialize(credentials);
     }
 }

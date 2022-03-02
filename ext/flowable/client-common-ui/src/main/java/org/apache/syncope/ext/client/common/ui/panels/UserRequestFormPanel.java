@@ -76,7 +76,7 @@ public abstract class UserRequestFormPanel extends Panel {
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
-            @SuppressWarnings({"unchecked", "rawtypes"})
+            @SuppressWarnings({ "unchecked", "rawtypes" })
             protected void populateItem(final ListItem<UserRequestFormProperty> item) {
                 final UserRequestFormProperty prop = item.getModelObject();
 
@@ -92,8 +92,8 @@ public abstract class UserRequestFormPanel extends Panel {
                             @Override
                             public String getObject() {
                                 return StringUtils.isBlank(prop.getValue())
-                                    ? null
-                                    : prop.getValue().equals("true") ? "Yes" : "No";
+                                        ? null
+                                        : prop.getValue().equals("true") ? "Yes" : "No";
                             }
 
                             @Override
@@ -114,8 +114,8 @@ public abstract class UserRequestFormPanel extends Panel {
                             public Date getObject() {
                                 try {
                                     return StringUtils.isBlank(prop.getValue())
-                                        ? null
-                                        : formatter.parse(prop.getValue());
+                                            ? null
+                                            : formatter.parse(prop.getValue());
                                 } catch (ParseException e) {
                                     LOG.error("Unparsable date: {}", prop.getValue(), e);
                                     return null;
@@ -126,53 +126,52 @@ public abstract class UserRequestFormPanel extends Panel {
                             public void setObject(final Date object) {
                                 prop.setValue(formatter.format(object));
                             }
-
                         }, formatter);
                         break;
 
                     case Enum:
                         field = new AjaxDropDownChoicePanel(
-                            "value", label, new PropertyModel<String>(prop, "value"), false).
-                            setChoiceRenderer(new MapChoiceRenderer(prop.getEnumValues().stream().
-                                collect(Collectors.toMap(
-                                    UserRequestFormPropertyValue::getKey,
-                                    UserRequestFormPropertyValue::getValue)))).
-                            setChoices(prop.getEnumValues().stream().
-                                map(UserRequestFormPropertyValue::getKey).collect(Collectors.toList()));
+                                "value", label, new PropertyModel<String>(prop, "value"), false).
+                                setChoiceRenderer(new MapChoiceRenderer(prop.getEnumValues().stream().
+                                        collect(Collectors.toMap(
+                                                UserRequestFormPropertyValue::getKey,
+                                                UserRequestFormPropertyValue::getValue)))).
+                                setChoices(prop.getEnumValues().stream().
+                                        map(UserRequestFormPropertyValue::getKey).collect(Collectors.toList()));
                         break;
 
                     case Dropdown:
                         field = new AjaxDropDownChoicePanel(
-                            "value", label, new PropertyModel<String>(prop, "value"), false).
-                            setChoiceRenderer(new MapChoiceRenderer(prop.getDropdownValues().stream().
-                                collect(Collectors.toMap(
-                                    UserRequestFormPropertyValue::getKey,
-                                    UserRequestFormPropertyValue::getValue)))).
-                            setChoices(prop.getDropdownValues().stream().
-                                map(UserRequestFormPropertyValue::getKey).collect(Collectors.toList()));
+                                "value", label, new PropertyModel<String>(prop, "value"), false).
+                                setChoiceRenderer(new MapChoiceRenderer(prop.getDropdownValues().stream().
+                                        collect(Collectors.toMap(
+                                                UserRequestFormPropertyValue::getKey,
+                                                UserRequestFormPropertyValue::getValue)))).
+                                setChoices(prop.getDropdownValues().stream().
+                                        map(UserRequestFormPropertyValue::getKey).collect(Collectors.toList()));
                         break;
 
                     case Long:
                         field = new AjaxSpinnerFieldPanel.Builder<Long>().build(
-                            "value",
-                            label,
-                            Long.class,
-                            new PropertyModel<>(prop, "value") {
+                                "value",
+                                label,
+                                Long.class,
+                                new PropertyModel<>(prop, "value") {
 
-                                private static final long serialVersionUID = -7688359318035249200L;
+                            private static final long serialVersionUID = -7688359318035249200L;
 
-                                @Override
-                                public Long getObject() {
-                                    return StringUtils.isBlank(prop.getValue())
+                            @Override
+                            public Long getObject() {
+                                return StringUtils.isBlank(prop.getValue())
                                         ? null
                                         : NumberUtils.toLong(prop.getValue());
-                                }
+                            }
 
-                                @Override
-                                public void setObject(final Long object) {
-                                    prop.setValue(String.valueOf(object));
-                                }
-                            });
+                            @Override
+                            public void setObject(final Long object) {
+                                prop.setValue(String.valueOf(object));
+                            }
+                        });
                         break;
 
                     case Password:

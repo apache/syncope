@@ -23,7 +23,7 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
-import java.util.Calendar;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
@@ -72,7 +72,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     }
 
     @Override
-    public Pair<String, Date> generateJWT(
+    public Pair<String, OffsetDateTime> generateJWT(
             final String tokenId,
             final String subject,
             final long duration,
@@ -80,19 +80,18 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         credentialChecker.checkIsDefaultJWSKeyInUse();
 
-        Date currentTime = new Date();
+        OffsetDateTime currentTime = OffsetDateTime.now();
+        Date issueTime = new Date(currentTime.toInstant().toEpochMilli());
 
-        Calendar expiration = Calendar.getInstance();
-        expiration.setTime(currentTime);
-        expiration.add(Calendar.MINUTE, (int) duration);
+        OffsetDateTime expiration = currentTime.plusMinutes(duration);
 
         JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder().
                 jwtID(tokenId).
                 subject(subject).
-                issueTime(currentTime).
                 issuer(securityProperties.getJwtIssuer()).
-                expirationTime(expiration.getTime()).
-                notBeforeTime(currentTime);
+                issueTime(issueTime).
+                expirationTime(new Date(expiration.toInstant().toEpochMilli())).
+                notBeforeTime(issueTime);
         claims.forEach(claimsSet::claim);
 
         SignedJWT jwt = new SignedJWT(new JWSHeader(jwsSigner.getJwsAlgorithm()), claimsSet.build());
@@ -103,7 +102,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             sce.getElements().add(e.getMessage());
             throw sce;
         }
-        return Pair.of(jwt.serialize(), expiration.getTime());
+        return Pair.of(jwt.serialize(), expiration);
     }
 
     private AccessToken replace(
@@ -112,7 +111,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             final byte[] authorities,
             final AccessToken accessToken) {
 
-        Pair<String, Date> generated = generateJWT(
+        Pair<String, OffsetDateTime> generated = generateJWT(
                 accessToken.getKey(),
                 subject,
                 confParamOps.get(AuthContextUtils.getDomain(), "jwt.lifetime.minutes", 120L, Long.class),
@@ -130,7 +129,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     }
 
     @Override
-    public Pair<String, Date> create(
+    public Pair<String, OffsetDateTime> create(
             final String subject,
             final Map<String, Object> claims,
             final byte[] authorities,
@@ -143,8 +142,9 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             accessToken.setKey(SecureRandomUtils.generateRandomUUID().toString());
 
             accessToken = replace(subject, claims, authorities, accessToken);
-        } else if (replace || accessToken.getExpirationTime() == null
-                || accessToken.getExpirationTime().before(new Date())) {
+        } else if (replace
+                || accessToken.getExpirationTime() == null
+                || accessToken.getExpirationTime().isBefore(OffsetDateTime.now())) {
 
             // AccessToken found, but either replace was requested or it is expired: update existing
             accessToken = replace(subject, claims, authorities, accessToken);
@@ -154,22 +154,20 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     }
 
     @Override
-    public Pair<String, Date> update(final AccessToken accessToken, final byte[] authorities) {
+    public Pair<String, OffsetDateTime> update(final AccessToken accessToken, final byte[] authorities) {
         credentialChecker.checkIsDefaultJWSKeyInUse();
 
         long duration = confParamOps.get(AuthContextUtils.getDomain(), "jwt.lifetime.minutes", 120L, Long.class);
 
-        Date currentTime = new Date();
+        OffsetDateTime currentTime = OffsetDateTime.now();
 
-        Calendar expiration = Calendar.getInstance();
-        expiration.setTime(currentTime);
-        expiration.add(Calendar.MINUTE, (int) duration);
+        OffsetDateTime expiration = currentTime.plusMinutes(duration);
 
         SignedJWT jwt;
         try {
-            JWTClaimsSet.Builder claimsSet =
-                    new JWTClaimsSet.Builder(SignedJWT.parse(accessToken.getBody()).getJWTClaimsSet()).
-                            expirationTime(expiration.getTime());
+            JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder(
+                    SignedJWT.parse(accessToken.getBody()).getJWTClaimsSet()).
+                    expirationTime(new Date(expiration.toInstant().toEpochMilli()));
 
             jwt = new SignedJWT(new JWSHeader(jwsSigner.getJwsAlgorithm()), claimsSet.build());
             jwt.sign(jwsSigner);
@@ -181,7 +179,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         String body = jwt.serialize();
 
         accessToken.setBody(body);
-        accessToken.setExpirationTime(expiration.getTime());
+        accessToken.setExpirationTime(expiration);
 
         if (!securityProperties.getAdminUser().equals(accessToken.getOwner())) {
             accessToken.setAuthorities(authorities);
@@ -189,7 +187,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         accessTokenDAO.save(accessToken);
 
-        return Pair.of(body, expiration.getTime());
+        return Pair.of(body, expiration);
     }
 
     @Override

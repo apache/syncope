@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.ws.rs.PathParam;
@@ -77,13 +77,13 @@ public class DelegationTO extends AbstractStartEndBean implements EntityTO {
 
     @Schema(accessMode = Schema.AccessMode.READ_WRITE)
     @Override
-    public Date getStart() {
+    public OffsetDateTime getStart() {
         return super.getStart();
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_WRITE)
     @Override
-    public Date getEnd() {
+    public OffsetDateTime getEnd() {
         return super.getEnd();
     }
 

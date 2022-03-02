@@ -19,8 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.lang.reflect.Field;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.DiscriminatorValue;
@@ -488,9 +488,10 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
     @Override
     public List<PropagationTaskTO> purgePropagations(
-            final Date since, 
-            final List<ExecStatus> statuses, 
+            final OffsetDateTime since,
+            final List<ExecStatus> statuses,
             final List<ExternalResource> externalResources) {
+
         StringBuilder queryString = new StringBuilder("SELECT t.task_id "
                 + "FROM TaskExec t INNER JOIN Task z ON t.task_id=z.id AND z.dtype='PropagationTask' "
                 + "WHERE t.enddate=(SELECT MAX(e.enddate) FROM TaskExec e WHERE e.task_id=t.task_id) ");

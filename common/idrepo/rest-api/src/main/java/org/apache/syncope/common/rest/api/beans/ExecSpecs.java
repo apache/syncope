@@ -19,29 +19,28 @@
 package org.apache.syncope.common.rest.api.beans;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Optional;
-
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
-public class ExecuteQuery implements Serializable {
+public class ExecSpecs implements Serializable {
 
     private static final long serialVersionUID = 3846547401120638351L;
 
     public static class Builder {
 
-        private final ExecuteQuery instance = new ExecuteQuery();
+        private final ExecSpecs instance = new ExecSpecs();
 
         public Builder key(final String key) {
             instance.setKey(key);
             return this;
         }
 
-        public Builder startAt(final Date date) {
-            instance.setStartAt(date);
+        public Builder startAt(final OffsetDateTime startAt) {
+            instance.setStartAt(startAt);
             return this;
         }
 
@@ -50,14 +49,14 @@ public class ExecuteQuery implements Serializable {
             return this;
         }
 
-        public ExecuteQuery build() {
+        public ExecSpecs build() {
             return instance;
         }
     }
 
     private String key;
 
-    private Date startAt;
+    private OffsetDateTime startAt;
 
     private Boolean dryRun;
 
@@ -71,20 +70,13 @@ public class ExecuteQuery implements Serializable {
         this.key = key;
     }
 
-    public Date getStartAt() {
-        if (startAt != null) {
-            return new Date(startAt.getTime());
-        }
-        return null;
+    public OffsetDateTime getStartAt() {
+        return startAt;
     }
 
     @QueryParam("startAt")
-    public void setStartAt(final Date startAt) {
-        if (startAt != null) {
-            this.startAt = new Date(startAt.getTime());
-        } else {
-            this.startAt = null;
-        }
+    public void setStartAt(final OffsetDateTime startAt) {
+        this.startAt = startAt;
     }
 
     public Boolean getDryRun() {

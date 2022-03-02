@@ -19,8 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
+import java.time.OffsetDateTime;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -445,7 +445,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         result.setJobType(JobType.TASK);
         result.setRefKey(task.getKey());
         result.setRefDesc(taskDataBinder.buildRefDesc(task));
-        result.setStart(new Date());
+        result.setStart(OffsetDateTime.now());
         result.setStatus("JOB_FIRED");
         result.setMessage("Job fired; waiting for results...");
 

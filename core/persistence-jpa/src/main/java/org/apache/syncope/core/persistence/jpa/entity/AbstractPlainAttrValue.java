@@ -18,14 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import java.time.OffsetDateTime;
 import java.util.Base64;
-import java.util.Date;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -49,8 +47,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
 
     private String stringValue;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateValue;
+    private OffsetDateTime dateValue;
 
     private Boolean booleanValue;
 
@@ -72,13 +69,13 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
     }
 
     @Override
-    public Date getDateValue() {
-        return Optional.ofNullable(dateValue).map(value -> new Date(value.getTime())).orElse(null);
+    public OffsetDateTime getDateValue() {
+        return dateValue;
     }
 
     @Override
-    public void setDateValue(final Date dateValue) {
-        this.dateValue = Optional.ofNullable(dateValue).map(value -> new Date(value.getTime())).orElse(null);
+    public void setDateValue(final OffsetDateTime dateValue) {
+        this.dateValue = dateValue;
     }
 
     @Override
@@ -170,7 +167,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
                 try {
                 this.setDateValue(schema.getConversionPattern() == null
                         ? FormatUtils.parseDate(value)
-                        : new Date(FormatUtils.parseDate(value, schema.getConversionPattern()).getTime()));
+                        : FormatUtils.parseDate(value, schema.getConversionPattern()));
             } catch (Exception pe) {
                 exception = pe;
             }
@@ -284,7 +281,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
             case Date:
                 result = schema == null || schema.getConversionPattern() == null
                         ? FormatUtils.format(getDateValue())
-                        : FormatUtils.format(getDateValue(), false, schema.getConversionPattern());
+                        : FormatUtils.format(getDateValue(), schema.getConversionPattern());
                 break;
 
             case Binary:

@@ -18,16 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.Date;
-import java.util.Optional;
-
+import java.time.OffsetDateTime;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 
@@ -43,8 +39,7 @@ public class JPAAccessToken extends AbstractProvidedKeyEntity implements AccessT
     @Lob
     private String body;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date expirationTime;
+    private OffsetDateTime expirationTime;
 
     @Column(unique = true)
     private String owner;
@@ -63,13 +58,13 @@ public class JPAAccessToken extends AbstractProvidedKeyEntity implements AccessT
     }
 
     @Override
-    public Date getExpirationTime() {
-        return Optional.ofNullable(expirationTime).map(time -> new Date(time.getTime())).orElse(null);
+    public OffsetDateTime getExpirationTime() {
+        return expirationTime;
     }
 
     @Override
-    public void setExpirationTime(final Date expirationTime) {
-        this.expirationTime = Optional.ofNullable(expirationTime).map(time -> new Date(time.getTime())).orElse(null);
+    public void setExpirationTime(final OffsetDateTime expirationTime) {
+        this.expirationTime = expirationTime;
     }
 
     @Override
@@ -91,5 +86,4 @@ public class JPAAccessToken extends AbstractProvidedKeyEntity implements AccessT
     public void setAuthorities(final byte[] authorities) {
         this.authorities = ArrayUtils.clone(authorities);
     }
-
 }

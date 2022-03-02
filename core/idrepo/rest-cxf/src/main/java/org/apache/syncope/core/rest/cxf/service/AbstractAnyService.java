@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -155,8 +155,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
         }
     }
 
-    protected Date findLastChange(final String key) {
-        Date lastChange = getAnyDAO().findLastChange(key);
+    protected OffsetDateTime findLastChange(final String key) {
+        OffsetDateTime lastChange = getAnyDAO().findLastChange(key);
         if (lastChange == null) {
             throw new NotFoundException("User, Group or Any Object for " + key);
         }
@@ -166,8 +166,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
 
     protected Response doUpdate(final UR updateReq) {
         updateReq.setKey(getActualKey(getAnyDAO(), updateReq.getKey()));
-        Date etagDate = findLastChange(updateReq.getKey());
-        checkETag(String.valueOf(etagDate.getTime()));
+        OffsetDateTime etag = findLastChange(updateReq.getKey());
+        checkETag(String.valueOf(etag.toInstant().toEpochMilli()));
 
         ProvisioningResult<TO> updated = getAnyLogic().update(updateReq, isNullPriorityAsync());
         return modificationResponse(updated);
@@ -218,8 +218,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
     public Response delete(final String key) {
         String actualKey = getActualKey(getAnyDAO(), key);
 
-        Date etagDate = findLastChange(actualKey);
-        checkETag(String.valueOf(etagDate.getTime()));
+        OffsetDateTime etag = findLastChange(actualKey);
+        checkETag(String.valueOf(etag.toInstant().toEpochMilli()));
 
         ProvisioningResult<TO> deleted = getAnyLogic().delete(actualKey, isNullPriorityAsync());
         return modificationResponse(deleted);
@@ -227,8 +227,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
 
     @Override
     public Response deassociate(final ResourceDR req) {
-        Date etagDate = findLastChange(req.getKey());
-        checkETag(String.valueOf(etagDate.getTime()));
+        OffsetDateTime etag = findLastChange(req.getKey());
+        checkETag(String.valueOf(etag.toInstant().toEpochMilli()));
 
         ProvisioningResult<TO> updated;
         switch (req.getAction()) {
@@ -304,8 +304,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
 
     @Override
     public Response associate(final ResourceAR req) {
-        Date etagDate = findLastChange(req.getKey());
-        checkETag(String.valueOf(etagDate.getTime()));
+        OffsetDateTime etag = findLastChange(req.getKey());
+        checkETag(String.valueOf(etag.toInstant().toEpochMilli()));
 
         ProvisioningResult<TO> updated;
         switch (req.getAction()) {

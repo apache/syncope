@@ -20,7 +20,6 @@ package org.apache.syncope.client.ui.commons;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.lib.SyncopeClient;
 
 public interface BaseSession {
@@ -64,7 +63,7 @@ public interface BaseSession {
 
     <T> void resetClient(Class<T> service);
 
-    FastDateFormat getDateFormat();
+    DateOps.Format getDateFormat();
 
     /**
      * Extract and localize (if translation available) the actual message from the given exception; then, report it

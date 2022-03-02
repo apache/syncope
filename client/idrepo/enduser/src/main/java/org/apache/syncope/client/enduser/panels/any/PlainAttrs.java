@@ -33,7 +33,6 @@ import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.Attributable;
 import org.apache.syncope.common.lib.EntityTOUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.AttributeModifier;
@@ -45,6 +44,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.util.ListModel;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
@@ -94,29 +94,29 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             protected void populateItem(final ListItem<MembershipTO> item) {
                 MembershipTO membershipTO = item.getModelObject();
                 item.add(new Accordion("membershipPlainSchemas", List.of(new AbstractTab(
-                    new StringResourceModel(
-                        "attributes.membership.accordion",
-                        PlainAttrs.this,
-                        Model.of(membershipTO))) {
+                        new StringResourceModel(
+                                "attributes.membership.accordion",
+                                PlainAttrs.this,
+                                Model.of(membershipTO))) {
 
                     private static final long serialVersionUID = 1037272333056449378L;
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
                         return new PlainSchemasMemberships(
-                            panelId,
-                            membershipTO.getGroupName(),
-                            membershipSchemas.get(membershipTO.getGroupKey()),
-                            new LoadableDetachableModel<>() { // SYNCOPE-1439
+                                panelId,
+                                membershipTO.getGroupName(),
+                                membershipSchemas.get(membershipTO.getGroupKey()),
+                                new LoadableDetachableModel<>() { // SYNCOPE-1439
 
-                                private static final long serialVersionUID = 526768546610546553L;
+                            private static final long serialVersionUID = 526768546610546553L;
 
-                                @Override
-                                protected Attributable load() {
-                                    return membershipTO;
-                                }
+                            @Override
+                            protected Attributable load() {
+                                return membershipTO;
+                            }
 
-                            });
+                        });
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
@@ -192,38 +192,38 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected FieldPanel getFieldPanel(final PlainSchemaTO schemaTO, final String groupName) {
-        final boolean required = schemaTO.getMandatoryCondition().equalsIgnoreCase("true");
-        final boolean readOnly = schemaTO.isReadonly() || renderAsReadonly(schemaTO.getKey(), groupName);
-        final AttrSchemaType type = schemaTO.getType();
-        final boolean jexlHelp = false;
+    protected FieldPanel getFieldPanel(final PlainSchemaTO plainSchema, final String groupName) {
+        boolean required = plainSchema.getMandatoryCondition().equalsIgnoreCase("true");
+        boolean readOnly = plainSchema.isReadonly() || renderAsReadonly(plainSchema.getKey(), groupName);
+        AttrSchemaType type = plainSchema.getType();
+        boolean jexlHelp = false;
 
         FieldPanel panel;
         switch (type) {
             case Boolean:
                 panel = new AjaxCheckBoxPanel(
                         "panel",
-                        schemaTO.getLabel(SyncopeEnduserSession.get().getLocale()),
+                        plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()),
                         new Model<>(),
                         true);
                 panel.setRequired(required);
                 break;
 
             case Date:
-                String datePattern = schemaTO.getConversionPattern() == null
-                        ? SyncopeConstants.DEFAULT_DATE_PATTERN
-                        : schemaTO.getConversionPattern();
+                String datePattern = plainSchema.getConversionPattern() == null
+                        ? DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.getPattern()
+                        : plainSchema.getConversionPattern();
 
-                if (datePattern.contains("H")) {
+                if (StringUtils.containsIgnoreCase(datePattern, "H")) {
                     panel = new AjaxDateTimeFieldPanel(
                             "panel",
-                            schemaTO.getLabel(SyncopeEnduserSession.get().getLocale()),
+                            plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()),
                             new Model<>(),
                             FastDateFormat.getInstance(datePattern));
                 } else {
                     panel = new AjaxDateFieldPanel(
                             "panel",
-                            schemaTO.getLabel(SyncopeEnduserSession.get().getLocale()),
+                            plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()),
                             new Model<>(),
                             FastDateFormat.getInstance(datePattern));
                 }
@@ -236,15 +236,15 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             case Enum:
                 panel = new AjaxDropDownChoicePanel<>("panel",
-                        schemaTO.getLabel(SyncopeEnduserSession.get().getLocale()), new Model<>(), true);
-                ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(schemaTO));
+                        plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()), new Model<>(), true);
+                ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(plainSchema));
 
-                if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
+                if (StringUtils.isNotBlank(plainSchema.getEnumerationKeys())) {
                     ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
 
                         private static final long serialVersionUID = -3724971416312135885L;
 
-                        private final Map<String, String> valueMap = SchemaUtils.getEnumeratedKeyValues(schemaTO);
+                        private final Map<String, String> valueMap = SchemaUtils.getEnumeratedKeyValues(plainSchema);
 
                         @Override
                         public String getDisplayValue(final String value) {
@@ -272,7 +272,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             case Long:
                 panel = new AjaxSpinnerFieldPanel.Builder<Long>().enableOnChange().build(
                         "panel",
-                        schemaTO.getLabel(SyncopeEnduserSession.get().getLocale()),
+                        plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()),
                         Long.class,
                         new Model<>());
 
@@ -284,7 +284,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             case Double:
                 panel = new AjaxSpinnerFieldPanel.Builder<Double>().enableOnChange().step(0.1).build(
                         "panel",
-                        schemaTO.getLabel(SyncopeEnduserSession.get().getLocale()),
+                        plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()),
                         Double.class,
                         new Model<>());
 
@@ -296,9 +296,9 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             case Binary:
                 panel = new BinaryFieldPanel(
                         "panel",
-                        schemaTO.getLabel(SyncopeEnduserSession.get().getLocale()),
+                        plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()),
                         new Model<>(),
-                        schemaTO.getMimeType(),
+                        plainSchema.getMimeType(),
                         fileKey);
                 if (required) {
                     panel.addRequiredLabel();
@@ -307,7 +307,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             case Encrypted:
                 panel = new EncryptedFieldPanel("panel",
-                        schemaTO.getLabel(SyncopeEnduserSession.get().getLocale()), new Model<>(), true);
+                        plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()), new Model<>(), true);
 
                 if (required) {
                     panel.addRequiredLabel();
@@ -316,7 +316,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             default:
                 panel = new AjaxTextFieldPanel("panel",
-                        schemaTO.getLabel(SyncopeEnduserSession.get().getLocale()), new Model<>(), true);
+                        plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()), new Model<>(), true);
 
                 if (jexlHelp) {
                     AjaxTextFieldPanel.class.cast(panel).enableJexlHelp();
@@ -328,11 +328,12 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         }
 
         panel.setReadOnly(readOnly);
-        panel.setMarkupId(StringUtils.isBlank(groupName) ? schemaTO.getKey() : groupName + '.' + schemaTO.getKey());
+        panel.setMarkupId(StringUtils.isBlank(groupName)
+                ? plainSchema.getKey() : groupName + '.' + plainSchema.getKey());
 
         Label label = (Label) panel.get(AbstractFieldPanel.LABEL);
         label.add(new AttributeModifier("for", FORM_SUFFIX
-                + (StringUtils.isBlank(groupName) ? schemaTO.getKey() : groupName + '.' + schemaTO.getKey())));
+                + (StringUtils.isBlank(groupName) ? plainSchema.getKey() : groupName + '.' + plainSchema.getKey())));
 
         return panel;
     }
@@ -350,14 +351,14 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             super(id);
 
             add(new ListView<>("schemas",
-                new ListModel<>(new ArrayList<>(
-                    attributableTO.getObject().getPlainAttrs().stream().sorted(attrComparator).
-                        collect(Collectors.toList())))) {
+                    new ListModel<>(new ArrayList<>(
+                            attributableTO.getObject().getPlainAttrs().stream().sorted(attrComparator).
+                                    collect(Collectors.toList())))) {
 
                 private static final long serialVersionUID = 5306618783986001008L;
 
                 @Override
-                @SuppressWarnings({"unchecked", "rawtypes"})
+                @SuppressWarnings({ "unchecked", "rawtypes" })
                 protected void populateItem(final ListItem<Attr> item) {
                     Attr attrTO = item.getModelObject();
                     PlainSchemaTO schema = schemas.get(attrTO.getSchema());
@@ -371,14 +372,14 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
                     if (schemas.get(attrTO.getSchema()).isMultivalue()) {
                         panel = new MultiFieldPanel.Builder<>(
-                            new PropertyModel<>(
-                                attributableTO.getObject().getPlainAttr(attrTO.getSchema()), "values"))
-                            .build("panel", attrTO.getSchema(), FieldPanel.class.cast(panel));
+                                new PropertyModel<>(
+                                        attributableTO.getObject().getPlainAttr(attrTO.getSchema()), "values"))
+                                .build("panel", attrTO.getSchema(), FieldPanel.class.cast(panel));
                         // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
                         ((MultiFieldPanel) panel).setReadOnly(schema == null ? false : schema.isReadonly());
                     } else {
                         FieldPanel.class.cast(panel).setNewModel(attrTO.getValues()).
-                            setReadOnly(schema == null ? false : schema.isReadonly());
+                                setReadOnly(schema == null ? false : schema.isReadonly());
                     }
 
                     item.add(panel);
@@ -403,7 +404,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 private static final long serialVersionUID = 9101744072914090143L;
 
                 @Override
-                @SuppressWarnings({"unchecked", "rawtypes"})
+                @SuppressWarnings({ "unchecked", "rawtypes" })
                 protected void populateItem(final ListItem<Attr> item) {
                     Attr attrTO = item.getModelObject();
                     PlainSchemaTO schema = schemas.get(attrTO.getSchema());
@@ -417,20 +418,19 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
                     if (schemas.get(attrTO.getSchema()).isMultivalue()) {
                         panel = new MultiFieldPanel.Builder<>(
-                            new PropertyModel<>(attrTO, "values")).build(
-                            "panel",
-                            attrTO.getSchema(),
-                            FieldPanel.class.cast(panel));
+                                new PropertyModel<>(attrTO, "values")).build(
+                                "panel",
+                                attrTO.getSchema(),
+                                FieldPanel.class.cast(panel));
                         // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
                         ((MultiFieldPanel) panel).setReadOnly(schema == null ? false : schema.isReadonly());
                     } else {
                         FieldPanel.class.cast(panel).setNewModel(attrTO.getValues()).
-                            setReadOnly(schema == null ? false : schema.isReadonly());
+                                setReadOnly(schema == null ? false : schema.isReadonly());
                     }
                     item.add(panel);
                 }
             });
         }
     }
-
 }

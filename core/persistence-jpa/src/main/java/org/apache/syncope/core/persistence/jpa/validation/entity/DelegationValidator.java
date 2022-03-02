@@ -38,7 +38,7 @@ public class DelegationValidator extends AbstractValidator<DelegationCheck, Dele
             isValid = false;
         }
 
-        if (isValid && delegation.getEnd() != null && !delegation.getEnd().after(delegation.getStart())) {
+        if (isValid && delegation.getEnd() != null && !delegation.getEnd().isAfter(delegation.getStart())) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.Standard, "when end is provided it must to be after start")).
                     addPropertyNode("end").addConstraintViolation();

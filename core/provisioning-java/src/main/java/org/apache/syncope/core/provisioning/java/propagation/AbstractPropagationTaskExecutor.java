@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.propagation;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -312,7 +312,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         List<PropagationActions> actions = getPropagationActions(task.getResource());
 
-        Date start = new Date();
+        OffsetDateTime start = OffsetDateTime.now();
 
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStatus(ExecStatus.CREATED.name());
@@ -426,7 +426,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             execution.setStart(start);
             execution.setMessage(taskExecutionMessage);
-            execution.setEnd(new Date());
+            execution.setEnd(OffsetDateTime.now());
 
             LOG.debug("Execution finished: {}", execution);
 
@@ -512,7 +512,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStatus(ExecStatus.NOT_ATTEMPTED.name());
         execution.setExecutor(executor);
-        execution.setStart(new Date());
+        execution.setStart(OffsetDateTime.now());
         execution.setMessage(rejectReason);
         execution.setEnd(execution.getStart());
 

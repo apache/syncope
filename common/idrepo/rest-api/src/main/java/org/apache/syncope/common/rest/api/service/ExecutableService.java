@@ -40,8 +40,8 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
-import org.apache.syncope.common.rest.api.beans.ExecQuery;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecListQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 
 public interface ExecutableService extends JAXRSService {
 
@@ -54,7 +54,7 @@ public interface ExecutableService extends JAXRSService {
     @GET
     @Path("{key}/executions")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    PagedResult<ExecTO> listExecutions(@BeanParam ExecQuery query);
+    PagedResult<ExecTO> listExecutions(@BeanParam ExecListQuery query);
 
     /**
      * Returns the list of recently completed executions, ordered by end date descendent.
@@ -80,7 +80,7 @@ public interface ExecutableService extends JAXRSService {
     void deleteExecution(@NotNull @PathParam("executionKey") String executionKey);
 
     /**
-     * Deletes the executions belonging matching the given query.
+     * Deletes the executions matching the given query.
      *
      * @param query query conditions
      * @return batch results as Response entity
@@ -94,15 +94,15 @@ public interface ExecutableService extends JAXRSService {
     Response deleteExecutions(@BeanParam ExecDeleteQuery query);
 
     /**
-     * Executes the executable matching the given query.
+     * Executes the executable matching the given specs.
      *
-     * @param query query conditions
-     * @return execution report for the executable matching the given query
+     * @param specs conditions to exec
+     * @return execution report for the executable matching the given specs
      */
     @POST
     @Path("{key}/execute")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    ExecTO execute(@BeanParam ExecuteQuery query);
+    ExecTO execute(@BeanParam ExecSpecs specs);
 
     /**
      * Returns job (running or scheduled) for the executable matching the given key.

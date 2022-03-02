@@ -138,6 +138,8 @@ under the License.
               <java.security.egd>file:/dev/./urandom</java.security.egd>
               <java.util.secureRandomSeed>true</java.util.secureRandomSeed>
 
+              <h2.returnOffsetDateTime>true</h2.returnOffsetDateTime>
+
               <javax.net.ssl.trustStore>${basedir}/src/test/resources/keystore.jks</javax.net.ssl.trustStore>
               <javax.net.ssl.trustStorePassword>password</javax.net.ssl.trustStorePassword>
             </systemProperties>

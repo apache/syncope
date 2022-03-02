@@ -76,6 +76,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
@@ -482,7 +483,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final AttrCond cond) {
 
         Object value = schema.getType() == AttrSchemaType.Date && attrValue.getDateValue() != null
-                ? attrValue.getDateValue().getTime()
+                ? FormatUtils.format(attrValue.getDateValue())
                 : attrValue.getValue();
 
         Query query = null;

@@ -20,7 +20,7 @@ package org.apache.syncope.client.ui.commons.resources.oidcc4ui;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.ui.commons.BaseSession;
@@ -44,8 +44,8 @@ public abstract class CodeConsumerResource extends AbstractResource {
 
     protected static final Logger LOG = LoggerFactory.getLogger(CodeConsumerResource.class);
 
-    protected static final ObjectMapper MAPPER =
-            new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    protected static final JsonMapper MAPPER =
+            JsonMapper.builder().findAndAddModules().serializationInclusion(JsonInclude.Include.NON_EMPTY).build();
 
     protected abstract Class<? extends WebPage> getLoginPageClass();
 

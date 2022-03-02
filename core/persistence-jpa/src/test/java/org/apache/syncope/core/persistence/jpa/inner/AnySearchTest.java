@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.time.DateUtils;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -64,6 +63,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -107,7 +107,7 @@ public class AnySearchTest extends AbstractTest {
         User rossini = userDAO.findByUsername("rossini");
 
         UPlainAttr loginDate = rossini.getPlainAttr("loginDate").get();
-        loginDate.getValues().get(0).setDateValue(DateUtils.parseDate(LOGIN_DATE_VALUE, "yyyy-MM-dd"));
+        loginDate.getValues().get(0).setDateValue(FormatUtils.parseDate(LOGIN_DATE_VALUE, "yyyy-MM-dd"));
 
         userDAO.save(rossini);
     }

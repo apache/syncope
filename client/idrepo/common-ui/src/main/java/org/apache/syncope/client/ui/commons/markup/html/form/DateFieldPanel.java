@@ -154,7 +154,6 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
     @Override
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
-        response.render(JavaScriptHeaderItem.forReference(
-                new KendoCultureResourceReference(getLocale())));
+        response.render(JavaScriptHeaderItem.forReference(new KendoCultureResourceReference(getLocale())));
     }
 }

@@ -19,7 +19,7 @@
 package org.apache.syncope.common.keymaster.client.zookeeper;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.Iterator;
 import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class ZookeeperTestContentLoader implements InitializingBean {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     @Autowired
     private ConfParamOps confParamOps;

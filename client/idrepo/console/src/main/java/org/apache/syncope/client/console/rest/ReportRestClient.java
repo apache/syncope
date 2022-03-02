@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.batch.BatchRequest;
+import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -39,8 +40,8 @@ import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
-import org.apache.syncope.common.rest.api.beans.ExecQuery;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecListQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -88,8 +89,9 @@ public class ReportRestClient extends BaseRestClient
     }
 
     @Override
-    public void startExecution(final String reportKey, final Date start) {
-        getService(ReportService.class).execute(new ExecuteQuery.Builder().key(reportKey).startAt(start).build());
+    public void startExecution(final String reportKey, final Date startAt) {
+        getService(ReportService.class).execute(new ExecSpecs.Builder().key(reportKey).
+                startAt(DateOps.convert(startAt)).build());
     }
 
     @Override
@@ -110,15 +112,14 @@ public class ReportRestClient extends BaseRestClient
     public List<ExecTO> listExecutions(
             final String taskKey, final int page, final int size, final SortParam<String> sort) {
 
-        return getService(ReportService.class).
-                listExecutions(new ExecQuery.Builder().key(taskKey).page(page).size(size).
-                        orderBy(toOrderBy(sort)).build()).getResult();
+        return getService(ReportService.class).listExecutions(new ExecListQuery.Builder().
+                key(taskKey).page(page).size(size).orderBy(toOrderBy(sort)).build()).getResult();
     }
 
     @Override
     public int countExecutions(final String taskKey) {
         return getService(ReportService.class).
-                listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(0).build()).getTotalCount();
+                listExecutions(new ExecListQuery.Builder().key(taskKey).page(1).size(0).build()).getTotalCount();
     }
 
     @Override
