@@ -140,6 +140,11 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                     break;
 
                 case ACCESS:
+                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                            "field",
+                            "order",
+                            Integer.class,
+                            new PropertyModel<>(policyTO, "order")));
                     fields.add(new AjaxCheckBoxPanel(
                             "field",
                             "enabled",
@@ -149,6 +154,21 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                             "field",
                             "ssoEnabled",
                             new PropertyModel<>(policyTO, "ssoEnabled"),
+                            false));
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field",
+                            "requireAllAttributes",
+                            new PropertyModel<>(policyTO, "requireAllAttributes"),
+                            false));
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field",
+                            "caseInsensitive",
+                            new PropertyModel<>(policyTO, "caseInsensitive"),
+                            false));
+                    fields.add(new AjaxTextFieldPanel(
+                            "field",
+                            "unauthorizedRedirectUrl",
+                            new PropertyModel<>(policyTO, "unauthorizedRedirectUrl"),
                             false));
                     break;
 
