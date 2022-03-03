@@ -791,7 +791,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             // dynamic memberships
             userTO.getDynMemberships().addAll(
                     userDAO.findDynGroups(user.getKey()).stream().map(group -> new MembershipTO.Builder().
-                            group(group.getKey(), group.getName()).build()).collect(Collectors.toList()));
+                            group(group.getKey(), group.getName()).
+                            build()).collect(Collectors.toList()));
 
             // linked accounts
             userTO.getLinkedAccounts().addAll(
