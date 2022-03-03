@@ -783,7 +783,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
             // memberships
             userTO.getMemberships().addAll(
-                    user.getMemberships().stream().map(membership -> getMembershipTO(user.getPlainAttrs(membership),
+                    user.getMemberships().stream().map(membership -> getMembershipTO(
+                            user.getPlainAttrs(membership),
                             derAttrHandler.getValues(user, membership),
                             virAttrHandler.getValues(user, membership),
                             membership)).collect(Collectors.toList()));

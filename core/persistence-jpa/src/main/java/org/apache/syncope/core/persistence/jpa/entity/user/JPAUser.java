@@ -47,6 +47,7 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -257,7 +258,10 @@ public class JPAUser
         this.clearPassword = password;
 
         try {
-            this.password = ENCRYPTOR.encode(password, cipherAlgorithm);
+            this.password = ENCRYPTOR.encode(password, cipherAlgorithm == null
+                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfDAO.class).
+                    find("password.cipher.algorithm", CipherAlgorithm.AES.name()))
+                    : cipherAlgorithm);
             setMustChangePassword(false);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
@@ -452,7 +456,10 @@ public class JPAUser
         this.securityAnswer = securityAnswer;
 
         try {
-            this.securityAnswer = ENCRYPTOR.encode(securityAnswer, cipherAlgorithm);
+            this.securityAnswer = ENCRYPTOR.encode(securityAnswer, cipherAlgorithm == null
+                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfDAO.class).
+                    find("password.cipher.algorithm", CipherAlgorithm.AES.name()))
+                    : cipherAlgorithm);
         } catch (Exception e) {
             LOG.error("Could not encode security answer", e);
             this.securityAnswer = null;

@@ -308,7 +308,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void testPasswordGeneratorFailing() {
+    public void passwordGeneratorFailing() {
         assertThrows(IllegalArgumentException.class, () -> {
             String password = "";
             try {
