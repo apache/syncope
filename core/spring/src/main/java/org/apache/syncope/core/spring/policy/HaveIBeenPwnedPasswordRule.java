@@ -109,7 +109,7 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
     public void enforce(final LinkedAccount account) {
         if (account.getPassword() != null) {
             String clear = null;
-            if (account.canDecodePassword()) {
+            if (account.canDecodeSecrets()) {
                 try {
                     clear = ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
                 } catch (Exception e) {

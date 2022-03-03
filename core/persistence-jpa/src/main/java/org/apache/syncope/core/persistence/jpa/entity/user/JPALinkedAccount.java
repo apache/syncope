@@ -39,6 +39,7 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
@@ -47,6 +48,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPrivilege;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.Encryptor;
 
 @Entity
@@ -141,7 +143,16 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
     }
 
     @Override
-    public boolean canDecodePassword() {
+    public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
+        if (this.cipherAlgorithm == null || cipherAlgorithm == null) {
+            this.cipherAlgorithm = cipherAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Cannot override existing cipher algorithm");
+        }
+    }
+    
+    @Override
+    public boolean canDecodeSecrets() {
         return this.cipherAlgorithm != null && this.cipherAlgorithm.isInvertible();
     }
 
@@ -157,10 +168,12 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
     }
 
     @Override
-    public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
+    public void setPassword(final String password) {
         try {
-            this.password = ENCRYPTOR.encode(password, cipherAlgoritm);
-            this.cipherAlgorithm = cipherAlgoritm;
+            this.password = ENCRYPTOR.encode(password, cipherAlgorithm == null
+                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfDAO.class).
+                    find("password.cipher.algorithm", CipherAlgorithm.AES.name()))
+                    : cipherAlgorithm);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
             this.password = null;

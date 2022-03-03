@@ -41,6 +41,7 @@ import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
@@ -116,7 +117,8 @@ public class MappingManagerImplTest extends AbstractTest {
         assertNull(AttributeUtil.getPasswordValue(attrs.getRight()));
 
         // 5. with no clear-text password, random password generation disabled but AES
-        bellini.setPassword("newPassword123", CipherAlgorithm.AES);
+        ReflectionTestUtils.setField(bellini, "cipherAlgorithm", CipherAlgorithm.AES);
+        bellini.setPassword("newPassword123");
         userDAO.save(bellini);
         entityManager().flush();
 
@@ -142,7 +144,8 @@ public class MappingManagerImplTest extends AbstractTest {
         account.setResource(ldap);
         account.setOwner(vivaldi);
         account.setSuspended(false);
-        account.setPassword("Password321", CipherAlgorithm.AES);
+        account.setCipherAlgorithm(CipherAlgorithm.AES);
+        account.setPassword("Password321");
         vivaldi.add(account);
 
         vivaldi = userDAO.save(vivaldi);

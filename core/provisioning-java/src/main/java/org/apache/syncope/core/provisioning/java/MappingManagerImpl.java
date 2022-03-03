@@ -497,7 +497,7 @@ public class MappingManagerImpl implements MappingManager {
         } else {
             if (StringUtils.isNotBlank(defaultValue)) {
                 passwordAttrValue = defaultValue;
-            } else if (account.canDecodePassword()) {
+            } else if (account.canDecodeSecrets()) {
                 passwordAttrValue = decodePassword(account);
             } else {
                 passwordAttrValue = null;
