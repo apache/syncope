@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.Account;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -134,8 +135,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     private void setPassword(final User user, final String password, final SyncopeClientCompositeException scce) {
         try {
-            String algorithm = confDAO.find("password.cipher.algorithm", CipherAlgorithm.AES.name());
-            user.setPassword(password, CipherAlgorithm.valueOf(algorithm));
+            setCipherAlgorithm(user);
+            user.setPassword(password);
         } catch (IllegalArgumentException e) {
             throw aggregateException(scce, e, ClientExceptionType.NotFound);
         }
@@ -146,10 +147,17 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             final String securityAnswer,
             final SyncopeClientCompositeException scce) {
         try {
-            String algorithm = confDAO.find("password.cipher.algorithm", CipherAlgorithm.AES.name());
-            user.setSecurityAnswer(securityAnswer, CipherAlgorithm.valueOf(algorithm));
+            setCipherAlgorithm(user);
+            user.setSecurityAnswer(securityAnswer);
         } catch (IllegalArgumentException e) {
             throw aggregateException(scce, e, ClientExceptionType.NotFound);
+        }
+    }
+
+    private void setCipherAlgorithm(final Account account) {
+        if (account.getCipherAlgorithm() == null) {
+            account.setCipherAlgorithm(
+                    CipherAlgorithm.valueOf(confDAO.find("password.cipher.algorithm", CipherAlgorithm.AES.name())));
         }
     }
 
@@ -196,7 +204,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             if (StringUtils.isBlank(accountTO.getPassword())) {
                 account.setEncodedPassword(null, null);
             } else if (!accountTO.getPassword().equals(account.getPassword())) {
-                account.setPassword(accountTO.getPassword(), CipherAlgorithm.AES);
+                setCipherAlgorithm(account);
+                account.setPassword(accountTO.getPassword());
             }
             account.setSuspended(accountTO.isSuspended());
 
@@ -464,7 +473,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         if (userPatch.getSecurityQuestion() != null) {
             if (userPatch.getSecurityQuestion().getValue() == null) {
                 user.setSecurityQuestion(null);
-                user.setSecurityAnswer(null, null);
+                user.setSecurityAnswer(null);
             } else {
                 SecurityQuestion securityQuestion =
                         securityQuestionDAO.find(userPatch.getSecurityQuestion().getValue());
@@ -624,7 +633,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
                     // SYNCOPE-686: if password is invertible and we are adding resources with password mapping,
                     // ensure that they are counted for password propagation
-                    if (toBeUpdated.canDecodePassword()) {
+                    if (toBeUpdated.canDecodeSecrets()) {
                         if (userPatch.getPassword() == null) {
                             userPatch.setPassword(new PasswordPatch());
                         }
@@ -774,8 +783,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
             // memberships
             userTO.getMemberships().addAll(
-                    user.getMemberships().stream().map(membership -> getMembershipTO(
-                            user.getPlainAttrs(membership),
+                    user.getMemberships().stream().map(membership -> getMembershipTO(user.getPlainAttrs(membership),
                             derAttrHandler.getValues(user, membership),
                             virAttrHandler.getValues(user, membership),
                             membership)).collect(Collectors.toList()));
@@ -783,8 +791,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             // dynamic memberships
             userTO.getDynMemberships().addAll(
                     userDAO.findDynGroups(user.getKey()).stream().map(group -> new MembershipTO.Builder().
-                            group(group.getKey(), group.getName()).
-                            build()).collect(Collectors.toList()));
+                            group(group.getKey(), group.getName()).build()).collect(Collectors.toList()));
 
             // linked accounts
             userTO.getLinkedAccounts().addAll(

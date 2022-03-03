@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -207,7 +208,8 @@ public class UserTest extends AbstractTest {
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
         user.setCreationDate(new Date());
-        user.setPassword("pass", CipherAlgorithm.SHA256);
+        user.setCipherAlgorithm(CipherAlgorithm.SHA256);
+        user.setPassword("pass");
 
         try {
             userDAO.save(user);
@@ -224,7 +226,8 @@ public class UserTest extends AbstractTest {
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
         user.setCreationDate(new Date());
-        user.setPassword("password123", CipherAlgorithm.SHA256);
+        user.setCipherAlgorithm(CipherAlgorithm.SHA256);
+        user.setPassword("password123");
 
         try {
             userDAO.save(user);
@@ -241,7 +244,8 @@ public class UserTest extends AbstractTest {
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
         user.setCreationDate(new Date());
-        user.setPassword("password123", CipherAlgorithm.SHA256);
+        user.setCipherAlgorithm(CipherAlgorithm.SHA256);
+        user.setPassword("password123");
 
         User actual = userDAO.save(user);
         assertNotNull(actual);
@@ -268,7 +272,8 @@ public class UserTest extends AbstractTest {
         user.setCreator("admin");
         user.setCreationDate(new Date());
 
-        user.setPassword("password123", CipherAlgorithm.AES);
+        user.setCipherAlgorithm(CipherAlgorithm.AES);
+        user.setPassword("password123");
 
         User actual = userDAO.save(user);
         assertNotNull(actual);
@@ -278,7 +283,8 @@ public class UserTest extends AbstractTest {
     public void issueSYNCOPE391() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setPassword(null, CipherAlgorithm.AES);
+        user.setCipherAlgorithm(CipherAlgorithm.AES);
+        user.setPassword(null);
         user.setRealm(realmDAO.findByFullPath("/even/two"));
 
         User actual = userDAO.save(user);
@@ -297,8 +303,27 @@ public class UserTest extends AbstractTest {
         assertNotNull(password);
 
         User user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
-        user.setPassword(password, CipherAlgorithm.SHA);
+        user.setPassword(password);
         userDAO.save(user);
+    }
+
+    @Test
+    public void testPasswordGeneratorFailing() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            String password = "";
+            try {
+                password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"));
+            } catch (InvalidPasswordRuleConf e) {
+                fail(e.getMessage());
+            }
+            assertNotNull(password);
+
+            User user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
+            // SYNCOPE-1666 fail because cipherAlgorithm is already set
+            user.setCipherAlgorithm(CipherAlgorithm.SHA);
+            user.setPassword(password);
+            userDAO.save(user);
+        });
     }
 
     @Test
@@ -308,10 +333,11 @@ public class UserTest extends AbstractTest {
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
         user.setCreationDate(new Date());
-        user.setPassword("password123", CipherAlgorithm.SSHA256);
+        user.setCipherAlgorithm(CipherAlgorithm.SSHA256);
+        user.setPassword("password123");
         user.setSecurityQuestion(securityQuestionDAO.find("887028ea-66fc-41e7-b397-620d7ea6dfbb"));
-        String securityAnswer = "my complex answer to @ $complex question è ? 12345";
-        user.setSecurityAnswer(securityAnswer, CipherAlgorithm.SSHA256);
+        String securityAnswer = "my complex answer to @ $complex question è ? £12345";
+        user.setSecurityAnswer(securityAnswer);
 
         User actual = userDAO.save(user);
         assertNotNull(actual);

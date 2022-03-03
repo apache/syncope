@@ -253,12 +253,11 @@ public class JPAUser
     }
 
     @Override
-    public void setPassword(final String password, final CipherAlgorithm cipherAlgorithm) {
+    public void setPassword(final String password) {
         this.clearPassword = password;
 
         try {
             this.password = ENCRYPTOR.encode(password, cipherAlgorithm);
-            this.cipherAlgorithm = cipherAlgorithm;
             setMustChangePassword(false);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
@@ -272,7 +271,16 @@ public class JPAUser
     }
 
     @Override
-    public boolean canDecodePassword() {
+    public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
+        if (this.cipherAlgorithm == null || cipherAlgorithm == null) {
+            this.cipherAlgorithm = cipherAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Cannot override existing cipher algorithm");
+        }
+    }
+    
+    @Override
+    public boolean canDecodeSecrets() {
         return this.cipherAlgorithm != null && this.cipherAlgorithm.isInvertible();
     }
 
@@ -440,7 +448,7 @@ public class JPAUser
     }
 
     @Override
-    public void setSecurityAnswer(final String securityAnswer, final CipherAlgorithm cipherAlgorithm) {
+    public void setSecurityAnswer(final String securityAnswer) {
         this.securityAnswer = securityAnswer;
 
         try {
@@ -449,11 +457,6 @@ public class JPAUser
             LOG.error("Could not encode security answer", e);
             this.securityAnswer = null;
         }
-    }
-
-    @Override
-    public boolean canDecodeSecurityAnswer() {
-        return this.canDecodePassword();
     }
 
     @Override

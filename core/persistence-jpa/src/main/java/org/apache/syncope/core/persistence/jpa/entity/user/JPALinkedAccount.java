@@ -141,7 +141,16 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
     }
 
     @Override
-    public boolean canDecodePassword() {
+    public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
+        if (this.cipherAlgorithm == null || cipherAlgorithm == null) {
+            this.cipherAlgorithm = cipherAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Cannot override existing cipher algorithm");
+        }
+    }
+    
+    @Override
+    public boolean canDecodeSecrets() {
         return this.cipherAlgorithm != null && this.cipherAlgorithm.isInvertible();
     }
 
@@ -157,10 +166,9 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
     }
 
     @Override
-    public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
+    public void setPassword(final String password) {
         try {
-            this.password = ENCRYPTOR.encode(password, cipherAlgoritm);
-            this.cipherAlgorithm = cipherAlgoritm;
+            this.password = ENCRYPTOR.encode(password, this.cipherAlgorithm);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
             this.password = null;

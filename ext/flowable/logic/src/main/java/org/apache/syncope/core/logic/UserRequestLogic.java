@@ -126,7 +126,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
     protected void securityChecks(final String username, final String entitlement, final String errorMessage) {
         if (!AuthContextUtils.getUsername().equals(username)
                 && !AuthContextUtils.getAuthorities().stream().
-                anyMatch(auth -> entitlement.equals(auth.getAuthority()))) {
+                        anyMatch(auth -> entitlement.equals(auth.getAuthority()))) {
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
             sce.getElements().add(errorMessage);

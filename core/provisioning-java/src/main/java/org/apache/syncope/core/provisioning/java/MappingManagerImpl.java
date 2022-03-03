@@ -479,6 +479,7 @@ public class MappingManagerImpl implements MappingManager {
 
     protected String decodePassword(final Account account) {
         try {
+            LOG.info("Decode password {} in {}", account.getPassword(), account.getCipherAlgorithm());
             return ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
         } catch (Exception e) {
             LOG.error("Could not decode password for {}", account, e);
@@ -497,7 +498,7 @@ public class MappingManagerImpl implements MappingManager {
         } else {
             if (StringUtils.isNotBlank(defaultValue)) {
                 passwordAttrValue = defaultValue;
-            } else if (account.canDecodePassword()) {
+            } else if (account.canDecodeSecrets()) {
                 passwordAttrValue = decodePassword(account);
             } else {
                 passwordAttrValue = null;

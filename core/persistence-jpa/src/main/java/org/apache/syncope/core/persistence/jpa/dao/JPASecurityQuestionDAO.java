@@ -59,7 +59,7 @@ public class JPASecurityQuestionDAO extends AbstractDAO<SecurityQuestion> implem
 
         userDAO.findBySecurityQuestion(securityQuestion).forEach(user -> {
             user.setSecurityQuestion(null);
-            user.setSecurityAnswer(null, null);
+            user.setSecurityAnswer(null);
             userDAO.save(user);
         });
 
