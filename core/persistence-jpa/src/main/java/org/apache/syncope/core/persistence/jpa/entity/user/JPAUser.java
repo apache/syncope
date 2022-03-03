@@ -46,11 +46,13 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -185,6 +187,9 @@ public class JPAUser
     @Column(nullable = true)
     private String securityAnswer;
 
+    @Transient
+    private String clearSecurityAnswer;
+    
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
     @Valid
     private List<JPALinkedAccount> linkedAccounts = new ArrayList<>();
@@ -241,21 +246,24 @@ public class JPAUser
     }
 
     @Override
-    public void setEncodedPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
+    public void setEncodedPassword(final String password, final CipherAlgorithm cipherAlgorithm) {
         this.clearPassword = null;
 
         this.password = password;
-        this.cipherAlgorithm = cipherAlgoritm;
+        this.cipherAlgorithm = cipherAlgorithm;
         setMustChangePassword(false);
     }
 
     @Override
-    public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
+    public void setPassword(final String password) {
         this.clearPassword = password;
 
         try {
-            this.password = ENCRYPTOR.encode(password, cipherAlgoritm);
-            this.cipherAlgorithm = cipherAlgoritm;
+            this.password = ENCRYPTOR.encode(password, cipherAlgorithm == null
+                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
+                    get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
+                            String.class))
+                    : cipherAlgorithm);
             setMustChangePassword(false);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
@@ -269,7 +277,16 @@ public class JPAUser
     }
 
     @Override
-    public boolean canDecodePassword() {
+    public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
+        if (this.cipherAlgorithm == null || cipherAlgorithm == null) {
+            this.cipherAlgorithm = cipherAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Cannot override existing cipher algorithm");
+        }
+    }
+    
+    @Override
+    public boolean canDecodeSecrets() {
         return this.cipherAlgorithm != null && this.cipherAlgorithm.isInvertible();
     }
 
@@ -414,8 +431,31 @@ public class JPAUser
     }
 
     @Override
+    public String getClearSecurityAnswer() {
+        return clearSecurityAnswer;
+    }
+
+    @Override
+    public void setEncodedSecurityAnswer(final String securityAnswer) {
+        this.clearSecurityAnswer = null;
+
+        this.securityAnswer = securityAnswer;
+    }
+
+    @Override
     public void setSecurityAnswer(final String securityAnswer) {
         this.securityAnswer = securityAnswer;
+
+        try {
+            this.securityAnswer = ENCRYPTOR.encode(securityAnswer, cipherAlgorithm == null
+                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
+                    get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
+                            String.class))
+                    : cipherAlgorithm);
+        } catch (Exception e) {
+            LOG.error("Could not encode security answer", e);
+            this.securityAnswer = null;
+        }
     }
 
     @Override

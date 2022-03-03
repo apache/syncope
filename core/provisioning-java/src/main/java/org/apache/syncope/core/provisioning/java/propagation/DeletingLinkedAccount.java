@@ -107,7 +107,12 @@ public class DeletingLinkedAccount implements LinkedAccount {
     }
 
     @Override
-    public boolean canDecodePassword() {
+    public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
+        // unsupported
+    }
+    
+    @Override
+    public boolean canDecodeSecrets() {
         return false;
     }
 
@@ -122,7 +127,7 @@ public class DeletingLinkedAccount implements LinkedAccount {
     }
 
     @Override
-    public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
+    public void setPassword(final String password) {
         // unsupported
     }
 
