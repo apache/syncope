@@ -55,7 +55,7 @@ mechanism to work properly;
 [WARNING]
 Suspended Users are anyway not allowed to authenticate.
 * `log.lastlogindate` - whether the system updates the `lastLoginDate` field of users upon authentication;
-* `return.password.value` - whether the hashed password value shall be returned when reading users;
+* `return.password.value` - whether the hashed password value and the hashed security answer (if any) value shall be 
 * `connector.test.timeout` - timeout (in seconds) to check connector connection in <<Admin Console>>;
 `0` to skip any check;
 
