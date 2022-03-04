@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.client.console.rest.SRARouteRestClient;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -82,16 +83,12 @@ public class SRARouteWizardBuilder extends BaseAjaxWizardBuilder<SRARouteTO> {
 
                 @Override
                 public String getObject() {
-                    return route.getTarget() == null ? null : route.getTarget().toASCIIString();
+                    return Optional.ofNullable(route.getTarget()).map(URI::toASCIIString).orElse(null);
                 }
 
                 @Override
                 public void setObject(final String object) {
-                    if (object == null) {
-                        route.setTarget(null);
-                    } else {
-                        route.setTarget(URI.create(object));
-                    }
+                    route.setTarget(Optional.ofNullable(object).map(URI::create).orElse(null));
                 }
             }, false);
             target.addRequiredLabel().setEnabled(true);

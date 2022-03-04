@@ -19,8 +19,10 @@
 package org.apache.syncope.client.console.policies;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -39,14 +41,19 @@ import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.wicket.Application;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.core.util.lang.PropertyResolver;
+import org.apache.wicket.core.util.lang.PropertyResolverConverter;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.validation.validator.UrlValidator;
 
 public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPanelBuilder<T> {
 
@@ -165,11 +172,33 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                             "caseInsensitive",
                             new PropertyModel<>(policyTO, "caseInsensitive"),
                             false));
-                    fields.add(new AjaxTextFieldPanel(
+                    AjaxTextFieldPanel unauthorizedRedirectUrl = new AjaxTextFieldPanel(
                             "field",
                             "unauthorizedRedirectUrl",
-                            new PropertyModel<>(policyTO, "unauthorizedRedirectUrl"),
-                            false));
+                            new IModel<>() {
+
+                        @Override
+                        public String getObject() {
+                            return Optional.ofNullable(
+                                    (URI) PropertyResolver.getValue("unauthorizedRedirectUrl", policyTO)).
+                                    map(URI::toASCIIString).orElse(null);
+                        }
+
+                        @Override
+                        public void setObject(final String object) {
+                            PropertyResolverConverter prc = new PropertyResolverConverter(
+                                    Application.get().getConverterLocator(),
+                                    SyncopeConsoleSession.get().getLocale());
+                            PropertyResolver.setValue(
+                                    "unauthorizedRedirectUrl",
+                                    policyTO,
+                                    Optional.ofNullable(object).map(URI::create).orElse(null),
+                                    prc);
+                            LOG.error("CCCCCCCCCCCCCCCCCCC {}", getObject());
+                        }
+                    }, false);
+                    unauthorizedRedirectUrl.getField().add(new UrlValidator(new String[] { "http", "https" }));
+                    fields.add(unauthorizedRedirectUrl);
                     break;
 
                 case ATTR_RELEASE:

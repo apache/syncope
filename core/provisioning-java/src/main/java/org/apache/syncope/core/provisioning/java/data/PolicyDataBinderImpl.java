@@ -320,7 +320,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             accessPolicyTO.setSsoEnabled(accessPolicy.isSsoEnabled());
             accessPolicyTO.setRequireAllAttributes(accessPolicy.isRequireAllAttributes());
             accessPolicyTO.setCaseInsensitive(accessPolicy.isCaseInsensitive());
-            accessPolicyTO.setUnauthorizedRedirectUrl(accessPolicyTO.getUnauthorizedRedirectUrl());
+            accessPolicyTO.setUnauthorizedRedirectUrl(accessPolicy.getUnauthorizedRedirectUrl());
             accessPolicyTO.setConf(((AccessPolicy) policy).getConf());
         } else if (policy instanceof AttrReleasePolicy) {
             AttrReleasePolicyTO attrReleasePolicyTO = new AttrReleasePolicyTO();
