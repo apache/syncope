@@ -59,7 +59,7 @@ public class JPAAccessPolicy extends AbstractPolicy implements AccessPolicy {
 
     @Override
     public int getOrder() {
-        return aporder;
+        return Optional.ofNullable(aporder).orElse(0);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class JPAAccessPolicy extends AbstractPolicy implements AccessPolicy {
 
     @Override
     public boolean isRequireAllAttributes() {
-        return requireAllAttributes;
+        return BooleanUtils.isNotFalse(requireAllAttributes);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class JPAAccessPolicy extends AbstractPolicy implements AccessPolicy {
 
     @Override
     public boolean isCaseInsensitive() {
-        return caseInsensitive;
+        return BooleanUtils.isNotFalse(caseInsensitive);
     }
 
     @Override
@@ -109,7 +109,8 @@ public class JPAAccessPolicy extends AbstractPolicy implements AccessPolicy {
 
     @Override
     public URI getUnauthorizedRedirectUrl() {
-        return URI.create(unauthorizedRedirectUrl);
+        return Optional.ofNullable(unauthorizedRedirectUrl).
+                map(URI::create).orElse(null);
     }
 
     @Override
@@ -120,9 +121,7 @@ public class JPAAccessPolicy extends AbstractPolicy implements AccessPolicy {
 
     @Override
     public AccessPolicyConf getConf() {
-        return jsonConf == null
-                ? null
-                : POJOHelper.deserialize(jsonConf, AccessPolicyConf.class);
+        return Optional.ofNullable(jsonConf).map(c -> POJOHelper.deserialize(c, AccessPolicyConf.class)).orElse(null);
     }
 
     @Override
