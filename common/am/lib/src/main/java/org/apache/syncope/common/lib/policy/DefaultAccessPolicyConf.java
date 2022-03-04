@@ -30,10 +30,19 @@ public class DefaultAccessPolicyConf implements AccessPolicyConf {
 
     private final List<Attr> requiredAttrs = new ArrayList<>();
 
+    private final List<Attr> rejectedAttrs = new ArrayList<>();
+
     @JacksonXmlElementWrapper(localName = "requiredAttrs")
     @JacksonXmlProperty(localName = "requiredAttr")
     @Override
     public List<Attr> getRequiredAttrs() {
         return requiredAttrs;
+    }
+
+    @JacksonXmlElementWrapper(localName = "rejectedAttrs")
+    @JacksonXmlProperty(localName = "rejectedAttr")
+    @Override
+    public List<Attr> getRejectedAttrs() {
+        return rejectedAttrs;
     }
 }

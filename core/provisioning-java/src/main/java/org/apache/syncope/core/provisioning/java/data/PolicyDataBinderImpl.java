@@ -223,8 +223,12 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             AccessPolicyTO accessPolicyTO = AccessPolicyTO.class.cast(policyTO);
 
             accessPolicy.setName(accessPolicyTO.getKey());
+            accessPolicy.setOrder(accessPolicyTO.getOrder());
             accessPolicy.setEnabled(accessPolicyTO.isEnabled());
             accessPolicy.setSsoEnabled(accessPolicyTO.isSsoEnabled());
+            accessPolicy.setRequireAllAttributes(accessPolicyTO.isRequireAllAttributes());
+            accessPolicy.setCaseInsensitive(accessPolicyTO.isCaseInsensitive());
+            accessPolicy.setUnauthorizedRedirectUrl(accessPolicyTO.getUnauthorizedRedirectUrl());
             accessPolicy.setConf(accessPolicyTO.getConf());
         } else if (policyTO instanceof AttrReleasePolicyTO) {
             if (result == null) {
@@ -311,8 +315,12 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
             policyTO = (T) accessPolicyTO;
 
+            accessPolicyTO.setOrder(accessPolicy.getOrder());
             accessPolicyTO.setEnabled(accessPolicy.isEnabled());
             accessPolicyTO.setSsoEnabled(accessPolicy.isSsoEnabled());
+            accessPolicyTO.setRequireAllAttributes(accessPolicy.isRequireAllAttributes());
+            accessPolicyTO.setCaseInsensitive(accessPolicy.isCaseInsensitive());
+            accessPolicyTO.setUnauthorizedRedirectUrl(accessPolicy.getUnauthorizedRedirectUrl());
             accessPolicyTO.setConf(((AccessPolicy) policy).getConf());
         } else if (policy instanceof AttrReleasePolicy) {
             AttrReleasePolicyTO attrReleasePolicyTO = new AttrReleasePolicyTO();
