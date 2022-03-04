@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.client.console.policies;
 
+import java.util.List;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
@@ -28,8 +30,11 @@ import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 
 public class AttrReleasePolicyDirectoryPanel extends PolicyDirectoryPanel<AttrReleasePolicyTO> {
 
@@ -48,6 +53,12 @@ public class AttrReleasePolicyDirectoryPanel extends PolicyDirectoryPanel<AttrRe
     }
 
     @Override
+    protected void addCustomColumnFields(final List<IColumn<AttrReleasePolicyTO, String>> columns) {
+        columns.add(new PropertyColumn<>(new StringResourceModel("order", this), "order", "order"));
+        columns.add(new BooleanPropertyColumn<>(new StringResourceModel("status", this), "status", "status"));
+    }
+
+    @Override
     protected void addCustomActions(
             final ActionsPanel<AttrReleasePolicyTO> panel,
             final IModel<AttrReleasePolicyTO> model) {
@@ -63,10 +74,10 @@ public class AttrReleasePolicyDirectoryPanel extends PolicyDirectoryPanel<AttrRe
                     model.getObject().setConf(new DefaultAttrReleasePolicyConf());
                 }
                 target.add(policySpecModal.setContent(
-                    new AttrReleasePolicyModalPanel(policySpecModal, model, pageRef)));
+                        new AttrReleasePolicyModalPanel(policySpecModal, model, pageRef)));
                 policySpecModal.header(new Model<>(getString("attrReleasePolicyConf.title", model)));
                 policySpecModal.show(true);
             }
-        }, ActionLink.ActionType.TYPE_EXTENSIONS, IdRepoEntitlement.POLICY_UPDATE);
+        }, ActionLink.ActionType.CHANGE_VIEW, IdRepoEntitlement.POLICY_UPDATE);
     }
 }

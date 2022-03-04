@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
-import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
-import org.apache.syncope.common.lib.policy.AuthPolicyConf;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 
 public class WAClientApp implements BaseBean {
@@ -34,9 +34,9 @@ public class WAClientApp implements BaseBean {
 
     private AccessPolicyTO accessPolicy;
 
-    private AuthPolicyConf authPolicyConf;
+    private AuthPolicyTO authPolicy;
 
-    private AttrReleasePolicyConf attrReleasePolicyConf;
+    private AttrReleasePolicyTO attrReleasePolicy;
 
     private final Map<String, Object> releaseAttrs = new HashMap<>();
 
@@ -56,20 +56,20 @@ public class WAClientApp implements BaseBean {
         this.accessPolicy = accessPolicy;
     }
 
-    public AuthPolicyConf getAuthPolicyConf() {
-        return authPolicyConf;
+    public AuthPolicyTO getAuthPolicy() {
+        return authPolicy;
     }
 
-    public void setAuthPolicyConf(final AuthPolicyConf authPolicyConf) {
-        this.authPolicyConf = authPolicyConf;
+    public void setAuthPolicy(final AuthPolicyTO authPolicy) {
+        this.authPolicy = authPolicy;
     }
 
-    public AttrReleasePolicyConf getAttrReleasePolicyConf() {
-        return attrReleasePolicyConf;
+    public AttrReleasePolicyTO getAttrReleasePolicy() {
+        return attrReleasePolicy;
     }
 
-    public void setAttrReleasePolicyConf(final AttrReleasePolicyConf attrReleasePolicyConf) {
-        this.attrReleasePolicyConf = attrReleasePolicyConf;
+    public void setAttrReleasePolicy(final AttrReleasePolicyTO attrReleasePolicy) {
+        this.attrReleasePolicy = attrReleasePolicy;
     }
 
     public Map<String, Object> getReleaseAttrs() {

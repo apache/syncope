@@ -201,6 +201,18 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                     break;
 
                 case ATTR_RELEASE:
+                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                            "field",
+                            "order",
+                            Integer.class,
+                            new PropertyModel<>(policyTO, "order")));
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field",
+                            "status",
+                            new PropertyModel<>(policyTO, "status"),
+                            false));
+                    break;
+
                 case AUTH:
                 default:
             }

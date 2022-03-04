@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity.policy;
 
 import java.util.Optional;
+import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
@@ -34,14 +35,38 @@ public class JPAAttrReleasePolicy extends AbstractPolicy implements AttrReleaseP
 
     public static final String TABLE = "AttrReleasePolicy";
 
+    @Basic
+    private Integer arporder = 0;
+
+    private Boolean status;
+
     @Lob
     private String jsonConf;
 
     @Override
+    public int getOrder() {
+        return Optional.ofNullable(arporder).orElse(0);
+    }
+
+    @Override
+    public void setOrder(final int order) {
+        this.arporder = order;
+    }
+
+    @Override
+    public Boolean getStatus() {
+        return status;
+    }
+
+    @Override
+    public void setStatus(final Boolean status) {
+        this.status = status;
+    }
+
+    @Override
     public AttrReleasePolicyConf getConf() {
-        return jsonConf == null
-                ? null
-                : POJOHelper.deserialize(jsonConf, AttrReleasePolicyConf.class);
+        return Optional.ofNullable(jsonConf).
+                map(c -> POJOHelper.deserialize(c, AttrReleasePolicyConf.class)).orElse(null);
     }
 
     @Override

@@ -61,10 +61,10 @@ public class AuthPolicyDirectoryPanel extends PolicyDirectoryPanel<AuthPolicyTO>
                     model.getObject().setConf(new DefaultAuthPolicyConf());
                 }
                 target.add(policySpecModal.setContent(
-                    new AuthPolicyModalPanel(policySpecModal, model, pageRef)));
+                        new AuthPolicyModalPanel(policySpecModal, model, pageRef)));
                 policySpecModal.header(new Model<>(getString("authPolicyConf.title", model)));
                 policySpecModal.show(true);
             }
-        }, ActionLink.ActionType.TYPE_EXTENSIONS, IdRepoEntitlement.POLICY_UPDATE);
+        }, ActionLink.ActionType.CHANGE_VIEW, IdRepoEntitlement.POLICY_UPDATE);
     }
 }
