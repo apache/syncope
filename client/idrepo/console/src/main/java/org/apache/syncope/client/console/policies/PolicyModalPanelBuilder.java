@@ -194,7 +194,6 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                                     policyTO,
                                     Optional.ofNullable(object).map(URI::create).orElse(null),
                                     prc);
-                            LOG.error("CCCCCCCCCCCCCCCCCCC {}", getObject());
                         }
                     }, false);
                     unauthorizedRedirectUrl.getField().add(new UrlValidator(new String[] { "http", "https" }));
