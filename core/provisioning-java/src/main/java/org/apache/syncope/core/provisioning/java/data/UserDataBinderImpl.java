@@ -782,7 +782,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     @Override
     public UserTO getUserTO(final User user, final boolean details) {
         Boolean returnPasswordValue = confParamOps.get(AuthContextUtils.getDomain(),
-                "password.cipher.algorithm", Boolean.FALSE, Boolean.class);
+                "return.password.value", Boolean.FALSE, Boolean.class);
 
         UserTO userTO = new UserTO();
         userTO.setKey(user.getKey());
