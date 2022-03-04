@@ -21,14 +21,13 @@ package org.apache.syncope.wa.starter.mapping;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.ReturnMappedAttributeReleasePolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RegisteredServiceMapper {
 
@@ -63,30 +62,30 @@ public class RegisteredServiceMapper {
         }
 
         RegisteredServiceAuthenticationPolicy authPolicy = null;
-        if (clientApp.getAuthPolicyConf() != null) {
-            AuthMapper authMapper =
-                    authPolicyConfMappers.get(clientApp.getAuthPolicyConf().getClass().getName());
+        if (clientApp.getAuthPolicy() != null) {
+            AuthMapper authMapper = authPolicyConfMappers.get(
+                    clientApp.getAuthPolicy().getConf().getClass().getName());
             authPolicy = Optional.ofNullable(authMapper).
-                    map(mapper -> mapper.build(clientApp.getAuthPolicyConf())).orElse(null);
+                    map(mapper -> mapper.build(clientApp.getAuthPolicy())).orElse(null);
         }
 
         RegisteredServiceAccessStrategy accessStrategy = null;
         if (clientApp.getAccessPolicy() != null) {
-            AccessMapper accessPolicyConfMapper =
-                    accessPolicyConfMappers.get(clientApp.getAccessPolicy().getClass().getName());
+            AccessMapper accessPolicyConfMapper = accessPolicyConfMappers.get(
+                    clientApp.getAccessPolicy().getConf().getClass().getName());
             accessStrategy = Optional.ofNullable(accessPolicyConfMapper).
                     map(mapper -> mapper.build(clientApp.getAccessPolicy())).orElse(null);
         }
 
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy = null;
         if (!clientApp.getReleaseAttrs().isEmpty()) {
-            if (clientApp.getAttrReleasePolicyConf() == null) {
+            if (clientApp.getAttrReleasePolicy() == null) {
                 attributeReleasePolicy = new ReturnMappedAttributeReleasePolicy(clientApp.getReleaseAttrs());
             } else {
-                AttrReleaseMapper attrReleasePolicyConfMapper =
-                        attrReleasePolicyConfMappers.get(clientApp.getAttrReleasePolicyConf().getClass().getName());
+                AttrReleaseMapper attrReleasePolicyConfMapper = attrReleasePolicyConfMappers.get(
+                        clientApp.getAttrReleasePolicy().getConf().getClass().getName());
                 attributeReleasePolicy = Optional.ofNullable(attrReleasePolicyConfMapper).
-                        map(mapper -> mapper.build(clientApp.getAttrReleasePolicyConf())).orElse(null);
+                        map(mapper -> mapper.build(clientApp.getAttrReleasePolicy())).orElse(null);
             }
         }
 

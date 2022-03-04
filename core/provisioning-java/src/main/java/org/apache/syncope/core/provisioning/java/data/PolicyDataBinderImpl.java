@@ -239,6 +239,8 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             AttrReleasePolicyTO attrReleasePolicyTO = AttrReleasePolicyTO.class.cast(policyTO);
 
             attrReleasePolicy.setName(attrReleasePolicyTO.getKey());
+            attrReleasePolicy.setOrder(attrReleasePolicyTO.getOrder());
+            attrReleasePolicy.setStatus(attrReleasePolicyTO.getStatus());
             attrReleasePolicy.setConf(attrReleasePolicyTO.getConf());
         }
 
@@ -323,10 +325,13 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             accessPolicyTO.setUnauthorizedRedirectUrl(accessPolicy.getUnauthorizedRedirectUrl());
             accessPolicyTO.setConf(((AccessPolicy) policy).getConf());
         } else if (policy instanceof AttrReleasePolicy) {
+            AttrReleasePolicy attrReleasePolicy = AttrReleasePolicy.class.cast(policy);
             AttrReleasePolicyTO attrReleasePolicyTO = new AttrReleasePolicyTO();
             policyTO = (T) attrReleasePolicyTO;
 
-            attrReleasePolicyTO.setConf(((AttrReleasePolicy) policy).getConf());
+            attrReleasePolicyTO.setOrder(attrReleasePolicy.getOrder());
+            attrReleasePolicyTO.setStatus(attrReleasePolicy.getStatus());
+            attrReleasePolicyTO.setConf(attrReleasePolicy.getConf());
         }
 
         if (policyTO != null) {

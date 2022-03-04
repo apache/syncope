@@ -24,7 +24,6 @@ import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
@@ -48,12 +47,6 @@ public class AttrReleasePolicyModalPanel extends AbstractModalPanel<AttrReleaseP
 
         super(modal, pageRef);
         this.model = model;
-
-        add(new AjaxCheckBoxPanel(
-                "status",
-                "status",
-                new PropertyModel<>(model.getObject().getConf(), "status"),
-                false));
 
         AjaxTextFieldPanel allowedAttr = new AjaxTextFieldPanel("panel", "allowedAttrs", new Model<>());
         add(new MultiFieldPanel.Builder<String>(

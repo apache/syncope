@@ -38,10 +38,10 @@ public class AbstractClientAppTest extends AbstractTest {
     protected AttrReleasePolicy buildAndSaveAttrRelPolicy() {
         AttrReleasePolicy attrRelPolicy = entityFactory.newEntity(AttrReleasePolicy.class);
         attrRelPolicy.setName("AttrRelPolicyTest");
+        attrRelPolicy.setStatus(Boolean.TRUE);
 
         DefaultAttrReleasePolicyConf conf = new DefaultAttrReleasePolicyConf();
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
-        conf.setStatus(Boolean.TRUE);
         conf.getIncludeOnlyAttrs().add("cn");
 
         attrRelPolicy.setConf(conf);

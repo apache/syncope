@@ -918,10 +918,10 @@ public abstract class AbstractITCase {
     protected AttrReleasePolicyTO buildAttrReleasePolicyTO() {
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
         policy.setName("Test Attribute Release policy");
+        policy.setStatus(Boolean.TRUE);
 
         DefaultAttrReleasePolicyConf conf = new DefaultAttrReleasePolicyConf();
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
-        conf.setStatus(Boolean.TRUE);
         conf.getIncludeOnlyAttrs().add("cn");
 
         policy.setConf(conf);
