@@ -74,7 +74,6 @@ import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
@@ -303,18 +302,15 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         LinkedAccountTO accountTO = new LinkedAccountTO.Builder(
                 account.getKey(), account.getResource().getKey(), account.getConnObjectKeyValue()).
                 username(account.getUsername()).
-                password(account.getPassword()).
+                password(returnPasswordValue ? account.getPassword() : null).
                 suspended(BooleanUtils.isTrue(account.isSuspended())).
                 build();
 
-        account.getPlainAttrs().forEach(plainAttr -> {
-            accountTO.getPlainAttrs().add(
-                    new Attr.Builder(plainAttr.getSchema().getKey()).
-                            values(plainAttr.getValuesAsStrings()).build());
-        });
+        account.getPlainAttrs().forEach(plainAttr -> accountTO.getPlainAttrs().add(
+                new Attr.Builder(plainAttr.getSchema().getKey()).values(plainAttr.getValuesAsStrings()).build()));
 
         accountTO.getPrivileges().addAll(account.getPrivileges().stream().
-                map(Entity::getKey).collect(Collectors.toList()));
+                map(Privilege::getKey).collect(Collectors.toList()));
 
         return accountTO;
     }
@@ -829,15 +825,15 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         if (details) {
             // roles
-            userTO.getRoles().addAll(user.getRoles().stream().map(Entity::getKey).collect(Collectors.toList()));
+            userTO.getRoles().addAll(user.getRoles().stream().map(Role::getKey).collect(Collectors.toList()));
 
             // dynamic roles
             userTO.getDynRoles().addAll(
-                    userDAO.findDynRoles(user.getKey()).stream().map(Entity::getKey).collect(Collectors.toList()));
+                    userDAO.findDynRoles(user.getKey()).stream().map(Role::getKey).collect(Collectors.toList()));
 
             // privileges
             userTO.getPrivileges().addAll(userDAO.findAllRoles(user).stream().
-                    flatMap(role -> role.getPrivileges().stream()).map(Entity::getKey).collect(Collectors.toSet()));
+                    flatMap(role -> role.getPrivileges().stream()).map(Privilege::getKey).collect(Collectors.toSet()));
 
             // relationships
             userTO.getRelationships().addAll(user.getRelationships().stream().
