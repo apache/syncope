@@ -63,7 +63,6 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -246,20 +245,15 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         LinkedAccountTO accountTO = new LinkedAccountTO.Builder(
                 account.getKey(), account.getResource().getKey(), account.getConnObjectKeyValue()).
                 username(account.getUsername()).
+                password(returnPasswordValue ? account.getPassword() : null).
                 suspended(BooleanUtils.isTrue(account.isSuspended())).
                 build();
-        if (returnPasswordValue) {
-            accountTO.setPassword(account.getPassword());
-        }
 
-        account.getPlainAttrs().forEach(plainAttr -> {
-            accountTO.getPlainAttrs().add(new AttrTO.Builder().
-                    schema(plainAttr.getSchema().getKey()).
-                    values(plainAttr.getValuesAsStrings()).build());
-        });
+        account.getPlainAttrs().forEach(plainAttr -> accountTO.getPlainAttrs().add(new AttrTO.Builder().
+                schema(plainAttr.getSchema().getKey()).values(plainAttr.getValuesAsStrings()).build()));
 
         accountTO.getPrivileges().addAll(account.getPrivileges().stream().
-                map(Entity::getKey).collect(Collectors.toList()));
+                map(Privilege::getKey).collect(Collectors.toList()));
 
         return accountTO;
     }
@@ -766,15 +760,15 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         if (details) {
             // roles
-            userTO.getRoles().addAll(user.getRoles().stream().map(Entity::getKey).collect(Collectors.toList()));
+            userTO.getRoles().addAll(user.getRoles().stream().map(Role::getKey).collect(Collectors.toList()));
 
             // dynamic roles
             userTO.getDynRoles().addAll(
-                    userDAO.findDynRoles(user.getKey()).stream().map(Entity::getKey).collect(Collectors.toList()));
+                    userDAO.findDynRoles(user.getKey()).stream().map(Role::getKey).collect(Collectors.toList()));
 
             // privileges
             userTO.getPrivileges().addAll(userDAO.findAllRoles(user).stream().
-                    flatMap(role -> role.getPrivileges().stream()).map(Entity::getKey).collect(Collectors.toSet()));
+                    flatMap(role -> role.getPrivileges().stream()).map(Privilege::getKey).collect(Collectors.toSet()));
 
             // relationships
             userTO.getRelationships().addAll(user.getRelationships().stream().
@@ -784,16 +778,16 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             // memberships
             userTO.getMemberships().addAll(
                     user.getMemberships().stream().map(membership -> getMembershipTO(
-                            user.getPlainAttrs(membership),
-                            derAttrHandler.getValues(user, membership),
-                            virAttrHandler.getValues(user, membership),
-                            membership)).collect(Collectors.toList()));
+                    user.getPlainAttrs(membership),
+                    derAttrHandler.getValues(user, membership),
+                    virAttrHandler.getValues(user, membership),
+                    membership)).collect(Collectors.toList()));
 
             // dynamic memberships
             userTO.getDynMemberships().addAll(
                     userDAO.findDynGroups(user.getKey()).stream().map(group -> new MembershipTO.Builder().
-                            group(group.getKey(), group.getName()).
-                            build()).collect(Collectors.toList()));
+                    group(group.getKey(), group.getName()).
+                    build()).collect(Collectors.toList()));
 
             // linked accounts
             userTO.getLinkedAccounts().addAll(
