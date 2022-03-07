@@ -1405,6 +1405,12 @@ under the License.
         <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-syncope-authentication</artifactId>
         <version>${cas.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.github.mmoayyed.cxf</groupId>
+            <artifactId>cxf-rt-rs-extension-search</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apereo.cas</groupId>
