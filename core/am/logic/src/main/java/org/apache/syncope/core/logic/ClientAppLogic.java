@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
@@ -262,13 +264,16 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
     public void pushToWA() {
         try {
             NetworkService wa = serviceOps.get(NetworkService.Type.WA);
+            String basicAuthHeader = DefaultBasicAuthSupplier.getBasicAuthHeader(
+                securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey());
+            URI endpoint = URI.create(StringUtils.appendIfMissing(wa.getAddress(), "/")
+                                      + "actuator/registeredServices");
             HttpClient.newBuilder().build().send(
-                    HttpRequest.newBuilder(URI.create(
-                            StringUtils.appendIfMissing(wa.getAddress(), "/") + "actuator/registeredServices")).
-                            header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
-                                    securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey())).
-                            GET().build(),
-                    HttpResponse.BodyHandlers.discarding());
+                HttpRequest.newBuilder(endpoint).
+                    header(HttpHeaders.AUTHORIZATION, basicAuthHeader).
+                    header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON).
+                    GET().build(),
+                HttpResponse.BodyHandlers.discarding());
         } catch (KeymasterException e) {
             throw new NotFoundException("Could not find any WA instance", e);
         } catch (IOException | InterruptedException e) {

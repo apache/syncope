@@ -45,7 +45,6 @@ public final class CASSecurityConfigUtils {
 
     public static void forLogin(
             final ServerHttpSecurity http,
-            final String serverName,
             final Protocol protocol,
             final String casServerUrlPrefix,
             final PublicRouteMatcher publicRouteMatcher) {
@@ -54,14 +53,13 @@ public final class CASSecurityConfigUtils {
 
         CASAuthenticationRequestWebFilter authRequestFilter = new CASAuthenticationRequestWebFilter(
                 publicRouteMatcher,
-                serverName,
                 protocol,
                 casServerUrlPrefix);
         http.addFilterAt(authRequestFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 
         AuthenticationWebFilter authenticationFilter = new CASAuthenticationWebFilter(
                 authenticationManager,
-                serverName, protocol,
+                protocol,
                 casServerUrlPrefix);
         authenticationFilter.setAuthenticationFailureHandler((exchange, ex) -> Mono.error(ex));
         authenticationFilter.setSecurityContextRepository(new WebSessionServerSecurityContextRepository());

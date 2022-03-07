@@ -70,9 +70,9 @@ under the License.
   <AuthModule id="DefaultDuoMfaAuthModule"
               description="Duo Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf","integrationKey":"DIOXVRZD2UMZ8XXMNFQ5","secretKey":"Q2IU2i8BFNd6VYflZT8Evl6lF7oPlj3PM15BmRU7", "applicationKey":"u1IHBaREMB7Cb5S4QMISAgHycpj8lPBkDGfWt23I", "apiHost":"theapi.duosecurity.com"}'/>
   <AuthModule id="DefaultOIDCAuthModule"
-              description="OIDC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","discoveryUri":"https://accounts.google.com/.well-known/openid-configuration", "id":"client-id", "secret": "client-secret" }'/>
+              description="OIDC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","discoveryUri":"https://localhost:9443/syncope-wa/oidc/.well-known/openid-configuration", "id":"client-id", "secret": "client-secret" }'/>
   <AuthModule id="DefaultSAML2IdPAuthModule"
-              description="SAML2 IdP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","keystorePassword":"p@$$word","privateKeyPassword":"p@$$word","identityProviderMetadataPath":"classpath:/idp-metadata.xml", "serviceProviderEntityId":"syncope:apache:org"}'/>
+              description="SAML2 IdP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","keystorePassword":"p@$$word","privateKeyPassword":"p@$$word","identityProviderMetadataPath":"https://localhost:9443/syncope-wa/idp/metadata", "serviceProviderEntityId":"syncope:apache:org"}'/>
   <AuthModule id="DefaultJaasAuthModule"
               description="Jaas auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JaasAuthModuleConf","realm":"SYNCOPE","kerberosRealmSystemProperty":"sample-value", "loginConfigType": "JavaLoginConfig", "loginConfigurationFile": "file:/etc/jaas/login.conf"}'/>
   <AuthModule id="DefaultStaticAuthModule"

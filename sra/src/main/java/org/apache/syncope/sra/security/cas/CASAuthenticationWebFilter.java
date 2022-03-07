@@ -44,21 +44,17 @@ public class CASAuthenticationWebFilter extends AuthenticationWebFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(CASAuthenticationWebFilter.class);
 
-    private final String serverName;
-
     private final Protocol protocol;
 
     private final TicketValidator ticketValidator;
 
     public CASAuthenticationWebFilter(
             final ReactiveAuthenticationManager authenticationManager,
-            final String serverName,
             final Protocol protocol,
             final String casServerUrlPrefix) {
 
         super(authenticationManager);
 
-        this.serverName = serverName;
         this.protocol = protocol;
         this.ticketValidator = new Cas30JsonServiceTicketValidator(casServerUrlPrefix);
 
@@ -72,12 +68,15 @@ public class CASAuthenticationWebFilter extends AuthenticationWebFilter {
     }
 
     private ServerAuthenticationConverter validateAssertion() {
-        return exchange -> CASUtils.retrieveTicketFromRequest(exchange, this.protocol).
+        return exchange -> CASUtils.retrieveTicketFromRequest(exchange, protocol).
                 flatMap(ticket -> {
                     try {
-                        Assertion assertion = this.ticketValidator.validate(
+                        String serviceUrl = CASUtils.constructServiceUrl(exchange, protocol);
+                        LOG.debug("Constructed service url: {}", serviceUrl);
+
+                        Assertion assertion = ticketValidator.validate(
                                 ticket,
-                                CASUtils.constructServiceUrl(exchange, this.serverName, this.protocol));
+                                CASUtils.constructServiceUrl(exchange, protocol));
                         return Mono.just(new CASAuthenticationToken(assertion));
                     } catch (TicketValidationException e) {
                         LOG.error("Could not validate {}", ticket, e);
@@ -96,7 +95,7 @@ public class CASAuthenticationWebFilter extends AuthenticationWebFilter {
                     final WebFilterExchange webFilterExchange, final Authentication authentication) {
 
                 return webFilterExchange.getExchange().getSession().
-                        flatMap(session -> this.redirectStrategy.sendRedirect(
+                        flatMap(session -> redirectStrategy.sendRedirect(
                         webFilterExchange.getExchange(),
                         session.<URI>getRequiredAttribute(SessionUtils.INITIAL_REQUEST_URI)));
             }

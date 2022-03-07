@@ -19,17 +19,17 @@
 package org.apache.syncope.fit;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -48,6 +48,9 @@ import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.sra.AbstractSRAITCase;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.FormElement;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,13 +63,13 @@ public class AbstractITCase {
 
     protected static final String ADMIN_PWD = "password";
 
-    protected static final String CORE_ADDRESS = "http://localhost:9080/syncope/rest";
+    protected static final String CORE_ADDRESS = "https://localhost:9443/syncope/rest";
 
-    protected static final String CONSOLE_ADDRESS = "http://localhost:9080/syncope-console/";
+    protected static final String CONSOLE_ADDRESS = "https://localhost:9443/syncope-console/";
 
-    protected static final String ENDUSER_ADDRESS = "http://localhost:9080/syncope-enduser/";
+    protected static final String ENDUSER_ADDRESS = "https://localhost:9443/syncope-enduser/";
 
-    protected static final String WA_ADDRESS = "http://localhost:9080/syncope-wa";
+    protected static final String WA_ADDRESS = "https://localhost:9443/syncope-wa";
 
     protected static final String EN_LANGUAGE = "en-US,en;q=0.5";
 
@@ -115,78 +118,74 @@ public class AbstractITCase {
         });
     }
 
-    protected static Triple<String, String, String> parseSAMLRequestForm(final String responseBody) {
-        int begin = responseBody.indexOf("name=\"RelayState\" value=\"");
-        assertNotEquals(-1, begin);
-        int end = responseBody.indexOf("\"/>", begin);
-        assertNotEquals(-1, end);
-        String relayState = StringEscapeUtils.unescapeXml(responseBody.substring(begin + 25, end));
-        assertNotNull(relayState);
+    protected static Triple<String, String, String> parseSAMLRequestForm(final String body) {
+        FormElement form = (FormElement) Jsoup.parse(body).body().getElementsByTag("form").first();
+        assertNotNull(form);
 
-        begin = responseBody.indexOf("name=\"SAMLRequest\" value=\"");
-        assertNotEquals(-1, begin);
-        end = responseBody.indexOf("\"/>", begin);
-        assertNotEquals(-1, end);
-        String samlRequest = responseBody.substring(begin + 26, end);
-        assertNotNull(samlRequest);
-
-        begin = responseBody.indexOf("<form action=\"");
-        assertNotEquals(-1, begin);
-        end = responseBody.indexOf("\" method=\"post\">");
-        assertNotEquals(-1, end);
-        String action = StringEscapeUtils.unescapeXml(responseBody.substring(begin + 14, end));
+        String action = form.attr("action");
         assertNotNull(action);
 
-        return Triple.of(action, relayState, samlRequest);
+        Optional<String> relayState = form.formData().stream().
+                filter(keyval -> "RelayState".equals(keyval.key())).
+                map(Connection.KeyVal::value).
+                findFirst();
+        assertTrue(relayState.isPresent());
+
+        Optional<String> samlRequest = form.formData().stream().
+                filter(keyval -> "SAMLRequest".equals(keyval.key())).
+                map(Connection.KeyVal::value).
+                findFirst();
+        assertTrue(samlRequest.isPresent());
+
+        return Triple.of(action, relayState.get(), samlRequest.get());
     }
 
-    protected static Triple<String, String, String> parseSAMLResponseForm(final String responseBody) {
-        int begin = responseBody.indexOf("name=\"RelayState\" value=\"");
-        assertNotEquals(-1, begin);
-        int end = responseBody.indexOf("\"/>");
-        assertNotEquals(-1, end);
-        String relayState = responseBody.substring(begin + 26, end);
-        assertNotNull(relayState);
+    protected static Triple<String, String, String> parseSAMLResponseForm(final String body) {
+        FormElement form = (FormElement) Jsoup.parse(body).body().getElementsByTag("form").first();
+        assertNotNull(form);
 
-        begin = responseBody.indexOf("name=\"SAMLResponse\" value=\"");
-        assertNotEquals(-1, begin);
-        end = responseBody.indexOf("\"/>", begin);
-        assertNotEquals(-1, end);
-        String samlResponse = responseBody.substring(begin + 27, end);
-        assertNotNull(samlResponse);
-
-        begin = responseBody.indexOf("<form action=\"");
-        assertNotEquals(-1, begin);
-        end = responseBody.indexOf("\" method=\"post\">");
-        assertNotEquals(-1, end);
-        String action = StringEscapeUtils.unescapeXml(responseBody.substring(begin + 14, end));
+        String action = form.attr("action");
         assertNotNull(action);
 
-        return Triple.of(action, relayState, samlResponse);
+        Optional<String> relayState = form.formData().stream().
+                filter(keyval -> "RelayState".equals(keyval.key())).
+                map(Connection.KeyVal::value).
+                findFirst();
+        assertTrue(relayState.isPresent());
+
+        Optional<String> samlResponse = form.formData().stream().
+                filter(keyval -> "SAMLResponse".equals(keyval.key())).
+                map(Connection.KeyVal::value).
+                findFirst();
+        assertTrue(samlResponse.isPresent());
+
+        return Triple.of(action, relayState.get(), samlResponse.get());
     }
 
-    protected static String extractCASExecution(final String responseBody) {
-        int begin = responseBody.indexOf("name=\"execution\" value=\"");
-        assertNotEquals(-1, begin);
-        int end = responseBody.indexOf("\"/><input type=\"hidden\" name=\"_eventId\"");
-        assertNotEquals(-1, end);
+    protected static String extractWAExecution(final String body) {
+        FormElement form = (FormElement) Jsoup.parse(body).body().getElementsByTag("form").first();
+        assertNotNull(form);
 
-        String execution = responseBody.substring(begin + 24, end);
-        assertNotNull(execution);
-        return execution;
+        Optional<String> execution = form.formData().stream().
+                filter(keyval -> "execution".equals(keyval.key())).
+                map(Connection.KeyVal::value).
+                findFirst();
+        assertTrue(execution.isPresent());
+
+        return execution.get();
     }
 
-    protected static CloseableHttpResponse authenticateToCas(
+    protected static CloseableHttpResponse authenticateToWA(
             final String username,
             final String password,
-            final String responseBody,
+            final String body,
             final CloseableHttpClient httpclient,
             final HttpClientContext context)
             throws IOException {
 
         List<NameValuePair> form = new ArrayList<>();
         form.add(new BasicNameValuePair("_eventId", "submit"));
-        form.add(new BasicNameValuePair("execution", extractCASExecution(responseBody)));
+        form.add(new BasicNameValuePair("execution", extractWAExecution(body)));
         form.add(new BasicNameValuePair("username", username));
         form.add(new BasicNameValuePair("password", password));
         form.add(new BasicNameValuePair("geolocation", ""));

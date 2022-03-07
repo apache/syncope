@@ -322,19 +322,9 @@ public class SRAProperties extends SyncopeProperties {
 
     public static class CAS {
 
-        private String serverName;
-
         private String serverPrefix;
 
         private Protocol protocol = Protocol.CAS3;
-
-        public String getServerName() {
-            return serverName;
-        }
-
-        public void setServerName(final String serverName) {
-            this.serverName = serverName;
-        }
 
         public String getServerPrefix() {
             return serverPrefix;

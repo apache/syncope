@@ -187,7 +187,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
         // 2. click on the SAML 2.0 IdP
         get = new HttpGet(baseURL + SAML2SP4UIConstants.URL_CONTEXT
-                + "/login?idp=http%3A//localhost%3A9080/syncope-wa/saml");
+                + "/login?idp=https%3A//localhost%3A9443/syncope-wa/saml");
         String responseBody;
         try (CloseableHttpResponse response = httpclient.execute(get, context)) {
             responseBody = EntityUtils.toString(response.getEntity());
@@ -218,7 +218,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         }
         boolean isOk = false;
         try (CloseableHttpResponse response =
-                authenticateToCas(username, password, responseBody, httpclient, context)) {
+                authenticateToWA(username, password, responseBody, httpclient, context)) {
 
             switch (response.getStatusLine().getStatusCode()) {
                 case HttpStatus.SC_OK:
@@ -237,7 +237,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
         // 2c. WA attribute consent screen
         if (isOk) {
-            String execution = extractCASExecution(responseBody);
+            String execution = extractWAExecution(responseBody);
 
             List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("_eventId", "confirm"));
@@ -252,7 +252,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
             post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
             try (CloseableHttpResponse response = httpclient.execute(post, context)) {
                 assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
-                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue().replace(":8080", ":9080");
+                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
             }
         }
 
