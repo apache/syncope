@@ -201,12 +201,12 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             OrderBySupport obs = parseOrderBy(svs, orderBy);
             if (queryString.charAt(0) == '(') {
                 queryString.insert(0, buildSelect(obs));
-                queryString.append(buildWhere(svs, obs));
             } else {
                 queryString.insert(0, buildSelect(obs).append('('));
-                queryString.append(')').append(buildWhere(svs, obs));
+                queryString.append(')');
             }
             queryString.
+                    append(buildWhere(svs, obs)).
                     append(filter.getLeft()).
                     append(buildOrderBy(obs));
 
@@ -276,8 +276,6 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 StringBuilder attrWhere = new StringBuilder();
                 StringBuilder nullAttrWhere = new StringBuilder();
 
-                where.append(" (SELECT * FROM ").append(searchView.name);
-
                 if (svs.nonMandatorySchemas || obs.nonMandatorySchemas) {
                     attrs.forEach(field -> {
                         if (attrWhere.length() == 0) {
@@ -302,10 +300,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                                 append(svs.asSearchViewSupport().attr().name).append(' ').append(searchView.alias).
                                 append(" WHERE ").append("schema_id='").append(field).append("')");
                     });
-                    where.append(attrWhere).append(nullAttrWhere);
+                    where.append(attrWhere).append(nullAttrWhere).append(')');
+                } else {
+                    where.append(searchView.name);
                 }
-
-                where.append(')');
             } else {
                 where.append(searchView.name);
             }
@@ -320,15 +318,12 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         StringBuilder where = new StringBuilder(" u");
         processOBS(svs, obs, where);
         where.append(" WHERE ");
-        obs.views.forEach(searchView -> {
-            where.append("u.any_id=").append(searchView.alias).append(".any_id AND ");
-        });
+
+        obs.views.forEach(searchView -> where.append("u.any_id=").append(searchView.alias).append(".any_id AND "));
 
         obs.items.stream().
                 filter(item -> StringUtils.isNotBlank(item.where)).
-                forEachOrdered((item) -> {
-                    where.append(item.where).append(" AND ");
-                });
+                forEach(item -> where.append(item.where).append(" AND "));
 
         return where;
     }
