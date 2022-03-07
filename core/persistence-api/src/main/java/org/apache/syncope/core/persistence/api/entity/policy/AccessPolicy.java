@@ -18,9 +18,14 @@
  */
 package org.apache.syncope.core.persistence.api.entity.policy;
 
+import java.net.URI;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 
 public interface AccessPolicy extends Policy {
+
+    int getOrder();
+
+    void setOrder(int order);
 
     boolean isEnabled();
 
@@ -29,6 +34,18 @@ public interface AccessPolicy extends Policy {
     boolean isSsoEnabled();
 
     void setSsoEnabled(boolean ssoEnabled);
+
+    boolean isRequireAllAttributes();
+
+    void setRequireAllAttributes(boolean requireAllAttributes);
+
+    boolean isCaseInsensitive();
+
+    void setCaseInsensitive(boolean caseInsensitive);
+
+    URI getUnauthorizedRedirectUrl();
+
+    void setUnauthorizedRedirectUrl(URI unauthorizedRedirectUrl);
 
     AccessPolicyConf getConf();
 

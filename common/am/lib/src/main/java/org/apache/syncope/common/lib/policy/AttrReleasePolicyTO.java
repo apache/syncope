@@ -27,6 +27,10 @@ public class AttrReleasePolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = -1432411162433533300L;
 
+    private int order;
+
+    private Boolean status;
+
     private AttrReleasePolicyConf conf;
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
@@ -35,6 +39,22 @@ public class AttrReleasePolicyTO extends PolicyTO {
     @Override
     public String getDiscriminator() {
         return getClass().getName();
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(final int order) {
+        this.order = order;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(final Boolean status) {
+        this.status = status;
     }
 
     public AttrReleasePolicyConf getConf() {

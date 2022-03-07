@@ -403,11 +403,11 @@ under the License.
     <connid.scimv11.version>1.0.1</connid.scimv11.version>
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
-    <cxf.version>3.5.0</cxf.version>
+    <cxf.version>3.5.1</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
     <nimbus-jose-jwt.version>9.20</nimbus-jose-jwt.version>
 
-    <jackson.version>2.13.1</jackson.version>
+    <jackson.version>2.13.2</jackson.version>
 
     <spring-boot.version>2.6.4</spring-boot.version>
     <spring-cloud-gateway.version>3.1.1</spring-cloud-gateway.version>
@@ -1144,7 +1144,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.6.6</version>
+        <version>1.6.7</version>
         <exclusions>
           <exclusion>
             <groupId>junit</groupId>

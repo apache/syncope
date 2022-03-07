@@ -221,10 +221,10 @@ public class PolicyTest extends AbstractTest {
         beforeCount = policyDAO.findAll().size();
         AttrReleasePolicy attrReleasePolicy = entityFactory.newEntity(AttrReleasePolicy.class);
         attrReleasePolicy.setName("AttrReleasePolicyAllowEverything");
+        attrReleasePolicy.setStatus(Boolean.TRUE);
 
         DefaultAttrReleasePolicyConf attrReleasePolicyConf = new DefaultAttrReleasePolicyConf();
         attrReleasePolicyConf.getAllowedAttrs().add("*");
-        attrReleasePolicyConf.setStatus(Boolean.TRUE);
         attrReleasePolicyConf.getIncludeOnlyAttrs().add("cn");
         attrReleasePolicy.setConf(attrReleasePolicyConf);
 
@@ -232,8 +232,8 @@ public class PolicyTest extends AbstractTest {
 
         assertNotNull(attrReleasePolicy);
         assertNotNull(attrReleasePolicy.getKey());
+        assertNotNull(attrReleasePolicy.getStatus());
         assertNotNull(((DefaultAttrReleasePolicyConf) attrReleasePolicy.getConf()).getAllowedAttrs());
-        assertNotNull(((DefaultAttrReleasePolicyConf) attrReleasePolicy.getConf()).getStatus());
 
         afterCount = policyDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);

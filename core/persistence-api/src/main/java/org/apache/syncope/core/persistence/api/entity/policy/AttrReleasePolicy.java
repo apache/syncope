@@ -22,6 +22,14 @@ import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 
 public interface AttrReleasePolicy extends Policy {
 
+    int getOrder();
+
+    void setOrder(int order);
+
+    Boolean getStatus();
+
+    void setStatus(Boolean status);
+
     AttrReleasePolicyConf getConf();
 
     void setConf(AttrReleasePolicyConf conf);

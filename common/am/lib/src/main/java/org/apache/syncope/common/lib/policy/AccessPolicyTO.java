@@ -22,15 +22,24 @@ package org.apache.syncope.common.lib.policy;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.net.URI;
 
 @Schema(allOf = { PolicyTO.class })
 public class AccessPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = -6711411162433533300L;
 
+    private int order;
+
     private boolean enabled = true;
 
     private boolean ssoEnabled = true;
+
+    private boolean requireAllAttributes = true;
+
+    private boolean caseInsensitive;
+
+    private URI unauthorizedRedirectUrl;
 
     private AccessPolicyConf conf;
 
@@ -40,6 +49,14 @@ public class AccessPolicyTO extends PolicyTO {
     @Override
     public String getDiscriminator() {
         return getClass().getName();
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(final int order) {
+        this.order = order;
     }
 
     public boolean isEnabled() {
@@ -56,6 +73,30 @@ public class AccessPolicyTO extends PolicyTO {
 
     public void setSsoEnabled(final boolean ssoEnabled) {
         this.ssoEnabled = ssoEnabled;
+    }
+
+    public boolean isRequireAllAttributes() {
+        return requireAllAttributes;
+    }
+
+    public void setRequireAllAttributes(final boolean requireAllAttributes) {
+        this.requireAllAttributes = requireAllAttributes;
+    }
+
+    public boolean isCaseInsensitive() {
+        return caseInsensitive;
+    }
+
+    public void setCaseInsensitive(final boolean caseInsensitive) {
+        this.caseInsensitive = caseInsensitive;
+    }
+
+    public URI getUnauthorizedRedirectUrl() {
+        return unauthorizedRedirectUrl;
+    }
+
+    public void setUnauthorizedRedirectUrl(final URI unauthorizedRedirectUrl) {
+        this.unauthorizedRedirectUrl = unauthorizedRedirectUrl;
     }
 
     public AccessPolicyConf getConf() {

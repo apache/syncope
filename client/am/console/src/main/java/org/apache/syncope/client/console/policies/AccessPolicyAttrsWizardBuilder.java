@@ -26,25 +26,29 @@ import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 
-public class AccessPolicyRequiredAttrsWizardBuilder extends AttrWizardBuilder {
+public class AccessPolicyAttrsWizardBuilder extends AttrWizardBuilder {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 33625775269155L;
 
     private final AccessPolicyTO accessPolicy;
 
-    public AccessPolicyRequiredAttrsWizardBuilder(
+    private final AccessPolicyAttrsDirectoryPanel.AttrsAccessor attrsAccessor;
+
+    public AccessPolicyAttrsWizardBuilder(
             final AccessPolicyTO accessPolicy,
+            final AccessPolicyAttrsDirectoryPanel.AttrsAccessor attrsAccessor,
             final Attr attr,
             final PageReference pageRef) {
 
         super(attr, pageRef);
         this.accessPolicy = accessPolicy;
+        this.attrsAccessor = attrsAccessor;
     }
 
     @Override
     protected Serializable onApplyInternal(final Attr modelObject) {
-        accessPolicy.getConf().getRequiredAttrs().removeIf(p -> modelObject.getSchema().equals(p.getSchema()));
-        accessPolicy.getConf().getRequiredAttrs().add(modelObject);
+        attrsAccessor.apply(accessPolicy.getConf()).removeIf(p -> modelObject.getSchema().equals(p.getSchema()));
+        attrsAccessor.apply(accessPolicy.getConf()).add(modelObject);
 
         PolicyRestClient.update(PolicyType.ACCESS, accessPolicy);
 

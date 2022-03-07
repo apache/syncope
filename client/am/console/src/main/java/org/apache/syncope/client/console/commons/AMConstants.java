@@ -32,8 +32,7 @@ public final class AMConstants {
 
     public static final String PREF_CLIENTAPP_PROPERTIES_PAGINATOR_ROWS = "clientapp.properties.paginator.rows";
 
-    public static final String PREF_ACCESS_POLICY_CONF_REQUIRED_ATTRS_PAGINATOR_ROWS =
-            "accesspolicy.conf.requiredattrs.paginator.rows";
+    public static final String PREF_ACCESS_POLICY_CONF_ATTRS_PAGINATOR_ROWS = "accesspolicy.conf.attrs.paginator.rows";
 
     public static final String PREF_SAML2_IDP_ENTITY_PAGINATOR_ROWS = "saml2idpentity.properties.paginator.rows";
 

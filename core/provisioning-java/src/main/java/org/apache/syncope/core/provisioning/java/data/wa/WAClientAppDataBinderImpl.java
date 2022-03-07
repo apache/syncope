@@ -59,10 +59,10 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
             AuthPolicyConf authPolicyConf = null;
             if (clientApp.getAuthPolicy() != null) {
                 authPolicyConf = clientApp.getAuthPolicy().getConf();
-                waClientApp.setAuthPolicyConf(clientApp.getAuthPolicy().getConf());
+                waClientApp.setAuthPolicy(policyDataBinder.getPolicyTO(clientApp.getAuthPolicy()));
             } else if (clientApp.getRealm() != null && clientApp.getRealm().getAuthPolicy() != null) {
                 authPolicyConf = clientApp.getRealm().getAuthPolicy().getConf();
-                waClientApp.setAuthPolicyConf(clientApp.getRealm().getAuthPolicy().getConf());
+                waClientApp.setAuthPolicy(policyDataBinder.getPolicyTO(clientApp.getRealm().getAuthPolicy()));
             }
             if (authPolicyConf instanceof DefaultAuthPolicyConf) {
                 ((DefaultAuthPolicyConf) authPolicyConf).getAuthModules().forEach(key -> {
@@ -84,16 +84,20 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
             }
 
             if (clientApp.getAttrReleasePolicy() != null) {
-                waClientApp.setAttrReleasePolicyConf(clientApp.getAttrReleasePolicy().getConf());
+                waClientApp.setAttrReleasePolicy(
+                        policyDataBinder.getPolicyTO(clientApp.getAttrReleasePolicy()));
             } else if (clientApp.getRealm() != null && clientApp.getRealm().getAttrReleasePolicy() != null) {
-                waClientApp.setAttrReleasePolicyConf(clientApp.getRealm().getAttrReleasePolicy().getConf());
+                waClientApp.setAttrReleasePolicy(
+                        policyDataBinder.getPolicyTO(clientApp.getRealm().getAttrReleasePolicy()));
             }
 
             if (waClientApp.getReleaseAttrs().isEmpty()) {
                 if (clientApp.getAttrReleasePolicy() != null) {
-                    waClientApp.setAttrReleasePolicyConf(clientApp.getAttrReleasePolicy().getConf());
+                    waClientApp.setAttrReleasePolicy(
+                            policyDataBinder.getPolicyTO(clientApp.getAttrReleasePolicy()));
                 } else if (clientApp.getRealm() != null && clientApp.getRealm().getAttrReleasePolicy() != null) {
-                    waClientApp.setAttrReleasePolicyConf(clientApp.getRealm().getAttrReleasePolicy().getConf());
+                    waClientApp.setAttrReleasePolicy(
+                            policyDataBinder.getPolicyTO(clientApp.getRealm().getAttrReleasePolicy()));
                 }
             }
         } catch (Exception e) {

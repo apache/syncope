@@ -29,6 +29,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.common.lib.types.SRARouteFilter;
 import org.apache.syncope.common.lib.types.SRARoutePredicate;
 import org.apache.syncope.common.lib.types.SRARouteType;
@@ -85,7 +86,7 @@ public class JPASRARoute extends AbstractGeneratedKeyEntity implements SRARoute 
 
     @Override
     public URI getTarget() {
-        return URI.create(target);
+        return Optional.ofNullable(target).map(URI::create).orElse(null);
     }
 
     @Override
@@ -115,7 +116,7 @@ public class JPASRARoute extends AbstractGeneratedKeyEntity implements SRARoute 
 
     @Override
     public boolean isLogout() {
-        return logout;
+        return BooleanUtils.isNotFalse(logout);
     }
 
     @Override

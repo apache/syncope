@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
@@ -27,8 +26,6 @@ import java.util.List;
 public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
 
     private static final long serialVersionUID = -1969836661359025380L;
-
-    private Boolean status = null;
 
     /**
      * Specify the list of allowed attribute to release.
@@ -40,29 +37,20 @@ public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
 
     private final List<String> includeOnlyAttrs = new ArrayList<>();
 
-    public Boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(final Boolean status) {
-        this.status = status;
-    }
-
     @JacksonXmlElementWrapper(localName = "allowedAttrs")
-    @JacksonXmlProperty(localName = "allowedAttrs")
+    @JacksonXmlProperty(localName = "allowedAttr")
     public List<String> getAllowedAttrs() {
         return allowedAttrs;
     }
 
-    @JacksonXmlElementWrapper(localName = "excludedAttributes")
-    @JacksonXmlProperty(localName = "excludedAttributes")
+    @JacksonXmlElementWrapper(localName = "excludedAttrs")
+    @JacksonXmlProperty(localName = "excludedAttr")
     public List<String> getExcludedAttrs() {
         return excludedAttrs;
     }
 
     @JacksonXmlElementWrapper(localName = "includeOnlyAttrs")
-    @JacksonXmlProperty(localName = "includeOnlyAttrs")
-    @JsonProperty("includeOnlyAttrs")
+    @JacksonXmlProperty(localName = "includeOnlyAttr")
     public List<String> getIncludeOnlyAttrs() {
         return includeOnlyAttrs;
     }
