@@ -68,13 +68,15 @@ public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 map(item -> item.orderBy.substring(0, item.orderBy.indexOf(" "))).collect(Collectors.toSet());
 
         obs.views.forEach(searchView -> {
+            boolean searchViewAddedToWhere = false;
             if (searchView.name.equals(svs.field().name)) {
                 StringBuilder attrWhere = new StringBuilder();
                 StringBuilder nullAttrWhere = new StringBuilder();
 
-                where.append(", (SELECT * FROM ").append(searchView.name);
-
                 if (svs.nonMandatorySchemas || obs.nonMandatorySchemas) {
+                    where.append(", (SELECT * FROM ").append(searchView.name);
+                    searchViewAddedToWhere = true;
+
                     attrs.forEach(field -> {
                         if (attrWhere.length() == 0) {
                             attrWhere.append(" WHERE ");
@@ -84,7 +86,7 @@ public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                         attrWhere.append("JSON_CONTAINS(plainAttrs, '[{\"schema\":\"").append(field).append("\"}]')");
 
                         nullAttrWhere.append(" UNION SELECT DISTINCT any_id,").append(svs.table().alias).append(".*, ").
-                                append('"').append(field).append('"').append(" AS plainShema, ").
+                                append('"').append(field).append('"').append(" AS plainSchema, ").
                                 append("null AS binaryValue, ").
                                 append("null AS booleanValue, ").
                                 append("null AS dateValue, ").
@@ -101,13 +103,13 @@ public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                                 append(" WHERE ").append(svs.table().alias).append(".id=any_id AND ").
                                 append("JSON_CONTAINS(plainAttrs, '[{\"schema\":\"").append(field).append("\"}]'))");
                     });
-                    where.append(attrWhere).append(nullAttrWhere);
+                    where.append(attrWhere).append(nullAttrWhere).append(')');
                 }
-
-                where.append(')');
-            } else {
+            }
+            if (!searchViewAddedToWhere) {
                 where.append(',').append(searchView.name);
             }
+
             where.append(' ').append(searchView.alias);
         });
     }
