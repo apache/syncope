@@ -272,11 +272,16 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         obs.views.forEach(searchView -> {
             where.append(',');
+
+            boolean searchViewAddedToWhere = false;
             if (searchView.name.equals(svs.asSearchViewSupport().attr().name)) {
                 StringBuilder attrWhere = new StringBuilder();
                 StringBuilder nullAttrWhere = new StringBuilder();
 
                 if (svs.nonMandatorySchemas || obs.nonMandatorySchemas) {
+                    where.append(" (SELECT * FROM ").append(searchView.name);
+                    searchViewAddedToWhere = true;
+
                     attrs.forEach(field -> {
                         if (attrWhere.length() == 0) {
                             attrWhere.append(" WHERE ");
@@ -301,12 +306,12 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                                 append(" WHERE ").append("schema_id='").append(field).append("')");
                     });
                     where.append(attrWhere).append(nullAttrWhere).append(')');
-                } else {
-                    where.append(searchView.name);
                 }
-            } else {
+            }
+            if (!searchViewAddedToWhere) {
                 where.append(searchView.name);
             }
+
             where.append(' ').append(searchView.alias);
         });
     }
