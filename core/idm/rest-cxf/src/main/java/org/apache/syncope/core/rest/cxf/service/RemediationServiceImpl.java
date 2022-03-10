@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
@@ -101,11 +101,11 @@ public class RemediationServiceImpl extends AbstractService implements Remediati
                 anyDAO = anyObjectDAO;
         }
 
-        Date etagDate = anyDAO.findLastChange(anyKey);
-        if (etagDate == null) {
+        OffsetDateTime etag = anyDAO.findLastChange(anyKey);
+        if (etag == null) {
             throw new NotFoundException(remediation.getAnyType() + " for " + key);
         }
-        checkETag(String.valueOf(etagDate.getTime()));
+        checkETag(String.valueOf(etag.toInstant().toEpochMilli()));
     }
 
     @Override

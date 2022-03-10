@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.rest;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.InputStream;
 import java.util.List;
@@ -35,15 +35,8 @@ public final class WASessionRestClient extends AMSessionRestClient {
 
     private static final long serialVersionUID = 22118820292494L;
 
-    private static final ObjectMapper MAPPER;
-
-    static {
-        MAPPER = new ObjectMapper();
-
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(AMSession.class, new AMSessionDeserializer());
-        MAPPER.registerModule(module);
-    }
+    private static final JsonMapper MAPPER = JsonMapper.builder().
+            addModule(new SimpleModule().addDeserializer(AMSession.class, new AMSessionDeserializer())).build();
 
     public WASessionRestClient(final List<NetworkService> instances) {
         super(instances);
@@ -66,9 +59,8 @@ public final class WASessionRestClient extends AMSessionRestClient {
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 JsonNode node = MAPPER.readTree((InputStream) response.getEntity());
                 if (node.has("activeSsoSessions")) {
-                    return MAPPER.readValue(MAPPER.treeAsTokens(node.get("activeSsoSessions")),
-                        new TypeReference<>() {
-                        });
+                    return MAPPER.readValue(MAPPER.treeAsTokens(node.get("activeSsoSessions")), new TypeReference<>() {
+                    });
                 }
             } else {
                 LOG.error("Unexpected response for SSO Sessions from {}: {}",

@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.pages;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class WA extends BasePage {
 
     private static final long serialVersionUID = 9200112197134882164L;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     @SpringBean
     private ServiceOps serviceOps;

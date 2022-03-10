@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import javax.persistence.Query;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
 import org.apache.syncope.core.persistence.api.entity.Batch;
@@ -53,7 +53,7 @@ public class JPABatchDAO extends AbstractDAO<Batch> implements BatchDAO {
     public int deleteExpired() {
         Query query = entityManager().createQuery(
                 "DELETE FROM " + JPABatch.class.getSimpleName() + " e WHERE e.expiryTime < :now");
-        query.setParameter("now", new Date());
+        query.setParameter("now", OffsetDateTime.now());
         return query.executeUpdate();
     }
 }

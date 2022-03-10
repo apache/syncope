@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import org.apache.syncope.common.lib.to.EntityTO;
 
 public class AMSession implements EntityTO {
@@ -27,7 +27,7 @@ public class AMSession implements EntityTO {
 
     private String key;
 
-    private Date authenticationDate;
+    private OffsetDateTime authenticationDate;
 
     private String principal;
 
@@ -43,11 +43,11 @@ public class AMSession implements EntityTO {
         this.key = key;
     }
 
-    public Date getAuthenticationDate() {
+    public OffsetDateTime getAuthenticationDate() {
         return authenticationDate;
     }
 
-    public void setAuthenticationDate(final Date authenticationDate) {
+    public void setAuthenticationDate(final OffsetDateTime authenticationDate) {
         this.authenticationDate = authenticationDate;
     }
 

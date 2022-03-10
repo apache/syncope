@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 
 public interface PlainAttrValue extends Entity {
@@ -29,7 +29,7 @@ public interface PlainAttrValue extends Entity {
 
     Boolean getBooleanValue();
 
-    Date getDateValue();
+    OffsetDateTime getDateValue();
 
     Double getDoubleValue();
 
@@ -53,7 +53,7 @@ public interface PlainAttrValue extends Entity {
 
     void setBooleanValue(Boolean booleanValue);
 
-    void setDateValue(Date dateValue);
+    void setDateValue(OffsetDateTime dateValue);
 
     void setDoubleValue(Double doubleValue);
 

@@ -19,7 +19,7 @@
 package org.apache.syncope.core.keymaster.rest.cxf.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class ConfParamServiceImpl implements ConfParamService {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConfParamService.class);
 
-    protected static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     protected final ConfParamLogic logic;
 

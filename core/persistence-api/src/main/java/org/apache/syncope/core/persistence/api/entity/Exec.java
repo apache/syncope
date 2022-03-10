@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 
 public interface Exec extends Entity {
 
@@ -35,13 +35,13 @@ public interface Exec extends Entity {
 
     String getStatus();
 
-    void setStart(Date start);
+    void setStart(OffsetDateTime start);
 
-    Date getStart();
+    OffsetDateTime getStart();
 
-    void setEnd(Date end);
+    void setEnd(OffsetDateTime end);
 
-    Date getEnd();
+    OffsetDateTime getEnd();
 
     String getExecutor();
 

@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -30,7 +30,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPane
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -96,7 +95,7 @@ public class ParametersWizardAttrStep extends WizardStep {
             case Date:
                 panel = new AjaxDateTimeFieldPanel(
                         id, valueHeaderName, new Model<>(),
-                        FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN));
+                        DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
                 break;
 
             case Boolean:

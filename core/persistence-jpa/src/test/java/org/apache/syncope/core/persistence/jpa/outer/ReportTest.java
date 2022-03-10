@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import javax.persistence.EntityExistsException;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
@@ -85,8 +85,8 @@ public class ReportTest extends AbstractTest {
 
         ReportExec reportExec = entityFactory.newEntity(ReportExec.class);
         reportExec.setReport(report);
-        reportExec.setStart(new Date());
-        reportExec.setEnd(new Date());
+        reportExec.setStart(OffsetDateTime.now());
+        reportExec.setEnd(OffsetDateTime.now());
         reportExec.setStatus(ReportExecStatus.SUCCESS);
         reportExec.setExecutor("admin");
 

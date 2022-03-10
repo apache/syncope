@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.keymaster.client.self;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,7 +37,7 @@ public class SelfKeymasterConfParamOps extends SelfKeymasterOps implements ConfP
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfParamOps.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     public SelfKeymasterConfParamOps(final JAXRSClientFactoryBean clientFactory) {
         super(clientFactory);

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -258,7 +258,7 @@ public class AuthDataAccessor {
                         SyncopeAuthenticationDetails.class.cast(authentication.getDetails()), user.getKey());
 
                 if (confParamOps.get(domain, "log.lastlogindate", true, Boolean.class)) {
-                    user.setLastLoginDate(new Date());
+                    user.setLastLoginDate(OffsetDateTime.now());
                     userModified = true;
                 }
 

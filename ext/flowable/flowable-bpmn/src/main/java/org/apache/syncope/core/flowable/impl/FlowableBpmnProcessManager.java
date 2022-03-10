@@ -20,7 +20,7 @@ package org.apache.syncope.core.flowable.impl;
 
 import org.apache.syncope.core.flowable.api.BpmnProcessManager;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +52,7 @@ public class FlowableBpmnProcessManager implements BpmnProcessManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(BpmnProcessManager.class);
 
-    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     protected static final String MODEL_DATA_JSON_MODEL = "model";
 
@@ -103,10 +103,10 @@ public class FlowableBpmnProcessManager implements BpmnProcessManager {
         Model model = getModel(FlowableRuntimeUtils.getLatestProcDefByKey(engine, key));
 
         try {
-            ObjectNode modelNode = (ObjectNode) OBJECT_MAPPER.readTree(model.getMetaInfo());
+            ObjectNode modelNode = (ObjectNode) MAPPER.readTree(model.getMetaInfo());
             modelNode.put(ModelDataJsonConstants.MODEL_ID, model.getId());
             modelNode.replace(MODEL_DATA_JSON_MODEL,
-                    OBJECT_MAPPER.readTree(engine.getRepositoryService().getModelEditorSource(model.getId())));
+                    MAPPER.readTree(engine.getRepositoryService().getModelEditorSource(model.getId())));
 
             os.write(modelNode.toString().getBytes());
         } catch (IOException e) {
@@ -157,7 +157,7 @@ public class FlowableBpmnProcessManager implements BpmnProcessManager {
             case JSON:
                 JsonNode definitionNode;
                 try {
-                    definitionNode = OBJECT_MAPPER.readTree(definition);
+                    definitionNode = MAPPER.readTree(definition);
                     if (definitionNode.has(MODEL_DATA_JSON_MODEL)) {
                         definitionNode = definitionNode.get(MODEL_DATA_JSON_MODEL);
                     }

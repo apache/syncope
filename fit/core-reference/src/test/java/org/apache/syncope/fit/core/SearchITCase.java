@@ -817,18 +817,14 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1663() {
-        try {
-            userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                    fiql("lastChangeDate=ge=2022-01-25T17:00:06Z").build());
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
-            assertTrue(e.getElements().stream().
-                    anyMatch(elem -> elem.contains("Could not validate expression 2022-01-25T17:00:06Z")));
-        }
+        PagedResult<UserTO> matching1 = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql("lastChangeDate=ge=2022-01-25T17:00:06Z").build());
+        assertNotNull(matching1);
+        assertFalse(matching1.getResult().isEmpty());
 
-        PagedResult<UserTO> matching = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<UserTO> matching2 = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql("lastChangeDate=ge=2022-01-25T17:00:06+0000").build());
-        assertNotNull(matching);
+        assertNotNull(matching2);
+        assertFalse(matching2.getResult().isEmpty());
     }
 }

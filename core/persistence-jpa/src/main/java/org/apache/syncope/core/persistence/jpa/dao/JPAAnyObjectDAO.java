@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -100,7 +100,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Transactional(readOnly = true)
     @Override
-    public Date findLastChange(final String key) {
+    public OffsetDateTime findLastChange(final String key) {
         return findLastChange(key, JPAAnyObject.TABLE);
     }
 

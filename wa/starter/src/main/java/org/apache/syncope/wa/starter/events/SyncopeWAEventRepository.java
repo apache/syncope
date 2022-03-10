@@ -19,12 +19,13 @@
 package org.apache.syncope.wa.starter.events;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Date;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.audit.AuditEntry;
@@ -42,12 +43,14 @@ public class SyncopeWAEventRepository extends AbstractCasEventRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAEventRepository.class);
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private final WARestClient waRestClient;
 
-    public SyncopeWAEventRepository(final CasEventRepositoryFilter eventRepositoryFilter,
+    public SyncopeWAEventRepository(
+            final CasEventRepositoryFilter eventRepositoryFilter,
             final WARestClient restClient) {
+
         super(eventRepositoryFilter);
         this.waRestClient = restClient;
     }
@@ -78,12 +81,13 @@ public class SyncopeWAEventRepository extends AbstractCasEventRepository {
             put(properties, "clientIpAddress", event.getClientIpAddress());
             put(properties, "serverIpAddress", event.getServerIpAddress());
 
-            String output = OBJECT_MAPPER.writeValueAsString(properties);
+            String output = MAPPER.writeValueAsString(properties);
 
             AuditEntry auditEntry = new AuditEntry();
             auditEntry.setWho(event.getPrincipalId());
             if (event.getTimestamp() != null) {
-                auditEntry.setDate(new Date(event.getTimestamp()));
+                auditEntry.setDate(OffsetDateTime.ofInstant(
+                        Instant.ofEpochMilli(event.getTimestamp()), ZoneId.systemDefault()));
             }
             auditEntry.setOutput(output);
             AuditLoggerName auditLogger = new AuditLoggerName(

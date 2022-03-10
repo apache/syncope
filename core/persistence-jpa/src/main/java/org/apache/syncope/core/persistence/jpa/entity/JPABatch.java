@@ -18,14 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.Date;
-import java.util.Optional;
-
+import java.time.OffsetDateTime;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 
 @Entity
@@ -36,24 +32,19 @@ public class JPABatch extends AbstractProvidedKeyEntity implements Batch {
 
     public static final String TABLE = "SyncopeBatch";
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date expiryTime;
+    private OffsetDateTime expiryTime;
 
     @Lob
     private String results;
 
     @Override
-    public Date getExpiryTime() {
-        return Optional.ofNullable(expiryTime).map(time -> new Date(time.getTime())).orElse(null);
+    public OffsetDateTime getExpiryTime() {
+        return expiryTime;
     }
 
     @Override
-    public void setExpiryTime(final Date expiryTime) {
-        if (expiryTime == null) {
-            this.expiryTime = null;
-        } else {
-            this.expiryTime = new Date(expiryTime.getTime());
-        }
+    public void setExpiryTime(final OffsetDateTime expiryTime) {
+        this.expiryTime = expiryTime;
     }
 
     @Override

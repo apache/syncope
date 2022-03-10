@@ -18,10 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.time.LocalDateTime;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,13 +33,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.persistence.Query;
-import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
-
 import org.apache.commons.jexl3.parser.Parser;
 import org.apache.commons.jexl3.parser.ParserConstants;
 import org.apache.commons.jexl3.parser.Token;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.openjpa.persistence.OpenJPAPersistence;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -136,23 +138,23 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         return result;
     }
 
-    protected Date findLastChange(final String key, final String table) {
-        Query query = entityManager().createNativeQuery(
-                "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?");
-        query.setParameter(1, key);
+    protected OffsetDateTime findLastChange(final String key, final String table) {
+        OffsetDateTime creationDate = null;
+        OffsetDateTime lastChangeDate = null;
 
-        @SuppressWarnings("unchecked")
-        List<Object[]> result = query.getResultList();
+        try (Connection conn = (Connection) OpenJPAPersistence.cast(entityManager()).getConnection()) {
+            try (PreparedStatement stmt =
+                    conn.prepareStatement("SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?")) {
+                stmt.setString(1, key);
 
-        Date creationDate = null;
-        Date lastChangeDate = null;
-        if (!result.isEmpty()) {
-            creationDate = result.get(0)[0] instanceof LocalDateTime
-                    ? convert((LocalDateTime) result.get(0)[0])
-                    : (Date) result.get(0)[0];
-            lastChangeDate = result.get(0)[1] instanceof LocalDateTime
-                    ? convert((LocalDateTime) result.get(0)[1])
-                    : (Date) result.get(0)[1];
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    creationDate = rs.getObject(1, OffsetDateTime.class);
+                    lastChangeDate = rs.getObject(2, OffsetDateTime.class);
+                }
+            }
+        } catch (SQLException e) {
+            LOG.error("While reading {} from {}", key, table, e);
         }
 
         return Optional.ofNullable(lastChangeDate).orElse(creationDate);
@@ -231,7 +233,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         if (attrValue.getDateValue() == null) {
             query.setParameter("dateValue", null);
         } else {
-            query.setParameter("dateValue", attrValue.getDateValue(), TemporalType.TIMESTAMP);
+            query.setParameter("dateValue", attrValue.getDateValue().toInstant());
         }
         query.setParameter("longValue", attrValue.getLongValue());
         query.setParameter("doubleValue", attrValue.getDoubleValue());

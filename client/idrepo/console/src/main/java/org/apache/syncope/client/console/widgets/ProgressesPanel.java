@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.widgets;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.wicket.markup.html.basic.Label;
@@ -30,7 +30,7 @@ public class ProgressesPanel extends Panel {
 
     private static final long serialVersionUID = 7837262802315339565L;
 
-    public ProgressesPanel(final String id, final Date lastUpdate, final List<ProgressBean> progressBeans) {
+    public ProgressesPanel(final String id, final OffsetDateTime lastUpdate, final List<ProgressBean> progressBeans) {
         super(id);
 
         add(new Label("lastUpdate", SyncopeConsoleSession.get().getDateFormat().format(lastUpdate)));
@@ -47,5 +47,4 @@ public class ProgressesPanel extends Panel {
         progresses.setOutputMarkupId(true);
         add(progresses);
     }
-
 }

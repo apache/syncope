@@ -42,7 +42,7 @@ import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
@@ -99,7 +99,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
         AtomicReference<TaskTO> taskTO = new AtomicReference<>(taskService.read(type, taskKey, true));
         int preSyncSize = taskTO.get().getExecutions().size();
-        ExecTO execution = taskService.execute(new ExecuteQuery.Builder().key(taskKey).dryRun(dryRun).build());
+        ExecTO execution = taskService.execute(new ExecSpecs.Builder().key(taskKey).dryRun(dryRun).build());
         assertEquals(initialStatus, execution.getStatus());
         assertNotNull(execution.getExecutor());
 

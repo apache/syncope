@@ -23,15 +23,15 @@ import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class ExecQuery extends AbstractQuery {
+public class ExecListQuery extends AbstractQuery {
 
     private static final long serialVersionUID = -8792519310029596796L;
 
-    public static class Builder extends AbstractQuery.Builder<ExecQuery, Builder> {
+    public static class Builder extends AbstractQuery.Builder<ExecListQuery, Builder> {
 
         @Override
-        protected ExecQuery newInstance() {
-            return new ExecQuery();
+        protected ExecListQuery newInstance() {
+            return new ExecListQuery();
         }
 
         public Builder key(final String key) {
@@ -63,7 +63,7 @@ public class ExecQuery extends AbstractQuery {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ExecQuery other = (ExecQuery) obj;
+        ExecListQuery other = (ExecListQuery) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(key, other.key).

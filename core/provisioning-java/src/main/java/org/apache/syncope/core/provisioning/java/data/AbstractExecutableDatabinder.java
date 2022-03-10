@@ -16,35 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.core.provisioning.java.data;
 
+import java.time.OffsetDateTime;
 import java.util.Date;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.PropertyModel;
+import java.util.Optional;
+import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 
-public class DateFormatROModel implements IModel<String> {
+public abstract class AbstractExecutableDatabinder {
 
-    private static final long serialVersionUID = 6677274580927636121L;
-
-    private final PropertyModel model;
-
-    public DateFormatROModel(final PropertyModel model) {
-        this.model = model;
-    }
-
-    @Override
-    public String getObject() {
-        return model.getObject() == null
-                ? ""
-                : SyncopeConsoleSession.get().getDateFormat().format((Date) model.getObject());
-    }
-
-    @Override
-    public void setObject(final String object) {
-    }
-
-    @Override
-    public void detach() {
+    protected OffsetDateTime toOffsetDateTime(final Date date) {
+        return Optional.ofNullable(date).
+                map(d -> d.toInstant().atOffset(FormatUtils.DEFAULT_OFFSET)).
+                orElse(null);
     }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -72,6 +73,12 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             output = output.replace(String.valueOf(toEscape), "\\" + toEscape);
         }
         return output;
+    }
+
+    protected static String escapeIfString(final String value, final boolean isStr) {
+        return isStr
+                ? new StringBuilder().append('"').append(value.replace("'", "''")).append('"').toString()
+                : value;
     }
 
     public PGJPAJSONAnySearchDAO(
@@ -139,35 +146,37 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             String key = key(schema.getType());
 
             String value = Optional.ofNullable(attrValue.getDateValue()).
-                    map(v -> String.valueOf(v.getTime())).
+                    map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
                     orElse(cond.getExpression());
 
             boolean isStr = true;
-            boolean lower;
+            boolean lower = false;
             if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
                 lower = (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
-            } else {
+            } else if (schema.getType() != AttrSchemaType.Date) {
                 lower = false;
                 try {
                     switch (schema.getType()) {
-                        case Date:
                         case Long:
                             Long.parseLong(value);
                             break;
+
                         case Double:
                             Double.parseDouble(value);
                             break;
+
                         case Boolean:
                             if (!("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value))) {
                                 throw new IllegalArgumentException();
                             }
                             break;
+
                         default:
                     }
 
                     isStr = false;
                 } catch (Exception nfe) {
-                    // ignore}
+                    // ignore
                 }
             }
 
@@ -202,10 +211,8 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                             append("(@.").append(key);
                     if (StringUtils.containsAny(value, POSTGRESQL_REGEX_CHARS) || lower) {
                         query.append(" like_regex \"").append(escapeForLikeRegex(value).replace("'", "''")).append('"');
-                    } else if (isStr) {
-                        query.append(" == \"").append(value.replace("'", "''")).append('"');
                     } else {
-                        query.append(" == ").append(value);
+                        query.append(" == ").append(escapeIfString(value, isStr));
                     }
 
                     query.append(lower ? " flag \"i\"" : "").append(")')");
@@ -214,25 +221,25 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 case GE:
                     query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
                             append("(@.").append(key).append(" >= ").
-                            append(value).append(")')");
+                            append(escapeIfString(value, isStr)).append(")')");
                     break;
 
                 case GT:
                     query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
                             append("(@.").append(key).append(" > ").
-                            append(value).append(")')");
+                            append(escapeIfString(value, isStr)).append(")')");
                     break;
 
                 case LE:
                     query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
                             append("(@.").append(key).append(" <= ").
-                            append(value).append(")')");
+                            append(escapeIfString(value, isStr)).append(")')");
                     break;
 
                 case LT:
                     query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
                             append("(@.").append(key).append(" < ").
-                            append(value).append(")')");
+                            append(escapeIfString(value, isStr)).append(")')");
                     break;
 
                 default:

@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -47,7 +47,7 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoggerConfRestClient.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private final List<NetworkService> instances;
 

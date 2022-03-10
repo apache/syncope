@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job.notification;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.mail.internet.MimeMessage;
@@ -96,7 +96,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
     public TaskExec executeSingle(final NotificationTask task, final String executor) {
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setTask(task);
-        execution.setStart(new Date());
+        execution.setStart(OffsetDateTime.now());
         execution.setExecutor(executor);
         boolean retryPossible = true;
 
@@ -196,7 +196,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
                             "Could not send notification to " + to, e);
                 }
 
-                execution.setEnd(new Date());
+                execution.setEnd(OffsetDateTime.now());
             }
         }
 

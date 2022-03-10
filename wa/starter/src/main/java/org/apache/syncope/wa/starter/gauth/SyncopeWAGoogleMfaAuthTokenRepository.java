@@ -19,8 +19,8 @@
 package org.apache.syncope.wa.starter.gauth;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Date;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
@@ -43,34 +43,28 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
         this.expireTokensInSeconds = expireTokensInSeconds;
     }
 
+    protected GoogleMfaAuthTokenService service() {
+        return waRestClient.getSyncopeClient().getService(GoogleMfaAuthTokenService.class);
+    }
+
     @Override
     protected void cleanInternal() {
-        Date expirationDate = Date.from(LocalDateTime.
-                now(ZoneOffset.UTC).
-                minusSeconds(this.expireTokensInSeconds).
-                toInstant(ZoneOffset.UTC));
-        GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthTokenService.class);
-        tokenService.delete(expirationDate);
+        service().delete(OffsetDateTime.now().minusSeconds(expireTokensInSeconds));
     }
 
     @Override
     public void store(final OneTimeToken token) {
-        GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthTokenService.class);
         GoogleMfaAuthToken tokenTO = new GoogleMfaAuthToken.Builder()
                 .token(token.getToken())
-                .issueDate(Date.from(token.getIssuedDateTime().toInstant(ZoneOffset.UTC)))
+                .issueDate(OffsetDateTime.of(token.getIssuedDateTime(), OffsetDateTime.now().getOffset()))
                 .build();
-        tokenService.store(token.getUserId(), tokenTO);
+        service().store(token.getUserId(), tokenTO);
     }
 
     @Override
     public OneTimeToken get(final String username, final Integer otp) {
         try {
-            GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
-                    getService(GoogleMfaAuthTokenService.class);
-            GoogleMfaAuthToken tokenTO = tokenService.read(username, otp);
+            GoogleMfaAuthToken tokenTO = service().read(username, otp);
             GoogleAuthenticatorToken token = new GoogleAuthenticatorToken(tokenTO.getOtp(), username);
             LocalDateTime dateTime = tokenTO.getIssueDate().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
             token.setIssuedDateTime(dateTime);
@@ -83,43 +77,31 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
 
     @Override
     public void remove(final String username, final Integer otp) {
-        GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthTokenService.class);
-        tokenService.delete(username, otp);
+        service().delete(username, otp);
     }
 
     @Override
     public void remove(final String username) {
-        GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthTokenService.class);
-        tokenService.delete(username);
+        service().delete(username);
     }
 
     @Override
     public void remove(final Integer otp) {
-        GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthTokenService.class);
-        tokenService.delete(otp);
+        service().delete(otp);
     }
 
     @Override
     public void removeAll() {
-        GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthTokenService.class);
-        tokenService.delete((Date) null);
+        service().delete((OffsetDateTime) null);
     }
 
     @Override
     public long count(final String username) {
-        GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthTokenService.class);
-        return tokenService.read(username).getTotalCount();
+        return service().read(username).getTotalCount();
     }
 
     @Override
     public long count() {
-        GoogleMfaAuthTokenService tokenService = waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthTokenService.class);
-        return tokenService.list().getTotalCount();
+        return service().list().getTotalCount();
     }
 }

@@ -19,8 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -240,12 +240,12 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     @Override
-    public ExecTO execute(final String key, final Date startAt, final boolean dryRun) {
+    public ExecTO execute(final String key, final OffsetDateTime startAt, final boolean dryRun) {
         Task task = taskDAO.find(key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
         }
-        if (startAt != null && startAt.before(new Date())) {
+        if (startAt != null && startAt.isBefore(OffsetDateTime.now())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add("Cannot schedule in the past");
             throw sce;
@@ -311,7 +311,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 result.setJobType(JobType.TASK);
                 result.setRefKey(task.getKey());
                 result.setRefDesc(binder.buildRefDesc(task));
-                result.setStart(new Date());
+                result.setStart(OffsetDateTime.now());
                 result.setExecutor(executor);
                 result.setStatus("JOB_FIRED");
                 result.setMessage("Job fired; waiting for results...");
@@ -392,10 +392,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @Override
     public List<BatchResponseItem> deleteExecutions(
             final String key,
-            final Date startedBefore,
-            final Date startedAfter,
-            final Date endedBefore,
-            final Date endedAfter) {
+            final OffsetDateTime startedBefore,
+            final OffsetDateTime startedAfter,
+            final OffsetDateTime endedBefore,
+            final OffsetDateTime endedAfter) {
 
         Task task = taskDAO.find(key);
         if (task == null) {
@@ -475,12 +475,14 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")
     public List<PropagationTaskTO> purgePropagations(
-            final Date since,
+            final OffsetDateTime since,
             final List<ExecStatus> statuses,
             final List<String> resources) {
+
         return taskDAO.purgePropagations(since, statuses, Optional.ofNullable(resources).
-                map(r -> r.stream().map(resourceDAO::find).filter(Objects::nonNull).collect(Collectors.toList()))
-                .orElse(null));
+                map(r -> r.stream().map(resourceDAO::find).
+                filter(Objects::nonNull).collect(Collectors.toList())).
+                orElse(null));
     }
 
     @Override

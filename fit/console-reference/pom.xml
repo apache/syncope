@@ -121,6 +121,13 @@ under the License.
             <timeout>300000</timeout>
             <log>${cargo.log}</log>
             <output>${cargo.output}</output>
+
+            <systemProperties>
+              <java.security.egd>file:/dev/./urandom</java.security.egd>
+              <java.util.secureRandomSeed>true</java.util.secureRandomSeed>
+
+              <h2.returnOffsetDateTime>true</h2.returnOffsetDateTime>
+            </systemProperties>
           </container>
           <configuration>
             <properties>

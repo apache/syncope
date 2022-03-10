@@ -16,19 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.wa.starter.gauth.token;
-
-import org.apereo.cas.gauth.token.GoogleAuthenticatorToken;
-import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
-
-import org.apache.syncope.wa.starter.AbstractTest;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.apache.syncope.wa.starter.AbstractTest;
+import org.apereo.cas.gauth.token.GoogleAuthenticatorToken;
+import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
 public class SyncopeWAGoogleMfaAuthTokenRepositoryTest extends AbstractTest {
+
     @Autowired
     private OneTimeTokenRepository tokenRepository;
 

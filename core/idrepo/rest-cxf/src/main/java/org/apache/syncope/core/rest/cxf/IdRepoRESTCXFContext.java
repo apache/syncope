@@ -40,7 +40,7 @@ import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.cxf.validation.BeanValidationProvider;
-import org.apache.syncope.common.lib.jackson.SyncopeObjectMapper;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
@@ -155,25 +155,19 @@ public class IdRepoRESTCXFContext {
     @ConditionalOnMissingBean
     @Bean
     public JacksonJsonProvider jsonProvider() {
-        JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
-        jsonProvider.setMapper(new SyncopeObjectMapper());
-        return jsonProvider;
+        return new JacksonJsonProvider(new SyncopeJsonMapper());
     }
 
     @ConditionalOnMissingBean
     @Bean
     public JacksonXMLProvider xmlProvider() {
-        JacksonXMLProvider xmlProvider = new JacksonXMLProvider();
-        xmlProvider.setMapper(new SyncopeXmlMapper());
-        return xmlProvider;
+        return new JacksonXMLProvider(new SyncopeXmlMapper());
     }
 
     @ConditionalOnMissingBean
     @Bean
     public JacksonYAMLProvider yamlProvider() {
-        JacksonYAMLProvider yamlProvider = new JacksonYAMLProvider();
-        yamlProvider.setMapper(new SyncopeYAMLMapper());
-        return yamlProvider;
+        return new JacksonYAMLProvider(new SyncopeYAMLMapper());
     }
 
     @ConditionalOnMissingBean
@@ -342,7 +336,7 @@ public class IdRepoRESTCXFContext {
     @ConditionalOnMissingBean
     @Bean
     public AnyObjectService anyObjectService(final AnyObjectDAO anyObjectDAO, final AnyObjectLogic anyObjectLogic,
-                                             final SearchCondVisitor searchCondVisitor) {
+            final SearchCondVisitor searchCondVisitor) {
         return new AnyObjectServiceImpl(searchCondVisitor, anyObjectDAO, anyObjectLogic);
     }
 
@@ -385,7 +379,7 @@ public class IdRepoRESTCXFContext {
     @ConditionalOnMissingBean
     @Bean
     public GroupService groupService(final GroupDAO groupDAO, final GroupLogic groupLogic,
-                                     final SearchCondVisitor searchCondVisitor) {
+            final SearchCondVisitor searchCondVisitor) {
         return new GroupServiceImpl(searchCondVisitor, groupDAO, groupLogic);
     }
 
@@ -482,7 +476,7 @@ public class IdRepoRESTCXFContext {
     @ConditionalOnMissingBean
     @Bean
     public UserService userService(final UserDAO userDAO, final UserLogic userLogic,
-                                   final SearchCondVisitor searchCondVisitor) {
+            final SearchCondVisitor searchCondVisitor) {
         return new UserServiceImpl(searchCondVisitor, userDAO, userLogic);
     }
 }

@@ -18,9 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,8 +39,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
@@ -108,8 +105,7 @@ public class JPAUser
     @Lob
     private String token;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date tokenExpireTime;
+    private OffsetDateTime tokenExpireTime;
 
     @Column(nullable = true)
     @Enumerated(EnumType.STRING)
@@ -137,16 +133,12 @@ public class JPAUser
     /**
      * Last successful login date.
      */
-    @Column(nullable = true)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lastLoginDate;
+    private OffsetDateTime lastLoginDate;
 
     /**
      * Change password date.
      */
-    @Column(nullable = true)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date changePwdDate;
+    private OffsetDateTime changePwdDate;
 
     private Boolean suspended = false;
 
@@ -189,7 +181,7 @@ public class JPAUser
 
     @Transient
     private String clearSecurityAnswer;
-    
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
     @Valid
     private List<JPALinkedAccount> linkedAccounts = new ArrayList<>();
@@ -261,8 +253,8 @@ public class JPAUser
         try {
             this.password = ENCRYPTOR.encode(password, cipherAlgorithm == null
                     ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
-                    get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
-                            String.class))
+                            get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
+                                    String.class))
                     : cipherAlgorithm);
             setMustChangePassword(false);
         } catch (Exception e) {
@@ -284,7 +276,7 @@ public class JPAUser
             throw new IllegalArgumentException("Cannot override existing cipher algorithm");
         }
     }
-    
+
     @Override
     public boolean canDecodeSecrets() {
         return this.cipherAlgorithm != null && this.cipherAlgorithm.isInvertible();
@@ -314,10 +306,7 @@ public class JPAUser
     @Override
     public void generateToken(final int tokenLength, final int tokenExpireTime) {
         this.token = SecureRandomUtils.generateRandomPassword(tokenLength);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, tokenExpireTime);
-        this.tokenExpireTime = calendar.getTime();
+        this.tokenExpireTime = OffsetDateTime.now().plusMinutes(tokenExpireTime);
     }
 
     @Override
@@ -332,19 +321,22 @@ public class JPAUser
     }
 
     @Override
-    public Date getTokenExpireTime() {
-        return Optional.ofNullable(tokenExpireTime).map(expireTime -> new Date(expireTime.getTime())).orElse(null);
+    public OffsetDateTime getTokenExpireTime() {
+        return tokenExpireTime;
     }
 
     @Override
     public boolean checkToken(final String token) {
-        return Optional.ofNullable(this.token)
-            .map(s -> s.equals(token) && !hasTokenExpired()).orElseGet(() -> token == null);
+        return Optional.ofNullable(this.token).
+                map(s -> s.equals(token) && !hasTokenExpired()).
+                orElseGet(() -> token == null);
     }
 
     @Override
     public boolean hasTokenExpired() {
-        return Optional.ofNullable(tokenExpireTime).filter(expireTime -> expireTime.before(new Date())).isPresent();
+        return Optional.ofNullable(tokenExpireTime).
+                filter(expireTime -> expireTime.isBefore(OffsetDateTime.now())).
+                isPresent();
     }
 
     @Override
@@ -353,14 +345,13 @@ public class JPAUser
     }
 
     @Override
-    public Date getChangePwdDate() {
-        return Optional.ofNullable(changePwdDate).map(pwdDate -> new Date(pwdDate.getTime())).orElse(null);
+    public OffsetDateTime getChangePwdDate() {
+        return changePwdDate;
     }
 
     @Override
-    public void setChangePwdDate(final Date changePwdDate) {
-        this.changePwdDate = Optional.ofNullable(changePwdDate)
-            .map(pwdDate -> new Date(pwdDate.getTime())).orElse(null);
+    public void setChangePwdDate(final OffsetDateTime changePwdDate) {
+        this.changePwdDate = changePwdDate;
     }
 
     @Override
@@ -374,14 +365,13 @@ public class JPAUser
     }
 
     @Override
-    public Date getLastLoginDate() {
-        return Optional.ofNullable(lastLoginDate).map(loginDate -> new Date(loginDate.getTime())).orElse(null);
+    public OffsetDateTime getLastLoginDate() {
+        return lastLoginDate;
     }
 
     @Override
-    public void setLastLoginDate(final Date lastLoginDate) {
-        this.lastLoginDate = Optional.ofNullable(lastLoginDate)
-            .map(loginDate -> new Date(loginDate.getTime())).orElse(null);
+    public void setLastLoginDate(final OffsetDateTime lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
     }
 
     @Override
@@ -449,8 +439,8 @@ public class JPAUser
         try {
             this.securityAnswer = ENCRYPTOR.encode(securityAnswer, cipherAlgorithm == null
                     ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
-                    get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
-                            String.class))
+                            get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
+                                    String.class))
                     : cipherAlgorithm);
         } catch (Exception e) {
             LOG.error("Could not encode security answer", e);

@@ -248,7 +248,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertTrue(response.getHeaderString(HttpHeaders.CONTENT_TYPE).startsWith(MediaType.APPLICATION_JSON));
 
-        JsonNode json = OBJECT_MAPPER.readTree(response.readEntity(String.class));
+        JsonNode json = MAPPER.readTree(response.readEntity(String.class));
 
         // 1a. verify id_token
         checkIdToken(json);
@@ -265,7 +265,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
 
         assertEquals(HttpStatus.SC_OK, response.getStatus());
 
-        json = OBJECT_MAPPER.readTree(response.readEntity(String.class));
+        json = MAPPER.readTree(response.readEntity(String.class));
 
         ObjectNode headers = (ObjectNode) json.get("headers");
         assertEquals(MediaType.APPLICATION_JSON, headers.get(HttpHeaders.ACCEPT).asText());

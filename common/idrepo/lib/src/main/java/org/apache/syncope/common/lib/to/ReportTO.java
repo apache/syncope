@@ -20,10 +20,9 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -44,9 +43,9 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
 
     private String latestExecStatus;
 
-    private Date lastExec;
+    private OffsetDateTime lastExec;
 
-    private Date nextExec;
+    private OffsetDateTime nextExec;
 
     private boolean active;
 
@@ -103,20 +102,20 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
         this.latestExecStatus = latestExecStatus;
     }
 
-    public Date getLastExec() {
-        return Optional.ofNullable(lastExec).map(exec -> new Date(exec.getTime())).orElse(null);
+    public OffsetDateTime getLastExec() {
+        return lastExec;
     }
 
-    public void setLastExec(final Date lastExec) {
-        this.lastExec = Optional.ofNullable(lastExec).map(exec -> new Date(exec.getTime())).orElse(null);
+    public void setLastExec(final OffsetDateTime lastExec) {
+        this.lastExec = lastExec;
     }
 
-    public Date getNextExec() {
-        return Optional.ofNullable(nextExec).map(exec -> new Date(exec.getTime())).orElse(null);
+    public OffsetDateTime getNextExec() {
+        return nextExec;
     }
 
-    public void setNextExec(final Date nextExec) {
-        this.nextExec = Optional.ofNullable(nextExec).map(exec -> new Date(exec.getTime())).orElse(null);
+    public void setNextExec(final OffsetDateTime nextExec) {
+        this.nextExec = nextExec;
     }
 
     public boolean isActive() {

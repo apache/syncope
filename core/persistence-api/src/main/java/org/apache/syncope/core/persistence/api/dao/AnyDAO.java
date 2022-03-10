@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.time.OffsetDateTime;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -39,7 +39,7 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     List<A> findByKeys(List<String> keys);
 
-    Date findLastChange(String key);
+    OffsetDateTime findLastChange(String key);
 
     A authFind(String key);
 

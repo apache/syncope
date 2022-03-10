@@ -39,7 +39,8 @@ import java.security.AccessControlException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -101,8 +102,8 @@ public class JWTITCase extends AbstractITCase {
         Date tokenDate = jwt.getJWTClaimsSet().getExpirationTime();
         assertNotNull(tokenDate);
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-        Date parsedDate = dateFormat.parse(expiration);
+        Date parsedDate = new Date(OffsetDateTime.parse(expiration).
+                truncatedTo(ChronoUnit.SECONDS).toInstant().toEpochMilli());
 
         assertEquals(tokenDate, parsedDate);
         assertTrue(parsedDate.after(now));

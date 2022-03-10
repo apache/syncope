@@ -21,6 +21,8 @@ package org.apache.syncope.ext.elasticsearch.client;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -115,7 +117,10 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Elasticsearch
                 }
 
                 restClient = builder.build();
-                client = new ElasticsearchClient(new RestClientTransport(restClient, new JacksonJsonpMapper()));
+                client = new ElasticsearchClient(new RestClientTransport(
+                        restClient,
+                        new JacksonJsonpMapper(JsonMapper.builder().
+                                findAndAddModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build())));
             }
         }
         return client;

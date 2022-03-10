@@ -20,7 +20,7 @@ package org.apache.syncope.common.lib.types;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.junit.jupiter.api.Test;
 
@@ -46,7 +46,7 @@ public class AttrSchemaTypeTest {
 
     @Test
     void checkDate() {
-        assertEquals(AttrSchemaType.Date, AttrSchemaType.getAttrSchemaTypeByClass(Date.class));
+        assertEquals(AttrSchemaType.Date, AttrSchemaType.getAttrSchemaTypeByClass(OffsetDateTime.class));
     }
 
     @Test

@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.ext.scimv2.cxf;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
@@ -50,8 +52,9 @@ public class SCIMv2RESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SCIMJacksonJsonProvider scimJacksonJsonProvider() {
-        return new SCIMJacksonJsonProvider();
+    public JacksonJsonProvider scimJacksonJsonProvider() {
+        return new JacksonJsonProvider(JsonMapper.builder().
+                findAndAddModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build());
     }
 
     @ConditionalOnMissingBean
@@ -68,10 +71,13 @@ public class SCIMv2RESTCXFContext {
 
     @ConditionalOnMissingBean(name = "scimv2Container")
     @Bean
-    public Server scimv2Container(final ApplicationContext ctx, final Bus bus,
-                                  final SCIMJacksonJsonProvider scimJacksonJsonProvider,
-                                  final SCIMExceptionMapper scimExceptionMapper,
-                                  final AddETagFilter scimAddETagFilter) {
+    public Server scimv2Container(
+            final ApplicationContext ctx,
+            final Bus bus,
+            final JacksonJsonProvider scimJacksonJsonProvider,
+            final SCIMExceptionMapper scimExceptionMapper,
+            final AddETagFilter scimAddETagFilter) {
+
         SpringJAXRSServerFactoryBean scimv2Container = new SpringJAXRSServerFactoryBean();
         scimv2Container.setBus(bus);
         scimv2Container.setAddress("/scim");

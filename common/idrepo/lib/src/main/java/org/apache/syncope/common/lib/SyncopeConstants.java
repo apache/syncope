@@ -41,8 +41,6 @@ public final class SyncopeConstants {
         "yyyy-MM-dd HH:mm:ss.S", // explicitly added to import date into MySql repository
         "yyyy-MM-dd" };
 
-    public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
-
     public static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 
     public static final Pattern UUID_PATTERN = Pattern.compile(UUID_REGEX);

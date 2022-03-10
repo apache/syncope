@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -134,7 +134,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Multil
             current.setDate(((AnyTO) currentEntity).getCreationDate());
         } else {
             current.setWho(SyncopeConsoleSession.get().getSelfTO().getUsername());
-            current.setDate(new Date());
+            current.setDate(OffsetDateTime.now());
         }
         try {
             current.setBefore(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(currentEntity));
@@ -166,8 +166,8 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Multil
             public void onClick(final AjaxRequestTarget target) {
                 try {
                     String json = selected.getBefore() == null
-                        ? MAPPER.readTree(selected.getOutput()).get("entity").toPrettyString()
-                        : selected.getBefore();
+                            ? MAPPER.readTree(selected.getOutput()).get("entity").toPrettyString()
+                            : selected.getBefore();
                     restore(json, target);
 
                     mlp.prev(target);

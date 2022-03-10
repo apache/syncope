@@ -22,8 +22,8 @@ import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -172,7 +172,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_EXECUTE + "')")
     @Override
-    public ExecTO execute(final String key, final Date startAt, final boolean dryRun) {
+    public ExecTO execute(final String key, final OffsetDateTime startAt, final boolean dryRun) {
         Report report = reportDAO.find(key);
         if (report == null) {
             throw new NotFoundException("Report " + key);
@@ -204,7 +204,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         result.setJobType(JobType.REPORT);
         result.setRefKey(report.getKey());
         result.setRefDesc(binder.buildRefDesc(report));
-        result.setStart(new Date());
+        result.setStart(OffsetDateTime.now());
         result.setStatus(ReportExecStatus.STARTED.name());
         result.setMessage("Job fired; waiting for results...");
         result.setExecutor(AuthContextUtils.getUsername());
@@ -353,7 +353,10 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @Override
     public List<BatchResponseItem> deleteExecutions(
             final String key,
-            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
+            final OffsetDateTime startedBefore,
+            final OffsetDateTime startedAfter,
+            final OffsetDateTime endedBefore,
+            final OffsetDateTime endedAfter) {
 
         Report report = reportDAO.find(key);
         if (report == null) {

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
@@ -38,7 +39,8 @@ public abstract class AMSessionRestClient implements RestClient {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AMSessionRestClient.class);
 
-    protected static final List<?> JAX_RS_PROVIDERS = List.of(new JacksonJsonProvider());
+    protected static final List<?> JAX_RS_PROVIDERS =
+            List.of(new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build()));
 
     protected final List<NetworkService> instances;
 

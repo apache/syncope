@@ -19,7 +19,7 @@
 package org.apache.syncope.client.enduser.pages;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
@@ -37,7 +37,7 @@ public class SelfRegistration extends BasePage {
 
     public static final String NEW_USER_PARAM = "newUser";
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     public SelfRegistration(final PageParameters parameters) {
         super(parameters, SELF_REGISTRATION);

@@ -320,7 +320,7 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(groupTO.getLastChangeDate());
         assertEquals("admin", groupTO.getCreator());
         assertEquals("puccini", groupTO.getLastModifier());
-        assertTrue(groupTO.getCreationDate().before(groupTO.getLastChangeDate()));
+        assertTrue(groupTO.getCreationDate().isBefore(groupTO.getLastChangeDate()));
     }
 
     @Test

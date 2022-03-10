@@ -20,7 +20,7 @@ package org.apache.syncope.core.logic;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Optional;
@@ -35,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class ConfParamLogic extends AbstractTransactionalLogic<EntityTO> {
 
-    protected static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     protected final ConfParamDAO confParamDAO;
 

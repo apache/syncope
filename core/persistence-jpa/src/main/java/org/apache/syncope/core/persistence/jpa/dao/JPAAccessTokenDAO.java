@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -134,7 +134,7 @@ public class JPAAccessTokenDAO extends AbstractDAO<AccessToken> implements Acces
         Query query = entityManager().createQuery(
                 "DELETE FROM " + JPAAccessToken.class.getSimpleName() + " e "
                 + "WHERE e.expirationTime < :now");
-        query.setParameter("now", new Date());
+        query.setParameter("now", OffsetDateTime.now());
         return query.executeUpdate();
     }
 }

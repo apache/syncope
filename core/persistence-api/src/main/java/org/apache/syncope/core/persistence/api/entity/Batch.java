@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 
 public interface Batch extends ProvidedKeyEntity {
 
-    Date getExpiryTime();
+    OffsetDateTime getExpiryTime();
 
-    void setExpiryTime(Date expiryTime);
+    void setExpiryTime(OffsetDateTime expiryTime);
 
     String getResults();
 

@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import java.util.Date;
-import java.util.Optional;
+import java.time.OffsetDateTime;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.JobType;
 
@@ -37,7 +36,7 @@ public class JobTO implements BaseBean {
 
     private boolean scheduled;
 
-    private Date start;
+    private OffsetDateTime start;
 
     private String status;
 
@@ -81,12 +80,12 @@ public class JobTO implements BaseBean {
         this.scheduled = scheduled;
     }
 
-    public Date getStart() {
-        return Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getStart() {
+        return start;
     }
 
-    public void setStart(final Date start) {
-        this.start = Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
+    public void setStart(final OffsetDateTime start) {
+        this.start = start;
     }
 
     public String getStatus() {

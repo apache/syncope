@@ -105,9 +105,9 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             }
 
             if (filtered) {
-                result = fiql == null
-                        ? List.of()
-                        : restClient.search(realm, fiql, currentPage + 1, paginatorRows, getSort(), type);
+                result = Optional.ofNullable(fiql).
+                        map(s -> restClient.search(realm, s, currentPage + 1, paginatorRows, getSort(), type)).
+                        orElseGet(() -> List.of());
             } else {
                 result = restClient.search(realm, null, currentPage + 1, paginatorRows, getSort(), type);
             }
@@ -115,9 +115,8 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             LOG.error("While searching with FIQL {}", fiql, e);
             SyncopeConsoleSession.get().onException(e);
 
-            Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            target.ifPresent(ajaxRequestTarget
-                    -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
+            RequestCycle.get().find(AjaxRequestTarget.class).
+                    ifPresent(target -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target));
         }
 
         return result.iterator();

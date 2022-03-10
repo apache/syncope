@@ -18,17 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.Date;
-import java.util.Optional;
-
+import java.time.OffsetDateTime;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
@@ -65,8 +61,7 @@ public class JPARemediation extends AbstractGeneratedKeyEntity implements Remedi
     private String error;
 
     @NotNull
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date instant;
+    private OffsetDateTime instant;
 
     @ManyToOne
     private JPAPullTask pullTask;
@@ -136,13 +131,13 @@ public class JPARemediation extends AbstractGeneratedKeyEntity implements Remedi
     }
 
     @Override
-    public Date getInstant() {
-        return Optional.ofNullable(instant).map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getInstant() {
+        return instant;
     }
 
     @Override
-    public void setInstant(final Date instant) {
-        this.instant = Optional.ofNullable(instant).map(date -> new Date(date.getTime())).orElse(null);
+    public void setInstant(final OffsetDateTime instant) {
+        this.instant = instant;
     }
 
     @Override
@@ -165,5 +160,4 @@ public class JPARemediation extends AbstractGeneratedKeyEntity implements Remedi
     public void setRemoteName(final String remoteName) {
         this.remoteName = remoteName;
     }
-
 }

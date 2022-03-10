@@ -38,7 +38,7 @@ public class DateToLongItemTransformer implements ItemTransformer {
         if (values == null || values.isEmpty() || values.get(0).getDateValue() == null) {
             return ItemTransformer.super.beforePropagation(item, entity, schemaType, values);
         } else {
-            values.get(0).setLongValue(values.get(0).getDateValue().getTime());
+            values.get(0).setLongValue(values.get(0).getDateValue().toInstant().toEpochMilli());
             values.get(0).setBinaryValue(null);
             values.get(0).setBooleanValue(null);
             values.get(0).setDateValue(null);

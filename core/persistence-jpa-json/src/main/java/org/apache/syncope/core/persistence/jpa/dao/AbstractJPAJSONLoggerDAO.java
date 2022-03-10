@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import org.springframework.util.CollectionUtils;
 
 public abstract class AbstractJPAJSONLoggerDAO extends JPAAuditConfDAO {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     protected abstract static class JSONMessageCriteriaBuilder extends MessageCriteriaBuilder {
 

@@ -21,7 +21,7 @@ package org.apache.syncope.ext.scimv2.api.data;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import javax.ws.rs.core.EntityTag;
@@ -33,9 +33,9 @@ public class Meta extends SCIMBean {
 
     private final Resource resourceType;
 
-    private final Date created;
+    private final OffsetDateTime created;
 
-    private final Date lastModified;
+    private final OffsetDateTime lastModified;
 
     @JsonIgnore
     private final EntityTag version;
@@ -45,8 +45,8 @@ public class Meta extends SCIMBean {
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public Meta(
             @JsonProperty("resourceType") final Resource resourceType,
-            @JsonProperty("created") final Date created,
-            @JsonProperty("lastModified") final Date lastModified,
+            @JsonProperty("created") final OffsetDateTime created,
+            @JsonProperty("lastModified") final OffsetDateTime lastModified,
             @JsonProperty("version") final String version,
             @JsonProperty("location") final String location) {
 
@@ -61,11 +61,11 @@ public class Meta extends SCIMBean {
         return resourceType;
     }
 
-    public Date getCreated() {
+    public OffsetDateTime getCreated() {
         return created;
     }
 
-    public Date getLastModified() {
+    public OffsetDateTime getLastModified() {
         return lastModified;
     }
 
@@ -77,5 +77,4 @@ public class Meta extends SCIMBean {
     public String getLocation() {
         return location;
     }
-
 }

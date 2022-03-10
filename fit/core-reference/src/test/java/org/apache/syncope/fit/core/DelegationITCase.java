@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.security.AccessControlException;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,8 +88,8 @@ public class DelegationITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.InvalidEntity, e.getType());
         }
 
-        delegation.setStart(new Date());
-        delegation.setEnd(new Date(System.currentTimeMillis() - 1000));
+        delegation.setStart(OffsetDateTime.now());
+        delegation.setEnd(OffsetDateTime.now().minusSeconds(1));
 
         // end before start -> FAIL
         try {
@@ -99,7 +99,7 @@ public class DelegationITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.InvalidEntity, e.getType());
         }
 
-        delegation.setEnd(new Date());
+        delegation.setEnd(OffsetDateTime.now());
 
         // 2. create delegation
         delegation = create(delegationService, delegation);
@@ -157,7 +157,7 @@ public class DelegationITCase extends AbstractITCase {
         DelegationTO delegation = new DelegationTO();
         delegation.setDelegating("c9b2dec2-00a7-4855-97c0-d854842b4b24");
         delegation.setDelegated(delegated.getKey());
-        delegation.setStart(new Date());
+        delegation.setStart(OffsetDateTime.now());
 
         DelegationService uds = clientFactory.create(delegating.getUsername(), "password123").
                 getService(DelegationService.class);
@@ -178,7 +178,7 @@ public class DelegationITCase extends AbstractITCase {
         assertNull(delegation.getEnd());
 
         // 3. update and read delegation
-        delegation.setEnd(new Date());
+        delegation.setEnd(OffsetDateTime.now());
         uds.update(delegation);
 
         delegation = uds.read(delegation.getKey());
@@ -213,7 +213,7 @@ public class DelegationITCase extends AbstractITCase {
         DelegationTO delegation = new DelegationTO();
         delegation.setDelegating("bellini");
         delegation.setDelegated("rossini");
-        delegation.setStart(new Date());
+        delegation.setStart(OffsetDateTime.now());
         delegation = create(delegationService, delegation);
         assertNotNull(delegation.getKey());
 

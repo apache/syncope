@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -973,6 +973,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             final PullTask pullTask,
             final ProvisioningReport result,
             final SyncDelta delta) {
+
         Remediation entity = entityFactory.newEntity(Remediation.class);
 
         entity.setAnyType(anyType);
@@ -985,11 +986,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             entity.setPayload(anyUR);
         }
         entity.setError(result.getMessage());
-        entity.setInstant(new Date());
+        entity.setInstant(OffsetDateTime.now());
         entity.setRemoteName(delta.getObject().getName().getNameValue());
         entity.setPullTask(pullTask);
 
         return remediationDAO.save(entity);
     }
-
 }

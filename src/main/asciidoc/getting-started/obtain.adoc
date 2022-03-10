@@ -210,7 +210,7 @@ services:
      restart: always
      environment:
        SPRING_PROFILES_ACTIVE: docker,postgresql
-       DB_URL: jdbc:postgresql://db:5432/syncope
+       DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
        DB_PASSWORD: syncope
        DB_POOL_MAX: 10
@@ -297,7 +297,7 @@ services:
      restart: always
      environment:
        SPRING_PROFILES_ACTIVE: docker,postgresql
-       DB_URL: jdbc:postgresql://db:5432/syncope
+       DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
        DB_PASSWORD: syncope
        DB_POOL_MAX: 10

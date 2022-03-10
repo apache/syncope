@@ -22,13 +22,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -37,17 +38,26 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.DomainHolder;
+import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Report;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
+import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
+import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
+import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
+import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
-import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.identityconnectors.common.IOUtil;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -55,24 +65,15 @@ import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
+import org.quartz.impl.jdbcjobstore.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.provisioning.api.job.JobManager;
-import org.identityconnectors.common.IOUtil;
-import org.quartz.impl.jdbcjobstore.Constants;
-import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.apache.syncope.core.persistence.api.entity.task.PullTask;
-import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
-import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
-import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
-import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
-import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
-import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.quartz.Trigger;
 
 public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
@@ -154,8 +155,10 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
     }
 
     protected void registerJob(
-            final String jobName, final Class<? extends Job> jobClass,
-            final String cronExpression, final Date startAt,
+            final String jobName,
+            final Class<? extends Job> jobClass,
+            final String cronExpression,
+            final Date startAt,
             final Map<String, Object> jobMap)
             throws SchedulerException {
 
@@ -197,7 +200,10 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
     }
 
     @Override
-    public Map<String, Object> register(final SchedTask task, final Date startAt, final long interruptMaxRetries,
+    public Map<String, Object> register(
+            final SchedTask task,
+            final OffsetDateTime startAt,
+            final long interruptMaxRetries,
             final String executor)
             throws SchedulerException {
 
@@ -225,19 +231,27 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 JobNamer.getJobKey(task).getName(),
                 TaskJob.class,
                 task.getCronExpression(),
-                startAt,
+                Optional.ofNullable(startAt).map(s -> new Date(s.toInstant().toEpochMilli())).orElse(null),
                 jobMap);
         return jobMap;
     }
 
     @Override
-    public void register(final Report report, final Date startAt, final long interruptMaxRetries,
+    public void register(
+            final Report report,
+            final OffsetDateTime startAt,
+            final long interruptMaxRetries,
             final String executor) throws SchedulerException {
 
         Map<String, Object> jobMap = createJobMapForExecutionContext(executor);
         jobMap.put(JobManager.REPORT_KEY, report.getKey());
 
-        registerJob(JobNamer.getJobKey(report).getName(), ReportJob.class, report.getCronExpression(), startAt, jobMap);
+        registerJob(
+                JobNamer.getJobKey(report).getName(),
+                ReportJob.class,
+                report.getCronExpression(),
+                Optional.ofNullable(startAt).map(s -> new Date(s.toInstant().toEpochMilli())).orElse(null),
+                jobMap);
     }
 
     protected static Map<String, Object> createJobMapForExecutionContext(final String executor) {

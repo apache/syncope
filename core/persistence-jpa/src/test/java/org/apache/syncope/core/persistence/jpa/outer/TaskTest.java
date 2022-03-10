@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -150,7 +150,7 @@ public class TaskTest extends AbstractTest {
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setTask(task);
         execution.setStatus(ExecStatus.CREATED.name());
-        execution.setStart(new Date());
+        execution.setStart(OffsetDateTime.now());
         execution.setExecutor("admin");
         task.add(execution);
 
@@ -173,7 +173,7 @@ public class TaskTest extends AbstractTest {
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStatus("Text-free status");
         execution.setTask(task);
-        execution.setStart(new Date());
+        execution.setStart(OffsetDateTime.now());
         execution.setMessage("A message");
         execution.setExecutor("admin");
         task.add(execution);
@@ -197,7 +197,7 @@ public class TaskTest extends AbstractTest {
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStatus("Text-free status");
         execution.setTask(task);
-        execution.setStart(new Date());
+        execution.setStart(OffsetDateTime.now());
         execution.setMessage("A message");
         execution.setExecutor("admin");
         task.add(execution);

@@ -20,8 +20,10 @@ package org.apache.syncope.core.provisioning.api.serialization;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -36,7 +38,7 @@ public final class POJOHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(POJOHelper.class);
 
-    private static final ObjectMapper MAPPER;
+    private static final JsonMapper MAPPER;
 
     static {
         SimpleModule pojoModule = new SimpleModule("POJOModule", new Version(1, 0, 0, null, null, null));
@@ -47,9 +49,12 @@ public final class POJOHelper {
         pojoModule.addDeserializer(Attribute.class, new AttributeDeserializer());
         pojoModule.addDeserializer(SyncToken.class, new SyncTokenDeserializer());
 
-        MAPPER = new ObjectMapper();
-        MAPPER.registerModule(pojoModule);
-        MAPPER.registerModule(new AfterburnerModule());
+        MAPPER = JsonMapper.builder().
+                addModule(pojoModule).
+                addModule(new JavaTimeModule()).
+                addModule(new AfterburnerModule()).
+                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).
+                build();
     }
 
     public static String serialize(final Object object) {

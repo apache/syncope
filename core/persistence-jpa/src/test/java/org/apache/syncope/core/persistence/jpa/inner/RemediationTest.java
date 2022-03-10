@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -64,7 +64,7 @@ public class RemediationTest extends AbstractTest {
         remediation.setAnyType(anyTypeDAO.find("PRINTER"));
         remediation.setOperation(ResourceOperation.CREATE);
         remediation.setError("Error");
-        remediation.setInstant(new Date());
+        remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName("remote");
         remediation.setPullTask(taskDAO.find("38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
 
@@ -85,7 +85,7 @@ public class RemediationTest extends AbstractTest {
         remediation.setAnyType(anyTypeDAO.find("PRINTER"));
         remediation.setOperation(ResourceOperation.CREATE);
         remediation.setError("Error");
-        remediation.setInstant(new Date());
+        remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName("remote");
         remediation.setPullTask(taskDAO.find("38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
         remediation.setPayload(UUID.randomUUID().toString());
@@ -107,7 +107,7 @@ public class RemediationTest extends AbstractTest {
         remediation.setAnyType(anyTypeDAO.find("PRINTER"));
         remediation.setOperation(ResourceOperation.CREATE);
         remediation.setError("Error");
-        remediation.setInstant(new Date());
+        remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName("remote");
         remediation.setPullTask(taskDAO.find("38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
         remediation.setPayload(UUID.randomUUID().toString());

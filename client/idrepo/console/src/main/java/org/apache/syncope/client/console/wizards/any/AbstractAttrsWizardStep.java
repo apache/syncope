@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
@@ -202,10 +203,10 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
             case Date:
                 String datePattern = plainSchema.getConversionPattern() == null
-                        ? SyncopeConstants.DEFAULT_DATE_PATTERN
+                        ? DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.getPattern()
                         : plainSchema.getConversionPattern();
 
-                if (datePattern.contains("H")) {
+                if (StringUtils.containsIgnoreCase(datePattern, "H")) {
                     panel = new AjaxDateTimeFieldPanel(
                             "panel",
                             plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()),

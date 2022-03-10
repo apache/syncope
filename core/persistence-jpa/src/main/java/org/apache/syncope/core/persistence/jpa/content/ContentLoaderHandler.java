@@ -19,11 +19,10 @@
 package org.apache.syncope.core.persistence.jpa.content;
 
 import java.sql.Types;
-import java.text.ParseException;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
 import javax.sql.DataSource;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
@@ -139,9 +138,11 @@ public class ContentLoaderHandler extends DefaultHandler {
                 case Types.DATE:
                 case Types.TIME:
                 case Types.TIMESTAMP:
+                case Types.TIMESTAMP_WITH_TIMEZONE:
+                case -101:
                     try {
                     parameters[i] = FormatUtils.parseDate(value);
-                } catch (ParseException e) {
+                } catch (DateTimeParseException e) {
                     LOG.error("Unparsable Date '{}'", value);
                     parameters[i] = value;
                 }

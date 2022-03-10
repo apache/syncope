@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.batch.BatchRequest;
+import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
@@ -40,8 +41,8 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
-import org.apache.syncope.common.rest.api.beans.ExecQuery;
+import org.apache.syncope.common.rest.api.beans.ExecListQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -91,7 +92,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     @Override
     public int countExecutions(final String taskKey) {
         return getService(TaskService.class).
-                listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(0).build()).getTotalCount();
+                listExecutions(new ExecListQuery.Builder().key(taskKey).page(1).size(0).build()).getTotalCount();
     }
 
     public static List<PropagationTaskTO> listPropagationTasks(
@@ -145,7 +146,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     @SuppressWarnings("unchecked")
     public static <T extends TaskTO> List<T> list(
-        final Class<T> reference, final int page, final int size, final SortParam<String> sort) {
+            final Class<T> reference, final int page, final int size, final SortParam<String> sort) {
 
         return (List<T>) getService(TaskService.class).
                 search(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).
@@ -154,11 +155,11 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     @SuppressWarnings("unchecked")
     public static <T extends TaskTO> List<T> list(
-        final String resource,
-        final Class<T> reference,
-        final int page,
-        final int size,
-        final SortParam<String> sort) {
+            final String resource,
+            final Class<T> reference,
+            final int page,
+            final int size,
+            final SortParam<String> sort) {
 
         return (List<T>) getService(TaskService.class).
                 search(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).resource(resource).
@@ -170,7 +171,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             final String taskKey, final int page, final int size, final SortParam<String> sort) {
 
         return getService(TaskService.class).
-                listExecutions(new ExecQuery.Builder().key(taskKey).page(page).size(size).
+                listExecutions(new ExecListQuery.Builder().key(taskKey).page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).getResult();
     }
 
@@ -207,13 +208,13 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     @Override
-    public void startExecution(final String taskKey, final Date start) {
-        startExecution(taskKey, start, false);
+    public void startExecution(final String taskKey, final Date startAt) {
+        startExecution(taskKey, startAt, false);
     }
 
-    public static void startExecution(final String taskKey, final Date start, final boolean dryRun) {
-        getService(TaskService.class).execute(
-                new ExecuteQuery.Builder().key(taskKey).startAt(start).dryRun(dryRun).build());
+    public static void startExecution(final String taskKey, final Date startAt, final boolean dryRun) {
+        getService(TaskService.class).execute(new ExecSpecs.Builder().key(taskKey).
+                startAt(DateOps.convert(startAt)).dryRun(dryRun).build());
     }
 
     @Override

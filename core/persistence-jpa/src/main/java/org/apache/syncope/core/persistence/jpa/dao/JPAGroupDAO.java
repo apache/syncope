@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -127,7 +127,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public Date findLastChange(final String key) {
+    public OffsetDateTime findLastChange(final String key) {
         return findLastChange(key, JPAGroup.TABLE);
     }
 

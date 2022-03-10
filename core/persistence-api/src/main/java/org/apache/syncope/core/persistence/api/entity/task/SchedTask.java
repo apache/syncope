@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity.task;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 
 public interface SchedTask extends Task {
@@ -35,9 +35,9 @@ public interface SchedTask extends Task {
 
     Implementation getJobDelegate();
 
-    Date getStartAt();
+    OffsetDateTime getStartAt();
 
-    void setStartAt(Date startAt);
+    void setStartAt(OffsetDateTime startAt);
 
     void setCronExpression(String cronExpression);
 

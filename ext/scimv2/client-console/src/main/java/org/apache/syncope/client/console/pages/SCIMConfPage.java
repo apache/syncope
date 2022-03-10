@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.Serializable;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -33,17 +33,13 @@ import org.apache.syncope.common.lib.scim.types.SCIMEntitlement;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @ExtPage(label = "SCIM 2.0", icon = "fa fa-cloud", listEntitlement = SCIMEntitlement.SCIM_CONF_GET, priority = 500)
 public class SCIMConfPage extends BaseExtPage {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(SCIMConfPage.class);
-
     private static final long serialVersionUID = -8156063343062111770L;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private final WebMarkupContainer content;
 

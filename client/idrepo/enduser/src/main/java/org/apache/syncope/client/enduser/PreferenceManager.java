@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.enduser;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -47,7 +47,7 @@ public final class PreferenceManager implements Serializable {
 
     private static final int ONE_YEAR_TIME = 60 * 60 * 24 * 365;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private static final TypeReference<Map<String, String>> MAP_TYPE_REF = new TypeReference<>() {
     };

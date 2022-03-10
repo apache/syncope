@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
@@ -39,7 +39,11 @@ public interface TaskExecDAO extends DAO<TaskExec> {
     <T extends Task> List<TaskExec> findAll(T task, int page, int itemsPerPage, List<OrderByClause> orderByClauses);
 
     <T extends Task> List<TaskExec> findAll(
-            T task, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
+            T task,
+            OffsetDateTime startedBefore,
+            OffsetDateTime startedAfter,
+            OffsetDateTime endedBefore,
+            OffsetDateTime endedAfter);
 
     TaskExec save(TaskExec execution);
 

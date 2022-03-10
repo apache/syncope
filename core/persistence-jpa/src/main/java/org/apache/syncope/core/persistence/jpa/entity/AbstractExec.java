@@ -18,15 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Optional;
-
 import javax.persistence.Column;
-
 import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.Exec;
 
@@ -51,16 +47,14 @@ public abstract class AbstractExec extends AbstractGeneratedKeyEntity implements
      * Start instant of this execution.
      */
     @NotNull
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "startDate")
-    protected Date start;
+    @Column(name = "startDate", nullable = false)
+    protected OffsetDateTime start;
 
     /**
      * End instant of this execution.
      */
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "endDate")
-    protected Date end;
+    protected OffsetDateTime end;
 
     @Override
     public String getStatus() {
@@ -93,22 +87,22 @@ public abstract class AbstractExec extends AbstractGeneratedKeyEntity implements
     }
 
     @Override
-    public Date getStart() {
-        return Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getStart() {
+        return start;
     }
 
     @Override
-    public void setStart(final Date start) {
-        this.start = Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
+    public void setStart(final OffsetDateTime start) {
+        this.start = start;
     }
 
     @Override
-    public Date getEnd() {
-        return Optional.ofNullable(end).map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getEnd() {
+        return end;
     }
 
     @Override
-    public void setEnd(final Date end) {
-        this.end = Optional.ofNullable(end).map(date -> new Date(date.getTime())).orElse(null);
+    public void setEnd(final OffsetDateTime end) {
+        this.end = end;
     }
 }

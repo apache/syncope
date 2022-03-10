@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -171,13 +172,13 @@ public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 String key = key(schema.getType());
 
                 String value = Optional.ofNullable(attrValue.getDateValue()).
-                        map(v -> String.valueOf(v.getTime())).
+                        map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
                         orElse(cond.getExpression());
 
                 boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
                         && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
 
-                query.append("plainSchema = ?").append(setParameter(parameters, cond.getSchema())).
+                query.append("plainSchema=?").append(setParameter(parameters, cond.getSchema())).
                         append(" AND ").
                         append(lower ? "LOWER(" : "").
                         append(schema.isUniqueConstraint()

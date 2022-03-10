@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.tasks;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
@@ -39,7 +39,7 @@ public class TaskAttributesDetailsView extends MultilevelPanel.SecondLevel {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnyPropagationTasks.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     public TaskAttributesDetailsView(final PropagationTaskTO taskTO) {
         super();

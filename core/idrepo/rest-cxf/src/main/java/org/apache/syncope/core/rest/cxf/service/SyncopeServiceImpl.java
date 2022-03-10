@@ -20,7 +20,7 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
@@ -137,7 +137,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
         // prepare for batch processing
         Batch batch = entityFactory.newEntity(Batch.class);
         batch.setKey(boundary);
-        batch.setExpiryTime(new Date(System.currentTimeMillis() + 5 * 60 * 1000));
+        batch.setExpiryTime(OffsetDateTime.now().plusMinutes(5));
         batchDAO.save(batch);
 
         BatchProcess batchProcess = ApplicationContextProvider.getBeanFactory().createBean(BatchProcess.class);

@@ -19,14 +19,12 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Query;
-import javax.persistence.TemporalType;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -243,9 +241,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     protected void fillWithParameters(final Query query, final List<Object> parameters) {
         for (int i = 0; i < parameters.size(); i++) {
-            if (parameters.get(i) instanceof Date) {
-                query.setParameter(i + 1, (Date) parameters.get(i), TemporalType.TIMESTAMP);
-            } else if (parameters.get(i) instanceof Boolean) {
+            if (parameters.get(i) instanceof Boolean) {
                 query.setParameter(i + 1, ((Boolean) parameters.get(i)) ? 1 : 0);
             } else {
                 query.setParameter(i + 1, parameters.get(i));

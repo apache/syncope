@@ -48,6 +48,7 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.PlatformInfo;
@@ -425,7 +426,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     @Override
-    public FastDateFormat getDateFormat() {
-        return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale());
+    public DateOps.Format getDateFormat() {
+        return new DateOps.Format(FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale()));
     }
 }

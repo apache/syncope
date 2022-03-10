@@ -20,8 +20,8 @@ package org.apache.syncope.common.lib.jackson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,11 +32,11 @@ import java.util.Map;
  * Jackson ObjectMapper that unwraps singleton map values and enable default
  * typing for handling abstract types serialization.
  */
-public class SyncopeObjectMapper extends ObjectMapper {
+public class SyncopeJsonMapper extends JsonMapper {
 
     private static final long serialVersionUID = -317191546835195103L;
 
-    public SyncopeObjectMapper() {
+    public SyncopeJsonMapper() {
         super();
 
         findAndRegisterModules();
@@ -51,7 +51,7 @@ public class SyncopeObjectMapper extends ObjectMapper {
      * @param value the potential Map to unwrap
      * @return the unwrapped map or the original value
      */
-    private Object unwrapMap(final Object value) {
+    protected Object unwrapMap(final Object value) {
         if (value instanceof Map) {
             Map<?, ?> map = (Map<?, ?>) value;
             if (map.size() == 1) {

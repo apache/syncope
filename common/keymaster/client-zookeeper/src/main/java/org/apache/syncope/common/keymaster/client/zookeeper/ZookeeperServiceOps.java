@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.keymaster.client.zookeeper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,16 +37,16 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class ZookeeperServiceOps implements ServiceOps {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ServiceOps.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ServiceOps.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    private static final String SERVICE_PATH = "/services";
+    protected static final String SERVICE_PATH = "/services";
 
     @Autowired
-    private CuratorFramework client;
+    protected CuratorFramework client;
 
-    private static String buildServicePath(final NetworkService.Type serviceType, final String... parts) {
+    protected static String buildServicePath(final NetworkService.Type serviceType, final String... parts) {
         String prefix = SERVICE_PATH + '/' + serviceType.name();
         String suffix = StringUtils.EMPTY;
         if (parts != null && parts.length > 0) {

@@ -29,7 +29,7 @@ import org.apache.cxf.validation.BeanValidationProvider;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.core.rest.cxf.AddETagFilter;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeObjectMapper;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,23 +50,17 @@ public class IdRepoRESTCXFTestContext {
 
     @Bean
     public JacksonXMLProvider xmlProvider() {
-        JacksonXMLProvider xmlProvider = new JacksonXMLProvider();
-        xmlProvider.setMapper(new SyncopeXmlMapper());
-        return xmlProvider;
+        return new JacksonXMLProvider(new SyncopeXmlMapper());
     }
 
     @Bean
     public JacksonJsonProvider jsonProvider() {
-        JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
-        jsonProvider.setMapper(new SyncopeObjectMapper());
-        return jsonProvider;
+        return new JacksonJsonProvider(new SyncopeJsonMapper());
     }
 
     @Bean
     public JacksonYAMLProvider yamlProvider() {
-        JacksonYAMLProvider yamlProvider = new JacksonYAMLProvider();
-        yamlProvider.setMapper(new SyncopeYAMLMapper());
-        return yamlProvider;
+        return new JacksonYAMLProvider(new SyncopeYAMLMapper());
     }
 
     @Bean
@@ -75,8 +69,7 @@ public class IdRepoRESTCXFTestContext {
     }
 
     @Bean
-    public JAXRSBeanValidationInInterceptor validationInInterceptor(
-        final BeanValidationProvider validationProvider) {
+    public JAXRSBeanValidationInInterceptor validationInInterceptor(final BeanValidationProvider validationProvider) {
         JAXRSBeanValidationInInterceptor validationInInterceptor = new JAXRSBeanValidationInInterceptor();
         validationInInterceptor.setProvider(validationProvider);
         return validationInInterceptor;
