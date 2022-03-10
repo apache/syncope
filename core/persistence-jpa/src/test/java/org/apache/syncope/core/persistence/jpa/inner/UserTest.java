@@ -252,9 +252,8 @@ public class UserTest extends AbstractTest {
         assertNotNull(actual);
         assertEquals(1, actual.getPasswordHistory().size());
         assertNotNull(userDAO.findLastChange(actual.getKey()));
-        assertEquals(
-                actual.getLastChangeDate().truncatedTo(ChronoUnit.SECONDS),
-                userDAO.findLastChange(actual.getKey()).truncatedTo(ChronoUnit.SECONDS));
+        assertTrue(actual.getLastChangeDate().truncatedTo(ChronoUnit.SECONDS).
+                isEqual(userDAO.findLastChange(actual.getKey()).truncatedTo(ChronoUnit.SECONDS)));
     }
 
     @Test

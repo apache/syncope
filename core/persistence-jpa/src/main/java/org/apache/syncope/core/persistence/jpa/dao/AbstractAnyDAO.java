@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.lang.reflect.InvocationTargetException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,6 +38,7 @@ import org.apache.commons.jexl3.parser.Parser;
 import org.apache.commons.jexl3.parser.ParserConstants;
 import org.apache.commons.jexl3.parser.Token;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.openjpa.persistence.OpenJPAPersistence;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -63,7 +64,6 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -138,77 +138,23 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         return result;
     }
 
-    protected static OffsetDateTime fromOracleTIMESTAMPTZ(final Object object)
-            throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-
-        byte[] bytes = (byte[]) object.getClass().getMethod("toBytes").invoke(object);
-
-        int year = ((Byte.toUnsignedInt(bytes[0]) - 100) * 100) + (Byte.toUnsignedInt(bytes[1]) - 100);
-        int month = bytes[2];
-        int dayOfMonth = bytes[3];
-        int hour = bytes[4] - 1;
-        int minute = bytes[5] - 1;
-        int second = bytes[6] - 1;
-        int nanoOfSecond = Byte.toUnsignedInt(bytes[7]) << 24
-                | Byte.toUnsignedInt(bytes[8]) << 16
-                | Byte.toUnsignedInt(bytes[9]) << 8
-                | Byte.toUnsignedInt(bytes[10]);
-
-        ZoneOffset offset;
-        if ((bytes[11] & (byte) 0b1000_0000) == 0) {
-            offset = FormatUtils.DEFAULT_OFFSET;
-        } else {
-            int hours = bytes[11] - 20;
-            int minutes = bytes[12] - 60;
-            if (hours == 0 && minutes == 0) {
-                offset = FormatUtils.DEFAULT_OFFSET;
-            } else {
-                offset = ZoneOffset.ofHoursMinutes(hours, minutes);
-            }
-        }
-
-        return LocalDateTime.of(year, month, dayOfMonth, hour, minute, second, nanoOfSecond).atOffset(offset);
-    }
-
-    protected OffsetDateTime toOffsetDateTime(final Object object) {
-        if (object instanceof OffsetDateTime) {
-            return (OffsetDateTime) object;
-        }
-
-        if (object instanceof LocalDateTime) {
-            return ((LocalDateTime) object).atOffset(FormatUtils.DEFAULT_OFFSET);
-        }
-
-        if (object instanceof Timestamp) {
-            return ((Timestamp) object).toLocalDateTime().atOffset(FormatUtils.DEFAULT_OFFSET);
-        }
-
-        // Attempt to convert from Oracle's TIMESTAMPTZ
-        if (object != null) {
-            try {
-                return fromOracleTIMESTAMPTZ(object);
-            } catch (Exception e) {
-                LOG.error("While attempting to convert {}", object, e);
-            }
-        }
-
-        LOG.debug("Could not convert to OffsetDateTime: {}", object);
-        return null;
-    }
-
     protected OffsetDateTime findLastChange(final String key, final String table) {
-        Query query = entityManager().createNativeQuery(
-                "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> result = query.getResultList();
-
         OffsetDateTime creationDate = null;
         OffsetDateTime lastChangeDate = null;
-        if (!result.isEmpty()) {
-            creationDate = toOffsetDateTime(result.get(0)[0]);
-            lastChangeDate = toOffsetDateTime(result.get(0)[1]);
+
+        try (Connection conn = (Connection) OpenJPAPersistence.cast(entityManager()).getConnection()) {
+            try (PreparedStatement stmt =
+                    conn.prepareStatement("SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?")) {
+                stmt.setString(1, key);
+
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    creationDate = rs.getObject(1, OffsetDateTime.class);
+                    lastChangeDate = rs.getObject(2, OffsetDateTime.class);
+                }
+            }
+        } catch (SQLException e) {
+            LOG.error("While reading {} from {}", key, table, e);
         }
 
         return Optional.ofNullable(lastChangeDate).orElse(creationDate);
