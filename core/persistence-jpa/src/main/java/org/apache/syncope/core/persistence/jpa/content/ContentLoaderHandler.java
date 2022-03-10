@@ -139,6 +139,7 @@ public class ContentLoaderHandler extends DefaultHandler {
                 case Types.TIME:
                 case Types.TIMESTAMP:
                 case Types.TIMESTAMP_WITH_TIMEZONE:
+                case -101:
                     try {
                     parameters[i] = FormatUtils.parseDate(value);
                 } catch (DateTimeParseException e) {

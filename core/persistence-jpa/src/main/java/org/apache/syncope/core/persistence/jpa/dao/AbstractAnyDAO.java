@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -136,6 +138,38 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         return result;
     }
 
+    protected static OffsetDateTime fromOracleTIMESTAMPTZ(final Object object)
+            throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+        byte[] bytes = (byte[]) object.getClass().getMethod("toBytes").invoke(object);
+
+        int year = ((Byte.toUnsignedInt(bytes[0]) - 100) * 100) + (Byte.toUnsignedInt(bytes[1]) - 100);
+        int month = bytes[2];
+        int dayOfMonth = bytes[3];
+        int hour = bytes[4] - 1;
+        int minute = bytes[5] - 1;
+        int second = bytes[6] - 1;
+        int nanoOfSecond = Byte.toUnsignedInt(bytes[7]) << 24
+                | Byte.toUnsignedInt(bytes[8]) << 16
+                | Byte.toUnsignedInt(bytes[9]) << 8
+                | Byte.toUnsignedInt(bytes[10]);
+
+        ZoneOffset offset;
+        if ((bytes[11] & (byte) 0b1000_0000) == 0) {
+            offset = FormatUtils.DEFAULT_OFFSET;
+        } else {
+            int hours = bytes[11] - 20;
+            int minutes = bytes[12] - 60;
+            if (hours == 0 && minutes == 0) {
+                offset = FormatUtils.DEFAULT_OFFSET;
+            } else {
+                offset = ZoneOffset.ofHoursMinutes(hours, minutes);
+            }
+        }
+
+        return LocalDateTime.of(year, month, dayOfMonth, hour, minute, second, nanoOfSecond).atOffset(offset);
+    }
+
     protected OffsetDateTime toOffsetDateTime(final Object object) {
         if (object instanceof OffsetDateTime) {
             return (OffsetDateTime) object;
@@ -147,6 +181,15 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
         if (object instanceof Timestamp) {
             return ((Timestamp) object).toLocalDateTime().atOffset(FormatUtils.DEFAULT_OFFSET);
+        }
+
+        // Attempt to convert from Oracle's TIMESTAMPTZ
+        if (object != null) {
+            try {
+                return fromOracleTIMESTAMPTZ(object);
+            } catch (Exception e) {
+                LOG.error("While attempting to convert {}", object, e);
+            }
         }
 
         LOG.debug("Could not convert to OffsetDateTime: {}", object);
