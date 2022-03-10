@@ -115,7 +115,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                             IndexResponse response = client.index(request);
                             LOG.debug("Index successfully created for {}: {}", user, response);
                         } catch (Exception e) {
-                            LOG.error("Could not create index for {} {}", AnyTypeKind.USER, user);
+                            LOG.error("Could not create index for {} {}", AnyTypeKind.USER, user, e);
                         }
                     }
                 }
@@ -133,7 +133,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                             IndexResponse response = client.index(request);
                             LOG.debug("Index successfully created for {}: {}", group, response);
                         } catch (Exception e) {
-                            LOG.error("Could not create index for {} {}", AnyTypeKind.GROUP, group);
+                            LOG.error("Could not create index for {} {}", AnyTypeKind.GROUP, group, e);
                         }
                     }
                 }
@@ -151,7 +151,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                             IndexResponse response = client.index(request);
                             LOG.debug("Index successfully created for {}: {}", anyObject, response);
                         } catch (Exception e) {
-                            LOG.error("Could not create index for {} {}", AnyTypeKind.ANY_OBJECT, anyObject);
+                            LOG.error("Could not create index for {} {}", AnyTypeKind.ANY_OBJECT, anyObject, e);
                         }
                     }
                 }
