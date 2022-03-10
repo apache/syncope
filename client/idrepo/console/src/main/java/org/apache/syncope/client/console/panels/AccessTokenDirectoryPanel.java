@@ -20,14 +20,12 @@ package org.apache.syncope.client.console.panels;
 
 import com.nimbusds.jwt.SignedJWT;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
