@@ -313,7 +313,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     private VirSchema fill(final VirSchema schema, final VirSchemaTO schemaTO) {
         schema.setKey(schemaTO.getKey());
         schema.setExtAttrName(schemaTO.getExtAttrName());
-        schema.setReadonly(schema.isReadonly());
+        schema.setReadonly(schemaTO.isReadonly());
 
         labels(schemaTO, schema);
 
