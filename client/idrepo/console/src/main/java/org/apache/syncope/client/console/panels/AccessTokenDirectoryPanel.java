@@ -105,8 +105,7 @@ public class AccessTokenDirectoryPanel
                     SignedJWT jwt = SignedJWT.parse(model.getObject().getBody());
                     cellItem.add(new Label(
                             componentId,
-                            FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale()).
-                                    format(jwt.getJWTClaimsSet().getIssueTime())));
+                            SyncopeConsoleSession.get().getDateFormat().format(jwt.getJWTClaimsSet().getIssueTime())));
                 } catch (ParseException e) {
                     LOG.error("Could not parse JWT {}", model.getObject().getBody(), e);
                     cellItem.add(new Label(componentId, StringUtils.EMPTY));
