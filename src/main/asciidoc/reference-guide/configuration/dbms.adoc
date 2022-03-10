@@ -29,7 +29,7 @@ Create
 ....
 persistence.domain[0].key=Master
 persistence.domain[0].jdbcDriver=org.postgresql.Driver
-persistence.domain[0].jdbcURL=jdbc:postgresql://localhost:5432/syncope
+persistence.domain[0].jdbcURL=jdbc:postgresql://localhost:5432/syncope?stringtype=unspecified
 persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.PostgresDictionary
