@@ -309,7 +309,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
             propagationPolicyTO.setBackOffStrategy(propagationPolicy.getBackOffStrategy());
             propagationPolicyTO.setBackOffParams(propagationPolicy.getBackOffParams());
-            propagationPolicyTO.setMaxAttempts(propagationPolicyTO.getMaxAttempts());
+            propagationPolicyTO.setMaxAttempts(propagationPolicy.getMaxAttempts());
         } else if (policy instanceof PullPolicy) {
             PullPolicy pullPolicy = PullPolicy.class.cast(policy);
             PullPolicyTO pullPolicyTO = new PullPolicyTO();

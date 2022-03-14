@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.commons;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.policies.PropagationPolicyDirectoryPanel;
 import org.apache.syncope.client.console.policies.PullPolicyDirectoryPanel;
 import org.apache.syncope.client.console.policies.PushPolicyDirectoryPanel;
 import org.apache.wicket.PageReference;
@@ -40,6 +41,16 @@ public class IdMPolicyTabProvider implements PolicyTabProvider {
     @Override
     public List<ITab> buildTabList(final PageReference pageRef) {
         List<ITab> tabs = new ArrayList<>();
+
+        tabs.add(new AbstractTab(new ResourceModel("policy.propagation")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new PropagationPolicyDirectoryPanel(panelId, pageRef);
+            }
+        });
 
         tabs.add(new AbstractTab(new ResourceModel("policy.pull")) {
 

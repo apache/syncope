@@ -767,16 +767,21 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public NotificationJob notificationJob(final NotificationJobDelegate delegate,
+    public NotificationJob notificationJob(
+            final NotificationJobDelegate delegate,
             final DomainHolder domainHolder,
             final SecurityProperties securityProperties) {
+
         return new NotificationJob(securityProperties, domainHolder, delegate);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public ReportJobDelegate reportJobDelegate(final ReportDAO reportDAO, final ReportExecDAO reportExecDAO,
+    public ReportJobDelegate reportJobDelegate(
+            final ReportDAO reportDAO,
+            final ReportExecDAO reportExecDAO,
             final EntityFactory entityFactory) {
+
         return new DefaultReportJobDelegate(reportDAO, reportExecDAO, entityFactory);
     }
 
@@ -873,8 +878,10 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ApplicationDataBinder applicationDataBinder(final ApplicationDAO applicationDAO,
+    public ApplicationDataBinder applicationDataBinder(
+            final ApplicationDAO applicationDAO,
             final EntityFactory entityFactory) {
+
         return new ApplicationDataBinderImpl(applicationDAO, entityFactory);
     }
 
@@ -898,8 +905,10 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ClientAppDataBinder clientAppDataBinder(final PolicyDAO policyDAO,
+    public ClientAppDataBinder clientAppDataBinder(
+            final PolicyDAO policyDAO,
             final EntityFactory entityFactory) {
+
         return new ClientAppDataBinderImpl(policyDAO, entityFactory);
     }
 
@@ -916,16 +925,22 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DelegationDataBinder delegationDataBinder(final UserDAO userDAO, final RoleDAO roleDAO,
+    public DelegationDataBinder delegationDataBinder(
+            final UserDAO userDAO,
+            final RoleDAO roleDAO,
             final EntityFactory entityFactory) {
+
         return new DelegationDataBinderImpl(userDAO, roleDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public DynRealmDataBinder dynRealmDataBinder(final AnyTypeDAO anyTypeDAO, final DynRealmDAO dynRealmDAO,
+    public DynRealmDataBinder dynRealmDataBinder(
+            final AnyTypeDAO anyTypeDAO,
+            final DynRealmDAO dynRealmDAO,
             final SearchCondVisitor searchCondVisitor,
             final EntityFactory entityFactory) {
+
         return new DynRealmDataBinderImpl(anyTypeDAO, dynRealmDAO, entityFactory, searchCondVisitor);
     }
 
@@ -1229,8 +1244,10 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public WAConfigDataBinder waConfigDataBinder(final WAConfigDAO waConfigDAO,
+    public WAConfigDataBinder waConfigDataBinder(
+            final WAConfigDAO waConfigDAO,
             final EntityFactory entityFactory) {
+
         return new WAConfigDataBinderImpl(waConfigDAO, entityFactory);
     }
 

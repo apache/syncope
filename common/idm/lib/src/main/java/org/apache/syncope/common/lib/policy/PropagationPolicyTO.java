@@ -30,7 +30,7 @@ public class PropagationPolicyTO extends PolicyTO {
 
     private BackOffStrategy backOffStrategy = BackOffStrategy.FIXED;
 
-    private String backOffParams;
+    private String backOffParams = BackOffStrategy.FIXED.getDefaultBackOffParams();
 
     private int maxAttempts = 3;
 
