@@ -25,6 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Application;
+import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
@@ -46,6 +47,7 @@ import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.SRARoute;
 import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
@@ -58,7 +60,12 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPEntity;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPEntity;
 import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
@@ -70,6 +77,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
@@ -109,10 +117,13 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUni
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModule;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModuleItem;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPACASSPClientApp;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCJWKS;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCRPClientApp;
+import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2IdPEntity;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPClientApp;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPEntity;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAWAConfigEntry;
@@ -126,6 +137,7 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAttrReleasePolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAuthPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPropagationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
@@ -158,16 +170,6 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModule;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModuleItem;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2IdPEntity;
-import org.apache.syncope.core.persistence.api.entity.SRARoute;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPEntity;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPEntity;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
-import org.apache.syncope.core.persistence.api.entity.AuditConf;
 
 public class JPAEntityFactory implements EntityFactory {
 
@@ -188,6 +190,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAAccountPolicy();
         } else if (reference.equals(PasswordPolicy.class)) {
             result = (E) new JPAPasswordPolicy();
+        } else if (reference.equals(PropagationPolicy.class)) {
+            result = (E) new JPAPropagationPolicy();
         } else if (reference.equals(PushPolicy.class)) {
             result = (E) new JPAPushPolicy();
         } else if (reference.equals(PullPolicy.class)) {

@@ -181,7 +181,7 @@ public class GroupTest extends AbstractTest {
         query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
                 ? (String) ((Object[]) resultKey)[0]
                 : ((String) resultKey)).
-                forEachOrdered(actualKey -> {
+                forEach(actualKey -> {
                     Group group = groupDAO.find(actualKey.toString());
                     if (group == null) {
                     } else if (!result.contains(group)) {
@@ -282,7 +282,7 @@ public class GroupTest extends AbstractTest {
         query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
                 ? (String) ((Object[]) resultKey)[0]
                 : ((String) resultKey)).
-                forEachOrdered(actualKey -> {
+                forEach(actualKey -> {
                     Group group = groupDAO.find(actualKey.toString());
                     if (group == null) {
                     } else if (!result.contains(group)) {

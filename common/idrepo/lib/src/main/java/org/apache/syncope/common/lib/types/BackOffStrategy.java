@@ -18,39 +18,18 @@
  */
 package org.apache.syncope.common.lib.types;
 
-public enum PolicyType {
+public enum BackOffStrategy {
+    FIXED("1000"),
+    EXPONENTIAL("100;30000;2"),
+    RANDOM("100;30000;2");
 
-    /**
-     * How username values should look like.
-     */
-    ACCOUNT,
-    /**
-     * How password values should look like.
-     */
-    PASSWORD,
-    /**
-     * How authentication policies should look like.
-     */
-    AUTH,
-    /**
-     * How attribute release policies should look like.
-     */
-    ATTR_RELEASE,
-    /**
-     * How access policies should be defined.
-     */
-    ACCESS,
-    /**
-     * For handling propagation behavior.
-     */
-    PROPAGATION,
-    /**
-     * For handling conflicts resolution during pull.
-     */
-    PULL,
-    /**
-     * For handling conflicts resolution during push.
-     */
-    PUSH;
+    private final String defaultBackOffParams;
 
+    BackOffStrategy(final String defaultBackOffParams) {
+        this.defaultBackOffParams = defaultBackOffParams;
+    }
+
+    public String getDefaultBackOffParams() {
+        return defaultBackOffParams;
+    }
 }

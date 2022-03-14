@@ -88,7 +88,7 @@ public class JPARelationshipTypeDAO extends AbstractDAO<RelationshipType> implem
             }
             relationship.setLeftEnd(null);
             return relationship;
-        }).forEachOrdered(relationship -> entityManager().remove(relationship));
+        }).forEach(entityManager()::remove);
 
         entityManager().remove(type);
     }

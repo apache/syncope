@@ -69,6 +69,8 @@ public class ResourceTO implements EntityTO {
 
     private String accountPolicy;
 
+    private String propagationPolicy;
+
     private String pullPolicy;
 
     private String pushPolicy;
@@ -176,6 +178,14 @@ public class ResourceTO implements EntityTO {
 
     public void setAccountPolicy(final String accountPolicy) {
         this.accountPolicy = accountPolicy;
+    }
+
+    public String getPropagationPolicy() {
+        return propagationPolicy;
+    }
+
+    public void setPropagationPolicy(final String propagationPolicy) {
+        this.propagationPolicy = propagationPolicy;
     }
 
     public String getPullPolicy() {
@@ -293,6 +303,7 @@ public class ResourceTO implements EntityTO {
                 append(provisioningTraceLevel, other.provisioningTraceLevel).
                 append(passwordPolicy, other.passwordPolicy).
                 append(accountPolicy, other.accountPolicy).
+                append(propagationPolicy, other.propagationPolicy).
                 append(pullPolicy, other.pullPolicy).
                 append(pushPolicy, other.pushPolicy).
                 append(authPolicy, other.authPolicy).
@@ -321,6 +332,7 @@ public class ResourceTO implements EntityTO {
                 append(provisioningTraceLevel).
                 append(passwordPolicy).
                 append(accountPolicy).
+                append(propagationPolicy).
                 append(pullPolicy).
                 append(pushPolicy).
                 append(authPolicy).

@@ -219,8 +219,9 @@ public class ProvisioningContext {
 
     /**
      * Annotated as {@code @Primary} because it will be used by {@code @Async} in {@link AsyncConnectorFacade}.
+     *
      * @param provisioningProperties configuration properties
-     * 
+     *
      * @return executor
      */
     @Bean
@@ -238,8 +239,10 @@ public class ProvisioningContext {
 
     @Bean
     public AsyncConfigurer asyncConfigurer(@Qualifier("asyncConnectorFacadeExecutor")
-                                           final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor) {
+            final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor) {
+
         return new AsyncConfigurer() {
+
             @Override
             public Executor getAsyncExecutor() {
                 return asyncConnectorFacadeExecutor;
@@ -255,7 +258,7 @@ public class ProvisioningContext {
      */
     @Bean
     public ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor(
-        final ProvisioningProperties provisioningProperties) {
+            final ProvisioningProperties provisioningProperties) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(provisioningProperties.getPropagationTaskExecutorAsyncExecutor().getCorePoolSize());
         executor.setMaxPoolSize(provisioningProperties.getPropagationTaskExecutorAsyncExecutor().getMaxPoolSize());
@@ -285,7 +288,7 @@ public class ProvisioningContext {
     @Lazy(false)
     @Bean
     public SchedulerFactoryBean scheduler(final ApplicationContext ctx,
-                                          final ProvisioningProperties provisioningProperties) {
+            final ProvisioningProperties provisioningProperties) {
         SchedulerFactoryBean scheduler = new SchedulerFactoryBean();
         scheduler.setAutoStartup(true);
         scheduler.setApplicationContext(ctx);
@@ -347,7 +350,7 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public JavaMailSender mailSender(final ProvisioningProperties provisioningProperties)
-        throws IllegalArgumentException, IOException {
+            throws IllegalArgumentException, IOException {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl() {
 
             @Override
@@ -582,7 +585,7 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-        public IntAttrNameParser intAttrNameParser(
+    public IntAttrNameParser intAttrNameParser(
             final AnyUtilsFactory anyUtilsFactory,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
@@ -765,15 +768,15 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public NotificationJob notificationJob(final NotificationJobDelegate delegate,
-                                           final DomainHolder domainHolder,
-                                           final SecurityProperties securityProperties) {
+            final DomainHolder domainHolder,
+            final SecurityProperties securityProperties) {
         return new NotificationJob(securityProperties, domainHolder, delegate);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public ReportJobDelegate reportJobDelegate(final ReportDAO reportDAO, final ReportExecDAO reportExecDAO,
-                                               final EntityFactory entityFactory) {
+            final EntityFactory entityFactory) {
         return new DefaultReportJobDelegate(reportDAO, reportExecDAO, entityFactory);
     }
 
@@ -871,7 +874,7 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public ApplicationDataBinder applicationDataBinder(final ApplicationDAO applicationDAO,
-                                                       final EntityFactory entityFactory) {
+            final EntityFactory entityFactory) {
         return new ApplicationDataBinderImpl(applicationDAO, entityFactory);
     }
 
@@ -896,7 +899,7 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public ClientAppDataBinder clientAppDataBinder(final PolicyDAO policyDAO,
-                                                   final EntityFactory entityFactory) {
+            final EntityFactory entityFactory) {
         return new ClientAppDataBinderImpl(policyDAO, entityFactory);
     }
 
@@ -914,15 +917,15 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public DelegationDataBinder delegationDataBinder(final UserDAO userDAO, final RoleDAO roleDAO,
-                                                     final EntityFactory entityFactory) {
+            final EntityFactory entityFactory) {
         return new DelegationDataBinderImpl(userDAO, roleDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public DynRealmDataBinder dynRealmDataBinder(final AnyTypeDAO anyTypeDAO, final DynRealmDAO dynRealmDAO,
-                                                 final SearchCondVisitor searchCondVisitor,
-                                                 final EntityFactory entityFactory) {
+            final SearchCondVisitor searchCondVisitor,
+            final EntityFactory entityFactory) {
         return new DynRealmDataBinderImpl(anyTypeDAO, dynRealmDAO, entityFactory, searchCondVisitor);
     }
 
@@ -1066,7 +1069,8 @@ public class ProvisioningContext {
             final AnyTypeClassDAO anyTypeClassDAO,
             final ImplementationDAO implementationDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final IntAttrNameParser intAttrNameParser) {
+            final IntAttrNameParser intAttrNameParser,
+            final PropagationTaskExecutor propagationTaskExecutor) {
 
         return new ResourceDataBinderImpl(
                 anyTypeDAO,
@@ -1077,7 +1081,8 @@ public class ProvisioningContext {
                 implementationDAO,
                 plainSchemaDAO,
                 entityFactory,
-                intAttrNameParser);
+                intAttrNameParser,
+                propagationTaskExecutor);
     }
 
     @ConditionalOnMissingBean
@@ -1225,7 +1230,7 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public WAConfigDataBinder waConfigDataBinder(final WAConfigDAO waConfigDAO,
-                                                 final EntityFactory entityFactory) {
+            final EntityFactory entityFactory) {
         return new WAConfigDataBinderImpl(waConfigDAO, entityFactory);
     }
 

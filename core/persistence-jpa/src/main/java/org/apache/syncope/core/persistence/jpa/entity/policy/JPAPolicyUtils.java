@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtils;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 
 public class JPAPolicyUtils implements PolicyUtils {
 
@@ -51,9 +52,6 @@ public class JPAPolicyUtils implements PolicyUtils {
             case PASSWORD:
                 return PasswordPolicy.class;
 
-            case PULL:
-                return PullPolicy.class;
-
             case AUTH:
                 return AuthPolicy.class;
 
@@ -62,6 +60,12 @@ public class JPAPolicyUtils implements PolicyUtils {
 
             case ACCESS:
                 return AccessPolicy.class;
+
+            case PROPAGATION:
+                return PropagationPolicy.class;
+
+            case PULL:
+                return PullPolicy.class;
 
             case PUSH:
             default:
