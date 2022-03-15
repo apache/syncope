@@ -422,7 +422,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>4.0.0</groovy.version>
+    <groovy.version>4.0.1</groovy.version>
 
     <flowable.version>6.7.2</flowable.version>
 
@@ -502,7 +502,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.59</tomcat.version>
+    <tomcat.version>9.0.60</tomcat.version>
     <wildfly.version>25.0.1.Final</wildfly.version>
     <payara.version>5.2022.1</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
