@@ -180,13 +180,13 @@ public class PolicyTest extends AbstractTest {
         policy.setConflictResolutionAction(ConflictResolutionAction.IGNORE);
         policy.setDescription("Push policy");
 
-        final String pullURuleName = "net.tirasa.pull.correlation.TirasaURule";
-        final String pullGRuleName = "net.tirasa.pull.correlation.TirasaGRule";
+        final String pushURuleName = "net.tirasa.push.correlation.TirasaURule";
+        final String pushGRuleName = "net.tirasa.push.correlation.TirasaGRule";
 
         Implementation impl1 = entityFactory.newEntity(Implementation.class);
-        impl1.setKey(pullURuleName);
+        impl1.setKey(pushURuleName);
         impl1.setEngine(ImplementationEngine.JAVA);
-        impl1.setType(ImplementationType.PULL_CORRELATION_RULE);
+        impl1.setType(ImplementationType.PUSH_CORRELATION_RULE);
         impl1.setBody(PushCorrelationRule.class.getName());
         impl1 = implementationDAO.save(impl1);
 
@@ -197,9 +197,9 @@ public class PolicyTest extends AbstractTest {
         policy.add(rule1);
 
         Implementation impl2 = entityFactory.newEntity(Implementation.class);
-        impl2.setKey(pullGRuleName);
+        impl2.setKey(pushGRuleName);
         impl2.setEngine(ImplementationEngine.JAVA);
-        impl2.setType(ImplementationType.PULL_CORRELATION_RULE);
+        impl2.setType(ImplementationType.PUSH_CORRELATION_RULE);
         impl2.setBody(PushCorrelationRule.class.getName());
         impl2 = implementationDAO.save(impl2);
 
@@ -212,9 +212,9 @@ public class PolicyTest extends AbstractTest {
         policy = policyDAO.save(policy);
 
         assertNotNull(policy);
-        assertEquals(pullURuleName,
+        assertEquals(pushURuleName,
                 policy.getCorrelationRule(anyTypeDAO.findUser()).get().getImplementation().getKey());
-        assertEquals(pullGRuleName,
+        assertEquals(pushGRuleName,
                 policy.getCorrelationRule(anyTypeDAO.findGroup()).get().getImplementation().getKey());
     }
 
