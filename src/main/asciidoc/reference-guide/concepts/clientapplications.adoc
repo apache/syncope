@@ -41,4 +41,4 @@ More parameters are required to be specified depending on the actual client appl
 
 [NOTE]
 Client Applications are dynamically translated into
-https://apereo.github.io/cas/6.4.x/services/Service-Management.html[CAS Services^].
+https://apereo.github.io/cas/6.5.x/services/Service-Management.html[CAS Services^].

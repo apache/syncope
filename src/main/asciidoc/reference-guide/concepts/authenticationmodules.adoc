@@ -24,18 +24,18 @@ technology or repository, in the context of a certain <<policies-authentication,
 Several authentication modules are provided:
 
 * Principal Authentication:
-    ** https://apereo.github.io/cas/6.4.x/authentication/Database-Authentication.html[Database^]
-    ** https://apereo.github.io/cas/6.4.x/authentication/JAAS-Authentication.html[JAAS^]
-    ** https://apereo.github.io/cas/6.4.x/authentication/LDAP-Authentication.html[LDAP^]
-    ** https://apereo.github.io/cas/6.4.x/integration/Delegate-Authentication.html[OpenID Connect^]
-    ** https://apereo.github.io/cas/6.4.x/mfa/RADIUS-Authentication.html[Radius^]
-    ** https://apereo.github.io/cas/6.4.x/authentication/Syncope-Authentication.html[Static^]
-    ** https://apereo.github.io/cas/6.4.x/authentication/Syncope-Authentication.html[Syncope^]
-    ** https://apereo.github.io/cas/6.4.x/integration/Delegate-Authentication.html[SAML^]
+    ** https://apereo.github.io/cas/6.5.x/authentication/Database-Authentication.html[Database^]
+    ** https://apereo.github.io/cas/6.5.x/authentication/JAAS-Authentication.html[JAAS^]
+    ** https://apereo.github.io/cas/6.5.x/authentication/LDAP-Authentication.html[LDAP^]
+    ** https://apereo.github.io/cas/6.5.x/integration/Delegate-Authentication.html[OpenID Connect^]
+    ** https://apereo.github.io/cas/6.5.x/mfa/RADIUS-Authentication.html[Radius^]
+    ** https://apereo.github.io/cas/6.5.x/authentication/Syncope-Authentication.html[Static^]
+    ** https://apereo.github.io/cas/6.5.x/authentication/Syncope-Authentication.html[Syncope^]
+    ** https://apereo.github.io/cas/6.5.x/integration/Delegate-Authentication.html[SAML^]
 * MFA:
-    ** https://apereo.github.io/cas/6.4.x/mfa/DuoSecurity-Authentication.html[Duo Security^]
-    ** https://apereo.github.io/cas/6.4.x/mfa/FIDO-U2F-Authentication.html[Fido U2F^]
-    ** https://apereo.github.io/cas/6.4.x/mfa/GoogleAuthenticator-Authentication.html[Google Authenticator^]
+    ** https://apereo.github.io/cas/6.5.x/mfa/DuoSecurity-Authentication.html[Duo Security^]
+    ** https://apereo.github.io/cas/6.5.x/mfa/FIDO-U2F-Authentication.html[Fido U2F^]
+    ** https://apereo.github.io/cas/6.5.x/mfa/GoogleAuthenticator-Authentication.html[Google Authenticator^]
 
 [TIP]
 ====
@@ -58,4 +58,4 @@ class.
 
 [NOTE]
 Authentication Modules are dynamically translated into
-https://apereo.github.io/cas/6.4.x/authentication/Configuring-Authentication-Components.html#authentication-handlers[CAS Authentication Handlers^].
+https://apereo.github.io/cas/6.5.x/authentication/Configuring-Authentication-Components.html#authentication-handlers[CAS Authentication Handlers^].

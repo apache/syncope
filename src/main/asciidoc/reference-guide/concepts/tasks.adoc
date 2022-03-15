@@ -62,6 +62,9 @@ endif::[]
 during the <<propagation,propagation>> process, and are permanently saved - for later re-execution or for examining
 the execution details - depending on the trace levels set on the related
 <<external-resource-details,external resource>>.
+
+Automatic retry in case of failure can be configured by mean of a <<policies-propagation,propagation policy>>, for the
+related external resource.
 ====
 
 [[tasks-pull]]
