@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.ProvisioningPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
@@ -144,8 +145,8 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
     @Override
     public <T extends Policy> List<Realm> findByPolicy(final T policy) {
-        if (ProvisioningPolicy.class.isAssignableFrom(policy.getClass())) {
-            return Collections.<Realm>emptyList();
+        if (policy instanceof PropagationPolicy || policy instanceof ProvisioningPolicy) {
+            return Collections.emptyList();
         }
 
         TypedQuery<Realm> query = entityManager().createQuery(
@@ -154,10 +155,10 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         query.setParameter("policy", policy);
 
         List<Realm> result = new ArrayList<>();
-        query.getResultList().stream().map(realm -> {
+        query.getResultList().forEach(realm -> {
             result.add(realm);
-            return realm;
-        }).forEachOrdered(realm -> result.addAll(findSamePolicyChildren(realm, policy)));
+            result.addAll(findSamePolicyChildren(realm, policy));
+        });
 
         return result;
     }

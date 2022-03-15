@@ -134,6 +134,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnitItem;
@@ -144,6 +145,7 @@ import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrUniqueValu
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPropagationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttrUniqueValue;
@@ -174,6 +176,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAPasswordPolicy();
         } else if (reference.equals(PushPolicy.class)) {
             result = (E) new JPAPushPolicy();
+        } else if (reference.equals(PropagationPolicy.class)) {
+            result = (E) new JPAPropagationPolicy();
         } else if (reference.equals(PullPolicy.class)) {
             result = (E) new JPAPullPolicy();
         } else if (reference.equals(PullCorrelationRuleEntity.class)) {

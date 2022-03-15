@@ -272,6 +272,20 @@ Before being able to configure the "Have I Been Pwned?" password rule as mention
 a `JAVA` `PASSWORD_RULE` <<implementations,implementation>> for the
 `org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf` class.
 
+[[policies-propagation]]
+==== Propagation
+
+Propagation policies are evaluated during the execution of <<tasks-propagation,propagation tasks>> and are meant to
+retry the configured operations in case of propagation failures.
+
+When defining a propagation policy, the following information must be provided:
+
+* max number of attempts
+* back-off strategy
+** `FIXED` - pauses for a fixed period of time before continuing
+** `EXPONENTIAL` - increases the back off period for each retry attempt in a given set up to a limit
+** `RANDOM` - chooses a random multiple of the interval that would come from a simple deterministic exponential
+
 [[policies-pull]]
 ==== Pull
 

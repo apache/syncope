@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -42,8 +43,10 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
+import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.common.lib.policy.ProvisioningPolicyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.types.BackOffStrategy;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.Component;
@@ -51,6 +54,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
@@ -58,6 +62,42 @@ import org.apache.wicket.model.util.ListModel;
 public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPanelBuilder<T> {
 
     private static final long serialVersionUID = 5945391813567245081L;
+
+    private static class BackOffParamsModel<N extends Number> implements IModel<N> {
+
+        private static final long serialVersionUID = 28839546672164L;
+
+        private final PropertyModel<String> backOffParamsModel;
+
+        private final int index;
+
+        BackOffParamsModel(final PropertyModel<String> backOffParamsModel, final int index) {
+            this.backOffParamsModel = backOffParamsModel;
+            this.index = index;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public N getObject() {
+            String[] split = backOffParamsModel.getObject().split(";");
+            if (index >= split.length) {
+                return null;
+            }
+
+            return index == 2
+                    ? (N) Double.valueOf(backOffParamsModel.getObject().split(";")[index])
+                    : (N) Long.valueOf(backOffParamsModel.getObject().split(";")[index]);
+        }
+
+        @Override
+        public void setObject(final N object) {
+            String[] split = backOffParamsModel.getObject().split(";");
+            if (index < split.length) {
+                split[index] = object.toString();
+                backOffParamsModel.setObject(Arrays.stream(split).collect(Collectors.joining(";")));
+            }
+        }
+    }
 
     private final BaseModal<T> modal;
 
@@ -136,6 +176,61 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                         "allowNullPassword",
                         new PropertyModel<>(policyTO, "allowNullPassword"),
                         false));
+            } else if (policyTO instanceof PropagationPolicyTO) {
+                fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                        "field",
+                        "maxAttempts",
+                        Integer.class,
+                        new PropertyModel<>(policyTO, "maxAttempts")));
+                AjaxDropDownChoicePanel<Serializable> backOffStrategy = new AjaxDropDownChoicePanel<>(
+                        "field",
+                        "backOffStrategy",
+                        new PropertyModel<>(policyTO, "backOffStrategy")).
+                        setChoices(Arrays.asList((Serializable[]) BackOffStrategy.values()));
+                fields.add(backOffStrategy);
+
+                PropertyModel<String> backOffParamsModel = new PropertyModel<>(policyTO, "backOffParams");
+
+                AjaxSpinnerFieldPanel<Long> initialInterval = new AjaxSpinnerFieldPanel.Builder<Long>().
+                        min(1L).build(
+                        "field",
+                        "initialInterval",
+                        Long.class,
+                        new BackOffParamsModel<>(backOffParamsModel, 0));
+                fields.add(initialInterval.setOutputMarkupPlaceholderTag(true));
+                AjaxSpinnerFieldPanel<Long> maxInterval = new AjaxSpinnerFieldPanel.Builder<Long>().
+                        min(1L).build(
+                        "field",
+                        "maxInterval",
+                        Long.class,
+                        new BackOffParamsModel<>(backOffParamsModel, 1));
+                fields.add(maxInterval.setOutputMarkupPlaceholderTag(true).setVisible(false));
+                AjaxSpinnerFieldPanel<Double> multiplier = new AjaxSpinnerFieldPanel.Builder<Double>().
+                        min(1D).build(
+                        "field",
+                        "multiplier",
+                        Double.class,
+                        new BackOffParamsModel<>(backOffParamsModel, 2));
+                fields.add(multiplier.setOutputMarkupPlaceholderTag(true).setVisible(false));
+
+                showHide(backOffStrategy, initialInterval, maxInterval, multiplier);
+
+                backOffStrategy.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                    private static final long serialVersionUID = -1107858522700306810L;
+
+                    @Override
+                    protected void onUpdate(final AjaxRequestTarget target) {
+                        BackOffStrategy strategy = (BackOffStrategy) backOffStrategy.getField().getModelObject();
+                        backOffParamsModel.setObject(strategy.getDefaultBackOffParams());
+
+                        showHide(backOffStrategy, initialInterval, maxInterval, multiplier);
+
+                        target.add(initialInterval);
+                        target.add(maxInterval);
+                        target.add(multiplier);
+                    }
+                });
             } else if (policyTO instanceof ProvisioningPolicyTO) {
                 fields.add(new AjaxDropDownChoicePanel<>(
                         "field",
@@ -154,6 +249,35 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                 }
 
             });
+        }
+
+        private void showHide(
+                final AjaxDropDownChoicePanel<Serializable> backOffStrategy,
+                final AjaxSpinnerFieldPanel<Long> initialInterval,
+                final AjaxSpinnerFieldPanel<Long> maxInterval,
+                final AjaxSpinnerFieldPanel<Double> multiplier) {
+
+            BackOffStrategy strategy = (BackOffStrategy) backOffStrategy.getField().getModelObject();
+
+            switch (strategy) {
+                case EXPONENTIAL:
+                    initialInterval.addLabel("initialInterval");
+                    maxInterval.setVisible(true);
+                    multiplier.setVisible(true);
+                    break;
+
+                case RANDOM:
+                    initialInterval.addLabel("initialInterval");
+                    maxInterval.setVisible(true);
+                    multiplier.setVisible(true);
+                    break;
+
+                case FIXED:
+                default:
+                    initialInterval.addLabel("period");
+                    maxInterval.setVisible(false);
+                    multiplier.setVisible(false);
+            }
         }
 
         @Override
