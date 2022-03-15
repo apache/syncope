@@ -16,32 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.core.persistence.api.entity.policy;
 
-import javax.xml.bind.annotation.XmlEnum;
+import org.apache.syncope.common.lib.types.BackOffStrategy;
 
-@XmlEnum
-public enum PolicyType {
+public interface PropagationPolicy extends Policy {
 
-    /**
-     * How username values should look like.
-     */
-    ACCOUNT,
-    /**
-     * How password values should look like.
-     */
-    PASSWORD,
-    /**
-     * For handling propagation behavior.
-     */
-    PROPAGATION,
-    /**
-     * For handling conflicts resolution during pull.
-     */
-    PULL,
-    /**
-     * For handling conflicts resolution during push.
-     */
-    PUSH;
+    BackOffStrategy getBackOffStrategy();
 
+    void setBackOffStrategy(BackOffStrategy backOffStrategy);
+
+    String getBackOffParams();
+
+    void setBackOffParams(String backOffParams);
+
+    int getMaxAttempts();
+
+    void setMaxAttempts(int maxAttempts);
 }

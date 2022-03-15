@@ -70,71 +70,78 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
     }
 
     @Override
-    protected void doExecute(
+    public PropagationReporter execute(
             final Collection<PropagationTaskInfo> taskInfos,
-            final PropagationReporter reporter,
             final boolean nullPriorityAsync) {
 
-        List<PropagationTaskInfo> prioritizedTasks = taskInfos.stream().
-                filter(task -> task.getExternalResource().getPropagationPriority() != null).
-                sorted(Comparator.comparing(task -> task.getExternalResource().getPropagationPriority())).
-                collect(Collectors.toList());
-        LOG.debug("Propagation tasks sorted by priority, for serial execution: {}", prioritizedTasks);
+        PropagationReporter reporter = new DefaultPropagationReporter();
+        try {
+            List<PropagationTaskInfo> prioritizedTasks = taskInfos.stream().
+                    filter(task -> task.getExternalResource().getPropagationPriority() != null).
+                    sorted(Comparator.comparing(task -> task.getExternalResource().getPropagationPriority())).
+                    collect(Collectors.toList());
+            LOG.debug("Propagation tasks sorted by priority, for serial execution: {}", prioritizedTasks);
 
-        List<PropagationTaskInfo> concurrentTasks = taskInfos.stream().
-                filter(task -> !prioritizedTasks.contains(task)).
-                collect(Collectors.toList());
-        LOG.debug("Propagation tasks for concurrent execution: {}", concurrentTasks);
+            List<PropagationTaskInfo> concurrentTasks = taskInfos.stream().
+                    filter(task -> !prioritizedTasks.contains(task)).
+                    collect(Collectors.toList());
+            LOG.debug("Propagation tasks for concurrent execution: {}", concurrentTasks);
 
-        // first process priority resources sequentially and fail as soon as any propagation failure is reported
-        prioritizedTasks.forEach(task -> {
-            TaskExec execution = null;
-            ExecStatus execStatus;
-            String errorMessage = null;
-            try {
-                execution = newPropagationTaskCallable(task, reporter).call();
-                execStatus = ExecStatus.valueOf(execution.getStatus());
-            } catch (Exception e) {
-                LOG.error("Unexpected exception", e);
-                execStatus = ExecStatus.FAILURE;
-                errorMessage = e.getMessage();
-            }
-            if (execStatus != ExecStatus.SUCCESS) {
-                throw new PropagationException(
-                        task.getResource(),
-                        execution == null ? errorMessage : execution.getMessage());
-            }
-        });
-
-        // then process non-priority resources concurrently...
-        if (!concurrentTasks.isEmpty()) {
-            CompletionService<TaskExec> completionService = new ExecutorCompletionService<>(executor);
-            List<Future<TaskExec>> futures = new ArrayList<>();
-
-            concurrentTasks.forEach(taskInfo -> {
+            // first process priority resources sequentially and fail as soon as any propagation failure is reported
+            prioritizedTasks.forEach(task -> {
+                TaskExec execution = null;
+                ExecStatus execStatus;
+                String errorMessage = null;
                 try {
-                    futures.add(completionService.submit(newPropagationTaskCallable(taskInfo, reporter)));
-
-                    if (nullPriorityAsync) {
-                        reporter.onSuccessOrNonPriorityResourceFailures(
-                                taskInfo, ExecStatus.CREATED, null, null, null, null);
-                    }
+                    execution = newPropagationTaskCallable(task, reporter).call();
+                    execStatus = ExecStatus.valueOf(execution.getStatus());
                 } catch (Exception e) {
-                    LOG.error("While submitting task for async execution", taskInfo, e);
-                    rejected(taskInfo, e.getMessage(), reporter);
+                    LOG.error("Unexpected exception", e);
+                    execStatus = ExecStatus.FAILURE;
+                    errorMessage = e.getMessage();
+                }
+                if (execStatus != ExecStatus.SUCCESS) {
+                    throw new PropagationException(
+                            task.getResource(),
+                            execution == null ? errorMessage : execution.getMessage());
                 }
             });
 
-            // ...waiting for all callables to complete, if async processing was not required
-            if (!nullPriorityAsync) {
-                futures.forEach(future -> {
+            // then process non-priority resources concurrently...
+            if (!concurrentTasks.isEmpty()) {
+                CompletionService<TaskExec> completionService = new ExecutorCompletionService<>(executor);
+                List<Future<TaskExec>> futures = new ArrayList<>();
+
+                concurrentTasks.forEach(taskInfo -> {
                     try {
-                        future.get();
+                        futures.add(completionService.submit(newPropagationTaskCallable(taskInfo, reporter)));
+
+                        if (nullPriorityAsync) {
+                            reporter.onSuccessOrNonPriorityResourceFailures(
+                                    taskInfo, ExecStatus.CREATED, null, null, null, null);
+                        }
                     } catch (Exception e) {
-                        LOG.error("Unexpected exception", e);
+                        LOG.error("While submitting task for async execution", taskInfo, e);
+                        rejected(taskInfo, e.getMessage(), reporter);
                     }
                 });
+
+                // ...waiting for all callables to complete, if async processing was not required
+                if (!nullPriorityAsync) {
+                    futures.forEach(future -> {
+                        try {
+                            future.get();
+                        } catch (Exception e) {
+                            LOG.error("Unexpected exception", e);
+                        }
+                    });
+                }
             }
+        } catch (PropagationException e) {
+            LOG.error("Error propagation priority resource", e);
+            reporter.onPriorityResourceFailure(e.getResourceName(), taskInfos);
         }
+
+        return reporter;
     }
 }

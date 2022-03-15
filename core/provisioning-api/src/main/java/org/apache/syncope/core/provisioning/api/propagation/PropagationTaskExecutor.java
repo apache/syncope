@@ -43,6 +43,13 @@ public interface PropagationTaskExecutor {
     String MANDATORY_NULL_OR_EMPTY_ATTR_NAME = "__MANDATORY_NULL_OR_EMPTY__";
 
     /**
+     * Remove any RetryTemplate defined for the given External Resource from local cache.
+     *
+     * @param resource External Resource name
+     */
+    void expireRetryTemplate(String resource);
+
+    /**
      * Execute the given task and returns the generated {@link TaskExec}.
      *
      * @param taskInfo to be executed

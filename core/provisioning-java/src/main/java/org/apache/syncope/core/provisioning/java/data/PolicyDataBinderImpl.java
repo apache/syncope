@@ -23,6 +23,7 @@ import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
+import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -39,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
@@ -126,6 +128,17 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                     accountPolicy.add(resource);
                 }
             });
+        } else if (policyTO instanceof PropagationPolicyTO) {
+            if (result == null) {
+                result = (T) entityFactory.newEntity(PropagationPolicy.class);
+            }
+
+            PropagationPolicy propagationPolicy = PropagationPolicy.class.cast(result);
+            PropagationPolicyTO propagationPolicyTO = PropagationPolicyTO.class.cast(policyTO);
+
+            propagationPolicy.setBackOffStrategy(propagationPolicyTO.getBackOffStrategy());
+            propagationPolicy.setBackOffParams(propagationPolicyTO.getBackOffParams());
+            propagationPolicy.setMaxAttempts(propagationPolicyTO.getMaxAttempts());
         } else if (policyTO instanceof PullPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(PullPolicy.class);
@@ -157,8 +170,8 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 }
             });
             // remove all rules not contained in the TO
-            pullPolicy.getCorrelationRules().removeIf(anyFilter
-                    -> !pullPolicyTO.getCorrelationRules().containsKey(anyFilter.getAnyType().getKey()));
+            pullPolicy.getCorrelationRules().removeIf(anyFilter -> !pullPolicyTO.getCorrelationRules().
+                    containsKey(anyFilter.getAnyType().getKey()));
         } else if (policyTO instanceof PushPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(PushPolicy.class);
@@ -239,6 +252,14 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
             accountPolicyTO.getPassthroughResources().addAll(
                     accountPolicy.getResources().stream().map(Entity::getKey).collect(Collectors.toList()));
+        } else if (policy instanceof PropagationPolicy) {
+            PropagationPolicy propagationPolicy = PropagationPolicy.class.cast(policy);
+            PropagationPolicyTO propagationPolicyTO = new PropagationPolicyTO();
+            policyTO = (T) propagationPolicyTO;
+
+            propagationPolicyTO.setBackOffStrategy(propagationPolicy.getBackOffStrategy());
+            propagationPolicyTO.setBackOffParams(propagationPolicy.getBackOffParams());
+            propagationPolicyTO.setMaxAttempts(propagationPolicy.getMaxAttempts());
         } else if (policy instanceof PullPolicy) {
             PullPolicy pullPolicy = PullPolicy.class.cast(policy);
             PullPolicyTO pullPolicyTO = new PullPolicyTO();

@@ -289,6 +289,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return query.getResultList();
     }
 
+    @Override
     public List<String> findAllKeys(final int page, final int itemsPerPage) {
         return findAllKeys(JPAUser.TABLE, page, itemsPerPage);
     }
@@ -300,13 +301,13 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         findAllResources(user).stream().
                 map(resource -> resource.getAccountPolicy()).
                 filter(policy -> policy != null).
-                forEachOrdered(policy -> policies.add(policy));
+                forEach(policy -> policies.add(policy));
 
         // add realm policies
         realmDAO.findAncestors(user.getRealm()).stream().
                 map(realm -> realm.getAccountPolicy()).
                 filter(policy -> policy != null).
-                forEachOrdered(policy -> policies.add(policy));
+                forEach(policy -> policies.add(policy));
 
         return policies;
     }
@@ -513,7 +514,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
                 ? (String) ((Object[]) resultKey)[0]
                 : ((String) resultKey)).
-                forEachOrdered(roleKey -> {
+                forEach(roleKey -> {
                     Role role = roleDAO.find(roleKey.toString());
                     if (role == null) {
                         LOG.error("Could not find role {}, even though returned by the native query", roleKey);

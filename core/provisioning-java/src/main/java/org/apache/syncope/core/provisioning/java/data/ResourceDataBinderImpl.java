@@ -59,6 +59,7 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
@@ -68,6 +69,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +107,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     @Autowired
     private IntAttrNameParser intAttrNameParser;
+
+    @Autowired
+    private PropagationTaskExecutor propagationTaskExecutor;
 
     @Override
     public ExternalResource create(final ResourceTO resourceTO) {
@@ -348,6 +353,14 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resource.setAccountPolicy(resourceTO.getAccountPolicy() == null
                 ? null : (AccountPolicy) policyDAO.find(resourceTO.getAccountPolicy()));
+
+        if (resource.getPropagationPolicy() != null
+                && !resource.getPropagationPolicy().getKey().equals(resourceTO.getPropagationPolicy())) {
+
+            propagationTaskExecutor.expireRetryTemplate(resource.getKey());
+        }
+        resource.setPropagationPolicy(resourceTO.getPropagationPolicy() == null
+                ? null : (PropagationPolicy) policyDAO.find(resourceTO.getPropagationPolicy()));
 
         resource.setPullPolicy(resourceTO.getPullPolicy() == null
                 ? null : (PullPolicy) policyDAO.find(resourceTO.getPullPolicy()));
@@ -677,6 +690,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resourceTO.setAccountPolicy(resource.getAccountPolicy() == null
                 ? null : resource.getAccountPolicy().getKey());
+
+        resourceTO.setPropagationPolicy(resource.getPropagationPolicy() == null
+                ? null : resource.getPropagationPolicy().getKey());
 
         resourceTO.setPullPolicy(resource.getPullPolicy() == null
                 ? null : resource.getPullPolicy().getKey());

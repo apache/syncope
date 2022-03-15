@@ -63,6 +63,17 @@ public class ResourceSecurityPanel extends WizardStep {
         }
     };
 
+    private final IModel<Map<String, String>> propagationPolicies = new LoadableDetachableModel<Map<String, String>>() {
+
+        private static final long serialVersionUID = -2012833443695917883L;
+
+        @Override
+        protected Map<String, String> load() {
+            return policyRestClient.getPolicies(PolicyType.PROPAGATION).stream().
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getDescription));
+        }
+    };
+
     private final IModel<Map<String, String>> pullPolicies = new LoadableDetachableModel<Map<String, String>>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
@@ -120,6 +131,20 @@ public class ResourceSecurityPanel extends WizardStep {
         accountPolicy.setChoices(new ArrayList<>(accountPolicies.getObject().keySet()));
         ((DropDownChoice<?>) accountPolicy.getField()).setNullValid(true);
         container.add(accountPolicy);
+        // -------------------------------
+
+        // -------------------------------
+        // Propagation policy selection
+        // -------------------------------
+        AjaxDropDownChoicePanel<String> propagationPolicy = new AjaxDropDownChoicePanel<>(
+                "propagationPolicy",
+                new ResourceModel("propagationPolicy", "propagationPolicy").getObject(),
+                new PropertyModel<>(resourceTO, "propagationPolicy"),
+                false);
+        propagationPolicy.setChoiceRenderer(new PolicyRenderer(propagationPolicies));
+        propagationPolicy.setChoices(new ArrayList<>(propagationPolicies.getObject().keySet()));
+        ((DropDownChoice<?>) propagationPolicy.getField()).setNullValid(true);
+        container.add(propagationPolicy);
         // -------------------------------
 
         // -------------------------------

@@ -40,9 +40,11 @@ import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
+import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.types.BackOffStrategy;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -110,10 +112,13 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void listByType() {
-        List<PullPolicyTO> policyTOs = policyService.list(PolicyType.PULL);
+        List<PropagationPolicyTO> propagationPolicies = policyService.list(PolicyType.PROPAGATION);
+        assertNotNull(propagationPolicies);
+        assertFalse(propagationPolicies.isEmpty());
 
-        assertNotNull(policyTOs);
-        assertFalse(policyTOs.isEmpty());
+        List<PullPolicyTO> pullPolicies = policyService.list(PolicyType.PULL);
+        assertNotNull(pullPolicies);
+        assertFalse(pullPolicies.isEmpty());
     }
 
     @Test
@@ -135,6 +140,16 @@ public class PolicyITCase extends AbstractITCase {
     }
 
     @Test
+    public void getPropagationPolicy() {
+        PropagationPolicyTO policyTO =
+                policyService.read(PolicyType.PROPAGATION, "89d322db-9878-420c-b49c-67be13df9a12");
+
+        assertNotNull(policyTO);
+        assertTrue(policyTO.getUsedByResources().contains(RESOURCE_NAME_DBSCRIPTED));
+        assertTrue(policyTO.getUsedByRealms().isEmpty());
+    }
+
+    @Test
     public void getPullPolicy() {
         PullPolicyTO policyTO = policyService.read(PolicyType.PULL, "66691e96-285f-4464-bc19-e68384ea4c85");
 
@@ -144,6 +159,14 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void create() throws IOException {
+        PropagationPolicyTO propagationPolicyTO = new PropagationPolicyTO();
+        propagationPolicyTO.setDescription("propagation policy name");
+        propagationPolicyTO.setBackOffStrategy(BackOffStrategy.EXPONENTIAL);
+        propagationPolicyTO = createPolicy(PolicyType.PROPAGATION, propagationPolicyTO);
+        assertNotNull(propagationPolicyTO);
+        assertEquals(3, propagationPolicyTO.getMaxAttempts());
+        assertEquals(BackOffStrategy.EXPONENTIAL.getDefaultBackOffParams(), propagationPolicyTO.getBackOffParams());
+
         PullPolicyTO pullPolicyTO = createPolicy(PolicyType.PULL, buildPullPolicyTO());
         assertNotNull(pullPolicyTO);
         assertEquals("TestPullRule", pullPolicyTO.getCorrelationRules().get(AnyTypeKind.USER.name()));
