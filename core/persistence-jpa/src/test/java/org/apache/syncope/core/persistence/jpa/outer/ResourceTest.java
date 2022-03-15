@@ -37,7 +37,6 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
@@ -210,7 +209,7 @@ public class ResourceTest extends AbstractTest {
         List<User> users = userDAO.findByResource(resource);
         assertNotNull(users);
 
-        Set<String> userKeys = users.stream().map(Entity::getKey).collect(Collectors.toSet());
+        Set<String> userKeys = users.stream().map(User::getKey).collect(Collectors.toSet());
         // -------------------------------------
 
         // Get tasks
@@ -229,13 +228,11 @@ public class ResourceTest extends AbstractTest {
         assertNull(actual);
 
         // resource must be not referenced any more from users
-        userKeys.stream().
-                map(key -> userDAO.find(key)).
-                map(actualUser -> {
-                    assertNotNull(actualUser);
-                    return actualUser;
-                }).forEachOrdered((actualUser) -> userDAO.findAllResources(actualUser).
-                        forEach(res -> assertFalse(res.getKey().equalsIgnoreCase(resource.getKey()))));
+        userKeys.stream().map(userDAO::find).forEach(user -> {
+            assertNotNull(user);
+            userDAO.findAllResources(user).
+                    forEach(r -> assertFalse(r.getKey().equalsIgnoreCase(resource.getKey())));
+        });
 
         // resource must be not referenced any more from the connector
         ConnInstance actualConnector = connInstanceDAO.find(connector.getKey());
@@ -260,7 +257,7 @@ public class ResourceTest extends AbstractTest {
         List<? extends MappingItem> items = ldap.getProvision(anyTypeDAO.findGroup()).get().getMapping().getItems();
         assertNotNull(items);
         assertFalse(items.isEmpty());
-        List<String> itemKeys = items.stream().map(Entity::getKey).collect(Collectors.toList());
+        List<String> itemKeys = items.stream().map(MappingItem::getKey).collect(Collectors.toList());
 
         Provision groupProvision = ldap.getProvision(anyTypeDAO.findGroup()).get();
         virSchemaDAO.findByProvision(groupProvision).

@@ -20,7 +20,8 @@ package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,6 @@ import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
@@ -79,12 +79,20 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.retry.RetryException;
+import org.springframework.retry.backoff.ExponentialBackOffPolicy;
+import org.springframework.retry.backoff.ExponentialRandomBackOffPolicy;
+import org.springframework.retry.backoff.FixedBackOffPolicy;
+import org.springframework.retry.policy.SimpleRetryPolicy;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = { Throwable.class })
 public abstract class AbstractPropagationTaskExecutor implements PropagationTaskExecutor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(PropagationTaskExecutor.class);
+
+    protected final Map<String, RetryTemplate> retryTemplates = Collections.synchronizedMap(new HashMap<>());
 
     protected final ConnectorManager connectorManager;
 
@@ -144,6 +152,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         this.taskUtilsFactory = taskUtilsFactory;
         this.entityFactory = entityFactory;
         this.outboundMatcher = outboundMatcher;
+    }
+
+    @Override
+    public void expireRetryTemplate(final String resource) {
+        retryTemplates.remove(resource);
     }
 
     protected List<PropagationActions> getPropagationActions(final ExternalResource resource) {
@@ -298,6 +311,94 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return task;
     }
 
+    protected Optional<RetryTemplate> retryTemplate(final ExternalResource resource) {
+        RetryTemplate retryTemplate = null;
+
+        if (resource.getPropagationPolicy() != null) {
+            retryTemplate = retryTemplates.get(resource.getKey());
+            if (retryTemplate == null) {
+                retryTemplate = new RetryTemplate();
+
+                SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
+                retryPolicy.setMaxAttempts(resource.getPropagationPolicy().getMaxAttempts());
+                retryTemplate.setRetryPolicy(retryPolicy);
+
+                String[] params = resource.getPropagationPolicy().getBackOffParams().split(";");
+
+                switch (resource.getPropagationPolicy().getBackOffStrategy()) {
+                    case EXPONENTIAL:
+                        ExponentialBackOffPolicy eBackOffPolicy = new ExponentialBackOffPolicy();
+                        if (params.length > 0) {
+                            try {
+                                eBackOffPolicy.setInitialInterval(Long.valueOf(params[0]));
+                            } catch (NumberFormatException e) {
+                                LOG.error("Could not convert to long: {}", params[0], e);
+                            }
+                        }
+                        if (params.length > 1) {
+                            try {
+                                eBackOffPolicy.setMaxInterval(Long.valueOf(params[1]));
+                            } catch (NumberFormatException e) {
+                                LOG.error("Could not convert to long: {}", params[1], e);
+                            }
+                        }
+                        if (params.length > 2) {
+                            try {
+                                eBackOffPolicy.setMultiplier(Double.valueOf(params[2]));
+                            } catch (NumberFormatException e) {
+                                LOG.error("Could not convert to double: {}", params[2], e);
+                            }
+                        }
+                        retryTemplate.setBackOffPolicy(eBackOffPolicy);
+                        break;
+
+                    case RANDOM:
+                        ExponentialRandomBackOffPolicy erBackOffPolicy = new ExponentialRandomBackOffPolicy();
+                        if (params.length > 0) {
+                            try {
+                                erBackOffPolicy.setInitialInterval(Long.valueOf(params[0]));
+                            } catch (NumberFormatException e) {
+                                LOG.error("Could not convert to long: {}", params[0], e);
+                            }
+                        }
+                        if (params.length > 1) {
+                            try {
+                                erBackOffPolicy.setMaxInterval(Long.valueOf(params[1]));
+                            } catch (NumberFormatException e) {
+                                LOG.error("Could not convert to long: {}", params[1], e);
+                            }
+                        }
+                        if (params.length > 2) {
+                            try {
+                                erBackOffPolicy.setMultiplier(Double.valueOf(params[2]));
+                            } catch (NumberFormatException e) {
+                                LOG.error("Could not convert to double: {}", params[2], e);
+                            }
+                        }
+                        retryTemplate.setBackOffPolicy(erBackOffPolicy);
+                        break;
+
+                    case FIXED:
+                    default:
+                        FixedBackOffPolicy fBackOffPolicy = new FixedBackOffPolicy();
+                        if (params.length > 0) {
+                            try {
+                                fBackOffPolicy.setBackOffPeriod(Long.valueOf(params[0]));
+                            } catch (NumberFormatException e) {
+                                LOG.error("Could not convert to long: {}", params[0], e);
+                            }
+
+                        }
+                        retryTemplate.setBackOffPolicy(fBackOffPolicy);
+                }
+
+                retryTemplates.put(resource.getKey(), retryTemplate);
+            }
+        }
+
+        return Optional.ofNullable(retryTemplate);
+    }
+
     @Override
     public TaskExec execute(
             final PropagationTaskInfo taskInfo,
@@ -305,6 +406,25 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final String executor) {
 
         PropagationTask task = buildTask(taskInfo);
+
+        return retryTemplate(task.getResource()).map(rt -> rt.execute(context -> {
+            LOG.debug("#{} Propagation attempt", context.getRetryCount());
+
+            TaskExec exec = doExecute(taskInfo, task, reporter, executor);
+            if (context.getRetryCount() < task.getResource().getPropagationPolicy().getMaxAttempts() - 1
+                    && !ExecStatus.SUCCESS.name().equals(exec.getStatus())) {
+
+                throw new RetryException("Attempt #" + context.getRetryCount() + " failed");
+            }
+            return exec;
+        })).orElseGet(() -> doExecute(taskInfo, task, reporter, executor));
+    }
+
+    protected TaskExec doExecute(
+            final PropagationTaskInfo taskInfo,
+            final PropagationTask task,
+            final PropagationReporter reporter,
+            final String executor) {
 
         Connector connector = taskInfo.getConnector() == null
                 ? connectorManager.getConnector(task.getResource())
@@ -314,9 +434,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         OffsetDateTime start = OffsetDateTime.now();
 
-        TaskExec execution = entityFactory.newEntity(TaskExec.class);
-        execution.setStatus(ExecStatus.CREATED.name());
-        execution.setExecutor(executor);
+        TaskExec exec = entityFactory.newEntity(TaskExec.class);
+        exec.setStatus(ExecStatus.CREATED.name());
+        exec.setExecutor(executor);
 
         String taskExecutionMessage = null;
         String failureReason = null;
@@ -363,7 +483,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 default:
             }
 
-            execution.setStatus(propagationAttempted.get()
+            exec.setStatus(propagationAttempted.get()
                     ? ExecStatus.SUCCESS.name()
                     : ExecStatus.NOT_ATTEMPTED.name());
 
@@ -390,14 +510,14 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             }
 
             try {
-                execution.setStatus(ExecStatus.FAILURE.name());
+                exec.setStatus(ExecStatus.FAILURE.name());
             } catch (Exception wft) {
-                LOG.error("While executing KO action on {}", execution, wft);
+                LOG.error("While executing KO action on {}", exec, wft);
             }
 
             propagationAttempted.set(true);
 
-            actions.forEach(action -> action.onError(task, execution, e));
+            actions.forEach(action -> action.onError(task, exec, e));
         } finally {
             // Try to read remote object AFTER any actual operation
             if (connector != null) {
@@ -424,17 +544,17 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                         build();
             }
 
-            execution.setStart(start);
-            execution.setMessage(taskExecutionMessage);
-            execution.setEnd(OffsetDateTime.now());
+            exec.setStart(start);
+            exec.setMessage(taskExecutionMessage);
+            exec.setEnd(OffsetDateTime.now());
 
-            LOG.debug("Execution finished: {}", execution);
+            LOG.debug("Execution finished: {}", exec);
 
-            if (hasToBeregistered(task, execution)) {
-                LOG.debug("Execution to be stored: {}", execution);
+            if (hasToBeregistered(task, exec)) {
+                LOG.debug("Execution to be stored: {}", exec);
 
-                execution.setTask(task);
-                task.add(execution);
+                exec.setTask(task);
+                task.add(exec);
 
                 taskDAO.save(task);
             }
@@ -447,7 +567,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                                     ? outboundMatcher.getFIQL(beforeObj, provision)
                                     : null;
             reporter.onSuccessOrNonPriorityResourceFailures(taskInfo,
-                    ExecStatus.valueOf(execution.getStatus()),
+                    ExecStatus.valueOf(exec.getStatus()),
                     failureReason,
                     fiql,
                     beforeObj,
@@ -455,7 +575,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
 
         for (PropagationActions action : actions) {
-            action.after(task, execution, afterObj);
+            action.after(task, exec, afterObj);
         }
         // SYNCOPE-1136
         String anyTypeKind = task.getAnyTypeKind() == null ? "realm" : task.getAnyTypeKind().name().toLowerCase();
@@ -470,7 +590,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 operation);
 
         if (notificationsAvailable || auditRequested) {
-            ExecTO execTO = taskDataBinder.getExecTO(execution);
+            ExecTO execTO = taskDataBinder.getExecTO(exec);
             notificationManager.createTasks(
                     AuthContextUtils.getWho(),
                     AuditElements.EventCategoryType.PROPAGATION,
@@ -494,12 +614,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     taskInfo);
         }
 
-        return execution;
+        return exec;
     }
-
-    protected abstract void doExecute(
-            Collection<PropagationTaskInfo> taskInfos, PropagationReporter reporter, boolean nullPriorityAsync,
-            String executor);
 
     protected TaskExec rejected(
             final PropagationTaskInfo taskInfo,
@@ -534,23 +650,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 null);
 
         return execution;
-    }
-
-    @Override
-    public PropagationReporter execute(
-            final Collection<PropagationTaskInfo> taskInfos,
-            final boolean nullPriorityAsync,
-            final String executor) {
-
-        PropagationReporter reporter = new DefaultPropagationReporter();
-        try {
-            doExecute(taskInfos, reporter, nullPriorityAsync, executor);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation priority resource", e);
-            reporter.onPriorityResourceFailure(e.getResourceName(), taskInfos);
-        }
-
-        return reporter;
     }
 
     /**

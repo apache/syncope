@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -42,12 +43,14 @@ import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.core.GenericType;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.TaskTO;
@@ -96,6 +99,8 @@ import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public class PropagationTaskITCase extends AbstractTaskITCase {
 
@@ -308,6 +313,41 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         deleted = response.readEntity(new GenericType<List<PropagationTaskTO>>() {
         });
         assertNotNull(deleted);
+    }
+
+    @Test
+    public void propagationPolicy() throws InterruptedException {
+        SyncopeClient.nullPriorityAsync(anyObjectService, true);
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        jdbcTemplate.execute("ALTER TABLE TESTPRINTER ADD COLUMN MAND_VALUE VARCHAR(1)");
+        jdbcTemplate.execute("UPDATE TESTPRINTER SET MAND_VALUE='C'");
+        jdbcTemplate.execute("ALTER TABLE TESTPRINTER ALTER COLUMN MAND_VALUE VARCHAR(1) NOT NULL");
+        try {
+            String entityKey = createAnyObject(AnyObjectITCase.getSample("propagationPolicy")).getEntity().getKey();
+
+            Thread.sleep(1000);
+            jdbcTemplate.execute("ALTER TABLE TESTPRINTER DROP COLUMN MAND_VALUE");
+
+            PagedResult<PropagationTaskTO> propagations = await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).until(
+                    () -> taskService.search(
+                            new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_DBSCRIPTED).
+                                    anyTypeKind(AnyTypeKind.ANY_OBJECT).entityKey(entityKey).build()),
+                    p -> p.getTotalCount() > 0);
+
+            propagations.getResult().get(0).getExecutions().stream().
+                    anyMatch(e -> ExecStatus.FAILURE.name().equals(e.getStatus()));
+            propagations.getResult().get(0).getExecutions().stream().
+                    anyMatch(e -> ExecStatus.SUCCESS.name().equals(e.getStatus()));
+        } finally {
+            SyncopeClient.nullPriorityAsync(anyObjectService, false);
+
+            try {
+                jdbcTemplate.execute("ALTER TABLE TESTPRINTER DROP COLUMN MAND_VALUE");
+            } catch (DataAccessException e) {
+                // ignore
+            }
+        }
     }
 
     @Test

@@ -53,6 +53,7 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.ExternalResourc
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
@@ -64,6 +65,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPropagationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
@@ -129,6 +131,9 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAAccountPolicy accountPolicy;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPAPropagationPolicy propagationPolicy;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPullPolicy pullPolicy;
@@ -308,6 +313,17 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     public void setPasswordPolicy(final PasswordPolicy passwordPolicy) {
         checkType(passwordPolicy, JPAPasswordPolicy.class);
         this.passwordPolicy = (JPAPasswordPolicy) passwordPolicy;
+    }
+
+    @Override
+    public PropagationPolicy getPropagationPolicy() {
+        return propagationPolicy;
+    }
+
+    @Override
+    public void setPropagationPolicy(final PropagationPolicy propagationPolicy) {
+        checkType(propagationPolicy, JPAPropagationPolicy.class);
+        this.propagationPolicy = (JPAPropagationPolicy) propagationPolicy;
     }
 
     @Override

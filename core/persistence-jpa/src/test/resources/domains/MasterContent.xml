@@ -43,7 +43,9 @@ under the License.
   <Implementation id="DefaultPasswordRuleConf3" type="PASSWORD_RULE" engine="JAVA"
                   body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <PasswordPolicyRule policy_id="55e5de0b-c79c-4e66-adda-251b6fb8579a" implementation_id="DefaultPasswordRuleConf3"/>
-  
+  <PropagationPolicy id="89d322db-9878-420c-b49c-67be13df9a12" name="sample propagation policy"
+                     maxAttempts="5" backOffStrategy="FIXED" backOffParams="10000"/>
+
   <!-- Authentication policies -->
   <AuthPolicy id="659b9906-4b6e-4bc0-aca0-6809dff346d4" name="MyDefaultAuthPolicyConf"
               jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
@@ -791,7 +793,8 @@ under the License.
 
   <ExternalResource id="resource-db-scripted" connector_id="a6d017fd-a705-4507-bb7c-6ab6a6745997"
                     randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" provisioningTraceLevel="ALL" updateTraceLevel="ALL"
-                    enforceMandatoryCondition="0" overrideCapabilities="0"/>
+                    enforceMandatoryCondition="0" overrideCapabilities="0"
+                    propagationPolicy_id="89d322db-9878-420c-b49c-67be13df9a12"/>
 
   <ExternalResource id="rest-target-resource" connector_id="44c02549-19c3-483c-8025-4919c3283c37"
                     createTraceLevel="ALL" updateTraceLevel="ALL"  deleteTraceLevel="ALL" provisioningTraceLevel="ALL" 

@@ -58,6 +58,8 @@ import java.util.Set;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
+import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
+import org.apache.syncope.common.lib.types.BackOffStrategy;
 
 public class PolicyITCase extends AbstractITCase {
 
@@ -117,10 +119,13 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void listByType() {
-        List<PullPolicyTO> policyTOs = policyService.list(PolicyType.PULL);
+        List<PropagationPolicyTO> propagationPolicies = policyService.list(PolicyType.PROPAGATION);
+        assertNotNull(propagationPolicies);
+        assertFalse(propagationPolicies.isEmpty());
 
-        assertNotNull(policyTOs);
-        assertFalse(policyTOs.isEmpty());
+        List<PullPolicyTO> pullPolicies = policyService.list(PolicyType.PULL);
+        assertNotNull(pullPolicies);
+        assertFalse(pullPolicies.isEmpty());
     }
 
     @Test
@@ -142,6 +147,16 @@ public class PolicyITCase extends AbstractITCase {
     }
 
     @Test
+    public void getPropagationPolicy() {
+        PropagationPolicyTO policyTO =
+                policyService.read(PolicyType.PROPAGATION, "89d322db-9878-420c-b49c-67be13df9a12");
+
+        assertNotNull(policyTO);
+        assertTrue(policyTO.getUsedByResources().contains(RESOURCE_NAME_DBSCRIPTED));
+        assertTrue(policyTO.getUsedByRealms().isEmpty());
+    }
+
+    @Test
     public void getPullPolicy() {
         PullPolicyTO policyTO = policyService.read(PolicyType.PULL, "66691e96-285f-4464-bc19-e68384ea4c85");
 
@@ -151,8 +166,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getAuthPolicy() {
-        AuthPolicyTO policyTO =
-                policyService.read(PolicyType.AUTH, "659b9906-4b6e-4bc0-aca0-6809dff346d4");
+        AuthPolicyTO policyTO = policyService.read(PolicyType.AUTH, "659b9906-4b6e-4bc0-aca0-6809dff346d4");
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByRealms().isEmpty());
@@ -160,8 +174,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getAccessPolicy() {
-        AccessPolicyTO policyTO =
-                policyService.read(PolicyType.ACCESS, "419935c7-deb3-40b3-8a9a-683037e523a2");
+        AccessPolicyTO policyTO = policyService.read(PolicyType.ACCESS, "419935c7-deb3-40b3-8a9a-683037e523a2");
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByRealms().isEmpty());
@@ -178,6 +191,14 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void create() throws IOException {
+        PropagationPolicyTO propagationPolicyTO = new PropagationPolicyTO();
+        propagationPolicyTO.setName("propagation policy name");
+        propagationPolicyTO.setBackOffStrategy(BackOffStrategy.EXPONENTIAL);
+        propagationPolicyTO = createPolicy(PolicyType.PROPAGATION, propagationPolicyTO);
+        assertNotNull(propagationPolicyTO);
+        assertEquals(3, propagationPolicyTO.getMaxAttempts());
+        assertEquals(BackOffStrategy.EXPONENTIAL.getDefaultBackOffParams(), propagationPolicyTO.getBackOffParams());
+
         PullPolicyTO pullPolicyTO = createPolicy(PolicyType.PULL, buildPullPolicyTO());
         assertNotNull(pullPolicyTO);
         assertEquals("TestPullRule", pullPolicyTO.getCorrelationRules().get(AnyTypeKind.USER.name()));
@@ -186,8 +207,7 @@ public class PolicyITCase extends AbstractITCase {
         assertNotNull(pushPolicyTO);
         assertEquals("TestPushRule", pushPolicyTO.getCorrelationRules().get(AnyTypeKind.USER.name()));
 
-        AuthPolicyTO authPolicyTO = createPolicy(PolicyType.AUTH,
-                buildAuthPolicyTO("LdapAuthentication1"));
+        AuthPolicyTO authPolicyTO = createPolicy(PolicyType.AUTH, buildAuthPolicyTO("LdapAuthentication1"));
         assertNotNull(authPolicyTO);
         assertEquals("Test Authentication policy", authPolicyTO.getName());
 
