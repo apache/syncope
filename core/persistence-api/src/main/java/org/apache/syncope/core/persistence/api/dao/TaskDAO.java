@@ -37,6 +37,8 @@ public interface TaskDAO extends DAO<Task> {
 
     Class<? extends Task> getEntityReference(TaskType type);
 
+    boolean exists(TaskType type, String key);
+
     <T extends Task> T find(String key);
 
     List<SchedTask> findByDelegate(Implementation delegate);
@@ -77,7 +79,7 @@ public interface TaskDAO extends DAO<Task> {
     void deleteAll(ExternalResource resource, TaskType type);
 
     List<PropagationTaskTO> purgePropagations(
-            Date since, 
+            Date since,
             List<ExecStatus> statuses,
             List<ExternalResource> externalResources);
 }

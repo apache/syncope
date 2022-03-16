@@ -125,10 +125,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 Collections.singleton(profile.getTask().getResource().getKey()),
                 true);
 
-        if (ProvisioningReport.Status.FAILURE == result.getStatus() && profile.getTask().isRemediation()) {
-            createRemediation(anyTypeDAO.find(result.getAnyType()), anyPatch, profile.getTask(), result,
-                    delta);
-        }
+        createRemediationIfNeeded(anyPatch, delta, result);
 
         return updated.getLeft();
     }
