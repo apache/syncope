@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Resource;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
@@ -53,6 +54,7 @@ import org.apache.syncope.core.rest.cxf.batch.BatchProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
+import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -75,6 +77,9 @@ public class SyncopeServiceImpl extends AbstractServiceImpl implements SyncopeSe
     private BatchDAO batchDAO;
 
     @Autowired
+    private EntityCacheDAO entityCacheDAO;
+
+    @Autowired
     private EntityFactory entityFactory;
 
     @Override
@@ -90,6 +95,42 @@ public class SyncopeServiceImpl extends AbstractServiceImpl implements SyncopeSe
     @Override
     public NumbersInfo numbers() {
         return logic.numbers();
+    }
+
+    @Override
+    public Map<String, Object> statistics() {
+        return entityCacheDAO.getStatistics();
+    }
+
+    @Override
+    public Response statistics(final String operation) {
+        switch (operation) {
+            case "enable":
+            case "ENABLE":
+                entityCacheDAO.enableStatistics();
+                break;
+
+            case "disable":
+            case "DISABLE":
+                entityCacheDAO.disableStatistics();
+                break;
+
+            case "reset":
+            case "RESET":
+                entityCacheDAO.resetStatistics();
+                break;
+
+            default:
+                return Response.status(Response.Status.NOT_FOUND).
+                        header(RESTHeaders.ERROR_INFO, "Unsupported Operation: " + operation).build();
+        }
+
+        return Response.noContent().build();
+    }
+
+    @Override
+    public void clearEntityCache() {
+        entityCacheDAO.clearCache();
     }
 
     @Override

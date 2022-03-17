@@ -28,9 +28,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.InputStream;
+import java.util.Map;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -90,6 +92,35 @@ public interface SyncopeService extends JAXRSService {
     @Path("/numbers")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     NumbersInfo numbers();
+
+    /**
+     * Provides entity cache statistics information.
+     *
+     * @return cache statistics
+     */
+    @GET
+    @Path("/statistics")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    Map<String, Object> statistics();
+
+    /**
+     * Operates on entity cache statistics.
+     *
+     * @param operation enable, disable or reset entity cache statistics
+     * @return
+     */
+    @POST
+    @Path("/statistics")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    Response statistics(@NotNull @QueryParam("operation") String operation);
+
+    /**
+     * Evicts all entities from cache.
+     */
+    @DELETE
+    @Path("/entityCache")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void clearEntityCache();
 
     /**
      * Requests for batch execution.
