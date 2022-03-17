@@ -104,6 +104,8 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
         Pair<GroupPatch, List<PropagationStatus>> updated = groupProvisioningManager.update(
                 groupPatch, Collections.singleton(profile.getTask().getResource().getKey()), true);
 
+        createRemediationIfNeeded(anyPatch, delta, result);
+
         String groupOwner = null;
         for (AttrPatch attrPatch : groupPatch.getPlainAttrs()) {
             if (attrPatch.getOperation() == PatchOperation.ADD_REPLACE && attrPatch.getAttrTO() != null
@@ -118,5 +120,4 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
 
         return anyPatch;
     }
-
 }

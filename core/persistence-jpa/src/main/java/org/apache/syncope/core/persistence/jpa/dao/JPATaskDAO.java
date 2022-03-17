@@ -127,6 +127,16 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
     }
 
     @Transactional(readOnly = true)
+    @Override
+    public boolean exists(final TaskType type, final String key) {
+        Query query = entityManager().createNativeQuery("SELECT id FROM Task WHERE id=? AND dtype=?");
+        query.setParameter(1, key);
+        query.setParameter(2, getEntityTableName(type));
+
+        return !query.getResultList().isEmpty();
+    }
+
+    @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Task> T find(final String key) {
@@ -486,8 +496,8 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
     @Override
     public List<PropagationTaskTO> purgePropagations(
-            final Date since, 
-            final List<ExecStatus> statuses, 
+            final Date since,
+            final List<ExecStatus> statuses,
             final List<ExternalResource> externalResources) {
         StringBuilder queryString = new StringBuilder("SELECT t.task_id "
                 + "FROM TaskExec t INNER JOIN Task z ON t.task_id=z.id AND z.dtype='PropagationTask' "

@@ -91,6 +91,8 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
         Pair<AnyObjectPatch, List<PropagationStatus>> updated = anyObjectProvisioningManager.update(
                 anyObjectPatch, Collections.singleton(profile.getTask().getResource().getKey()), true);
 
-        return anyPatch;
+        createRemediationIfNeeded(anyPatch, delta, result);
+
+        return updated.getLeft();
     }
 }
