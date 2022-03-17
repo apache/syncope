@@ -18,6 +18,18 @@
  */
 package org.apache.syncope.core.starter.actuate;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.info.JavaImplInfo;
@@ -75,19 +87,6 @@ import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
-import java.lang.management.RuntimeMXBean;
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContributor, InfoContributor {
 
@@ -232,44 +231,44 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
     private final ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor;
 
     public DefaultSyncopeCoreInfoContributor(
-        final SecurityProperties securityProperties,
-        final PersistenceProperties persistenceProperties,
-        final ProvisioningProperties provisioningProperties,
-        final LogicProperties logicProperties,
-        final AnyTypeDAO anyTypeDAO,
-        final AnyTypeClassDAO anyTypeClassDAO,
-        final UserDAO userDAO,
-        final GroupDAO groupDAO,
-        final AnyObjectDAO anyObjectDAO,
-        final ExternalResourceDAO resourceDAO,
-        final ConfParamOps confParamOps,
-        final ServiceOps serviceOps,
-        final ConnIdBundleManager bundleManager,
-        final PropagationTaskExecutor propagationTaskExecutor,
-        final AnyObjectWorkflowAdapter awfAdapter,
-        final UserWorkflowAdapter uwfAdapter,
-        final GroupWorkflowAdapter gwfAdapter,
-        final AnyObjectProvisioningManager aProvisioningManager,
-        final UserProvisioningManager uProvisioningManager,
-        final GroupProvisioningManager gProvisioningManager,
-        final VirAttrCache virAttrCache,
-        final NotificationManager notificationManager,
-        final AuditManager auditManager,
-        final PasswordGenerator passwordGenerator,
-        final EntityFactory entityFactory,
-        final PlainSchemaDAO plainSchemaDAO,
-        final PlainAttrDAO plainAttrDAO,
-        final PlainAttrValueDAO plainAttrValueDAO,
-        final AnySearchDAO anySearchDAO,
-        final ImplementationLookup implLookup,
-        final PolicyDAO policyDAO,
-        final NotificationDAO notificationDAO,
-        final TaskDAO taskDAO,
-        final VirSchemaDAO virSchemaDAO,
-        final RoleDAO roleDAO,
-        final SecurityQuestionDAO securityQuestionDAO,
-        final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor,
-        final ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor) {
+            final SecurityProperties securityProperties,
+            final PersistenceProperties persistenceProperties,
+            final ProvisioningProperties provisioningProperties,
+            final LogicProperties logicProperties,
+            final AnyTypeDAO anyTypeDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final ExternalResourceDAO resourceDAO,
+            final ConfParamOps confParamOps,
+            final ServiceOps serviceOps,
+            final ConnIdBundleManager bundleManager,
+            final PropagationTaskExecutor propagationTaskExecutor,
+            final AnyObjectWorkflowAdapter awfAdapter,
+            final UserWorkflowAdapter uwfAdapter,
+            final GroupWorkflowAdapter gwfAdapter,
+            final AnyObjectProvisioningManager aProvisioningManager,
+            final UserProvisioningManager uProvisioningManager,
+            final GroupProvisioningManager gProvisioningManager,
+            final VirAttrCache virAttrCache,
+            final NotificationManager notificationManager,
+            final AuditManager auditManager,
+            final PasswordGenerator passwordGenerator,
+            final EntityFactory entityFactory,
+            final PlainSchemaDAO plainSchemaDAO,
+            final PlainAttrDAO plainAttrDAO,
+            final PlainAttrValueDAO plainAttrValueDAO,
+            final AnySearchDAO anySearchDAO,
+            final ImplementationLookup implLookup,
+            final PolicyDAO policyDAO,
+            final NotificationDAO notificationDAO,
+            final TaskDAO taskDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final RoleDAO roleDAO,
+            final SecurityQuestionDAO securityQuestionDAO,
+            final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor,
+            final ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor) {
 
         this.securityProperties = securityProperties;
         this.persistenceProperties = persistenceProperties;

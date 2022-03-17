@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -92,6 +93,7 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAConnInstanceDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPADelegationDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPADerSchemaDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPADynRealmDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAEntityCacheDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAExternalResourceDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAGroupDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAImplementationDAO;
@@ -203,8 +205,8 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public XMLContentLoader xmlContentLoader(final PersistenceProperties persistenceProperties,
-                                             final ResourceLoader resourceLoader,
-                                             final Environment env) {
+            final ResourceLoader resourceLoader,
+            final Environment env) {
         return new XMLContentLoader(
                 resourceLoader.getResource(persistenceProperties.getViewsXML()),
                 resourceLoader.getResource(persistenceProperties.getIndexesXML()),
@@ -283,6 +285,12 @@ public class PersistenceContext {
     @Bean
     public TaskUtilsFactory taskUtilsFactory(final @Lazy EntityFactory entityFactory) {
         return new JPATaskUtilsFactory(entityFactory);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public EntityCacheDAO entityCacheDAO() {
+        return new JPAEntityCacheDAO();
     }
 
     @ConditionalOnMissingBean
