@@ -204,9 +204,11 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public XMLContentLoader xmlContentLoader(final PersistenceProperties persistenceProperties,
+    public XMLContentLoader xmlContentLoader(
+            final PersistenceProperties persistenceProperties,
             final ResourceLoader resourceLoader,
             final Environment env) {
+
         return new XMLContentLoader(
                 resourceLoader.getResource(persistenceProperties.getViewsXML()),
                 resourceLoader.getResource(persistenceProperties.getIndexesXML()),

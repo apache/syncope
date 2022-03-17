@@ -118,6 +118,8 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
                 profile.getExecutor(),
                 getContext());
 
+        createRemediationIfNeeded(req, delta, result);
+
         String groupOwner = null;
         for (AttrPatch attrPatch : groupUR.getPlainAttrs()) {
             if (attrPatch.getOperation() == PatchOperation.ADD_REPLACE && attrPatch.getAttr() != null

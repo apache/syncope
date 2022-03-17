@@ -37,6 +37,8 @@ public interface TaskDAO extends DAO<Task> {
 
     Class<? extends Task> getEntityReference(TaskType type);
 
+    boolean exists(TaskType type, String key);
+
     <T extends Task> T find(String key);
 
     List<SchedTask> findByDelegate(Implementation delegate);

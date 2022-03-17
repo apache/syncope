@@ -123,12 +123,12 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     @Override
     protected AnyUR doUpdate(
             final AnyTO before,
-            final AnyUR anyUR,
+            final AnyUR req,
             final SyncDelta delta,
             final ProvisioningReport result) {
 
         Pair<UserUR, List<PropagationStatus>> updated = userProvisioningManager.update(
-                UserUR.class.cast(anyUR),
+                UserUR.class.cast(req),
                 result,
                 enabled(delta),
                 Set.of(profile.getTask().getResource().getKey()),
@@ -136,10 +136,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 profile.getExecutor(),
                 getContext());
 
-        if (ProvisioningReport.Status.FAILURE == result.getStatus() && profile.getTask().isRemediation()) {
-            createRemediation(anyTypeDAO.find(result.getAnyType()), anyUR, profile.getTask(), result,
-                    delta);
-        }
+        createRemediationIfNeeded(req, delta, result);
 
         return updated.getLeft();
     }
