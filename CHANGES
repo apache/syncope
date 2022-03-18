@@ -2,6 +2,29 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.1.11
+================================================================================
+
+** Bug
+    * [SYNCOPE-1646] - Linked Account status set to wrong value on propagation
+    * [SYNCOPE-1648] - Search with PostgreSQL JSONB fails for FIQL like 'username!=value'
+    * [SYNCOPE-1649] - Reports: XML character escaping applied to CSV output
+    * [SYNCOPE-1650] - Default Account Rule: pattern is ignored
+    * [SYNCOPE-1651] - Invalid users can be specified in X-Syncope-Delegated-By
+    * [SYNCOPE-1654] - Inconsistent Realm search FIQL expressions between JPA and Elasticsearch engines
+    * [SYNCOPE-1656] - Remediations are not created on update while pulling
+    * [SYNCOPE-1657] - Unable to define a new name for a cloned resource
+    * [SYNCOPE-1659] - Read-only flag not working in console on virtual attributes
+    * [SYNCOPE-1660] - Anonymous requests does not store domain and delegatedBy information in the auth context
+    * [SYNCOPE-1663] - Value errors in FIQL expressions lead to empty result rather than error messages
+    * [SYNCOPE-1664] - JSONB: Inconsistent search query when is used a pull correlation rule
+
+** Improvement
+    * [SYNCOPE-1658] - Allow to view the topology in table format
+    * [SYNCOPE-1666] - Security Answer encryption
+    * [SYNCOPE-1667] - Propagation Policy
+    * [SYNCOPE-1668] - Provide Entity Cache report and management
+
 Release Notes - Syncope - Version 2.1.10
 ================================================================================
 
