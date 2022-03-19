@@ -412,7 +412,7 @@ under the License.
     <spring-boot.version>2.6.4</spring-boot.version>
     <spring-cloud-gateway.version>3.1.1</spring-cloud-gateway.version>
 
-    <openjpa.version>3.2.2-SNAPSHOT</openjpa.version>
+    <openjpa.version>3.2.2</openjpa.version>
     <hikaricp.version>5.0.1</hikaricp.version>
     <bval.version>2.0.5</bval.version>
 
@@ -992,7 +992,7 @@ under the License.
       <dependency>
         <groupId>com.github.ben-manes.caffeine</groupId>
         <artifactId>caffeine</artifactId>
-        <version>3.0.5</version>
+        <version>3.0.6</version>
       </dependency>
 
       <dependency>
