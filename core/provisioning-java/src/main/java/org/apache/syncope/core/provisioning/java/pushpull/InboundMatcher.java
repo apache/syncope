@@ -331,9 +331,13 @@ public class InboundMatcher {
 
         List<PullMatch> result = new ArrayList<>();
 
-        result.addAll(anySearchDAO.search(rule.getSearchCond(syncDelta, provision), type).stream().
-                map(any -> rule.matching(any, syncDelta, provision)).
-                collect(Collectors.toList()));
+        try {
+            result.addAll(anySearchDAO.search(rule.getSearchCond(syncDelta, provision), type).stream().
+                    map(any -> rule.matching(any, syncDelta, provision)).
+                    collect(Collectors.toList()));
+        } catch (Throwable t) {
+            LOG.error("While searching via {}", rule.getClass().getName(), t);
+        }
 
         if (result.isEmpty()) {
             rule.unmatching(syncDelta, provision).ifPresent(result::add);

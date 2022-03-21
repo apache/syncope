@@ -972,27 +972,27 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected Remediation createRemediation(
+    protected void createRemediation(
             final AnyType anyType,
             final AnyCR anyCR,
             final PullTask pullTask,
             final ProvisioningReport result,
             final SyncDelta delta) {
 
-        return createRemediation(anyType, null, anyCR, null, pullTask, result, delta);
+        createRemediation(anyType, null, anyCR, null, pullTask, result, delta);
     }
 
-    protected Remediation createRemediation(
+    protected void createRemediation(
             final AnyType anyType,
             final AnyUR anyUR,
             final PullTask pullTask,
             final ProvisioningReport result,
             final SyncDelta delta) {
 
-        return createRemediation(anyType, null, null, anyUR, pullTask, result, delta);
+        createRemediation(anyType, null, null, anyUR, pullTask, result, delta);
     }
 
-    protected Remediation createRemediation(
+    protected void createRemediation(
             final AnyType anyType,
             final String anyKey,
             final AnyCR anyCR,
@@ -1001,22 +1001,36 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             final ProvisioningReport result,
             final SyncDelta delta) {
 
-        Remediation entity = entityFactory.newEntity(Remediation.class);
+        Remediation remediation = entityFactory.newEntity(Remediation.class);
 
-        entity.setAnyType(anyType);
-        entity.setOperation(anyUR == null ? ResourceOperation.CREATE : ResourceOperation.UPDATE);
+        remediation.setAnyType(anyType);
+        remediation.setOperation(anyUR == null ? ResourceOperation.CREATE : ResourceOperation.UPDATE);
         if (StringUtils.isNotBlank(anyKey)) {
-            entity.setPayload(anyKey);
+            remediation.setPayload(anyKey);
         } else if (anyCR != null) {
-            entity.setPayload(anyCR);
+            remediation.setPayload(anyCR);
         } else if (anyUR != null) {
-            entity.setPayload(anyUR);
+            remediation.setPayload(anyUR);
         }
-        entity.setError(result.getMessage());
-        entity.setInstant(OffsetDateTime.now());
-        entity.setRemoteName(delta.getObject().getName().getNameValue());
-        entity.setPullTask(pullTask);
+        remediation.setError(result.getMessage());
+        remediation.setInstant(OffsetDateTime.now());
+        remediation.setRemoteName(delta.getObject().getName().getNameValue());
+        remediation.setPullTask(pullTask);
 
-        return remediationDAO.save(entity);
+        remediation = remediationDAO.save(remediation);
+
+        ProvisioningReport remediationResult = new ProvisioningReport();
+        remediationResult.setOperation(remediation.getOperation());
+        remediationResult.setAnyType(anyType.getKey());
+        remediationResult.setStatus(ProvisioningReport.Status.FAILURE);
+        remediationResult.setMessage(remediation.getError());
+        if (StringUtils.isNotBlank(anyKey)) {
+            remediationResult.setKey(anyKey);
+        } else if (anyUR != null) {
+            remediationResult.setKey(anyUR.getKey());
+        }
+        remediationResult.setUidValue(delta.getUid().getUidValue());
+        remediationResult.setName(remediation.getRemoteName());
+        profile.getResults().add(remediationResult);
     }
 }
