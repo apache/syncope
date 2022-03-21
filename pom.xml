@@ -412,7 +412,7 @@ under the License.
     <spring.version>5.2.19.RELEASE</spring.version>
     <spring-security.version>5.2.13.RELEASE</spring-security.version>
 
-    <openjpa.version>3.2.1</openjpa.version>
+    <openjpa.version>3.2.2</openjpa.version>
     <hikaricp.version>4.0.3</hikaricp.version>
     <bval.version>2.0.5</bval.version>
 
@@ -459,7 +459,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
 
     <swagger-core.version>2.0.10</swagger-core.version>    
-    <swagger-ui.version>4.5.2</swagger-ui.version>
+    <swagger-ui.version>4.6.2</swagger-ui.version>
     <guava.version>29.0-jre</guava.version>
 
     <jquery.version>3.4.1</jquery.version>
