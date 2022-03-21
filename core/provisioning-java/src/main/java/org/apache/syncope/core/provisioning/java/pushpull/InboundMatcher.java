@@ -382,7 +382,7 @@ public class InboundMatcher {
                 }
             }
         } catch (RuntimeException e) {
-            LOG.error("Could not match {} with any existing {}", syncDelta, provision.getAnyType(), e);
+            LOG.error("Could not match {} with any existing {}", syncDelta, provision.getAnyType().getKey(), e);
         }
 
         if (result.size() == 1 && result.get(0).getMatchTarget() == MatchType.ANY) {
