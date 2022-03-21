@@ -528,7 +528,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 setQuoteChar(spec.getQuoteChar()).
                 setLineSeparator(spec.getLineSeparator()).
                 setNullValue(spec.getNullValue()).
-                setAllowComments(spec.isAllowComments());
+                setAllowComments(spec.getAllowComments());
         if (spec.getEscapeChar() != null) {
             schemaBuilder.setEscapeChar(spec.getEscapeChar());
         }
@@ -661,7 +661,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         PullTaskTO pullTask = new PullTaskTO();
         pullTask.setDestinationRealm(spec.getDestinationRealm());
-        pullTask.setRemediation(spec.isRemediation());
+        pullTask.setRemediation(spec.getRemediation());
         pullTask.setMatchingRule(spec.getMatchingRule());
         pullTask.setUnmatchingRule(spec.getUnmatchingRule());
         pullTask.getActions().addAll(spec.getProvisioningActions());
