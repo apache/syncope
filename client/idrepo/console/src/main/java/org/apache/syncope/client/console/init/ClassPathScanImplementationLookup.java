@@ -263,9 +263,10 @@ public class ClassPathScanImplementationLookup {
 
     @SuppressWarnings("unchecked")
     public <T> List<Class<? extends T>> getClasses(final Class<T> reference) {
-        return classes.getOrDefault(reference.getName(), List.of()).stream().
-                map(clazz -> (Class<? extends T>) clazz).
-                collect(Collectors.toList());
+        return classes.entrySet().stream()
+                .filter(entry -> entry.getValue().stream().allMatch(clz -> reference.isAssignableFrom(clz)))
+                .map(Map.Entry::getValue).findFirst().orElse(List.of())
+                .stream().map(clazz -> (Class<? extends T>) clazz).collect(Collectors.toList());
     }
 
     public Class<? extends BinaryPreviewer> getPreviewerClass(final String mimeType) {
