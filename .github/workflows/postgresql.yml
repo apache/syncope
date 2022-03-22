@@ -26,7 +26,7 @@ on:
     - cron: '0 13 * * 4'
 
 jobs:
-  PostgreSQL:
+  setup:
     runs-on: ubuntu-latest
 
     steps:
@@ -43,9 +43,21 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
-    - name: 'Unit Tests: PostgreSQL JPA JSON'
-      run: mvn -f core/persistence-jpa-json/pom.xml -P pgjsonb -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.phase=none -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+
+  PostgreSQL:
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
     - name: 'Integration Tests: PostgreSQL'
       run: mvn -f fit/core-reference/pom.xml -P postgres-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+
+  PGJSONB:
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 'Unit Tests: PostgreSQL JPA JSON'
+      run: mvn -f core/persistence-jpa-json/pom.xml -P pgjsonb -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.phase=none -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
     - name: 'Integration Tests: PostgreSQL JPA JSON'
       run: mvn -f fit/core-reference/pom.xml -P pgjsonb-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
