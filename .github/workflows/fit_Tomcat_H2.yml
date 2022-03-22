@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License
-name: "FIT Tomcat H2 JSON"
+name: "FIT Tomcat H2"
 
 on:
   push:
@@ -26,7 +26,7 @@ on:
     - cron: '0 13 * * 4'
 
 jobs:
-  fit_Tomcat_H2_JSON:
+  setup:
     runs-on: ubuntu-latest
 
     steps:
@@ -43,5 +43,30 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
+
+  JSON:
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
     - name: 'Tomcat / H2 / JSON'
       run: mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+      
+  XML:
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: 'Tomcat / H2 / XML'
+      run: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/xml -Dit.test=org.apache.syncope.fit.core.*ITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+
+  YAML:
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: 'Tomcat / H2 / YAML'
+      run: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/yaml -Dit.test=org.apache.syncope.fit.core.*ITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
