@@ -42,8 +42,8 @@ public final class IdMImplementationType {
             Pair.of(PROPAGATION_ACTIONS, "org.apache.syncope.core.provisioning.api.propagation.PropagationActions"),
             Pair.of(PULL_ACTIONS, "org.apache.syncope.core.provisioning.api.pushpull.PullActions"),
             Pair.of(PUSH_ACTIONS, "org.apache.syncope.core.provisioning.api.pushpull.PushActions"),
-            Pair.of(PULL_CORRELATION_RULE, "org.apache.syncope.common.lib.policy.PullCorrelationRuleConf"),
-            Pair.of(PUSH_CORRELATION_RULE, "org.apache.syncope.common.lib.policy.PushCorrelationRuleConf"),
+            Pair.of(PULL_CORRELATION_RULE, "org.apache.syncope.core.persistence.api.dao.PullCorrelationRule"),
+            Pair.of(PUSH_CORRELATION_RULE, "org.apache.syncope.core.persistence.api.dao.PushCorrelationRule"),
             Pair.of(PROVISION_SORTER, "org.apache.syncope.core.provisioning.api.ProvisionSorter"));
 
     public static Map<String, String> values() {
