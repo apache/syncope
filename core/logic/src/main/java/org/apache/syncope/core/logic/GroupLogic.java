@@ -209,6 +209,9 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 before.getRight());
 
         // check if group can still be managed by the caller
+        authRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_UPDATE),
+                result.getEntity().getRealm());
         groupDAO.securityChecks(
                 authRealms,
                 after.getLeft().getKey(),
