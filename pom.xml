@@ -393,7 +393,7 @@ under the License.
     <project.build.outputTimestamp>2022-03-18T07:46:56Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.5.0.2</connid.version>
+    <connid.version>1.5.1.0</connid.version>
     <connid.soap.version>1.4.3</connid.soap.version>
     <connid.rest.version>1.0.5</connid.rest.version>
     <connid.database.version>2.2.7</connid.database.version>
