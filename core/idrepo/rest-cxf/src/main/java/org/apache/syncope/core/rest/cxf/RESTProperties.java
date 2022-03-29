@@ -16,26 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java.job;
+package org.apache.syncope.core.rest.cxf;
 
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.apache.syncope.core.provisioning.java.ExecutorProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/**
- * Clean shutdown for Quartz scheduler.
- */
-public class SchedulerShutdown implements DisposableBean {
+@ConfigurationProperties("rest")
+public class RESTProperties {
 
-    private final ApplicationContext ctx;
+    private final ExecutorProperties batchExecutor = new ExecutorProperties();
 
-    public SchedulerShutdown(final ApplicationContext ctx) {
-        this.ctx = ctx;
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        SchedulerFactoryBean scheduler = ctx.getBean(SchedulerFactoryBean.class);
-        scheduler.getScheduler().shutdown();
+    public ExecutorProperties getBatchExecutor() {
+        return batchExecutor;
     }
 }

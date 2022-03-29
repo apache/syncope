@@ -22,7 +22,6 @@ import java.util.Map;
 import org.apache.cxf.spring.boot.autoconfigure.openapi.OpenApiAutoConfiguration;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
-import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.core.logic.LogicProperties;
@@ -66,6 +65,7 @@ import org.apache.syncope.core.starter.actuate.SyncopeCoreInfoContributor;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.mail.MailHealthIndicator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -107,6 +107,24 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
     @Override
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
         return builder.properties(Map.of("spring.config.name", "core")).sources(SyncopeCoreApplication.class);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public TaskExecutorUnloader taskExecutorUnloader(final ListableBeanFactory beanFactory) {
+        return new TaskExecutorUnloader(beanFactory);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SyncopeCoreStart keymasterStart(final DomainHolder domainHolder) {
+        return new SyncopeCoreStart(domainHolder);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public KeymasterStop keymasterStop(final DomainHolder domainHolder) {
+        return new SyncopeCoreStop(domainHolder);
     }
 
     @ConditionalOnMissingBean
@@ -218,21 +236,11 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
         return new EntityCacheEndpoint(entityCacheDAO);
     }
 
-    @ConditionalOnMissingBean
-    @Bean
-    public SyncopeCoreStart keymasterStart(final DomainHolder domainHolder) {
-        return new SyncopeCoreStart(domainHolder);
-    }
-
-    @Bean
-    public KeymasterStop keymasterStop() {
-        return new KeymasterStop(NetworkService.Type.CORE);
-    }
-
     @Bean
     public SyncopeStarterEventListener syncopeCoreEventListener(
             @Qualifier("syncopeCoreInfoContributor")
             final SyncopeCoreInfoContributor syncopeCoreInfoContributor) {
+
         return new DefaultSyncopeStarterEventListener(syncopeCoreInfoContributor);
     }
 

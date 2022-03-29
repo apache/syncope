@@ -22,8 +22,7 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-public class KeymasterStart extends KeymasterStartStop
-        implements ApplicationListener<ContextRefreshedEvent> {
+public class KeymasterStart extends KeymasterStartStop implements ApplicationListener<ContextRefreshedEvent> {
 
     public KeymasterStart(final NetworkService.Type networkServiceType) {
         super(networkServiceType);

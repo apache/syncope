@@ -20,25 +20,25 @@ package org.apache.syncope.core.starter;
 
 import java.util.Comparator;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
+import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.core.Ordered;
 
 /**
- * Take care of all inits needed by Syncope Core to run up and safe.
+ * Take care of all disposal needed by Syncope Core to shut down gracefully..
  */
-public class SyncopeCoreStart extends KeymasterStart implements Ordered {
+public class SyncopeCoreStop extends KeymasterStop implements Ordered {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreStart.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreStop.class);
 
     private final DomainHolder domainHolder;
 
-    public SyncopeCoreStart(final DomainHolder domainHolder) {
+    public SyncopeCoreStop(final DomainHolder domainHolder) {
         super(NetworkService.Type.CORE);
         this.domainHolder = domainHolder;
     }
@@ -49,23 +49,23 @@ public class SyncopeCoreStart extends KeymasterStart implements Ordered {
     }
 
     @Override
-    public void onApplicationEvent(final ContextRefreshedEvent event) {
+    public void onApplicationEvent(final ContextClosedEvent event) {
         event.getApplicationContext().getBeansOfType(SyncopeCoreLoader.class).values().stream().
-                sorted(Comparator.comparing(SyncopeCoreLoader::getOrder)).
+                sorted(Comparator.comparing(SyncopeCoreLoader::getOrder).reversed()).
                 forEachOrdered(loader -> {
                     String loaderName = AopUtils.getTargetClass(loader).getName();
 
-                    LOG.debug("[{}#{}] Starting init", loaderName, loader.getOrder());
-
-                    loader.load();
+                    LOG.debug("[{}#{}] Starting dispose", loaderName, loader.getOrder());
 
                     domainHolder.getDomains().forEach((domain, datasource) -> {
-                        LOG.debug("[{}] Starting init on domain '{}'", loaderName, domain);
-                        loader.load(domain, datasource);
-                        LOG.debug("[{}] Init completed on domain '{}'", loaderName, domain);
+                        LOG.debug("[{}] Starting dispose on domain '{}'", loaderName, domain);
+                        loader.unload(domain);
+                        LOG.debug("[{}] Dispose completed on domain '{}'", loaderName, domain);
                     });
 
-                    LOG.debug("[{}] Init completed", loaderName);
+                    loader.unload();
+
+                    LOG.debug("[{}] Dispose completed", loaderName);
                 });
 
         super.onApplicationEvent(event);

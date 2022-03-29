@@ -156,7 +156,6 @@ import org.apache.syncope.core.provisioning.java.data.WAConfigDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.wa.WAClientAppDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.job.DefaultJobManager;
 import org.apache.syncope.core.provisioning.java.job.SchedulerDBInit;
-import org.apache.syncope.core.provisioning.java.job.SchedulerShutdown;
 import org.apache.syncope.core.provisioning.java.job.SyncopeSpringBeanJobFactory;
 import org.apache.syncope.core.provisioning.java.job.SystemLoadReporterJob;
 import org.apache.syncope.core.provisioning.java.job.notification.DefaultNotificationJobDelegate;
@@ -220,17 +219,18 @@ public class ProvisioningContext {
     /**
      * Annotated as {@code @Primary} because it will be used by {@code @Async} in {@link AsyncConnectorFacade}.
      *
-     * @param provisioningProperties configuration properties
-     *
+     * @param props configuration properties
      * @return executor
      */
     @Bean
     @Primary
-    public ThreadPoolTaskExecutor asyncConnectorFacadeExecutor(final ProvisioningProperties provisioningProperties) {
+    public ThreadPoolTaskExecutor asyncConnectorFacadeExecutor(final ProvisioningProperties props) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(provisioningProperties.getAsyncConnectorFacadeExecutor().getCorePoolSize());
-        executor.setMaxPoolSize(provisioningProperties.getAsyncConnectorFacadeExecutor().getMaxPoolSize());
-        executor.setQueueCapacity(provisioningProperties.getAsyncConnectorFacadeExecutor().getQueueCapacity());
+        executor.setCorePoolSize(props.getAsyncConnectorFacadeExecutor().getCorePoolSize());
+        executor.setMaxPoolSize(props.getAsyncConnectorFacadeExecutor().getMaxPoolSize());
+        executor.setQueueCapacity(props.getAsyncConnectorFacadeExecutor().getQueueCapacity());
+        executor.setAwaitTerminationSeconds(props.getAsyncConnectorFacadeExecutor().getAwaitTerminationSeconds());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setThreadNamePrefix("AsyncConnectorFacadeExecutor-");
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         executor.initialize();
@@ -238,7 +238,8 @@ public class ProvisioningContext {
     }
 
     @Bean
-    public AsyncConfigurer asyncConfigurer(@Qualifier("asyncConnectorFacadeExecutor")
+    public AsyncConfigurer asyncConfigurer(
+            @Qualifier("asyncConnectorFacadeExecutor")
             final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor) {
 
         return new AsyncConfigurer() {
@@ -253,16 +254,18 @@ public class ProvisioningContext {
     /**
      * Used by {@link org.apache.syncope.core.provisioning.java.propagation.PriorityPropagationTaskExecutor}.
      *
-     * @param provisioningProperties the provisioning properties
+     * @param props the provisioning properties
      * @return executor thread pool task executor
      */
     @Bean
-    public ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor(
-            final ProvisioningProperties provisioningProperties) {
+    public ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor(final ProvisioningProperties props) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(provisioningProperties.getPropagationTaskExecutorAsyncExecutor().getCorePoolSize());
-        executor.setMaxPoolSize(provisioningProperties.getPropagationTaskExecutorAsyncExecutor().getMaxPoolSize());
-        executor.setQueueCapacity(provisioningProperties.getPropagationTaskExecutorAsyncExecutor().getQueueCapacity());
+        executor.setCorePoolSize(props.getPropagationTaskExecutorAsyncExecutor().getCorePoolSize());
+        executor.setMaxPoolSize(props.getPropagationTaskExecutorAsyncExecutor().getMaxPoolSize());
+        executor.setQueueCapacity(props.getPropagationTaskExecutorAsyncExecutor().getQueueCapacity());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(
+                props.getPropagationTaskExecutorAsyncExecutor().getAwaitTerminationSeconds());
         executor.setThreadNamePrefix("PropagationTaskExecutor-");
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         executor.initialize();
@@ -316,11 +319,6 @@ public class ProvisioningContext {
         scheduler.setQuartzProperties(quartzProperties);
 
         return scheduler;
-    }
-
-    @Bean
-    public SchedulerShutdown schedulerShutdown(final ApplicationContext ctx) {
-        return new SchedulerShutdown(ctx);
     }
 
     @ConditionalOnMissingBean

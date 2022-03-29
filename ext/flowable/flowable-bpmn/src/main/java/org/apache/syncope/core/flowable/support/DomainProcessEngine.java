@@ -58,7 +58,7 @@ public class DomainProcessEngine implements ProcessEngine {
 
     @Override
     public void close() {
-        engines.get(AuthContextUtils.getDomain()).close();
+        engines.values().forEach(ProcessEngine::close);
     }
 
     @Override

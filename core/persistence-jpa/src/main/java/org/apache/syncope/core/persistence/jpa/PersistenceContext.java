@@ -136,6 +136,7 @@ import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUn
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -237,9 +238,10 @@ public class PersistenceContext {
     @Bean
     public RuntimeDomainLoader runtimeDomainLoader(
             final DomainHolder domainHolder,
-            final DomainRegistry domainRegistry) {
+            final DomainRegistry domainRegistry,
+            final ListableBeanFactory beanFactory) {
 
-        return new RuntimeDomainLoader(domainHolder, domainRegistry);
+        return new RuntimeDomainLoader(domainHolder, domainRegistry, beanFactory);
     }
 
     @ConditionalOnMissingBean
