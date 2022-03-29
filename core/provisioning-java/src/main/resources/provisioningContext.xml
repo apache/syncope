@@ -32,16 +32,28 @@ under the License.
 
   <!-- Used by AsyncConnectorFacade -->
   <task:annotation-driven executor="asyncConnectorFacadeExecutor"/>
-  <task:executor id="asyncConnectorFacadeExecutor"
-                 pool-size="${asyncConnectorFacadeExecutor.poolSize}"
-                 queue-capacity="${asyncConnectorFacadeExecutor.queueCapacity}"
-                 rejection-policy="ABORT"/>
+  <bean id="asyncConnectorFacadeExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+    <property name="corePoolSize" value="${asyncConnectorFacadeExecutor.corePoolSize}"/>
+    <property name="maxPoolSize" value="${asyncConnectorFacadeExecutor.maxPoolSize}"/>
+    <property name="queueCapacity" value="${asyncConnectorFacadeExecutor.queueCapacity}"/>
+    <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+    <property name="awaitTerminationSeconds" value="${asyncConnectorFacadeExecutor.awaitTerminationSeconds:5}"/>
+    <property name="rejectedExecutionHandler">
+      <bean class="java.util.concurrent.ThreadPoolExecutor$AbortPolicy"/>
+    </property>
+  </bean>
 
   <!-- Used by PriorityPropagationTaskExecutor -->
-  <task:executor id="propagationTaskExecutorAsyncExecutor"
-                 pool-size="${propagationTaskExecutorAsyncExecutor.poolSize}"
-                 queue-capacity="${propagationTaskExecutorAsyncExecutor.queueCapacity}"
-                 rejection-policy="ABORT"/>
+  <bean id="propagationTaskExecutorAsyncExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+    <property name="corePoolSize" value="${propagationTaskExecutorAsyncExecutor.corePoolSize}"/>
+    <property name="maxPoolSize" value="${propagationTaskExecutorAsyncExecutor.maxPoolSize}"/>
+    <property name="queueCapacity" value="${propagationTaskExecutorAsyncExecutor.queueCapacity}"/>
+    <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+    <property name="awaitTerminationSeconds" value="${propagationTaskExecutorAsyncExecutor.awaitTerminationSeconds:5}"/>
+    <property name="rejectedExecutionHandler">
+      <bean class="java.util.concurrent.ThreadPoolExecutor$AbortPolicy"/>
+    </property>
+  </bean>
   <bean class="${propagationTaskExecutor}"/>
 
   <bean class="${userProvisioningManager}"/>
@@ -95,7 +107,6 @@ under the License.
       </props>
     </property>
   </bean>
-  <bean class="org.apache.syncope.core.provisioning.java.job.SchedulerShutdown"/>
   <bean class="org.apache.syncope.core.provisioning.java.job.JobManagerImpl">
     <property name="disableQuartzInstance" value="${quartz.disableInstance:false}"/>
   </bean>

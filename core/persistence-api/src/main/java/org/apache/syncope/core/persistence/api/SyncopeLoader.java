@@ -24,12 +24,21 @@ package org.apache.syncope.core.persistence.api;
 public interface SyncopeLoader {
 
     /**
-     * @return the priority that the implementing class has in the initialization process.
+     * @return the priority that the implementing class has in the init and shut down processes.
      */
     Integer getPriority();
 
     /**
-     * Perform initialization operations.
+     * Perform init operations.
      */
-    void load();
+    default void load() {
+        // do nothing
+    }
+
+    /**
+     * Perform dispose operations.
+     */
+    default void unload() {
+        // do nothing
+    }
 }

@@ -139,18 +139,16 @@ public class SAML2SPLoader implements SyncopeLoader {
             inited = false;
         }
 
-        domainsHolder.getDomains().forEach((domain, datasource) -> {
-            AuthContextUtils.execWithAuthContext(domain, () -> {
-                idpDAO.findAll().forEach(idp -> {
-                    try {
-                        cache.put(idp);
-                    } catch (Exception e) {
-                        LOG.error("Could not cache the SAML 2.0 IdP with key ", idp.getEntityID(), e);
-                    }
-                });
-                return null;
+        domainsHolder.getDomains().forEach((domain, datasource) -> AuthContextUtils.execWithAuthContext(domain, () -> {
+            idpDAO.findAll().forEach(idp -> {
+                try {
+                    cache.put(idp);
+                } catch (Exception e) {
+                    LOG.error("Could not cache the SAML 2.0 IdP with key ", idp.getEntityID(), e);
+                }
             });
-        });
+            return null;
+        }));
     }
 
     public boolean isInited() {

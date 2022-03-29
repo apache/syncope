@@ -58,9 +58,7 @@ public class DomainProcessEngine implements ProcessEngine {
 
     @Override
     public void close() {
-        engines.values().forEach(engine -> {
-            engine.close();
-        });
+        engines.values().forEach(ProcessEngine::close);
     }
 
     @Override

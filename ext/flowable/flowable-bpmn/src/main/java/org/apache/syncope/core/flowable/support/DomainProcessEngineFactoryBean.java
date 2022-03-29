@@ -21,6 +21,7 @@ package org.apache.syncope.core.flowable.support;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.engine.ProcessEngine;
@@ -30,7 +31,6 @@ import org.flowable.engine.impl.util.EngineServiceUtil;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -42,8 +42,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * template for each of the configured Syncope domains.
  */
 @Component
-public class DomainProcessEngineFactoryBean
-        implements FactoryBean<DomainProcessEngine>, DisposableBean, ApplicationContextAware {
+public class DomainProcessEngineFactoryBean implements FactoryBean<DomainProcessEngine>, ApplicationContextAware {
 
     private ApplicationContext ctx;
 
@@ -105,8 +104,8 @@ public class DomainProcessEngineFactoryBean
         return true;
     }
 
-    @Override
-    public void destroy() throws Exception {
+    @PreDestroy
+    public void preDestroy() {
         if (engine != null) {
             engine.close();
         }

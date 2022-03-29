@@ -27,16 +27,23 @@ under the License.
                            http://cxf.apache.org/jaxrs
                            http://cxf.apache.org/schemas/jaxrs.xsd
                            http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context.xsd
-                           http://www.springframework.org/schema/task
-                           http://www.springframework.org/schema/task/spring-task.xsd">
+                           http://www.springframework.org/schema/context/spring-context.xsd">
 
   <import resource="classpath:META-INF/cxf/cxf.xml"/>
   <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
 
   <context:component-scan base-package="org.apache.syncope.core.rest.cxf.service"/>  
 
-  <task:executor id="batchExecutor" pool-size="10"/>
+  <bean id="batchExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+    <property name="corePoolSize" value="${batchExecutor.corePoolSize:10}"/>
+    <property name="maxPoolSize" value="${batchExecutor.maxPoolSize:10}"/>
+    <property name="queueCapacity" value="${batchExecutor.queueCapacity:0}"/>
+    <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+    <property name="awaitTerminationSeconds" value="${batchExecutor.awaitTerminationSeconds:5}"/>
+    <property name="rejectedExecutionHandler">
+      <bean class="java.util.concurrent.ThreadPoolExecutor$AbortPolicy"/>
+    </property>
+  </bean>
 
   <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.JAXBElementProvider">
     <property name="namespacePrefixes">
