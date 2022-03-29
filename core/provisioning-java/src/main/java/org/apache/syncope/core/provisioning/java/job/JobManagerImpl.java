@@ -269,7 +269,7 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
             return;
         }
 
-        final Pair<String, Long> conf = AuthContextUtils.execWithAuthContext(SyncopeConstants.MASTER_DOMAIN, () -> {
+        Pair<String, Long> conf = AuthContextUtils.execWithAuthContext(SyncopeConstants.MASTER_DOMAIN, () -> {
             String notificationJobCronExpression = StringUtils.EMPTY;
 
             Optional<? extends CPlainAttr> notificationJobCronExp = confDAO.find("notificationjob.cronExpression");

@@ -41,8 +41,6 @@ public class OIDCClientLoader implements SyncopeLoader {
     public void load() {
         EntitlementsHolder.getInstance().init(OIDCClientEntitlement.values());
 
-        domainsHolder.getDomains().forEach((domain, datasource) -> {
-            AuthContextUtils.execWithAuthContext(domain, () -> null);
-        });
+        domainsHolder.getDomains().forEach((domain, ds) -> AuthContextUtils.execWithAuthContext(domain, () -> null));
     }
 }

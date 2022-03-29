@@ -20,50 +20,65 @@ package org.apache.syncope.core.logic.init;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * Take care of all initializations needed by Syncope logic to run up and safe.
+ * Take care of all initializations needed by Syncope logic to run up and safe
+ * and all clean up needed to shut down gracefully.
  */
 @Component
-public class LogicInitializer implements InitializingBean, BeanFactoryAware {
+public class LogicStartStop implements BeanFactoryAware, InitializingBean, DisposableBean {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LogicInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LogicStartStop.class);
 
     private DefaultListableBeanFactory beanFactory;
+
+    private final List<SyncopeLoader> loaders = new ArrayList<>();
 
     @Override
     public void setBeanFactory(final BeanFactory beanFactory) {
         this.beanFactory = (DefaultListableBeanFactory) beanFactory;
     }
 
+    private void execute(final Consumer<SyncopeLoader> action) {
+        loaders.forEach(loader -> {
+            LOG.debug("Invoking {} with priority {}", AopUtils.getTargetClass(loader).getName(), loader.getPriority());
+            action.accept(loader);
+        });
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
-        Map<String, SyncopeLoader> loaderMap = beanFactory.getBeansOfType(SyncopeLoader.class);
-
-        List<SyncopeLoader> loaders = new ArrayList<>(loaderMap.values());
-        Collections.sort(loaders, (o1, o2) -> o1.getPriority().compareTo(o2.getPriority()));
-
         ApplicationContextProvider.setBeanFactory(beanFactory);
 
-        LOG.debug("Starting initialization...");
-        loaders.stream().map(loader -> {
-            LOG.debug("Invoking {} with priority {}", AopUtils.getTargetClass(loader).getName(), loader.getPriority());
-            return loader;
-        }).forEachOrdered(loader -> {
-            loader.load();
-        });
-        LOG.debug("Initialization completed");
+        loaders.addAll(beanFactory.getBeansOfType(SyncopeLoader.class).values().stream().
+                sorted(Comparator.comparing(SyncopeLoader::getPriority)).collect(Collectors.toList()));
+
+        LOG.debug("Starting init...");
+        execute(SyncopeLoader::load);
+        LOG.debug("Init completed");
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        Collections.reverse(loaders);
+
+        LOG.debug("Starting dispose...");
+        execute(SyncopeLoader::unload);
+        LOG.debug("Dispose completed");
     }
 }
