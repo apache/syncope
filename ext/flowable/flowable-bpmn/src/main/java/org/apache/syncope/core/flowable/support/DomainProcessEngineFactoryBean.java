@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
@@ -33,7 +34,6 @@ import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -42,8 +42,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * Spring factory for {@link DomainProcessEngine} which takes the provided {@link SpringProcessEngineConfiguration} as
  * template for each of the configured Syncope domains.
  */
-public class DomainProcessEngineFactoryBean
-        implements FactoryBean<DomainProcessEngine>, DisposableBean, SyncopeCoreLoader {
+public class DomainProcessEngineFactoryBean implements FactoryBean<DomainProcessEngine>, SyncopeCoreLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(DomainProcessEngineFactoryBean.class);
 
@@ -120,8 +119,8 @@ public class DomainProcessEngineFactoryBean
         return true;
     }
 
-    @Override
-    public void destroy() throws Exception {
+    @PreDestroy
+    public void preDestroy() {
         if (engine != null) {
             engine.close();
         }

@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.ListableBeanFactory;
 
 public class RuntimeDomainLoader implements DomainWatcher {
 
@@ -37,9 +38,16 @@ public class RuntimeDomainLoader implements DomainWatcher {
 
     protected final DomainRegistry domainRegistry;
 
-    public RuntimeDomainLoader(final DomainHolder domainHolder, final DomainRegistry domainRegistry) {
+    protected final ListableBeanFactory beanFactory;
+
+    public RuntimeDomainLoader(
+            final DomainHolder domainHolder,
+            final DomainRegistry domainRegistry,
+            final ListableBeanFactory beanFactory) {
+
         this.domainHolder = domainHolder;
         this.domainRegistry = domainRegistry;
+        this.beanFactory = beanFactory;
     }
 
     @Override
@@ -70,14 +78,14 @@ public class RuntimeDomainLoader implements DomainWatcher {
         if (domainHolder.getDomains().containsKey(domain)) {
             LOG.info("Domain {} unregistration", domain);
 
-            ApplicationContextProvider.getApplicationContext().getBeansOfType(SyncopeCoreLoader.class).values().
-                    stream().sorted(Comparator.comparing(SyncopeCoreLoader::getOrder).reversed()).
+            beanFactory.getBeansOfType(SyncopeCoreLoader.class).values().stream().
+                    sorted(Comparator.comparing(SyncopeCoreLoader::getOrder).reversed()).
                     forEachOrdered(loader -> {
                         String loaderName = AopUtils.getTargetClass(loader).getName();
 
-                        LOG.debug("[{}] Starting on domain '{}'", loaderName, domain);
+                        LOG.debug("[{}] Starting dispose on domain '{}'", loaderName, domain);
                         loader.unload(domain);
-                        LOG.debug("[{}] Completed on domain '{}'", loaderName, domain);
+                        LOG.debug("[{}] Dispose completed on domain '{}'", loaderName, domain);
                     });
 
             domainRegistry.unregister(domain);

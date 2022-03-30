@@ -28,39 +28,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("provisioning")
 public class ProvisioningProperties {
 
-    public static class ExecutorProperties {
-
-        private int corePoolSize = 5;
-
-        private int maxPoolSize = 25;
-
-        private int queueCapacity = 100;
-
-        public int getCorePoolSize() {
-            return corePoolSize;
-        }
-
-        public void setCorePoolSize(final int corePoolSize) {
-            this.corePoolSize = corePoolSize;
-        }
-
-        public int getMaxPoolSize() {
-            return maxPoolSize;
-        }
-
-        public void setMaxPoolSize(final int maxPoolSize) {
-            this.maxPoolSize = maxPoolSize;
-        }
-
-        public int getQueueCapacity() {
-            return queueCapacity;
-        }
-
-        public void setQueueCapacity(final int queueCapacity) {
-            this.queueCapacity = queueCapacity;
-        }
-    }
-
     public static class QuartzProperties {
 
         private Class<? extends DriverDelegate> delegate;
@@ -68,6 +35,8 @@ public class ProvisioningProperties {
         private String sql;
 
         private boolean disableInstance = false;
+
+        private boolean waitForJobsToCompleteOnShutdown = true;
 
         private int idleWaitTime = 30000;
 
@@ -95,6 +64,14 @@ public class ProvisioningProperties {
 
         public void setDisableInstance(final boolean disableInstance) {
             this.disableInstance = disableInstance;
+        }
+
+        public boolean isWaitForJobsToCompleteOnShutdown() {
+            return waitForJobsToCompleteOnShutdown;
+        }
+
+        public void setWaitForJobsToCompleteOnShutdown(final boolean waitForJobsToCompleteOnShutdown) {
+            this.waitForJobsToCompleteOnShutdown = waitForJobsToCompleteOnShutdown;
         }
 
         public int getIdleWaitTime() {
