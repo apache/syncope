@@ -313,7 +313,6 @@ public class ProvisioningContext {
         quartzProperties.setProperty(
                 "org.quartz.jobStore.class",
                 "org.springframework.scheduling.quartz.LocalDataSourceJobStore");
-
         quartzProperties.setProperty("org.quartz.threadPool.makeThreadsDaemons", "true");
         quartzProperties.setProperty("org.quartz.scheduler.makeSchedulerThreadDaemon", "true");
         quartzProperties.setProperty("org.quartz.jobStore.isClustered", "true");
@@ -409,7 +408,7 @@ public class ProvisioningContext {
             if (provisioningProperties.getSmtp().isDebug()) {
                 session = mailSender.getSession();
                 session.setDebug(true);
-                try ( LogOutputStream los = new LogOutputStream(LOG)) {
+                try (LogOutputStream los = new LogOutputStream(LOG)) {
                     session.setDebugOut(new PrintStream(los));
                 }
             }
