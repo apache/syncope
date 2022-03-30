@@ -290,8 +290,10 @@ public class ProvisioningContext {
     @DependsOn("quartzDataSourceInit")
     @Lazy(false)
     @Bean
-    public SchedulerFactoryBean scheduler(final ApplicationContext ctx,
+    public SchedulerFactoryBean scheduler(
+            final ApplicationContext ctx,
             final ProvisioningProperties provisioningProperties) {
+
         SchedulerFactoryBean scheduler = new SchedulerFactoryBean();
         scheduler.setAutoStartup(true);
         scheduler.setApplicationContext(ctx);
@@ -311,9 +313,15 @@ public class ProvisioningContext {
         quartzProperties.setProperty(
                 "org.quartz.jobStore.driverDelegateClass",
                 provisioningProperties.getQuartz().getDelegate().getName());
+        quartzProperties.setProperty(
+                "org.quartz.jobStore.class",
+                "org.springframework.scheduling.quartz.LocalDataSourceJobStore");
+
+        quartzProperties.setProperty("org.quartz.threadPool.makeThreadsDaemons", "true");
+        quartzProperties.setProperty("org.quartz.scheduler.makeSchedulerThreadDaemon", "true");
         quartzProperties.setProperty("org.quartz.jobStore.isClustered", "true");
         quartzProperties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
-        quartzProperties.setProperty("org.quartz.scheduler.instanceName", "ClusteredScheduler");
+        quartzProperties.setProperty("org.quartz.scheduler.instanceName", "SyncopeClusteredScheduler");
         quartzProperties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
         quartzProperties.setProperty("org.quartz.scheduler.jmx.export", "true");
         scheduler.setQuartzProperties(quartzProperties);

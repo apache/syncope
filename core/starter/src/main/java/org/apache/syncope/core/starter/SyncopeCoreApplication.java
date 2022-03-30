@@ -76,6 +76,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
+import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -87,14 +88,17 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@SpringBootApplication(exclude = {
-    ErrorMvcAutoConfiguration.class,
-    HttpMessageConvertersAutoConfiguration.class,
-    OpenApiAutoConfiguration.class,
-    DataSourceAutoConfiguration.class,
-    DataSourceTransactionManagerAutoConfiguration.class,
-    JdbcTemplateAutoConfiguration.class,
-    QuartzAutoConfiguration.class }, proxyBeanMethods = false)
+@SpringBootApplication(
+        exclude = {
+            ErrorMvcAutoConfiguration.class,
+            HttpMessageConvertersAutoConfiguration.class,
+            OpenApiAutoConfiguration.class,
+            DataSourceAutoConfiguration.class,
+            DataSourceTransactionManagerAutoConfiguration.class,
+            JdbcTemplateAutoConfiguration.class,
+            QuartzAutoConfiguration.class,
+            TaskExecutionAutoConfiguration.class },
+        proxyBeanMethods = false)
 @EnableTransactionManagement
 public class SyncopeCoreApplication extends SpringBootServletInitializer {
 
