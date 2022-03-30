@@ -36,6 +36,8 @@ public class ProvisioningProperties {
 
         private boolean disableInstance = false;
 
+        private boolean waitForJobsToCompleteOnShutdown = true;
+
         private int idleWaitTime = 30000;
 
         private int misfireThreshold = 60000;
@@ -62,6 +64,14 @@ public class ProvisioningProperties {
 
         public void setDisableInstance(final boolean disableInstance) {
             this.disableInstance = disableInstance;
+        }
+
+        public boolean isWaitForJobsToCompleteOnShutdown() {
+            return waitForJobsToCompleteOnShutdown;
+        }
+
+        public void setWaitForJobsToCompleteOnShutdown(final boolean waitForJobsToCompleteOnShutdown) {
+            this.waitForJobsToCompleteOnShutdown = waitForJobsToCompleteOnShutdown;
         }
 
         public int getIdleWaitTime() {

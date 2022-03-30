@@ -290,14 +290,11 @@ public class ProvisioningContext {
     @DependsOn("quartzDataSourceInit")
     @Lazy(false)
     @Bean
-    public SchedulerFactoryBean scheduler(
-            final ApplicationContext ctx,
-            final ProvisioningProperties provisioningProperties) {
-
+    public SchedulerFactoryBean scheduler(final ApplicationContext ctx, final ProvisioningProperties props) {
         SchedulerFactoryBean scheduler = new SchedulerFactoryBean();
         scheduler.setAutoStartup(true);
         scheduler.setApplicationContext(ctx);
-        scheduler.setWaitForJobsToCompleteOnShutdown(true);
+        scheduler.setWaitForJobsToCompleteOnShutdown(props.getQuartz().isWaitForJobsToCompleteOnShutdown());
         scheduler.setOverwriteExistingJobs(true);
         scheduler.setDataSource(masterDataSource);
         scheduler.setTransactionManager(masterTransactionManager);
@@ -306,13 +303,13 @@ public class ProvisioningContext {
         Properties quartzProperties = new Properties();
         quartzProperties.setProperty(
                 "org.quartz.scheduler.idleWaitTime",
-                String.valueOf(provisioningProperties.getQuartz().getIdleWaitTime()));
+                String.valueOf(props.getQuartz().getIdleWaitTime()));
         quartzProperties.setProperty(
                 "org.quartz.jobStore.misfireThreshold",
-                String.valueOf(provisioningProperties.getQuartz().getMisfireThreshold()));
+                String.valueOf(props.getQuartz().getMisfireThreshold()));
         quartzProperties.setProperty(
                 "org.quartz.jobStore.driverDelegateClass",
-                provisioningProperties.getQuartz().getDelegate().getName());
+                props.getQuartz().getDelegate().getName());
         quartzProperties.setProperty(
                 "org.quartz.jobStore.class",
                 "org.springframework.scheduling.quartz.LocalDataSourceJobStore");
@@ -412,7 +409,7 @@ public class ProvisioningContext {
             if (provisioningProperties.getSmtp().isDebug()) {
                 session = mailSender.getSession();
                 session.setDebug(true);
-                try (LogOutputStream los = new LogOutputStream(LOG)) {
+                try ( LogOutputStream los = new LogOutputStream(LOG)) {
                     session.setDebugOut(new PrintStream(los));
                 }
             }
