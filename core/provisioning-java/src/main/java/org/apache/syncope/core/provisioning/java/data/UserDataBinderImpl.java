@@ -202,7 +202,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             if (StringUtils.isBlank(accountTO.getPassword())) {
                 account.setEncodedPassword(null, null);
             } else if (!accountTO.getPassword().equals(account.getPassword())) {
-                account.setCipherAlgorithm(CipherAlgorithm.AES);
+                if (account.getCipherAlgorithm() == null) {
+                    account.setCipherAlgorithm(CipherAlgorithm.AES);
+                }
                 account.setPassword(accountTO.getPassword());
             }
             account.setSuspended(accountTO.isSuspended());
