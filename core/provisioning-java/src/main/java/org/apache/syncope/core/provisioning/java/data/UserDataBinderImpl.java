@@ -153,9 +153,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
     }
 
-    private void setCipherAlgorithm(final Account account) {
-        if (account.getCipherAlgorithm() == null) {
-            account.setCipherAlgorithm(
+    private void setCipherAlgorithm(final User user) {
+        if (user.getCipherAlgorithm() == null) {
+            user.setCipherAlgorithm(
                     CipherAlgorithm.valueOf(confDAO.find("password.cipher.algorithm", CipherAlgorithm.AES.name())));
         }
     }
@@ -203,7 +203,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             if (StringUtils.isBlank(accountTO.getPassword())) {
                 account.setEncodedPassword(null, null);
             } else if (!accountTO.getPassword().equals(account.getPassword())) {
-                setCipherAlgorithm(account);
+                account.setCipherAlgorithm(CipherAlgorithm.AES);
                 account.setPassword(accountTO.getPassword());
             }
             account.setSuspended(accountTO.isSuspended());
