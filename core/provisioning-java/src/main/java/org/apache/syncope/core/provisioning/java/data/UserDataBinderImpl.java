@@ -50,7 +50,6 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.Account;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -153,9 +152,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
     }
 
-    private void setCipherAlgorithm(final Account account) {
-        if (account.getCipherAlgorithm() == null) {
-            account.setCipherAlgorithm(
+    private void setCipherAlgorithm(final User user) {
+        if (user.getCipherAlgorithm() == null) {
+            user.setCipherAlgorithm(
                     CipherAlgorithm.valueOf(confDAO.find("password.cipher.algorithm", CipherAlgorithm.AES.name())));
         }
     }
@@ -203,7 +202,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             if (StringUtils.isBlank(accountTO.getPassword())) {
                 account.setEncodedPassword(null, null);
             } else if (!accountTO.getPassword().equals(account.getPassword())) {
-                setCipherAlgorithm(account);
+                if (account.getCipherAlgorithm() == null) {
+                    account.setCipherAlgorithm(CipherAlgorithm.AES);
+                }
                 account.setPassword(accountTO.getPassword());
             }
             account.setSuspended(accountTO.isSuspended());
