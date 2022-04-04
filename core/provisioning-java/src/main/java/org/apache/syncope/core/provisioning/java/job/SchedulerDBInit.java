@@ -57,7 +57,7 @@ public class SchedulerDBInit implements InitializingBean {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(this.dataSource);
         boolean existingData;
         try {
-            existingData = jdbcTemplate.queryForObject("SELECT COUNT(0) FROM QRTZ_SCHEDULER_STATE", Integer.class) > 0;
+            existingData = jdbcTemplate.queryForObject("SELECT COUNT(0) FROM QRTZ_SCHEDULER_STATE", Integer.class) >= 0;
         } catch (BadSqlGrammarException e) {
             LOG.debug("Could not access to table QRTZ_SCHEDULER_STATE", e);
             existingData = false;
@@ -71,5 +71,4 @@ public class SchedulerDBInit implements InitializingBean {
             DatabasePopulatorUtils.execute(databasePopulator, this.dataSource);
         }
     }
-
 }

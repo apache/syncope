@@ -212,7 +212,7 @@ Apache Syncope needs three base directories to be defined:
 
 * bundles - where the <<connector-bundles,connector bundles>> are stored;
 * log - where all the system logs are written;
-* conf (optional) - where configuration files are located, if overriding the default values is needed.
+* conf - where configuration files are located.
 
 [WARNING]
 The `bundles` directory should only contain connector bundle JAR files. +
@@ -226,6 +226,16 @@ $ mkdir /opt/syncope/bundles
 $ mkdir /opt/syncope/log
 $ mkdir /opt/syncope/conf
 ....
+
+[TIP]
+====
+The `conf` directory must be configured for deployment, following Spring Boot's
+https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config[Externalized Configuration^]
+settings; with above reference:
+
+* <<standalone>>: `--spring.config.location=/opt/syncope/conf/`
+* <<javaee-container>>: `-Dspring.config.location=/opt/syncope/conf/`
+====
 
 [[customization-core]]
 ==== Core

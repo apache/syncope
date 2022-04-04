@@ -81,21 +81,19 @@ public class StartupDomainLoader implements SyncopeCoreLoader {
 
                 LOG.info("Domain {} successfully inited", domainProps.getKey());
             } else {
-                Domain.Builder builder = new Domain.Builder(domainProps.getKey());
-
-                builder.adminPassword(domainProps.getAdminPassword());
-                builder.adminCipherAlgorithm(domainProps.getAdminCipherAlgorithm());
-
-                builder.jdbcDriver(domainProps.getJdbcDriver());
-                builder.jdbcURL(domainProps.getJdbcURL());
-                builder.dbSchema(domainProps.getDbSchema());
-                builder.dbUsername(domainProps.getDbUsername());
-                builder.dbPassword(domainProps.getDbPassword());
-                builder.databasePlatform(domainProps.getDatabasePlatform());
-                builder.orm(domainProps.getOrm());
-                builder.poolMaxActive(domainProps.getPoolMaxActive());
-                builder.poolMinIdle(domainProps.getPoolMinIdle());
-                builder.auditSql(domainProps.getAuditSql());
+                Domain.Builder builder = new Domain.Builder(domainProps.getKey()).
+                        adminPassword(domainProps.getAdminPassword()).
+                        adminCipherAlgorithm(domainProps.getAdminCipherAlgorithm()).
+                        jdbcDriver(domainProps.getJdbcDriver()).
+                        jdbcURL(domainProps.getJdbcURL()).
+                        dbSchema(domainProps.getDbSchema()).
+                        dbUsername(domainProps.getDbUsername()).
+                        dbPassword(domainProps.getDbPassword()).
+                        databasePlatform(domainProps.getDatabasePlatform()).
+                        orm(domainProps.getOrm()).
+                        poolMaxActive(domainProps.getPoolMaxActive()).
+                        poolMinIdle(domainProps.getPoolMinIdle()).
+                        auditSql(domainProps.getAuditSql());
 
                 try {
                     builder.content(IOUtils.toString(

@@ -428,7 +428,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.1.1</elasticsearch.version>
+    <elasticsearch.version>8.1.2</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -474,7 +474,7 @@ under the License.
     <antlr4.version>4.9.3</antlr4.version>
 
     <curator.version>5.2.0</curator.version>
-    <zookeeper.version>3.7.0</zookeeper.version>
+    <zookeeper.version>3.8.0</zookeeper.version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
@@ -499,7 +499,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.60</tomcat.version>
+    <tomcat.version>9.0.62</tomcat.version>
     <wildfly.version>25.0.1.Final</wildfly.version>
     <payara.version>5.2022.1</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
@@ -995,7 +995,7 @@ under the License.
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.9.9</version>
+        <version>1.9.9.1</version>
       </dependency>
 
       <dependency>
@@ -1836,6 +1836,14 @@ under the License.
           <exclusion>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
