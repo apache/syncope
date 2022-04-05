@@ -508,11 +508,10 @@ under the License.
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.3.1</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.3.3</jdbc.postgresql.version>
     <jdbc.mysql.version>8.0.28</jdbc.mysql.version>
-    <!-- see https://jira.mariadb.org/browse/CONJ-921 -->
-    <jdbc.mariadb.version>2.7.5</jdbc.mariadb.version>
-    <jdbc.mssql.version>9.4.1.jre</jdbc.mssql.version>
+    <jdbc.mariadb.version>3.0.4</jdbc.mariadb.version>
+    <jdbc.mssql.version>10.2.0.jre</jdbc.mssql.version>
     <jdbc.oracle.version>21.5.0.0</jdbc.oracle.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
