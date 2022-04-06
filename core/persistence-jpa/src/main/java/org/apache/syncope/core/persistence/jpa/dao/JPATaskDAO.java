@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.StringUtils;
@@ -341,7 +342,9 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
                     Field beanField = ReflectionUtils.findField(beanClass, field);
                     if (beanField != null
                             && (beanField.getAnnotation(ManyToOne.class) != null
-                            || beanField.getAnnotation(OneToMany.class) != null)) {
+                            || beanField.getAnnotation(OneToMany.class) != null
+                            || beanField.getAnnotation(OneToOne.class) != null)) {
+
                         field += "_id";
                     }
             }
