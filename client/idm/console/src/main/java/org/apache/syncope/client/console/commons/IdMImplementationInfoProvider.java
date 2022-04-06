@@ -46,7 +46,7 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
     @Override
     public List<String> getClasses(final ImplementationTO implementation, final ViewMode viewMode) {
         List<String> classes = new ArrayList<>();
-        if (viewMode == ViewMode.JSON_BODY) {
+        if (viewMode == ViewMode.JSON_BODY && IdMImplementationType.values().containsKey(implementation.getType())) {
             switch (implementation.getType()) {
                 case IdMImplementationType.PULL_CORRELATION_RULE:
                     classes = lookup.getClasses(PullCorrelationRuleConf.class).stream().
