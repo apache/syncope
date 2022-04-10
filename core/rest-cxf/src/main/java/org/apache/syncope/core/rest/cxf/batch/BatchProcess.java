@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.transport.http.DestinationRegistry;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadGenerator;
@@ -93,7 +94,7 @@ public class BatchProcess implements Runnable {
         List<BatchResponseItem> batchResponseItems = new ArrayList<>(batchRequestItems.size());
 
         batchRequestItems.forEach(reqItem -> {
-            LOG.debug("Batch item:\n{}", reqItem);
+            LOG.debug("Batch Request item:\n{}", reqItem);
 
             AbstractHTTPDestination dest = destinationRegistry.getDestinationForPath(reqItem.getRequestURI(), true);
             if (dest == null) {
@@ -101,34 +102,33 @@ public class BatchProcess implements Runnable {
             }
             LOG.debug("Destination found for {}: {}", reqItem.getRequestURI(), dest);
 
+            BatchResponseItem resItem = new BatchResponseItem();
+            batchResponseItems.add(resItem);
             if (dest == null) {
-                BatchResponseItem resItem = new BatchResponseItem();
-                resItem.setStatus(404);
-                batchResponseItems.add(resItem);
+                resItem.setStatus(HttpServletResponse.SC_NOT_FOUND);
             } else {
                 BatchItemRequest request = new BatchItemRequest(basePath, servletRequest, reqItem);
                 BatchItemResponse response = new BatchItemResponse();
                 try {
                     dest.invoke(servletConfig, servletConfig.getServletContext(), request, response);
-                    LOG.debug("Returned:\nstatus: {}\nheaders: {}\nbody:\n{}", response.getStatus(),
-                            response.getHeaders(), new String(response.getUnderlyingOutputStream().toByteArray()));
 
-                    BatchResponseItem resItem = new BatchResponseItem();
                     resItem.setStatus(response.getStatus());
                     resItem.setHeaders(response.getHeaders());
                     String output = new String(response.getUnderlyingOutputStream().toByteArray());
                     if (output.length() > 0) {
                         resItem.setContent(output);
                     }
-                    batchResponseItems.add(resItem);
+
+                    LOG.debug("Returned:\nstatus: {}\nheaders: {}\nbody:\n{}",
+                            response.getStatus(), response.getHeaders(), output);
                 } catch (IOException e) {
                     LOG.error("Invocation of {} failed", dest.getPath(), e);
 
-                    BatchResponseItem resItem = new BatchResponseItem();
-                    resItem.setStatus(404);
-                    batchResponseItems.add(resItem);
+                    resItem.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
             }
+
+            LOG.debug("Batch Response item:\n{}", resItem);
         });
 
         String results = BatchPayloadGenerator.generate(batchResponseItems, JAXRSService.DOUBLE_DASH + boundary);

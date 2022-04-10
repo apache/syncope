@@ -29,6 +29,7 @@ import javax.persistence.EntityExistsException;
 import javax.persistence.PersistenceException;
 import javax.persistence.RollbackException;
 import javax.validation.ValidationException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -128,17 +129,18 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
                         header(RESTHeaders.ERROR_CODE, ClientExceptionType.RESTValidation.name()).
                         header(RESTHeaders.ERROR_INFO, ClientExceptionType.RESTValidation.getInfoHeaderValue(
                                 ExceptionUtils.getRootCauseMessage(ex)));
-
-                ErrorTO error = new ErrorTO();
-                error.setStatus(ClientExceptionType.RESTValidation.getResponseStatus().getStatusCode());
-                error.setType(ClientExceptionType.RESTValidation);
-                error.getElements().add(ExceptionUtils.getRootCauseMessage(ex));
-
-                builder.entity(error);
+            }
+            // process web application exceptions
+            if (builder == null && ex instanceof WebApplicationException) {
+                builder = builder(((WebApplicationException) ex).getResponse()).
+                        header(RESTHeaders.ERROR_CODE, ClientExceptionType.Unknown.name()).
+                        header(RESTHeaders.ERROR_INFO, ClientExceptionType.Unknown.getInfoHeaderValue(
+                                ExceptionUtils.getRootCauseMessage(ex)));
             }
             // ...or just report as InternalServerError
             if (builder == null) {
                 builder = Response.status(Response.Status.INTERNAL_SERVER_ERROR).
+                        header(RESTHeaders.ERROR_CODE, ClientExceptionType.Unknown.name()).
                         header(RESTHeaders.ERROR_INFO, ClientExceptionType.Unknown.getInfoHeaderValue(
                                 ExceptionUtils.getRootCauseMessage(ex)));
 
