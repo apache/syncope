@@ -51,4 +51,15 @@ public class BatchRequestItem extends BatchItem {
     public void setQueryString(final String queryString) {
         this.queryString = queryString;
     }
+
+    @Override
+    public String toString() {
+        return "BatchRequestItem{"
+                + "method=" + method + " ,"
+                + "requestURI=" + requestURI + " ,"
+                + "queryString=" + queryString + " ,"
+                + "headers=" + headers + ", "
+                + "content=" + content + " ,"
+                + '}';
+    }
 }

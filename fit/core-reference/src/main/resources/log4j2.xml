@@ -85,7 +85,7 @@ under the License.
       <appender-ref ref="persistence"/>
     </asyncLogger>
     
-    <asyncLogger name="org.apache.syncope.core.rest" additivity="false" level="INFO">
+    <asyncLogger name="org.apache.syncope.core.rest" additivity="false" level="DEBUG">
       <appender-ref ref="rest"/>
     </asyncLogger>
     <asyncLogger name="org.springframework.web" additivity="false" level="INFO">
@@ -94,7 +94,7 @@ under the License.
     <asyncLogger name="org.apache.http" additivity="false" level="INFO">
       <appender-ref ref="rest"/>
     </asyncLogger>
-    <asyncLogger name="org.apache.cxf" additivity="false" level="ERROR">
+    <asyncLogger name="org.apache.cxf" additivity="false" level="DEBUG">
       <appender-ref ref="rest"/>
     </asyncLogger>
     <asyncLogger name="org.apache.syncope.ext.self.keymaster" additivity="false" level="ERROR">
