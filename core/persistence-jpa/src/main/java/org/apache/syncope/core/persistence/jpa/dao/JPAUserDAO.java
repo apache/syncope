@@ -53,6 +53,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -553,7 +554,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     public Collection<Group> findAllGroups(final User user) {
         Set<Group> result = new HashSet<>();
         result.addAll(user.getMemberships().stream().
-                map(membership -> membership.getRightEnd()).collect(Collectors.toSet()));
+                map(Membership::getRightEnd).collect(Collectors.toSet()));
         result.addAll(findDynGroups(user.getKey()));
 
         return result;

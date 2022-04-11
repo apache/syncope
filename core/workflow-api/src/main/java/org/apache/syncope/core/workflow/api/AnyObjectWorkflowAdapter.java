@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
 
     /**
-     * Create a anyObject.
+     * Create an anyObject.
      *
      * @param anyObjectTO anyObject to be created and whether to propagate it as active
      * @return anyObject just created
@@ -36,7 +36,7 @@ public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
     WorkflowResult<String> create(AnyObjectTO anyObjectTO);
 
     /**
-     * Update a anyObject.
+     * Update an anyObject.
      *
      * @param anyObjectPatch modification set to be performed
      * @return anyObject just updated and propagations to be performed
@@ -44,7 +44,7 @@ public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
     WorkflowResult<AnyObjectPatch> update(AnyObjectPatch anyObjectPatch);
 
     /**
-     * Delete a anyObject.
+     * Delete an anyObject.
      *
      * @param anyObjectKey anyObject to be deleted
      */

@@ -61,7 +61,6 @@ import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -240,23 +239,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 }
             });
         }
-    }
-
-    private LinkedAccountTO getLinkedAccountTO(final LinkedAccount account, final boolean returnPasswordValue) {
-        LinkedAccountTO accountTO = new LinkedAccountTO.Builder(
-                account.getKey(), account.getResource().getKey(), account.getConnObjectKeyValue()).
-                username(account.getUsername()).
-                password(returnPasswordValue ? account.getPassword() : null).
-                suspended(BooleanUtils.isTrue(account.isSuspended())).
-                build();
-
-        account.getPlainAttrs().forEach(plainAttr -> accountTO.getPlainAttrs().add(new AttrTO.Builder().
-                schema(plainAttr.getSchema().getKey()).values(plainAttr.getValuesAsStrings()).build()));
-
-        accountTO.getPrivileges().addAll(account.getPrivileges().stream().
-                map(Privilege::getKey).collect(Collectors.toList()));
-
-        return accountTO;
     }
 
     @Override
@@ -712,6 +694,23 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         return Pair.of(propByRes, propByLinkedAccount);
     }
 
+    private LinkedAccountTO getLinkedAccountTO(final LinkedAccount account, final boolean returnPasswordValue) {
+        LinkedAccountTO accountTO = new LinkedAccountTO.Builder(
+                account.getKey(), account.getResource().getKey(), account.getConnObjectKeyValue()).
+                username(account.getUsername()).
+                password(returnPasswordValue ? account.getPassword() : null).
+                suspended(BooleanUtils.isTrue(account.isSuspended())).
+                build();
+
+        account.getPlainAttrs().forEach(plainAttr -> accountTO.getPlainAttrs().add(new AttrTO.Builder().
+                schema(plainAttr.getSchema().getKey()).values(plainAttr.getValuesAsStrings()).build()));
+
+        accountTO.getPrivileges().addAll(account.getPrivileges().stream().
+                map(Privilege::getKey).collect(Collectors.toList()));
+
+        return accountTO;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public LinkedAccountTO getLinkedAccountTO(final LinkedAccount account) {
@@ -777,29 +776,21 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     collect(Collectors.toList()));
 
             // memberships
-            userTO.getMemberships().addAll(
-                    user.getMemberships().stream().map(membership -> getMembershipTO(
-                    user.getPlainAttrs(membership),
+            userTO.getMemberships().addAll(user.getMemberships().stream().
+                    map(membership -> getMembershipTO(user.getPlainAttrs(membership),
                     derAttrHandler.getValues(user, membership),
                     virAttrHandler.getValues(user, membership),
                     membership)).collect(Collectors.toList()));
 
             // dynamic memberships
-            userTO.getDynMemberships().addAll(
-                    userDAO.findDynGroups(user.getKey()).stream().map(group -> new MembershipTO.Builder().
-                    group(group.getKey(), group.getName()).
-                    build()).collect(Collectors.toList()));
+            userTO.getDynMemberships().addAll(userDAO.findDynGroups(user.getKey()).stream().
+                    map(group -> new MembershipTO.Builder().group(group.getKey(), group.getName()).build()).
+                    collect(Collectors.toList()));
 
             // linked accounts
-            userTO.getLinkedAccounts().addAll(
-                    user.getLinkedAccounts().stream().map(a -> getLinkedAccountTO(a, returnPasswordValue))
-                            .collect(Collectors.toList()));
-
-            // delegations
-            userTO.getDelegatingDelegations().addAll(
-                    delegationDAO.findByDelegating(user).stream().map(Delegation::getKey).collect(Collectors.toList()));
-            userTO.getDelegatedDelegations().addAll(
-                    delegationDAO.findByDelegated(user).stream().map(Delegation::getKey).collect(Collectors.toList()));
+            userTO.getLinkedAccounts().addAll(user.getLinkedAccounts().stream().
+                    map(account -> getLinkedAccountTO(account, returnPasswordValue)).
+                    collect(Collectors.toList()));
         }
 
         return userTO;
