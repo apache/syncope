@@ -88,7 +88,7 @@ under the License.
     <from uri="direct:deleteUser"/>
     <doTry>
       <to uri="propagate:delete?anyTypeKind=USER"/>
-      <bean ref="uwfAdapter" method="delete(${body})"/>
+      <bean ref="uwfAdapter" method="delete(${body},${exchangeProperty.eraser},${exchangeProperty.context})"/>
       <setBody>
         <simple>${exchangeProperty.statuses}</simple>
       </setBody>

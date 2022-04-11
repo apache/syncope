@@ -188,10 +188,10 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         return doConfirmPasswordReset(userDAO.authFind(key), token, password, updater, context);
     }
 
-    protected abstract void doDelete(User user);
+    protected abstract void doDelete(User user, String eraser, String context);
 
     @Override
-    public void delete(final String userKey) {
-        doDelete(userDAO.authFind(userKey));
+    public void delete(final String userKey, final String eraser, final String context) {
+        doDelete(userDAO.authFind(userKey), eraser, context);
     }
 }

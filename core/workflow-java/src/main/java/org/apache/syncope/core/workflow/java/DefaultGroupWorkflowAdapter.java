@@ -66,7 +66,7 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     }
 
     @Override
-    protected void doDelete(final Group group) {
+    protected void doDelete(final Group group, final String eraser, final String context) {
         groupDAO.delete(group);
     }
 }

@@ -68,7 +68,7 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     }
 
     @Override
-    protected void doDelete(final AnyObject anyObject) {
+    protected void doDelete(final AnyObject anyObject, final String eraser, final String context) {
         anyObjectDAO.delete(anyObject);
     }
 }

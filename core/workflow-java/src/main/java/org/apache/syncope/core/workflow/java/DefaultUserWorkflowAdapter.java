@@ -179,7 +179,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doDelete(final User user) {
+    protected void doDelete(final User user, final String eraser, final String context) {
         userDAO.delete(user);
     }
 }

@@ -200,7 +200,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, eraser);
 
-        gwfAdapter.delete(key);
+        gwfAdapter.delete(key, eraser, context);
 
         return propagationReporter.getStatuses();
     }

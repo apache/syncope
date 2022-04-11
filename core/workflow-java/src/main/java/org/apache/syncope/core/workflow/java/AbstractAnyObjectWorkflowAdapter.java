@@ -92,10 +92,10 @@ public abstract class AbstractAnyObjectWorkflowAdapter
         return result;
     }
 
-    protected abstract void doDelete(AnyObject anyObject);
+    protected abstract void doDelete(AnyObject anyObject, String eraser, String context);
 
     @Override
-    public void delete(final String anyObjectKey) {
-        doDelete(anyObjectDAO.authFind(anyObjectKey));
+    public void delete(final String anyObjectKey, final String eraser, final String context) {
+        doDelete(anyObjectDAO.authFind(anyObjectKey), eraser, context);
     }
 }

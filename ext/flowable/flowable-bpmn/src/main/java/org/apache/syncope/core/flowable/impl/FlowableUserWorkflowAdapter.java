@@ -436,7 +436,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     }
 
     @Override
-    protected void doDelete(final User user) {
+    protected void doDelete(final User user, final String eraser, final String context) {
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
         doExecuteNextTask(procInstID, user, Map.of(FlowableRuntimeUtils.TASK, "delete"));
@@ -470,6 +470,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                     propByLinkedAccount);
 
             FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
+            metadata(user, eraser, context);
             userDAO.save(user);
 
             engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.TASK);

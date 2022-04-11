@@ -229,7 +229,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, eraser);
 
-        uwfAdapter.delete(key);
+        uwfAdapter.delete(key, eraser, context);
 
         return propagationReporter.getStatuses();
     }

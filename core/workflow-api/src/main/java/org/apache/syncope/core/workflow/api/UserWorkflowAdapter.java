@@ -128,6 +128,8 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * Delete an user.
      *
      * @param userKey user to be deleted
+     * @param eraser username that requested this operation
+     * @param context context information
      */
-    void delete(String userKey);
+    void delete(String userKey, String eraser, String context);
 }

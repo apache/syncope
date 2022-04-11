@@ -299,23 +299,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
     }
 
-    private LinkedAccountTO getLinkedAccountTO(final LinkedAccount account, final boolean returnPasswordValue) {
-        LinkedAccountTO accountTO = new LinkedAccountTO.Builder(
-                account.getKey(), account.getResource().getKey(), account.getConnObjectKeyValue()).
-                username(account.getUsername()).
-                password(returnPasswordValue ? account.getPassword() : null).
-                suspended(BooleanUtils.isTrue(account.isSuspended())).
-                build();
-
-        account.getPlainAttrs().forEach(plainAttr -> accountTO.getPlainAttrs().add(
-                new Attr.Builder(plainAttr.getSchema().getKey()).values(plainAttr.getValuesAsStrings()).build()));
-
-        accountTO.getPrivileges().addAll(account.getPrivileges().stream().
-                map(Privilege::getKey).collect(Collectors.toList()));
-
-        return accountTO;
-    }
-
     @Override
     public void create(final User user, final UserCR userCR) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
@@ -769,6 +752,23 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         return Pair.of(propByRes, propByLinkedAccount);
     }
 
+    private LinkedAccountTO getLinkedAccountTO(final LinkedAccount account, final boolean returnPasswordValue) {
+        LinkedAccountTO accountTO = new LinkedAccountTO.Builder(
+                account.getKey(), account.getResource().getKey(), account.getConnObjectKeyValue()).
+                username(account.getUsername()).
+                password(returnPasswordValue ? account.getPassword() : null).
+                suspended(BooleanUtils.isTrue(account.isSuspended())).
+                build();
+
+        account.getPlainAttrs().forEach(plainAttr -> accountTO.getPlainAttrs().add(
+                new Attr.Builder(plainAttr.getSchema().getKey()).values(plainAttr.getValuesAsStrings()).build()));
+
+        accountTO.getPrivileges().addAll(account.getPrivileges().stream().
+                map(Privilege::getKey).collect(Collectors.toList()));
+
+        return accountTO;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public LinkedAccountTO getLinkedAccountTO(final LinkedAccount account) {
@@ -842,23 +842,21 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     collect(Collectors.toList()));
 
             // memberships
-            userTO.getMemberships().addAll(
-                    user.getMemberships().stream().map(membership -> getMembershipTO(
-                    user.getPlainAttrs(membership),
+            userTO.getMemberships().addAll(user.getMemberships().stream().
+                    map(membership -> getMembershipTO(user.getPlainAttrs(membership),
                     derAttrHandler.getValues(user, membership),
                     virAttrHandler.getValues(user, membership),
                     membership)).collect(Collectors.toList()));
 
             // dynamic memberships
-            userTO.getDynMemberships().addAll(
-                    userDAO.findDynGroups(user.getKey()).stream().
-                            map(group -> new MembershipTO.Builder(group.getKey()).groupName(group.getName()).build()).
-                            collect(Collectors.toList()));
+            userTO.getDynMemberships().addAll(userDAO.findDynGroups(user.getKey()).stream().
+                    map(group -> new MembershipTO.Builder(group.getKey()).groupName(group.getName()).build()).
+                    collect(Collectors.toList()));
 
             // linked accounts
-            userTO.getLinkedAccounts().addAll(
-                    user.getLinkedAccounts().stream().map(a -> getLinkedAccountTO(a, returnPasswordValue))
-                            .collect(Collectors.toList()));
+            userTO.getLinkedAccounts().addAll(user.getLinkedAccounts().stream().
+                    map(account -> getLinkedAccountTO(account, returnPasswordValue)).
+                    collect(Collectors.toList()));
 
             // delegations
             userTO.getDelegatingDelegations().addAll(
