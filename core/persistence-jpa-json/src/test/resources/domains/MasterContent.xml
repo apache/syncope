@@ -1285,7 +1285,7 @@ $$ }&#10;
   <Notification id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" active="1" recipientAttrName="email" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset request" template_id="requestPasswordReset" 
                 traceLevel="FAILURES"/> 
-  <AnyAbout id="a328f2e6-25e9-4cc1-badf-7425d7be4b39" anyType_id="USER" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" filter="token!=$null"/>
+  <AnyAbout id="a328f2e6-25e9-4cc1-badf-7425d7be4b39" anyType_id="USER" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" anyType_filter="token!=$null"/>
   <Notification_events notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   <Task DTYPE="NotificationTask" id="e1e520f0-2cbd-4e11-9a89-ea58a0f957e7" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4"
         sender="admin@prova.org" subject="Notification for SYNCOPE-81" executed="0"
@@ -1301,7 +1301,7 @@ $$ }&#10;
                 traceLevel="FAILURES"
                 recipientsFIQL="$groups==7"
                 recipientAttrName="email" active="1"/>
-  <AnyAbout id="2e2ee845-2abf-43c6-b543-49243a84e2f1" anyType_id="USER" notification_id="9e2b911c-25de-4c77-bcea-b86ed9451050" filter="fullname==*o*;fullname==*i*"/>
+  <AnyAbout id="2e2ee845-2abf-43c6-b543-49243a84e2f1" anyType_id="USER" notification_id="9e2b911c-25de-4c77-bcea-b86ed9451050" anyType_filter="fullname==*o*;fullname==*i*"/>
   <Notification_events notification_id="9e2b911c-25de-4c77-bcea-b86ed9451050" event="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
   <Notification_events notification_id="9e2b911c-25de-4c77-bcea-b86ed9451050" event="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
 
