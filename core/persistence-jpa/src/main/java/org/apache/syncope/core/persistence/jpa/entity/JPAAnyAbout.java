@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -42,6 +43,7 @@ public class JPAAnyAbout extends AbstractGeneratedKeyEntity implements AnyAbout 
     @ManyToOne
     private JPAAnyType anyType;
 
+    @Column(name = "anyType_filter")
     @Lob
     private String filter;
 
@@ -76,5 +78,4 @@ public class JPAAnyAbout extends AbstractGeneratedKeyEntity implements AnyAbout 
     public void set(final String filter) {
         this.filter = filter;
     }
-
 }

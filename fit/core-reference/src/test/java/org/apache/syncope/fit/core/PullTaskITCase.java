@@ -49,7 +49,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
-import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
@@ -1048,8 +1047,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals(1, executed.getExecutions().size());
 
         // asser for just one match
-        assertTrue(executed.getExecutions().get(0).getMessage().contains("[updated/failures]: 1/0"),
-                () -> executed.getExecutions().get(0).getMessage().substring(0, 55) + "...");
+        assertTrue(executed.getExecutions().get(0).getMessage().contains("[updated/failures]: 1/0"));
     }
 
     @Test
