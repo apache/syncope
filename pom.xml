@@ -403,7 +403,7 @@ under the License.
     <connid.scimv11.version>1.0.1</connid.scimv11.version>
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
 
-    <cxf.version>3.5.1</cxf.version>
+    <cxf.version>3.5.2</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
     <nimbus-jose-jwt.version>9.21</nimbus-jose-jwt.version>
 
@@ -471,7 +471,7 @@ under the License.
     <wicket-bootstrap.version>5.0.6</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.1.6</wicket-spring-boot.version>
 
-    <antlr4.version>4.9.3</antlr4.version>
+    <antlr4.version>4.10</antlr4.version>
 
     <curator.version>5.2.0</curator.version>
     <zookeeper.version>3.8.0</zookeeper.version>
