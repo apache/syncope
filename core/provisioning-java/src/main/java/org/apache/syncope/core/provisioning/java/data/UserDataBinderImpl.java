@@ -61,6 +61,7 @@ import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -791,6 +792,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             userTO.getLinkedAccounts().addAll(user.getLinkedAccounts().stream().
                     map(account -> getLinkedAccountTO(account, returnPasswordValue)).
                     collect(Collectors.toList()));
+
+            // delegations
+            userTO.getDelegatingDelegations().addAll(
+                    delegationDAO.findByDelegating(user).stream().map(Delegation::getKey).collect(Collectors.toList()));
+            userTO.getDelegatedDelegations().addAll(
+                    delegationDAO.findByDelegated(user).stream().map(Delegation::getKey).collect(Collectors.toList()));
         }
 
         return userTO;
