@@ -134,7 +134,7 @@ public class DefaultPasswordRule implements PasswordRule {
             this.conf = (DefaultPasswordRuleConf) conf;
 
             Properties passay = new Properties();
-            try ( InputStream in = getClass().getResourceAsStream("/passay.properties")) {
+            try (InputStream in = getClass().getResourceAsStream("/passay.properties")) {
                 passay.load(in);
                 passwordValidator = new PasswordValidator(new PropertiesMessageResolver(passay), conf2Rules(this.conf));
             } catch (Exception e) {
