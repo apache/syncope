@@ -749,7 +749,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                         orgUnit.isIgnoreCaseMatch(),
                         MappingUtils.buildOperationOptions(
                                 MappingUtils.getPropagationItems(orgUnit.getItems().stream()),
-                                moreAttrsToGet.toArray(new String[0])));
+                                moreAttrsToGet.toArray(String[]::new)));
             } catch (TimeoutException toe) {
                 LOG.debug("Request timeout", toe);
                 throw toe;

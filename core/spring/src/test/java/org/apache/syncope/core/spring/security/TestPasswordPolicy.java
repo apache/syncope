@@ -29,6 +29,10 @@ public class TestPasswordPolicy implements PasswordPolicy {
 
     private final List<Implementation> rules = new ArrayList<>();
 
+    public TestPasswordPolicy(final Implementation rule) {
+        rules.add(rule);
+    }
+
     @Override
     public String getKey() {
         return "";
@@ -72,6 +76,5 @@ public class TestPasswordPolicy implements PasswordPolicy {
     @Override
     public List<? extends Implementation> getRules() {
         return this.rules;
-
     }
 }

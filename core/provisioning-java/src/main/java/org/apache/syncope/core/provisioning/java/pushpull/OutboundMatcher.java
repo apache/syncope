@@ -131,7 +131,7 @@ public class OutboundMatcher {
                         connector,
                         rule.get().getFilter(any, provision),
                         provision,
-                        Optional.of(moreAttrsToGet.toArray(new String[0])),
+                        Optional.of(moreAttrsToGet.toArray(String[]::new)),
                         Optional.empty()));
             } else {
                 MappingUtils.getConnObjectKeyItem(provision).flatMap(connObjectKeyItem -> matchByConnObjectKeyValue(
@@ -139,7 +139,7 @@ public class OutboundMatcher {
                         connObjectKeyItem,
                         connObjectKeyValue,
                         provision,
-                        Optional.of(moreAttrsToGet.toArray(new String[0])),
+                        Optional.of(moreAttrsToGet.toArray(String[]::new)),
                         Optional.empty())).ifPresent(result::add);
             }
         } catch (RuntimeException e) {

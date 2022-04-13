@@ -240,7 +240,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             Set<String> moreAttrsToGet = new HashSet<>();
             actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, orgUnit)));
             OperationOptions options = MappingUtils.buildOperationOptions(
-                    MappingUtils.getPullItems(orgUnit.getItems().stream()), moreAttrsToGet.toArray(new String[0]));
+                    MappingUtils.getPullItems(orgUnit.getItems().stream()), moreAttrsToGet.toArray(String[]::new));
 
             RealmPullResultHandler handler = buildRealmHandler();
             handler.setProfile(profile);
@@ -326,7 +326,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                         MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
                         virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
                 OperationOptions options = MappingUtils.buildOperationOptions(
-                        mapItems, moreAttrsToGet.toArray(new String[0]));
+                        mapItems, moreAttrsToGet.toArray(String[]::new));
 
                 switch (pullTask.getPullMode()) {
                     case INCREMENTAL:

@@ -40,7 +40,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -296,12 +295,7 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void testPasswordGenerator() {
-        String password = "";
-        try {
-            password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"));
-        } catch (InvalidPasswordRuleConf e) {
-            fail(e::getMessage);
-        }
+        String password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"));
         assertNotNull(password);
 
         User user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
@@ -312,12 +306,7 @@ public class UserTest extends AbstractTest {
     @Test
     public void passwordGeneratorFailing() {
         assertThrows(IllegalArgumentException.class, () -> {
-            String password = "";
-            try {
-                password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"));
-            } catch (InvalidPasswordRuleConf e) {
-                fail(e.getMessage());
-            }
+            String password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"));
             assertNotNull(password);
 
             User user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");

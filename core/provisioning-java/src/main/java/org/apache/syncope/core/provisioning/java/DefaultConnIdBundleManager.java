@@ -106,8 +106,8 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
                 + "\n\tFiles: {}", bundleFileURLs);
 
         // 2. Get connector info manager
-        ConnectorInfoManager manager = ConnectorInfoManagerFactory.getInstance().getLocalManager(
-                bundleFileURLs.toArray(new URL[bundleFileURLs.size()]));
+        ConnectorInfoManager manager =
+                ConnectorInfoManagerFactory.getInstance().getLocalManager(bundleFileURLs.toArray(URL[]::new));
         if (manager == null) {
             throw new NotFoundException("Local ConnectorInfoManager");
         }

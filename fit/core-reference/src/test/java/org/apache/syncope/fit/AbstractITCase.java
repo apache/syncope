@@ -779,7 +779,7 @@ public abstract class AbstractITCase {
             attributes.forEach((key, value) -> items.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
                     new BasicAttribute(key, value))));
 
-            ctx.modifyAttributes(objectDn, items.toArray(new ModificationItem[] {}));
+            ctx.modifyAttributes(objectDn, items.toArray(ModificationItem[]::new));
         } catch (Exception e) {
             LOG.error("While updating {} with {}", objectDn, attributes, e);
         } finally {

@@ -89,8 +89,8 @@ public class GroupSearchPanel extends AbstractSearchPanel {
             @Override
             protected Map<String, PlainSchemaTO> load() {
                 return SchemaRestClient.<PlainSchemaTO>getSchemas(
-                    SchemaType.PLAIN, null, AnyTypeRestClient.read(type).getClasses().toArray(new String[]{})).
-                    stream().collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
+                        SchemaType.PLAIN, null, AnyTypeRestClient.read(type).getClasses().toArray(String[]::new)).
+                        stream().collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
             }
         };
     }

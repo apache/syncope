@@ -548,7 +548,7 @@ public class Topology extends BasePage {
             }
         });
 
-        panel.add(behaviors.toArray(new Behavior[] {}));
+        panel.add(behaviors.toArray(Behavior[]::new));
 
         return panel;
     }

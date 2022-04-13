@@ -171,7 +171,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
         if (anyTypeClasses.isEmpty()) {
             allSchemas = new ArrayList<>();
         } else {
-            allSchemas = SchemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(new String[] {}));
+            allSchemas = SchemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(String[]::new));
         }
 
         scs.clear();

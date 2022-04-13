@@ -166,7 +166,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             add(new EventCategoryPanel(
                     "eventSelection",
                     AuditRestClient.listEvents(),
-                new PropertyModel<>(modelObject.getInnerObject(), "events")) {
+                    new PropertyModel<>(modelObject.getInnerObject(), "events")) {
 
                 private static final long serialVersionUID = 6429053774964787735L;
 
@@ -332,7 +332,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdRepoImplementationType.RECIPIENTS_PROVIDER).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 
@@ -389,8 +389,8 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             LOG.error("While reading all any types", e);
         }
 
-        String[] anyTypeClasses = Optional.ofNullable(type)
-                .map(anyTypeTO -> anyTypeTO.getClasses().toArray(new String[] {})).orElseGet(() -> new String[0]);
+        String[] anyTypeClasses = Optional.ofNullable(type).
+                map(anyTypeTO -> anyTypeTO.getClasses().toArray(String[]::new)).orElseGet(() -> new String[0]);
 
         List<String> result = new ArrayList<>();
         result.add(Constants.USERNAME_FIELD_NAME);
