@@ -117,7 +117,7 @@ public class Relationships extends WizardStep implements ICondition {
 
     private Fragment getViewFragment() {
         final Map<String, List<RelationshipTO>> relationships = new HashMap<>();
-        addRelationship(relationships, getCurrentRelationships().toArray(new RelationshipTO[] {}));
+        addRelationship(relationships, getCurrentRelationships().toArray(RelationshipTO[]::new));
 
         final Fragment viewFragment = new Fragment("relationships", "viewFragment", this);
         viewFragment.setOutputMarkupId(true);

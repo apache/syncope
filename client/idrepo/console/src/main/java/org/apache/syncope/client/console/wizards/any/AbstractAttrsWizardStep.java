@@ -131,7 +131,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
     protected void setSchemas(final List<String> anyTypeClasses, final Map<String, S> scs) {
         List<S> allSchemas = anyTypeClasses.isEmpty()
                 ? List.of()
-                : SchemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(new String[] {}));
+                : SchemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(String[]::new));
 
         scs.clear();
 

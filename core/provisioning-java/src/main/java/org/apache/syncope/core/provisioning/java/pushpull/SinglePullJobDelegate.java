@@ -157,7 +157,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                     provision.getObjectClass(),
                     reconFilterBuilder,
                     handler,
-                    MappingUtils.buildOperationOptions(mapItems, matg.toArray(new String[0])));
+                    MappingUtils.buildOperationOptions(mapItems, matg.toArray(String[]::new)));
 
             try {
                 setGroupOwners(ghandler);

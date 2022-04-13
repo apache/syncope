@@ -90,7 +90,6 @@ import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.identityconnectors.framework.common.FrameworkUtil;
@@ -517,11 +516,7 @@ public class DefaultMappingManager implements MappingManager {
         }
 
         if (passwordAttrValue == null && provision.getResource().isRandomPwdIfNotProvided()) {
-            try {
-                passwordAttrValue = passwordGenerator.generate(provision.getResource());
-            } catch (InvalidPasswordRuleConf e) {
-                LOG.error("Could not generate policy-compliant random password for {}", account, e);
-            }
+            passwordAttrValue = passwordGenerator.generate(provision.getResource());
         }
 
         return passwordAttrValue;

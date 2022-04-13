@@ -50,10 +50,8 @@ import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.MappingManager;
-import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
-import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.common.security.SecurityUtil;
@@ -201,15 +199,7 @@ public class ConnObjectUtils {
                     filter(resource -> resource != null && resource.getPasswordPolicy() != null).
                     forEach(resource -> passwordPolicies.add(resource.getPasswordPolicy()));
 
-            String password;
-            try {
-                password = passwordGenerator.generate(passwordPolicies);
-            } catch (InvalidPasswordRuleConf e) {
-                LOG.error("Could not generate policy-compliant random password for {}", userCR, e);
-
-                password = SecureRandomUtils.generateRandomPassword(16);
-            }
-            userCR.setPassword(password);
+            userCR.setPassword(passwordGenerator.generate(passwordPolicies));
         }
 
         return anyCR;

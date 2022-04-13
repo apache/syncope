@@ -62,7 +62,7 @@ public class SchemaRestClient extends BaseRestClient {
                         && anyTypeTO.getKind() != AnyTypeKind.GROUP)).
                         forEach((anyTypeTO) -> classes.addAll(anyTypeTO.getClasses()));
         }
-        return getSchemas(schemaType, null, classes.toArray(new String[] {}));
+        return getSchemas(schemaType, null, classes.toArray(String[]::new));
     }
 
     public static <T extends SchemaTO> List<T> getSchemas(

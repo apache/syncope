@@ -251,7 +251,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         status.setOnSyncope(getOnSyncope(any, connObjectKeyItem, provision));
 
         List<ConnectorObject> connObjs = outboundMatcher.match(connectorManager.getConnector(
-                provision.getResource()), any, provision, Optional.of(moreAttrsToGet.toArray(new String[] {})));
+                provision.getResource()), any, provision, Optional.of(moreAttrsToGet.toArray(String[]::new)));
         if (!connObjs.isEmpty()) {
             status.setOnResource(ConnObjectUtils.getConnObjectTO(
                     outboundMatcher.getFIQL(connObjs.get(0), provision), connObjs.get(0).getAttributes()));
@@ -274,7 +274,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         Stream<MappingItem> mapItems = Stream.concat(
                 provision.getMapping().getItems().stream(),
                 virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
-        OperationOptions options = MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(new String[0]));
+        OperationOptions options = MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new));
 
         SyncDeltaBuilder syncDeltaBuilder = new SyncDeltaBuilder().
                 setToken(new SyncToken("")).

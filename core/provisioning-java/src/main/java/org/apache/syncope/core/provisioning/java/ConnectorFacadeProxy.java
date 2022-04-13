@@ -483,7 +483,7 @@ public class ConnectorFacadeProxy implements Connector {
             } else if (File.class.equals(propertySchemaClass)) {
                 value = new File(values.get(0).toString());
             } else if (String[].class.equals(propertySchemaClass)) {
-                value = values.toArray(new String[] {});
+                value = values.toArray(String[]::new);
             } else {
                 value = values.get(0) == null ? null : values.get(0).toString();
             }

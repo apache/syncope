@@ -240,7 +240,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             connector.fullReconciliation(
                     provision.getObjectClass(),
                     handler,
-                    MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(new String[0])));
+                    MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new)));
 
             try {
                 setGroupOwners(ghandler);

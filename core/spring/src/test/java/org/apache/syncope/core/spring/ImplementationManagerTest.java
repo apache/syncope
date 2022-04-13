@@ -37,27 +37,12 @@ import java.util.stream.Collectors;
 @SpringJUnitConfig(classes = { SpringTestConfiguration.class })
 public class ImplementationManagerTest {
 
-    private static DefaultPasswordRuleConf createBaseDefaultPasswordRuleConf() {
+    public static DefaultPasswordRuleConf createBaseDefaultPasswordRuleConf() {
         DefaultPasswordRuleConf baseDefaultPasswordRuleConf = new DefaultPasswordRuleConf();
-        baseDefaultPasswordRuleConf.setAlphanumericRequired(false);
-        baseDefaultPasswordRuleConf.setDigitRequired(false);
-        baseDefaultPasswordRuleConf.setLowercaseRequired(false);
+        baseDefaultPasswordRuleConf.setUppercase(1);
+        baseDefaultPasswordRuleConf.setDigit(1);
         baseDefaultPasswordRuleConf.setMaxLength(1000);
         baseDefaultPasswordRuleConf.setMinLength(8);
-        baseDefaultPasswordRuleConf.setMustEndWithAlpha(false);
-        baseDefaultPasswordRuleConf.setMustEndWithDigit(false);
-        baseDefaultPasswordRuleConf.setMustEndWithNonAlpha(false);
-        baseDefaultPasswordRuleConf.setMustStartWithAlpha(false);
-        baseDefaultPasswordRuleConf.setMustStartWithDigit(false);
-        baseDefaultPasswordRuleConf.setMustStartWithNonAlpha(false);
-        baseDefaultPasswordRuleConf.setMustntEndWithAlpha(false);
-        baseDefaultPasswordRuleConf.setMustntEndWithDigit(false);
-        baseDefaultPasswordRuleConf.setMustntEndWithNonAlpha(false);
-        baseDefaultPasswordRuleConf.setMustntStartWithAlpha(false);
-        baseDefaultPasswordRuleConf.setMustntStartWithDigit(false);
-        baseDefaultPasswordRuleConf.setMustntStartWithNonAlpha(false);
-        baseDefaultPasswordRuleConf.setNonAlphanumericRequired(false);
-        baseDefaultPasswordRuleConf.setUppercaseRequired(false);
         return baseDefaultPasswordRuleConf;
     }
 

@@ -53,7 +53,7 @@ public class PersistenceTestContext {
         for (String location : System.getProperty("CORE_PROPERTIES").split(",")) {
             locations.add(resourceLoader.getResource(location));
         }
-        ppc.setLocations(locations.toArray(new Resource[0]));
+        ppc.setLocations(locations.toArray(Resource[]::new));
 
         return ppc;
     }

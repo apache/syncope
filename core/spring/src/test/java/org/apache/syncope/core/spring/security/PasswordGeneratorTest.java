@@ -20,18 +20,12 @@ package org.apache.syncope.core.spring.security;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
-import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.ImplementationManagerTest;
 import org.apache.syncope.core.spring.SpringTestConfiguration;
-import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
-import org.apache.syncope.core.spring.policy.PolicyPattern;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -40,148 +34,80 @@ public class PasswordGeneratorTest {
 
     private final DefaultPasswordGenerator passwordGenerator = new DefaultPasswordGenerator();
 
-    private static DefaultPasswordRuleConf createBaseDefaultPasswordRuleConf() {
-        DefaultPasswordRuleConf baseDefaultPasswordRuleConf = new DefaultPasswordRuleConf();
-        baseDefaultPasswordRuleConf.setAlphanumericRequired(false);
-        baseDefaultPasswordRuleConf.setDigitRequired(false);
-        baseDefaultPasswordRuleConf.setLowercaseRequired(false);
-        baseDefaultPasswordRuleConf.setMaxLength(1000);
-        baseDefaultPasswordRuleConf.setMinLength(8);
-        baseDefaultPasswordRuleConf.setMustEndWithAlpha(false);
-        baseDefaultPasswordRuleConf.setMustEndWithDigit(false);
-        baseDefaultPasswordRuleConf.setMustEndWithNonAlpha(false);
-        baseDefaultPasswordRuleConf.setMustStartWithAlpha(false);
-        baseDefaultPasswordRuleConf.setMustStartWithDigit(false);
-        baseDefaultPasswordRuleConf.setMustStartWithNonAlpha(false);
-        baseDefaultPasswordRuleConf.setMustntEndWithAlpha(false);
-        baseDefaultPasswordRuleConf.setMustntEndWithDigit(false);
-        baseDefaultPasswordRuleConf.setMustntEndWithNonAlpha(false);
-        baseDefaultPasswordRuleConf.setMustntStartWithAlpha(false);
-        baseDefaultPasswordRuleConf.setMustntStartWithDigit(false);
-        baseDefaultPasswordRuleConf.setMustntStartWithNonAlpha(false);
-        baseDefaultPasswordRuleConf.setNonAlphanumericRequired(false);
-        baseDefaultPasswordRuleConf.setUppercaseRequired(false);
-        return baseDefaultPasswordRuleConf;
+    @Test
+    public void digit() {
+        DefaultPasswordRuleConf pwdRuleConf = ImplementationManagerTest.createBaseDefaultPasswordRuleConf();
+        pwdRuleConf.setDigit(1);
+        TestImplementation passwordRule = new TestImplementation();
+        passwordRule.setBody(POJOHelper.serialize(pwdRuleConf));
+
+        String generatedPassword = passwordGenerator.generate(List.of(new TestPasswordPolicy(passwordRule)));
+
+        assertTrue(generatedPassword.chars().anyMatch(Character::isDigit));
     }
 
     @Test
-    public void startEndWithDigit() throws InvalidPasswordRuleConf {
-        DefaultPasswordRuleConf pwdRuleConf1 = createBaseDefaultPasswordRuleConf();
-        pwdRuleConf1.setMustStartWithDigit(true);
-        TestImplementation passwordRule1 = new TestImplementation();
-        passwordRule1.setBody(POJOHelper.serialize(pwdRuleConf1));
-        TestPasswordPolicy policy1 = new TestPasswordPolicy();
-        policy1.add(passwordRule1);
+    public void alphabetical() {
+        DefaultPasswordRuleConf pwdRuleConf = ImplementationManagerTest.createBaseDefaultPasswordRuleConf();
+        pwdRuleConf.setAlphabetical(1);
+        TestImplementation passwordRule = new TestImplementation();
+        passwordRule.setBody(POJOHelper.serialize(pwdRuleConf));
 
-        DefaultPasswordRuleConf pwdRuleConf2 = createBaseDefaultPasswordRuleConf();
-        pwdRuleConf2.setMustEndWithDigit(true);
-        TestImplementation passwordRule2 = new TestImplementation();
-        passwordRule2.setBody(POJOHelper.serialize(pwdRuleConf2));
-        TestPasswordPolicy policy2 = new TestPasswordPolicy();
-        policy2.add(passwordRule2);
+        String generatedPassword = passwordGenerator.generate(List.of(new TestPasswordPolicy(passwordRule)));
 
-        List<PasswordPolicy> policies = new ArrayList<>();
-        policies.add(policy1);
-        policies.add(policy2);
-        String generatedPassword = passwordGenerator.generate(policies);
-        assertTrue(Character.isDigit(generatedPassword.charAt(0)));
-        assertTrue(Character.isDigit(generatedPassword.charAt(generatedPassword.length() - 1)));
+        assertTrue(generatedPassword.chars().anyMatch(Character::isAlphabetic));
     }
 
     @Test
-    public void startWithDigitAndWithAlpha() throws InvalidPasswordRuleConf {
-        DefaultPasswordRuleConf pwdRuleConf1 = createBaseDefaultPasswordRuleConf();
-        pwdRuleConf1.setMustStartWithDigit(true);
-        TestImplementation passwordRule1 = new TestImplementation();
-        passwordRule1.setBody(POJOHelper.serialize(pwdRuleConf1));
-        TestPasswordPolicy policy1 = new TestPasswordPolicy();
-        policy1.add(passwordRule1);
+    public void lowercase() {
+        DefaultPasswordRuleConf pwdRuleConf = ImplementationManagerTest.createBaseDefaultPasswordRuleConf();
+        pwdRuleConf.setLowercase(1);
+        TestImplementation passwordRule = new TestImplementation();
+        passwordRule.setBody(POJOHelper.serialize(pwdRuleConf));
 
-        DefaultPasswordRuleConf pwdRuleConf2 = createBaseDefaultPasswordRuleConf();
-        pwdRuleConf2.setMustEndWithAlpha(true);
-        TestImplementation passwordRule2 = new TestImplementation();
-        passwordRule2.setBody(POJOHelper.serialize(pwdRuleConf2));
-        TestPasswordPolicy policy2 = new TestPasswordPolicy();
-        policy2.add(passwordRule2);
+        String generatedPassword = passwordGenerator.generate(List.of(new TestPasswordPolicy(passwordRule)));
 
-        List<PasswordPolicy> policies = new ArrayList<>();
-        policies.add(policy1);
-        policies.add(policy2);
-        String generatedPassword = passwordGenerator.generate(policies);
-        assertTrue(Character.isDigit(generatedPassword.charAt(0)));
-        assertTrue(Character.isLetter(generatedPassword.charAt(generatedPassword.length() - 1)));
+        assertTrue(generatedPassword.chars().anyMatch(Character::isLowerCase));
     }
 
     @Test
-    public void passwordWithNonAlpha() throws InvalidPasswordRuleConf {
-        DefaultPasswordRuleConf pwdRuleConf1 = createBaseDefaultPasswordRuleConf();
-        pwdRuleConf1.setNonAlphanumericRequired(true);
-        TestImplementation passwordRule1 = new TestImplementation();
-        passwordRule1.setBody(POJOHelper.serialize(pwdRuleConf1));
-        TestPasswordPolicy policy1 = new TestPasswordPolicy();
-        policy1.add(passwordRule1);
+    public void uppercase() {
+        DefaultPasswordRuleConf pwdRuleConf = ImplementationManagerTest.createBaseDefaultPasswordRuleConf();
+        pwdRuleConf.setUppercase(1);
+        TestImplementation passwordRule = new TestImplementation();
+        passwordRule.setBody(POJOHelper.serialize(pwdRuleConf));
 
-        DefaultPasswordRuleConf pwdRuleConf2 = createBaseDefaultPasswordRuleConf();
-        pwdRuleConf2.setMustEndWithAlpha(true);
-        TestImplementation passwordRule2 = new TestImplementation();
-        passwordRule2.setBody(POJOHelper.serialize(pwdRuleConf2));
-        TestPasswordPolicy policy2 = new TestPasswordPolicy();
-        policy2.add(passwordRule2);
+        String generatedPassword = passwordGenerator.generate(List.of(new TestPasswordPolicy(passwordRule)));
 
-        List<PasswordPolicy> policies = new ArrayList<>();
-        policies.add(policy1);
-        policies.add(policy2);
-        String generatedPassword = passwordGenerator.generate(policies);
-        assertTrue(PolicyPattern.NON_ALPHANUMERIC.matcher(generatedPassword).matches());
-        assertTrue(Character.isLetter(generatedPassword.charAt(generatedPassword.length() - 1)));
+        assertTrue(generatedPassword.chars().anyMatch(Character::isUpperCase));
     }
 
     @Test
-    public void incopatiblePolicies() {
-        assertThrows(InvalidPasswordRuleConf.class, () -> {
-            DefaultPasswordRuleConf pwdRuleConf1 = createBaseDefaultPasswordRuleConf();
-            pwdRuleConf1.setMinLength(12);
-            TestImplementation passwordRule1 = new TestImplementation();
-            passwordRule1.setBody(POJOHelper.serialize(pwdRuleConf1));
-            TestPasswordPolicy policy1 = new TestPasswordPolicy();
-            policy1.add(passwordRule1);
+    public void special() {
+        DefaultPasswordRuleConf pwdRuleConf = ImplementationManagerTest.createBaseDefaultPasswordRuleConf();
+        pwdRuleConf.setSpecial(1);
+        pwdRuleConf.getSpecialChars().add('@');
+        pwdRuleConf.getSpecialChars().add('!');
+        pwdRuleConf.getSpecialChars().add('%');
+        TestImplementation passwordRule = new TestImplementation();
+        passwordRule.setBody(POJOHelper.serialize(pwdRuleConf));
 
-            DefaultPasswordRuleConf pwdRuleConf2 = createBaseDefaultPasswordRuleConf();
-            pwdRuleConf2.setMaxLength(10);
-            TestImplementation passwordRule2 = new TestImplementation();
-            passwordRule2.setBody(POJOHelper.serialize(pwdRuleConf2));
-            TestPasswordPolicy policy2 = new TestPasswordPolicy();
-            policy2.add(passwordRule2);
+        String generatedPassword = passwordGenerator.generate(List.of(new TestPasswordPolicy(passwordRule)));
 
-            List<PasswordPolicy> policies = new ArrayList<>();
-            policies.add(policy1);
-            policies.add(policy2);
-            passwordGenerator.generate(policies);
-        });
+        assertTrue(generatedPassword.chars().anyMatch(c -> '@' == c || '!' == c || '%' == c));
     }
 
     @Test
     public void issueSYNCOPE678() {
-        String password = null;
-        try {
-            password = passwordGenerator.generate(Collections.<PasswordPolicy>emptyList());
-        } catch (InvalidPasswordRuleConf e) {
-            fail(e::getMessage);
-        }
+        String password = passwordGenerator.generate(List.of());
         assertNotNull(password);
 
-        DefaultPasswordRuleConf pwdRuleConf1 = createBaseDefaultPasswordRuleConf();
+        DefaultPasswordRuleConf pwdRuleConf1 = ImplementationManagerTest.createBaseDefaultPasswordRuleConf();
         pwdRuleConf1.setMinLength(0);
-        TestImplementation passwordRule1 = new TestImplementation();
-        passwordRule1.setBody(POJOHelper.serialize(pwdRuleConf1));
-        TestPasswordPolicy policy1 = new TestPasswordPolicy();
+        TestImplementation passwordRule = new TestImplementation();
+        passwordRule.setBody(POJOHelper.serialize(pwdRuleConf1));
 
-        password = null;
-        try {
-            password = passwordGenerator.generate(Collections.<PasswordPolicy>singletonList(policy1));
-        } catch (InvalidPasswordRuleConf e) {
-            fail(e::getMessage);
-        }
+        password = passwordGenerator.generate(List.of(new TestPasswordPolicy(passwordRule)));
         assertNotNull(password);
     }
 }

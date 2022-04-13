@@ -122,7 +122,7 @@ public class SecurityConfig {
                 registrationId(SRAProperties.AMType.OIDC.name()).
                 clientId(props.getOidc().getClientId()).
                 clientSecret(props.getOidc().getClientSecret()).
-                scope(props.getOidc().getScopes().toArray(new String[0])).
+                scope(props.getOidc().getScopes().toArray(String[]::new)).
                 build();
     }
 
@@ -177,7 +177,7 @@ public class SecurityConfig {
                 userNameAttributeName(props.getOauth2().getUserNameAttributeName()).
                 clientId(props.getOauth2().getClientId()).
                 clientSecret(props.getOauth2().getClientSecret()).
-                scope(props.getOauth2().getScopes().toArray(new String[0])).
+                scope(props.getOauth2().getScopes().toArray(String[]::new)).
                 authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE).
                 jwkSetUri(props.getOauth2().getJwkSetUri()).
                 build();

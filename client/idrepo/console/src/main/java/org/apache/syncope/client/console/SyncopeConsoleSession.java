@@ -338,7 +338,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     @Override
     public Roles getRoles() {
         if (isSignedIn() && roles == null && auth != null) {
-            roles = new Roles(auth.keySet().toArray(new String[] {}));
+            roles = new Roles(auth.keySet().toArray(String[]::new));
             roles.add(Constants.ROLE_AUTHENTICATED);
         }
 

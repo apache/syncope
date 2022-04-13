@@ -216,32 +216,25 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
 endif::[]
-) contains the following controls:
+) is based on https://www.passay.org/[Passay^] and contains the following controls:
 
-* maximum length - the maximum length to allow; `0` means no limit set;
-* minimum length - the minimum length to allow; `0` means no limit set;
-* non-alphanumeric required
-* alphanumeric required
-* digit required
-* lowercase required
-* uppercase required
-* must start with digit
-* must not start with digit
-* must end with digit
-* must not end with digit
-* must start with alphanumeric
-* must start with non-alphanumeric
-* must not start with alphanumeric
-* must not start with non-alphanumeric
-* must end with alphanumeric
-* must end with non-alphanumeric
-* must not end with alphanumeric
-* must not end with non-alphanumeric
-* username allowed - whether a username value can be used
+* maximum length - the maximum length to allow (`0` means no limit set);
+* minimum length - the minimum length to allow (`0` means no limit set);
+* alphabetical - the number of alphabetical characters required;
+* uppercase - the number of uppercase characters required;
+* lowercase - the number of lowercase characters required;
+* digit - the number of digits required;
+* special - the number of special characters required;
+* special chars - the set of special characters allowed;
+* illegal chars - the set of characters not allowed;
+* repeat same - the size of the longest sequence of repeating characters allowed;
+* username allowed - whether a username value can be used;
 * words not permitted - list of words that cannot be present, even as a substring;
 * schemas not permitted - list of <<schema,schemas>> whose values cannot be present, even as a substring;
-* prefixes not permitted - list of strings that cannot be present as a prefix;
-* suffixes not permitted - list of strings that cannot be present as a suffix.
+
+[TIP]
+The default password rule can be extended to cover specific needs, relying on the
+https://www.passay.org/reference/[whole set of features^] provided by Passay.
 
 [NOTE]
 Before being able to configure the default password rule as mentioned above, you will need to first create a `JAVA`

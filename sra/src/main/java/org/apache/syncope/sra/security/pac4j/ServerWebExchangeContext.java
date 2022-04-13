@@ -87,7 +87,7 @@ public class ServerWebExchangeContext implements WebContext {
                 forEach((key, value) -> params.put(key, new String[] { value.toString() }));
 
         if (this.form != null) {
-            form.forEach((key, values) -> params.put(key, values.toArray(new String[0])));
+            form.forEach((key, values) -> params.put(key, values.toArray(String[]::new)));
         }
 
         return params;
