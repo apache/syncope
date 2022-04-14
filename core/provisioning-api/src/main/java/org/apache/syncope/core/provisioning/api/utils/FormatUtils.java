@@ -132,7 +132,7 @@ public final class FormatUtils {
             dtpe = e;
         }
         try {
-            return LocalDate.parse(source, dtf).atStartOfDay(DEFAULT_OFFSET).toOffsetDateTime();
+            return LocalDate.parse(source, dtf).atStartOfDay(ZoneOffset.UTC).toOffsetDateTime();
         } catch (DateTimeParseException e) {
             dtpe = e;
         }
