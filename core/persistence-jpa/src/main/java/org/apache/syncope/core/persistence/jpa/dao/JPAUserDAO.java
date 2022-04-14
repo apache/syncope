@@ -274,23 +274,17 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     protected List<PasswordPolicy> getPasswordPolicies(final User user) {
         List<PasswordPolicy> policies = new ArrayList<>();
 
-        PasswordPolicy policy;
-
         // add resource policies
-        for (ExternalResource resource : findAllResources(user)) {
-            policy = resource.getPasswordPolicy();
-            if (policy != null) {
-                policies.add(policy);
-            }
-        }
+        findAllResources(user).
+                forEach(resource -> Optional.ofNullable(resource.getPasswordPolicy()).
+                filter(p -> !policies.contains(p)).
+                ifPresent(policies::add));
 
         // add realm policies
-        for (Realm realm : realmDAO.findAncestors(user.getRealm())) {
-            policy = realm.getPasswordPolicy();
-            if (policy != null) {
-                policies.add(policy);
-            }
-        }
+        realmDAO.findAncestors(user.getRealm()).
+                forEach(realm -> Optional.ofNullable(realm.getPasswordPolicy()).
+                filter(p -> !policies.contains(p)).
+                ifPresent(policies::add));
 
         return policies;
     }

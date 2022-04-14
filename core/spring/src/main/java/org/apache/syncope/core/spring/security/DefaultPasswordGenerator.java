@@ -93,6 +93,10 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
                 result.setMaxLength(ruleConf.getMaxLength());
             }
 
+            if (ruleConf.getAlphabetical() > result.getAlphabetical()) {
+                result.setAlphabetical(ruleConf.getAlphabetical());
+            }
+
             if (ruleConf.getUppercase() > result.getUppercase()) {
                 result.setUppercase(ruleConf.getUppercase());
             }
