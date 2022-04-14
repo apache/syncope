@@ -196,7 +196,6 @@ public class UserTest extends AbstractTest {
         } catch (InvalidEntityException e) {
             assertNotNull(e);
         }
-        entityManager().flush();
     }
 
     @Test

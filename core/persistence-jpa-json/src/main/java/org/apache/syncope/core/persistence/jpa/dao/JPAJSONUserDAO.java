@@ -112,6 +112,7 @@ public class JPAJSONUserDAO extends JPAUserDAO {
         String clearPwd = user.getClearPassword();
 
         // 2. save
+        entityManager().flush();
         User merged = entityManager().merge(user);
 
         // 3. set back the sole clear password value

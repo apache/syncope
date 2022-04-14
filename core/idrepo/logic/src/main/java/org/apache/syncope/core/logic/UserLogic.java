@@ -332,9 +332,16 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "')")
     public ProvisioningResult<UserTO> mustChangePassword(final String password, final boolean nullPriorityAsync) {
-        UserUR userUR = new UserUR();
-        userUR.setPassword(new PasswordPatch.Builder().value(password).build());
-        userUR.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(false).build());
+        UserTO userTO = binder.getAuthenticatedUserTO();
+
+        UserUR userUR = new UserUR.Builder(userTO.getKey()).
+                password(new PasswordPatch.Builder().
+                        value(password).
+                        onSyncope(true).
+                        resources(userDAO.findAllResourceKeys(userTO.getKey())).
+                        build()).
+                mustChangePassword(new BooleanReplacePatchItem.Builder().value(false).build()).
+                build();
         return selfUpdate(userUR, nullPriorityAsync);
     }
 
@@ -351,9 +358,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         }
 
         if (syncopeLogic.isPwdResetRequiringSecurityQuestions()
-                && (securityAnswer == null
-                || !Encryptor.getInstance().verify(securityAnswer, user.getCipherAlgorithm(),
-                user.getSecurityAnswer()))) {
+                && (securityAnswer == null || !Encryptor.getInstance().
+                        verify(securityAnswer, user.getCipherAlgorithm(), user.getSecurityAnswer()))) {
 
             throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
         }
@@ -443,11 +449,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     public UserTO unlink(final String key, final Collection<String> resources) {
         updateChecks(key);
 
-        UserUR req = new UserUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                collect(Collectors.toList()));
+        UserUR req = new UserUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
+                        collect(Collectors.toList())).
+                build();
 
         return binder.getUserTO(provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
@@ -457,11 +463,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     public UserTO link(final String key, final Collection<String> resources) {
         updateChecks(key);
 
-        UserUR req = new UserUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                collect(Collectors.toList()));
+        UserUR req = new UserUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
+                        collect(Collectors.toList())).
+                build();
 
         return binder.getUserTO(provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
@@ -473,11 +479,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         updateChecks(key);
 
-        UserUR req = new UserUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                collect(Collectors.toList()));
+        UserUR req = new UserUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
+                        collect(Collectors.toList())).
+                build();
 
         return update(req, nullPriorityAsync);
     }
@@ -493,11 +499,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         updateChecks(key);
 
-        UserUR req = new UserUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                collect(Collectors.toList()));
+        UserUR req = new UserUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
+                        collect(Collectors.toList())).
+                build();
 
         if (changepwd) {
             req.setPassword(new PasswordPatch.Builder().

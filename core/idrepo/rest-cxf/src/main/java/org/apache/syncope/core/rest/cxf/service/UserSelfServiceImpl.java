@@ -120,5 +120,4 @@ public class UserSelfServiceImpl extends AbstractService implements UserSelfServ
 
         logic.confirmPasswordReset(token, password);
     }
-
 }
