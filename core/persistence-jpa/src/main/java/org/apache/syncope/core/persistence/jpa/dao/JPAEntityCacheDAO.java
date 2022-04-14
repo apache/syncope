@@ -128,6 +128,7 @@ public class JPAEntityCacheDAO extends AbstractDAO<Entity> implements EntityCach
         queryStatistics().reset();
     }
 
+    @Override
     public void evict(final Class<? extends Entity> entityClass, final String key) {
         OpenJPAEntityManagerFactory emf = OpenJPAPersistence.cast(entityManagerFactory());
 
