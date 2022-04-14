@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -54,6 +55,7 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.LogicActions;
@@ -212,10 +214,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         List<String> authStatuses = List.of(confParamOps.get(AuthContextUtils.getDomain(),
                 "authentication.statuses", new String[] {}, String[].class));
         if (!authStatuses.contains(updated.getEntity().getStatus())) {
-            String accessToken = accessTokenDAO.findByOwner(updated.getEntity().getUsername()).getKey();
-            if (accessToken != null) {
-                accessTokenDAO.delete(accessToken);
-            }
+            Optional.ofNullable(accessTokenDAO.findByOwner(updated.getEntity().getUsername())).
+                    map(AccessToken::getKey).ifPresent(accessTokenDAO::delete);
         }
 
         return updated;
@@ -342,7 +342,12 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                         build()).
                 mustChangePassword(new BooleanReplacePatchItem.Builder().value(false).build()).
                 build();
-        return selfUpdate(userUR, nullPriorityAsync);
+        ProvisioningResult<UserTO> result = selfUpdate(userUR, nullPriorityAsync);
+
+        Optional.ofNullable(accessTokenDAO.findByOwner(result.getEntity().getUsername())).
+                map(AccessToken::getKey).ifPresent(accessTokenDAO::delete);
+
+        return result;
     }
 
     @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
