@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.pages;
 
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.EnduserConstants;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
@@ -40,25 +41,26 @@ public class MustChangePassword extends AbstractChangePassword {
 
     @Override
     protected void doPwdSubmit(final AjaxRequestTarget target, final AjaxPasswordFieldPanel passwordField) {
-        PageParameters parameters = new PageParameters();
         try {
-            UserSelfRestClient.changePassword(passwordField.getModelObject());
+            UserSelfRestClient.mustChangePassword(passwordField.getModelObject());
 
-            SyncopeEnduserSession.get().invalidate();
-            parameters.add(EnduserConstants.STATUS, Constants.OPERATION_SUCCEEDED);
-            parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.pwd.change.success"));
-            parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.change.success"));
             SyncopeEnduserSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeEnduserSession.get().invalidate();
+
+            PageParameters parameters = new PageParameters();
+            parameters.add(EnduserConstants.STATUS, Constants.OPERATION_SUCCEEDED);
+            parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.pwd.change.success.msg"));
+            parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.change.success"));
+            parameters.add(
+                    EnduserConstants.LANDING_PAGE,
+                    SyncopeWebApplication.get().getPageClass("profile", Dashboard.class).getName());
+            setResponsePage(getApplication().getHomePage(), parameters);
         } catch (Exception e) {
             LOG.error("While changing password for {}",
                     SyncopeEnduserSession.get().getSelfTO().getUsername(), e);
-            parameters.add(EnduserConstants.STATUS, Constants.OPERATION_ERROR);
-            parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.pwd.change.error"));
-            parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.change.error.msg"));
             SyncopeEnduserSession.get().onException(e);
+            notificationPanel.refresh(target);
         }
-        notificationPanel.refresh(target);
-        setResponsePage(SelfResult.class, parameters);
     }
 
     @Override
@@ -69,7 +71,6 @@ public class MustChangePassword extends AbstractChangePassword {
     @Override
     protected void doPwdCancel() {
         SyncopeEnduserSession.get().invalidate();
-        final PageParameters parameters = new PageParameters();
-        setResponsePage(getApplication().getHomePage(), parameters);
+        setResponsePage(getApplication().getHomePage(), new PageParameters());
     }
 }

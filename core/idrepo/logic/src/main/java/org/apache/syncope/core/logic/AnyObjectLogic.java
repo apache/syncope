@@ -232,11 +232,11 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
     public AnyObjectTO unlink(final String key, final Collection<String> resources) {
         updateChecks(key);
 
-        AnyObjectUR req = new AnyObjectUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                collect(Collectors.toList()));
+        AnyObjectUR req = new AnyObjectUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
+                        collect(Collectors.toList())).
+                build();
 
         return binder.getAnyObjectTO(provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
@@ -245,11 +245,11 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
     public AnyObjectTO link(final String key, final Collection<String> resources) {
         updateChecks(key);
 
-        AnyObjectUR req = new AnyObjectUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                collect(Collectors.toList()));
+        AnyObjectUR req = new AnyObjectUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
+                        collect(Collectors.toList())).
+                build();
 
         return binder.getAnyObjectTO(provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
@@ -260,11 +260,11 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
 
         updateChecks(key);
 
-        AnyObjectUR req = new AnyObjectUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                collect(Collectors.toList()));
+        AnyObjectUR req = new AnyObjectUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
+                        collect(Collectors.toList())).
+                build();
 
         return update(req, nullPriorityAsync);
     }
@@ -279,12 +279,11 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
 
         updateChecks(key);
 
-        AnyObjectUR req = new AnyObjectUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                collect(Collectors.toList()));
-
+        AnyObjectUR req = new AnyObjectUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
+                        collect(Collectors.toList())).
+                build();
         return update(req, nullPriorityAsync);
     }
 

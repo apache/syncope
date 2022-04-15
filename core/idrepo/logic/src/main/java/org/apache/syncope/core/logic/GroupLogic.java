@@ -291,13 +291,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     public GroupTO unlink(final String key, final Collection<String> resources) {
         GroupTO groupTO = updateChecks(key);
 
-        GroupUR req = new GroupUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                collect(Collectors.toList()));
-        req.setUDynMembershipCond(groupTO.getUDynMembershipCond());
-        req.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
+        GroupUR req = new GroupUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
+                        collect(Collectors.toList())).
+                udynMembershipCond(groupTO.getUDynMembershipCond()).
+                adynMembershipConds(groupTO.getADynMembershipConds()).
+                build();
 
         return binder.getGroupTO(provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
@@ -307,13 +307,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     public GroupTO link(final String key, final Collection<String> resources) {
         GroupTO groupTO = updateChecks(key);
 
-        GroupUR req = new GroupUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                collect(Collectors.toList()));
-        req.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
-        req.setUDynMembershipCond(groupTO.getUDynMembershipCond());
+        GroupUR req = new GroupUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
+                        collect(Collectors.toList())).
+                udynMembershipCond(groupTO.getUDynMembershipCond()).
+                adynMembershipConds(groupTO.getADynMembershipConds()).
+                build();
 
         return binder.getGroupTO(provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
@@ -325,13 +325,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
         GroupTO groupTO = updateChecks(key);
 
-        GroupUR req = new GroupUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                collect(Collectors.toList()));
-        req.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
-        req.setUDynMembershipCond(groupTO.getUDynMembershipCond());
+        GroupUR req = new GroupUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
+                        collect(Collectors.toList())).
+                udynMembershipCond(groupTO.getUDynMembershipCond()).
+                adynMembershipConds(groupTO.getADynMembershipConds()).
+                build();
 
         return update(req, nullPriorityAsync);
     }
@@ -347,13 +347,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
         GroupTO groupTO = updateChecks(key);
 
-        GroupUR req = new GroupUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                collect(Collectors.toList()));
-        req.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
-        req.setUDynMembershipCond(groupTO.getUDynMembershipCond());
+        GroupUR req = new GroupUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
+                        collect(Collectors.toList())).
+                udynMembershipCond(groupTO.getUDynMembershipCond()).
+                adynMembershipConds(groupTO.getADynMembershipConds()).
+                build();
 
         return update(req, nullPriorityAsync);
     }

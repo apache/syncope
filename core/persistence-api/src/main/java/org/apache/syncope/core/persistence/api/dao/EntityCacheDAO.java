@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Map;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 
 public interface EntityCacheDAO {
 
@@ -29,6 +30,8 @@ public interface EntityCacheDAO {
     void disableStatistics();
 
     void resetStatistics();
+
+    void evict(Class<? extends Entity> entityClass, String key);
 
     void clearCache();
 }
