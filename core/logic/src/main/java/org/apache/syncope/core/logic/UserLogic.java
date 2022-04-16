@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -52,6 +53,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.LogicActions;
@@ -204,10 +206,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         // Ensures that, if the self update above moves the user into a status from which no authentication
         // is possible, the existing Access Token is clean up to avoid issues with future authentications
         if (!confDAO.getValuesAsStrings("authentication.statuses").contains(updated.getEntity().getStatus())) {
-            String accessToken = accessTokenDAO.findByOwner(updated.getEntity().getUsername()).getKey();
-            if (accessToken != null) {
-                accessTokenDAO.delete(accessToken);
-            }
+            Optional.ofNullable(accessTokenDAO.findByOwner(updated.getEntity().getUsername())).
+                    map(AccessToken::getKey).ifPresent(accessTokenDAO::delete);
         }
 
         return updated;
@@ -315,10 +315,21 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "')")
     public ProvisioningResult<UserTO> mustChangePassword(final String password, final boolean nullPriorityAsync) {
+        UserTO userTO = binder.getAuthenticatedUserTO();
+
         UserPatch userPatch = new UserPatch();
-        userPatch.setPassword(new PasswordPatch.Builder().value(password).build());
+        userPatch.setPassword(new PasswordPatch.Builder().
+                value(password).
+                onSyncope(true).
+                resources(userDAO.findAllResourceKeys(userTO.getKey())).
+                build());
         userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(false).build());
-        return selfUpdate(userPatch, nullPriorityAsync);
+        ProvisioningResult<UserTO> result = selfUpdate(userPatch, nullPriorityAsync);
+
+        Optional.ofNullable(accessTokenDAO.findByOwner(result.getEntity().getUsername())).
+                map(AccessToken::getKey).ifPresent(accessTokenDAO::delete);
+
+        return result;
     }
 
     @PreAuthorize("isAnonymous() or hasRole('" + StandardEntitlement.ANONYMOUS + "')")
@@ -334,9 +345,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         }
 
         if (syncopeLogic.isPwdResetRequiringSecurityQuestions()
-                && (securityAnswer == null
-                || !Encryptor.getInstance().verify(securityAnswer, user.getCipherAlgorithm(),
-                user.getSecurityAnswer()))) {
+                && (securityAnswer == null || !Encryptor.getInstance().
+                        verify(securityAnswer, user.getCipherAlgorithm(), user.getSecurityAnswer()))) {
+
             throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
         }
 
