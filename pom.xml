@@ -451,7 +451,7 @@ under the License.
     <h2.version>1.4.200</h2.version>
 
     <junit.version>5.8.2</junit.version>
-    <mockito.version>4.5.0</mockito.version>
+    <mockito.version>4.5.1</mockito.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -2028,7 +2028,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-antrun-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.1.0</version>
         </plugin>
         
         <plugin>
