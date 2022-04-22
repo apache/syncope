@@ -428,7 +428,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.1.2</elasticsearch.version>
+    <elasticsearch.version>8.1.3</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -501,7 +501,7 @@ under the License.
 
     <tomcat.version>9.0.62</tomcat.version>
     <wildfly.version>25.0.1.Final</wildfly.version>
-    <payara.version>5.2022.1</payara.version>
+    <payara.version>5.2022.2</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
     <docker.postgresql.version>14</docker.postgresql.version>
@@ -2034,7 +2034,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.3.2</version>
+          <version>3.4.0</version>
           <configuration>
             <source>${targetJdk}</source>
           </configuration>
@@ -2546,7 +2546,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.3.2</version>
+        <version>3.4.0</version>
         <configuration>
           <source>${targetJdk}</source>
           <destDir>apidocs/3.0</destDir>
@@ -2777,7 +2777,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>3.11.0</version>
+            <version>3.12.0</version>
             <configuration>
               <locales>en</locales>
               <generateProjectInfo>false</generateProjectInfo>
