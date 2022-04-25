@@ -405,7 +405,7 @@ under the License.
 
     <cxf.version>3.5.2</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.21</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.22</nimbus-jose-jwt.version>
 
     <jackson.version>2.13.2</jackson.version>
 
@@ -420,7 +420,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>4.0.1</groovy.version>
+    <groovy.version>4.0.2</groovy.version>
 
     <flowable.version>6.7.2</flowable.version>
 
@@ -2165,7 +2165,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.9.10</version>
+          <version>1.9.11</version>
           <configuration>
             <configuration>
               <type>standalone</type>
