@@ -394,16 +394,17 @@ under the License.
     <syncope.version>${project.version}</syncope.version>
 
     <connid.version>1.5.1.0</connid.version>
-    <connid.soap.version>1.4.3</connid.soap.version>
+    <connid.soap.version>1.4.5</connid.soap.version>
     <connid.rest.version>1.0.5</connid.rest.version>
     <connid.database.version>2.2.7</connid.database.version>
     <connid.csvdir.version>0.8.8</connid.csvdir.version>
     <connid.ldap.version>1.5.4</connid.ldap.version>
     <connid.ad.version>1.3.6</connid.ad.version>
-    <connid.googleapps.version>1.4.2</connid.googleapps.version>
+    <connid.googleapps.version>1.4.3</connid.googleapps.version>
     <connid.azure.version>1.0.1</connid.azure.version>
     <connid.scimv11.version>1.0.1</connid.scimv11.version>
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
+    <connid.okta.version>2.1.0</connid.okta.version>
 
     <cxf.version>3.3.13</cxf.version>
 
@@ -1940,12 +1941,12 @@ under the License.
           <version>3.3.0</version>
           <configuration>
             <outputDirectory>${bundles.directory}</outputDirectory>
-            <useBaseVersion>true</useBaseVersion>
             <artifactItems>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles.soap</groupId>
                 <artifactId>net.tirasa.connid.bundles.soap</artifactId>
                 <version>${connid.soap.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
@@ -1981,6 +1982,7 @@ under the License.
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.googleapps</artifactId>
                 <version>${connid.googleapps.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
@@ -1996,6 +1998,12 @@ under the License.
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.servicenow</artifactId>
                 <version>${connid.servicenow.version}</version>
+              </artifactItem>
+              <artifactItem>
+                <groupId>net.tirasa.connid.bundles.okta</groupId>
+                <artifactId>net.tirasa.connid.bundles.okta</artifactId>
+                <version>${connid.okta.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
             </artifactItems>
           </configuration>

@@ -261,19 +261,22 @@ under the License.
             <phase>prepare-package</phase>
             <configuration>
               <target>
-                <unzip src="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}.jar" dest="${bundles.directory}/soap">
+                <unzip src="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}-bundle.jar"
+                       dest="${bundles.directory}/soap">
                   <patternset>
-                    <include name="META-INF/*" />
-                    <include name="net/**" />
-                    <include name="lib/soap-utilities-${connid.soap.version}.jar" />
+                    <include name="META-INF/*"/>
+                    <include name="net/**"/>
+                    <include name="lib/soap-utilities-${connid.soap.version}.jar"/>
                   </patternset>
                 </unzip>
 
-                <delete file="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}.jar" />
+                <delete file="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}-bundle.jar"/>
 
-                <jar destfile="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}.jar" basedir="${bundles.directory}/soap" filesetmanifest="merge" />                  
+                <jar destfile="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}-bundle.jar"
+                     basedir="${bundles.directory}/soap"
+                     filesetmanifest="merge"/>
 
-                <delete dir="${bundles.directory}/soap" />
+                <delete dir="${bundles.directory}/soap"/>
               </target>
             </configuration>
             <goals>
