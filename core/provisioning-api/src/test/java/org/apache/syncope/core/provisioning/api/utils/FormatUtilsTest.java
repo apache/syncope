@@ -26,6 +26,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -87,7 +88,7 @@ public class FormatUtilsTest extends AbstractTest {
         source = DATE.format(DateTimeFormatter.ofPattern(conversionPattern));
         assertEquals(
                 LocalDate.parse(source, DateTimeFormatter.ofPattern(conversionPattern)).
-                        atStartOfDay(FormatUtils.DEFAULT_OFFSET).toOffsetDateTime(),
+                        atStartOfDay(ZoneOffset.UTC).toOffsetDateTime(),
                 FormatUtils.parseDate(source, conversionPattern));
     }
 
