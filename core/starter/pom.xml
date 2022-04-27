@@ -74,6 +74,12 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>swagger-ui</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -105,25 +111,21 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <inherited>true</inherited>
+        <configuration>
+          <outputDirectory>${project.build.directory}/swagger-ui</outputDirectory>
+          <includeGroupIds>org.webjars</includeGroupIds>
+          <includeArtifactIds>swagger-ui</includeArtifactIds>
+          <overWrite>true</overWrite>
+          <includes>**</includes>
+          <excludes>**/*.gz</excludes>
+          <scope>provided</scope>
+        </configuration>
         <executions>
           <execution>
             <phase>generate-resources</phase>
             <goals>
-              <goal>unpack</goal>
+              <goal>unpack-dependencies</goal>
             </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.webjars</groupId>
-                  <artifactId>swagger-ui</artifactId>
-                  <version>${swagger-ui.version}</version>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}/swagger-ui</outputDirectory>
-                  <excludes>**/*.gz</excludes>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
           </execution>
         </executions>
       </plugin>

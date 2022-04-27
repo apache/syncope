@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,7 +92,6 @@ import org.apache.syncope.common.rest.api.beans.ExecListQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.fit.core.reference.DateToDateItemTransformer;
 import org.apache.syncope.fit.core.reference.DateToLongItemTransformer;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -531,7 +531,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             }
 
             OffsetDateTime loginDate = LocalDate.parse(user.getPlainAttr("loginDate").get().getValues().get(0)).
-                    atStartOfDay(FormatUtils.DEFAULT_OFFSET).toOffsetDateTime();
+                    atStartOfDay(ZoneOffset.UTC).toOffsetDateTime();
 
             Attribute employeeNumber = AttributeUtil.find("employeeNumber", propagationAttrs);
             assertNotNull(employeeNumber);
