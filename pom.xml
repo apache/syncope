@@ -403,6 +403,7 @@ under the License.
     <connid.scimv11.version>1.0.1</connid.scimv11.version>
     <connid.servicenow.version>1.0.0</connid.servicenow.version>
     <connid.okta.version>2.1.0</connid.okta.version>
+    <connid.cmd.version>0.5</connid.cmd.version>
 
     <cxf.version>3.5.2</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
@@ -2115,6 +2116,12 @@ under the License.
                 <groupId>net.tirasa.connid.bundles.okta</groupId>
                 <artifactId>net.tirasa.connid.bundles.okta</artifactId>
                 <version>${connid.okta.version}</version>
+                <classifier>bundle</classifier>
+              </artifactItem>
+              <artifactItem>
+                <groupId>net.tirasa.connid.bundles</groupId>
+                <artifactId>net.tirasa.connid.bundles.cmd</artifactId>
+                <version>${connid.cmd.version}</version>
                 <classifier>bundle</classifier>
               </artifactItem>
             </artifactItems>
