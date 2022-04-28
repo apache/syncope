@@ -34,5 +34,6 @@ public interface SyncopeSinglePullExecutor {
             Connector connector,
             ReconFilterBuilder reconFilterBuilder,
             Set<String> moreAttrsToGet,
-            PullTaskTO pullTaskTO) throws JobExecutionException;
+            PullTaskTO pullTaskTO,
+            String executor) throws JobExecutionException;
 }

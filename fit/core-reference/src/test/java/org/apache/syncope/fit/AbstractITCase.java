@@ -385,7 +385,7 @@ public abstract class AbstractITCase {
 
     @BeforeAll
     public static void securitySetup() {
-        try ( InputStream propStream = AbstractITCase.class.getResourceAsStream("/core.properties")) {
+        try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/core.properties")) {
             Properties props = new Properties();
             props.load(propStream);
 

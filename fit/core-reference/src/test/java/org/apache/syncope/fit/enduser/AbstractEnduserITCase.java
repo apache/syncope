@@ -144,7 +144,7 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
         ctx.register(SyncopeWebApplication.class);
 
         String springActiveProfiles = null;
-        try ( InputStream propStream = AbstractConsoleITCase.class.getResourceAsStream("/test.properties")) {
+        try (InputStream propStream = AbstractConsoleITCase.class.getResourceAsStream("/test.properties")) {
             Properties props = new Properties();
             props.load(propStream);
 

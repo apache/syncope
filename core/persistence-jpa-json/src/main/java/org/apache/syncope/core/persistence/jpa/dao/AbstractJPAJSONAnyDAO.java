@@ -335,11 +335,11 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
             }
         }
 
-        // update sysInfo - as org.apache.syncope.core.persistence.jpa.entity.PlainAttrListener is not invoked
+        // update sysInfo
         OffsetDateTime now = OffsetDateTime.now();
-        String username = AuthContextUtils.getUsername();
-        LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, username, any);
-        any.setLastModifier(username);
+        String who = AuthContextUtils.getWho();
+        LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, who, any);
+        any.setLastModifier(who);
         any.setLastChangeDate(now);
     }
 }

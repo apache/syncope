@@ -145,7 +145,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
             throws IOException, InterruptedException, TimeoutException {
 
         Properties props = new Properties();
-        try ( InputStream propStream = AbstractSRAITCase.class.getResourceAsStream("/test.properties")) {
+        try (InputStream propStream = AbstractSRAITCase.class.getResourceAsStream("/test.properties")) {
             props.load(propStream);
         } catch (Exception e) {
             fail("Could not load /test.properties", e);
@@ -190,7 +190,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
 
         await().atMost(120, TimeUnit.SECONDS).pollInterval(3, TimeUnit.SECONDS).until(() -> {
             boolean connected = false;
-            try ( Socket socket = new Socket()) {
+            try (Socket socket = new Socket()) {
                 socket.connect(new InetSocketAddress("0.0.0.0", PORT));
                 connected = socket.isConnected();
             } catch (ConnectException e) {

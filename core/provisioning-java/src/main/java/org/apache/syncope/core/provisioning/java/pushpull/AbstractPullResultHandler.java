@@ -67,7 +67,6 @@ import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
@@ -931,7 +930,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         }
 
         notificationManager.createTasks(
-                AuthContextUtils.getWho(),
+                profile.getExecutor(),
                 AuditElements.EventCategoryType.PULL,
                 anyTypeKind.name().toLowerCase(),
                 profile.getTask().getResource().getKey(),
@@ -943,7 +942,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 furtherInput);
 
         auditManager.audit(
-                AuthContextUtils.getWho(),
+                profile.getExecutor(),
                 AuditElements.EventCategoryType.PULL,
                 anyTypeKind.name().toLowerCase(),
                 profile.getTask().getResource().getKey(),

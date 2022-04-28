@@ -126,7 +126,7 @@ public class BodyPropertyAddingGatewayFilterFactory extends CustomGatewayFilterF
                         }
 
                         if (compressed) {
-                            try ( ByteArrayOutputStream baos = new ByteArrayOutputStream(output.length);  GZIPOutputStream gzipos =
+                            try (ByteArrayOutputStream baos = new ByteArrayOutputStream(output.length);  GZIPOutputStream gzipos =
                                     new GZIPOutputStream(baos)) {
 
                                 gzipos.write(output);

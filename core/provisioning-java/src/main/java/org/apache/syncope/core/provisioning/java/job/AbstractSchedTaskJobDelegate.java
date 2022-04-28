@@ -32,7 +32,6 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -148,7 +147,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         status.set("Done");
 
         notificationManager.createTasks(
-                AuthContextUtils.getWho(),
+                executor,
                 AuditElements.EventCategoryType.TASK,
                 this.getClass().getSimpleName(),
                 null,
@@ -158,7 +157,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
                 execution);
 
         auditManager.audit(
-                AuthContextUtils.getWho(),
+                executor,
                 AuditElements.EventCategoryType.TASK,
                 task.getClass().getSimpleName(),
                 null,
