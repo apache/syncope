@@ -254,7 +254,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 jobMap);
     }
 
-    protected static Map<String, Object> createJobMapForExecutionContext(final String executor) {
+    protected Map<String, Object> createJobMapForExecutionContext(final String executor) {
         Map<String, Object> jobMap = new HashMap<>();
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
         jobMap.put(JobManager.EXECUTOR_KEY, executor);

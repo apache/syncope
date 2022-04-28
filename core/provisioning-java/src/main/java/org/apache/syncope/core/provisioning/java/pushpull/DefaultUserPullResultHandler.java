@@ -57,7 +57,6 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -270,7 +269,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         propByLinkedAccount,
                         null),
                         false,
-                        AuthContextUtils.getUsername());
+                        profile.getExecutor());
 
                 for (PullActions action : profile.getActions()) {
                     action.after(profile, delta, before, report);

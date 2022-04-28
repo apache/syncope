@@ -366,7 +366,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     connectorManager.getConnector(provision.getResource()),
                     getAny(provision, anyKey),
                     pushTask,
-                    AuthContextUtils.getUsername()));
+                    AuthContextUtils.getWho()));
             if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
                 sce.getElements().add(results.get(0).getMessage());
             }
@@ -405,7 +405,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                                 connectorManager.getConnector(provision.getResource()),
                                 match.getAny(),
                                 pushTask,
-                                AuthContextUtils.getUsername()));
+                                AuthContextUtils.getWho()));
                         if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
                             sce.getElements().add(results.get(0).getMessage());
                         }
@@ -415,7 +415,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                                 connectorManager.getConnector(provision.getResource()),
                                 match.getLinkedAccount(),
                                 pushTask,
-                                AuthContextUtils.getUsername());
+                                AuthContextUtils.getWho());
                         if (result.getStatus() == ProvisioningReport.Status.FAILURE) {
                             sce.getElements().add(result.getMessage());
                         } else {
@@ -457,7 +457,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     connectorManager.getConnector(provision.getResource()),
                     reconFilterBuilder,
                     moreAttrsToGet,
-                    pullTask));
+                    pullTask,
+                    AuthContextUtils.getWho()));
             if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
                 sce.getElements().add(results.get(0).getMessage());
             }
@@ -620,7 +621,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         pushTask.setUnmatchingRule(spec.getUnmatchingRule());
         pushTask.getActions().addAll(spec.getProvisioningActions());
 
-        try (CSVStreamConnector connector = new CSVStreamConnector(
+        try ( CSVStreamConnector connector = new CSVStreamConnector(
                 null,
                 spec.getArrayElementSeparator(),
                 csvSchema(spec),
@@ -638,7 +639,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     connector,
                     spec.getPropagationActions(),
                     pushTask,
-                    AuthContextUtils.getUsername());
+                    AuthContextUtils.getWho());
         } catch (Exception e) {
             LOG.error("Could not push to stream", e);
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
@@ -666,7 +667,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         pullTask.setUnmatchingRule(spec.getUnmatchingRule());
         pullTask.getActions().addAll(spec.getProvisioningActions());
 
-        try (CSVStreamConnector connector = new CSVStreamConnector(
+        try ( CSVStreamConnector connector = new CSVStreamConnector(
                 spec.getKeyColumn(),
                 spec.getArrayElementSeparator(),
                 csvSchema(spec),

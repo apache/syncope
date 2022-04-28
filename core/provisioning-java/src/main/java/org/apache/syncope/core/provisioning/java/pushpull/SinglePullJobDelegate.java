@@ -50,6 +50,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecut
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
+import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -67,7 +68,8 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             final Connector connector,
             final ReconFilterBuilder reconFilterBuilder,
             final Set<String> moreAttrsToGet,
-            final PullTaskTO pullTaskTO) throws JobExecutionException {
+            final PullTaskTO pullTaskTO,
+            final String executor) throws JobExecutionException {
 
         LOG.debug("Executing pull on {}", provision.getResource());
 
@@ -122,6 +124,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             profile.setDryRun(false);
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
             profile.getActions().addAll(actions);
+            profile.setExecutor(executor);
 
             for (PullActions action : actions) {
                 action.beforeAll(profile);
