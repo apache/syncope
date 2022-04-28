@@ -621,7 +621,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         pushTask.setUnmatchingRule(spec.getUnmatchingRule());
         pushTask.getActions().addAll(spec.getProvisioningActions());
 
-        try ( CSVStreamConnector connector = new CSVStreamConnector(
+        try (CSVStreamConnector connector = new CSVStreamConnector(
                 null,
                 spec.getArrayElementSeparator(),
                 csvSchema(spec),
@@ -667,7 +667,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         pullTask.setUnmatchingRule(spec.getUnmatchingRule());
         pullTask.getActions().addAll(spec.getProvisioningActions());
 
-        try ( CSVStreamConnector connector = new CSVStreamConnector(
+        try (CSVStreamConnector connector = new CSVStreamConnector(
                 spec.getKeyColumn(),
                 spec.getArrayElementSeparator(),
                 csvSchema(spec),
