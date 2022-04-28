@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -46,6 +47,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> implements JPAJSONAnyDAO {
@@ -332,5 +334,12 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
                 }
             }
         }
+
+        // update sysInfo
+        OffsetDateTime now = OffsetDateTime.now();
+        String who = AuthContextUtils.getWho();
+        LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, who, any);
+        any.setLastModifier(who);
+        any.setLastChangeDate(now);
     }
 }
