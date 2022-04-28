@@ -50,7 +50,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecut
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
-import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
