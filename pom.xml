@@ -395,8 +395,8 @@ under the License.
 
     <connid.version>1.5.1.0</connid.version>
     <connid.soap.version>1.4.5</connid.soap.version>
-    <connid.rest.version>1.0.5</connid.rest.version>
-    <connid.database.version>2.2.7</connid.database.version>
+    <connid.rest.version>1.0.6</connid.rest.version>
+    <connid.database.version>2.2.8</connid.database.version>
     <connid.csvdir.version>0.8.8</connid.csvdir.version>
     <connid.ldap.version>1.5.4</connid.ldap.version>
     <connid.ad.version>1.3.6</connid.ad.version>
@@ -1953,6 +1953,7 @@ under the License.
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.rest</artifactId>
                 <version>${connid.rest.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
@@ -1963,11 +1964,13 @@ under the License.
                 <groupId>net.tirasa.connid.bundles.db</groupId>
                 <artifactId>net.tirasa.connid.bundles.db.table</artifactId>
                 <version>${connid.database.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles.db</groupId>
                 <artifactId>net.tirasa.connid.bundles.db.scriptedsql</artifactId>
                 <version>${connid.database.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>

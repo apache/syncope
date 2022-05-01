@@ -45,16 +45,16 @@ under the License.
     <constructor-arg value="${testconnectorserver.key}"/>
   </bean>  
   <bean id="testconnectorserver.soap.bundle" class="java.lang.String">
-    <constructor-arg value="net.tirasa.connid.bundles.soap-${connid.soap.version}.jar"/>
+    <constructor-arg value="net.tirasa.connid.bundles.soap-${connid.soap.version}-bundle.jar"/>
   </bean>  
   <bean id="testconnectorserver.rest.bundle" class="java.lang.String">
-    <constructor-arg value="net.tirasa.connid.bundles.rest-${connid.rest.version}.jar"/>
+    <constructor-arg value="net.tirasa.connid.bundles.rest-${connid.rest.version}-bundle.jar"/>
   </bean>  
   <bean id="testconnectorserver.dbtable.bundle" class="java.lang.String">
-    <constructor-arg value="net.tirasa.connid.bundles.db.table-${connid.database.version}.jar"/>
+    <constructor-arg value="net.tirasa.connid.bundles.db.table-${connid.database.version}-bundle.jar"/>
   </bean>  
   <bean id="testconnectorserver.scriptedsql.bundle" class="java.lang.String">
-    <constructor-arg value="net.tirasa.connid.bundles.db.scriptedsql-${connid.database.version}.jar"/>
+    <constructor-arg value="net.tirasa.connid.bundles.db.scriptedsql-${connid.database.version}-bundle.jar"/>
   </bean>  
   <bean id="testconnectorserver.csvdir.bundle" class="java.lang.String">
     <constructor-arg value="net.tirasa.connid.bundles.csvdir-${connid.csvdir.version}.jar"/>
