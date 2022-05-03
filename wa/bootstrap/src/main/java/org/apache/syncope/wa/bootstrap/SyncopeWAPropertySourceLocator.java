@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.auth.JDBCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JaasAuthModuleConf;
 import org.apache.syncope.common.lib.auth.LDAPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
-import org.apache.syncope.common.lib.auth.RadiusAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
@@ -58,7 +57,6 @@ import org.apereo.cas.configuration.model.support.pac4j.Pac4jDelegatedAuthentica
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGenericOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.saml.Pac4jSamlClientProperties;
-import org.apereo.cas.configuration.model.support.radius.RadiusProperties;
 import org.apereo.cas.configuration.model.support.syncope.SyncopeAuthenticationProperties;
 import org.apereo.cas.util.model.TriStateBoolean;
 import org.slf4j.Logger;
@@ -361,42 +359,6 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
 
     private static Map<String, Object> mapAuthModule(
             final String authModule,
-            final RadiusAuthModuleConf conf) {
-
-        RadiusProperties props = new RadiusProperties();
-        props.setName(authModule);
-
-        props.getClient().setAccountingPort(conf.getAccountingPort());
-        props.getClient().setAuthenticationPort(conf.getAuthenticationPort());
-        props.getClient().setInetAddress(conf.getInetAddress());
-        props.getClient().setSharedSecret(conf.getSharedSecret());
-        props.getClient().setSocketTimeout(conf.getSocketTimeout());
-
-        props.getServer().setNasIdentifier(conf.getNasIdentifier());
-        props.getServer().setNasIpAddress(conf.getNasIpAddress());
-        props.getServer().setNasIpv6Address(conf.getNasIpv6Address());
-        props.getServer().setNasPort(conf.getNasPort());
-        props.getServer().setNasPortId(conf.getNasPortId());
-        props.getServer().setNasPortType(conf.getNasPortType());
-        props.getServer().setNasRealPort(conf.getNasRealPort());
-        props.getServer().setProtocol(conf.getProtocol());
-        props.getServer().setRetries(conf.getRetries());
-
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().setRadius(props);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.addFilter(
-                AuthenticationProperties.class.getSimpleName(),
-                SimpleBeanPropertyFilter.filterOutAllExcept(
-                        CasCoreConfigurationUtils.getPropertyName(
-                                AuthenticationProperties.class,
-                                AuthenticationProperties::getRadius)));
-        return filterCasProperties(casProperties, filterProvider);
-    }
-
-    private static Map<String, Object> mapAuthModule(
-            final String authModule,
             final SAML2IdPAuthModuleConf conf) {
 
         Pac4jSamlClientProperties props = new Pac4jSamlClientProperties();
@@ -474,8 +436,6 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
                 properties.putAll(mapAuthModule(authModuleTO.getKey(), (JDBCAuthModuleConf) authConf));
             } else if (authConf instanceof OIDCAuthModuleConf) {
                 properties.putAll(mapAuthModule(authModuleTO.getKey(), (OIDCAuthModuleConf) authConf));
-            } else if (authConf instanceof RadiusAuthModuleConf) {
-                properties.putAll(mapAuthModule(authModuleTO.getKey(), (RadiusAuthModuleConf) authConf));
             } else if (authConf instanceof SAML2IdPAuthModuleConf) {
                 properties.putAll(mapAuthModule(authModuleTO.getKey(), (SAML2IdPAuthModuleConf) authConf));
             } else if (authConf instanceof U2FAuthModuleConf) {

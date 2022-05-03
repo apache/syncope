@@ -397,7 +397,7 @@ under the License.
     <connid.database.version>2.2.8</connid.database.version>
     <connid.csvdir.version>0.8.9</connid.csvdir.version>
     <connid.ldap.version>1.5.5</connid.ldap.version>
-    <connid.ad.version>1.3.7</connid.ad.version>
+    <connid.ad.version>1.3.8</connid.ad.version>
     <connid.googleapps.version>1.4.3</connid.googleapps.version>
     <connid.azure.version>2.0.0</connid.azure.version>
     <connid.scimv11.version>1.0.2</connid.scimv11.version>
@@ -430,7 +430,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.1.3</elasticsearch.version>
+    <elasticsearch.version>8.2.0</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -467,8 +467,8 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
 
-    <wicket.version>9.9.1</wicket.version>
-    <wicketstuff.version>9.9.1</wicketstuff.version>
+    <wicket.version>9.10.0</wicket.version>
+    <wicketstuff.version>9.10.0</wicketstuff.version>
     <wicket-jqueryui.version>9.8.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.6</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.1.6</wicket-spring-boot.version>
@@ -683,11 +683,6 @@ under the License.
         <groupId>co.elastic.clients</groupId>
         <artifactId>elasticsearch-java</artifactId>
         <version>${elasticsearch.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.elasticsearch.client</groupId>
-        <artifactId>elasticsearch-rest-client</artifactId>
-        <version>7.16.1</version>
       </dependency>
       <dependency>
         <groupId>jakarta.json</groupId>
@@ -1041,7 +1036,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>2.3.0</version>
+        <version>2.4.0</version>
       </dependency>
 
       <dependency>
@@ -1262,6 +1257,12 @@ under the License.
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-saml</artifactId>
         <version>${pac4j.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.pac4j</groupId>
@@ -1415,27 +1416,6 @@ under the License.
       <dependency>
         <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-themes</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-radius-core</artifactId>
-        <version>${cas.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>gnu-getopt</groupId>
-            <artifactId>getopt</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-radius</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-radius-mfa</artifactId>
         <version>${cas.version}</version>
       </dependency>
       <dependency>
@@ -1760,7 +1740,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>3.0.0-RC1</version>
+        <version>3.0.0-alpha3</version>
       </dependency>
 
       <dependency>

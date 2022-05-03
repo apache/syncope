@@ -35,8 +35,38 @@ This product includes software developed by J2ObjC: Java to Objective-C Translat
 
 ==
 
+This product includes software developed by mchange-commons-java
+Copyright (C) 2015 Machinery For Change, Inc.
+
+==
+
+This product includes software developed by Nimbus Content Type
+Copyright 2020, Connect2id Ltd
+
+==
+
+This product includes software developed by Nimbus Language Tags
+Copyright 2012-2022, Connect2id Ltd
+
+==
+
+This product includes software developed by Nimbus JOSE-JWT
+Copyright 2012-2022, Connect2id Ltd
+
+==
+
+This product includes software developed by OAuth 2.0 SDK with OpenID Connect extensions
+Copyright 2012-2022, Connect2id Ltd
+
+==
+
 This product includes software developed by the JAXB project.
 Copyright (c) 2013-2016 The JAXB project.
+
+==
+
+This product includes software produced and maintained by Eclipse Metro
+All content is the property of the respective authors or their employers.
 
 ==
 
@@ -45,12 +75,27 @@ Copyright 2002-2009 Joe Walnes and QDox Project Team
 
 ==
 
+This product includes software developed by UnboundID LDAP SDK for Java
+Copyright 2007-2022 Ping Identity Corporation
+
+==
+
 This product includes software developed by the HikariCP project.
 
 ==
 
-This product includes the Javascript syntax highlighter.
-Copyright (c) 2006, Ivan Sagalaev
+This product includes software produced and maintained by Jakarta Activation project
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software produced and maintained by Jakarta Eclipse Implementation of JAXB
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software produced and maintained by Jakarta XML Web Services
+All content is the property of the respective authors or their employers.
 
 ==
 
@@ -64,18 +109,34 @@ Copyright (c) 2020 Luke Hutchison
 
 ==
 
+This product includes software developed by Micrometer Application Metrics
+Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
+
+==
+
+This product includes software developed by Netty
+Copyright 2014 The Netty Project
+
+==
+
 This product includes software developed by the Swagger project.
 Copyright 2016 SmartBear Software
 
 ==
 
-This product includes software developed by the Eclipse Foundation.
-Copyright (c) 2019, 2020 Eclipse Foundation. All rights reserved.
+This product includes software developed by Apereo CAS
+Copyright 2022, The Apereo Foundation
 
 ==
 
-This product includes software developed by the Eclipse Foundation.
-Copyright (c) 2019, 2020 Eclipse Foundation. All rights reserved.
+This product includes software produced and maintained by Jakarta Persistence project
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software developed by the Eclipse Project for JAX-RS.
+Eclipse Project for JAX-RS is a trademark of the Eclipse Foundation.
+All content is the property of the respective authors or their employers. For more information regarding authorship of content, please consult the listed source code repository logs.
 
 ==
 
@@ -89,28 +150,8 @@ Copyright (c) Red Hat, Inc., Emmanuel Bernard
 
 ==
 
-This product includes software developed by the JAX-RS project.
-Copyright (c) 2014, Oracle Corporation and/or its affiliates. All rights reserved.
-
-==
-
 This product includes software developed by the Joda Time project.
 Copyright (c) 2002-2016 Joda.org. All Rights Reserved.
-
-==
-
-This product includes the jQuery Core JavaScript Library.
-Copyright 2007, 2016 jQuery Foundation and other contributors.
-
-==
-
-This product includes the jQuery UI JavaScript Library.
-Copyright 2007, 2015 jQuery Foundation and other contributors.
-
-==
-
-This product includes software developed by Terracotta. Inc.
-Ehcache source code and documentation are Copyright (c) Terracotta, Inc.
 
 ==
 
@@ -127,7 +168,7 @@ Copyright 2011-2016 Tirasa S.r.l. All rights reserved.
 ==
 
 This product includes software developed by the ANTLR project.
-Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
+Copyright (c) 2012 Terence Parr and Sam Harwell. All rights reserved.
 
 ==
 
@@ -146,6 +187,11 @@ Copyright (c) 2004-present by the Checker Framework developers
 
 ==
 
+This product includes software developed by MojoHaus AnimalSniffer Maven Plugin
+Copyright (c) 2009, codehaus.org
+
+==
+
 This product includes software developed by the Stax 2 Extension API Project.
 
 ==
@@ -158,6 +204,11 @@ This product includes software developed by the Flowable project.
 
 ==
 
+This product includes software produced and maintained by Jakarta JSON Processing
+All content is the property of the respective authors or their employers.
+
+==
+
 This project includes software developed by the Jasypt project.
 Copyright (c) 2014 The JASYPT team. All Rights Reserved
 
@@ -165,6 +216,11 @@ Copyright (c) 2014 The JASYPT team. All Rights Reserved
 
 This product includes softare developed by the Javassist project.
 Copyright (C) 1999- by Shigeru Chiba, All rights reserved.
+
+==
+
+This product includes software developed by Ldaptive Java Library
+Copyright (C) 2003-2021 Virginia Tech. All Rights Reserved.
 
 ==
 
@@ -180,6 +236,17 @@ This product includes software developed by the Shibboleth project.
 
 ==
 
+This product includes software developed by the ASM project.
+Copyright (c) 2000-2011 INRIA, France Telecom
+All rights reserved.
+
+==
+
+This product includes software developed by Passay
+Copyright (C) 2003-2022 Virginia Tech. All rights reserved.
+
+==
+
 This product includes software developed by Terracotta. Inc.
 Quartz Scheduler source code and documentation are Copyright (c) Terracotta, Inc.
 
@@ -191,7 +258,7 @@ Copyright (c) 2004-2016 QOS.ch.
 ==
 
 This product includes software developed by SpringSource.
-Copyright (c) 2004-2016 SpringSource
+Copyright (c) 2004-2022 SpringSource
 All rights reserved.
 
 ==

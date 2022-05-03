@@ -41,7 +41,6 @@ import org.apache.syncope.common.lib.auth.JDBCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JaasAuthModuleConf;
 import org.apache.syncope.common.lib.auth.LDAPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
-import org.apache.syncope.common.lib.auth.RadiusAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
@@ -61,7 +60,6 @@ public class AuthModuleITCase extends AbstractITCase {
         JAAS,
         JDBC,
         U2F,
-        RADIUS,
         OIDC;
 
     };
@@ -143,14 +141,6 @@ public class AuthModuleITCase extends AbstractITCase {
                 U2FAuthModuleConf.class.cast(conf).setExpireDevices(50);
                 break;
 
-            case RADIUS:
-                conf = new RadiusAuthModuleConf();
-                RadiusAuthModuleConf.class.cast(conf).setProtocol("MSCHAPv2");
-                RadiusAuthModuleConf.class.cast(conf).setInetAddress("1.2.3.4");
-                RadiusAuthModuleConf.class.cast(conf).setSharedSecret("xyz");
-                RadiusAuthModuleConf.class.cast(conf).setSocketTimeout(40);
-                break;
-
             case STATIC:
             default:
                 conf = new StaticAuthModuleConf();
@@ -193,7 +183,7 @@ public class AuthModuleITCase extends AbstractITCase {
                 authModule -> isSpecificConf(authModule.getConf(), GoogleMfaAuthModuleConf.class)
                 && authModule.getKey().equals("DefaultGoogleMfaAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
-            authModule -> isSpecificConf(authModule.getConf(), DuoMfaAuthModuleConf.class)
+                authModule -> isSpecificConf(authModule.getConf(), DuoMfaAuthModuleConf.class)
                 && authModule.getKey().equals("DefaultDuoMfaAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), OIDCAuthModuleConf.class)
@@ -213,9 +203,6 @@ public class AuthModuleITCase extends AbstractITCase {
         assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), U2FAuthModuleConf.class)
                 && authModule.getKey().equals("DefaultU2FAuthModule")));
-        assertTrue(authModuleTOs.stream().anyMatch(
-                authModule -> isSpecificConf(authModule.getConf(), RadiusAuthModuleConf.class)
-                && authModule.getKey().equals("DefaultRadiusAuthModule")));
     }
 
     @Test
@@ -304,16 +291,6 @@ public class AuthModuleITCase extends AbstractITCase {
         assertNotNull(authModuleTO);
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
         assertTrue(isSpecificConf(authModuleTO.getConf(), SyncopeAuthModuleConf.class));
-        assertFalse(isSpecificConf(authModuleTO.getConf(), RadiusAuthModuleConf.class));
-    }
-
-    @Test
-    public void getRadiusAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("DefaultRadiusAuthModule");
-
-        assertNotNull(authModuleTO);
-        assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
-        assertTrue(isSpecificConf(authModuleTO.getConf(), RadiusAuthModuleConf.class));
         assertFalse(isSpecificConf(authModuleTO.getConf(), U2FAuthModuleConf.class));
     }
 
@@ -521,29 +498,6 @@ public class AuthModuleITCase extends AbstractITCase {
 
         conf = newStaticAuthModuleTO.getConf();
         assertEquals(2, StaticAuthModuleConf.class.cast(conf).getUsers().size());
-    }
-
-    @Test
-    public void updateRadiusAuthModule() {
-        AuthModuleTO radiusAuthModuleTO = authModuleService.read("DefaultRadiusAuthModule");
-        assertNotNull(radiusAuthModuleTO);
-
-        AuthModuleTO newRadiusAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.RADIUS);
-        newRadiusAuthModuleTO = createAuthModule(newRadiusAuthModuleTO);
-        assertNotNull(newRadiusAuthModuleTO);
-
-        AuthModuleConf conf = radiusAuthModuleTO.getConf();
-        assertNotNull(conf);
-        RadiusAuthModuleConf.class.cast(conf).setSocketTimeout(45);
-        newRadiusAuthModuleTO.setConf(conf);
-
-        // update new auth module
-        authModuleService.update(newRadiusAuthModuleTO);
-        newRadiusAuthModuleTO = authModuleService.read(newRadiusAuthModuleTO.getKey());
-        assertNotNull(newRadiusAuthModuleTO);
-
-        conf = newRadiusAuthModuleTO.getConf();
-        assertEquals(45, RadiusAuthModuleConf.class.cast(conf).getSocketTimeout());
     }
 
     @Test
