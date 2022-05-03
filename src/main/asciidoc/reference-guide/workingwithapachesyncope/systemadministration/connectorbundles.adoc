@@ -99,6 +99,7 @@ to
         <groupId>my.new.connector.groupId</groupId>
         <artifactId>my.new.connector.artifactId</artifactId>
         <version>${my.new.connector.version}</version>
+        <classifier>bundle</classifier>
       </artifactItem>
     </artifactItems>
   </configuration>

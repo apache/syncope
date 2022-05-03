@@ -397,13 +397,13 @@ under the License.
     <connid.soap.version>1.4.5</connid.soap.version>
     <connid.rest.version>1.0.6</connid.rest.version>
     <connid.database.version>2.2.8</connid.database.version>
-    <connid.csvdir.version>0.8.8</connid.csvdir.version>
-    <connid.ldap.version>1.5.4</connid.ldap.version>
-    <connid.ad.version>1.3.6</connid.ad.version>
+    <connid.csvdir.version>0.8.9</connid.csvdir.version>
+    <connid.ldap.version>1.5.5</connid.ldap.version>
+    <connid.ad.version>1.3.7</connid.ad.version>
     <connid.googleapps.version>1.4.3</connid.googleapps.version>
-    <connid.azure.version>1.0.1</connid.azure.version>
-    <connid.scimv11.version>1.0.1</connid.scimv11.version>
-    <connid.servicenow.version>1.0.0</connid.servicenow.version>
+    <connid.azure.version>2.0.0</connid.azure.version>
+    <connid.scimv11.version>1.0.2</connid.scimv11.version>
+    <connid.servicenow.version>1.0.1</connid.servicenow.version>
     <connid.okta.version>2.1.0</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
 
@@ -1959,6 +1959,7 @@ under the License.
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.csvdir</artifactId>
                 <version>${connid.csvdir.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles.db</groupId>
@@ -1976,11 +1977,13 @@ under the License.
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.ldap</artifactId>
                 <version>${connid.ldap.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.ad</artifactId>
                 <version>${connid.ad.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
@@ -1992,16 +1995,19 @@ under the License.
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.azure</artifactId>
                 <version>${connid.azure.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.scimv11</artifactId>
                 <version>${connid.scimv11.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.servicenow</artifactId>
                 <version>${connid.servicenow.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles.okta</groupId>
