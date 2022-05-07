@@ -36,12 +36,11 @@ import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.xcontent.XContentBuilder;
+import org.elasticsearch.xcontent.XContentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -49,16 +48,17 @@ import org.springframework.transaction.event.TransactionalEventListener;
 /**
  * Listen to any create / update and delete in order to keep the Elasticsearch indexes consistent.
  */
+@SuppressWarnings("deprecation")
 public class ElasticsearchIndexManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchIndexManager.class);
 
-    protected final RestHighLevelClient client;
+    protected final org.elasticsearch.client.RestHighLevelClient client;
 
     protected final ElasticsearchUtils elasticsearchUtils;
 
     public ElasticsearchIndexManager(
-            final RestHighLevelClient client,
+            final org.elasticsearch.client.RestHighLevelClient client,
             final ElasticsearchUtils elasticsearchUtils) {
 
         this.client = client;

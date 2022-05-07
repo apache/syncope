@@ -63,7 +63,6 @@ import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -78,6 +77,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Search engine implementation for users, groups and any objects, based on Elasticsearch.
  */
+@SuppressWarnings("deprecation")
 public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected static final char[] ELASTICSEARCH_REGEX_CHARS = new char[] {
@@ -96,7 +96,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     @Autowired
-    protected RestHighLevelClient client;
+    protected org.elasticsearch.client.RestHighLevelClient client;
 
     @Autowired
     protected ElasticsearchUtils elasticsearchUtils;

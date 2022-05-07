@@ -31,14 +31,16 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.message.BasicHeader;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
- * Spring {@link FactoryBean} for getting the Elasticsearch's {@link RestHighLevelClient} singleton instance.
+ * Spring {@link FactoryBean} for getting the Elasticsearch's
+ * {@link org.elasticsearch.client.RestHighLevelClient} singleton instance.
  */
-public class ElasticsearchClientFactoryBean implements FactoryBean<RestHighLevelClient>, DisposableBean {
+@SuppressWarnings("deprecation")
+public class ElasticsearchClientFactoryBean
+        implements FactoryBean<org.elasticsearch.client.RestHighLevelClient>, DisposableBean {
 
     private final List<HttpHost> hosts;
 
@@ -52,7 +54,7 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<RestHighLevel
 
     private String apiKeySecret;
 
-    private RestHighLevelClient client;
+    private org.elasticsearch.client.RestHighLevelClient client;
 
     public ElasticsearchClientFactoryBean(final List<HttpHost> hosts) {
         this.hosts = hosts;
@@ -91,7 +93,7 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<RestHighLevel
     }
 
     @Override
-    public RestHighLevelClient getObject() throws Exception {
+    public org.elasticsearch.client.RestHighLevelClient getObject() throws Exception {
         synchronized (this) {
             if (client == null) {
                 RestClientBuilder restClient = RestClient.builder(hosts.toArray(new HttpHost[0]));
@@ -109,7 +111,7 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<RestHighLevel
                     restClient.setDefaultHeaders(
                             new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "ApiKey " + apiKeyAuth) });
                 }
-                client = new RestHighLevelClient(restClient);
+                client = new org.elasticsearch.client.RestHighLevelClient(restClient);
             }
         }
         return client;
@@ -117,7 +119,7 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<RestHighLevel
 
     @Override
     public Class<?> getObjectType() {
-        return RestHighLevelClient.class;
+        return org.elasticsearch.client.RestHighLevelClient.class;
     }
 
     @Override

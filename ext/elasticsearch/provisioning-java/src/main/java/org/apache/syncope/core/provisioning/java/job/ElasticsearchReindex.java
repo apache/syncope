@@ -31,8 +31,7 @@ import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.xcontent.XContentBuilder;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +39,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Remove and rebuild all Elasticsearch indexes with information from existing users, groups and any objects.
  */
+@SuppressWarnings("deprecation")
 public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
 
     @Autowired
-    protected RestHighLevelClient client;
+    protected org.elasticsearch.client.RestHighLevelClient client;
 
     @Autowired
     protected ElasticsearchIndexManager indexManager;
