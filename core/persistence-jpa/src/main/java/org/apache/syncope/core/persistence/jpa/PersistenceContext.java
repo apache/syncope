@@ -325,7 +325,6 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public AnyObjectDAO anyObjectDAO(
-            final ApplicationEventPublisher publisher,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
@@ -335,7 +334,6 @@ public class PersistenceContext {
 
         return new JPAAnyObjectDAO(
                 anyUtilsFactory,
-                publisher,
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
@@ -651,7 +649,6 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public UserDAO userDAO(
-            final ApplicationEventPublisher publisher,
             final SecurityProperties securityProperties,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
@@ -665,7 +662,6 @@ public class PersistenceContext {
 
         return new JPAUserDAO(
                 anyUtilsFactory,
-                publisher,
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,

@@ -69,15 +69,12 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
-import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,7 +94,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     public JPAUserDAO(
             final AnyUtilsFactory anyUtilsFactory,
-            final ApplicationEventPublisher publisher,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO,
@@ -108,7 +104,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             final DelegationDAO delegationDAO,
             final SecurityProperties securityProperties) {
 
-        super(anyUtilsFactory, publisher, plainSchemaDAO, derSchemaDAO, dynRealmDAO);
+        super(anyUtilsFactory, plainSchemaDAO, derSchemaDAO, dynRealmDAO);
         this.roleDAO = roleDAO;
         this.accessTokenDAO = accessTokenDAO;
         this.realmDAO = realmDAO;
@@ -463,8 +459,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             throw e;
         }
 
-        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
-
         roleDAO.refreshDynMemberships(merged);
         Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
         dynRealmDAO.refreshDynMemberships(merged);
@@ -501,8 +495,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         }
 
         entityManager().remove(user);
-        publisher.publishEvent(new AnyDeletedEvent(
-                this, AnyTypeKind.USER, user.getKey(), user.getUsername(), AuthContextUtils.getDomain()));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

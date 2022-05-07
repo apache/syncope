@@ -37,7 +37,6 @@ import org.apache.syncope.common.lib.to.UserRequestFormProperty;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.UserRequestFormPropertyValue;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UserRequestFormPropertyType;
 import org.apache.syncope.core.flowable.api.DropdownValueProvider;
@@ -46,12 +45,13 @@ import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
@@ -69,6 +69,7 @@ import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskQuery;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.variable.api.history.HistoricVariableInstance;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -265,13 +266,16 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     }
 
     @Override
-    public void cancelByUser(final AnyDeletedEvent event) {
-        if (AuthContextUtils.getDomain().equals(event.getDomain()) && event.getAnyTypeKind() == AnyTypeKind.USER) {
-            String username = event.getAnyName();
+    public void cancelByUser(final AnyLifecycleEvent<Any<?>> event) {
+        if (AuthContextUtils.getDomain().equals(event.getDomain())
+                && event.getType() == SyncDeltaType.DELETE
+                && event.getAny() instanceof User) {
+
+            User user = (User) event.getAny();
             engine.getRuntimeService().createNativeProcessInstanceQuery().
-                    sql(createProcessInstanceQuery(event.getAnyKey()).toString()).
+                    sql(createProcessInstanceQuery(user.getKey()).toString()).
                     list().forEach(procInst -> engine.getRuntimeService().deleteProcessInstance(
-                    procInst.getId(), "Cascade Delete user " + username));
+                    procInst.getId(), "Cascade Delete user " + user.getUsername()));
         }
     }
 

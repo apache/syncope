@@ -52,9 +52,6 @@ import org.springframework.context.annotation.Lazy;
 public abstract class JPAJSONPersistenceContext {
 
     @Autowired
-    protected ApplicationEventPublisher publisher;
-
-    @Autowired
     protected SecurityProperties securityProperties;
 
     @ConditionalOnMissingBean(name = "jpaJSONAnyObjectDAO")
@@ -70,7 +67,6 @@ public abstract class JPAJSONPersistenceContext {
 
         return new JPAJSONAnyObjectDAO(
                 anyUtilsFactory,
-                publisher,
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
@@ -83,6 +79,7 @@ public abstract class JPAJSONPersistenceContext {
     @Bean
     public GroupDAO groupDAO(
             final AnyUtilsFactory anyUtilsFactory,
+            final ApplicationEventPublisher publisher,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
@@ -137,7 +134,6 @@ public abstract class JPAJSONPersistenceContext {
 
         return new JPAJSONUserDAO(
                 anyUtilsFactory,
-                publisher,
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,

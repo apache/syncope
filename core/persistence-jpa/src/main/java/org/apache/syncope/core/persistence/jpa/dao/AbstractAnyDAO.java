@@ -64,15 +64,12 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> implements AnyDAO<A> {
 
     protected final AnyUtilsFactory anyUtilsFactory;
-
-    protected final ApplicationEventPublisher publisher;
 
     protected final PlainSchemaDAO plainSchemaDAO;
 
@@ -84,13 +81,11 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     public AbstractAnyDAO(
             final AnyUtilsFactory anyUtilsFactory,
-            final ApplicationEventPublisher publisher,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO) {
 
         this.anyUtilsFactory = anyUtilsFactory;
-        this.publisher = publisher;
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
         this.dynRealmDAO = dynRealmDAO;

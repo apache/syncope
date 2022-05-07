@@ -544,6 +544,7 @@ under the License.
                       <discovery.type>single-node</discovery.type>
                       <cluster.name>elasticsearch</cluster.name>
                       <xpack.security.enabled>false</xpack.security.enabled>
+                      <ingest.geoip.downloader.enabled>false</ingest.geoip.downloader.enabled>
                     </env>
                     <ports>
                       <port>9200:9200</port>

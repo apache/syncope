@@ -27,18 +27,26 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * Simple implementation basically not involving any workflow engine.
  */
 public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
 
+    protected final ApplicationEventPublisher publisher;
+
     public DefaultGroupWorkflowAdapter(
             final GroupDataBinder dataBinder,
             final GroupDAO groupDAO,
-            final EntityFactory entityFactory) {
+            final EntityFactory entityFactory,
+            final ApplicationEventPublisher publisher) {
 
         super(dataBinder, groupDAO, entityFactory);
+        this.publisher = publisher;
     }
 
     @Override
@@ -47,6 +55,9 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
         dataBinder.create(group, groupCR);
         metadata(group, creator, context);
         group = groupDAO.saveAndRefreshDynMemberships(group);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.CREATE, group, AuthContextUtils.getDomain()));
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.CREATE, groupDAO.findAllResourceKeys(group.getKey()));
@@ -60,7 +71,10 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
 
         PropagationByResource<String> propByRes = dataBinder.update(group, groupUR);
         metadata(group, updater, context);
-        groupDAO.save(group);
+        Group updated = groupDAO.save(group);
+
+        publisher.publishEvent(new AnyLifecycleEvent<>(
+                this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
         return new WorkflowResult<>(groupUR, propByRes, "update");
     }
@@ -68,5 +82,8 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     @Override
     protected void doDelete(final Group group, final String eraser, final String context) {
         groupDAO.delete(group);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.DELETE, group, AuthContextUtils.getDomain()));
     }
 }
