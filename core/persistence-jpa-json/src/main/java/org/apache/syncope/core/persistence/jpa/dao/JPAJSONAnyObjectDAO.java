@@ -30,8 +30,6 @@ import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 
 public class JPAJSONAnyObjectDAO extends JPAAnyObjectDAO {
 
@@ -79,8 +77,6 @@ public class JPAJSONAnyObjectDAO extends JPAAnyObjectDAO {
 
         // ensure that entity listeners are invoked at this point
         entityManager().flush();
-
-        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
 
         Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
         dynRealmDAO.refreshDynMemberships(merged);

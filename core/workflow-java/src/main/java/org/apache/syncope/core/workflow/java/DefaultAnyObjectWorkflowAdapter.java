@@ -24,17 +24,28 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * Simple implementation basically not involving any workflow engine.
  */
 public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAdapter {
 
+    @Autowired
+    protected ApplicationEventPublisher publisher;
+
     @Override
     protected WorkflowResult<String> doCreate(final AnyObjectTO anyObjectTO) {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         dataBinder.create(anyObject, anyObjectTO);
         anyObject = anyObjectDAO.save(anyObject);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.CREATE, anyObject, AuthContextUtils.getDomain()));
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.CREATE, anyObjectDAO.findAllResourceKeys(anyObject.getKey()));
@@ -45,11 +56,18 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     @Override
     protected WorkflowResult<AnyObjectPatch> doUpdate(final AnyObject anyObject, final AnyObjectPatch anyObjectPatch) {
         PropagationByResource<String> propByRes = dataBinder.update(anyObject, anyObjectPatch);
+
+        publisher.publishEvent(new AnyLifecycleEvent<>(
+                this, SyncDeltaType.UPDATE, anyObjectDAO.find(anyObject.getKey()), AuthContextUtils.getDomain()));
+
         return new WorkflowResult<>(anyObjectPatch, propByRes, "update");
     }
 
     @Override
     protected void doDelete(final AnyObject anyObject) {
         anyObjectDAO.delete(anyObject);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.DELETE, anyObject, AuthContextUtils.getDomain()));
     }
 }

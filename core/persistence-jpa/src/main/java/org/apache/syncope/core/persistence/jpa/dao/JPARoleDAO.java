@@ -36,8 +36,9 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Repository;
@@ -115,13 +116,14 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
                     SearchCondConverter.convert(searchCondVisitor, merged.getDynMembership().getFIQLCond()),
                     AnyTypeKind.USER);
 
-            matching.forEach((user) -> {
+            matching.forEach(user -> {
                 Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
                 insert.setParameter(1, user.getKey());
                 insert.setParameter(2, merged.getKey());
                 insert.executeUpdate();
 
-                publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user, AuthContextUtils.getDomain()));
+                publisher.publishEvent(
+                        new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
             });
         }
 
@@ -136,7 +138,8 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
         query.getResultList().forEach(user -> {
             user.getRoles().remove(role);
-            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user, AuthContextUtils.getDomain()));
+            publisher.publishEvent(
+                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
         });
 
         clearDynMembers(role);

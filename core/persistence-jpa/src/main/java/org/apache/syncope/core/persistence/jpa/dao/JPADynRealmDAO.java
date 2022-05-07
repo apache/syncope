@@ -28,7 +28,6 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.jpa.entity.JPADynRealm;
-import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -39,6 +38,8 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
 
 @Repository
 public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO {
@@ -112,7 +113,8 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
                 any = anyObjectDAO.find(key);
             }
             if (any != null) {
-                publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, any, AuthContextUtils.getDomain()));
+                publisher.publishEvent(
+                        new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, any, AuthContextUtils.getDomain()));
             }
         });
     }
@@ -133,7 +135,8 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
             insert.setParameter(2, merged.getKey());
             insert.executeUpdate();
 
-            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, any, AuthContextUtils.getDomain()));
+            publisher.publishEvent(
+                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, any, AuthContextUtils.getDomain()));
             cleared.remove(any.getKey());
         }));
 

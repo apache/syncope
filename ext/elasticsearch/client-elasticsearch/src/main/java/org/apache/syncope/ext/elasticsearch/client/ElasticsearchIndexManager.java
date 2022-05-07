@@ -21,9 +21,7 @@ package org.apache.syncope.ext.elasticsearch.client;
 import java.io.IOException;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
-import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -41,6 +39,7 @@ import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.xcontent.XContentBuilder;
 import org.elasticsearch.xcontent.XContentFactory;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -150,45 +149,44 @@ public class ElasticsearchIndexManager {
     }
 
     @TransactionalEventListener
-    public void after(final AnyCreatedUpdatedEvent<Any<?>> event) throws IOException {
-        GetRequest getRequest = new GetRequest(
-                ElasticsearchUtils.getContextDomainName(
-                        AuthContextUtils.getDomain(), event.getAny().getType().getKind()),
-                event.getAny().getKey());
-        GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
-        if (getResponse.isExists()) {
-            LOG.debug("About to update index for {}", event.getAny());
+    public void after(final AnyLifecycleEvent<Any<?>> event) throws IOException {
+        LOG.debug("About to {} index for {}", event.getType().name(), event.getAny());
 
-            UpdateRequest request = new UpdateRequest(
-                    ElasticsearchUtils.getContextDomainName(
-                            AuthContextUtils.getDomain(), event.getAny().getType().getKind()),
-                    event.getAny().getKey()).
-                    retryOnConflict(elasticsearchUtils.getRetryOnConflict()).
-                    doc(elasticsearchUtils.builder(event.getAny(), event.getDomain()));
-            UpdateResponse response = client.update(request, RequestOptions.DEFAULT);
-            LOG.debug("Index successfully updated for {}: {}", event.getAny(), response);
+        if (event.getType() == SyncDeltaType.DELETE) {
+            DeleteRequest request = new DeleteRequest(
+                    ElasticsearchUtils.getContextDomainName(event.getDomain(), event.getAny().getType().getKind()),
+                    event.getAny().getKey());
+            DeleteResponse response = client.delete(request, RequestOptions.DEFAULT);
+            LOG.debug("Index successfully deleted for {}[{}]: {}",
+                    event.getAny().getType().getKind(), event.getAny().getKey(), response);
         } else {
-            LOG.debug("About to create index for {}", event.getAny());
-
-            IndexRequest request = new IndexRequest(
+            GetRequest getRequest = new GetRequest(
                     ElasticsearchUtils.getContextDomainName(
-                            AuthContextUtils.getDomain(), event.getAny().getType().getKind())).
-                    id(event.getAny().getKey()).
-                    source(elasticsearchUtils.builder(event.getAny(), event.getDomain()));
-            IndexResponse response = client.index(request, RequestOptions.DEFAULT);
-            LOG.debug("Index successfully created for {}: {}", event.getAny(), response);
+                            event.getDomain(), event.getAny().getType().getKind()),
+                    event.getAny().getKey());
+            GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
+            if (getResponse.isExists()) {
+                LOG.debug("About to update index for {}", event.getAny());
+
+                UpdateRequest request = new UpdateRequest(
+                        ElasticsearchUtils.getContextDomainName(
+                                event.getDomain(), event.getAny().getType().getKind()),
+                        event.getAny().getKey()).
+                        retryOnConflict(elasticsearchUtils.getRetryOnConflict()).
+                        doc(elasticsearchUtils.builder(event.getAny(), event.getDomain()));
+                UpdateResponse response = client.update(request, RequestOptions.DEFAULT);
+                LOG.debug("Index successfully updated for {}: {}", event.getAny(), response);
+            } else {
+                LOG.debug("About to create index for {}", event.getAny());
+
+                IndexRequest request = new IndexRequest(
+                        ElasticsearchUtils.getContextDomainName(
+                                event.getDomain(), event.getAny().getType().getKind())).
+                        id(event.getAny().getKey()).
+                        source(elasticsearchUtils.builder(event.getAny(), event.getDomain()));
+                IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+                LOG.debug("Index successfully created for {}: {}", event.getAny(), response);
+            }
         }
-    }
-
-    @TransactionalEventListener
-    public void after(final AnyDeletedEvent event) throws IOException {
-        LOG.debug("About to delete index for {}[{}]", event.getAnyTypeKind(), event.getAnyKey());
-
-        DeleteRequest request = new DeleteRequest(
-                ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), event.getAnyTypeKind()),
-                event.getAnyKey());
-        DeleteResponse response = client.delete(request, RequestOptions.DEFAULT);
-        LOG.debug("Index successfully deleted for {}[{}]: {}",
-                event.getAnyTypeKind(), event.getAnyKey(), response);
     }
 }

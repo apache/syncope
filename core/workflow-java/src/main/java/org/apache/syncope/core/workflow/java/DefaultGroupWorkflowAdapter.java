@@ -24,17 +24,28 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * Simple implementation basically not involving any workflow engine.
  */
 public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
 
+    @Autowired
+    protected ApplicationEventPublisher publisher;
+
     @Override
     protected WorkflowResult<String> doCreate(final GroupTO groupTO) {
         Group group = entityFactory.newEntity(Group.class);
         dataBinder.create(group, groupTO);
         group = groupDAO.saveAndRefreshDynMemberships(group);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.CREATE, group, AuthContextUtils.getDomain()));
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.CREATE, groupDAO.findAllResourceKeys(group.getKey()));
@@ -45,11 +56,18 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     @Override
     protected WorkflowResult<GroupPatch> doUpdate(final Group group, final GroupPatch groupPatch) {
         PropagationByResource<String> propByRes = dataBinder.update(group, groupPatch);
+     
+        publisher.publishEvent(new AnyLifecycleEvent<>(
+                this, SyncDeltaType.UPDATE, groupDAO.find(group.getKey()), AuthContextUtils.getDomain()));
+        
         return new WorkflowResult<>(groupPatch, propByRes, "update");
     }
 
     @Override
     protected void doDelete(final Group group) {
         groupDAO.delete(group);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.DELETE, group, AuthContextUtils.getDomain()));
     }
 }

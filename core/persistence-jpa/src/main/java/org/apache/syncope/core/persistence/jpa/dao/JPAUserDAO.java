@@ -68,8 +68,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
-import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -451,8 +449,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             throw e;
         }
 
-        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
-
         roleDAO.refreshDynMemberships(merged);
         Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
         dynRealmDAO.refreshDynMemberships(merged);
@@ -489,8 +485,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         }
 
         entityManager().remove(user);
-        publisher.publishEvent(new AnyDeletedEvent(
-                this, AnyTypeKind.USER, user.getKey(), user.getUsername(), AuthContextUtils.getDomain()));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
