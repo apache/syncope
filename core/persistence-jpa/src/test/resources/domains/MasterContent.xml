@@ -81,8 +81,6 @@ under the License.
               description="Static auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.StaticAuthModuleConf","users":{"syncope1": "$cynop3"}}'/>
   <AuthModule id="DefaultSyncopeAuthModule"
               description="Syncope auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf","domain":"Master"}'/>
-  <AuthModule id="DefaultRadiusAuthModule"
-              description="Radius auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.RadiusAuthModuleConf","protocol":"PAP","inetAddress":"localhost", "sharedSecret":"testing123"}'/>
   <AuthModule id="DefaultU2FAuthModule"
               description="U2F auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.U2FAuthModuleConf","expireDevices":40}'/>
 

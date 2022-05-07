@@ -9,13 +9,23 @@ with which this file is now or was at one time distributed.
 
 ==
 
-This product includes software developed by the Bootstrap project.
-Copyright (c) 2011-2016 Twitter, Inc.
+This product includes software developed by the Animate.css project.
+Copyright (c) 2016 Daniel Eden
 
 ==
 
-This product includes software developed by the bootstrap-select project.
-Copyright (c) 2013-2015 bootstrap-select]
+This product includes software developed by the args4j project.
+Copyright (c) 2013 Kohsuke Kawaguchi and other contributors
+
+==
+
+This product includes software developed by the Bootbox.js project.
+Copyright (C) 2011-2015 by Nick Payne nick@kurai.co.uk
+
+==
+
+This product includes software developed by the Bootstrap project.
+Copyright (c) 2011-2016 Twitter, Inc.
 
 ==
 
@@ -23,8 +33,101 @@ This product includes software developed by the Jackson project.
 
 ==
 
-This product includes software developed by the JAXB project.
-Copyright (c) 2013-2016 The JAXB project.
+This product includes software developed by the Open JSON project.
+
+==
+
+This product includes software developed by the Gson project.
+Copyright (c) 2008 Google Inc.
+
+==
+
+This product includes software developed by Elemental2
+Copyright 2018 Google Inc.
+
+==
+
+This product includes software developed by Error Prone.
+
+==
+
+This product includes software developed by the Google Guava project.
+Copyright (c) 2016 The Guava Authors.
+
+==
+
+This product includes software developed by J2ObjC: Java to Objective-C Translator and Runtime.
+
+==
+
+This product includes software developed by The Closure Compiler.
+Copyright (c) 2009 The Closure Compiler Authors.
+
+==
+
+This product includes software developed by JsInterop Base
+Copyright 2017 Google Inc.
+
+==
+
+This product includes software developed by JsInterop Annotations.
+Copyright (c) 2019 Google Inc. All Rights Reserved.
+
+==
+
+This product includes software developed by Protocol Buffers
+Copyright 2008 Google Inc. All rights reserved.
+
+==
+
+This product includes software developed by RE2/J
+Copyright (c) 2009 The Go Authors. All rights reserved.
+
+==
+
+This product includes software developed by OWASP Java HTML Sanitizer.
+Copyright (c) 2011, Mike Samuel
+All rights reserved.
+
+==
+
+This product includes software developed by the Wicket - jQuery UI project.
+Copyright 2012-2013 Sebastien Briquet
+
+==
+
+This product includes software produced and maintained by Eclipse Metro
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software produced and maintained by Jakarta Activation project
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software produced and maintained by Jakarta Eclipse Implementation of JAXB
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software produced and maintained by Jakarta XML Web Services
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software developed by Micrometer Application Metrics
+Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
+
+==
+
+This product includes software developed by Netty
+Copyright 2014 The Netty Project
+
+==
+
+This product includes software developed by the Swagger project.
+Copyright 2016 SmartBear Software
 
 ==
 
@@ -33,18 +136,24 @@ Copyright (c) 2016 Drifty (http://drifty.com/)
 
 ==
 
-This product includs software developed by Oracle.
-Copyright (c) 2012-2013 Oracle and/or its affiliates. All rights reserved.
+This product includes software developed by the slimScroll project.
+Copyright (c) 2011 Piotr Rochala (http://rocha.la)
+
+==
+
+This product includes software developed by Apereo CAS
+Copyright 2022, The Apereo Foundation
+
+==
+
+This product includes software developed by the Eclipse Project for JAX-RS.
+Eclipse Project for JAX-RS is a trademark of the Eclipse Foundation.
+All content is the property of the respective authors or their employers. For more information regarding authorship of content, please consult the listed source code repository logs.
 
 ==
 
 This product includes software developed by the Bean Validation Project (http://beanvalidation.org).
 Copyright (c) Red Hat, Inc., Emmanuel Bernard
-
-==
-
-This product includes software developed by the JAX-RS project.
-Copyright (c) 2014, Oracle Corporation and/or its affiliates. All rights reserved.
 
 ==
 
@@ -68,13 +177,23 @@ Copyright 2007, 2015 jQuery Foundation and other contributors.
 
 ==
 
-This product includes software developed by the Kendo UI project.
-Copyright (c) 2014-2015 Telerik]
+This product includes software developed by the jQuery++ project.
+Copyright (C) 2012 Bitovi
 
 ==
 
-This product includes software developed by the lodash project.
-Copyright jQuery Foundation and other contributors <https://jquery.org/>]
+This product includes software developed by the jsPlumb project.
+Copyright (c) 2010 - 2014 jsPlumb, http://jsplumbtoolkit.com/
+
+==
+
+This product includes software developed by The Checker Framework.
+Copyright (c) 2004-present by the Checker Framework developers
+
+==
+
+This product includes software developed by MojoHaus AnimalSniffer Maven Plugin
+Copyright (c) 2009, codehaus.org
 
 ==
 
@@ -86,33 +205,56 @@ This product includes software developed by the Woodstox Project.
 
 ==
 
+This product includes software developed by Serializable java.util.function Interfaces.
+Copyright (c) 2015 Jakub Danek
+
+==
+
+This product includes software developed by the ASM project.
+Copyright (c) 2000-2011 INRIA, France Telecom
+All rights reserved.
+
+==
+
 This products includes software developed by the Simple Logging Facade for Java (SLF4J) project.
 Copyright (c) 2004-2016 QOS.ch.
 
 ==
 
 This product includes software developed by SpringSource.
-Copyright (c) 2004-2016 SpringSource
+Copyright (c) 2004-2022 SpringSource
 All rights reserved.
 
 ==
 
-This product includes software developed by the FileSaver.js project.
-Copyright (c) 2015 Carlos A. Gomes.
+This product includes software developed by Moment.js.
+Copyright (c) JS Foundation and other contributors
 
 ==
 
-This product includes software developed by the Bootstrap File Input project.
-Copyright (c) 2014 - 2016, Kartik Visweswaran Krajee.com All rights reserved.
+This product includes software developed by Inputmask
+Copyright (c) 2010 - 2018 Robin Herbots
 
 ==
 
-This product contains unmodified binary redistributions for H2 database engine,
-which is dual licensed and available under a modified version of the MPL 1.1 (Mozilla Public License) or under the
-(unmodified) EPL 1.0 (Eclipse Public License).
-An original copy of the license agreement can be found at: http://www.h2database.com/html/license.html
+This product includes software developed by Summernote
+Copyright (c) 2015~ Summernote Team (https://github.com/orgs/summernote/people)
 
 ==
 
-This product includes software developed by the Select2 project.
-Copyright (c) 2012-2015 Kevin Brown, Igor Vaynberg, and Select2 contributors
+This product includes software developed by WicketStuff
+Copyright (c) 1998-2004, Drew Davidson and Luke Blanshard
+
+==
+
+This product includes software developed by the SnakeYAML project.
+
+==
+
+This product includes software developed by popper.js
+Copyright (c) 2021 Floating UI contributors
+
+==
+
+This product includes software developed by Tempus Dominus Bootstrap 4 Datetime Picker
+Copyright (c) 2016 Tempus Dominus

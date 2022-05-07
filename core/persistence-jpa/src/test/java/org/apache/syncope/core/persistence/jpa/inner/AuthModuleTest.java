@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.auth.JDBCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JaasAuthModuleConf;
 import org.apache.syncope.common.lib.auth.LDAPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
-import org.apache.syncope.common.lib.auth.RadiusAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
@@ -102,10 +101,6 @@ public class AuthModuleTest extends AbstractTest {
         authModule = authModuleDAO.find("DefaultU2FAuthModule");
         assertNotNull(authModule);
         assertTrue(authModule.getConf() instanceof U2FAuthModuleConf);
-
-        authModule = authModuleDAO.find("DefaultRadiusAuthModule");
-        assertNotNull(authModule);
-        assertTrue(authModule.getConf() instanceof RadiusAuthModuleConf);
     }
 
     @Test
@@ -121,7 +116,7 @@ public class AuthModuleTest extends AbstractTest {
                 authModule -> isSpecificConf(authModule.getConf(), GoogleMfaAuthModuleConf.class)
                 && authModule.getKey().equals("DefaultGoogleMfaAuthModule")));
         assertTrue(authModules.stream().anyMatch(
-            authModule -> isSpecificConf(authModule.getConf(), DuoMfaAuthModuleConf.class)
+                authModule -> isSpecificConf(authModule.getConf(), DuoMfaAuthModuleConf.class)
                 && authModule.getKey().equals("DefaultDuoMfaAuthModule")));
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), OIDCAuthModuleConf.class)
@@ -138,9 +133,6 @@ public class AuthModuleTest extends AbstractTest {
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), SyncopeAuthModuleConf.class)
                 && authModule.getKey().equals("DefaultSyncopeAuthModule")));
-        assertTrue(authModules.stream().anyMatch(
-                authModule -> isSpecificConf(authModule.getConf(), RadiusAuthModuleConf.class)
-                && authModule.getKey().equals("DefaultRadiusAuthModule")));
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), U2FAuthModuleConf.class)
                 && authModule.getKey().equals("DefaultU2FAuthModule")));
@@ -241,17 +233,6 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithRadiusModule() {
-        RadiusAuthModuleConf conf = new RadiusAuthModuleConf();
-        conf.setProtocol("MSCHAPv2");
-        conf.setInetAddress("1.2.3.4");
-        conf.setSharedSecret("xyz");
-        conf.setSocketTimeout(40);
-
-        saveAuthModule("RadiusAuthModuleTest", conf);
-    }
-
-    @Test
     public void saveWithU2FModule() {
         U2FAuthModuleConf conf = new U2FAuthModuleConf();
         conf.setExpireDevices(50);
@@ -327,7 +308,6 @@ public class AuthModuleTest extends AbstractTest {
         assertEquals(secretKey, DuoMfaAuthModuleConf.class.cast(found.getConf()).getSecretKey());
     }
 
-
     @Test
     public void updateWithSAML2IdPModule() {
         AuthModule module = authModuleDAO.find("DefaultSAML2IdPAuthModule");
@@ -391,22 +371,6 @@ public class AuthModuleTest extends AbstractTest {
         AuthModule found = authModuleDAO.find(module.getKey());
         assertNotNull(found);
         assertEquals(2, StaticAuthModuleConf.class.cast(found.getConf()).getUsers().size());
-    }
-
-    @Test
-    public void updateWithRadiusModule() {
-        AuthModule module = authModuleDAO.find("DefaultRadiusAuthModule");
-        assertNotNull(module);
-        AuthModuleConf conf = module.getConf();
-        RadiusAuthModuleConf.class.cast(conf).setSocketTimeout(45);
-        module.setConf(conf);
-
-        module = authModuleDAO.save(module);
-        assertNotNull(module);
-        assertNotNull(module.getKey());
-        AuthModule found = authModuleDAO.find(module.getKey());
-        assertNotNull(found);
-        assertEquals(45, RadiusAuthModuleConf.class.cast(found.getConf()).getSocketTimeout());
     }
 
     @Test

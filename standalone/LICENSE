@@ -204,12 +204,36 @@
 ==
 
 For Animate.css (http://daneden.github.io/animate.css/):
-This is licensed under the MIT license, see above.
+This is licensed under the MIT license:
+
+ Permission is hereby granted, free  of charge, to any person obtaining
+ a  copy  of this  software  and  associated  documentation files  (the
+ "Software"), to  deal in  the Software without  restriction, including
+ without limitation  the rights to  use, copy, modify,  merge, publish,
+ distribute,  sublicense, and/or sell  copies of  the Software,  and to
+ permit persons to whom the Software  is furnished to do so, subject to
+ the following conditions:
+ 
+ The  above  copyright  notice  and  this permission  notice  shall  be
+ included in all copies or substantial portions of the Software.
+ 
+ THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
+ EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
+ MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
+ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ==
 
 For AOP Alliance (http://aopalliance.sourceforge.net/):
 This is Public Domain.
+
+==
+
+For args4j (http://args4j.kohsuke.org):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -228,8 +252,58 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For cglib (https://github.com/cglib/cglib):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For CodeMirror (http://codemirror.net/):
 This is licensed under the MIT license, see above.
+
+==
+
+For COSE-JAVA (https://github.com/cose-wg/cose-java):
+This is licensed under the BSD license:
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this 
+list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, 
+this list of conditions and the following disclaimer in the documentation 
+and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors 
+may be used to endorse or promote products derived from this software without 
+specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+==
+
+For Auth0 Java JWT (https://github.com/auth0/java-jwt):
+This is licensed under the MIT license, see above.
+
+==
+
+For JCommander (https://jcommander.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Duo Auth API (https://github.com/duosecurity/duo_client_java):
+This is licensed under the BSD license, see above.
 
 ==
 
@@ -243,7 +317,232 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Wicket autoconfiguration with Spring Boot (https://github.com/MarcGiffing/wicket-spring-boot):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Caffeine (https://github.com/ben-manes/caffeine):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Open JSON (https://github.com/openjson/openjson):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Operating System and Hardware Information (https://oshi.github.io/oshi/):
+This is licensed under the MIT license, see above.
+
+==
+
+For Numbers (https://github.com/peteroupc/Numbers-Java):
+This is licensed under the CC0 1.0:
+
+Statement of Purpose
+
+The laws of most jurisdictions throughout the world
+automatically confer exclusive Copyright and Related Rights
+(defined below) upon the creator and subsequent owner(s) (each
+and all, an "owner") of an original work of authorship and/or
+a database (each, a "Work").
+
+Certain owners wish to permanently relinquish those rights
+to a Work for the purpose of contributing to a commons of
+creative, cultural and scientific works ("Commons") that the
+public can reliably and without fear of later claims of
+infringement build upon, modify, incorporate in other works,
+reuse and redistribute as freely as possible in any form
+whatsoever and for any purposes, including without limitation
+commercial purposes. These owners may contribute to the
+Commons to promote the ideal of a free culture and the further
+production of creative, cultural and scientific works, or to
+gain reputation or greater distribution for their Work in part
+through the use and efforts of others.
+
+For these and/or other purposes and motivations, and
+without any expectation of additional consideration or
+compensation, the person associating CC0 with a Work (the
+"Affirmer"), to the extent that he or she is an owner of
+Copyright and Related Rights in the Work, voluntarily elects
+to apply CC0 to the Work and publicly distribute the Work
+under its terms, with knowledge of his or her Copyright and
+Related Rights in the Work and the meaning and intended legal
+effect of CC0 on those rights.
+
+1. Copyright and Related Rights.
+
+A Work made available under CC0 may be protected by
+copyright and related or neighboring rights ("Copyright and
+ Related Rights"). Copyright and Related Rights include, but
+are not limited to, the following:
+
+i. the right to reproduce, adapt, distribute, perform,
+display, communicate, and translate a Work;
+ii. moral rights retained by the original author(s) and/or
+performer(s);
+iii. publicity and privacy rights pertaining to a person's
+image or likeness depicted in a Work;
+iv. rights protecting against unfair competition in regards
+to a Work, subject to the limitations in paragraph 4(a),
+below;
+v. rights protecting the extraction, dissemination, use and
+reuse of data in a Work;
+vi. database rights (such as those arising under Directive
+96/9/EC of the European Parliament and of the Council of 11
+March 1996 on the legal protection of databases, and under
+any national implementation thereof, including any amended
+or successor version of such directive); and<
+vii. >other similar, equivalent or corresponding rights
+throughout the world based on applicable law or treaty, and
+any national implementations thereof.
+
+2. Waiver.
+
+To the greatest extent
+permitted by, but not in contravention of, applicable law,
+Affirmer hereby overtly, fully, permanently, irrevocably and
+unconditionally waives, abandons, and surrenders all of
+Affirmer's Copyright and Related Rights and associated claims
+and causes of action, whether now known or unknown (including
+existing as well as future claims and causes of action), in
+the Work (i) in all territories worldwide, (ii) for the
+maximum duration provided by applicable law or treaty
+(including future time extensions), (iii) in any current or
+future medium and for any number of copies, and (iv) for any
+purpose whatsoever, including without limitation commercial,
+advertising or promotional purposes (the "Waiver"). Affirmer
+makes the Waiver for the benefit of each member of the public
+at large and to the detriment of Affirmer's heirs and
+successors, fully intending that such Waiver shall not be
+subject to revocation, rescission, cancellation, termination,
+or any other legal or equitable action to disrupt the quiet
+enjoyment of the Work by the public as contemplated by
+Affirmer's express Statement of Purpose.
+
+3. Public License Fallback.
+
+Should any
+part of the Waiver for any reason be judged legally invalid or
+ineffective under applicable law, then the Waiver shall be
+preserved to the maximum extent permitted taking into account
+Affirmer's express Statement of Purpose. In addition, to the
+extent the Waiver is so judged Affirmer hereby grants to each
+affected person a royalty-free, non transferable, non
+sublicensable, non exclusive, irrevocable and unconditional
+license to exercise Affirmer's Copyright and Related Rights
+in the Work (i) in all territories worldwide, (ii) for the
+maximum duration provided by applicable law or treaty
+(including future time extensions), (iii) in any current or
+future medium and for any number of copies, and (iv) for any
+purpose whatsoever, including without limitation commercial,
+advertising or promotional purposes (the "License"). The
+License shall be deemed effective as of the date CC0 was
+applied by Affirmer to the Work. Should any part of the
+License for any reason be judged legally invalid or
+ineffective under applicable law, such partial invalidity or
+ineffectiveness shall not invalidate the remainder of the
+License, and in such case Affirmer hereby affirms that he or
+she will not (i) exercise any of his or her remaining
+Copyright and Related Rights in the Work or (ii) assert any
+associated claims and causes of action with respect to the
+Work, in either case contrary to Affirmer's express Statement
+of Purpose.
+
+4. Limitations and Disclaimers.
+
+i.No trademark or patent rights held by Affirmer are
+waived, abandoned, surrendered, licensed or otherwise
+affected by this document.
+ii. Affirmer offers the Work as-is and makes no
+representations or warranties of any kind concerning the
+Work, express, implied, statutory or otherwise, including
+without limitation warranties of title, merchantability,
+fitness for a particular purpose, non infringement, or the
+absence of latent or other defects, accuracy, or the present
+or absence of errors, whether or not discoverable, all to
+the greatest extent permissible under applicable law.
+iii. Affirmer disclaims responsibility for clearing rights of
+other persons that may apply to the Work or any use thereof,
+including without limitation any person's Copyright and
+Related Rights in the Work. Further, Affirmer disclaims
+responsibility for obtaining any necessary consents,
+permissions or other rights required for any use of the
+Work.
+iv. Affirmer understands and acknowledges that Creative
+Commons is not a party to this document and has no duty or
+obligation with respect to this CC0 or use of the Work.
+
+
+==
+
+For ScribeJava (https://github.com/scribejava/scribejava):
+This is licensed under the MIT license, see above.
+
+==
+
+For JCIP Annotations (https://github.com/stephenc/jcip-annotations):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Gson (https://github.com/google/gson):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Elemental2 (https://github.com/google/elemental2):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Error Prone (https://errorprone.info/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Guava (https://github.com/google/guava):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For J2ObjC: Java to Objective-C Translator and Runtime (http://j2objc.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Google Closure Compiler (https://developers.google.com/closure/compiler/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For JsInterop Base (https://github.com/google/jsinterop-base):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For JsInterop Annotations (https://github.com/google/jsinterop-annotations):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Protocol Buffers (https://developers.google.com/protocol-buffers/):
+This is licensed under the BSD license, see above.
+
+==
+
+For RE2/J (https://github.com/google/re2j):
+This is licensed under the BSD license, see above.
+
+==
+
+For ZXing (https://github.com/zxing/zxing):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For OWASP Java HTML Sanitizer (https://owasp.org/www-project-java-html-sanitizer/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -462,8 +761,73 @@ any resulting litigation.
 
 ==
 
+For GreenMail (http://www.icegreen.com/greenmail/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For LMAX Disruptor (https://lmax-exchange.github.io/disruptor/):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For mchange-commons-java (https://github.com/swaldman/mchange-commons-java):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For Microsoft OAuth 2.0 User Agent library for Java (https://github.com/Microsoft/oauth2-useragent):
+This is licensed under the MIT license, see above.
+
+==
+
+For Nimbus Content Type (https://bitbucket.org/connect2id/nimbus-content-type/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Nimbus Language Tags (https://bitbucket.org/connect2id/nimbus-language-tags/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Nimbus JOSE-JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For OAuth 2.0 SDK with OpenID Connect extensions (https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Moshi (https://square.github.io/moshi/1.x):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For OkHttp (https://square.github.io/okhttp/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Okio (https://square.github.io/okio/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Retrofit (https://square.github.io/retrofit/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Retrofit (https://square.github.io/retrofit/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Jakarta Mail:
+This is licensed under the EPL 1.0, see above.
 
 ==
 
@@ -853,8 +1217,103 @@ of liability.
 
 ==
 
+For Eclipse Metro (https://projects.eclipse.org/projects/ee4j.metro):
+This is licensed under the EDL 1.0:
+
+Eclipse Distribution License - v 1.0
+
+Copyright (c) 2007, Eclipse Foundation, Inc. and its licensors.
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+  disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+  disclaimer in the documentation and/or other materials provided with the distribution.
+* Neither the name of the Eclipse Foundation, Inc. nor the names of its contributors may be used to endorse or promote
+  products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+==
+
+For QDox (https://github.com/paul-hammant/qdox):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For UnboundID LDAP SDK for Java (https://github.com/pingidentity/ldapsdk):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For CBOR (https://github.com/peteroupc/CBOR-Java):
+This is licensed under the CC0 1.0, see above.
+
+==
+
+For Semver4j (https://github.com/vdurmont/semver4j):
+This is licensed under the MIT license, see above.
+
+==
+
+For GoogleAuth (https://github.com/wstrange/GoogleAuth):
+This is licensed under the BSD license, see above.
+
+==
+
+For Yubico (https://developers.yubico.com/):
+This is licensed under the BSD license, see above.
+
+==
+
 For HikariCP (http://brettwooldridge.github.io/HikariCP/):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For Dough Lea's util.concurrent package:
+This is Public Domain.
+
+==
+
+For DataTables (https://datatables.net/):
+This is licensed under the MIT license, see above.
+
+==
+
+For cronn reflection-util (https://github.com/cronn/reflection-util):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Eclipse Implementation of JAXB (https://projects.eclipse.org/projects/ee4j.jaxb-impl):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Jakarta XML Web Services https://projects.eclipse.org/projects/ee4j.jaxws):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For es5-shim (https://github.com/es-shims/es5-shim):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -868,43 +1327,38 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For highlight.js (http://highlightjs.org/):
-This is licensed under the BSD license:
-
-Redistribution and use in source and binary forms, with or without 
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this 
-list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors 
-may be used to endorse or promote products derived from this software without 
-specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+For Metrics (http://dropwizard.github.io/metrics/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
-For Metrics (http://dropwizard.github.io/metrics/):
+For ClassGraph (https://github.com/classgraph/classgraph):
+This is licensed under the MIT license, see above.
+
+==
+
+For Micrometer Application Metrics (https://micrometer.io/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Netty (https://netty.io/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Project Reactor (https://projectreactor.io/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
 For Swagger (http://swagger.io/):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For Userinfo.io (http://userinfo.io/):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -918,28 +1372,48 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For Jakarta Annotations https://projects.eclipse.org/projects/ee4j.ca):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For Jakarta Persistence project(https://github.com/eclipse-ee4j/jpa-api):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For Eclipse Project for JAX-RS (https://projects.eclipse.org/projects/ee4j.jaxrs):
+This is licensed under the EPL 1.0, see above.
+
+==
+
 For javax.annotation-api (https://jcp.org/en/jsr/detail?id=250):
 This is licensed under the CDDL 1.0, see above.
 
 ==
 
-For Web Services Metadata for the Java Platform (https://jcp.org/en/jsr/detail?id=181):
+For Expression Language 3.0 API (https://javaee.github.io/uel-ri/):
 This is licensed under the CDDL 1.0, see above.
 
 ==
 
-For Apache Standard Taglib (http://tomcat.apache.org/taglibs/standard/):
+For JSR-330: Dependency Injection for Java (https://code.google.com/archive/p/atinject/):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For Java(TM) Persistence API (https://github.com/javaee/jpa-spec):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Java Servlet API (https://javaee.github.io/servlet-spec/):
+This is licensed under the CDDL 1.0, see above.
 
 ==
 
 For Bean Validation API (http://beanvalidation.org/):
 This is licensed under the AL 2.0, see above.
-
-==
-
-For javax.ws.rs-api (https://jax-rs-spec.java.net/):
-This is licensed under the CDDL 1.0, see above.
 
 ==
 
@@ -950,6 +1424,11 @@ This is licensed under the CDDL 1.0, see above.
 
 For javax.ws.rs-api (https://jax-ws.java.net/):
 This is licensed under the CDDL 1.0, see above.
+
+==
+
+For Jline v2 (http://jline.github.io/jline2/):
+This is licensed under the BSD license, see above.
 
 ==
 
@@ -983,27 +1462,22 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For Kendo UI (http://www.telerik.com/kendo-ui):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For lodash (https://lodash.com/):
-This is licensed under the MIT license, see above.
-
-==
-
-For JavaGeom (http://geom-java.sourceforge.net/):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For Modernizr (https://modernizr.com):
 This is licensed under the MIT license, see above.
 
 ==
 
-For Ehcache (http://ehcache.org/):
+For Byte Buddy (https://bytebuddy.net/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For EdDSA-Java (https://github.com/str4d/ed25519-java):
+This is licensed under the CC0 1.0, see above.
+
+==
+
+For json-smart-v2 (https://github.com/netplex/json-smart-v2):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1018,12 +1492,62 @@ This is licensed under the BSD license, see above.
 
 ==
 
+For Spymemcached (https://github.com/couchbase/spymemcached):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For ConnId (http://connid.tirasa.net/):
 This is licensed under the CDDL 1.0, see above.
 
 ==
 
-For Flowable (http://www.flowable.org/):
+For Groovy Extensions (https://github.com/ultraq/groovy-extensions/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Thymeleaf Expression Processor (https://github.com/ultraq/thymeleaf-expression-processor):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Thymeleaf Layout Dialect (https://github.com/ultraq/thymeleaf-layout-dialect):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For OGNL (https://github.com/jkuhnert/ognl/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For OSCache (http://www.opensymphony.com/oscache/):
+This is licensed under the MIT license, see above.
+
+==
+
+For ANTLR (https://www.antlr.org/):
+This is licensed under the BSD license, see above.
+
+==
+
+For Apereo CAS (https://apereo.github.io/cas/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Inspektr (https://github.com/apereo/inspektr):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Person Directory (https://github.com/apereo/person-directory):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For cas-server-webauthn-helper (https://github.com/mmoayyed/cas-server-webauthn-helper):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1033,7 +1557,27 @@ This is licensed under the EPL 1.0, see above.
 
 ==
 
+For attoparser (http://www.attoparser.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For jose.4.j (https://bitbucket.org/b_c/jose4j/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Legion of the Bouncy Castle (http://www.bouncycastle.org/java.html):
+This is licensed under the MIT license, see above.
+
+==
+
+For The Checker Framework (https://checkerframework.org/):
+This is licensed under the MIT license, see above.
+
+==
+
+For MojoHaus AnimalSniffer Maven Plugin (https://github.com/mojohaus/animal-sniffer):
 This is licensed under the MIT license, see above.
 
 ==
@@ -1053,6 +1597,41 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Serializable java.util.function Interfaces (https://github.com/danekja/jdk-serializable-functional):
+This is licensed under the MIT license, see above.
+
+==
+
+For Flowable (http://www.flowable.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Java EE API modules repackaged as OSGi bundles in GlassFish:
+This is licensed under the CDDL 1.0, see above.
+
+==
+
+For Jakarta JSON Processing (https://projects.eclipse.org/projects/ee4j.jsonp):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For HdrHistogram (https://hdrhistogram.github.io/HdrHistogram/):
+This is licensed under the CC0 1.0, see above.
+
+==
+
+For Hjson Library (https://github.com/hjson/hjson-java):
+This is licensed under the MIT license, see above.
+
+==
+
+For Java Apereo CAS Client (https://www.apereo.org/cas):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For jasypt (http://www.jasypt.org/):
 This is licensed under the AL 2.0, see above.
 
@@ -1063,7 +1642,52 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For JDOM (http://www.jdom.org/):
+This is licensed under the BSD license, see above.
+
+==
+
+For Kotlin (https://kotlinlang.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For JetBrains Java Annotations (https://github.com/JetBrains/java-annotations):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For jOOL (https://github.com/jOOQ/jOOL):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For JSON in Java (https://github.com/stleary/JSON-java):
+This is licensed under the MIT license, see above.
+
+==
+
+For LatencyUtils (https://latencyutils.github.io/LatencyUtils/):
+This is licensed under the CC0 1.0, see above.
+
+==
+
+For Ldaptive Java Library (https://www.ldaptive.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Liquibase (https://www.liquibase.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For MyBatis (http://www.mybatis.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Objenesis (http://objenesis.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1078,8 +1702,28 @@ This is licensed under the BSD license, see above.
 
 ==
 
+For Reactive Streams (https://www.pac4j.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Passay (https://www.passay.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Project Lombok (https://projectlombok.org/):
+This is licensed under the MIT license, see above.
+
+==
+
 For Quartz Scheduler (http://quartz-scheduler.org/):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For Reactive Streams (http://www.reactive-streams.org/):
+This is licensed under the CC0 1.0, see above.
 
 ==
 
@@ -1093,28 +1737,28 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For Spring Framework (http://projects.spring.io/spring-framework/):
+For Spring openapi documentation (https://springdoc.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For Spring Security (http://projects.spring.io/spring-security/):
+For Spring (https://spring.io/projects):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For ThreeTen Backport (http://www.threeten.org/threetenbp/):
-This is licensed under the BSD license, see above.
+For spring-modules-cache:
+This is licensed under the AL 2.0, see above.
 
 ==
 
-For FileSaver.js (http://carlos-algms.github.io/work/html5-saveas-filesaver.js/):
-This is licensed under the MIT license, see above.
+For Thymeleaf (https://www.thymeleaf.org/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
-For Bootstrap File Input (http://plugins.krajee.com/file-input):
-This is licensed under the BSD license, see above.
+For unbescape (https://www.unbescape.org/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1123,13 +1767,78 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For ng-password-strength (https://github.com/subarroca/ng-password-strength):
+For Moment.js (http://momentjs.com/):
 This is licensed under the MIT license, see above.
 
 ==
 
-For Select2 (https://select2.github.io/):
+For zxcvbn (https://github.com/dropbox/zxcvbn):
 This is licensed under the MIT license, see above.
+
+==
+
+For balanced-match (https://github.com/juliangruber/balanced-match):
+This is licensed under the MIT license, see above.
+
+==
+
+For base64-js (https://github.com/beatgammit/base64-js):
+This is licensed under the MIT license, see above.
+
+==
+
+For css-vars-ponyfill (https://github.com/jhildenbiddle/css-vars-ponyfill):
+This is licensed under the MIT license, see above.
+
+==
+
+For get-css-data (https://github.com/jhildenbiddle/get-css-data):
+This is licensed under the MIT license, see above.
+
+==
+
+For Inputmask (https://github.com/RobinHerbots/Inputmask):
+This is licensed under the MIT license, see above.
+
+==
+
+For Material Components for the web (https://github.com/material-components/material-components-web):
+This is licensed under the MIT license, see above.
+
+==
+
+For Webfont - Material Design Icons (https://github.com/Templarian/MaterialDesign-Webfont):
+This is licensed under the MIT license, see above.
+
+==
+
+For normalize.css (http://necolas.github.io/normalize.css/):
+This is licensed under the MIT license, see above.
+
+==
+
+For Summernote (https://summernote.org/):
+This is licensed under the MIT license, see above.
+
+==
+
+For text-encoding (https://github.com/inexorabletash/text-encoding):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For tslib (https://github.com/Microsoft/tslib):
+This is licensed under the BSD license, see above.
+
+==
+
+For window.fetch polyfill (https://github.github.io/fetch/):
+This is licensed under the MIT license, see above.
+
+==
+
+For WicketStuff (https://wicketstuff.org/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1138,12 +1847,27 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For popper.js (https://github.com/FezVrasta/popper.js):
+This is licensed under the MIT license, see above.
+
+==
+
 For spin.js (http://spin.js.org/):
 This is licensed under the MIT license, see above.
 
 ==
 
+For Tempus Dominus Bootstrap 4 Datetime Picker (https://github.com/tempusdominus/bootstrap-4):
+This is licensed under the MIT license, see above.
+
+==
+
 For typeahead.js (http://twitter.github.io/typeahead.js/):
+This is licensed under the MIT license, see above.
+
+==
+
+For Webjars-locator core functionality (https://github.com/webjars/webjars-locator-core):
 This is licensed under the MIT license, see above.
 
 ==
@@ -1367,100 +2091,3 @@ intellectual property laws of the United States of America. No party to this
 Agreement will bring a legal action under this Agreement more than one year
 after the cause of action arose. Each party waives its rights to a jury trial in
 any resulting litigation.
-
-==
-
-For X-editable (http://vitalets.github.io/x-editable/):
-This is licensed under the MIT license, see above.
-
-==
-
-For Source Sans Pro (https://github.com/adobe-fonts/source-sans-pro):
-This is lincesed under the SIL Open Font License, Version 1.1:
-
------------------------------------------------------------
-SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
------------------------------------------------------------
-
-PREAMBLE
-The goals of the Open Font License (OFL) are to stimulate worldwide
-development of collaborative font projects, to support the font creation
-efforts of academic and linguistic communities, and to provide a free and
-open framework in which fonts may be shared and improved in partnership
-with others.
-
-The OFL allows the licensed fonts to be used, studied, modified and
-redistributed freely as long as they are not sold by themselves. The
-fonts, including any derivative works, can be bundled, embedded, 
-redistributed and/or sold with any software provided that any reserved
-names are not used by derivative works. The fonts and derivatives,
-however, cannot be released under any other type of license. The
-requirement for fonts to remain under this license does not apply
-to any document created using the fonts or their derivatives.
-
-DEFINITIONS
-"Font Software" refers to the set of files released by the Copyright
-Holder(s) under this license and clearly marked as such. This may
-include source files, build scripts and documentation.
-
-"Reserved Font Name" refers to any names specified as such after the
-copyright statement(s).
-
-"Original Version" refers to the collection of Font Software components as
-distributed by the Copyright Holder(s).
-
-"Modified Version" refers to any derivative made by adding to, deleting,
-or substituting -- in part or in whole -- any of the components of the
-Original Version, by changing formats or by porting the Font Software to a
-new environment.
-
-"Author" refers to any designer, engineer, programmer, technical
-writer or other person who contributed to the Font Software.
-
-PERMISSION & CONDITIONS
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of the Font Software, to use, study, copy, merge, embed, modify,
-redistribute, and sell modified and unmodified copies of the Font
-Software, subject to the following conditions:
-
-1) Neither the Font Software nor any of its individual components,
-in Original or Modified Versions, may be sold by itself.
-
-2) Original or Modified Versions of the Font Software may be bundled,
-redistributed and/or sold with any software, provided that each copy
-contains the above copyright notice and this license. These can be
-included either as stand-alone text files, human-readable headers or
-in the appropriate machine-readable metadata fields within text or
-binary files as long as those fields can be easily viewed by the user.
-
-3) No Modified Version of the Font Software may use the Reserved Font
-Name(s) unless explicit written permission is granted by the corresponding
-Copyright Holder. This restriction only applies to the primary font name as
-presented to the users.
-
-4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
-Software shall not be used to promote, endorse or advertise any
-Modified Version, except to acknowledge the contribution(s) of the
-Copyright Holder(s) and the Author(s) or with their explicit written
-permission.
-
-5) The Font Software, modified or unmodified, in part or in whole,
-must be distributed entirely under this license, and must not be
-distributed under any other license. The requirement for fonts to
-remain under this license does not apply to any document created
-using the Font Software.
-
-TERMINATION
-This license becomes null and void if any of the above conditions are
-not met.
-
-DISCLAIMER
-THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
-OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
-COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
-DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
-OTHER DEALINGS IN THE FONT SOFTWARE.
