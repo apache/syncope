@@ -409,7 +409,7 @@ under the License.
     <bouncycastle.version>1.70</bouncycastle.version>
     <nimbus-jose-jwt.version>9.22</nimbus-jose-jwt.version>
 
-    <jackson.version>2.13.2</jackson.version>
+    <jackson.version>2.13.3</jackson.version>
 
     <spring-boot.version>2.6.7</spring-boot.version>
     <spring-cloud-gateway.version>3.1.2</spring-cloud-gateway.version>
@@ -738,7 +738,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}.2</version>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -2579,13 +2579,12 @@ under the License.
             <link>https://ci.apache.org/projects/wicket/apidocs/9.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/2.2.1/api/</link>
+            <link>https://tika.apache.org/2.4.0/api/</link>
             <link>https://docs.spring.io/spring-boot/docs/current/api/</link>
             <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
-            <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/4.1.1/apidocs/</link>
-            <link>http://docs.swagger.io/swagger-core/v2.1.11/apidocs/</link>
+            <link>http://docs.swagger.io/swagger-core/v2.1.13/apidocs/</link>
           </links>
         </configuration>
         <reportSets>
