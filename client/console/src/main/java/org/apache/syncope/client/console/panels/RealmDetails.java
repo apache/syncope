@@ -91,6 +91,8 @@ public class RealmDetails extends Panel {
         }
     };
 
+    private final ActionsPanel<RealmTO> actionsPanel;
+
     private final WebMarkupContainer container;
 
     public RealmDetails(final String id, final RealmTO realmTO) {
@@ -100,10 +102,12 @@ public class RealmDetails extends Panel {
     public RealmDetails(
             final String id,
             final RealmTO realmTO,
-            final ActionsPanel<?> actionsPanel,
+            final ActionsPanel<RealmTO> actionsPanel,
             final boolean unwrapped) {
 
         super(id);
+
+        this.actionsPanel = actionsPanel;
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
@@ -171,5 +175,9 @@ public class RealmDetails extends Panel {
     public RealmDetails setContentEnabled(final boolean enable) {
         container.setEnabled(enable);
         return this;
+    }
+
+    public ActionsPanel<RealmTO> getActionsPanel() {
+        return actionsPanel;
     }
 }

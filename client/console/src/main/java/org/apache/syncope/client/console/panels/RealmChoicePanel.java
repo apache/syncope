@@ -23,8 +23,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.button.BootstrapAjaxLink
 import de.agilecoders.wicket.core.markup.html.bootstrap.button.ButtonList;
 import de.agilecoders.wicket.core.markup.html.bootstrap.button.Buttons;
 import de.agilecoders.wicket.core.markup.html.bootstrap.button.dropdown.DropDownButton;
-import de.agilecoders.wicket.core.markup.html.bootstrap.image.GlyphIconType;
-import de.agilecoders.wicket.core.markup.html.bootstrap.image.IconType;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5IconType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -107,32 +106,19 @@ public class RealmChoicePanel extends Panel {
 
             private static final long serialVersionUID = -7688359318035249200L;
 
-            private void getChildren(
-                    final List<Pair<String, RealmTO>> full,
-                    final String key,
-                    final Map<String, Pair<RealmTO, List<RealmTO>>> tree,
-                    final String indent) {
-
-                if (tree.containsKey(key)) {
-                    Pair<RealmTO, List<RealmTO>> subtree = tree.get(key);
-                    subtree.getValue().forEach(child -> {
-                        full.add(Pair.of(indent + child.getName(), child));
-                        getChildren(full, child.getKey(), tree, "     " + indent + (indent.isEmpty() ? "|--- " : ""));
-                    });
-                }
-            }
-
             @Override
             protected List<Pair<String, RealmTO>> load() {
                 Map<String, Pair<RealmTO, List<RealmTO>>> map = reloadRealmParentMap();
-                List<Pair<String, RealmTO>> full = new ArrayList<>();
+                Stream<Pair<String, RealmTO>> full;
                 if (isSearchEnabled) {
-                    full = map.entrySet().stream().map(
-                            el -> Pair.of(el.getKey(), el.getValue().getKey())).collect(Collectors.toList());
+                    full = map.entrySet().stream().
+                            map(el -> Pair.of(el.getKey(), el.getValue().getLeft()));
                 } else {
-                    getChildren(full, null, map, StringUtils.EMPTY);
+                    full = map.entrySet().stream().
+                            map(el -> Pair.of(el.getValue().getLeft().getFullPath(), el.getValue().getKey())).
+                            sorted(Comparator.comparing(Pair::getLeft));
                 }
-                return full.stream().filter(realm -> availableRealms.stream().anyMatch(
+                return full.filter(realm -> availableRealms.stream().anyMatch(
                         availableRealm -> realm.getValue().getFullPath().startsWith(availableRealm))).
                         collect(Collectors.toList());
             }
@@ -148,11 +134,11 @@ public class RealmChoicePanel extends Panel {
                 dynRealms.sort((left, right) -> {
                     if (left == null) {
                         return -1;
-                    } else if (right == null) {
-                        return 1;
-                    } else {
-                        return left.getKey().compareTo(right.getKey());
                     }
+                    if (right == null) {
+                        return 1;
+                    }
+                    return left.getKey().compareTo(right.getKey());
                 });
                 return dynRealms.stream().filter(dynRealm -> availableRealms.stream().
                         anyMatch(availableRealm -> SyncopeConstants.ROOT_REALM.equals(availableRealm)
@@ -167,14 +153,15 @@ public class RealmChoicePanel extends Panel {
                     RealmsUtils.buildQuery(SyncopeConstants.ROOT_REALM.equals(rootRealm)
                             ? SyncopeConstants.ROOT_REALM : rootRealmName)).getResult();
 
-            return realmTOs.stream().filter(realm -> rootRealm.equals(realm.getFullPath())).findFirst().
+            return realmTOs.stream().
+                    filter(realm -> rootRealm.equals(realm.getFullPath())).findFirst().
                     orElseGet(() -> {
                         RealmTO placeholder = new RealmTO();
                         placeholder.setName(rootRealmName);
                         placeholder.setFullPath(rootRealm);
                         return placeholder;
                     });
-        }).orElseGet(() -> new RealmTO());
+        }).orElseGet(RealmTO::new);
 
         model = Model.of(realmTO);
         searchQuery = realmTO.getName();
@@ -202,12 +189,12 @@ public class RealmChoicePanel extends Panel {
 
         if (isSearchEnabled) {
             realmsChoices = buildRealmChoices();
-            final AutoCompleteSettings settings = new AutoCompleteSettings();
+            AutoCompleteSettings settings = new AutoCompleteSettings();
             settings.setShowCompleteListOnFocusGain(false);
             settings.setShowListOnEmptyInput(false);
 
-            final AutoCompleteTextField<String> searchRealms =
-                    new AutoCompleteTextField<String>(SEARCH_REALMS, new Model<String>(), settings) {
+            AutoCompleteTextField<String> searchRealms =
+                    new AutoCompleteTextField<String>(SEARCH_REALMS, new Model<>(), settings) {
 
                 private static final long serialVersionUID = -6635259975264955783L;
 
@@ -216,15 +203,16 @@ public class RealmChoicePanel extends Panel {
                     searchQuery = input;
                     realmsChoices = RealmsUtils.checkInput(input)
                             ? buildRealmChoices()
-                            : Collections.<RealmTO>emptyList();
+                            : Collections.emptyList();
                     return realmsChoices.stream().
-                            map(item -> item.getFullPath()).sorted().collect(Collectors.toList()).iterator();
+                            map(RealmTO::getFullPath).sorted().collect(Collectors.toList()).iterator();
                 }
 
                 @Override
                 protected AutoCompleteBehavior<String> newAutoCompleteBehavior(
                         final IAutoCompleteRenderer<String> renderer,
                         final AutoCompleteSettings settings) {
+
                     return super.newAutoCompleteBehavior(new AbstractAutoCompleteRenderer<String>() {
 
                         private static final long serialVersionUID = -4789925973199139157L;
@@ -267,8 +255,8 @@ public class RealmChoicePanel extends Panel {
             fragment.addOrReplace(searchRealms);
             container.addOrReplace(fragment);
         } else {
-            final DropDownButton realms = new DropDownButton(
-                    "realms", new ResourceModel("select", ""), new Model<IconType>(GlyphIconType.folderopen)) {
+            DropDownButton realms = new DropDownButton(
+                    "realms", new ResourceModel("select", ""), new Model<>(FontAwesome5IconType.folder_open_r)) {
 
                 private static final long serialVersionUID = -5560086780455361131L;
 
@@ -293,7 +281,7 @@ public class RealmChoicePanel extends Panel {
         RealmChoicePanel.this.links.clear();
         RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
                 ButtonList.getButtonMarkupId(),
-                new Model<RealmTO>(),
+                new Model<>(),
                 Buttons.Type.Link,
                 new ResourceModel("realms", "Realms")) {
 
@@ -310,28 +298,26 @@ public class RealmChoicePanel extends Panel {
 
             @Override
             protected void onComponentTag(final ComponentTag tag) {
-                tag.put("class", "panel box box-primary box-header with-border");
-                tag.put("style", "margin: 20px 5px 0px 5px; width: 90%");
+                tag.put("class", "dropdown-header disabled");
             }
         });
 
         realmTree.getObject().forEach(link -> {
-            RealmTO realmTO = link.getValue();
             RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
                     ButtonList.getButtonMarkupId(),
-                    Model.of(realmTO),
+                    Model.of(link.getRight()),
                     Buttons.Type.Link,
-                    new Model<>(link.getKey())) {
+                    new Model<>(link.getLeft())) {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
-                    model.setObject(realmTO);
+                    model.setObject(link.getRight());
                     label.setDefaultModelObject(model.getObject().getFullPath());
                     realmLabel.setDefaultModel(new ResourceModel("realmLabel", "Realm"));
                     target.add(label);
-                    send(pageRef.getPage(), Broadcast.EXACT, new ChosenRealm<>(realmTO, target));
+                    send(pageRef.getPage(), Broadcast.EXACT, new ChosenRealm<>(link.getRight(), target));
                 }
             });
         });
@@ -339,7 +325,7 @@ public class RealmChoicePanel extends Panel {
         if (!dynRealmTree.getObject().isEmpty()) {
             RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
                     ButtonList.getButtonMarkupId(),
-                    new Model<RealmTO>(),
+                    new Model<>(),
                     Buttons.Type.Link,
                     new ResourceModel("dynrealms", "Dynamic Realms")) {
 
@@ -347,7 +333,6 @@ public class RealmChoicePanel extends Panel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
-
                 }
 
                 @Override
@@ -357,8 +342,7 @@ public class RealmChoicePanel extends Panel {
 
                 @Override
                 protected void onComponentTag(final ComponentTag tag) {
-                    tag.put("class", "panel box box-primary box-header with-border");
-                    tag.put("style", "margin: 20px 5px 0px 5px; width: 90%");
+                    tag.put("class", "dropdown-header disabled");
                 }
             });
 
@@ -370,7 +354,7 @@ public class RealmChoicePanel extends Panel {
 
                 RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
                         ButtonList.getButtonMarkupId(),
-                        new Model<RealmTO>(),
+                        new Model<>(),
                         Buttons.Type.Link,
                         new Model<>(realmTO.getKey())) {
 
@@ -413,14 +397,11 @@ public class RealmChoicePanel extends Panel {
 
     private Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap(final List<RealmTO> realms) {
         tree.clear();
-        if (!isSearchEnabled) {
-            tree.put(null, Pair.<RealmTO, List<RealmTO>>of(realms.get(0), new ArrayList<>()));
-        }
 
-        final Map<String, List<RealmTO>> cache = new HashMap<>();
+        Map<String, List<RealmTO>> cache = new HashMap<>();
 
         realms.forEach(realm -> {
-            final List<RealmTO> children = new ArrayList<>();
+            List<RealmTO> children = new ArrayList<>();
             tree.put(realm.getKey(), Pair.<RealmTO, List<RealmTO>>of(realm, children));
 
             if (cache.containsKey(realm.getKey())) {
@@ -441,15 +422,14 @@ public class RealmChoicePanel extends Panel {
 
     private List<RealmTO> buildRealmChoices() {
         return Stream.of(
-                realmTree.getObject().stream().map(item -> item.getValue()).collect(Collectors.toList()),
-                dynRealmTree.getObject().stream().map(
-                        item -> {
-                            final RealmTO realmTO = new RealmTO();
-                            realmTO.setKey(item.getKey());
-                            realmTO.setName(item.getKey());
-                            realmTO.setFullPath(item.getKey());
-                            return realmTO;
-                        }).collect(Collectors.toList())).flatMap(Collection::stream).
+                realmTree.getObject().stream().map(Pair::getValue).collect(Collectors.toList()),
+                dynRealmTree.getObject().stream().map(item -> {
+                    RealmTO realmTO = new RealmTO();
+                    realmTO.setKey(item.getKey());
+                    realmTO.setName(item.getKey());
+                    realmTO.setFullPath(item.getKey());
+                    return realmTO;
+                }).collect(Collectors.toList())).flatMap(Collection::stream).
                 collect(Collectors.toList());
     }
 
