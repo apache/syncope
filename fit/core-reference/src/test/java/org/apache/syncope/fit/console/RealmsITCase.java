@@ -69,7 +69,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realmsFragment:realms:dropdown-menu:buttons:5:button",
                 Constants.ON_CLICK);
 
-        TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/testRealm");
+        TESTER.assertLabel("body:content:realmChoicePanel:container:realmDisplayValue", "/testRealm");
 
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(
@@ -81,7 +81,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.assertLabel("body:content:body:container:content:tabbedPanel:panel:container:accountPolicy:field-label",
                 "Account Policy");
 
-        TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/");
+        TESTER.assertLabel("body:content:realmChoicePanel:container:realmDisplayValue", "/");
     }
 
     @Test
@@ -107,7 +107,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realmsFragment:realms:dropdown-menu:buttons:4:button",
                 Constants.ON_CLICK);
 
-        TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/odd");
+        TESTER.assertLabel("body:content:realmChoicePanel:container:realmDisplayValue", "/odd");
 
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:2:action:action");
@@ -127,7 +127,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/odd");
+        TESTER.assertLabel("body:content:realmChoicePanel:container:realmDisplayValue", "/odd");
 
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:2:action:action");

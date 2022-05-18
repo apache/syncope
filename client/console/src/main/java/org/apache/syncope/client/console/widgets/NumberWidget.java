@@ -57,13 +57,13 @@ public class NumberWidget extends BaseWidget {
         List<String> anyTypes = new AnyTypeRestClient().list();
         switch (id) {
             case "totalUsers":
-                pageParameters.add("selectedIndex", 1);
+                pageParameters.add(Realms.SELECTED_INDEX, 1);
                 responsePage = Realms.class;
                 isAuthorized = SyncopeConsoleSession.get().owns(StandardEntitlement.USER_SEARCH);
                 break;
 
             case "totalGroups":
-                pageParameters.add("selectedIndex", 2);
+                pageParameters.add(Realms.SELECTED_INDEX, 2);
                 responsePage = Realms.class;
                 isAuthorized = SyncopeConsoleSession.get().owns(StandardEntitlement.GROUP_SEARCH);
                 break;
@@ -74,7 +74,7 @@ public class NumberWidget extends BaseWidget {
                     for (int i = 0; i < anyTypes.size() && selectedIndex == null; i++) {
                         if (anyTypes.get(i).equals(label)) {
                             selectedIndex = i + 1;
-                            pageParameters.add("selectedIndex", selectedIndex);
+                            pageParameters.add(Realms.SELECTED_INDEX, selectedIndex);
                         }
                     }
                     responsePage = Realms.class;
@@ -91,7 +91,7 @@ public class NumberWidget extends BaseWidget {
                     for (int i = 0; i < anyTypes.size() && selectedIndex == null; i++) {
                         if (anyTypes.get(i).equals(label)) {
                             selectedIndex = i + 1;
-                            pageParameters.add("selectedIndex", selectedIndex);
+                            pageParameters.add(Realms.SELECTED_INDEX, selectedIndex);
                         }
                     }
                     responsePage = Realms.class;
@@ -108,7 +108,7 @@ public class NumberWidget extends BaseWidget {
                 break;
 
             default:
-                pageParameters.add("selectedIndex", 0);
+                pageParameters.add(Realms.SELECTED_INDEX, 0);
                 responsePage = Realms.class;
         }
 

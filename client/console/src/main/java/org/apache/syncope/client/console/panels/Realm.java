@@ -53,7 +53,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -259,7 +258,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         private static final long serialVersionUID = -5861786415855103549L;
 
         protected RealmDetailsTabPanel() {
-            super(new Model<>("DETAILS"),
+            super(new ResourceModel("realm.details", "DETAILS"),
                     StandardEntitlement.REALM_CREATE,
                     StandardEntitlement.REALM_UPDATE,
                     StandardEntitlement.REALM_DELETE);

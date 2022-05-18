@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
@@ -52,6 +53,10 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 public class Realms extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271270L;
+
+    public static final String SELECTED_INDEX = "selectedIndex";
+
+    public static final String INITIAL_REALM = "initialRealm";
 
     protected final RealmRestClient realmRestClient = new RealmRestClient();
 
@@ -88,8 +93,7 @@ public class Realms extends BasePage {
 
         content = new WebMarkupContainer("content");
 
-        realmChoicePanel = new RealmChoicePanel("realmChoicePanel", getPageReference());
-        realmChoicePanel.setOutputMarkupId(true);
+        realmChoicePanel = buildRealmChoicePanel(parameters.get(INITIAL_REALM).toOptionalString(), getPageReference());
         content.add(realmChoicePanel);
 
         content.add(new Label("body", "Root realm"));
@@ -126,7 +130,17 @@ public class Realms extends BasePage {
             templateModal.show(false);
         });
 
-        updateRealmContent(realmChoicePanel.getCurrentRealm(), parameters.get("selectedIndex").toInt(0));
+        updateRealmContent(realmChoicePanel.getCurrentRealm(), parameters.get(SELECTED_INDEX).toInt(0));
+    }
+
+    protected RealmChoicePanel buildRealmChoicePanel(final String initialRealm, final PageReference pageRef) {
+        RealmChoicePanel panel = new RealmChoicePanel("realmChoicePanel", initialRealm, pageRef);
+        panel.setOutputMarkupId(true);
+        return panel;
+    }
+
+    public RealmChoicePanel getRealmChoicePanel() {
+        return realmChoicePanel;
     }
 
     @Override
@@ -167,10 +181,6 @@ public class Realms extends BasePage {
             content.addOrReplace(new Content(realmTO, anyTypeRestClient.listAnyTypes(), selectedIndex));
         }
         return content;
-    }
-
-    public RealmChoicePanel getRealmChoicePanel() {
-        return realmChoicePanel;
     }
 
     protected class Content extends Realm {
