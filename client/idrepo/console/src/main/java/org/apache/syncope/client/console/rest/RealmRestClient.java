@@ -45,11 +45,11 @@ public class RealmRestClient extends BaseRestClient {
         return getService(RealmService.class).list(SyncopeConstants.ROOT_REALM);
     }
 
-    public static List<DynRealmTO> listDynReams() {
+    public static List<DynRealmTO> listDynRealms() {
         return getService(DynRealmService.class).list();
     }
 
-    public static DynRealmTO readDynReams(final String key) {
+    public static DynRealmTO readDynRealm(final String key) {
         return getService(DynRealmService.class).read(key);
     }
 

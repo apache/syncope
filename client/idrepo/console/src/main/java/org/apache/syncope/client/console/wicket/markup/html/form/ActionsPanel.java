@@ -82,6 +82,16 @@ public final class ActionsPanel<T extends Serializable> extends Panel {
         return action;
     }
 
+    public Action<T> add(final int index, final Action<T> action) {
+        actions.add(index, action);
+        return action;
+    }
+
+    public Action<T> set(final int index, final Action<T> action) {
+        actions.set(index, action);
+        return action;
+    }
+
     public List<Action<T>> getActions() {
         return actions;
     }

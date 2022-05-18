@@ -627,7 +627,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 csvSchema(spec),
                 null,
                 os,
-                columns.toArray(new String[columns.size()]))) {
+                columns.toArray(String[]::new))) {
 
             SyncopeStreamPushExecutor executor =
                     (SyncopeStreamPushExecutor) ApplicationContextProvider.getBeanFactory().

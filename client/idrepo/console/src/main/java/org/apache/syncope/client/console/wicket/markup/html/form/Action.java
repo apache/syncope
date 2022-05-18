@@ -69,7 +69,7 @@ public final class Action<T extends Serializable> implements Serializable {
     }
 
     public String[] getRealms() {
-        return realms.toArray(new String[realms.size()]);
+        return realms.toArray(String[]::new);
     }
 
     public void setRealm(final String realm) {

@@ -32,7 +32,7 @@ public class RealmWizardBuilder extends BaseAjaxWizardBuilder<RealmTO> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private String parentPath;
+    protected String parentPath;
 
     /**
      * Construct.
@@ -69,7 +69,6 @@ public class RealmWizardBuilder extends BaseAjaxWizardBuilder<RealmTO> {
             realmDetail.add(new AttributeAppender("style", "overflow-x:hidden;"));
             add(realmDetail);
         }
-
     }
 
     public void setParentPath(final String parentPath) {

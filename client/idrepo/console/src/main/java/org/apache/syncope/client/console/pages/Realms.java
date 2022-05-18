@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.pages;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
+import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.Realm;
 import org.apache.syncope.client.console.panels.RealmChoicePanel;
@@ -30,13 +31,16 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
@@ -51,15 +55,19 @@ public class Realms extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    private final TemplatesTogglePanel templates;
+    public static final String SELECTED_INDEX = "selectedIndex";
 
-    private final RealmChoicePanel realmChoicePanel;
+    public static final String INITIAL_REALM = "initialRealm";
 
-    private final WebMarkupContainer content;
+    protected final TemplatesTogglePanel templates;
 
-    private final BaseModal<RealmTO> modal;
+    protected final RealmChoicePanel realmChoicePanel;
 
-    private final BaseModal<Serializable> templateModal;
+    protected final WebMarkupContainer content;
+
+    protected final BaseModal<RealmTO> modal;
+
+    protected final BaseModal<Serializable> templateModal;
 
     public Realms(final PageParameters parameters) {
         super(parameters);
@@ -82,8 +90,7 @@ public class Realms extends BasePage {
 
         content = new WebMarkupContainer("content");
 
-        realmChoicePanel = new RealmChoicePanel("realmChoicePanel", getPageReference());
-        realmChoicePanel.setOutputMarkupId(true);
+        realmChoicePanel = buildRealmChoicePanel(parameters.get(INITIAL_REALM).toOptionalString(), getPageReference());
         content.add(realmChoicePanel);
 
         content.add(new Label("body", "Root realm"));
@@ -120,7 +127,17 @@ public class Realms extends BasePage {
             templateModal.show(false);
         });
 
-        updateRealmContent(realmChoicePanel.getCurrentRealm(), parameters.get("selectedIndex").toInt(0));
+        updateRealmContent(realmChoicePanel.getCurrentRealm(), parameters.get(SELECTED_INDEX).toInt(0));
+    }
+
+    protected RealmChoicePanel buildRealmChoicePanel(final String initialRealm, final PageReference pageRef) {
+        RealmChoicePanel panel = new RealmChoicePanel("realmChoicePanel", initialRealm, pageRef);
+        panel.setOutputMarkupId(true);
+        return panel;
+    }
+
+    public RealmChoicePanel getRealmChoicePanel() {
+        return realmChoicePanel;
     }
 
     @Override
@@ -156,88 +173,89 @@ public class Realms extends BasePage {
         }
     }
 
-    private WebMarkupContainer updateRealmContent(final RealmTO realmTO, final int selectedIndex) {
-        if (realmTO == null) {
-            return content;
+    protected WebMarkupContainer updateRealmContent(final RealmTO realmTO, final int selectedIndex) {
+        if (realmTO != null) {
+            content.addOrReplace(new Content(realmTO, AnyTypeRestClient.listAnyTypes(), selectedIndex));
         }
-        content.addOrReplace(new Realm("body", realmTO, Realms.this.getPageReference(), selectedIndex) {
-
-            private static final long serialVersionUID = 8221398624379357183L;
-
-            @Override
-            protected void onClickTemplate(final AjaxRequestTarget target) {
-                templates.setTargetObject(realmTO);
-                templates.toggle(target, true);
-            }
-
-            @Override
-            protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
-                modal.setWindowClosedCallback(target -> {
-                    if (modal.getContent() instanceof ResultPage) {
-                        Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
-
-                        RealmTO newRealmTO = RealmTO.class.cast(ProvisioningResult.class.cast(result).getEntity());
-                        // reload realmChoicePanel label too - SYNCOPE-1151
-                        target.add(realmChoicePanel.reloadRealmTree(target, Model.of(newRealmTO)));
-                        realmChoicePanel.setCurrentRealm(newRealmTO);
-                        send(Realms.this, Broadcast.DEPTH, new ChosenRealm<>(newRealmTO, target));
-                    } else {
-                        target.add(realmChoicePanel.reloadRealmTree(target));
-                    }
-                    target.add(content);
-                    modal.show(false);
-                });
-            }
-
-            @Override
-            protected void onClickCreate(final AjaxRequestTarget target) {
-                this.wizardBuilder.setParentPath(realmChoicePanel.getCurrentRealm().getFullPath());
-                send(this, Broadcast.EXACT, new AjaxWizard.NewItemActionEvent<RealmTO>(new RealmTO(), target) {
-
-                    @Override
-                    public String getEventDescription() {
-                        return "realm.new";
-                    }
-                });
-            }
-
-            @Override
-            protected void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO) {
-                this.wizardBuilder.setParentPath(realmTO.getFullPath());
-                send(this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<RealmTO>(realmTO, target) {
-
-                    @Override
-                    public String getEventDescription() {
-                        return "realm.edit";
-                    }
-                });
-            }
-
-            @Override
-            protected void onClickDelete(final AjaxRequestTarget target, final RealmTO realmTO) {
-                try {
-                    if (realmTO.getKey() == null) {
-                        throw new Exception("Root realm cannot be deleted");
-                    }
-                    RealmRestClient.delete(realmTO.getFullPath());
-                    RealmTO parent = realmChoicePanel.moveToParentRealm(realmTO.getKey());
-                    target.add(realmChoicePanel.reloadRealmTree(target));
-
-                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                    updateRealmContent(parent, selectedIndex);
-                    target.add(content);
-                } catch (Exception e) {
-                    LOG.error("While deleting realm", e);
-                    // Escape line breaks
-                    SyncopeConsoleSession.get().error(e.getMessage().replace("\n", " "));
-                }
-                ((BaseWebPage) Realms.this.getPage()).getNotificationPanel().refresh(target);
-            }
-        });
         return content;
     }
 
-    public RealmChoicePanel getRealmChoicePanel() {
-        return realmChoicePanel;
+    protected class Content extends Realm {
+
+        private static final long serialVersionUID = 8221398624379357183L;
+
+        protected Content(final RealmTO realmTO, final List<AnyTypeTO> anyTypes, final int selectedIndex) {
+            super("body", realmTO, anyTypes, selectedIndex, Realms.this.getPageReference());
+        }
+
+        @Override
+        protected void onClickTemplate(final AjaxRequestTarget target) {
+            templates.setTargetObject(realmTO);
+            templates.toggle(target, true);
+        }
+
+        @Override
+        protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
+            modal.setWindowClosedCallback(target -> {
+                if (modal.getContent() instanceof ResultPage) {
+                    Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
+
+                    RealmTO newRealmTO = RealmTO.class.cast(ProvisioningResult.class.cast(result).getEntity());
+                    // reload realmChoicePanel label too - SYNCOPE-1151
+                    target.add(realmChoicePanel.reloadRealmTree(target, Model.of(newRealmTO)));
+                    realmChoicePanel.setCurrentRealm(newRealmTO);
+                    send(Realms.this, Broadcast.DEPTH, new ChosenRealm<>(newRealmTO, target));
+                } else {
+                    target.add(realmChoicePanel.reloadRealmTree(target));
+                }
+                target.add(content);
+                modal.show(false);
+            });
+        }
+
+        @Override
+        protected void onClickCreate(final AjaxRequestTarget target) {
+            this.wizardBuilder.setParentPath(realmChoicePanel.getCurrentRealm().getFullPath());
+            send(this, Broadcast.EXACT, new AjaxWizard.NewItemActionEvent<RealmTO>(new RealmTO(), target) {
+
+                @Override
+                public String getEventDescription() {
+                    return "realm.new";
+                }
+            });
+        }
+
+        @Override
+        protected void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO) {
+            this.wizardBuilder.setParentPath(realmTO.getFullPath());
+            send(this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<RealmTO>(realmTO, target) {
+
+                @Override
+                public String getEventDescription() {
+                    return "realm.edit";
+                }
+            });
+        }
+
+        @Override
+        protected void onClickDelete(final AjaxRequestTarget target, final RealmTO realmTO) {
+            try {
+                if (realmTO.getKey() == null) {
+                    throw new Exception("Root realm cannot be deleted");
+                }
+                RealmRestClient.delete(realmTO.getFullPath());
+                RealmTO parent = realmChoicePanel.moveToParentRealm(realmTO.getKey());
+                target.add(realmChoicePanel.reloadRealmTree(target));
+
+                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                updateRealmContent(parent, selectedIndex);
+                target.add(content);
+            } catch (Exception e) {
+                LOG.error("While deleting realm", e);
+                // Escape line breaks
+                SyncopeConsoleSession.get().error(e.getMessage().replace("\n", " "));
+            }
+            ((BaseWebPage) Realms.this.getPage()).getNotificationPanel().refresh(target);
+        }
     }
 }
