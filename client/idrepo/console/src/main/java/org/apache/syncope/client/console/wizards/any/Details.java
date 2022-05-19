@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchField
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.Component;
@@ -85,7 +86,7 @@ public class Details<T extends AnyTO> extends WizardStep {
                             ? RealmRestClient.search(RealmsUtils.buildQuery(input)).getResult()
                             : pageRef.getPage() instanceof Realms
                             ? getRealmsFromLinks(Realms.class.cast(pageRef.getPage()).getRealmChoicePanel().getLinks())
-                            : RealmRestClient.list()).
+                            : RealmRestClient.list(SyncopeConstants.ROOT_REALM)).
                             stream().filter(realm -> authRealms.stream().anyMatch(
                             authRealm -> realm.getFullPath().startsWith(authRealm))).
                             map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();

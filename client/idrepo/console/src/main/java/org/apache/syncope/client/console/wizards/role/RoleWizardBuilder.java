@@ -34,6 +34,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
@@ -161,7 +162,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
             setTitleModel(new ResourceModel("realms"));
             add(new AjaxPalettePanel.Builder<>().build("realms",
                     new PropertyModel<>(modelObject, "realms"),
-                    new ListModel<>(RealmRestClient.list().stream().
+                    new ListModel<>(RealmRestClient.list(SyncopeConstants.ROOT_REALM).stream().
                             map(RealmTO::getFullPath).collect(Collectors.toList()))).
                     hideLabel().setOutputMarkupId(true));
         }

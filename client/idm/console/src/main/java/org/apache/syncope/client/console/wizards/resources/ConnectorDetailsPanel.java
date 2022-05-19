@@ -33,6 +33,7 @@ import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponent
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
@@ -66,9 +67,9 @@ public class ConnectorDetailsPanel extends WizardStep {
             protected Iterator<String> getChoices(final String input) {
                 return (isSearchEnabled
                         ? RealmRestClient.search(RealmsUtils.buildQuery(input)).getResult()
-                        : RealmRestClient.list()).
-                        stream().filter(realm -> SyncopeConsoleSession.get().getAuthRealms().stream().anyMatch(
-                                authRealm -> realm.getFullPath().startsWith(authRealm))).
+                        : RealmRestClient.list(SyncopeConstants.ROOT_REALM)).
+                        stream().filter(realm -> SyncopeConsoleSession.get().getAuthRealms().stream().
+                        anyMatch(authRealm -> realm.getFullPath().startsWith(authRealm))).
                         map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
             }
         };
@@ -211,7 +212,7 @@ public class ConnectorDetailsPanel extends WizardStep {
 
     private static List<String> getVersions(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
         return bundles.stream().filter(object -> object.getLocation().equals(connInstanceTO.getLocation())
-                        && object.getBundleName().equals(connInstanceTO.getBundleName())).
+                && object.getBundleName().equals(connInstanceTO.getBundleName())).
                 map(ConnBundleTO::getVersion).collect(Collectors.toList());
     }
 

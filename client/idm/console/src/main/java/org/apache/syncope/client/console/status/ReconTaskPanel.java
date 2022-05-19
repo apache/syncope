@@ -131,7 +131,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
                     return (RealmsUtils.checkInput(input)
                             ? (isSearchEnabled
                                     ? RealmRestClient.search(RealmsUtils.buildQuery(input)).getResult()
-                                    : RealmRestClient.list())
+                                    : RealmRestClient.list(SyncopeConstants.ROOT_REALM))
                             : List.<RealmTO>of()).stream().
                             sorted(Comparator.comparing(RealmTO::getName)).
                             map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();

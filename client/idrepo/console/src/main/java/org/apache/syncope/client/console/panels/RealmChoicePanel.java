@@ -401,7 +401,7 @@ public class RealmChoicePanel extends Panel {
     protected Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap() {
         List<RealmTO> realmsToList = isSearchEnabled
                 ? RealmRestClient.search(RealmsUtils.buildQuery(searchQuery)).getResult()
-                : RealmRestClient.list();
+                : RealmRestClient.list(SyncopeConstants.ROOT_REALM);
 
         return reloadRealmParentMap(realmsToList.stream().
                 sorted(Comparator.comparing(RealmTO::getName)).
