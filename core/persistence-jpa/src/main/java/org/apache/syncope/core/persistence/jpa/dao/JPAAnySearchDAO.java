@@ -169,8 +169,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             queryString.append(filter.getLeft());
         } else {
             queryString.
-                    append(svs.field().alias).append(".realm_id=?").
-                    append(setParameter(parameters, base.getKey()));
+                    append("u.any_id IN (SELECT any_id FROM ").append(svs.field().name).
+                    append(" WHERE realm_id=?").
+                    append(setParameter(parameters, base.getKey())).append(')');
         }
 
         // 3. prepare the COUNT query
