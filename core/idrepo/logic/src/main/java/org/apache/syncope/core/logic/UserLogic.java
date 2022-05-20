@@ -56,6 +56,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.LogicActions;
@@ -144,16 +145,21 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final SearchCond searchCond,
             final int page, final int size, final List<OrderByClause> orderBy,
             final String realm,
+            final boolean recursive,
             final boolean details) {
+
+        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+                orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_SEARCH), realm);
 
         SearchCond effectiveCond = searchCond == null ? userDAO.getAllMatchingCond() : searchCond;
 
-        int count = searchDAO.count(authRealms, effectiveCond, AnyTypeKind.USER);
+        int count = searchDAO.count(base, recursive, authRealms, effectiveCond, AnyTypeKind.USER);
 
-        List<User> matching = searchDAO.search(authRealms, effectiveCond, page, size, orderBy, AnyTypeKind.USER);
+        List<User> matching = searchDAO.search(
+                base, recursive, authRealms, effectiveCond, page, size, orderBy, AnyTypeKind.USER);
         List<UserTO> result = matching.stream().
                 map(user -> binder.getUserTO(user, details)).
                 collect(Collectors.toList());

@@ -162,6 +162,13 @@ public class SearchITCase extends AbstractITCase {
         assertTrue(matchingStar.getResult().stream().anyMatch(user -> "verdi".equals(user.getUsername())));
         assertTrue(matchingStar.getResult().stream().anyMatch(user -> "rossini".equals(user.getUsername())));
         assertEquals(union, matchingStar.getResult().stream().map(UserTO::getUsername).collect(Collectors.toSet()));
+
+        matchingStar = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).recursive(false).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups("*child").query()).
+                        build());
+        assertTrue(matchingStar.getResult().stream().anyMatch(user -> "verdi".equals(user.getUsername())));
+        assertTrue(matchingStar.getResult().stream().noneMatch(user -> "rossini".equals(user.getUsername())));
     }
 
     @Test

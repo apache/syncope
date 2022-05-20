@@ -558,9 +558,12 @@ public class DefaultRealmPullResultHandler
                         AnyCond keyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
                         keyCond.setSchema("key");
                         SearchCond allMatchingCond = SearchCond.getLeaf(keyCond);
-                        int users = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.USER);
-                        int groups = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.GROUP);
-                        int anyObjects = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
+                        int users = searchDAO.count(
+                                realmDAO.getRoot(), true, adminRealms, allMatchingCond, AnyTypeKind.USER);
+                        int groups = searchDAO.count(
+                                realmDAO.getRoot(), true, adminRealms, allMatchingCond, AnyTypeKind.GROUP);
+                        int anyObjects = searchDAO.count(
+                                realmDAO.getRoot(), true, adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
 
                         if (users + groups + anyObjects > 0) {
                             SyncopeClientException containedAnys = SyncopeClientException.build(

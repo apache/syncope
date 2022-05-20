@@ -274,16 +274,17 @@ public class AnySearchTest extends AbstractTest {
 
         assertTrue(cond.isValid());
 
-        int count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
+        int count = searchDAO.count(
+                realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
         assertEquals(1, count);
 
-        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                cond, 1, 2, List.of(), AnyTypeKind.USER);
+        List<User> users = searchDAO.search(
+                realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, cond, 1, 2, List.of(), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 
-        users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                cond, 2, 2, List.of(), AnyTypeKind.USER);
+        users = searchDAO.search(
+                realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, cond, 2, 2, List.of(), AnyTypeKind.USER);
         assertNotNull(users);
         assertTrue(users.isEmpty());
     }
@@ -315,6 +316,12 @@ public class AnySearchTest extends AbstractTest {
         assertTrue(matchingStar.stream().anyMatch(user -> "verdi".equals(user.getUsername())));
         assertTrue(matchingStar.stream().anyMatch(user -> "rossini".equals(user.getUsername())));
         assertEquals(union, matchingStar.stream().map(User::getUsername).collect(Collectors.toSet()));
+
+        matchingStar = searchDAO.search(realmDAO.getRoot(), false, SyncopeConstants.FULL_ADMIN_REALMS,
+                SearchCond.getLeaf(groupCond), -1, -1, List.of(), AnyTypeKind.USER);
+        assertNotNull(matchingStar);
+        assertTrue(matchingStar.stream().anyMatch(user -> "verdi".equals(user.getUsername())));
+        assertTrue(matchingStar.stream().noneMatch(user -> "rossini".equals(user.getUsername())));
     }
 
     @Test
@@ -439,8 +446,7 @@ public class AnySearchTest extends AbstractTest {
                 SearchCond.getLeaf(usernameLeafCond),
                 SearchCond.getLeaf(idRightCond));
 
-        List<User> matchingUsers = searchDAO.search(
-                searchCondition, AnyTypeKind.USER);
+        List<User> matchingUsers = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(matchingUsers);
         assertEquals(2, matchingUsers.size());
     }
@@ -459,8 +465,7 @@ public class AnySearchTest extends AbstractTest {
                 SearchCond.getLeaf(usernameLeafCond),
                 SearchCond.getLeaf(idRightCond));
 
-        List<User> matchingUsers = searchDAO.search(
-                searchCondition, AnyTypeKind.USER);
+        List<User> matchingUsers = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(matchingUsers);
         assertEquals(2, matchingUsers.size());
     }
@@ -578,7 +583,9 @@ public class AnySearchTest extends AbstractTest {
 
         List<User> users = searchDAO.search(searchCondition, orderByClauses, AnyTypeKind.USER);
         assertEquals(
-                searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER),
+                searchDAO.count(
+                        realmDAO.getRoot(), true,
+                        SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER),
                 users.size());
     }
 
@@ -596,7 +603,9 @@ public class AnySearchTest extends AbstractTest {
         List<Group> groups = searchDAO.search(
                 searchCondition, List.of(orderByClause), AnyTypeKind.GROUP);
         assertEquals(
-                searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.GROUP),
+                searchDAO.count(
+                        realmDAO.getRoot(), true,
+                        SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.GROUP),
                 groups.size());
     }
 
@@ -668,10 +677,20 @@ public class AnySearchTest extends AbstractTest {
                     AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_SEARCH),
                     SyncopeConstants.ROOT_REALM);
 
-            assertEquals(1, searchDAO.count(authRealms, groupDAO.getAllMatchingCond(), AnyTypeKind.GROUP));
+            assertEquals(
+                    1,
+                    searchDAO.count(
+                            realmDAO.getRoot(), true, authRealms, groupDAO.getAllMatchingCond(), AnyTypeKind.GROUP));
 
             List<Group> groups = searchDAO.search(
-                    authRealms, groupDAO.getAllMatchingCond(), 1, 10, List.of(), AnyTypeKind.GROUP);
+                    realmDAO.getRoot(),
+                    true,
+                    authRealms,
+                    groupDAO.getAllMatchingCond(),
+                    1,
+                    10,
+                    List.of(),
+                    AnyTypeKind.GROUP);
             assertEquals(1, groups.size());
             assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", groups.get(0).getKey());
         } finally {
@@ -737,7 +756,8 @@ public class AnySearchTest extends AbstractTest {
         SearchCond searchCond = SearchCond.getOr(
                 SearchCond.getLeaf(isNullCond), SearchCond.getLeaf(likeCond));
 
-        Integer count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.USER);
+        Integer count = searchDAO.count(
+                realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.USER);
         assertNotNull(count);
         assertTrue(count > 0);
     }
@@ -752,16 +772,13 @@ public class AnySearchTest extends AbstractTest {
         genderCond.setSchema("gender");
         genderCond.setExpression("M");
 
-        SearchCond orCond =
-                SearchCond.getOr(SearchCond.getLeaf(rossiniCond),
-                        SearchCond.getLeaf(genderCond));
+        SearchCond orCond = SearchCond.getOr(SearchCond.getLeaf(rossiniCond), SearchCond.getLeaf(genderCond));
 
         AttrCond belliniCond = new AttrCond(AttrCond.Type.EQ);
         belliniCond.setSchema("surname");
         belliniCond.setExpression("Bellini");
 
-        SearchCond searchCond =
-                SearchCond.getAnd(orCond, SearchCond.getLeaf(belliniCond));
+        SearchCond searchCond = SearchCond.getAnd(orCond, SearchCond.getLeaf(belliniCond));
 
         List<User> users = searchDAO.search(searchCond, AnyTypeKind.USER);
         assertNotNull(users);
@@ -810,8 +827,7 @@ public class AnySearchTest extends AbstractTest {
         AnyTypeCond anyTypeCond = new AnyTypeCond();
         anyTypeCond.setAnyTypeKey(service.getKey());
 
-        searchCondition = SearchCond.getAnd(
-                SearchCond.getLeaf(groupCond), SearchCond.getLeaf(anyTypeCond));
+        searchCondition = SearchCond.getAnd(SearchCond.getLeaf(groupCond), SearchCond.getLeaf(anyTypeCond));
 
         matching = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
         assertEquals(1, matching.size());
@@ -834,6 +850,8 @@ public class AnySearchTest extends AbstractTest {
         orderByClauses.add(orderByClause);
 
         List<User> users = searchDAO.search(
+                realmDAO.getRoot(),
+                true,
                 SyncopeConstants.FULL_ADMIN_REALMS,
                 SearchCond.getLeaf(fullnameLeafCond),
                 -1,
@@ -851,8 +869,7 @@ public class AnySearchTest extends AbstractTest {
         AttrCond idRightCond = new AttrCond(AttrCond.Type.ISNOTNULL);
         idRightCond.setSchema("firstname");
 
-        SearchCond searchCondition = SearchCond.getAnd(
-                SearchCond.getLeaf(idLeftCond), SearchCond.getLeaf(idRightCond));
+        SearchCond searchCondition = SearchCond.getAnd(SearchCond.getLeaf(idLeftCond), SearchCond.getLeaf(idRightCond));
 
         List<OrderByClause> orderByClauses = new ArrayList<>();
         OrderByClause orderByClause = new OrderByClause();
@@ -861,8 +878,8 @@ public class AnySearchTest extends AbstractTest {
         orderByClauses.add(orderByClause);
 
         List<User> users = searchDAO.search(searchCondition, orderByClauses, AnyTypeKind.USER);
-        assertEquals(
-                searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER),
+        assertEquals(searchDAO.count(
+                realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.USER),
                 users.size());
 
         // search by attribute with unique constraint

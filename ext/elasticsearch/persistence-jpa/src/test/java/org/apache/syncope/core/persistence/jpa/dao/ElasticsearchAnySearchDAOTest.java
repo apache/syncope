@@ -164,7 +164,8 @@ public class ElasticsearchAnySearchDAOTest {
             SearchRequest request = new SearchRequest.Builder().
                     index(ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
                     searchType(SearchType.QueryThenFetch).
-                    query(searchDAO.getQuery(adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER)).
+                    query(searchDAO.getQuery(realmDAO.findByFullPath("/any"), true, 
+                            adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER)).
                     from(1).
                     size(10).
                     build();

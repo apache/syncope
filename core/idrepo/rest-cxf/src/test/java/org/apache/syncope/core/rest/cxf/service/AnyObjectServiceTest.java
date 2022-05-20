@@ -78,6 +78,7 @@ import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,7 +130,8 @@ public class AnyObjectServiceTest {
             AnyObjectDAO anyObjectDAO = mock(AnyObjectDAO.class);
 
             AnyObjectLogic logic = mock(AnyObjectLogic.class);
-            when(logic.search(any(SearchCond.class), anyInt(), anyInt(), anyList(), anyString(), anyBoolean())).
+            when(logic.search(
+                    any(SearchCond.class), anyInt(), anyInt(), anyList(), anyString(), anyBoolean(), anyBoolean())).
                     thenAnswer(ic -> {
                         AnyObjectTO printer1 = new AnyObjectTO();
                         printer1.setKey(UUID.randomUUID().toString());

@@ -89,7 +89,7 @@ public class ReconciliationLogicTest extends AbstractTest {
     @Test
     public void pushToCSV() throws IOException {
         Pair<Integer, List<UserTO>> search = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN,
-                () -> userLogic.search(null, 1, 100, List.of(), SyncopeConstants.ROOT_REALM, false));
+                () -> userLogic.search(null, 1, 100, List.of(), SyncopeConstants.ROOT_REALM, true, false));
         assertNotNull(search);
 
         CSVPushSpec spec = new CSVPushSpec.Builder(AnyTypeKind.USER.name()).ignorePaging(true).

@@ -23,6 +23,7 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -56,6 +57,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
@@ -167,17 +169,21 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             final SearchCond searchCond,
             final int page, final int size, final List<OrderByClause> orderBy,
             final String realm,
+            final boolean recursive,
             final boolean details) {
+
+        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+                orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_SEARCH), realm);
 
         SearchCond effectiveCond = searchCond == null ? groupDAO.getAllMatchingCond() : searchCond;
 
-        int count = searchDAO.count(authRealms, effectiveCond, AnyTypeKind.GROUP);
+        int count = searchDAO.count(base, recursive, authRealms, effectiveCond, AnyTypeKind.GROUP);
 
         List<Group> matching = searchDAO.search(
-                authRealms, effectiveCond, page, size, orderBy, AnyTypeKind.GROUP);
+                base, recursive, authRealms, effectiveCond, page, size, orderBy, AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
                 map(group -> binder.getGroupTO(group, details)).
                 collect(Collectors.toList());

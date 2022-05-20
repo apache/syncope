@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
@@ -48,6 +49,9 @@ import org.xml.sax.helpers.AttributesImpl;
 
 @ReportletConfClass(GroupReportletConf.class)
 public class GroupReportlet extends AbstractReportlet {
+
+    @Autowired
+    private RealmDAO realmDAO;
 
     @Autowired
     private GroupDAO groupDAO;
@@ -85,8 +89,8 @@ public class GroupReportlet extends AbstractReportlet {
     }
 
     private static void doExtractAttributes(final ContentHandler handler, final AnyTO anyTO,
-                                            final Collection<String> attrs, final Collection<String> derAttrs,
-                                            final Collection<String> virAttrs)
+            final Collection<String> attrs, final Collection<String> derAttrs,
+            final Collection<String> virAttrs)
             throws SAXException {
 
         AttributesImpl atts = new AttributesImpl();
@@ -287,8 +291,12 @@ public class GroupReportlet extends AbstractReportlet {
     private int count() {
         return StringUtils.isBlank(conf.getMatchingCond())
                 ? groupDAO.count()
-                : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(searchCondVisitor, conf.getMatchingCond()), AnyTypeKind.GROUP);
+                : searchDAO.count(
+                        realmDAO.getRoot(),
+                        true,
+                        SyncopeConstants.FULL_ADMIN_REALMS,
+                        SearchCondConverter.convert(searchCondVisitor, conf.getMatchingCond()),
+                        AnyTypeKind.GROUP);
     }
 
     @Override
@@ -319,6 +327,8 @@ public class GroupReportlet extends AbstractReportlet {
                 groups = groupDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE);
             } else {
                 groups = searchDAO.search(
+                        realmDAO.getRoot(),
+                        true,
                         SyncopeConstants.FULL_ADMIN_REALMS,
                         SearchCondConverter.convert(searchCondVisitor, this.conf.getMatchingCond()),
                         page,

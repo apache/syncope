@@ -143,7 +143,13 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     @Override
-    protected int doCount(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind kind) {
+    protected int doCount(
+            final Realm base,
+            final boolean recursive,
+            final Set<String> adminRealms,
+            final SearchCond cond,
+            final AnyTypeKind kind) {
+
         List<Object> parameters = new ArrayList<>();
 
         SearchSupport svs = buildSearchSupport(kind);
@@ -156,9 +162,16 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         StringBuilder queryString = queryInfo.getLeft();
 
-        // 2. take into account administrative realms
+        // 2. take realms into account
         queryString.insert(0, "SELECT u.any_id FROM (");
-        queryString.append(") u WHERE ").append(filter.getLeft());
+        queryString.append(") u WHERE ");
+        if (recursive) {
+            queryString.append(filter.getLeft());
+        } else {
+            queryString.
+                    append(svs.field().alias).append(".realm_id=?").
+                    append(setParameter(parameters, base.getKey()));
+        }
 
         // 3. prepare the COUNT query
         queryString.insert(0, "SELECT COUNT(any_id) FROM (");
@@ -173,6 +186,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     @Override
     @SuppressWarnings("unchecked")
     protected <T extends Any<?>> List<T> doSearch(
+            final Realm base,
+            final boolean recursive,
             final Set<String> adminRealms,
             final SearchCond cond,
             final int page,
@@ -203,10 +218,15 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 queryString.insert(0, buildSelect(obs).append('('));
                 queryString.append(')');
             }
-            queryString.
-                    append(buildWhere(svs, obs)).
-                    append(filter.getLeft()).
-                    append(buildOrderBy(obs));
+            queryString.append(buildWhere(svs, obs));
+            if (recursive) {
+                queryString.append(filter.getLeft());
+            } else {
+                queryString.
+                        append(svs.field().alias).append(".realm_id=?").
+                        append(setParameter(parameters, base.getKey()));
+            }
+            queryString.append(buildOrderBy(obs));
 
             LOG.debug("Query with auth and order by statements: {}, parameters: {}", queryString, parameters);
 

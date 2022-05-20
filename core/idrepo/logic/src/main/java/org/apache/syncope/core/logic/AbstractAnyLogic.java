@@ -212,6 +212,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
             SearchCond searchCond,
             int page, int size, List<OrderByClause> orderBy,
             String realm,
+            boolean recursive,
             boolean details);
 
     public abstract ProvisioningResult<TO> update(U updateReq, boolean nullPriorityAsync);

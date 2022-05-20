@@ -246,11 +246,15 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                     ? anyDAO.getAllMatchingCond()
                     : SearchCondConverter.convert(searchCondVisitor, filter);
             int count = searchDAO.count(
+                    profile.getTask().getSourceRealm(),
+                    true,
                     Set.of(profile.getTask().getSourceRealm().getFullPath()),
                     cond,
                     provision.getAnyType().getKind());
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1 && !interrupt; page++) {
                 List<? extends Any<?>> anys = searchDAO.search(
+                        profile.getTask().getSourceRealm(),
+                        true,
                         Set.of(profile.getTask().getSourceRealm().getFullPath()),
                         cond,
                         page,

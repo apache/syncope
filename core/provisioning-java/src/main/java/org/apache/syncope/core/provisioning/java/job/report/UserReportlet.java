@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
@@ -54,6 +55,9 @@ import org.xml.sax.helpers.AttributesImpl;
 
 @ReportletConfClass(UserReportletConf.class)
 public class UserReportlet extends AbstractReportlet {
+
+    @Autowired
+    private RealmDAO realmDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -97,8 +101,8 @@ public class UserReportlet extends AbstractReportlet {
     }
 
     private static void doExtractAttributes(final ContentHandler handler, final AnyTO anyTO,
-                                            final Collection<String> attrs, final Collection<String> derAttrs,
-                                            final Collection<String> virAttrs) throws SAXException {
+            final Collection<String> attrs, final Collection<String> derAttrs,
+            final Collection<String> virAttrs) throws SAXException {
 
         AttributesImpl atts = new AttributesImpl();
         if (!attrs.isEmpty()) {
@@ -348,8 +352,12 @@ public class UserReportlet extends AbstractReportlet {
     private int count() {
         return StringUtils.isBlank(conf.getMatchingCond())
                 ? userDAO.count()
-                : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(searchCondVisitor, this.conf.getMatchingCond()), AnyTypeKind.USER);
+                : searchDAO.count(
+                        realmDAO.getRoot(),
+                        true,
+                        SyncopeConstants.FULL_ADMIN_REALMS,
+                        SearchCondConverter.convert(searchCondVisitor, conf.getMatchingCond()),
+                        AnyTypeKind.USER);
     }
 
     @Override
@@ -380,6 +388,8 @@ public class UserReportlet extends AbstractReportlet {
                 users = userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE);
             } else {
                 users = searchDAO.search(
+                        realmDAO.getRoot(),
+                        true,
                         SyncopeConstants.FULL_ADMIN_REALMS,
                         SearchCondConverter.convert(searchCondVisitor, this.conf.getMatchingCond()),
                         page,

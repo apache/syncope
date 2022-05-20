@@ -24,16 +24,24 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public interface AnySearchDAO extends DAO<Any<?>> {
 
     /**
+     * @param base Realm to start searching from
+     * @param recursive whether search should recursively include results from child Realms
      * @param adminRealms realms for which the caller owns the proper entitlement(s)
      * @param searchCondition the search condition
      * @param kind any object
      * @return size of search result
      */
-    int count(Set<String> adminRealms, SearchCond searchCondition, AnyTypeKind kind);
+    int count(
+            Realm base,
+            boolean recursive,
+            Set<String> adminRealms,
+            SearchCond searchCondition,
+            AnyTypeKind kind);
 
     /**
      * @param searchCondition the search condition
@@ -53,6 +61,8 @@ public interface AnySearchDAO extends DAO<Any<?>> {
     <T extends Any<?>> List<T> search(SearchCond searchCondition, List<OrderByClause> orderBy, AnyTypeKind kind);
 
     /**
+     * @param base Realm to start searching from
+     * @param recursive whether search should recursively include results from child Realms
      * @param adminRealms realms for which the caller owns the proper entitlement(s)
      * @param searchCondition the search condition
      * @param page position of the first result, start from 1
@@ -63,6 +73,12 @@ public interface AnySearchDAO extends DAO<Any<?>> {
      * @return the list of any objects matching the given search condition (in the given page)
      */
     <T extends Any<?>> List<T> search(
-            Set<String> adminRealms, SearchCond searchCondition, int page, int itemsPerPage,
-            List<OrderByClause> orderBy, AnyTypeKind kind);
+            Realm base,
+            boolean recursive,
+            Set<String> adminRealms,
+            SearchCond searchCondition,
+            int page,
+            int itemsPerPage,
+            List<OrderByClause> orderBy,
+            AnyTypeKind kind);
 }

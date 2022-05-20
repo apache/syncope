@@ -168,21 +168,33 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected Query getQuery(
+            final Realm base,
+            final boolean recursive,
             final Set<String> adminRealms,
             final SearchCond cond,
             final AnyTypeKind kind) {
 
-        Triple<Optional<Query>, Set<String>, Set<String>> filter = getAdminRealmsFilter(kind, adminRealms);
         Query query;
         if (SyncopeConstants.FULL_ADMIN_REALMS.equals(adminRealms)) {
             query = getQuery(cond, kind);
         } else {
+            Triple<Optional<Query>, Set<String>, Set<String>> filter = getAdminRealmsFilter(kind, adminRealms);
             query = getQuery(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), kind);
 
-            if (filter.getLeft().isPresent()) {
+            if (recursive) {
+                if (filter.getLeft().isPresent()) {
+                    query = new Query.Builder().bool(
+                            QueryBuilders.bool().
+                                    must(filter.getLeft().get()).
+                                    must(query).build()).
+                            build();
+                }
+            } else {
                 query = new Query.Builder().bool(
                         QueryBuilders.bool().
-                                must(filter.getLeft().get()).
+                                must(new Query.Builder().term(QueryBuilders.term().
+                                        field("realm").value(FieldValue.of(base.getFullPath())).build()).
+                                        build()).
                                 must(query).build()).
                         build();
             }
@@ -192,10 +204,16 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     @Override
-    protected int doCount(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind kind) {
+    protected int doCount(
+            final Realm base,
+            final boolean recursive,
+            final Set<String> adminRealms,
+            final SearchCond cond,
+            final AnyTypeKind kind) {
+
         CountRequest request = new CountRequest.Builder().
                 index(ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), kind)).
-                query(getQuery(adminRealms, cond, kind)).
+                query(getQuery(base, recursive, adminRealms, cond, kind)).
                 build();
         try {
             return (int) client.count(request).count();
@@ -245,6 +263,8 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
     @Override
     protected <T extends Any<?>> List<T> doSearch(
+            final Realm base,
+            final boolean recursive,
             final Set<String> adminRealms,
             final SearchCond cond,
             final int page,
@@ -255,7 +275,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         SearchRequest request = new SearchRequest.Builder().
                 index(ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), kind)).
                 searchType(SearchType.QueryThenFetch).
-                query(getQuery(adminRealms, cond, kind)).
+                query(getQuery(base, recursive, adminRealms, cond, kind)).
                 from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
                 size(itemsPerPage < 0 ? elasticsearchUtils.getIndexMaxResultWindow() : itemsPerPage).
                 sort(sortBuilders(kind, orderBy)).

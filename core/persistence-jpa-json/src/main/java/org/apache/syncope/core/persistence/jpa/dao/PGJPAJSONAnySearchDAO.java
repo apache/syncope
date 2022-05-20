@@ -633,7 +633,13 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
     }
 
     @Override
-    protected int doCount(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind kind) {
+    protected int doCount(
+            final Realm base,
+            final boolean recursive,
+            final Set<String> adminRealms,
+            final SearchCond cond,
+            final AnyTypeKind kind) {
+
         List<Object> parameters = new ArrayList<>();
 
         SearchSupport svs = buildSearchSupport(kind);
@@ -644,9 +650,9 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 getQuery(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
 
         StringBuilder queryString =
-                new StringBuilder("SELECT count(").append(svs.table().alias).append(".id").append(')');
+                new StringBuilder("SELECT COUNT(").append(svs.table().alias).append(".id").append(')');
 
-        buildFromAndWhere(queryString, queryInfo, filter.getLeft(), svs, null);
+        buildFromAndWhere(queryString, queryInfo, filter.getLeft(), base, recursive, parameters, svs, null);
 
         Query countQuery = entityManager().createNativeQuery(queryString.toString());
         fillWithParameters(countQuery, parameters);
@@ -657,6 +663,8 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
     @Override
     @SuppressWarnings("unchecked")
     protected <T extends Any<?>> List<T> doSearch(
+            final Realm base,
+            final boolean recursive,
             final Set<String> adminRealms,
             final SearchCond cond,
             final int page,
@@ -682,7 +690,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             StringBuilder queryString = new StringBuilder("SELECT ").append(svs.table().alias).append(".id");
             obs.items.forEach(item -> queryString.append(',').append(item.select));
 
-            buildFromAndWhere(queryString, queryInfo, filter.getLeft(), svs, obs);
+            buildFromAndWhere(queryString, queryInfo, filter.getLeft(), base, recursive, parameters, svs, obs);
 
             LOG.debug("Query: {}, parameters: {}", queryString, parameters);
 
@@ -845,6 +853,9 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final StringBuilder queryString,
             final Pair<StringBuilder, Set<String>> queryInfo,
             final String realmsFilter,
+            final Realm base,
+            final boolean recursive,
+            final List<Object> parameters,
             final SearchSupport svs,
             final OrderBySupport obs) {
 
@@ -892,7 +903,11 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         } else {
             where.append(" AND ");
         }
-        where.append(realmsFilter);
+        if (recursive) {
+            where.append(realmsFilter);
+        } else {
+            where.append("realm_id=?").append(setParameter(parameters, base.getKey()));
+        }
 
         if (obs != null) {
             String obsWhere = obs.views.stream().

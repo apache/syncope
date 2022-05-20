@@ -297,9 +297,12 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         clearUDynMembers(merged);
         if (merged.getUDynMembership() != null) {
             SearchCond cond = buildDynMembershipCond(merged.getUDynMembership().getFIQLCond(), merged.getRealm());
-            int count = anySearchDAO.count(Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.USER);
+            int count = anySearchDAO.count(
+                    merged.getRealm(), true, Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.USER);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                 List<User> matching = anySearchDAO.search(
+                        merged.getRealm(),
+                        true,
                         Set.of(merged.getRealm().getFullPath()),
                         cond,
                         page,
@@ -321,9 +324,12 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         clearADynMembers(merged);
         merged.getADynMemberships().forEach(memb -> {
             SearchCond cond = buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm());
-            int count = anySearchDAO.count(Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
+            int count = anySearchDAO.count(
+                    merged.getRealm(), true, Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                 List<AnyObject> matching = anySearchDAO.search(
+                        merged.getRealm(),
+                        true,
                         Set.of(merged.getRealm().getFullPath()),
                         cond,
                         page,
