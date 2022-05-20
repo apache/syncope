@@ -127,8 +127,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
         membCond.setGroup(id);
         SearchCond searchCond = SearchCond.getLeaf(membCond);
         int count = userLogic.search(searchCond,
-                1, 1, List.of(),
-                SyncopeConstants.ROOT_REALM, false).getLeft();
+                1, 1, List.of(), SyncopeConstants.ROOT_REALM, true, false).getLeft();
         for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
             beforeMembers.addAll(userLogic.search(
                     searchCond,
@@ -136,6 +135,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
                     AnyDAO.DEFAULT_PAGE_SIZE,
                     List.of(),
                     SyncopeConstants.ROOT_REALM,
+                    true,
                     false).
                     getRight().stream().map(EntityTO::getKey).collect(Collectors.toSet()));
         }

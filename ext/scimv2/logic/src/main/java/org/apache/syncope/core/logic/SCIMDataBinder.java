@@ -635,8 +635,7 @@ public class SCIMDataBinder {
 
         if (output(attributes, excludedAttributes, "members")) {
             int count = userLogic.search(searchCond,
-                    1, 1, List.of(),
-                    SyncopeConstants.ROOT_REALM, false).getLeft();
+                    1, 1, List.of(), SyncopeConstants.ROOT_REALM, true, false).getLeft();
 
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                 List<UserTO> users = userLogic.search(
@@ -645,6 +644,7 @@ public class SCIMDataBinder {
                         AnyDAO.DEFAULT_PAGE_SIZE,
                         List.of(),
                         SyncopeConstants.ROOT_REALM,
+                        true,
                         false).
                         getRight();
                 users.forEach(userTO -> group.getMembers().add(new Member(
