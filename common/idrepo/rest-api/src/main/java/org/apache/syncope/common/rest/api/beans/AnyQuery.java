@@ -85,7 +85,7 @@ public class AnyQuery extends AbstractQuery {
         this.realm = realm;
     }
 
-    @Parameter(name = JAXRSService.PARAM_RECURSIVE, description = "whether search results shall be returned from"
+    @Parameter(name = JAXRSService.PARAM_RECURSIVE, description = "whether search results shall be returned from "
             + "given realm and all children realms, or just the given realm", schema =
             @Schema(implementation = Boolean.class))
     public Boolean getRecursive() {

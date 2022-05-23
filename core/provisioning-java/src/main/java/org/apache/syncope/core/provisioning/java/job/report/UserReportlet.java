@@ -57,29 +57,29 @@ import org.xml.sax.helpers.AttributesImpl;
 public class UserReportlet extends AbstractReportlet {
 
     @Autowired
-    private RealmDAO realmDAO;
+    protected RealmDAO realmDAO;
 
     @Autowired
-    private UserDAO userDAO;
+    protected UserDAO userDAO;
 
     @Autowired
-    private AnySearchDAO searchDAO;
+    protected AnySearchDAO searchDAO;
 
     @Autowired
-    private UserDataBinder userDataBinder;
+    protected UserDataBinder userDataBinder;
 
     @Autowired
-    private GroupDataBinder groupDataBinder;
+    protected GroupDataBinder groupDataBinder;
 
     @Autowired
-    private AnyObjectDataBinder anyObjectDataBinder;
+    protected AnyObjectDataBinder anyObjectDataBinder;
 
     @Autowired
-    private SearchCondVisitor searchCondVisitor;
+    protected SearchCondVisitor searchCondVisitor;
 
-    private UserReportletConf conf;
+    protected UserReportletConf conf;
 
-    private static void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
+    protected void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
             throws SAXException {
 
         if (anyTO.getResources().isEmpty()) {
@@ -100,8 +100,11 @@ public class UserReportlet extends AbstractReportlet {
         }
     }
 
-    private static void doExtractAttributes(final ContentHandler handler, final AnyTO anyTO,
-            final Collection<String> attrs, final Collection<String> derAttrs,
+    protected void doExtractAttributes(
+            final ContentHandler handler,
+            final AnyTO anyTO,
+            final Collection<String> attrs,
+            final Collection<String> derAttrs,
             final Collection<String> virAttrs) throws SAXException {
 
         AttributesImpl atts = new AttributesImpl();
@@ -184,7 +187,7 @@ public class UserReportlet extends AbstractReportlet {
         }
     }
 
-    private void doExtract(final ContentHandler handler, final List<User> users) throws SAXException {
+    protected void doExtract(final ContentHandler handler, final List<User> users) throws SAXException {
         AttributesImpl atts = new AttributesImpl();
         for (User user : users) {
             atts.clear();
@@ -312,7 +315,7 @@ public class UserReportlet extends AbstractReportlet {
         }
     }
 
-    private void doExtractConf(final ContentHandler handler) throws SAXException {
+    protected void doExtractConf(final ContentHandler handler) throws SAXException {
         AttributesImpl atts = new AttributesImpl();
         handler.startElement("", "", "configurations", null);
         handler.startElement("", "", "userAttributes", atts);
@@ -349,7 +352,7 @@ public class UserReportlet extends AbstractReportlet {
         handler.endElement("", "", "configurations");
     }
 
-    private int count() {
+    protected int count() {
         return StringUtils.isBlank(conf.getMatchingCond())
                 ? userDAO.count()
                 : searchDAO.count(

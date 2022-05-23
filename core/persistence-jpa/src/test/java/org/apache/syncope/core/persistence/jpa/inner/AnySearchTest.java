@@ -756,9 +756,8 @@ public class AnySearchTest extends AbstractTest {
         SearchCond searchCond = SearchCond.getOr(
                 SearchCond.getLeaf(isNullCond), SearchCond.getLeaf(likeCond));
 
-        Integer count = searchDAO.count(
+        int count = searchDAO.count(
                 realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.USER);
-        assertNotNull(count);
         assertTrue(count > 0);
     }
 
