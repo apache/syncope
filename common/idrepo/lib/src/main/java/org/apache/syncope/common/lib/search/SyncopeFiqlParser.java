@@ -19,10 +19,10 @@
 package org.apache.syncope.common.lib.search;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-
 import org.apache.cxf.jaxrs.ext.search.ConditionType;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
@@ -77,18 +77,13 @@ public class SyncopeFiqlParser<T> extends FiqlParser<T> {
                 throw new SearchParseException("Not a comparison expression: " + expr);
             }
 
-            String name = unwrapSetter(propertyName);
-
-            name = getActualSetterName(name);
-            TypeInfoObject castedValue = parseType(propertyName, name, value);
-            if (castedValue != null) {
-                return new SyncopeComparison(name, operator, castedValue);
-            } else {
-                return null;
-            }
-        } else {
-            throw new SearchParseException("Not a comparison expression: " + expr);
+            String name = getActualSetterName(unwrapSetter(propertyName));
+            return Optional.ofNullable(parseType(propertyName, name, value)).
+                    map(typeInfoObject -> new SyncopeComparison(name, operator, typeInfoObject)).
+                    orElse(null);
         }
+
+        throw new SearchParseException("Not a comparison expression: " + expr);
     }
 
     private class SyncopeComparison implements ASTNode<T> {
@@ -148,5 +143,4 @@ public class SyncopeFiqlParser<T> extends FiqlParser<T> {
             }
         }
     }
-
 }

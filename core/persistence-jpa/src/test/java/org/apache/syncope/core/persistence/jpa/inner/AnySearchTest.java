@@ -52,6 +52,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
@@ -359,6 +360,16 @@ public class AnySearchTest extends AbstractTest {
         users = searchDAO.search(SearchCond.getLeaf(coolLeafCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
+    }
+
+    @Test
+    public void searchByAuxClass() {
+        AuxClassCond ac = new AuxClassCond();
+        ac.setAuxClass("csv");
+
+        List<Group> groups = searchDAO.search(SearchCond.getLeaf(ac), AnyTypeKind.GROUP);
+        assertNotNull(groups);
+        assertEquals(2, groups.size());
     }
 
     @Test

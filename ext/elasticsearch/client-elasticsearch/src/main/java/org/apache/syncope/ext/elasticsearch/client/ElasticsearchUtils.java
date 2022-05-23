@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
@@ -139,6 +140,7 @@ public class ElasticsearchUtils {
         builder.put("lastModifier", any.getLastModifier());
         builder.put("lastChangeContext", any.getLastChangeContext());
         builder.put("status", any.getStatus());
+        builder.put("auxClasses", any.getAuxClasses().stream().map(AnyTypeClass::getKey).collect(Collectors.toList()));
         builder.put("resources", resources);
         builder.put("dynRealms", dynRealms);
 

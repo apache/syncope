@@ -58,6 +58,7 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
+import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
@@ -372,6 +373,12 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 }
 
                 if (query == null) {
+                    query = cond.getLeaf(AuxClassCond.class).
+                            map(this::getQuery).
+                            orElse(null);
+                }
+
+                if (query == null) {
                     query = cond.getLeaf(ResourceCond.class).
                             map(this::getQuery).
                             orElse(null);
@@ -500,6 +507,12 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
         return new Query.Builder().term(QueryBuilders.term().
                 field("members").value(FieldValue.of(memberKey)).build()).
+                build();
+    }
+
+    protected Query getQuery(final AuxClassCond cond) {
+        return new Query.Builder().term(QueryBuilders.term().
+                field("auxClasses").value(FieldValue.of(cond.getAuxClass())).build()).
                 build();
     }
 

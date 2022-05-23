@@ -150,6 +150,10 @@ public class SearchSupport {
         return new SearchView("svdrealm", JPADynRealmDAO.DYNMEMB_TABLE);
     }
 
+    public SearchView auxClass() {
+        return new SearchView("svac", field().name + "_auxClass");
+    }
+
     public SearchView resource() {
         return new SearchView("svr", field().name + "_resource");
     }

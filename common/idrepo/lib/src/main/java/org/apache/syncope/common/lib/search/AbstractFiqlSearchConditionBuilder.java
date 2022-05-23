@@ -82,6 +82,14 @@ public abstract class AbstractFiqlSearchConditionBuilder<
                 notInDynRealms(dynRealm, moreDynRealms);
     }
 
+    public C hasAuxClasses(final String auxClass, final String... moreAuxClasses) {
+        return newBuilderInstance().is(SpecialAttr.AUX_CLASSES.toString()).hasAuxClasses(auxClass, moreAuxClasses);
+    }
+
+    public C hasNotAuxClasses(final String auxClass, final String... moreAuxClasses) {
+        return newBuilderInstance().is(SpecialAttr.AUX_CLASSES.toString()).hasNotAuxClasses(auxClass, moreAuxClasses);
+    }
+
     public C hasResources(final String resource, final String... moreResources) {
         return newBuilderInstance().is(SpecialAttr.RESOURCES.toString()).hasResources(resource, moreResources);
     }
@@ -122,6 +130,16 @@ public abstract class AbstractFiqlSearchConditionBuilder<
         }
 
         @Override
+        public C equalToIgnoreCase(final String value, final String... moreValues) {
+            return condition(SyncopeFiqlParser.IEQ, value, (Object[]) moreValues);
+        }
+
+        @Override
+        public C notEqualTolIgnoreCase(final String literalOrPattern) {
+            return condition(SyncopeFiqlParser.NIEQ, literalOrPattern);
+        }
+
+        @Override
         public C nullValue() {
             return condition(FiqlParser.EQ, SpecialAttr.NULL);
         }
@@ -129,6 +147,18 @@ public abstract class AbstractFiqlSearchConditionBuilder<
         @Override
         public C notNullValue() {
             return condition(FiqlParser.NEQ, SpecialAttr.NULL);
+        }
+
+        @Override
+        public C hasAuxClasses(final String auxClass, final String... moreAuxClasses) {
+            this.result = SpecialAttr.AUX_CLASSES.toString();
+            return condition(FiqlParser.EQ, auxClass, (Object[]) moreAuxClasses);
+        }
+
+        @Override
+        public C hasNotAuxClasses(final String auxClass, final String... moreAuxClasses) {
+            this.result = SpecialAttr.AUX_CLASSES.toString();
+            return condition(FiqlParser.NEQ, auxClass, (Object[]) moreAuxClasses);
         }
 
         @Override
@@ -141,16 +171,6 @@ public abstract class AbstractFiqlSearchConditionBuilder<
         public C hasNotResources(final String resource, final String... moreResources) {
             this.result = SpecialAttr.RESOURCES.toString();
             return condition(FiqlParser.NEQ, resource, (Object[]) moreResources);
-        }
-
-        @Override
-        public C equalToIgnoreCase(final String value, final String... moreValues) {
-            return condition(SyncopeFiqlParser.IEQ, value, (Object[]) moreValues);
-        }
-
-        @Override
-        public C notEqualTolIgnoreCase(final String literalOrPattern) {
-            return condition(SyncopeFiqlParser.NIEQ, literalOrPattern);
         }
 
         @Override

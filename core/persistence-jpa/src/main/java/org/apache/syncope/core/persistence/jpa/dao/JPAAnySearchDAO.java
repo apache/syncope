@@ -51,6 +51,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
@@ -542,6 +543,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         filter(leaf -> AnyTypeKind.ANY_OBJECT == svs.anyTypeKind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
 
+                cond.getLeaf(AuxClassCond.class).
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
+
                 cond.getLeaf(RelationshipTypeCond.class).
                         filter(leaf -> AnyTypeKind.GROUP != svs.anyTypeKind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
@@ -635,6 +639,30 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         query.append('?').append(setParameter(parameters, cond.getAnyTypeKey()));
+
+        return query.toString();
+    }
+
+    protected String getQuery(
+            final AuxClassCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
+                append(svs.field().name).append(" WHERE ");
+
+        if (not) {
+            query.append("any_id NOT IN (");
+        } else {
+            query.append("any_id IN (");
+        }
+
+        query.append("SELECT DISTINCT any_id FROM ").
+                append(svs.auxClass().name).
+                append(" WHERE anyTypeClass_id=?").
+                append(setParameter(parameters, cond.getAuxClass())).
+                append(')');
 
         return query.toString();
     }

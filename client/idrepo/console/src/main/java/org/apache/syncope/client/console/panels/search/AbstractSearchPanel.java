@@ -22,13 +22,16 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.SearchableFields;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -50,6 +53,8 @@ public abstract class AbstractSearchPanel extends Panel {
     protected IModel<Map<String, PlainSchemaTO>> dnames;
 
     protected IModel<Map<String, PlainSchemaTO>> anames;
+
+    protected IModel<List<String>> auxClassNames;
 
     protected IModel<List<String>> resourceNames;
 
@@ -159,7 +164,7 @@ public abstract class AbstractSearchPanel extends Panel {
                 required,
                 types,
                 builder.customizer,
-                anames, dnames, groupInfo, roleNames, privilegeNames, resourceNames);
+                anames, dnames, groupInfo, roleNames, privilegeNames, auxClassNames, resourceNames);
 
         if (enableSearch) {
             searchClausePanel.enableSearch(builder.resultContainer);
@@ -192,6 +197,19 @@ public abstract class AbstractSearchPanel extends Panel {
                     dSchemaNames.put(key, plain);
                 });
                 return dSchemaNames;
+            }
+        };
+
+        auxClassNames = new LoadableDetachableModel<>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return AnyTypeClassRestClient.list().stream().
+                        filter(c -> c.getInUseByTypes().isEmpty()).
+                        map(AnyTypeClassTO::getKey).
+                        collect(Collectors.toList());
             }
         };
 

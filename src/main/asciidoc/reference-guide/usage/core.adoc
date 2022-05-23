@@ -454,6 +454,13 @@ lastLoginDate=ge=2016-03-02 15:21:22
 ----
 ====
 
+.Auxiliary Any Type class assignment
+====
+----
+$auxClasses==csv
+----
+====
+
 .Resource assignment match
 ====
 ----

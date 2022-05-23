@@ -193,6 +193,26 @@ public class FilterConverterTest {
     }
 
     @Test
+    public void hasAuxClasses() {
+        try {
+            FilterConverter.convert(SpecialAttr.AUX_CLASSES + "==clazz1");
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
+        }
+    }
+
+    @Test
+    public void hasNotAuxClasses() {
+        try {
+            FilterConverter.convert(SpecialAttr.AUX_CLASSES + "!=clazz1");
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
+        }
+    }
+
+    @Test
     public void hasResources() {
         try {
             FilterConverter.convert(SpecialAttr.RESOURCES + "==resource");

@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
+import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
@@ -293,6 +294,30 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         }
 
         query.append('?').append(setParameter(parameters, cond.getAnyTypeKey()));
+
+        return query.toString();
+    }
+
+    @Override
+    protected String getQuery(
+            final AuxClassCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        StringBuilder query = new StringBuilder();
+
+        if (not) {
+            query.append("id NOT IN (");
+        } else {
+            query.append("id IN (");
+        }
+
+        query.append("SELECT DISTINCT any_id FROM ").
+                append(svs.auxClass().name).
+                append(" WHERE anyTypeClass_id=?").
+                append(setParameter(parameters, cond.getAuxClass())).
+                append(')');
 
         return query.toString();
     }
