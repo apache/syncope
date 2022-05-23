@@ -99,7 +99,7 @@ public class ElasticsearchAnySearchDAOTest {
         // 2. test
         Set<String> adminRealms = Set.of(SyncopeConstants.ROOT_REALM);
         Triple<Optional<Query>, Set<String>, Set<String>> filter =
-                searchDAO.getAdminRealmsFilter(AnyTypeKind.USER, adminRealms);
+                searchDAO.getAdminRealmsFilter(realmDAO.getRoot(), true, adminRealms, AnyTypeKind.USER);
 
         assertThat(
                 new Query.Builder().disMax(QueryBuilders.disMax().queries(
@@ -122,7 +122,7 @@ public class ElasticsearchAnySearchDAOTest {
         // 2. test
         Set<String> adminRealms = Set.of("dyn");
         Triple<Optional<Query>, Set<String>, Set<String>> filter =
-                searchDAO.getAdminRealmsFilter(AnyTypeKind.USER, adminRealms);
+                searchDAO.getAdminRealmsFilter(realmDAO.getRoot(), true, adminRealms, AnyTypeKind.USER);
         assertFalse(filter.getLeft().isPresent());
         assertEquals(Set.of("dyn"), filter.getMiddle());
         assertEquals(Set.of(), filter.getRight());
@@ -132,7 +132,7 @@ public class ElasticsearchAnySearchDAOTest {
     public void getAdminRealmsFilter_groupOwner() {
         Set<String> adminRealms = Set.of(RealmUtils.getGroupOwnerRealm("/any", "groupKey"));
         Triple<Optional<Query>, Set<String>, Set<String>> filter =
-                searchDAO.getAdminRealmsFilter(AnyTypeKind.USER, adminRealms);
+                searchDAO.getAdminRealmsFilter(realmDAO.getRoot(), true, adminRealms, AnyTypeKind.USER);
         assertFalse(filter.getLeft().isPresent());
         assertEquals(Set.of(), filter.getMiddle());
         assertEquals(Set.of("groupKey"), filter.getRight());
@@ -164,7 +164,7 @@ public class ElasticsearchAnySearchDAOTest {
             SearchRequest request = new SearchRequest.Builder().
                     index(ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
                     searchType(SearchType.QueryThenFetch).
-                    query(searchDAO.getQuery(realmDAO.findByFullPath("/any"), true, 
+                    query(searchDAO.getQuery(realmDAO.findByFullPath("/any"), true,
                             adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER)).
                     from(1).
                     size(10).
