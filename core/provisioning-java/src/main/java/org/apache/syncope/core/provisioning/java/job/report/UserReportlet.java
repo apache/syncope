@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
@@ -56,26 +57,29 @@ import org.xml.sax.helpers.AttributesImpl;
 public class UserReportlet extends AbstractReportlet {
 
     @Autowired
-    private UserDAO userDAO;
+    protected RealmDAO realmDAO;
 
     @Autowired
-    private AnySearchDAO searchDAO;
+    protected UserDAO userDAO;
 
     @Autowired
-    private UserDataBinder userDataBinder;
+    protected AnySearchDAO searchDAO;
 
     @Autowired
-    private GroupDataBinder groupDataBinder;
+    protected UserDataBinder userDataBinder;
 
     @Autowired
-    private AnyObjectDataBinder anyObjectDataBinder;
+    protected GroupDataBinder groupDataBinder;
 
     @Autowired
-    private SearchCondVisitor searchCondVisitor;
+    protected AnyObjectDataBinder anyObjectDataBinder;
 
-    private UserReportletConf conf;
+    @Autowired
+    protected SearchCondVisitor searchCondVisitor;
 
-    private static void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
+    protected UserReportletConf conf;
+
+    protected void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
             throws SAXException {
 
         if (anyTO.getResources().isEmpty()) {
@@ -96,9 +100,12 @@ public class UserReportlet extends AbstractReportlet {
         }
     }
 
-    private static void doExtractAttributes(final ContentHandler handler, final AnyTO anyTO,
-                                            final Collection<String> attrs, final Collection<String> derAttrs,
-                                            final Collection<String> virAttrs) throws SAXException {
+    protected void doExtractAttributes(
+            final ContentHandler handler,
+            final AnyTO anyTO,
+            final Collection<String> attrs,
+            final Collection<String> derAttrs,
+            final Collection<String> virAttrs) throws SAXException {
 
         AttributesImpl atts = new AttributesImpl();
         if (!attrs.isEmpty()) {
@@ -180,7 +187,7 @@ public class UserReportlet extends AbstractReportlet {
         }
     }
 
-    private void doExtract(final ContentHandler handler, final List<User> users) throws SAXException {
+    protected void doExtract(final ContentHandler handler, final List<User> users) throws SAXException {
         AttributesImpl atts = new AttributesImpl();
         for (User user : users) {
             atts.clear();
@@ -308,7 +315,7 @@ public class UserReportlet extends AbstractReportlet {
         }
     }
 
-    private void doExtractConf(final ContentHandler handler) throws SAXException {
+    protected void doExtractConf(final ContentHandler handler) throws SAXException {
         AttributesImpl atts = new AttributesImpl();
         handler.startElement("", "", "configurations", null);
         handler.startElement("", "", "userAttributes", atts);
@@ -345,11 +352,15 @@ public class UserReportlet extends AbstractReportlet {
         handler.endElement("", "", "configurations");
     }
 
-    private int count() {
+    protected int count() {
         return StringUtils.isBlank(conf.getMatchingCond())
                 ? userDAO.count()
-                : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(searchCondVisitor, this.conf.getMatchingCond()), AnyTypeKind.USER);
+                : searchDAO.count(
+                        realmDAO.getRoot(),
+                        true,
+                        SyncopeConstants.FULL_ADMIN_REALMS,
+                        SearchCondConverter.convert(searchCondVisitor, conf.getMatchingCond()),
+                        AnyTypeKind.USER);
     }
 
     @Override
@@ -380,6 +391,8 @@ public class UserReportlet extends AbstractReportlet {
                 users = userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE);
             } else {
                 users = searchDAO.search(
+                        realmDAO.getRoot(),
+                        true,
                         SyncopeConstants.FULL_ADMIN_REALMS,
                         SearchCondConverter.convert(searchCondVisitor, this.conf.getMatchingCond()),
                         page,

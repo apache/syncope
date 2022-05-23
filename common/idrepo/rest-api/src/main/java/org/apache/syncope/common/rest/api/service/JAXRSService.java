@@ -40,6 +40,8 @@ public interface JAXRSService {
 
     String PARAM_REALM = "realm";
 
+    String PARAM_RECURSIVE = "recursive";
+
     String PARAM_DETAILS = "details";
 
     String PARAM_CONNID_PAGED_RESULTS_COOKIE = "connIdPagedResultsCookie";

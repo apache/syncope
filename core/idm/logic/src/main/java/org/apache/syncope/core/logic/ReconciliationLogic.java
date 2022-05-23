@@ -68,6 +68,7 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.pushpull.ConstantReconFilterBuilder;
@@ -568,6 +569,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 entitlement = IdRepoEntitlement.USER_SEARCH;
         }
 
+        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+                orElseThrow(() -> new NotFoundException("Realm " + realm));
+
         Set<String> adminRealms = RealmUtils.getEffective(AuthContextUtils.getAuthorizations().get(entitlement), realm);
         SearchCond effectiveCond = searchCond == null ? anyUtils.dao().getAllMatchingCond() : searchCond;
 
@@ -575,15 +579,16 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         if (spec.getIgnorePaging()) {
             matching = new ArrayList<>();
 
-            int count = anySearchDAO.count(adminRealms, effectiveCond, anyType.getKind());
+            int count = anySearchDAO.count(base, true, adminRealms, effectiveCond, anyType.getKind());
             int pages = (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
             for (int p = 1; p <= pages; p++) {
-                matching.addAll(anySearchDAO.search(adminRealms, effectiveCond,
+                matching.addAll(anySearchDAO.search(base, true, adminRealms, effectiveCond,
                         p, AnyDAO.DEFAULT_PAGE_SIZE, orderBy, anyType.getKind()));
             }
         } else {
-            matching = anySearchDAO.search(adminRealms, effectiveCond, page, size, orderBy, anyType.getKind());
+            matching = anySearchDAO.search(
+                    base, true, adminRealms, effectiveCond, page, size, orderBy, anyType.getKind());
         }
 
         List<String> columns = new ArrayList<>();

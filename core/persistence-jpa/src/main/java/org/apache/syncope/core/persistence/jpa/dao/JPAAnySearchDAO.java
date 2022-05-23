@@ -100,6 +100,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected Triple<String, Set<String>, Set<String>> getAdminRealmsFilter(
+            final Realm base,
+            final boolean recursive,
             final Set<String> adminRealms,
             final SearchSupport svs,
             final List<Object> parameters) {
@@ -108,31 +110,37 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         Set<String> dynRealmKeys = new HashSet<>();
         Set<String> groupOwners = new HashSet<>();
 
-        adminRealms.forEach(realmPath -> {
-            Optional<Pair<String, String>> goRealm = RealmUtils.parseGroupOwnerRealm(realmPath);
-            if (goRealm.isPresent()) {
-                groupOwners.add(goRealm.get().getRight());
-            } else if (realmPath.startsWith("/")) {
-                Realm realm = realmDAO.findByFullPath(realmPath);
-                if (realm == null) {
-                    SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-                    noRealm.getElements().add("Invalid realm specified: " + realmPath);
-                    throw noRealm;
+        if (recursive) {
+            adminRealms.forEach(realmPath -> {
+                Optional<Pair<String, String>> goRealm = RealmUtils.parseGroupOwnerRealm(realmPath);
+                if (goRealm.isPresent()) {
+                    groupOwners.add(goRealm.get().getRight());
+                } else if (realmPath.startsWith("/")) {
+                    Realm realm = realmDAO.findByFullPath(realmPath);
+                    if (realm == null) {
+                        SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+                        noRealm.getElements().add("Invalid realm specified: " + realmPath);
+                        throw noRealm;
+                    } else {
+                        realmKeys.addAll(realmDAO.findDescendants(realm).stream().
+                                map(Realm::getKey).collect(Collectors.toSet()));
+                    }
                 } else {
-                    realmKeys.addAll(realmDAO.findDescendants(realm).stream().
-                            map(Realm::getKey).collect(Collectors.toSet()));
+                    DynRealm dynRealm = dynRealmDAO.find(realmPath);
+                    if (dynRealm == null) {
+                        LOG.warn("Ignoring invalid dynamic realm {}", realmPath);
+                    } else {
+                        dynRealmKeys.add(dynRealm.getKey());
+                    }
                 }
-            } else {
-                DynRealm dynRealm = dynRealmDAO.find(realmPath);
-                if (dynRealm == null) {
-                    LOG.warn("Ignoring invalid dynamic realm {}", realmPath);
-                } else {
-                    dynRealmKeys.add(dynRealm.getKey());
-                }
+            });
+            if (!dynRealmKeys.isEmpty()) {
+                realmKeys.clear();
             }
-        });
-        if (!dynRealmKeys.isEmpty()) {
-            realmKeys.clear();
+        } else {
+            if (adminRealms.stream().anyMatch(r -> base.getFullPath().startsWith(r))) {
+                realmKeys.add(base.getKey());
+            }
         }
 
         return Triple.of(buildAdminRealmsFilter(realmKeys, svs, parameters), dynRealmKeys, groupOwners);
@@ -143,12 +151,19 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     @Override
-    protected int doCount(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind kind) {
+    protected int doCount(
+            final Realm base,
+            final boolean recursive,
+            final Set<String> adminRealms,
+            final SearchCond cond,
+            final AnyTypeKind kind) {
+
         List<Object> parameters = new ArrayList<>();
 
         SearchSupport svs = buildSearchSupport(kind);
 
-        Triple<String, Set<String>, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
+        Triple<String, Set<String>, Set<String>> filter =
+                getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
 
         // 1. get the query string from the search condition
         Pair<StringBuilder, Set<String>> queryInfo =
@@ -156,7 +171,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         StringBuilder queryString = queryInfo.getLeft();
 
-        // 2. take into account administrative realms
+        // 2. take realms into account
         queryString.insert(0, "SELECT u.any_id FROM (");
         queryString.append(") u WHERE ").append(filter.getLeft());
 
@@ -173,6 +188,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     @Override
     @SuppressWarnings("unchecked")
     protected <T extends Any<?>> List<T> doSearch(
+            final Realm base,
+            final boolean recursive,
             final Set<String> adminRealms,
             final SearchCond cond,
             final int page,
@@ -185,7 +202,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             SearchSupport svs = buildSearchSupport(kind);
 
-            Triple<String, Set<String>, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
+            Triple<String, Set<String>, Set<String>> filter =
+                    getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
 
             // 1. get the query string from the search condition
             Pair<StringBuilder, Set<String>> queryInfo =

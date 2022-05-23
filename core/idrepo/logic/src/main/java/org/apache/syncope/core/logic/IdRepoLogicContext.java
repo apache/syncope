@@ -426,6 +426,7 @@ public class IdRepoLogicContext {
     public SyncopeLogic syncopeLogic(
             final ContentExporter exporter,
             final UserWorkflowAdapter uwfAdapter,
+            final RealmDAO realmDAO,
             final AnyTypeDAO anyTypeDAO,
             final GroupDAO groupDAO,
             final ConfParamOps confParamOps,
@@ -435,6 +436,7 @@ public class IdRepoLogicContext {
             final AnyObjectWorkflowAdapter awfAdapter) {
 
         return new SyncopeLogic(
+                realmDAO,
                 anyTypeDAO,
                 groupDAO,
                 anySearchDAO,

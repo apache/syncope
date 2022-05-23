@@ -633,12 +633,19 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
     }
 
     @Override
-    protected int doCount(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind kind) {
+    protected int doCount(
+            final Realm base,
+            final boolean recursive,
+            final Set<String> adminRealms,
+            final SearchCond cond,
+            final AnyTypeKind kind) {
+
         List<Object> parameters = new ArrayList<>();
 
         SearchSupport svs = buildSearchSupport(kind);
 
-        Triple<String, Set<String>, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
+        Triple<String, Set<String>, Set<String>> filter =
+                getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
 
         Pair<StringBuilder, Set<String>> queryInfo =
                 getQuery(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
@@ -657,6 +664,8 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
     @Override
     @SuppressWarnings("unchecked")
     protected <T extends Any<?>> List<T> doSearch(
+            final Realm base,
+            final boolean recursive,
             final Set<String> adminRealms,
             final SearchCond cond,
             final int page,
@@ -669,7 +678,8 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
             SearchSupport svs = buildSearchSupport(kind);
 
-            Triple<String, Set<String>, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
+            Triple<String, Set<String>, Set<String>> filter =
+                    getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
 
             SearchCond effectiveCond = buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind);
 

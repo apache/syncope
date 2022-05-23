@@ -144,6 +144,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                     anyQuery.getSize(),
                     getOrderByClauses(anyQuery.getOrderBy()),
                     isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
+                    anyQuery.getRecursive(),
                     anyQuery.getDetails());
 
             return buildPagedResult(result.getRight(), anyQuery.getPage(), anyQuery.getSize(), result.getLeft());

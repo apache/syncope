@@ -62,6 +62,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
+import org.springframework.util.CollectionUtils;
 
 public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO {
 
@@ -146,11 +147,18 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         this.anyUtilsFactory = anyUtilsFactory;
     }
 
-    protected abstract int doCount(Set<String> adminRealms, SearchCond cond, AnyTypeKind kind);
+    protected abstract int doCount(
+            Realm base, boolean recursive, Set<String> adminRealms, SearchCond cond, AnyTypeKind kind);
 
     @Override
-    public int count(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind kind) {
-        if (adminRealms == null || adminRealms.isEmpty()) {
+    public int count(
+            final Realm base,
+            final boolean recursive,
+            final Set<String> adminRealms,
+            final SearchCond cond,
+            final AnyTypeKind kind) {
+
+        if (CollectionUtils.isEmpty(adminRealms)) {
             LOG.error("No realms provided");
             return 0;
         }
@@ -161,7 +169,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             return 0;
         }
 
-        return doCount(adminRealms, cond, kind);
+        return doCount(base, recursive, adminRealms, cond, kind);
     }
 
     @Override
@@ -173,10 +181,12 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     public <T extends Any<?>> List<T> search(
             final SearchCond cond, final List<OrderByClause> orderBy, final AnyTypeKind kind) {
 
-        return search(SyncopeConstants.FULL_ADMIN_REALMS, cond, -1, -1, orderBy, kind);
+        return search(realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, cond, -1, -1, orderBy, kind);
     }
 
     protected abstract <T extends Any<?>> List<T> doSearch(
+            Realm base,
+            boolean recursive,
             Set<String> adminRealms,
             SearchCond searchCondition,
             int page,
@@ -347,6 +357,8 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
     @Override
     public <T extends Any<?>> List<T> search(
+            final Realm base,
+            final boolean recursive,
             final Set<String> adminRealms,
             final SearchCond cond,
             final int page,
@@ -354,7 +366,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             final List<OrderByClause> orderBy,
             final AnyTypeKind kind) {
 
-        if (adminRealms == null || adminRealms.isEmpty()) {
+        if (CollectionUtils.isEmpty(adminRealms)) {
             LOG.error("No realms provided");
             return List.of();
         }
@@ -377,6 +389,6 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                     collect(Collectors.toList());
         }
 
-        return doSearch(adminRealms, cond, page, itemsPerPage, effectiveOrderBy, kind);
+        return doSearch(base, recursive, adminRealms, cond, page, itemsPerPage, effectiveOrderBy, kind);
     }
 }

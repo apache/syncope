@@ -181,6 +181,7 @@ abstract class AbstractService<R extends SCIMResource> {
                 itemsPerPage,
                 sort,
                 SyncopeConstants.ROOT_REALM,
+                true,
                 false);
 
         if (result.getLeft() > confManager.get().getGeneralConf().getFilterMaxResults()) {
