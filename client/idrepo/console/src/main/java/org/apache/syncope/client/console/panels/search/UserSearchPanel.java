@@ -71,8 +71,8 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
             @Override
             protected List<String> load() {
                 return ApplicationRestClient.list().stream().
-                    flatMap(application -> application.getPrivileges().stream()).
-                    map(EntityTO::getKey).collect(Collectors.toList());
+                        flatMap(application -> application.getPrivileges().stream()).
+                        map(EntityTO::getKey).collect(Collectors.toList());
             }
         };
     }
@@ -84,6 +84,7 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
         result.add(SearchClause.Type.ROLE_MEMBERSHIP);
         result.add(SearchClause.Type.PRIVILEGE);
         result.add(SearchClause.Type.GROUP_MEMBERSHIP);
+        result.add(SearchClause.Type.AUX_CLASS);
         result.add(SearchClause.Type.RESOURCE);
         result.add(SearchClause.Type.RELATIONSHIP);
         return result;

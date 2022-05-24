@@ -55,5 +55,4 @@ public class SyncopeFiqlSearchCondition<T> extends SimpleSearchCondition<T> {
     public String getOperator() {
         return operator;
     }
-
 }

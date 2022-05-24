@@ -66,6 +66,7 @@ public class GroupSearchPanel extends AbstractSearchPanel {
             protected List<SearchClause.Type> load() {
                 List<SearchClause.Type> result = new ArrayList<>();
                 result.add(SearchClause.Type.ATTRIBUTE);
+                result.add(SearchClause.Type.AUX_CLASS);
                 result.add(SearchClause.Type.RESOURCE);
                 result.add(SearchClause.Type.GROUP_MEMBER);
                 return result;

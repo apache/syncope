@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum SpecialAttr {
-    
+
     /**
      * Applies to users, groups and any objects.
      */
@@ -31,6 +31,10 @@ public enum SpecialAttr {
      * Applies to any objects.
      */
     TYPE("$type"),
+    /**
+     * Applies to users, groups and any objects.
+     */
+    AUX_CLASSES("$auxClasses"),
     /**
      * Applies to users, groups and any objects.
      */

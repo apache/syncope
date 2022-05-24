@@ -112,6 +112,7 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
         List<SearchClause.Type> result = new ArrayList<>();
         result.add(SearchClause.Type.ATTRIBUTE);
         result.add(SearchClause.Type.GROUP_MEMBERSHIP);
+        result.add(SearchClause.Type.AUX_CLASS);
         result.add(SearchClause.Type.RESOURCE);
         result.add(SearchClause.Type.RELATIONSHIP);
         return result;

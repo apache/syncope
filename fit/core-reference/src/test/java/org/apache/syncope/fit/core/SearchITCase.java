@@ -256,7 +256,23 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
-    public void searchUserByResourceName() {
+    public void searchByAuxClass() {
+        PagedResult<GroupTO> matchingGroups = groupService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getGroupSearchConditionBuilder().
+                                hasAuxClasses("csv").query()).
+                        build());
+        assertNotNull(matchingGroups);
+        assertFalse(matchingGroups.getResult().isEmpty());
+
+        assertTrue(matchingGroups.getResult().stream().
+                anyMatch(group -> "0626100b-a4ba-4e00-9971-86fad52a6216".equals(group.getKey())));
+        assertTrue(matchingGroups.getResult().stream().
+                anyMatch(group -> "ba9ed509-b1f5-48ab-a334-c8530a6422dc".equals(group.getKey())));
+    }
+
+    @Test
+    public void searchByResource() {
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getUserSearchConditionBuilder().

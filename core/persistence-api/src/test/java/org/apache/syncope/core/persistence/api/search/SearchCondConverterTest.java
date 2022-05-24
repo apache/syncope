@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
+import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
@@ -222,6 +223,18 @@ public class SearchCondConverterTest {
         DynRealmCond dynRealmCond = new DynRealmCond();
         dynRealmCond.setDynRealm(dynRealm);
         SearchCond leaf = SearchCond.getLeaf(dynRealmCond);
+
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
+    }
+
+    @Test
+    public void auxClasses() {
+        String fiql = new UserFiqlSearchConditionBuilder().hasAuxClasses("clazz1").query();
+        assertEquals(SpecialAttr.AUX_CLASSES + "==clazz1", fiql);
+
+        AuxClassCond cond = new AuxClassCond();
+        cond.setAuxClass("clazz1");
+        SearchCond leaf = SearchCond.getLeaf(cond);
 
         assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }

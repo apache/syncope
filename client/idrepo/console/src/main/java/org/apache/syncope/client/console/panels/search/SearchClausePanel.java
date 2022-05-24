@@ -150,6 +150,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final IModel<List<String>> privilegeNames;
 
+    private final IModel<List<String>> auxClassNames;
+
     private final IModel<List<String>> resourceNames;
 
     private IModel<SearchClause> clause;
@@ -183,6 +185,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final Pair<IModel<List<String>>, IModel<Integer>> groupInfo,
             final IModel<List<String>> roleNames,
             final IModel<List<String>> privilegeNames,
+            final IModel<List<String>> auxClassNames,
             final IModel<List<String>> resourceNames) {
 
         super(id, name, clause);
@@ -197,6 +200,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         this.groupInfo = groupInfo;
         this.roleNames = roleNames;
         this.privilegeNames = privilegeNames;
+        this.auxClassNames = auxClassNames;
         this.resourceNames = resourceNames;
 
         searchButton = new AjaxLink<>("search") {
@@ -239,6 +243,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     case ATTRIBUTE:
                         return List.of(SearchClause.Comparator.values());
 
+                    case AUX_CLASS:
                     case ROLE_MEMBERSHIP:
                     case PRIVILEGE:
                     case GROUP_MEMBERSHIP:
@@ -291,6 +296,10 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     case PRIVILEGE:
                         return privilegeNames.getObject().stream().
+                                sorted().collect(Collectors.toList());
+
+                    case AUX_CLASS:
+                        return auxClassNames.getObject().stream().
                                 sorted().collect(Collectors.toList());
 
                     case RESOURCE:
@@ -647,6 +656,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     property.setModelObject(StringUtils.EMPTY);
                     break;
 
+                case AUX_CLASS:
                 case RESOURCE:
                     value.setEnabled(false);
                     value.setModelObject(StringUtils.EMPTY);
@@ -759,6 +769,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         }
                         break;
 
+                    case AUX_CLASS:
                     case ROLE_MEMBERSHIP:
                     case PRIVILEGE:
                     case RESOURCE:
@@ -1026,7 +1037,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     public FieldPanel<SearchClause> clone() {
         SearchClausePanel panel = new SearchClausePanel(
                 getId(), name, null, required, types, customizer, anames, dnames, groupInfo,
-                roleNames, privilegeNames, resourceNames);
+                roleNames, privilegeNames, auxClassNames, resourceNames);
         panel.setReadOnly(this.isReadOnly());
         panel.setRequired(this.isRequired());
         if (searchButton.isEnabled()) {
