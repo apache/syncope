@@ -53,7 +53,7 @@ public class TabularTopology extends BasePage {
         body.add(content);
     }
 
-    private List<ITab> buildTabList() {
+    protected List<ITab> buildTabList() {
         final List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new AbstractTab(new Model<>("CustomTasks")) {

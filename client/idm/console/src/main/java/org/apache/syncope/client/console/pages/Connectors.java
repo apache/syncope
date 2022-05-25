@@ -38,8 +38,6 @@ public class Connectors extends Panel {
 
     private static final long serialVersionUID = 305521359617401936L;
 
-    private final WizardMgtPanel<Serializable> connectorDirectoryPanel;
-
     public Connectors(final String id, final PageReference pageRef) {
         super(id);
 
@@ -68,13 +66,9 @@ public class Connectors extends Panel {
         form.add(search);
         form.setDefaultButton(search);
 
-        connectorDirectoryPanel =
-                new ConnectorDirectoryPanel.Builder(pageRef).
-                        addNewItemPanelBuilder(new ConnectorWizardBuilder(
-                                new ConnInstanceTO(), pageRef), true).
-                        build("connectorDirectoryPanel");
-        connectorDirectoryPanel.setOutputMarkupId(true);
-
-        add(connectorDirectoryPanel);
+        WizardMgtPanel<Serializable> connectorDirectoryPanel = new ConnectorDirectoryPanel.Builder(pageRef).
+                addNewItemPanelBuilder(new ConnectorWizardBuilder(new ConnInstanceTO(), pageRef), true).
+                build("connectorDirectoryPanel");
+        add(connectorDirectoryPanel.setOutputMarkupId(true));
     }
 }

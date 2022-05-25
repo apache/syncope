@@ -38,8 +38,6 @@ public class Resources extends Panel {
 
     private static final long serialVersionUID = 7240865652350993779L;
 
-    private final WizardMgtPanel<Serializable> resourceDirectoryPanel;
-
     public Resources(final String id, final PageReference pageRef) {
         super(id);
 
@@ -68,13 +66,9 @@ public class Resources extends Panel {
         form.add(search);
         form.setDefaultButton(search);
 
-        resourceDirectoryPanel =
-                new ResourceDirectoryPanel.Builder(pageRef).
-                        addNewItemPanelBuilder(new ResourceWizardBuilder(
-                                new ResourceTO(), pageRef), true).
-                        build("resourceDirectoryPanel");
-        resourceDirectoryPanel.setOutputMarkupId(true);
-
-        add(resourceDirectoryPanel);
+        WizardMgtPanel<Serializable> resourceDirectoryPanel = new ResourceDirectoryPanel.Builder(pageRef).
+                addNewItemPanelBuilder(new ResourceWizardBuilder(new ResourceTO(), pageRef), true).
+                build("resourceDirectoryPanel");
+        add(resourceDirectoryPanel.setOutputMarkupId(true));
     }
 }
