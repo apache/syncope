@@ -66,17 +66,17 @@ public class ResourceDirectoryPanel extends
 
     private static final long serialVersionUID = -5223129956783782225L;
 
-    private String keyword;
+    protected String keyword;
 
-    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
+    protected final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
 
-    private final BaseModal<Serializable> propTaskModal;
+    protected final BaseModal<Serializable> propTaskModal;
 
-    private final BaseModal<Serializable> schedTaskModal;
+    protected final BaseModal<Serializable> schedTaskModal;
 
-    private final BaseModal<Serializable> provisionModal;
+    protected final BaseModal<Serializable> provisionModal;
 
-    private final BaseModal<Serializable> historyModal;
+    protected final BaseModal<Serializable> historyModal;
 
     protected ResourceDirectoryPanel(final String id, final ResourceDirectoryPanel.Builder builder) {
         super(id, builder);
@@ -397,9 +397,9 @@ public class ResourceDirectoryPanel extends
 
         private static final long serialVersionUID = 213974502541311941L;
 
-        private final AjaxRequestTarget target;
+        protected final AjaxRequestTarget target;
 
-        private final String keyword;
+        protected final String keyword;
 
         public ResourceSearchEvent(final AjaxRequestTarget target, final String keyword) {
             this.target = target;

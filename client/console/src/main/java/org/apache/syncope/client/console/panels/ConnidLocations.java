@@ -48,10 +48,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 
 public class ConnidLocations extends
         DirectoryPanel<Serializable, Serializable, ConnidLocations.ConnidLocationsDataProvider, RestClient> {
-    
+
+    private static final long serialVersionUID = 1L;
+
     public ConnidLocations(final String id, final Builder builder) {
         super(id, builder);
 
@@ -78,8 +81,13 @@ public class ConnidLocations extends
 
         columns.add(new AbstractColumn<Serializable, String>(
                 new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME) {
+
             @Override
-            public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
+            public void populateItem(
+                    final Item<ICellPopulator<Serializable>> cellItem,
+                    final String componentId,
+                    final IModel<Serializable> rowModel) {
+
                 cellItem.add(new Label(componentId, rowModel.getObject().toString()));
             }
         });
@@ -106,7 +114,7 @@ public class ConnidLocations extends
                 target.add(modal.setContent(new ConnectorWizardBuilder(modelObject, pageRef).
                         build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
-                modal.header(new Model<>(MessageFormat.format(getString("connector.new"), (String) ignore)));
+                modal.header(new Model<>(MessageFormat.format(getString("connector.new"), ignore)));
                 modal.show(true);
             }
 
