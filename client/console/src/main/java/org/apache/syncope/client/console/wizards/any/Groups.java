@@ -87,6 +87,10 @@ public class Groups extends AbstractGroups {
         addDynamicRealmsContainer();
     }
 
+    protected List<GroupTO> searchAssignable(final String realm, final String term) {
+        return syncopeRestClient.searchAssignableGroups(realm, term, 1, Constants.MAX_GROUP_LIST_SIZE);
+    }
+
     @Override
     protected void addGroupsPanel() {
         if (anyTO instanceof GroupTO) {
@@ -128,7 +132,6 @@ public class Groups extends AbstractGroups {
                 public List<MembershipTO> getObject() {
                     return Groups.this.groupsModel.getMemberships();
                 }
-
             }, new AjaxPalettePanel.Builder.Query<MembershipTO>() {
 
                 private static final long serialVersionUID = -7223078772249308813L;
@@ -139,8 +142,7 @@ public class Groups extends AbstractGroups {
                             ? Collections.emptyList()
                             : ("*".equals(filter)
                                     ? groupsModel.getObject()
-                                    : syncopeRestClient.searchAssignableGroups(
-                                            anyTO.getRealm(), filter, 1, Constants.MAX_GROUP_LIST_SIZE)).stream().
+                                    : searchAssignable(anyTO.getRealm(), filter)).stream().
                                     map(group -> new MembershipTO.Builder().
                                     group(group.getKey(), group.getName()).build()).
                                     collect(Collectors.toList());
@@ -156,7 +158,6 @@ public class Groups extends AbstractGroups {
                 public List<String> getObject() {
                     return Groups.this.groupsModel.getDynMemberships();
                 }
-
             }, new ListModel<>(groupsModel.getObject().stream().map(GroupTO::getName).collect(Collectors.toList()))).
                     hideLabel().setEnabled(false).setOutputMarkupId(true));
         }
@@ -213,11 +214,7 @@ public class Groups extends AbstractGroups {
          * Retrieve the first MAX_GROUP_LIST_SIZE assignable.
          */
         protected void reloadObject() {
-            groups = syncopeRestClient.searchAssignableGroups(
-                    realm,
-                    null,
-                    1,
-                    Constants.MAX_GROUP_LIST_SIZE);
+            groups = searchAssignable(realm, null);
         }
 
         public List<MembershipTO> getMemberships() {

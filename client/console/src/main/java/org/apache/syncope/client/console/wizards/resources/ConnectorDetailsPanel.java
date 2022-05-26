@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
@@ -66,7 +67,7 @@ public class ConnectorDetailsPanel extends WizardStep {
             protected Iterator<String> getChoices(final String input) {
                 return (isSearchEnabled
                         ? realmRestClient.search(RealmsUtils.buildQuery(input)).getResult()
-                        : realmRestClient.list()).
+                        : realmRestClient.list(SyncopeConstants.ROOT_REALM)).
                         stream().filter(realm -> SyncopeConsoleSession.get().getAuthRealms().stream().anyMatch(
                         authRealm -> realm.getFullPath().startsWith(authRealm))).
                         map(item -> item.getFullPath()).collect(Collectors.toList()).iterator();

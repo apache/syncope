@@ -34,6 +34,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accor
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
@@ -165,7 +166,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
             setTitleModel(new ResourceModel("realms"));
             add(new AjaxPalettePanel.Builder<>().build("realms",
                     new PropertyModel<>(modelObject, "realms"),
-                    new ListModel<>(new RealmRestClient().list().stream().
+                    new ListModel<>(new RealmRestClient().list(SyncopeConstants.ROOT_REALM).stream().
                             map(RealmTO::getFullPath).collect(Collectors.toList()))).
                     hideLabel().setOutputMarkupId(true));
         }

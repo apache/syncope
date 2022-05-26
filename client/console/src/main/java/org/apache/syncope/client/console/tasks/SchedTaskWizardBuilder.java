@@ -113,7 +113,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
     private List<RealmTO> searchRealms(final String realmQuery) {
         return isSearchEnabled
                 ? realmRestClient.search(RealmsUtils.buildQuery(realmQuery)).getResult()
-                : realmRestClient.list();
+                : realmRestClient.list(SyncopeConstants.ROOT_REALM);
     }
 
     public class Profile extends WizardStep {

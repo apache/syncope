@@ -33,11 +33,11 @@ adding new features or replacing existing components.
 .Override behavior
 ****
 As a rule of thumb, any file of the local project will take precedence over a file with the same name in the same
-directory of the standard Apache Syncope release.
+package directory of the standard Apache Syncope release.
 
 For example, if you place
 
- core/spring/src/main/java/org/apache/syncope/core/spring/security/SyncopeAuthenticationProvider.java
+ core/src/main/java/org/apache/syncope/core/spring/security/SyncopeAuthenticationProvider.java
 
 in the local project, this file will be picked up instead of
 ifeval::["{snapshotOrRelease}" == "release"]
