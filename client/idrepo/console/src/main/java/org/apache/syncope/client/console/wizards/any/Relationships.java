@@ -82,9 +82,11 @@ public class Relationships extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 855618618337931784L;
 
-    private final PageReference pageRef;
+    protected final AnyTO anyTO;
 
-    private final AnyTO anyTO;
+    protected final Specification specification;
+
+    protected final PageReference pageRef;
 
     public Relationships(final AnyWrapper<?> modelObject, final PageReference pageRef) {
         super();
@@ -101,6 +103,7 @@ public class Relationships extends WizardStep implements ICondition {
         }
 
         this.anyTO = modelObject.getInnerObject();
+        this.specification = new Specification();
         this.pageRef = pageRef;
 
         // ------------------------
@@ -115,11 +118,11 @@ public class Relationships extends WizardStep implements ICondition {
         return super.getHeader(id, parent, wizard).setVisible(false);
     }
 
-    private Fragment getViewFragment() {
-        final Map<String, List<RelationshipTO>> relationships = new HashMap<>();
+    protected Fragment getViewFragment() {
+        Map<String, List<RelationshipTO>> relationships = new HashMap<>();
         addRelationship(relationships, getCurrentRelationships().toArray(RelationshipTO[]::new));
 
-        final Fragment viewFragment = new Fragment("relationships", "viewFragment", this);
+        Fragment viewFragment = new Fragment("relationships", "viewFragment", this);
         viewFragment.setOutputMarkupId(true);
 
         viewFragment.add(new Accordion("relationships", relationships.keySet().stream().
@@ -158,7 +161,7 @@ public class Relationships extends WizardStep implements ICondition {
             }
         });
 
-        final ActionsPanel<RelationshipTO> panel = new ActionsPanel<>("actions", null);
+        ActionsPanel<RelationshipTO> panel = new ActionsPanel<>("actions", null);
         viewFragment.add(panel);
 
         panel.add(new ActionLink<>() {
@@ -169,7 +172,7 @@ public class Relationships extends WizardStep implements ICondition {
             public void onClick(final AjaxRequestTarget target, final RelationshipTO ignore) {
                 Fragment addFragment = new Fragment("relationships", "addFragment", Relationships.this);
                 addOrReplace(addFragment);
-                addFragment.add(new Specification().setRenderBodyOnly(true));
+                addFragment.add(specification.setRenderBodyOnly(true));
                 target.add(Relationships.this);
             }
         }, ActionType.CREATE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).hideLabel();
@@ -177,18 +180,18 @@ public class Relationships extends WizardStep implements ICondition {
         return viewFragment;
     }
 
-    private List<RelationshipTO> getCurrentRelationships() {
+    protected List<RelationshipTO> getCurrentRelationships() {
         return anyTO instanceof GroupableRelatableTO
                 ? GroupableRelatableTO.class.cast(anyTO).getRelationships()
                 : List.of();
     }
 
-    private static void addRelationship(
+    protected void addRelationship(
             final Map<String, List<RelationshipTO>> relationships,
             final RelationshipTO... rels) {
 
         for (RelationshipTO relationship : rels) {
-            final List<RelationshipTO> listrels;
+            List<RelationshipTO> listrels;
             if (relationships.containsKey(relationship.getType())) {
                 listrels = relationships.get(relationship.getType());
             } else {
@@ -199,17 +202,18 @@ public class Relationships extends WizardStep implements ICondition {
         }
     }
 
-    private void addNewRelationships(final RelationshipTO... rels) {
+    protected void addNewRelationships(final RelationshipTO... rels) {
         getCurrentRelationships().addAll(List.of(rels));
     }
 
-    private void removeRelationships(
+    protected void removeRelationships(
             final Map<String, List<RelationshipTO>> relationships, final RelationshipTO... rels) {
-        final List<RelationshipTO> currentRels = getCurrentRelationships();
+
+        List<RelationshipTO> currentRels = getCurrentRelationships();
         for (RelationshipTO relationship : rels) {
             currentRels.remove(relationship);
             if (relationships.containsKey(relationship.getType())) {
-                final List<RelationshipTO> rellist = relationships.get(relationship.getType());
+                List<RelationshipTO> rellist = relationships.get(relationship.getType());
                 rellist.remove(relationship);
                 if (rellist.isEmpty()) {
                     relationships.remove(relationship.getType());
@@ -228,30 +232,38 @@ public class Relationships extends WizardStep implements ICondition {
 
         private static final long serialVersionUID = 6199050589175839467L;
 
-        private final RelationshipTO rel;
+        protected final RelationshipTO rel;
 
-        private AnyObjectSearchPanel anyObjectSearchPanel;
+        protected final AjaxDropDownChoicePanel<String> type;
 
-        private WizardMgtPanel<AnyWrapper<AnyObjectTO>> anyObjectDirectoryPanel;
+        protected final AjaxDropDownChoicePanel<AnyTypeTO> otherType;
+
+        protected final WebMarkupContainer container;
+
+        protected final Fragment emptyFragment;
+
+        protected final Fragment fragment;
+
+        protected AnyObjectSearchPanel anyObjectSearchPanel;
+
+        protected WizardMgtPanel<AnyWrapper<AnyObjectTO>> anyObjectDirectoryPanel;
 
         public Specification() {
             super("specification");
             rel = new RelationshipTO();
 
-            final List<String> availableRels = RelationshipTypeRestClient.list().stream().
+            List<String> availableRels = RelationshipTypeRestClient.list().stream().
                     map(EntityTO::getKey).collect(Collectors.toList());
 
-            final AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<>(
-                    "type", "type", new PropertyModel<>(rel, "type"));
+            type = new AjaxDropDownChoicePanel<>("type", "type", new PropertyModel<>(rel, "type"));
             type.setChoices(availableRels);
-            add(type.setRenderBodyOnly(true));
+            add(type.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true).setRenderBodyOnly(true));
 
-            final List<AnyTypeTO> availableTypes = AnyTypeRestClient.listAnyTypes().stream().
+            List<AnyTypeTO> availableTypes = AnyTypeRestClient.listAnyTypes().stream().
                     filter(anyType -> anyType.getKind() != AnyTypeKind.GROUP
                     && anyType.getKind() != AnyTypeKind.USER).collect(Collectors.toList());
 
-            final AjaxDropDownChoicePanel<AnyTypeTO> otherType = new AjaxDropDownChoicePanel<>(
-                    "otherType", "otherType", new PropertyModel<>(rel, "otherType") {
+            otherType = new AjaxDropDownChoicePanel<>("otherType", "otherType", new PropertyModel<>(rel, "otherType") {
 
                 private static final long serialVersionUID = -5861057041758169508L;
 
@@ -288,19 +300,20 @@ public class Relationships extends WizardStep implements ICondition {
                 @Override
                 public AnyTypeTO getObject(final String id, final IModel<? extends List<? extends AnyTypeTO>> choices) {
                     return choices.getObject().stream().
-                        filter(anyTypeTO -> id.equals(anyTypeTO.getKey())).findAny().orElse(null);
+                            filter(anyTypeTO -> id.equals(anyTypeTO.getKey())).findAny().orElse(null);
                 }
             });
             // enable "otherType" dropdown only if "type" option is selected - SYNCOPE-1140
             otherType.setEnabled(false);
-            add(otherType);
+            add(otherType.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
 
-            final WebMarkupContainer container = new WebMarkupContainer("searchPanelContainer");
-            container.setOutputMarkupId(true);
-            add(container);
+            container = new WebMarkupContainer("searchPanelContainer");
+            add(container.setOutputMarkupId(true));
 
-            Fragment emptyFragment = new Fragment("searchPanel", "emptyFragment", this);
+            emptyFragment = new Fragment("searchPanel", "emptyFragment", this);
             container.add(emptyFragment.setRenderBodyOnly(true));
+
+            fragment = new Fragment("searchPanel", "searchFragment", Specification.this);
 
             type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -308,7 +321,6 @@ public class Relationships extends WizardStep implements ICondition {
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    Fragment emptyFragment = new Fragment("searchPanel", "emptyFragment", Specification.this);
                     container.addOrReplace(emptyFragment.setRenderBodyOnly(true));
                     otherType.setModelObject(null);
                     // enable "otherType" dropdown only if "type" option is selected - SYNCOPE-1140
@@ -324,46 +336,47 @@ public class Relationships extends WizardStep implements ICondition {
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    final AnyTypeTO anyType = otherType.getModelObject();
+                    AnyTypeTO anyType = otherType.getModelObject();
                     if (anyType == null) {
-                        Fragment emptyFragment = new Fragment("searchPanel", "emptyFragment", Specification.this);
                         container.addOrReplace(emptyFragment.setRenderBodyOnly(true));
                     } else {
-                        final Fragment fragment = new Fragment("searchPanel", "searchFragment", Specification.this);
+                        setupFragment(anyType);
                         container.addOrReplace(fragment.setRenderBodyOnly(true));
-
-                        anyObjectSearchPanel = new AnyObjectSearchPanel.Builder(
-                                anyType.getKey(),
-                                new ListModel<>(new ArrayList<>())).
-                                enableSearch(Specification.this).
-                                build("searchPanel");
-                        fragment.add(anyObjectSearchPanel.setRenderBodyOnly(true));
-
-                        anyObjectDirectoryPanel = new AnyObjectSelectionDirectoryPanel.Builder(
-                                AnyTypeClassRestClient.list(anyType.getClasses()),
-                                anyType.getKey(),
-                                pageRef).
-                                setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
-                                        is(Constants.KEY_FIELD_NAME).notNullValue().query()).
-                                setWizardInModal(true).build("searchResultPanel");
-                        fragment.add(anyObjectDirectoryPanel.setRenderBodyOnly(true));
                     }
                     target.add(container);
                 }
             });
         }
 
+        protected void setupFragment(final AnyTypeTO anyType) {
+            anyObjectSearchPanel = new AnyObjectSearchPanel.Builder(
+                    anyType.getKey(),
+                    new ListModel<>(new ArrayList<>())).
+                    enableSearch(Specification.this).
+                    build("searchPanel");
+            fragment.addOrReplace(anyObjectSearchPanel.setRenderBodyOnly(true));
+
+            anyObjectDirectoryPanel = new AnyObjectSelectionDirectoryPanel.Builder(
+                    AnyTypeClassRestClient.list(anyType.getClasses()),
+                    anyType.getKey(),
+                    pageRef).
+                    setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
+                            is(Constants.KEY_FIELD_NAME).notNullValue().query()).
+                    setWizardInModal(true).build("searchResultPanel");
+            fragment.addOrReplace(anyObjectDirectoryPanel.setRenderBodyOnly(true));
+        }
+
         @Override
         public void onEvent(final IEvent<?> event) {
             if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
-                final AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).
-                        getTarget();
-                final String fiql = SearchUtils.buildFIQL(anyObjectSearchPanel.getModel().getObject(),
+                AjaxRequestTarget target =
+                        SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
+                String fiql = SearchUtils.buildFIQL(anyObjectSearchPanel.getModel().getObject(),
                         SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectSearchPanel.getBackObjectType()));
                 AnyDirectoryPanel.class.cast(Specification.this.anyObjectDirectoryPanel).search(fiql, target);
             } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
-                final AjaxRequestTarget target = AnySelectionDirectoryPanel.ItemSelection.class.cast(event.
-                        getPayload()).getTarget();
+                AjaxRequestTarget target =
+                        AnySelectionDirectoryPanel.ItemSelection.class.cast(event.getPayload()).getTarget();
 
                 AnyTO right = AnySelectionDirectoryPanel.ItemSelection.class.cast(event.getPayload()).getSelection();
                 rel.setOtherEndKey(right.getKey());

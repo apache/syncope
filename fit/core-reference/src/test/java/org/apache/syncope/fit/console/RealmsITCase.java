@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -73,7 +75,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
                 "body:content:realmChoicePanel:container:realmsFragment:realms:dropdown-menu:buttons:5:button",
                 Constants.ON_CLICK);
 
-        TESTER.assertLabel("body:content:realmChoicePanel:container:realmDisplayValue", "/testRealm");
+        assertTrue(TESTER.getLastResponseAsString().contains(">/</a>"));
+        assertTrue(TESTER.getLastResponseAsString().contains(">testRealm</a>"));
 
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(
@@ -86,7 +89,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
                 "body:content:body:container:content:tabbedPanel:panel:container:policies:1:field-label",
                 "Account Policy");
 
-        TESTER.assertLabel("body:content:realmChoicePanel:container:realmDisplayValue", "/");
+        assertTrue(TESTER.getLastResponseAsString().contains(">/</a>"));
+        assertFalse(TESTER.getLastResponseAsString().contains(">testRealm</a>"));
     }
 
     @Test
@@ -116,7 +120,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
                 "body:content:realmChoicePanel:container:realmsFragment:realms:dropdown-menu:buttons:4:button",
                 Constants.ON_CLICK);
 
-        TESTER.assertLabel("body:content:realmChoicePanel:container:realmDisplayValue", "/odd");
+        assertTrue(TESTER.getLastResponseAsString().contains(">/</a>"));
+        assertTrue(TESTER.getLastResponseAsString().contains(">odd</a>"));
 
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:2:action:action");
@@ -136,7 +141,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.assertLabel("body:content:realmChoicePanel:container:realmDisplayValue", "/odd");
+        assertTrue(TESTER.getLastResponseAsString().contains(">/</a>"));
+        assertTrue(TESTER.getLastResponseAsString().contains(">odd</a>"));
 
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:2:action:action");

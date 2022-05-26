@@ -120,11 +120,11 @@ At this point your favourite IDE can be attached to the port `8000`.
 
 ===== Override behavior
 As a rule of thumb, any file of the local project will take precedence over a file with the same name in the same
-directory of the standard Apache Syncope release.
+package directory of the standard Apache Syncope release.
 
 For example, if you place
 
- core/spring/src/main/java/org/apache/syncope/core/spring/security/UsernamePasswordAuthenticationProvider.java
+ core/src/main/java/org/apache/syncope/core/spring/security/UsernamePasswordAuthenticationProvider.java
 
 in the local project, this file will be picked up instead of
 ifeval::["{snapshotOrRelease}" == "release"]
