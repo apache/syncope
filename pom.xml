@@ -409,7 +409,7 @@ under the License.
 
     <cxf.version>3.3.13</cxf.version>
 
-    <jackson.version>2.12.6</jackson.version>
+    <jackson.version>2.12.7</jackson.version>
 
     <spring.version>5.2.22.RELEASE</spring.version>
     <spring-security.version>5.3.13.RELEASE</spring-security.version>
@@ -849,7 +849,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}.1</version>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
