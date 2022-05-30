@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.auth.JaasAuthModuleConf;
 import org.apache.syncope.common.lib.auth.LDAPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
+import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
@@ -52,6 +53,7 @@ import org.apereo.cas.configuration.model.support.ldap.LdapAuthenticationPropert
 import org.apereo.cas.configuration.model.support.mfa.DuoSecurityMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.MultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorProperties;
+import org.apereo.cas.configuration.model.support.mfa.simple.CasSimpleMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.Pac4jDelegatedAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGenericOidcClientProperties;
@@ -171,6 +173,7 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         return filterCasProperties(casProperties, filterProvider);
     }
 
+
     @SuppressWarnings("deprecation")
     private static Map<String, Object> mapAuthModule(
             final String authModule,
@@ -198,6 +201,33 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
                                 CasCoreConfigurationUtils.getPropertyName(
                                         MultifactorAuthenticationProperties.class,
                                         MultifactorAuthenticationProperties::getDuo)));
+        return filterCasProperties(casProperties, filterProvider);
+    }
+
+    private static Map<String, Object> mapAuthModule(final String authModule,
+                                                     final SimpleMfaAuthModuleConf conf) {
+        CasSimpleMultifactorAuthenticationProperties props =
+            new CasSimpleMultifactorAuthenticationProperties();
+
+        props.setName(authModule);
+        props.setTokenLength(conf.getTokenLength());
+        props.setTimeToKillInSeconds(conf.getTimeToKillInSeconds());
+
+        CasConfigurationProperties casProperties = new CasConfigurationProperties();
+        casProperties.getAuthn().getMfa().setSimple(props);
+        
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
+        filterProvider.
+            addFilter(AuthenticationProperties.class.getSimpleName(),
+                SimpleBeanPropertyFilter.filterOutAllExcept(
+                    CasCoreConfigurationUtils.getPropertyName(
+                        AuthenticationProperties.class,
+                        AuthenticationProperties::getMfa))).
+            addFilter(MultifactorAuthenticationProperties.class.getSimpleName(),
+                SimpleBeanPropertyFilter.filterOutAllExcept(
+                    CasCoreConfigurationUtils.getPropertyName(
+                        MultifactorAuthenticationProperties.class,
+                        MultifactorAuthenticationProperties::getSimple)));
         return filterCasProperties(casProperties, filterProvider);
     }
 
@@ -428,6 +458,8 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
                         (SyncopeAuthModuleConf) authConf, syncopeClient.getAddress()));
             } else if (authConf instanceof GoogleMfaAuthModuleConf) {
                 properties.putAll(mapAuthModule(authModuleTO.getKey(), (GoogleMfaAuthModuleConf) authConf));
+            } else if (authConf instanceof SimpleMfaAuthModuleConf) {
+                properties.putAll(mapAuthModule(authModuleTO.getKey(), (SimpleMfaAuthModuleConf) authConf));
             } else if (authConf instanceof DuoMfaAuthModuleConf) {
                 properties.putAll(mapAuthModule(authModuleTO.getKey(), (DuoMfaAuthModuleConf) authConf));
             } else if (authConf instanceof JaasAuthModuleConf) {
