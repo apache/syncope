@@ -86,12 +86,12 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
             @Override
             protected List<String> load() {
                 return groupRestClient.search(
-                    SyncopeConstants.ROOT_REALM,
-                    null,
-                    1,
-                    Constants.MAX_GROUP_LIST_SIZE,
-                    new SortParam<>(Constants.NAME_FIELD_NAME, true),
-                    null).stream().map(GroupTO::getName).collect(Collectors.toList());
+                        SyncopeConstants.ROOT_REALM,
+                        null,
+                        1,
+                        Constants.MAX_GROUP_LIST_SIZE,
+                        new SortParam<>(Constants.NAME_FIELD_NAME, true),
+                        null).stream().map(GroupTO::getName).collect(Collectors.toList());
             }
         };
 
@@ -102,8 +102,8 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
             @Override
             protected Map<String, PlainSchemaTO> load() {
                 return SchemaRestClient.<PlainSchemaTO>getSchemas(
-                    SchemaType.PLAIN, null, AnyTypeRestClient.read(type).getClasses().toArray(new String[]{})).
-                    stream().collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
+                        SchemaType.PLAIN, null, AnyTypeRestClient.read(type).getClasses().toArray(String[]::new)).
+                        stream().collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
             }
         };
     }
@@ -112,6 +112,7 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
         List<SearchClause.Type> result = new ArrayList<>();
         result.add(SearchClause.Type.ATTRIBUTE);
         result.add(SearchClause.Type.GROUP_MEMBERSHIP);
+        result.add(SearchClause.Type.AUX_CLASS);
         result.add(SearchClause.Type.RESOURCE);
         result.add(SearchClause.Type.RELATIONSHIP);
         return result;

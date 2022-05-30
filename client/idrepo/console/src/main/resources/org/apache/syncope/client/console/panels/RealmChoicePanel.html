@@ -20,7 +20,11 @@ under the License.
   <wicket:panel>
     <div wicket:id="container" class="realm-header">
       <div class="realm-label">
-        <label wicket:id="realmLabel"/>: <label wicket:id="realm"/> 
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item" wicket:id="breadcrumb"><a wicket:id="bcitem"/></li>
+          </ol>
+        </nav>
       </div>
       <span wicket:id="realmsFragment"></span>
 

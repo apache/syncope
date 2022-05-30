@@ -20,7 +20,7 @@ package org.apache.syncope.common.lib.scim;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,9 +29,9 @@ public class SCIMGeneralConf implements Serializable {
 
     private static final long serialVersionUID = 3228349133950736647L;
 
-    private Date creationDate = new Date();
+    private OffsetDateTime creationDate = OffsetDateTime.now();
 
-    private Date lastChangeDate = new Date();
+    private OffsetDateTime lastChangeDate = OffsetDateTime.now();
 
     private int bulkMaxOperations = 1000;
 
@@ -39,41 +39,29 @@ public class SCIMGeneralConf implements Serializable {
 
     private int filterMaxResults = 200;
 
-    public Date getCreationDate() {
-        if (creationDate != null) {
-            return new Date(creationDate.getTime());
-        }
-        return null;
+    public OffsetDateTime getCreationDate() {
+        return creationDate;
     }
 
-    public void setCreationDate(final Date creationDate) {
-        if (creationDate != null) {
-            this.creationDate = new Date(creationDate.getTime());
-        } else {
-            this.creationDate = null;
-        }
+    public void setCreationDate(final OffsetDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 
-    public Date getLastChangeDate() {
-        if (lastChangeDate != null) {
-            return new Date(lastChangeDate.getTime());
-        }
-        return null;
+    public OffsetDateTime getLastChangeDate() {
+        return lastChangeDate;
     }
 
-    public void setLastChangeDate(final Date lastChangeDate) {
-        if (lastChangeDate != null) {
-            this.lastChangeDate = new Date(lastChangeDate.getTime());
-        } else {
-            this.lastChangeDate = null;
-        }
+    public void setLastChangeDate(final OffsetDateTime lastChangeDate) {
+        this.lastChangeDate = lastChangeDate;
     }
 
     @JsonIgnore
     public String getETagValue() {
-        Date etagDate = getLastChangeDate() == null
+        OffsetDateTime etagDate = getLastChangeDate() == null
                 ? getCreationDate() : getLastChangeDate();
-        return Optional.ofNullable(etagDate).map(date -> String.valueOf(date.getTime())).orElse(StringUtils.EMPTY);
+        return Optional.ofNullable(etagDate).
+                map(date -> String.valueOf(date.toInstant().toEpochMilli())).
+                orElse(StringUtils.EMPTY);
 
     }
 

@@ -19,7 +19,6 @@
 package org.apache.syncope.fit.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -51,6 +50,7 @@ import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeAll;
 
 public class OIDC4UIITCase extends AbstractUIITCase {
@@ -195,12 +195,12 @@ public class OIDC4UIITCase extends AbstractUIITCase {
 
         // 2a. redirected to WA login screen
         String responseBody = EntityUtils.toString(response.getEntity());
-        response = authenticateToCas(username, password, responseBody, httpclient, context);
+        response = authenticateToWA(username, password, responseBody, httpclient, context);
 
         // 2b. WA attribute consent screen
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             responseBody = EntityUtils.toString(response.getEntity());
-            String execution = extractCASExecution(responseBody);
+            String execution = extractWAExecution(responseBody);
 
             List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("_eventId", "confirm"));
@@ -226,14 +226,9 @@ public class OIDC4UIITCase extends AbstractUIITCase {
 
         responseBody = EntityUtils.toString(response.getEntity());
 
-        int begin = responseBody.indexOf("name=\"allow\"");
-        assertNotEquals(-1, begin);
-        begin = responseBody.indexOf("href=\"", begin);
-        assertNotEquals(-1, begin);
-        int end = responseBody.indexOf("\">", begin);
-        assertNotEquals(-1, end);
-
-        String allow = responseBody.substring(begin + 6, end).replace("&amp;", "&");
+        String allow = Jsoup.parse(responseBody).body().
+                getElementsByTag("a").select("a[name=allow]").first().
+                attr("href");
         assertNotNull(allow);
 
         // 2d. finally get requested content

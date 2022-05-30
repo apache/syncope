@@ -19,7 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.content;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -38,7 +38,7 @@ public class KeymasterConfParamLoader implements ConfParamLoader {
 
     protected static final Logger LOG = LoggerFactory.getLogger(KeymasterConfParamLoader.class);
 
-    protected static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     protected final ConfParamOps confParamOps;
 

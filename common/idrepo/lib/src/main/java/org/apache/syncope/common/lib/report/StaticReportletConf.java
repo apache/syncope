@@ -20,10 +20,9 @@ package org.apache.syncope.common.lib.report;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
 public class StaticReportletConf extends AbstractReportletConf {
@@ -36,7 +35,7 @@ public class StaticReportletConf extends AbstractReportletConf {
 
     private Double doubleField;
 
-    private Date dateField;
+    private OffsetDateTime dateField;
 
     private TraceLevel traceLevel;
 
@@ -50,12 +49,12 @@ public class StaticReportletConf extends AbstractReportletConf {
         super(name);
     }
 
-    public Date getDateField() {
-        return Optional.ofNullable(dateField).map(field -> new Date(field.getTime())).orElse(null);
+    public OffsetDateTime getDateField() {
+        return dateField;
     }
 
-    public void setDateField(final Date dateField) {
-        this.dateField = Optional.ofNullable(dateField).map(field -> new Date(field.getTime())).orElse(null);
+    public void setDateField(final OffsetDateTime dateField) {
+        this.dateField = dateField;
     }
 
     public Double getDoubleField() {

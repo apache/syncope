@@ -27,7 +27,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
@@ -158,7 +158,7 @@ public interface TaskService extends ExecutableService {
     @Path("PROPAGATION/purge")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response purgePropagations(
-            @QueryParam("since") Date since, 
-            @QueryParam("statuses") List<ExecStatus> statuses, 
+            @QueryParam("since") OffsetDateTime since,
+            @QueryParam("statuses") List<ExecStatus> statuses,
             @QueryParam("resources") List<String> resources);
 }

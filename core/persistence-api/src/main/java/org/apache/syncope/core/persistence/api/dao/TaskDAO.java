@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -36,6 +36,8 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 public interface TaskDAO extends DAO<Task> {
 
     Class<? extends Task> getEntityReference(TaskType type);
+
+    boolean exists(TaskType type, String key);
 
     <T extends Task> T find(String key);
 
@@ -77,7 +79,7 @@ public interface TaskDAO extends DAO<Task> {
     void deleteAll(ExternalResource resource, TaskType type);
 
     List<PropagationTaskTO> purgePropagations(
-            Date since, 
+            OffsetDateTime since,
             List<ExecStatus> statuses,
             List<ExternalResource> externalResources);
 }

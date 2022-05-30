@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
+import org.apache.syncope.common.lib.types.BackOffStrategy;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -41,12 +42,14 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
@@ -78,6 +81,12 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void findByKey() {
+        PropagationPolicy propagationPolicy = policyDAO.find("89d322db-9878-420c-b49c-67be13df9a12");
+        assertNotNull(propagationPolicy);
+        assertEquals(BackOffStrategy.FIXED, propagationPolicy.getBackOffStrategy());
+        assertEquals("10000", propagationPolicy.getBackOffParams());
+        assertEquals(5, propagationPolicy.getMaxAttempts());
+
         PullPolicy pullPolicy = policyDAO.find("880f8553-069b-4aed-9930-2cd53873f544");
         assertNotNull(pullPolicy);
 
@@ -125,6 +134,10 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void findByType() {
+        List<PropagationPolicy> propagationPolicies = policyDAO.find(PropagationPolicy.class);
+        assertNotNull(propagationPolicies);
+        assertFalse(propagationPolicies.isEmpty());
+
         List<PullPolicy> pullPolicies = policyDAO.find(PullPolicy.class);
         assertNotNull(pullPolicies);
         assertFalse(pullPolicies.isEmpty());
@@ -143,10 +156,30 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public void create() {
-        PullPolicy policy = entityFactory.newEntity(PullPolicy.class);
-        policy.setConflictResolutionAction(ConflictResolutionAction.IGNORE);
-        policy.setName("Pull policy");
+    public void createPropagation() {
+        int beforeCount = policyDAO.findAll().size();
+
+        PropagationPolicy propagationPolicy = entityFactory.newEntity(PropagationPolicy.class);
+        propagationPolicy.setName("Propagation policy");
+        propagationPolicy.setMaxAttempts(5);
+        propagationPolicy.setBackOffStrategy(BackOffStrategy.EXPONENTIAL);
+        propagationPolicy.setBackOffParams(propagationPolicy.getBackOffStrategy().getDefaultBackOffParams());
+
+        propagationPolicy = policyDAO.save(propagationPolicy);
+        assertNotNull(propagationPolicy);
+        assertEquals(5, propagationPolicy.getMaxAttempts());
+        assertEquals(BackOffStrategy.EXPONENTIAL, propagationPolicy.getBackOffStrategy());
+        assertEquals(BackOffStrategy.EXPONENTIAL.getDefaultBackOffParams(), propagationPolicy.getBackOffParams());
+
+        int afterCount = policyDAO.findAll().size();
+        assertEquals(afterCount, beforeCount + 1);
+    }
+
+    @Test
+    public void createPull() {
+        PullPolicy pullPolicy = entityFactory.newEntity(PullPolicy.class);
+        pullPolicy.setConflictResolutionAction(ConflictResolutionAction.IGNORE);
+        pullPolicy.setName("Pull policy");
 
         final String pullURuleName = "net.tirasa.pull.correlation.TirasaURule";
         final String pullGRuleName = "net.tirasa.pull.correlation.TirasaGRule";
@@ -160,9 +193,9 @@ public class PolicyTest extends AbstractTest {
 
         PullCorrelationRuleEntity rule1 = entityFactory.newEntity(PullCorrelationRuleEntity.class);
         rule1.setAnyType(anyTypeDAO.findUser());
-        rule1.setPullPolicy(policy);
+        rule1.setPullPolicy(pullPolicy);
         rule1.setImplementation(impl1);
-        policy.add(rule1);
+        pullPolicy.add(rule1);
 
         Implementation impl2 = entityFactory.newEntity(Implementation.class);
         impl2.setKey(pullGRuleName);
@@ -173,19 +206,67 @@ public class PolicyTest extends AbstractTest {
 
         PullCorrelationRuleEntity rule2 = entityFactory.newEntity(PullCorrelationRuleEntity.class);
         rule2.setAnyType(anyTypeDAO.findGroup());
-        rule2.setPullPolicy(policy);
+        rule2.setPullPolicy(pullPolicy);
         rule2.setImplementation(impl2);
-        policy.add(rule2);
+        pullPolicy.add(rule2);
 
-        policy = policyDAO.save(policy);
+        pullPolicy = policyDAO.save(pullPolicy);
 
-        assertNotNull(policy);
+        assertNotNull(pullPolicy);
         assertEquals(pullURuleName,
-                policy.getCorrelationRule(anyTypeDAO.findUser()).get().getImplementation().getKey());
+                pullPolicy.getCorrelationRule(anyTypeDAO.findUser()).get().getImplementation().getKey());
         assertEquals(pullGRuleName,
-                policy.getCorrelationRule(anyTypeDAO.findGroup()).get().getImplementation().getKey());
+                pullPolicy.getCorrelationRule(anyTypeDAO.findGroup()).get().getImplementation().getKey());
+    }
 
+    @Test
+    public void createPush() {
+        PushPolicy pushPolicy = entityFactory.newEntity(PushPolicy.class);
+        pushPolicy.setName("Push policy");
+        pushPolicy.setConflictResolutionAction(ConflictResolutionAction.IGNORE);
+
+        final String pushURuleName = "net.tirasa.push.correlation.TirasaURule";
+        final String pushGRuleName = "net.tirasa.push.correlation.TirasaGRule";
+
+        Implementation impl1 = entityFactory.newEntity(Implementation.class);
+        impl1.setKey(pushURuleName);
+        impl1.setEngine(ImplementationEngine.JAVA);
+        impl1.setType(IdMImplementationType.PUSH_CORRELATION_RULE);
+        impl1.setBody(PushCorrelationRule.class.getName());
+        impl1 = implementationDAO.save(impl1);
+
+        PushCorrelationRuleEntity rule1 = entityFactory.newEntity(PushCorrelationRuleEntity.class);
+        rule1.setAnyType(anyTypeDAO.findUser());
+        rule1.setPushPolicy(pushPolicy);
+        rule1.setImplementation(impl1);
+        pushPolicy.add(rule1);
+
+        Implementation impl2 = entityFactory.newEntity(Implementation.class);
+        impl2.setKey(pushGRuleName);
+        impl2.setEngine(ImplementationEngine.JAVA);
+        impl2.setType(IdMImplementationType.PUSH_CORRELATION_RULE);
+        impl2.setBody(PushCorrelationRule.class.getName());
+        impl2 = implementationDAO.save(impl2);
+
+        PushCorrelationRuleEntity rule2 = entityFactory.newEntity(PushCorrelationRuleEntity.class);
+        rule2.setAnyType(anyTypeDAO.findGroup());
+        rule2.setPushPolicy(pushPolicy);
+        rule2.setImplementation(impl2);
+        pushPolicy.add(rule2);
+
+        pushPolicy = policyDAO.save(pushPolicy);
+
+        assertNotNull(pushPolicy);
+        assertEquals(pushURuleName,
+                pushPolicy.getCorrelationRule(anyTypeDAO.findUser()).get().getImplementation().getKey());
+        assertEquals(pushGRuleName,
+                pushPolicy.getCorrelationRule(anyTypeDAO.findGroup()).get().getImplementation().getKey());
+    }
+
+    @Test
+    public void createAccess() {
         int beforeCount = policyDAO.findAll().size();
+
         AccessPolicy accessPolicy = entityFactory.newEntity(AccessPolicy.class);
         accessPolicy.setName("AttrReleasePolicyAllowEverything");
 
@@ -200,8 +281,12 @@ public class PolicyTest extends AbstractTest {
 
         int afterCount = policyDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);
+    }
 
-        beforeCount = policyDAO.findAll().size();
+    @Test
+    public void createAuth() {
+        int beforeCount = policyDAO.findAll().size();
+
         AuthPolicy authPolicy = entityFactory.newEntity(AuthPolicy.class);
         authPolicy.setName("AuthPolicyTest");
 
@@ -215,16 +300,20 @@ public class PolicyTest extends AbstractTest {
         assertNotNull(authPolicy);
         assertNotNull(authPolicy.getKey());
 
-        afterCount = policyDAO.findAll().size();
+        int afterCount = policyDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);
+    }
 
-        beforeCount = policyDAO.findAll().size();
+    @Test
+    public void createAttrRelease() {
+        int beforeCount = policyDAO.findAll().size();
+
         AttrReleasePolicy attrReleasePolicy = entityFactory.newEntity(AttrReleasePolicy.class);
         attrReleasePolicy.setName("AttrReleasePolicyAllowEverything");
+        attrReleasePolicy.setStatus(Boolean.TRUE);
 
         DefaultAttrReleasePolicyConf attrReleasePolicyConf = new DefaultAttrReleasePolicyConf();
         attrReleasePolicyConf.getAllowedAttrs().add("*");
-        attrReleasePolicyConf.setStatus(Boolean.TRUE);
         attrReleasePolicyConf.getIncludeOnlyAttrs().add("cn");
         attrReleasePolicy.setConf(attrReleasePolicyConf);
 
@@ -232,10 +321,10 @@ public class PolicyTest extends AbstractTest {
 
         assertNotNull(attrReleasePolicy);
         assertNotNull(attrReleasePolicy.getKey());
+        assertNotNull(attrReleasePolicy.getStatus());
         assertNotNull(((DefaultAttrReleasePolicyConf) attrReleasePolicy.getConf()).getAllowedAttrs());
-        assertNotNull(((DefaultAttrReleasePolicyConf) attrReleasePolicy.getConf()).getStatus());
 
-        afterCount = policyDAO.findAll().size();
+        int afterCount = policyDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);
     }
 

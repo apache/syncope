@@ -72,10 +72,10 @@ public abstract class AbstractGroupWorkflowAdapter extends AbstractWorkflowAdapt
         return result;
     }
 
-    protected abstract void doDelete(Group group);
+    protected abstract void doDelete(Group group, String eraser, String context);
 
     @Override
-    public void delete(final String groupKey) {
-        doDelete(groupDAO.authFind(groupKey));
+    public void delete(final String groupKey, final String eraser, final String context) {
+        doDelete(groupDAO.authFind(groupKey), eraser, context);
     }
 }

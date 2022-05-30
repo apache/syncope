@@ -21,7 +21,7 @@ package org.apache.syncope.client.lib;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
@@ -70,7 +70,7 @@ public class SyncopeClient {
 
     protected static final String HEADER_SPLIT_PROPERTY = "org.apache.cxf.http.header.split";
 
-    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     protected final MediaType mediaType;
 
@@ -155,7 +155,7 @@ public class SyncopeClient {
                 () -> webClient.header(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString(
                         (restClientFactory.getUsername() + ":" + restClientFactory.getPassword()).getBytes())));
 
-        return OBJECT_MAPPER.readTree((InputStream) webClient.get().getEntity());
+        return MAPPER.readTree((InputStream) webClient.get().getEntity());
     }
 
     public Pair<String, String> gitAndBuildInfo() {
@@ -170,7 +170,7 @@ public class SyncopeClient {
 
     public PlatformInfo platform() {
         try {
-            return OBJECT_MAPPER.treeToValue(info().get("platform"), PlatformInfo.class);
+            return MAPPER.treeToValue(info().get("platform"), PlatformInfo.class);
         } catch (IOException e) {
             throw new RuntimeException("While getting Platform Info", e);
         }
@@ -178,7 +178,7 @@ public class SyncopeClient {
 
     public SystemInfo system() {
         try {
-            return OBJECT_MAPPER.treeToValue(info().get("system"), SystemInfo.class);
+            return MAPPER.treeToValue(info().get("system"), SystemInfo.class);
         } catch (IOException e) {
             throw new RuntimeException("While getting System Info", e);
         }
@@ -186,7 +186,7 @@ public class SyncopeClient {
 
     public NumbersInfo numbers() {
         try {
-            return OBJECT_MAPPER.treeToValue(info().get("numbers"), NumbersInfo.class);
+            return MAPPER.treeToValue(info().get("numbers"), NumbersInfo.class);
         } catch (IOException e) {
             throw new RuntimeException("While getting Numbers Info", e);
         }
@@ -366,15 +366,14 @@ public class SyncopeClient {
         }
 
         try {
-            return Triple.of(
-                    OBJECT_MAPPER.readValue(
-                            response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS),
-                        new TypeReference<>() {
-                        }),
-                    OBJECT_MAPPER.readValue(
+            return Triple.of(MAPPER.readValue(
+                    response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS),
+                    new TypeReference<>() {
+            }),
+                    MAPPER.readValue(
                             response.getHeaderString(RESTHeaders.DELEGATIONS),
-                        new TypeReference<>() {
-                        }),
+                            new TypeReference<>() {
+                    }),
                     response.readEntity(UserTO.class));
         } catch (IOException e) {
             throw new IllegalStateException(e);

@@ -109,7 +109,7 @@ if (action.equalsIgnoreCase("GET_LATEST_SYNC_TOKEN")) {
             operation:"DELETE",
             uid:node.get(i).get("user").get("key").textValue(),
             token:node.get(i).get("lastChangeDate").longValue(),
-            attributes:[]
+            attributes:[:]
           ]);        
       } else {
         result.add([

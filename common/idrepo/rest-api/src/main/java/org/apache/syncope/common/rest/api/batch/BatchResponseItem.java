@@ -31,4 +31,13 @@ public class BatchResponseItem extends BatchItem {
     public void setStatus(final int status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return "BatchResponseItem{"
+                + "status=" + status + ", "
+                + "headers=" + headers + ", "
+                + "content=" + content
+                + '}';
+    }
 }

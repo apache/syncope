@@ -23,7 +23,8 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 import org.apereo.cas.audit.spi.AbstractAuditTrailManager;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import java.time.OffsetDateTime;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.audit.AuditEntry;
@@ -35,7 +36,7 @@ import org.apereo.inspektr.audit.AuditActionContext;
 
 public class SyncopeWAAuditTrailManager extends AbstractAuditTrailManager {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private final WARestClient waRestClient;
 
@@ -54,13 +55,14 @@ public class SyncopeWAAuditTrailManager extends AbstractAuditTrailManager {
 
         LOG.info("Loading application definitions");
         try {
-            String output = OBJECT_MAPPER.writeValueAsString(Map.of("resource", audit.getResourceOperatedUpon(),
+            String output = MAPPER.writeValueAsString(Map.of("resource", audit.getResourceOperatedUpon(),
                     "clientIpAddress", audit.getClientIpAddress(),
                     "serverIpAddress", audit.getServerIpAddress()));
 
             AuditEntry auditEntry = new AuditEntry();
             auditEntry.setWho(audit.getPrincipal());
-            auditEntry.setDate(audit.getWhenActionWasPerformed());
+            auditEntry.setDate(
+                    audit.getWhenActionWasPerformed().toInstant().atOffset(OffsetDateTime.now().getOffset()));
             auditEntry.setOutput(output);
             AuditElements.Result result = StringUtils.containsIgnoreCase(audit.getActionPerformed(), "fail")
                     ? AuditElements.Result.FAILURE

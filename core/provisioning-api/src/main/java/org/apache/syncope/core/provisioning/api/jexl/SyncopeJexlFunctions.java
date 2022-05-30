@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api.jexl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -60,6 +61,6 @@ public class SyncopeJexlFunctions {
 
         List<String> headless = Arrays.asList(fullPathSplitted).subList(1, fullPathSplitted.length);
         Collections.reverse(headless);
-        return prefix + attr + '=' + StringUtils.join(headless, ',' + attr + '=');
+        return prefix + attr + "=" + headless.stream().collect(Collectors.joining("," + attr + "="));
     }
 }

@@ -27,4 +27,6 @@ import org.apache.syncope.common.lib.BaseBean;
 public interface AccessPolicyConf extends BaseBean {
 
     List<Attr> getRequiredAttrs();
+
+    List<Attr> getRejectedAttrs();
 }

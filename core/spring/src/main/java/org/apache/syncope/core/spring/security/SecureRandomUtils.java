@@ -23,10 +23,13 @@ import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import java.security.SecureRandom;
 import java.util.UUID;
 import org.apache.commons.text.RandomStringGenerator;
+import org.passay.PasswordGenerator;
 
 public final class SecureRandomUtils {
 
     private static final SecureRandom RANDOM = new SecureRandom();
+
+    private static final PasswordGenerator PASSWORD_GENERATOR = new PasswordGenerator(RANDOM);
 
     private static final RandomStringGenerator FOR_PASSWORD = new RandomStringGenerator.Builder().
             usingRandom(RANDOM::nextInt).
@@ -77,6 +80,10 @@ public final class SecureRandomUtils {
 
     public static UUID generateRandomUUID() {
         return UUID_GENERATOR.generate();
+    }
+
+    public static PasswordGenerator passwordGenerator() {
+        return PASSWORD_GENERATOR;
     }
 
     private SecureRandomUtils() {

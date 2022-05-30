@@ -245,7 +245,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
         } else {
             userTO = binder.getUserTO(wfResult.getResult().getKey());
         }
-        result.setEntity(binder.returnUserTO(userTO));
+        result.setEntity(userTO);
 
         return result;
     }

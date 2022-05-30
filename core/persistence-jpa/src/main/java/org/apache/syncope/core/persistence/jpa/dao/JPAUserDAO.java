@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +36,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
@@ -55,6 +54,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -69,15 +69,12 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
-import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,7 +94,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     public JPAUserDAO(
             final AnyUtilsFactory anyUtilsFactory,
-            final ApplicationEventPublisher publisher,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO,
@@ -108,7 +104,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             final DelegationDAO delegationDAO,
             final SecurityProperties securityProperties) {
 
-        super(anyUtilsFactory, publisher, plainSchemaDAO, derSchemaDAO, dynRealmDAO);
+        super(anyUtilsFactory, plainSchemaDAO, derSchemaDAO, dynRealmDAO);
         this.roleDAO = roleDAO;
         this.accessTokenDAO = accessTokenDAO;
         this.realmDAO = realmDAO;
@@ -130,7 +126,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public Date findLastChange(final String key) {
+    public OffsetDateTime findLastChange(final String key) {
         return findLastChange(key, JPAUser.TABLE);
     }
 
@@ -274,23 +270,17 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     protected List<PasswordPolicy> getPasswordPolicies(final User user) {
         List<PasswordPolicy> policies = new ArrayList<>();
 
-        PasswordPolicy policy;
-
         // add resource policies
-        for (ExternalResource resource : findAllResources(user)) {
-            policy = resource.getPasswordPolicy();
-            if (policy != null) {
-                policies.add(policy);
-            }
-        }
+        findAllResources(user).
+                forEach(resource -> Optional.ofNullable(resource.getPasswordPolicy()).
+                filter(p -> !policies.contains(p)).
+                ifPresent(policies::add));
 
         // add realm policies
-        for (Realm realm : realmDAO.findAncestors(user.getRealm())) {
-            policy = realm.getPasswordPolicy();
-            if (policy != null) {
-                policies.add(policy);
-            }
-        }
+        realmDAO.findAncestors(user.getRealm()).
+                forEach(realm -> Optional.ofNullable(realm.getPasswordPolicy()).
+                filter(p -> !policies.contains(p)).
+                ifPresent(policies::add));
 
         return policies;
     }
@@ -317,13 +307,13 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         findAllResources(user).stream().
                 map(ExternalResource::getAccountPolicy).
                 filter(Objects::nonNull).
-                forEachOrdered(policies::add);
+                forEach(policies::add);
 
         // add realm policies
         realmDAO.findAncestors(user.getRealm()).stream().
                 map(Realm::getAccountPolicy).
                 filter(Objects::nonNull).
-                forEachOrdered(policies::add);
+                forEach(policies::add);
 
         return policies;
     }
@@ -469,8 +459,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             throw e;
         }
 
-        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
-
         roleDAO.refreshDynMemberships(merged);
         Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
         dynRealmDAO.refreshDynMemberships(merged);
@@ -507,8 +495,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         }
 
         entityManager().remove(user);
-        publisher.publishEvent(new AnyDeletedEvent(
-                this, AnyTypeKind.USER, user.getKey(), user.getUsername(), AuthContextUtils.getDomain()));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -533,7 +519,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
                 ? (String) ((Object[]) resultKey)[0]
                 : ((String) resultKey)).
-                forEachOrdered(roleKey -> {
+                forEach(roleKey -> {
                     Role role = roleDAO.find(roleKey.toString());
                     if (role == null) {
                         LOG.error("Could not find role {}, even though returned by the native query", roleKey);
@@ -572,7 +558,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     public Collection<Group> findAllGroups(final User user) {
         Set<Group> result = new HashSet<>();
         result.addAll(user.getMemberships().stream().
-                map(Relationship::getRightEnd).collect(Collectors.toSet()));
+                map(Membership::getRightEnd).collect(Collectors.toSet()));
         result.addAll(findDynGroups(user.getKey()));
 
         return result;

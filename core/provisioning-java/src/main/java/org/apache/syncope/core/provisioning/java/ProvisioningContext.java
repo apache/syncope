@@ -156,7 +156,6 @@ import org.apache.syncope.core.provisioning.java.data.WAConfigDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.wa.WAClientAppDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.job.DefaultJobManager;
 import org.apache.syncope.core.provisioning.java.job.SchedulerDBInit;
-import org.apache.syncope.core.provisioning.java.job.SchedulerShutdown;
 import org.apache.syncope.core.provisioning.java.job.SyncopeSpringBeanJobFactory;
 import org.apache.syncope.core.provisioning.java.job.SystemLoadReporterJob;
 import org.apache.syncope.core.provisioning.java.job.notification.DefaultNotificationJobDelegate;
@@ -219,17 +218,19 @@ public class ProvisioningContext {
 
     /**
      * Annotated as {@code @Primary} because it will be used by {@code @Async} in {@link AsyncConnectorFacade}.
-     * @param provisioningProperties configuration properties
-     * 
+     *
+     * @param props configuration properties
      * @return executor
      */
     @Bean
     @Primary
-    public ThreadPoolTaskExecutor asyncConnectorFacadeExecutor(final ProvisioningProperties provisioningProperties) {
+    public ThreadPoolTaskExecutor asyncConnectorFacadeExecutor(final ProvisioningProperties props) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(provisioningProperties.getAsyncConnectorFacadeExecutor().getCorePoolSize());
-        executor.setMaxPoolSize(provisioningProperties.getAsyncConnectorFacadeExecutor().getMaxPoolSize());
-        executor.setQueueCapacity(provisioningProperties.getAsyncConnectorFacadeExecutor().getQueueCapacity());
+        executor.setCorePoolSize(props.getAsyncConnectorFacadeExecutor().getCorePoolSize());
+        executor.setMaxPoolSize(props.getAsyncConnectorFacadeExecutor().getMaxPoolSize());
+        executor.setQueueCapacity(props.getAsyncConnectorFacadeExecutor().getQueueCapacity());
+        executor.setAwaitTerminationSeconds(props.getAsyncConnectorFacadeExecutor().getAwaitTerminationSeconds());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setThreadNamePrefix("AsyncConnectorFacadeExecutor-");
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         executor.initialize();
@@ -237,9 +238,12 @@ public class ProvisioningContext {
     }
 
     @Bean
-    public AsyncConfigurer asyncConfigurer(@Qualifier("asyncConnectorFacadeExecutor")
-                                           final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor) {
+    public AsyncConfigurer asyncConfigurer(
+            @Qualifier("asyncConnectorFacadeExecutor")
+            final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor) {
+
         return new AsyncConfigurer() {
+
             @Override
             public Executor getAsyncExecutor() {
                 return asyncConnectorFacadeExecutor;
@@ -250,16 +254,18 @@ public class ProvisioningContext {
     /**
      * Used by {@link org.apache.syncope.core.provisioning.java.propagation.PriorityPropagationTaskExecutor}.
      *
-     * @param provisioningProperties the provisioning properties
+     * @param props the provisioning properties
      * @return executor thread pool task executor
      */
     @Bean
-    public ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor(
-        final ProvisioningProperties provisioningProperties) {
+    public ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor(final ProvisioningProperties props) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(provisioningProperties.getPropagationTaskExecutorAsyncExecutor().getCorePoolSize());
-        executor.setMaxPoolSize(provisioningProperties.getPropagationTaskExecutorAsyncExecutor().getMaxPoolSize());
-        executor.setQueueCapacity(provisioningProperties.getPropagationTaskExecutorAsyncExecutor().getQueueCapacity());
+        executor.setCorePoolSize(props.getPropagationTaskExecutorAsyncExecutor().getCorePoolSize());
+        executor.setMaxPoolSize(props.getPropagationTaskExecutorAsyncExecutor().getMaxPoolSize());
+        executor.setQueueCapacity(props.getPropagationTaskExecutorAsyncExecutor().getQueueCapacity());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(
+                props.getPropagationTaskExecutorAsyncExecutor().getAwaitTerminationSeconds());
         executor.setThreadNamePrefix("PropagationTaskExecutor-");
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         executor.initialize();
@@ -284,12 +290,11 @@ public class ProvisioningContext {
     @DependsOn("quartzDataSourceInit")
     @Lazy(false)
     @Bean
-    public SchedulerFactoryBean scheduler(final ApplicationContext ctx,
-                                          final ProvisioningProperties provisioningProperties) {
+    public SchedulerFactoryBean scheduler(final ApplicationContext ctx, final ProvisioningProperties props) {
         SchedulerFactoryBean scheduler = new SchedulerFactoryBean();
         scheduler.setAutoStartup(true);
         scheduler.setApplicationContext(ctx);
-        scheduler.setWaitForJobsToCompleteOnShutdown(true);
+        scheduler.setWaitForJobsToCompleteOnShutdown(props.getQuartz().isWaitForJobsToCompleteOnShutdown());
         scheduler.setOverwriteExistingJobs(true);
         scheduler.setDataSource(masterDataSource);
         scheduler.setTransactionManager(masterTransactionManager);
@@ -298,26 +303,26 @@ public class ProvisioningContext {
         Properties quartzProperties = new Properties();
         quartzProperties.setProperty(
                 "org.quartz.scheduler.idleWaitTime",
-                String.valueOf(provisioningProperties.getQuartz().getIdleWaitTime()));
+                String.valueOf(props.getQuartz().getIdleWaitTime()));
         quartzProperties.setProperty(
                 "org.quartz.jobStore.misfireThreshold",
-                String.valueOf(provisioningProperties.getQuartz().getMisfireThreshold()));
+                String.valueOf(props.getQuartz().getMisfireThreshold()));
         quartzProperties.setProperty(
                 "org.quartz.jobStore.driverDelegateClass",
-                provisioningProperties.getQuartz().getDelegate().getName());
+                props.getQuartz().getDelegate().getName());
+        quartzProperties.setProperty(
+                "org.quartz.jobStore.class",
+                "org.springframework.scheduling.quartz.LocalDataSourceJobStore");
+        quartzProperties.setProperty("org.quartz.threadPool.makeThreadsDaemons", "true");
+        quartzProperties.setProperty("org.quartz.scheduler.makeSchedulerThreadDaemon", "true");
         quartzProperties.setProperty("org.quartz.jobStore.isClustered", "true");
         quartzProperties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
-        quartzProperties.setProperty("org.quartz.scheduler.instanceName", "ClusteredScheduler");
+        quartzProperties.setProperty("org.quartz.scheduler.instanceName", "SyncopeClusteredScheduler");
         quartzProperties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
         quartzProperties.setProperty("org.quartz.scheduler.jmx.export", "true");
         scheduler.setQuartzProperties(quartzProperties);
 
         return scheduler;
-    }
-
-    @Bean
-    public SchedulerShutdown schedulerShutdown(final ApplicationContext ctx) {
-        return new SchedulerShutdown(ctx);
     }
 
     @ConditionalOnMissingBean
@@ -347,7 +352,7 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public JavaMailSender mailSender(final ProvisioningProperties provisioningProperties)
-        throws IllegalArgumentException, IOException {
+            throws IllegalArgumentException, IOException {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl() {
 
             @Override
@@ -582,7 +587,7 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-        public IntAttrNameParser intAttrNameParser(
+    public IntAttrNameParser intAttrNameParser(
             final AnyUtilsFactory anyUtilsFactory,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
@@ -764,16 +769,21 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public NotificationJob notificationJob(final NotificationJobDelegate delegate,
-                                           final DomainHolder domainHolder,
-                                           final SecurityProperties securityProperties) {
+    public NotificationJob notificationJob(
+            final NotificationJobDelegate delegate,
+            final DomainHolder domainHolder,
+            final SecurityProperties securityProperties) {
+
         return new NotificationJob(securityProperties, domainHolder, delegate);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public ReportJobDelegate reportJobDelegate(final ReportDAO reportDAO, final ReportExecDAO reportExecDAO,
-                                               final EntityFactory entityFactory) {
+    public ReportJobDelegate reportJobDelegate(
+            final ReportDAO reportDAO,
+            final ReportExecDAO reportExecDAO,
+            final EntityFactory entityFactory) {
+
         return new DefaultReportJobDelegate(reportDAO, reportExecDAO, entityFactory);
     }
 
@@ -870,8 +880,10 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ApplicationDataBinder applicationDataBinder(final ApplicationDAO applicationDAO,
-                                                       final EntityFactory entityFactory) {
+    public ApplicationDataBinder applicationDataBinder(
+            final ApplicationDAO applicationDAO,
+            final EntityFactory entityFactory) {
+
         return new ApplicationDataBinderImpl(applicationDAO, entityFactory);
     }
 
@@ -895,8 +907,10 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ClientAppDataBinder clientAppDataBinder(final PolicyDAO policyDAO,
-                                                   final EntityFactory entityFactory) {
+    public ClientAppDataBinder clientAppDataBinder(
+            final PolicyDAO policyDAO,
+            final EntityFactory entityFactory) {
+
         return new ClientAppDataBinderImpl(policyDAO, entityFactory);
     }
 
@@ -913,16 +927,22 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DelegationDataBinder delegationDataBinder(final UserDAO userDAO, final RoleDAO roleDAO,
-                                                     final EntityFactory entityFactory) {
+    public DelegationDataBinder delegationDataBinder(
+            final UserDAO userDAO,
+            final RoleDAO roleDAO,
+            final EntityFactory entityFactory) {
+
         return new DelegationDataBinderImpl(userDAO, roleDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public DynRealmDataBinder dynRealmDataBinder(final AnyTypeDAO anyTypeDAO, final DynRealmDAO dynRealmDAO,
-                                                 final SearchCondVisitor searchCondVisitor,
-                                                 final EntityFactory entityFactory) {
+    public DynRealmDataBinder dynRealmDataBinder(
+            final AnyTypeDAO anyTypeDAO,
+            final DynRealmDAO dynRealmDAO,
+            final SearchCondVisitor searchCondVisitor,
+            final EntityFactory entityFactory) {
+
         return new DynRealmDataBinderImpl(anyTypeDAO, dynRealmDAO, entityFactory, searchCondVisitor);
     }
 
@@ -1066,7 +1086,8 @@ public class ProvisioningContext {
             final AnyTypeClassDAO anyTypeClassDAO,
             final ImplementationDAO implementationDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final IntAttrNameParser intAttrNameParser) {
+            final IntAttrNameParser intAttrNameParser,
+            final PropagationTaskExecutor propagationTaskExecutor) {
 
         return new ResourceDataBinderImpl(
                 anyTypeDAO,
@@ -1077,7 +1098,8 @@ public class ProvisioningContext {
                 implementationDAO,
                 plainSchemaDAO,
                 entityFactory,
-                intAttrNameParser);
+                intAttrNameParser,
+                propagationTaskExecutor);
     }
 
     @ConditionalOnMissingBean
@@ -1224,8 +1246,10 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public WAConfigDataBinder waConfigDataBinder(final WAConfigDAO waConfigDAO,
-                                                 final EntityFactory entityFactory) {
+    public WAConfigDataBinder waConfigDataBinder(
+            final WAConfigDAO waConfigDAO,
+            final EntityFactory entityFactory) {
+
         return new WAConfigDataBinderImpl(waConfigDAO, entityFactory);
     }
 

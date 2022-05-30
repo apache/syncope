@@ -19,11 +19,9 @@
 package org.apache.syncope.core.starter;
 
 import java.util.Map;
-
 import org.apache.cxf.spring.boot.autoconfigure.openapi.OpenApiAutoConfiguration;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
-import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.core.logic.LogicProperties;
@@ -33,6 +31,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
@@ -61,10 +60,12 @@ import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.starter.actuate.DomainsHealthIndicator;
 import org.apache.syncope.core.starter.actuate.ExternalResourcesHealthIndicator;
 import org.apache.syncope.core.starter.actuate.DefaultSyncopeCoreInfoContributor;
+import org.apache.syncope.core.starter.actuate.EntityCacheEndpoint;
 import org.apache.syncope.core.starter.actuate.SyncopeCoreInfoContributor;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.mail.MailHealthIndicator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -75,6 +76,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
+import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -86,14 +88,17 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@SpringBootApplication(exclude = {
-    ErrorMvcAutoConfiguration.class,
-    HttpMessageConvertersAutoConfiguration.class,
-    OpenApiAutoConfiguration.class,
-    DataSourceAutoConfiguration.class,
-    DataSourceTransactionManagerAutoConfiguration.class,
-    JdbcTemplateAutoConfiguration.class,
-    QuartzAutoConfiguration.class }, proxyBeanMethods = false)
+@SpringBootApplication(
+        exclude = {
+            ErrorMvcAutoConfiguration.class,
+            HttpMessageConvertersAutoConfiguration.class,
+            OpenApiAutoConfiguration.class,
+            DataSourceAutoConfiguration.class,
+            DataSourceTransactionManagerAutoConfiguration.class,
+            JdbcTemplateAutoConfiguration.class,
+            QuartzAutoConfiguration.class,
+            TaskExecutionAutoConfiguration.class },
+        proxyBeanMethods = false)
 @EnableTransactionManagement
 public class SyncopeCoreApplication extends SpringBootServletInitializer {
 
@@ -110,86 +115,104 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
 
     @ConditionalOnMissingBean
     @Bean
+    public TaskExecutorUnloader taskExecutorUnloader(final ListableBeanFactory beanFactory) {
+        return new TaskExecutorUnloader(beanFactory);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SyncopeCoreStart keymasterStart(final DomainHolder domainHolder) {
+        return new SyncopeCoreStart(domainHolder);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public KeymasterStop keymasterStop(final DomainHolder domainHolder) {
+        return new SyncopeCoreStop(domainHolder);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public SyncopeCoreInfoContributor syncopeCoreInfoContributor(
-        final SecurityProperties securityProperties,
-        final PersistenceProperties persistenceProperties,
-        final ProvisioningProperties provisioningProperties,
-        final LogicProperties logicProperties,
-        final AnyTypeDAO anyTypeDAO,
-        final AnyTypeClassDAO anyTypeClassDAO,
-        final UserDAO userDAO,
-        final GroupDAO groupDAO,
-        final AnyObjectDAO anyObjectDAO,
-        final ExternalResourceDAO resourceDAO,
-        final ConfParamOps confParamOps,
-        final ServiceOps serviceOps,
-        final ConnIdBundleManager bundleManager,
-        final PropagationTaskExecutor propagationTaskExecutor,
-        final AnyObjectWorkflowAdapter awfAdapter,
-        final UserWorkflowAdapter uwfAdapter,
-        final GroupWorkflowAdapter gwfAdapter,
-        final AnyObjectProvisioningManager aProvisioningManager,
-        final UserProvisioningManager uProvisioningManager,
-        final GroupProvisioningManager gProvisioningManager,
-        final VirAttrCache virAttrCache,
-        final NotificationManager notificationManager,
-        final AuditManager auditManager,
-        final PasswordGenerator passwordGenerator,
-        final EntityFactory entityFactory,
-        final PlainSchemaDAO plainSchemaDAO,
-        final PlainAttrDAO plainAttrDAO,
-        final PlainAttrValueDAO plainAttrValueDAO,
-        final AnySearchDAO anySearchDAO,
-        final ImplementationLookup implLookup,
-        final PolicyDAO policyDAO,
-        final NotificationDAO notificationDAO,
-        final TaskDAO taskDAO,
-        final VirSchemaDAO virSchemaDAO,
-        final RoleDAO roleDAO,
-        final SecurityQuestionDAO securityQuestionDAO,
-        @Qualifier("asyncConnectorFacadeExecutor")
-        final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor,
-        @Qualifier("propagationTaskExecutorAsyncExecutor")
-        final ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor) {
-        
+            final SecurityProperties securityProperties,
+            final PersistenceProperties persistenceProperties,
+            final ProvisioningProperties provisioningProperties,
+            final LogicProperties logicProperties,
+            final AnyTypeDAO anyTypeDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final ExternalResourceDAO resourceDAO,
+            final ConfParamOps confParamOps,
+            final ServiceOps serviceOps,
+            final ConnIdBundleManager bundleManager,
+            final PropagationTaskExecutor propagationTaskExecutor,
+            final AnyObjectWorkflowAdapter awfAdapter,
+            final UserWorkflowAdapter uwfAdapter,
+            final GroupWorkflowAdapter gwfAdapter,
+            final AnyObjectProvisioningManager aProvisioningManager,
+            final UserProvisioningManager uProvisioningManager,
+            final GroupProvisioningManager gProvisioningManager,
+            final VirAttrCache virAttrCache,
+            final NotificationManager notificationManager,
+            final AuditManager auditManager,
+            final PasswordGenerator passwordGenerator,
+            final EntityFactory entityFactory,
+            final PlainSchemaDAO plainSchemaDAO,
+            final PlainAttrDAO plainAttrDAO,
+            final PlainAttrValueDAO plainAttrValueDAO,
+            final AnySearchDAO anySearchDAO,
+            final ImplementationLookup implLookup,
+            final PolicyDAO policyDAO,
+            final NotificationDAO notificationDAO,
+            final TaskDAO taskDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final RoleDAO roleDAO,
+            final SecurityQuestionDAO securityQuestionDAO,
+            @Qualifier("asyncConnectorFacadeExecutor")
+            final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor,
+            @Qualifier("propagationTaskExecutorAsyncExecutor")
+            final ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor) {
+
         return new DefaultSyncopeCoreInfoContributor(securityProperties,
-            persistenceProperties,
-            provisioningProperties,
-            logicProperties,
-            anyTypeDAO,
-            anyTypeClassDAO,
-            userDAO,
-            groupDAO,
-            anyObjectDAO,
-            resourceDAO,
-            confParamOps,
-            serviceOps,
-            bundleManager,
-            propagationTaskExecutor,
-            awfAdapter,
-            uwfAdapter,
-            gwfAdapter,
-            aProvisioningManager,
-            uProvisioningManager,
-            gProvisioningManager,
-            virAttrCache,
-            notificationManager,
-            auditManager,
-            passwordGenerator,
-            entityFactory,
-            plainSchemaDAO,
-            plainAttrDAO,
-            plainAttrValueDAO,
-            anySearchDAO,
-            implLookup,
-            policyDAO,
-            notificationDAO,
-            taskDAO,
-            virSchemaDAO,
-            roleDAO,
-            securityQuestionDAO,
-            asyncConnectorFacadeExecutor,
-            propagationTaskExecutorAsyncExecutor);
+                persistenceProperties,
+                provisioningProperties,
+                logicProperties,
+                anyTypeDAO,
+                anyTypeClassDAO,
+                userDAO,
+                groupDAO,
+                anyObjectDAO,
+                resourceDAO,
+                confParamOps,
+                serviceOps,
+                bundleManager,
+                propagationTaskExecutor,
+                awfAdapter,
+                uwfAdapter,
+                gwfAdapter,
+                aProvisioningManager,
+                uProvisioningManager,
+                gProvisioningManager,
+                virAttrCache,
+                notificationManager,
+                auditManager,
+                passwordGenerator,
+                entityFactory,
+                plainSchemaDAO,
+                plainAttrDAO,
+                plainAttrValueDAO,
+                anySearchDAO,
+                implLookup,
+                policyDAO,
+                notificationDAO,
+                taskDAO,
+                virSchemaDAO,
+                roleDAO,
+                securityQuestionDAO,
+                asyncConnectorFacadeExecutor,
+                propagationTaskExecutorAsyncExecutor);
     }
 
     @ConditionalOnMissingBean
@@ -213,29 +236,26 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeCoreStart keymasterStart(final DomainHolder domainHolder) {
-        return new SyncopeCoreStart(domainHolder);
+    public EntityCacheEndpoint entityCacheEndpoint(final EntityCacheDAO entityCacheDAO) {
+        return new EntityCacheEndpoint(entityCacheDAO);
     }
-
-    @Bean
-    public KeymasterStop keymasterStop() {
-        return new KeymasterStop(NetworkService.Type.CORE);
-    }
-
 
     @Bean
     public SyncopeStarterEventListener syncopeCoreEventListener(
-        @Qualifier("syncopeCoreInfoContributor")
-        final SyncopeCoreInfoContributor syncopeCoreInfoContributor) {
+            @Qualifier("syncopeCoreInfoContributor")
+            final SyncopeCoreInfoContributor syncopeCoreInfoContributor) {
+
         return new DefaultSyncopeStarterEventListener(syncopeCoreInfoContributor);
     }
 
     @FunctionalInterface
     public interface SyncopeStarterEventListener {
+
         void addLoadInstant(PayloadApplicationEvent<SystemInfo.LoadInstant> event);
     }
 
     public static class DefaultSyncopeStarterEventListener implements SyncopeStarterEventListener {
+
         private final SyncopeCoreInfoContributor contributor;
 
         public DefaultSyncopeStarterEventListener(final SyncopeCoreInfoContributor contributor) {

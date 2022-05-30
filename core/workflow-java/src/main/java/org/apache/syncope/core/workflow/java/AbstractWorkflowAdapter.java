@@ -18,17 +18,13 @@
  */
 package org.apache.syncope.core.workflow.java;
 
-import java.util.Date;
-import org.apache.commons.lang3.StringUtils;
+import java.time.OffsetDateTime;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 
 public abstract class AbstractWorkflowAdapter {
 
-    protected void metadata(final Any<?> any, final String username, final String context) {
-        String who = username
-                + AuthContextUtils.getDelegatedBy().map(d -> " [delegated by " + d + "]").orElse(StringUtils.EMPTY);
-        Date now = new Date();
+    protected void metadata(final Any<?> any, final String who, final String context) {
+        OffsetDateTime now = OffsetDateTime.now();
 
         if (any.getCreationDate() == null) {
             any.setCreationDate(now);

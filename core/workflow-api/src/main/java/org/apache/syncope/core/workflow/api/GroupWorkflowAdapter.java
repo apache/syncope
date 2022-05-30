@@ -51,6 +51,8 @@ public interface GroupWorkflowAdapter extends WorkflowAdapter {
      * Delete a group.
      *
      * @param groupKey group to be deleted
+     * @param eraser username that requested this operation
+     * @param context context information
      */
-    void delete(String groupKey);
+    void delete(String groupKey, String eraser, String context);
 }

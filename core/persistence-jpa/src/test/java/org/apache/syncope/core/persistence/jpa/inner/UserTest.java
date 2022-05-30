@@ -22,10 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -33,11 +35,12 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntit
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
+import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -67,6 +70,9 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;
+
+    @Autowired
+    private SecurityQuestionDAO securityQuestionDAO;
 
     @Test
     public void find() {
@@ -201,8 +207,9 @@ public class UserTest extends AbstractTest {
         user.setUsername("username");
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
-        user.setCreationDate(new Date());
-        user.setPassword("pass", CipherAlgorithm.SHA256);
+        user.setCreationDate(OffsetDateTime.now());
+        user.setCipherAlgorithm(CipherAlgorithm.SHA256);
+        user.setPassword("pass");
 
         try {
             userDAO.save(user);
@@ -218,8 +225,9 @@ public class UserTest extends AbstractTest {
         user.setUsername("username!");
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
-        user.setCreationDate(new Date());
-        user.setPassword("password123", CipherAlgorithm.SHA256);
+        user.setCreationDate(OffsetDateTime.now());
+        user.setCipherAlgorithm(CipherAlgorithm.SHA256);
+        user.setPassword("password123");
 
         try {
             userDAO.save(user);
@@ -235,14 +243,16 @@ public class UserTest extends AbstractTest {
         user.setUsername("username");
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
-        user.setCreationDate(new Date());
-        user.setPassword("password123", CipherAlgorithm.SHA256);
+        user.setCreationDate(OffsetDateTime.now());
+        user.setCipherAlgorithm(CipherAlgorithm.SHA256);
+        user.setPassword("password123");
 
         User actual = userDAO.save(user);
         assertNotNull(actual);
         assertEquals(1, actual.getPasswordHistory().size());
         assertNotNull(userDAO.findLastChange(actual.getKey()));
-        assertEquals(actual.getLastChangeDate(), userDAO.findLastChange(actual.getKey()));
+        assertTrue(actual.getLastChangeDate().truncatedTo(ChronoUnit.SECONDS).
+                isEqual(userDAO.findLastChange(actual.getKey()).truncatedTo(ChronoUnit.SECONDS)));
     }
 
     @Test
@@ -261,9 +271,10 @@ public class UserTest extends AbstractTest {
         user.setUsername("username");
         user.setRealm(realmDAO.findByFullPath("/even/two"));
         user.setCreator("admin");
-        user.setCreationDate(new Date());
+        user.setCreationDate(OffsetDateTime.now());
 
-        user.setPassword("password123", CipherAlgorithm.AES);
+        user.setCipherAlgorithm(CipherAlgorithm.AES);
+        user.setPassword("password123");
 
         User actual = userDAO.save(user);
         assertNotNull(actual);
@@ -273,7 +284,8 @@ public class UserTest extends AbstractTest {
     public void issueSYNCOPE391() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setPassword(null, CipherAlgorithm.AES);
+        user.setCipherAlgorithm(CipherAlgorithm.AES);
+        user.setPassword(null);
         user.setRealm(realmDAO.findByFullPath("/even/two"));
 
         User actual = userDAO.save(user);
@@ -283,16 +295,44 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void testPasswordGenerator() {
-        String password = "";
-        try {
-            password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"));
-        } catch (InvalidPasswordRuleConf e) {
-            fail(e::getMessage);
-        }
+        String password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"));
         assertNotNull(password);
 
         User user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
-        user.setPassword(password, CipherAlgorithm.SHA);
+        user.setPassword(password);
         userDAO.save(user);
+    }
+
+    @Test
+    public void passwordGeneratorFailing() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            String password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"));
+            assertNotNull(password);
+
+            User user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
+            // SYNCOPE-1666 fail because cipherAlgorithm is already set
+            user.setCipherAlgorithm(CipherAlgorithm.SHA);
+            user.setPassword(password);
+            userDAO.save(user);
+        });
+    }
+
+    @Test
+    public void issueSYNCOPE1666() {
+        User user = entityFactory.newEntity(User.class);
+        user.setUsername("username");
+        user.setRealm(realmDAO.findByFullPath("/even/two"));
+        user.setCreator("admin");
+        user.setCreationDate(OffsetDateTime.now());
+        user.setCipherAlgorithm(CipherAlgorithm.SSHA256);
+        user.setPassword("password123");
+        user.setSecurityQuestion(securityQuestionDAO.find("887028ea-66fc-41e7-b397-620d7ea6dfbb"));
+        String securityAnswer = "my complex answer to @ $complex question è ? £12345";
+        user.setSecurityAnswer(securityAnswer);
+
+        User actual = userDAO.save(user);
+        assertNotNull(actual);
+        assertNotNull(actual.getSecurityAnswer());
+        assertTrue(Encryptor.getInstance().verify(securityAnswer, CipherAlgorithm.SSHA256, actual.getSecurityAnswer()));
     }
 }

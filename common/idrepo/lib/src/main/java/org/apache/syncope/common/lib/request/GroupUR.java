@@ -74,6 +74,11 @@ public class GroupUR extends AnyUR {
             return this;
         }
 
+        public Builder adynMembershipConds(final Map<String, String> conds) {
+            getInstance().getADynMembershipConds().putAll(conds);
+            return this;
+        }
+
         public Builder typeExtension(final TypeExtensionTO typeExtension) {
             getInstance().getTypeExtensions().add(typeExtension);
             return this;

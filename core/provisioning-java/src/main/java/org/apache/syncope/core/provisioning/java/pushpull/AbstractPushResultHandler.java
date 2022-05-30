@@ -260,7 +260,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         Set<String> moreAttrsToGet = new HashSet<>();
         profile.getActions().forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
         List<ConnectorObject> connObjs = outboundMatcher.match(
-                profile.getConnector(), any, provision, Optional.of(moreAttrsToGet.toArray(new String[0])));
+                profile.getConnector(), any, provision, Optional.of(moreAttrsToGet.toArray(String[]::new)));
         LOG.debug("Match(es) found for {} as {}: {}", any, provision.getObjectClass(), connObjs);
 
         if (connObjs.size() > 1) {
@@ -454,7 +454,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 if (notificationsAvailable || auditRequested) {
                     resultStatus = AuditElements.Result.SUCCESS;
                     output = outboundMatcher.match(
-                            profile.getConnector(), any, provision, Optional.of(moreAttrsToGet.toArray(new String[0])));
+                            profile.getConnector(), any, provision, Optional.of(moreAttrsToGet.toArray(String[]::new)));
                 }
             } catch (IgnoreProvisionException e) {
                 throw e;

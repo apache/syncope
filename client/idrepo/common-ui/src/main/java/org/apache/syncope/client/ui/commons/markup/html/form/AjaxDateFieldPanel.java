@@ -30,10 +30,11 @@ public class AjaxDateFieldPanel extends DateFieldPanel {
     private static final long serialVersionUID = 1919852712185883648L;
 
     public AjaxDateFieldPanel(
-            final String id, 
-            final String name, 
+            final String id,
+            final String name,
             final IModel<Date> model,
             final FastDateFormat datePattern) {
+
         super(id, name, model, datePattern);
 
         field = new AjaxDatePicker("field", model, getLocale(), datePattern.getPattern());

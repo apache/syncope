@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.logic.wa;
 
+import java.time.OffsetDateTime;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -64,7 +64,7 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void delete(final Long id, final Date expirationDate) {
+    public void delete(final Long id, final OffsetDateTime expirationDate) {
         List<AuthProfile> profiles = authProfileDAO.findAll(-1, -1);
         profiles.forEach(profile -> {
             List<U2FDevice> devices = profile.getU2FRegisteredDevices();
@@ -86,7 +86,7 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
     public Pair<Integer, List<U2FDevice>> search(
             final Integer page,
             final Integer itemsPerPage, final Long id,
-            final Date expirationDate,
+            final OffsetDateTime expirationDate,
             final List<OrderByClause> orderByClauses) {
 
         List<Comparator<U2FDevice>> comparatorList = orderByClauses.

@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -75,7 +76,7 @@ public class CSVPullSpec extends AbstractCSVSpec {
 
     private Set<String> ignoreColumns = new HashSet<>();
 
-    private boolean remediation;
+    private Boolean remediation;
 
     private ConflictResolutionAction conflictResolutionAction = ConflictResolutionAction.IGNORE;
 
@@ -109,11 +110,12 @@ public class CSVPullSpec extends AbstractCSVSpec {
         this.ignoreColumns = ignoreColumns;
     }
 
-    public boolean isRemediation() {
-        return remediation;
+    public Boolean getRemediation() {
+        return remediation == null ? Boolean.FALSE : remediation;
     }
 
     @QueryParam("remediation")
+    @DefaultValue("false")
     public void setRemediation(final boolean remediation) {
         this.remediation = remediation;
     }

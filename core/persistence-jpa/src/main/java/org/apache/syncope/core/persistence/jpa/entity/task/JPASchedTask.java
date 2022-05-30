@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -38,8 +36,7 @@ public class JPASchedTask extends AbstractTask implements SchedTask {
 
     private static final long serialVersionUID = 7596236684832602180L;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date startAt;
+    private OffsetDateTime startAt;
 
     private String cronExpression;
 
@@ -55,20 +52,13 @@ public class JPASchedTask extends AbstractTask implements SchedTask {
     private Boolean active = true;
 
     @Override
-    public Date getStartAt() {
-        if (startAt != null) {
-            return new Date(startAt.getTime());
-        }
-        return null;
+    public OffsetDateTime getStartAt() {
+        return startAt;
     }
 
     @Override
-    public void setStartAt(final Date start) {
-        if (start != null) {
-            this.startAt = new Date(start.getTime());
-        } else {
-            this.startAt = null;
-        }
+    public void setStartAt(final OffsetDateTime startAt) {
+        this.startAt = startAt;
     }
 
     @Override

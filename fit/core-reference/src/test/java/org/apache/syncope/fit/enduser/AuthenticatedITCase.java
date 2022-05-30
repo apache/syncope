@@ -75,10 +75,9 @@ public class AuthenticatedITCase extends AbstractEnduserITCase {
         // 3. submit form
         TESTER.executeAjaxEvent(changePwdForm + ":submit", Constants.ON_CLICK);
 
-        TESTER.assertRenderedPage(SelfResult.class);
+        TESTER.assertRenderedPage(Login.class);
 
         TESTER.cleanupFeedbackMessages();
-        TESTER.startPage(Login.class);
 
         doLogin("mustchangepassword", "password124");
 

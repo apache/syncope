@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -78,8 +78,8 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserCR, UserUR> 
 
     @Override
     public Response status(final StatusR statusR) {
-        Date etagDate = findLastChange(statusR.getKey());
-        checkETag(String.valueOf(etagDate.getTime()));
+        OffsetDateTime etag = findLastChange(statusR.getKey());
+        checkETag(String.valueOf(etag.toInstant().toEpochMilli()));
 
         ProvisioningResult<UserTO> updated = logic.status(statusR, isNullPriorityAsync());
         return modificationResponse(updated);

@@ -310,8 +310,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
         if (admin) {
             realmTO.setAccountPolicy(realm.getAccountPolicy() == null ? null : realm.getAccountPolicy().getKey());
             realmTO.setPasswordPolicy(realm.getPasswordPolicy() == null ? null : realm.getPasswordPolicy().getKey());
-            realmTO.setAuthPolicy(
-                    realm.getAuthPolicy() == null ? null : realm.getAuthPolicy().getKey());
+            realmTO.setAuthPolicy(realm.getAuthPolicy() == null ? null : realm.getAuthPolicy().getKey());
             realmTO.setAccessPolicy(realm.getAccessPolicy() == null ? null : realm.getAccessPolicy().getKey());
             realmTO.setAttrReleasePolicy(
                     realm.getAttrReleasePolicy() == null ? null : realm.getAttrReleasePolicy().getKey());

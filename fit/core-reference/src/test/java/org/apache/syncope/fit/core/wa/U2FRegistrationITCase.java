@@ -22,9 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.apache.syncope.common.lib.wa.U2FDevice;
@@ -37,7 +35,7 @@ public class U2FRegistrationITCase extends AbstractITCase {
 
     private static U2FDevice createDeviceRegistration() {
         return new U2FDevice.Builder()
-                .issueDate(new Date())
+                .issueDate(OffsetDateTime.now())
                 .id(System.currentTimeMillis())
                 .record("{\"keyHandle\":\"2_QYgDSPYcOgYBGBe8c9PVCunjigbD-3o5HcliXhu-Up_GKckYMxxVF6AgSPWubqfWy8WmJNDYQE"
                         + "J1QKZe343Q\","
@@ -64,10 +62,10 @@ public class U2FRegistrationITCase extends AbstractITCase {
         U2FDevice device = createDeviceRegistration();
         u2fRegistrationService.create(owner, device);
 
-        List<U2FDevice> devices = u2fRegistrationService.search(
-                new U2FDeviceQuery.Builder().owner(owner).expirationDate(
-                        Date.from(LocalDate.now().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant())).
-                        build()).getResult();
+        List<U2FDevice> devices = u2fRegistrationService.search(new U2FDeviceQuery.Builder().
+                owner(owner).
+                expirationDate(OffsetDateTime.now().minusDays(1)).
+                build()).getResult();
         assertEquals(1, devices.size());
 
         u2fRegistrationService.delete(new U2FDeviceQuery.Builder().id(device.getId()).build());
@@ -86,8 +84,7 @@ public class U2FRegistrationITCase extends AbstractITCase {
         assertTrue(u2fRegistrationService.search(
                 new U2FDeviceQuery.Builder().owner(owner).build()).getResult().isEmpty());
 
-        Date date = Date.from(LocalDate.now().plusDays(1)
-                .atStartOfDay(ZoneId.systemDefault()).toInstant());
+        OffsetDateTime date = OffsetDateTime.now().plusDays(1);
 
         u2fRegistrationService.delete(new U2FDeviceQuery.Builder().expirationDate(date).build());
 

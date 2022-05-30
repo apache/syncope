@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -49,7 +49,7 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
 
     private static final long serialVersionUID = 5283548960927517342L;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private final ImplementationTO implementation;
 

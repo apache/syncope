@@ -28,6 +28,8 @@ import java.util.Map;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
@@ -96,8 +98,10 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         DefaultAuthPolicyConf authPolicyConf = new DefaultAuthPolicyConf();
         authPolicyConf.setTryAll(true);
         authPolicyConf.getAuthModules().add("TestAuthModule");
+        AuthPolicyTO authPolicy = new AuthPolicyTO();
+        authPolicy.setConf(authPolicyConf);
 
-        waClientApp.setAuthPolicyConf(authPolicyConf);
+        waClientApp.setAuthPolicy(authPolicy);
 
         if (withReleaseAttributes) {
             waClientApp.getReleaseAttrs().putAll(Map.of("uid", "username", "cn", "fullname"));
@@ -113,7 +117,9 @@ public class SyncopeWAServiceRegistryTest extends AbstractTest {
         if (withAttrReleasePolicy) {
             DefaultAttrReleasePolicyConf attrReleasePolicyConf = new DefaultAttrReleasePolicyConf();
             attrReleasePolicyConf.getAllowedAttrs().add("cn");
-            waClientApp.setAttrReleasePolicyConf(attrReleasePolicyConf);
+            AttrReleasePolicyTO attrReleasePolicy = new AttrReleasePolicyTO();
+            attrReleasePolicy.setConf(attrReleasePolicyConf);
+            waClientApp.setAttrReleasePolicy(attrReleasePolicy);
         }
     }
 

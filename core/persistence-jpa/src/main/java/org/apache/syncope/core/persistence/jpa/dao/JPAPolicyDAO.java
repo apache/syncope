@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -39,6 +40,7 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAttrReleasePolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAuthPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPropagationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
@@ -51,6 +53,8 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
                 ? JPAAccountPolicy.class
                 : PasswordPolicy.class.isAssignableFrom(reference)
                 ? JPAPasswordPolicy.class
+                : PropagationPolicy.class.isAssignableFrom(reference)
+                ? JPAPropagationPolicy.class
                 : PullPolicy.class.isAssignableFrom(reference)
                 ? JPAPullPolicy.class
                 : PushPolicy.class.isAssignableFrom(reference)
@@ -168,11 +172,14 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
         if (!(policy instanceof AuthPolicy)
                 && !(policy instanceof AttrReleasePolicy)
                 && !(policy instanceof AccessPolicy)) {
+
             resourceDAO.findByPolicy(policy).forEach(resource -> {
                 if (policy instanceof AccountPolicy) {
                     resource.setAccountPolicy(null);
                 } else if (policy instanceof PasswordPolicy) {
                     resource.setPasswordPolicy(null);
+                } else if (policy instanceof PropagationPolicy) {
+                    resource.setPropagationPolicy(null);
                 } else if (policy instanceof PullPolicy) {
                     resource.setPullPolicy(null);
                 } else if (policy instanceof PushPolicy) {

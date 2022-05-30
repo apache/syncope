@@ -149,6 +149,9 @@ public final class SearchUtils implements Serializable {
         } else if (SpecialAttr.GROUPS.toString().equals(property)) {
             clause.setType(SearchClause.Type.GROUP_MEMBERSHIP);
             clause.setProperty(value);
+        } else if (SpecialAttr.AUX_CLASSES.toString().equals(property)) {
+            clause.setType(SearchClause.Type.AUX_CLASS);
+            clause.setProperty(value);
         } else if (SpecialAttr.RESOURCES.toString().equals(property)) {
             clause.setType(SearchClause.Type.RESOURCE);
             clause.setProperty(value);
@@ -274,6 +277,14 @@ public final class SearchUtils implements Serializable {
                                         ? ((AnyObjectFiqlSearchConditionBuilder) builder).inGroups(groupKey)
                                         : ((AnyObjectFiqlSearchConditionBuilder) builder).notInGroups(groupKey);
                             }
+                        }
+                        break;
+
+                    case AUX_CLASS:
+                        if (StringUtils.isNotBlank(clause.getProperty())) {
+                            condition = clause.getComparator() == SearchClause.Comparator.EQUALS
+                                    ? builder.hasAuxClasses(clause.getProperty())
+                                    : builder.hasNotAuxClasses(clause.getProperty());
                         }
                         break;
 

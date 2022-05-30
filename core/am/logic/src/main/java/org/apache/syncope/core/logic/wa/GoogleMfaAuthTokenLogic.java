@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.logic.wa;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -47,7 +47,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void delete(final Date expirationDate) {
+    public void delete(final OffsetDateTime expirationDate) {
         authProfileDAO.findAll(-1, -1).forEach(profile -> removeTokenAndSave(
                 profile, token -> token.getIssueDate().compareTo(expirationDate) >= 0));
     }

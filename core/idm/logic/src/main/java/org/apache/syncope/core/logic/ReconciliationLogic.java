@@ -68,6 +68,7 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.pushpull.ConstantReconFilterBuilder;
@@ -251,7 +252,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         status.setOnSyncope(getOnSyncope(any, connObjectKeyItem, provision));
 
         List<ConnectorObject> connObjs = outboundMatcher.match(connectorManager.getConnector(
-                provision.getResource()), any, provision, Optional.of(moreAttrsToGet.toArray(new String[] {})));
+                provision.getResource()), any, provision, Optional.of(moreAttrsToGet.toArray(String[]::new)));
         if (!connObjs.isEmpty()) {
             status.setOnResource(ConnObjectUtils.getConnObjectTO(
                     outboundMatcher.getFIQL(connObjs.get(0), provision), connObjs.get(0).getAttributes()));
@@ -274,7 +275,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         Stream<MappingItem> mapItems = Stream.concat(
                 provision.getMapping().getItems().stream(),
                 virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
-        OperationOptions options = MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(new String[0]));
+        OperationOptions options = MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new));
 
         SyncDeltaBuilder syncDeltaBuilder = new SyncDeltaBuilder().
                 setToken(new SyncToken("")).
@@ -366,7 +367,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     connectorManager.getConnector(provision.getResource()),
                     getAny(provision, anyKey),
                     pushTask,
-                    AuthContextUtils.getUsername()));
+                    AuthContextUtils.getWho()));
             if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
                 sce.getElements().add(results.get(0).getMessage());
             }
@@ -405,7 +406,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                                 connectorManager.getConnector(provision.getResource()),
                                 match.getAny(),
                                 pushTask,
-                                AuthContextUtils.getUsername()));
+                                AuthContextUtils.getWho()));
                         if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
                             sce.getElements().add(results.get(0).getMessage());
                         }
@@ -415,7 +416,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                                 connectorManager.getConnector(provision.getResource()),
                                 match.getLinkedAccount(),
                                 pushTask,
-                                AuthContextUtils.getUsername());
+                                AuthContextUtils.getWho());
                         if (result.getStatus() == ProvisioningReport.Status.FAILURE) {
                             sce.getElements().add(result.getMessage());
                         } else {
@@ -457,7 +458,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     connectorManager.getConnector(provision.getResource()),
                     reconFilterBuilder,
                     moreAttrsToGet,
-                    pullTask));
+                    pullTask,
+                    AuthContextUtils.getWho()));
             if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
                 sce.getElements().add(results.get(0).getMessage());
             }
@@ -528,7 +530,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 setQuoteChar(spec.getQuoteChar()).
                 setLineSeparator(spec.getLineSeparator()).
                 setNullValue(spec.getNullValue()).
-                setAllowComments(spec.isAllowComments());
+                setAllowComments(spec.getAllowComments());
         if (spec.getEscapeChar() != null) {
             schemaBuilder.setEscapeChar(spec.getEscapeChar());
         }
@@ -567,6 +569,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 entitlement = IdRepoEntitlement.USER_SEARCH;
         }
 
+        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+                orElseThrow(() -> new NotFoundException("Realm " + realm));
+
         Set<String> adminRealms = RealmUtils.getEffective(AuthContextUtils.getAuthorizations().get(entitlement), realm);
         SearchCond effectiveCond = searchCond == null ? anyUtils.dao().getAllMatchingCond() : searchCond;
 
@@ -574,15 +579,16 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         if (spec.getIgnorePaging()) {
             matching = new ArrayList<>();
 
-            int count = anySearchDAO.count(adminRealms, effectiveCond, anyType.getKind());
+            int count = anySearchDAO.count(base, true, adminRealms, effectiveCond, anyType.getKind());
             int pages = (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
             for (int p = 1; p <= pages; p++) {
-                matching.addAll(anySearchDAO.search(adminRealms, effectiveCond,
+                matching.addAll(anySearchDAO.search(base, true, adminRealms, effectiveCond,
                         p, AnyDAO.DEFAULT_PAGE_SIZE, orderBy, anyType.getKind()));
             }
         } else {
-            matching = anySearchDAO.search(adminRealms, effectiveCond, page, size, orderBy, anyType.getKind());
+            matching = anySearchDAO.search(
+                    base, true, adminRealms, effectiveCond, page, size, orderBy, anyType.getKind());
         }
 
         List<String> columns = new ArrayList<>();
@@ -626,7 +632,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 csvSchema(spec),
                 null,
                 os,
-                columns.toArray(new String[columns.size()]))) {
+                columns.toArray(String[]::new))) {
 
             SyncopeStreamPushExecutor executor =
                     (SyncopeStreamPushExecutor) ApplicationContextProvider.getBeanFactory().
@@ -638,7 +644,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     connector,
                     spec.getPropagationActions(),
                     pushTask,
-                    AuthContextUtils.getUsername());
+                    AuthContextUtils.getWho());
         } catch (Exception e) {
             LOG.error("Could not push to stream", e);
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
@@ -661,7 +667,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         PullTaskTO pullTask = new PullTaskTO();
         pullTask.setDestinationRealm(spec.getDestinationRealm());
-        pullTask.setRemediation(spec.isRemediation());
+        pullTask.setRemediation(spec.getRemediation());
         pullTask.setMatchingRule(spec.getMatchingRule());
         pullTask.setUnmatchingRule(spec.getUnmatchingRule());
         pullTask.getActions().addAll(spec.getProvisioningActions());

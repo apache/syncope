@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import java.time.OffsetDateTime;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.audit.AuditEntry;
@@ -92,7 +92,7 @@ public class DefaultAuditManager implements AuditManager {
         AuditEntry auditEntry = new AuditEntry();
         auditEntry.setWho(who);
         auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS));
-        auditEntry.setDate(new Date());
+        auditEntry.setDate(OffsetDateTime.now());
 
         AuditConf auditConf = auditConfDAO.find(auditEntry.getLogger().toAuditKey());
         boolean auditRequested = auditConf != null && auditConf.isActive();
@@ -149,7 +149,7 @@ public class DefaultAuditManager implements AuditManager {
             AuditEntry auditEntry = new AuditEntry();
             auditEntry.setWho(who);
             auditEntry.setLogger(auditLoggerName);
-            auditEntry.setDate(new Date());
+            auditEntry.setDate(OffsetDateTime.now());
             auditEntry.setBefore(POJOHelper.serialize((maskSensitive(before))));
             if (throwable == null) {
                 auditEntry.setOutput(POJOHelper.serialize((maskSensitive(output))));

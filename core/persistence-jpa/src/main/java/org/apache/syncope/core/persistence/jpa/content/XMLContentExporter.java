@@ -32,9 +32,11 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -228,7 +230,8 @@ public class XMLContentExporter implements ContentExporter {
                 case Types.TIMESTAMP:
                     Timestamp timestamp = rs.getTimestamp(columnName);
                     if (timestamp != null) {
-                        res = FormatUtils.format(new Date(timestamp.getTime()));
+                        res = FormatUtils.format(OffsetDateTime.ofInstant(
+                                Instant.ofEpochMilli(timestamp.getTime()), ZoneId.systemDefault()));
                     }
                     break;
 

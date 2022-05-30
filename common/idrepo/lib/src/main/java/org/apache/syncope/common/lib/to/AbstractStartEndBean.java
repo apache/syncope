@@ -19,8 +19,7 @@
 package org.apache.syncope.common.lib.to;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Date;
-import java.util.Optional;
+import java.time.OffsetDateTime;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -31,26 +30,26 @@ public class AbstractStartEndBean implements BaseBean {
 
     private static final long serialVersionUID = 2399577415544539917L;
 
-    private Date start;
+    private OffsetDateTime start;
 
-    private Date end;
-
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    public Date getStart() {
-        return Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
-    }
-
-    public void setStart(final Date start) {
-        this.start = Optional.ofNullable(start).map(date -> new Date(date.getTime())).orElse(null);
-    }
+    private OffsetDateTime end;
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    public Date getEnd() {
-        return Optional.ofNullable(end).map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getStart() {
+        return start;
     }
 
-    public void setEnd(final Date end) {
-        this.end = Optional.ofNullable(end).map(date -> new Date(date.getTime())).orElse(null);
+    public void setStart(final OffsetDateTime start) {
+        this.start = start;
+    }
+
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    public OffsetDateTime getEnd() {
+        return end;
+    }
+
+    public void setEnd(final OffsetDateTime end) {
+        this.end = end;
     }
 
     @Override

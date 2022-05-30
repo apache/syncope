@@ -60,6 +60,7 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
         assumeTrue(SAML2SRAITCase.class.equals(MethodHandles.lookup().lookupClass()));
 
         doStartSRA("saml2");
+//        sraRouteService.pushToSRA();
     }
 
     @BeforeAll
@@ -146,7 +147,7 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
 
         boolean isOk = false;
         try (CloseableHttpResponse response =
-                authenticateToCas("bellini", "password", responseBody, httpclient, context)) {
+                authenticateToWA("bellini", "password", responseBody, httpclient, context)) {
 
             switch (response.getStatusLine().getStatusCode()) {
                 case HttpStatus.SC_OK:
@@ -165,7 +166,7 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
 
         // 2c. WA attribute consent screen
         if (isOk) {
-            String execution = extractCASExecution(responseBody);
+            String execution = extractWAExecution(responseBody);
 
             List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("_eventId", "confirm"));
@@ -180,7 +181,8 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
             post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
             try (CloseableHttpResponse response = httpclient.execute(post, context)) {
                 assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
-                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue().replace(":8080", ":9080");
+                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue().
+                        replace("http://", "https://").replace(":8080", ":9443");
             }
         }
 

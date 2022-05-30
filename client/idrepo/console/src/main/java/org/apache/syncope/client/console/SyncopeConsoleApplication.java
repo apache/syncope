@@ -104,9 +104,10 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
 
     @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")
     @Bean
-    public ClassPathScanImplementationLookup classPathScanImplementationLookup(final ApplicationContext ctx) {
+    public ClassPathScanImplementationLookup classPathScanImplementationLookup(final ApplicationContext ctx,
+                                                                               final ConsoleProperties props) {
         ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup(
-                ctx.getBeansOfType(ClassPathScanImplementationContributor.class).values());
+                ctx.getBeansOfType(ClassPathScanImplementationContributor.class).values(), props);
         lookup.load();
         return lookup;
     }

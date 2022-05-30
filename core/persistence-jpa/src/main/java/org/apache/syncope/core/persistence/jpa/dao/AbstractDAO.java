@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
+import java.util.Optional;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import org.apache.syncope.core.persistence.api.dao.DAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -34,19 +33,15 @@ public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DAO.class);
 
-    protected Date convert(final LocalDateTime localDateTime) {
-        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    protected EntityManagerFactory entityManagerFactory() {
+        return EntityManagerFactoryUtils.findEntityManagerFactory(
+                ApplicationContextProvider.getBeanFactory(), AuthContextUtils.getDomain());
     }
 
     protected EntityManager entityManager() {
-        EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(
-                EntityManagerFactoryUtils.findEntityManagerFactory(
-                        ApplicationContextProvider.getBeanFactory(), AuthContextUtils.getDomain()));
-        if (entityManager == null) {
-            throw new IllegalStateException("Could not find EntityManager for domain " + AuthContextUtils.getDomain());
-        }
-
-        return entityManager;
+        return Optional.ofNullable(EntityManagerFactoryUtils.getTransactionalEntityManager(entityManagerFactory())).
+                orElseThrow(() -> new IllegalStateException(
+                "Could not find EntityManager for domain " + AuthContextUtils.getDomain()));
     }
 
     @Override

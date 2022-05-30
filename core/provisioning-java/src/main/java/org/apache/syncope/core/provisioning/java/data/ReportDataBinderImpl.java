@@ -43,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
-public class ReportDataBinderImpl implements ReportDataBinder {
+public class ReportDataBinderImpl extends AbstractExecutableDatabinder implements ReportDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ReportDataBinder.class);
 
@@ -123,10 +123,9 @@ public class ReportDataBinderImpl implements ReportDataBinder {
         String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(report).getName());
         try {
             Trigger trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
-
             if (trigger != null) {
-                reportTO.setLastExec(trigger.getPreviousFireTime());
-                reportTO.setNextExec(trigger.getNextFireTime());
+                reportTO.setLastExec(toOffsetDateTime(trigger.getPreviousFireTime()));
+                reportTO.setNextExec(toOffsetDateTime(trigger.getNextFireTime()));
             }
         } catch (SchedulerException e) {
             LOG.warn("While trying to get to " + triggerName, e);

@@ -107,6 +107,8 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
                 profile.getExecutor(),
                 getContext());
 
+        createRemediationIfNeeded(req, delta, result);
+
         return updated.getLeft();
     }
 }

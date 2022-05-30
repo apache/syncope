@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadPoolExecutor;
 import javax.servlet.ServletRequestListener;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
@@ -40,7 +41,7 @@ import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.cxf.validation.BeanValidationProvider;
-import org.apache.syncope.common.lib.jackson.SyncopeObjectMapper;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
@@ -124,6 +125,7 @@ import org.apache.syncope.core.rest.cxf.service.TaskServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.UserSelfServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.UserServiceImpl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -133,17 +135,23 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @PropertySource("classpath:errorMessages.properties")
+@EnableConfigurationProperties(RESTProperties.class)
 @Configuration(proxyBeanMethods = false)
 public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ThreadPoolTaskExecutor batchExecutor() {
-        ThreadPoolTaskExecutor batchExecutor = new ThreadPoolTaskExecutor();
-        batchExecutor.setCorePoolSize(10);
-        batchExecutor.setThreadNamePrefix("Batch-");
-        batchExecutor.initialize();
-        return batchExecutor;
+    public ThreadPoolTaskExecutor batchExecutor(final RESTProperties props) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(props.getBatchExecutor().getCorePoolSize());
+        executor.setMaxPoolSize(props.getBatchExecutor().getMaxPoolSize());
+        executor.setQueueCapacity(props.getBatchExecutor().getQueueCapacity());
+        executor.setAwaitTerminationSeconds(props.getBatchExecutor().getAwaitTerminationSeconds());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setThreadNamePrefix("Batch-");
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+        executor.initialize();
+        return executor;
     }
 
     @ConditionalOnMissingBean
@@ -155,25 +163,19 @@ public class IdRepoRESTCXFContext {
     @ConditionalOnMissingBean
     @Bean
     public JacksonJsonProvider jsonProvider() {
-        JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
-        jsonProvider.setMapper(new SyncopeObjectMapper());
-        return jsonProvider;
+        return new JacksonJsonProvider(new SyncopeJsonMapper());
     }
 
     @ConditionalOnMissingBean
     @Bean
     public JacksonXMLProvider xmlProvider() {
-        JacksonXMLProvider xmlProvider = new JacksonXMLProvider();
-        xmlProvider.setMapper(new SyncopeXmlMapper());
-        return xmlProvider;
+        return new JacksonXMLProvider(new SyncopeXmlMapper());
     }
 
     @ConditionalOnMissingBean
     @Bean
     public JacksonYAMLProvider yamlProvider() {
-        JacksonYAMLProvider yamlProvider = new JacksonYAMLProvider();
-        yamlProvider.setMapper(new SyncopeYAMLMapper());
-        return yamlProvider;
+        return new JacksonYAMLProvider(new SyncopeYAMLMapper());
     }
 
     @ConditionalOnMissingBean
@@ -342,7 +344,7 @@ public class IdRepoRESTCXFContext {
     @ConditionalOnMissingBean
     @Bean
     public AnyObjectService anyObjectService(final AnyObjectDAO anyObjectDAO, final AnyObjectLogic anyObjectLogic,
-                                             final SearchCondVisitor searchCondVisitor) {
+            final SearchCondVisitor searchCondVisitor) {
         return new AnyObjectServiceImpl(searchCondVisitor, anyObjectDAO, anyObjectLogic);
     }
 
@@ -385,7 +387,7 @@ public class IdRepoRESTCXFContext {
     @ConditionalOnMissingBean
     @Bean
     public GroupService groupService(final GroupDAO groupDAO, final GroupLogic groupLogic,
-                                     final SearchCondVisitor searchCondVisitor) {
+            final SearchCondVisitor searchCondVisitor) {
         return new GroupServiceImpl(searchCondVisitor, groupDAO, groupLogic);
     }
 
@@ -481,8 +483,11 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public UserService userService(final UserDAO userDAO, final UserLogic userLogic,
-                                   final SearchCondVisitor searchCondVisitor) {
+    public UserService userService(
+            final UserDAO userDAO,
+            final UserLogic userLogic,
+            final SearchCondVisitor searchCondVisitor) {
+
         return new UserServiceImpl(searchCondVisitor, userDAO, userLogic);
     }
 }

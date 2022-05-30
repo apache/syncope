@@ -42,6 +42,7 @@ import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.core.workflow.java.AbstractUserWorkflowAdapter;
 import org.flowable.bpmn.model.FlowElement;
@@ -51,7 +52,9 @@ import org.flowable.bpmn.model.Process;
 import org.flowable.common.engine.api.FlowableException;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.ApplicationEventPublisher;
 
 public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter implements WorkflowTaskManager {
 
@@ -59,16 +62,20 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
 
     protected final UserRequestHandler userRequestHandler;
 
+    protected final ApplicationEventPublisher publisher;
+
     public FlowableUserWorkflowAdapter(
             final UserDataBinder dataBinder,
             final UserDAO userDAO,
             final EntityFactory entityFactory,
             final DomainProcessEngine engine,
-            final UserRequestHandler userRequestHandler) {
+            final UserRequestHandler userRequestHandler,
+            final ApplicationEventPublisher publisher) {
 
         super(dataBinder, userDAO, entityFactory);
         this.engine = engine;
         this.userRequestHandler = userRequestHandler;
+        this.publisher = publisher;
     }
 
     @Override
@@ -143,6 +150,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         metadata(user, creator, context);
         FlowableRuntimeUtils.updateStatus(engine, procInst.getProcessInstanceId(), user);
         User created = userDAO.save(user);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.CREATE, created, AuthContextUtils.getDomain()));
 
         engine.getRuntimeService().updateBusinessKey(
                 procInst.getProcessInstanceId(), FlowableRuntimeUtils.getWFProcBusinessKey(created.getKey()));
@@ -235,6 +245,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         User updated = userDAO.save(user);
 
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
+
         variables.keySet().forEach(key -> engine.getRuntimeService().removeVariable(procInstID, key));
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.WF_EXECUTOR);
@@ -270,6 +283,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         metadata(user, updater, context);
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         User updated = userDAO.save(user);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.WF_EXECUTOR);
@@ -327,6 +343,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         User updated = userDAO.save(user);
 
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
+
         @SuppressWarnings("unchecked")
         PropagationByResource<String> propByRes = engine.getRuntimeService().getVariable(
                 procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
@@ -356,6 +375,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         metadata(user, updater, context);
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         User updated = userDAO.save(user);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
         @SuppressWarnings("unchecked")
         PropagationByResource<String> propByRes = engine.getRuntimeService().getVariable(
@@ -388,7 +410,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         doExecuteNextTask(procInstID, user, variables);
 
         metadata(user, updater, context);
-        userDAO.save(user);
+        User updated = userDAO.save(user);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
         variables.keySet().forEach(key -> engine.getRuntimeService().removeVariable(procInstID, key));
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
@@ -411,7 +436,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         Set<String> tasks = doExecuteNextTask(procInstID, user, variables);
 
         metadata(user, updater, context);
-        userDAO.save(user);
+        User updated = userDAO.save(user);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
         variables.keySet().forEach(key -> engine.getRuntimeService().removeVariable(procInstID, key));
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
@@ -436,7 +464,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     }
 
     @Override
-    protected void doDelete(final User user) {
+    protected void doDelete(final User user, final String eraser, final String context) {
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
         doExecuteNextTask(procInstID, user, Map.of(FlowableRuntimeUtils.TASK, "delete"));
@@ -454,6 +482,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
 
             userDAO.delete(user.getKey());
 
+            publisher.publishEvent(
+                    new AnyLifecycleEvent<>(this, SyncDeltaType.DELETE, user, AuthContextUtils.getDomain()));
+
             if (!engine.getHistoryService().createHistoricProcessInstanceQuery().
                     processInstanceId(procInstID).list().isEmpty()) {
 
@@ -470,7 +501,11 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                     propByLinkedAccount);
 
             FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
-            userDAO.save(user);
+            metadata(user, eraser, context);
+            User updated = userDAO.save(user);
+
+            publisher.publishEvent(
+                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
             engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.TASK);
             engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
@@ -492,6 +527,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
         user = userDAO.save(user);
 
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
+
         engine.getRuntimeService().setVariable(
                 procInstID, FlowableRuntimeUtils.USER_TO, dataBinder.getUserTO(user, true));
 
@@ -499,6 +537,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 processInstanceId(procInstID).active().list().isEmpty()) {
 
             userDAO.delete(user.getKey());
+
+            publisher.publishEvent(
+                    new AnyLifecycleEvent<>(this, SyncDeltaType.DELETE, user, AuthContextUtils.getDomain()));
 
             if (!engine.getHistoryService().createHistoricProcessInstanceQuery().
                     processInstanceId(procInstID).list().isEmpty()) {

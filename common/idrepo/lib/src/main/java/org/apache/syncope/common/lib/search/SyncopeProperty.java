@@ -28,7 +28,8 @@ import org.apache.cxf.jaxrs.ext.search.client.Property;
  */
 public interface SyncopeProperty<C extends SyncopeCompleteCondition<?, ?>> extends Property {
 
-    /** Is textual property equal to (ignoring case) given literal or matching given pattern?
+    /**
+     * Is textual property equal to (ignoring case) given literal or matching given pattern?
      *
      * @param value first value
      * @param moreValues more values
@@ -36,26 +37,48 @@ public interface SyncopeProperty<C extends SyncopeCompleteCondition<?, ?>> exten
      */
     C equalToIgnoreCase(String value, String... moreValues);
 
-    /** Is textual property different (ignoring case) than given literal or not matching given pattern?
+    /**
+     * Is textual property different (ignoring case) than given literal or not matching given pattern?
      *
      * @param literalOrPattern The literal or Pattern String
      * @return updated condition
      */
     C notEqualTolIgnoreCase(String literalOrPattern);
 
-    /** Is property null?
+    /**
+     * Is property null?
      *
      * @return updated condition
      */
     C nullValue();
 
-    /** Is property not null?
+    /**
+     * Is property not null?
      *
      * @return updated condition
      */
     C notNullValue();
 
-    /** Is user, group or any object owning given resource(s)?
+    /**
+     * Has user, group or any object assigned the given auxiliary class(es)?
+     *
+     * @param auxClass first auxiliary class
+     * @param moreAuxClasses more auxiliary classes
+     * @return updated condition
+     */
+    C hasAuxClasses(String auxClass, String... moreAuxClasses);
+
+    /**
+     * Has user, group or any object not assigned the given auxiliary class(es)?
+     *
+     * @param auxClass first auxiliary class
+     * @param moreAuxClasses more auxiliary classes
+     * @return updated condition
+     */
+    C hasNotAuxClasses(String auxClass, String... moreAuxClasses);
+
+    /**
+     * Is user, group or any object owning given resource(s)?
      *
      * @param resource first resource
      * @param moreResources more resources
@@ -63,7 +86,8 @@ public interface SyncopeProperty<C extends SyncopeCompleteCondition<?, ?>> exten
      */
     C hasResources(String resource, String... moreResources);
 
-    /** Is user, group or any object not owning given resource(s)?
+    /**
+     * Is user, group or any object not owning given resource(s)?
      *
      * @param resource first resource
      * @param moreResources more resources
@@ -71,7 +95,21 @@ public interface SyncopeProperty<C extends SyncopeCompleteCondition<?, ?>> exten
      */
     C hasNotResources(String resource, String... moreResources);
 
+    /**
+     * Is user, group or any object in the given dynamic realm(s)?
+     *
+     * @param dynRealm first dynamic realm
+     * @param moreDynRealms more dynamic realms
+     * @return updated condition
+     */
     C inDynRealms(String dynRealm, String... moreDynRealms);
 
+    /**
+     * Is user, group or any object not in the given dynamic realm(s)?
+     *
+     * @param dynRealm first dynamic realm
+     * @param moreDynRealms more dynamic realms
+     * @return updated condition
+     */
     C notInDynRealms(String dynRealm, String... moreDynRealms);
 }

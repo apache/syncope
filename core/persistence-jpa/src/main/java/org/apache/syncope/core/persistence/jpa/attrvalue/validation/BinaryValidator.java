@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.attrvalue.validation;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
@@ -29,7 +29,7 @@ public class BinaryValidator extends AbstractValidator {
 
     private static final long serialVersionUID = 1344152444666540361L;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private static final Tika TIKA = new Tika();
 

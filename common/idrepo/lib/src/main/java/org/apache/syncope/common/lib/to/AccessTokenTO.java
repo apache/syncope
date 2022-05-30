@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import java.util.Date;
-import java.util.Optional;
+import java.time.OffsetDateTime;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -31,7 +30,7 @@ public class AccessTokenTO implements EntityTO {
 
     private String body;
 
-    private Date expirationTime;
+    private OffsetDateTime expirationTime;
 
     private String owner;
 
@@ -53,12 +52,12 @@ public class AccessTokenTO implements EntityTO {
         this.body = body;
     }
 
-    public Date getExpirationTime() {
-        return Optional.ofNullable(expirationTime).map(time -> new Date(time.getTime())).orElse(null);
+    public OffsetDateTime getExpirationTime() {
+        return expirationTime;
     }
 
-    public void setExpirationTime(final Date expirationTime) {
-        this.expirationTime = Optional.ofNullable(expirationTime).map(time -> new Date(time.getTime())).orElse(null);
+    public void setExpirationTime(final OffsetDateTime expirationTime) {
+        this.expirationTime = expirationTime;
     }
 
     public String getOwner() {

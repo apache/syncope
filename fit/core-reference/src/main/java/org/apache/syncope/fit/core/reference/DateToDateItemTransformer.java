@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import java.util.Calendar;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -39,11 +38,7 @@ public class DateToDateItemTransformer implements ItemTransformer {
         if (values == null || values.isEmpty() || values.get(0).getDateValue() == null) {
             return ItemTransformer.super.beforePropagation(item, entity, schemaType, values);
         } else {
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(values.get(0).getDateValue());
-            cal.add(Calendar.DAY_OF_MONTH, 1);
-            values.get(0).setDateValue(cal.getTime());
-
+            values.get(0).setDateValue(values.get(0).getDateValue().plusDays(1));
             return Pair.of(schemaType, values);
         }
     }

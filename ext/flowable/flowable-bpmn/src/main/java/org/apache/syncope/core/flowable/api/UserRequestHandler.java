@@ -25,9 +25,10 @@ import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
-import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -84,7 +85,7 @@ public interface UserRequestHandler {
      * @param event delete event
      */
     @TransactionalEventListener
-    void cancelByUser(AnyDeletedEvent event);
+    void cancelByUser(AnyLifecycleEvent<Any<?>> event);
 
     /**
      * Get the form matching the provided task id.

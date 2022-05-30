@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Cacheable;
@@ -27,8 +27,6 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
@@ -55,13 +53,11 @@ public class JPADelegation extends AbstractGeneratedKeyEntity implements Delegat
     private JPAUser delegated;
 
     @NotNull
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "startDate")
-    private Date start;
+    @Column(name = "startDate", nullable = false)
+    private OffsetDateTime start;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "endDate")
-    private Date end;
+    private OffsetDateTime end;
 
     @OneToMany
     private Set<JPARole> roles = new HashSet<>();
@@ -89,31 +85,23 @@ public class JPADelegation extends AbstractGeneratedKeyEntity implements Delegat
     }
 
     @Override
-    public Date getStart() {
-        return start == null
-                ? null
-                : new Date(start.getTime());
+    public OffsetDateTime getStart() {
+        return start;
     }
 
     @Override
-    public void setStart(final Date start) {
-        this.start = start == null
-                ? null
-                : new Date(start.getTime());
+    public void setStart(final OffsetDateTime start) {
+        this.start = start;
     }
 
     @Override
-    public Date getEnd() {
-        return end == null
-                ? null
-                : new Date(end.getTime());
+    public OffsetDateTime getEnd() {
+        return end;
     }
 
     @Override
-    public void setEnd(final Date end) {
-        this.end = end == null
-                ? null
-                : new Date(end.getTime());
+    public void setEnd(final OffsetDateTime end) {
+        this.end = end;
     }
 
     @Override

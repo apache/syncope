@@ -22,12 +22,12 @@ under the License.
   <PasswordPolicy id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" name="a password policy"
                   historyLength="1" allowNullPassword="1"/>
   <Implementation id="DefaultPasswordRuleConf1" type="PASSWORD_RULE" engine="JAVA"
-                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":8,"wordsNotPermitted":["notpermitted1","notpermitted2"]}'/>
   <PasswordPolicyRule policy_id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" implementation_id="DefaultPasswordRuleConf1"/>
   <PasswordPolicy id="986d1236-3ac5-4a19-810c-5ab21d79cba1"
                   name="sample password policy" historyLength="0" allowNullPassword="1"/> 
   <Implementation id="DefaultPasswordRuleConf2" type="PASSWORD_RULE"  engine="JAVA"
-                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"digit":1,"wordsNotPermitted":["notpermitted1","notpermitted2"]}'/>
   <PasswordPolicyRule policy_id="986d1236-3ac5-4a19-810c-5ab21d79cba1" implementation_id="DefaultPasswordRuleConf2"/>
   <AccountPolicy id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7" name="an account policy"
                  propagateSuspension="0" maxAuthenticationAttempts="0"/>
@@ -41,9 +41,11 @@ under the License.
   <AccountPolicyRule policy_id="06e2ed52-6966-44aa-a177-a0ca7434201f" implementation_id="DefaultAccountRuleConf2"/>
   <PasswordPolicy id="55e5de0b-c79c-4e66-adda-251b6fb8579a" name="sample password policy" historyLength="0" allowNullPassword="0"/> 
   <Implementation id="DefaultPasswordRuleConf3" type="PASSWORD_RULE" engine="JAVA"
-                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"special":1,"specialChars":["@","!"],"digit":1,"lowercase":1,"uppercase":1,"wordsNotPermitted":["notpermitted1","notpermitted2"]}'/>
   <PasswordPolicyRule policy_id="55e5de0b-c79c-4e66-adda-251b6fb8579a" implementation_id="DefaultPasswordRuleConf3"/>
-  
+  <PropagationPolicy id="89d322db-9878-420c-b49c-67be13df9a12" name="sample propagation policy"
+                     maxAttempts="5" backOffStrategy="FIXED" backOffParams="10000"/>
+
   <!-- Authentication policies -->
   <AuthPolicy id="659b9906-4b6e-4bc0-aca0-6809dff346d4" name="MyDefaultAuthPolicyConf"
               jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
@@ -70,17 +72,15 @@ under the License.
   <AuthModule id="DefaultDuoMfaAuthModule"
               description="Duo Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf","integrationKey":"DIOXVRZD2UMZ8XXMNFQ5","secretKey":"Q2IU2i8BFNd6VYflZT8Evl6lF7oPlj3PM15BmRU7", "applicationKey":"u1IHBaREMB7Cb5S4QMISAgHycpj8lPBkDGfWt23I", "apiHost":"theapi.duosecurity.com"}'/>
   <AuthModule id="DefaultOIDCAuthModule"
-              description="OIDC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","discoveryUri":"https://accounts.google.com/.well-known/openid-configuration", "id":"client-id", "secret": "client-secret" }'/>
+              description="OIDC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","discoveryUri":"https://localhost:9443/syncope-wa/oidc/.well-known/openid-configuration", "id":"client-id", "secret": "client-secret" }'/>
   <AuthModule id="DefaultSAML2IdPAuthModule"
-              description="SAML2 IdP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","keystorePassword":"p@$$word","privateKeyPassword":"p@$$word","identityProviderMetadataPath":"http://localhost:9080/syncope-wa/idp/metadata", "serviceProviderEntityId":"syncope:apache:org"}'/>
+              description="SAML2 IdP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","keystorePassword":"p@$$word","privateKeyPassword":"p@$$word","identityProviderMetadataPath":"https://localhost:9443/syncope-wa/idp/metadata", "serviceProviderEntityId":"syncope:apache:org"}'/>
   <AuthModule id="DefaultJaasAuthModule"
               description="Jaas auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JaasAuthModuleConf","realm":"SYNCOPE","kerberosRealmSystemProperty":"sample-value", "loginConfigType": "JavaLoginConfig", "loginConfigurationFile": "file:/etc/jaas/login.conf"}'/>
   <AuthModule id="DefaultStaticAuthModule"
               description="Static auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.StaticAuthModuleConf","users":{"syncope1": "$cynop3"}}'/>
   <AuthModule id="DefaultSyncopeAuthModule"
               description="Syncope auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf","domain":"Master"}'/>
-  <AuthModule id="DefaultRadiusAuthModule"
-              description="Radius auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.RadiusAuthModuleConf","protocol":"PAP","inetAddress":"localhost", "sharedSecret":"testing123"}'/>
   <AuthModule id="DefaultU2FAuthModule"
               description="U2F auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.U2FAuthModuleConf","expireDevices":40}'/>
 
@@ -791,7 +791,8 @@ under the License.
 
   <ExternalResource id="resource-db-scripted" connector_id="a6d017fd-a705-4507-bb7c-6ab6a6745997"
                     randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" provisioningTraceLevel="ALL" updateTraceLevel="ALL"
-                    enforceMandatoryCondition="0" overrideCapabilities="0"/>
+                    enforceMandatoryCondition="0" overrideCapabilities="0"
+                    propagationPolicy_id="89d322db-9878-420c-b49c-67be13df9a12"/>
 
   <ExternalResource id="rest-target-resource" connector_id="44c02549-19c3-483c-8025-4919c3283c37"
                     createTraceLevel="ALL" updateTraceLevel="ALL"  deleteTraceLevel="ALL" provisioningTraceLevel="ALL" 
@@ -1118,7 +1119,7 @@ under the License.
   <Task DTYPE="PropagationTask" id="1e697572-b896-484c-ae7f-0c8f63fcbc6c" operation="UPDATE"
         objectClassName="__ACCOUNT__" resource_id="ws-target-resource-2" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
-  <TaskExec id="e58ca1c7-178a-4012-8a71-8aa14eaf0655" task_id="1e697572-b896-484c-ae7f-0c8f63fcbc6c" startDate="2015-12-17 09:40:00.506" endDate="2015-12-17 09:42:00.506" status="SUCCESS"/>
+  <TaskExec id="e58ca1c7-178a-4012-8a71-8aa14eaf0655" task_id="1e697572-b896-484c-ae7f-0c8f63fcbc6c" startDate="2015-12-17 09:40:00" endDate="2015-12-17 09:42:00" status="SUCCESS"/>
   <Task DTYPE="PropagationTask" id="b8870cfb-3c1e-4fc4-abcb-2559826232e6" operation="CREATE"
         objectClassName="__ACCOUNT__" resource_id="ws-target-resource-2" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
@@ -1129,7 +1130,7 @@ under the License.
   <Task DTYPE="PropagationTask" id="025c956d-ea88-4bd7-9e44-2f35e0aa7055" operation="UPDATE"
         objectClassName="__ACCOUNT__" resource_id="ws-target-resource-1" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
-  <TaskExec id="c3290f8b-caf9-4a85-84fb-fb619b65cd49" task_id="025c956d-ea88-4bd7-9e44-2f35e0aa7055" startDate="2015-12-17 09:40:00.506" endDate="2015-12-17 09:42:00.506" status="SUCCESS"/>
+  <TaskExec id="c3290f8b-caf9-4a85-84fb-fb619b65cd49" task_id="025c956d-ea88-4bd7-9e44-2f35e0aa7055" startDate="2015-12-17 09:40:00" endDate="2015-12-17 09:42:00" status="SUCCESS"/>
   <Task DTYPE="PullTask" remediation="0" id="c41b9b71-9bfa-4f90-89f2-84787def4c5c" name="CSV (update matching; assign unmatching)" resource_id="resource-csv"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         pullMode="INCREMENTAL" unmatchingRule="ASSIGN" matchingRule="UPDATE" active="1"
@@ -1151,7 +1152,7 @@ under the License.
   <Task DTYPE="PropagationTask" id="d6c2d6d3-6329-44c1-9187-f1469ead1cfa" operation="UPDATE"
         objectClassName="__ACCOUNT__" resource_id="ws-target-resource-nopropagation" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
-  <TaskExec id="d789462f-e395-424f-bd8e-0db44a93222f" task_id="d6c2d6d3-6329-44c1-9187-f1469ead1cfa" startDate="2015-12-17 09:40:00.506" endDate="2015-12-17 09:42:00.506" status="SUCCESS"/>
+  <TaskExec id="d789462f-e395-424f-bd8e-0db44a93222f" task_id="d6c2d6d3-6329-44c1-9187-f1469ead1cfa" startDate="2015-12-17 09:40:00" endDate="2015-12-17 09:42:00" status="SUCCESS"/>
   <Task DTYPE="PullTask" remediation="0" id="83f7e85d-9774-43fe-adba-ccd856312994" name="TestDB Task" resource_id="resource-testdb"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" pullMode="FULL_RECONCILIATION"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
@@ -1369,7 +1370,7 @@ $$ }&#10;
   <Notification id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" active="1" recipientAttrName="email" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset request" template_id="requestPasswordReset" 
                 traceLevel="FAILURES"/> 
-  <AnyAbout id="a328f2e6-25e9-4cc1-badf-7425d7be4b39" anyType_id="USER" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" filter="token!=$null"/>
+  <AnyAbout id="a328f2e6-25e9-4cc1-badf-7425d7be4b39" anyType_id="USER" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" anyType_filter="token!=$null"/>
   <Notification_events notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   <Task DTYPE="NotificationTask" id="e1e520f0-2cbd-4e11-9a89-ea58a0f957e7" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4"
         sender="admin@prova.org" subject="Notification for SYNCOPE-81" executed="0"
@@ -1385,7 +1386,7 @@ $$ }&#10;
                 traceLevel="FAILURES"
                 recipientsFIQL="$groups==7"
                 recipientAttrName="email" active="1"/>
-  <AnyAbout id="2e2ee845-2abf-43c6-b543-49243a84e2f1" anyType_id="USER" notification_id="9e2b911c-25de-4c77-bcea-b86ed9451050" filter="fullname==*o*;fullname==*i*"/>
+  <AnyAbout id="2e2ee845-2abf-43c6-b543-49243a84e2f1" anyType_id="USER" notification_id="9e2b911c-25de-4c77-bcea-b86ed9451050" anyType_filter="fullname==*o*;fullname==*i*"/>
   <Notification_events notification_id="9e2b911c-25de-4c77-bcea-b86ed9451050" event="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
   <Notification_events notification_id="9e2b911c-25de-4c77-bcea-b86ed9451050" event="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
 

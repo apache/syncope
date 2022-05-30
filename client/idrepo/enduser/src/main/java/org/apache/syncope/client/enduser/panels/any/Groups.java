@@ -124,39 +124,39 @@ public class Groups extends Panel {
 
                         @Override
                         public MembershipTO getObject(
-                            final String id, final IModel<? extends List<? extends MembershipTO>> choices) {
+                                final String id, final IModel<? extends List<? extends MembershipTO>> choices) {
 
                             return choices.getObject().stream().
-                                filter(object -> id.equalsIgnoreCase(object.getGroupName())).findAny().orElse(null);
+                                    filter(object -> id.equalsIgnoreCase(object.getGroupName())).findAny().orElse(null);
                         }
                     }).event(getEventFunction());
 
             groupsContainer.add(builder.setAllowOrder(true).withFilter().build("groups",
-                new ListModel<>() {
+                    new ListModel<>() {
 
-                    private static final long serialVersionUID = -2583290457773357445L;
+                private static final long serialVersionUID = -2583290457773357445L;
 
-                    @Override
-                    public List<MembershipTO> getObject() {
-                        return Groups.this.groupsModel.getMemberships();
-                    }
+                @Override
+                public List<MembershipTO> getObject() {
+                    return Groups.this.groupsModel.getMemberships();
+                }
 
-                }, new AjaxPalettePanel.Builder.Query<>() {
+            }, new AjaxPalettePanel.Builder.Query<>() {
 
-                    private static final long serialVersionUID = -7223078772249308813L;
+                private static final long serialVersionUID = -7223078772249308813L;
 
-                    @Override
-                    public List<MembershipTO> execute(final String filter) {
-                        return (StringUtils.isEmpty(filter) || "*".equals(filter)
+                @Override
+                public List<MembershipTO> execute(final String filter) {
+                    return (StringUtils.isEmpty(filter) || "*".equals(filter)
                             ? groupsModel.getObject()
                             : GroupRestClient.searchAssignableGroups(
-                            anyTO.getRealm(),
-                            filter,
-                            1, MAX_GROUP_LIST_CARDINALITY)).stream()
+                                    anyTO.getRealm(),
+                                    filter,
+                                    1, MAX_GROUP_LIST_CARDINALITY)).stream()
                             .map(input -> new MembershipTO.Builder(input.getKey())
-                                .groupName(input.getName()).build()).collect(Collectors.toList());
-                    }
-                }).hideLabel().setOutputMarkupId(true));
+                            .groupName(input.getName()).build()).collect(Collectors.toList());
+                }
+            }).hideLabel().setOutputMarkupId(true));
             // ---------------------------------
         }
     }
@@ -170,12 +170,6 @@ public class Groups extends Panel {
     protected class EnduserGroupsModel extends AbstractGroupsModel {
 
         private static final long serialVersionUID = -4541954630939063927L;
-
-        private List<GroupTO> groups;
-
-        private List<MembershipTO> memberships;
-
-        private String realm;
 
         @Override
         public List<GroupTO> getObject() {

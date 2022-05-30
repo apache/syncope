@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -54,6 +55,8 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.AccessToken;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.LogicActions;
@@ -63,6 +66,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.Encryptor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -124,15 +128,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         return Triple.of(
                 POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
-                POJOHelper.serialize(delegationDAO.findValidDelegating(authenticatedUser.getKey())),
-                binder.returnUserTO(authenticatedUser));
+                POJOHelper.serialize(delegationDAO.findValidDelegating(authenticatedUser.getKey())), authenticatedUser);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_READ + "')")
     @Transactional(readOnly = true)
     @Override
     public UserTO read(final String key) {
-        return binder.returnUserTO(binder.getUserTO(key));
+        return binder.getUserTO(key);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_SEARCH + "')")
@@ -142,18 +145,23 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final SearchCond searchCond,
             final int page, final int size, final List<OrderByClause> orderBy,
             final String realm,
+            final boolean recursive,
             final boolean details) {
+
+        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+                orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_SEARCH), realm);
 
         SearchCond effectiveCond = searchCond == null ? userDAO.getAllMatchingCond() : searchCond;
 
-        int count = searchDAO.count(authRealms, effectiveCond, AnyTypeKind.USER);
+        int count = searchDAO.count(base, recursive, authRealms, effectiveCond, AnyTypeKind.USER);
 
-        List<User> matching = searchDAO.search(authRealms, effectiveCond, page, size, orderBy, AnyTypeKind.USER);
+        List<User> matching = searchDAO.search(
+                base, recursive, authRealms, effectiveCond, page, size, orderBy, AnyTypeKind.USER);
         List<UserTO> result = matching.stream().
-                map(user -> binder.returnUserTO(binder.getUserTO(user, details))).
+                map(user -> binder.getUserTO(user, details)).
                 collect(Collectors.toList());
 
         return Pair.of(count, result);
@@ -196,8 +204,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         Pair<String, List<PropagationStatus>> created = provisioningManager.create(
                 before.getLeft(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
-        return afterCreate(
-                binder.returnUserTO(binder.getUserTO(created.getKey())), created.getRight(), before.getRight());
+        return afterCreate(binder.getUserTO(created.getKey()), created.getRight(), before.getRight());
     }
 
     @PreAuthorize("isAuthenticated() "
@@ -213,10 +220,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         List<String> authStatuses = List.of(confParamOps.get(AuthContextUtils.getDomain(),
                 "authentication.statuses", new String[] {}, String[].class));
         if (!authStatuses.contains(updated.getEntity().getStatus())) {
-            String accessToken = accessTokenDAO.findByOwner(updated.getEntity().getUsername()).getKey();
-            if (accessToken != null) {
-                accessTokenDAO.delete(accessToken);
-            }
+            Optional.ofNullable(accessTokenDAO.findByOwner(updated.getEntity().getUsername())).
+                    map(AccessToken::getKey).ifPresent(accessTokenDAO::delete);
         }
 
         return updated;
@@ -261,7 +266,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 before.getLeft(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<UserTO> result = afterUpdate(
-                binder.returnUserTO(binder.getUserTO(after.getLeft().getKey())),
+                binder.getUserTO(after.getLeft().getKey()),
                 after.getRight(),
                 before.getRight());
 
@@ -315,7 +320,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusR, nullPriorityAsync);
 
         return afterUpdate(
-                binder.returnUserTO(binder.getUserTO(updated.getKey())),
+                binder.getUserTO(updated.getKey()),
                 updated.getRight(),
                 List.of());
     }
@@ -326,17 +331,29 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusR, nullPriorityAsync);
 
         return afterUpdate(
-                binder.returnUserTO(binder.getUserTO(updated.getKey())),
+                binder.getUserTO(updated.getKey()),
                 updated.getRight(),
                 List.of());
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "')")
     public ProvisioningResult<UserTO> mustChangePassword(final String password, final boolean nullPriorityAsync) {
-        UserUR userUR = new UserUR();
-        userUR.setPassword(new PasswordPatch.Builder().value(password).build());
-        userUR.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(false).build());
-        return selfUpdate(userUR, nullPriorityAsync);
+        UserTO userTO = binder.getAuthenticatedUserTO();
+
+        UserUR userUR = new UserUR.Builder(userTO.getKey()).
+                password(new PasswordPatch.Builder().
+                        value(password).
+                        onSyncope(true).
+                        resources(userDAO.findAllResourceKeys(userTO.getKey())).
+                        build()).
+                mustChangePassword(new BooleanReplacePatchItem.Builder().value(false).build()).
+                build();
+        ProvisioningResult<UserTO> result = selfUpdate(userUR, nullPriorityAsync);
+
+        Optional.ofNullable(accessTokenDAO.findByOwner(result.getEntity().getUsername())).
+                map(AccessToken::getKey).ifPresent(accessTokenDAO::delete);
+
+        return result;
     }
 
     @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -352,7 +369,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         }
 
         if (syncopeLogic.isPwdResetRequiringSecurityQuestions()
-                && (securityAnswer == null || !securityAnswer.equals(user.getSecurityAnswer()))) {
+                && (securityAnswer == null || !Encryptor.getInstance().
+                        verify(securityAnswer, user.getCipherAlgorithm(), user.getSecurityAnswer()))) {
 
             throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
         }
@@ -419,7 +437,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             deletedTO = binder.getUserTO(before.getLeft().getKey());
         }
 
-        return afterDelete(binder.returnUserTO(deletedTO), statuses, before.getRight());
+        return afterDelete(deletedTO, statuses, before.getRight());
     }
 
     protected void updateChecks(final String key) {
@@ -442,14 +460,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     public UserTO unlink(final String key, final Collection<String> resources) {
         updateChecks(key);
 
-        UserUR req = new UserUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                collect(Collectors.toList()));
+        UserUR req = new UserUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
+                        collect(Collectors.toList())).
+                build();
 
-        return binder.returnUserTO(binder.getUserTO(
-                provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT)));
+        return binder.getUserTO(provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
@@ -457,14 +474,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     public UserTO link(final String key, final Collection<String> resources) {
         updateChecks(key);
 
-        UserUR req = new UserUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                collect(Collectors.toList()));
+        UserUR req = new UserUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
+                        collect(Collectors.toList())).
+                build();
 
-        return binder.returnUserTO(binder.getUserTO(
-                provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT)));
+        return binder.getUserTO(provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
@@ -474,11 +490,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         updateChecks(key);
 
-        UserUR req = new UserUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                collect(Collectors.toList()));
+        UserUR req = new UserUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
+                        collect(Collectors.toList())).
+                build();
 
         return update(req, nullPriorityAsync);
     }
@@ -494,11 +510,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         updateChecks(key);
 
-        UserUR req = new UserUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                collect(Collectors.toList()));
+        UserUR req = new UserUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
+                        collect(Collectors.toList())).
+                build();
 
         if (changepwd) {
             req.setPassword(new PasswordPatch.Builder().
@@ -519,7 +535,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 key, resources, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<UserTO> result = new ProvisioningResult<>();
-        result.setEntity(binder.returnUserTO(binder.getUserTO(key)));
+        result.setEntity(binder.getUserTO(key));
         result.getPropagationStatuses().addAll(statuses);
         return result;
     }
@@ -539,7 +555,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 key, changePwd, password, resources, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<UserTO> result = new ProvisioningResult<>();
-        result.setEntity(binder.returnUserTO(binder.getUserTO(key)));
+        result.setEntity(binder.getUserTO(key));
         result.getPropagationStatuses().addAll(statuses);
         return result;
     }

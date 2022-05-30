@@ -22,7 +22,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -197,11 +197,11 @@ public abstract class AbstractITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
 
-    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    protected static final JsonMapper JSON_MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    protected static final XmlMapper XML_MAPPER = new XmlMapper();
+    protected static final XmlMapper XML_MAPPER = XmlMapper.builder().findAndAddModules().build();
 
-    protected static final YAMLMapper YAML_MAPPER = new YAMLMapper();
+    protected static final YAMLMapper YAML_MAPPER = YAMLMapper.builder().findAndAddModules().build();
 
     protected static final String ADMIN_UNAME = "admin";
 
@@ -779,7 +779,7 @@ public abstract class AbstractITCase {
             attributes.forEach((key, value) -> items.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
                     new BasicAttribute(key, value))));
 
-            ctx.modifyAttributes(objectDn, items.toArray(new ModificationItem[] {}));
+            ctx.modifyAttributes(objectDn, items.toArray(ModificationItem[]::new));
         } catch (Exception e) {
             LOG.error("While updating {} with {}", objectDn, attributes, e);
         } finally {
@@ -918,10 +918,10 @@ public abstract class AbstractITCase {
     protected AttrReleasePolicyTO buildAttrReleasePolicyTO() {
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
         policy.setName("Test Attribute Release policy");
+        policy.setStatus(Boolean.TRUE);
 
         DefaultAttrReleasePolicyConf conf = new DefaultAttrReleasePolicyConf();
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
-        conf.setStatus(Boolean.TRUE);
         conf.getIncludeOnlyAttrs().add("cn");
 
         policy.setConf(conf);

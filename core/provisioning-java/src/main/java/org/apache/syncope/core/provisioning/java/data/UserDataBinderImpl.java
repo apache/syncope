@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -73,7 +73,6 @@ import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
@@ -169,16 +168,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     @Transactional(readOnly = true)
     @Override
-    public UserTO returnUserTO(final UserTO userTO) {
-        if (!confParamOps.get(AuthContextUtils.getDomain(), "return.password.value", false, Boolean.class)) {
-            userTO.setPassword(null);
-            userTO.getLinkedAccounts().forEach(account -> account.setPassword(null));
-        }
-        return userTO;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
     public UserTO getAuthenticatedUserTO() {
         UserTO authUserTO;
 
@@ -201,16 +190,40 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     private void setPassword(final User user, final String password, final SyncopeClientCompositeException scce) {
         try {
-            String algorithm = confParamOps.get(AuthContextUtils.getDomain(),
-                    "password.cipher.algorithm", CipherAlgorithm.AES.name(), String.class);
-            user.setPassword(password, CipherAlgorithm.valueOf(algorithm));
+            setCipherAlgorithm(user);
+            user.setPassword(password);
         } catch (IllegalArgumentException e) {
-            SyncopeClientException invalidCiperAlgorithm = SyncopeClientException.build(ClientExceptionType.NotFound);
-            invalidCiperAlgorithm.getElements().add(e.getMessage());
-            scce.addException(invalidCiperAlgorithm);
-
-            throw scce;
+            throw aggregateException(scce, e, ClientExceptionType.NotFound);
         }
+    }
+
+    private void setSecurityAnswer(
+            final User user,
+            final String securityAnswer,
+            final SyncopeClientCompositeException scce) {
+        try {
+            setCipherAlgorithm(user);
+            user.setSecurityAnswer(securityAnswer);
+        } catch (IllegalArgumentException e) {
+            throw aggregateException(scce, e, ClientExceptionType.NotFound);
+        }
+    }
+
+    private void setCipherAlgorithm(final User user) {
+        if (user.getCipherAlgorithm() == null) {
+            user.setCipherAlgorithm(CipherAlgorithm.valueOf(confParamOps.get(AuthContextUtils.getDomain(),
+                    "password.cipher.algorithm", CipherAlgorithm.AES.name(), String.class)));
+        }
+    }
+
+    private RuntimeException aggregateException(
+            final SyncopeClientCompositeException scce,
+            final RuntimeException e,
+            final ClientExceptionType clientExceptionType) {
+        SyncopeClientException sce = SyncopeClientException.build(clientExceptionType);
+        sce.getElements().add(e.getMessage());
+        scce.addException(sce);
+        return scce;
     }
 
     private void linkedAccount(
@@ -246,7 +259,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             if (StringUtils.isBlank(accountTO.getPassword())) {
                 account.setEncodedPassword(null, null);
             } else if (!accountTO.getPassword().equals(account.getPassword())) {
-                account.setPassword(accountTO.getPassword(), CipherAlgorithm.AES);
+                if (account.getCipherAlgorithm() == null) {
+                    account.setCipherAlgorithm(CipherAlgorithm.AES);
+                }
+                account.setPassword(accountTO.getPassword());
             }
             account.setSuspended(accountTO.isSuspended());
 
@@ -295,7 +311,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             LOG.debug("Password was not provided or not required to be stored");
         } else {
             setPassword(user, userCR.getPassword(), scce);
-            user.setChangePwdDate(new Date());
+            user.setChangePwdDate(OffsetDateTime.now());
         }
 
         user.setMustChangePassword(userCR.isMustChangePassword());
@@ -307,7 +323,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 user.setSecurityQuestion(securityQuestion);
             }
         }
-        user.setSecurityAnswer(userCR.getSecurityAnswer());
+        setSecurityAnswer(user, userCR.getSecurityAnswer(), scce);
 
         // roles
         userCR.getRoles().forEach(roleKey -> {
@@ -453,7 +469,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             } else if (StringUtils.isNotBlank(userUR.getPassword().getValue())) {
                 if (userUR.getPassword().isOnSyncope()) {
                     setPassword(user, userUR.getPassword().getValue(), scce);
-                    user.setChangePwdDate(new Date());
+                    user.setChangePwdDate(OffsetDateTime.now());
                 }
 
                 password = userUR.getPassword().getValue();
@@ -498,7 +514,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         securityQuestionDAO.find(userUR.getSecurityQuestion().getValue());
                 if (securityQuestion != null) {
                     user.setSecurityQuestion(securityQuestion);
-                    user.setSecurityAnswer(userUR.getSecurityAnswer().getValue());
+                    setSecurityAnswer(user, userUR.getSecurityAnswer().getValue(), scce);
                 }
             }
         }
@@ -652,7 +668,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
                     // SYNCOPE-686: if password is invertible and we are adding resources with password mapping,
                     // ensure that they are counted for password propagation
-                    if (toBeUpdated.canDecodePassword()) {
+                    if (toBeUpdated.canDecodeSecrets()) {
                         if (userUR.getPassword() == null) {
                             userUR.setPassword(new PasswordPatch());
                         }
@@ -736,33 +752,44 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         return Pair.of(propByRes, propByLinkedAccount);
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public LinkedAccountTO getLinkedAccountTO(final LinkedAccount account) {
+    private LinkedAccountTO getLinkedAccountTO(final LinkedAccount account, final boolean returnPasswordValue) {
         LinkedAccountTO accountTO = new LinkedAccountTO.Builder(
                 account.getKey(), account.getResource().getKey(), account.getConnObjectKeyValue()).
                 username(account.getUsername()).
-                password(account.getPassword()).
+                password(returnPasswordValue ? account.getPassword() : null).
                 suspended(BooleanUtils.isTrue(account.isSuspended())).
                 build();
 
-        account.getPlainAttrs().forEach(plainAttr -> {
-            accountTO.getPlainAttrs().add(
-                    new Attr.Builder(plainAttr.getSchema().getKey()).
-                            values(plainAttr.getValuesAsStrings()).build());
-        });
+        account.getPlainAttrs().forEach(plainAttr -> accountTO.getPlainAttrs().add(
+                new Attr.Builder(plainAttr.getSchema().getKey()).values(plainAttr.getValuesAsStrings()).build()));
 
         accountTO.getPrivileges().addAll(account.getPrivileges().stream().
-                map(Entity::getKey).collect(Collectors.toList()));
+                map(Privilege::getKey).collect(Collectors.toList()));
 
         return accountTO;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public UserTO getUserTO(final User user, final boolean details) {
-        UserTO userTO = new UserTO();
+    public LinkedAccountTO getLinkedAccountTO(final LinkedAccount account) {
+        return getLinkedAccountTO(account, true);
+    }
 
+    @Transactional(readOnly = true)
+    @Override
+    public UserTO getUserTO(final User user, final boolean details) {
+        Boolean returnPasswordValue = confParamOps.get(AuthContextUtils.getDomain(),
+                "return.password.value", Boolean.FALSE, Boolean.class);
+
+        UserTO userTO = new UserTO();
+        userTO.setKey(user.getKey());
+        userTO.setUsername(user.getUsername());
+        if (returnPasswordValue) {
+            userTO.setPassword(user.getPassword());
+            userTO.setSecurityAnswer(user.getSecurityAnswer());
+        }
+        userTO.setType(user.getType().getKey());
+        userTO.setCreationDate(user.getCreationDate());
         userTO.setCreator(user.getCreator());
         userTO.setCreationDate(user.getCreationDate());
         userTO.setCreationContext(user.getCreationContext());
@@ -778,7 +805,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         userTO.setKey(user.getKey());
         userTO.setUsername(user.getUsername());
-        userTO.setPassword(user.getPassword());
         userTO.setType(user.getType().getKey());
         userTO.setStatus(user.getStatus());
         userTO.setSuspended(BooleanUtils.isTrue(user.isSuspended()));
@@ -800,15 +826,15 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         if (details) {
             // roles
-            userTO.getRoles().addAll(user.getRoles().stream().map(Entity::getKey).collect(Collectors.toList()));
+            userTO.getRoles().addAll(user.getRoles().stream().map(Role::getKey).collect(Collectors.toList()));
 
             // dynamic roles
             userTO.getDynRoles().addAll(
-                    userDAO.findDynRoles(user.getKey()).stream().map(Entity::getKey).collect(Collectors.toList()));
+                    userDAO.findDynRoles(user.getKey()).stream().map(Role::getKey).collect(Collectors.toList()));
 
             // privileges
             userTO.getPrivileges().addAll(userDAO.findAllRoles(user).stream().
-                    flatMap(role -> role.getPrivileges().stream()).map(Entity::getKey).collect(Collectors.toSet()));
+                    flatMap(role -> role.getPrivileges().stream()).map(Privilege::getKey).collect(Collectors.toSet()));
 
             // relationships
             userTO.getRelationships().addAll(user.getRelationships().stream().
@@ -816,22 +842,21 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     collect(Collectors.toList()));
 
             // memberships
-            userTO.getMemberships().addAll(
-                    user.getMemberships().stream().map(membership -> getMembershipTO(
-                    user.getPlainAttrs(membership),
+            userTO.getMemberships().addAll(user.getMemberships().stream().
+                    map(membership -> getMembershipTO(user.getPlainAttrs(membership),
                     derAttrHandler.getValues(user, membership),
                     virAttrHandler.getValues(user, membership),
                     membership)).collect(Collectors.toList()));
 
             // dynamic memberships
-            userTO.getDynMemberships().addAll(
-                    userDAO.findDynGroups(user.getKey()).stream().
-                            map(group -> new MembershipTO.Builder(group.getKey()).groupName(group.getName()).build()).
-                            collect(Collectors.toList()));
+            userTO.getDynMemberships().addAll(userDAO.findDynGroups(user.getKey()).stream().
+                    map(group -> new MembershipTO.Builder(group.getKey()).groupName(group.getName()).build()).
+                    collect(Collectors.toList()));
 
             // linked accounts
-            userTO.getLinkedAccounts().addAll(
-                    user.getLinkedAccounts().stream().map(this::getLinkedAccountTO).collect(Collectors.toList()));
+            userTO.getLinkedAccounts().addAll(user.getLinkedAccounts().stream().
+                    map(account -> getLinkedAccountTO(account, returnPasswordValue)).
+                    collect(Collectors.toList()));
 
             // delegations
             userTO.getDelegatingDelegations().addAll(

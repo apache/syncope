@@ -28,7 +28,7 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
 
     /**
-     * Create a anyObject.
+     * Create an anyObject.
      *
      * @param anyObjectCR anyObject to be created and whether to propagate it as active
      * @param creator username that requested this operation
@@ -38,7 +38,7 @@ public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
     WorkflowResult<String> create(AnyObjectCR anyObjectCR, String creator, String context);
 
     /**
-     * Update a anyObject.
+     * Update an anyObject.
      *
      * @param anyObjectUR modification set to be performed
      * @param updater username that requested this operation
@@ -48,9 +48,11 @@ public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
     WorkflowResult<AnyObjectUR> update(AnyObjectUR anyObjectUR, String updater, String context);
 
     /**
-     * Delete a anyObject.
+     * Delete an anyObject.
      *
      * @param anyObjectKey anyObject to be deleted
+     * @param eraser username that requested this operation
+     * @param context context information
      */
-    void delete(String anyObjectKey);
+    void delete(String anyObjectKey, String eraser, String context);
 }

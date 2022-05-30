@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
@@ -50,20 +51,23 @@ import org.xml.sax.helpers.AttributesImpl;
 public class GroupReportlet extends AbstractReportlet {
 
     @Autowired
-    private GroupDAO groupDAO;
+    protected RealmDAO realmDAO;
 
     @Autowired
-    private AnySearchDAO searchDAO;
+    protected GroupDAO groupDAO;
 
     @Autowired
-    private GroupDataBinder groupDataBinder;
+    protected AnySearchDAO searchDAO;
 
     @Autowired
-    private SearchCondVisitor searchCondVisitor;
+    protected GroupDataBinder groupDataBinder;
 
-    private GroupReportletConf conf;
+    @Autowired
+    protected SearchCondVisitor searchCondVisitor;
 
-    private static void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
+    protected GroupReportletConf conf;
+
+    protected void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
             throws SAXException {
 
         if (anyTO.getResources().isEmpty()) {
@@ -84,9 +88,12 @@ public class GroupReportlet extends AbstractReportlet {
         }
     }
 
-    private static void doExtractAttributes(final ContentHandler handler, final AnyTO anyTO,
-                                            final Collection<String> attrs, final Collection<String> derAttrs,
-                                            final Collection<String> virAttrs)
+    protected void doExtractAttributes(
+            final ContentHandler handler,
+            final AnyTO anyTO,
+            final Collection<String> attrs,
+            final Collection<String> derAttrs,
+            final Collection<String> virAttrs)
             throws SAXException {
 
         AttributesImpl atts = new AttributesImpl();
@@ -169,7 +176,7 @@ public class GroupReportlet extends AbstractReportlet {
         }
     }
 
-    private void doExtract(final ContentHandler handler, final List<Group> groups) throws SAXException {
+    protected void doExtract(final ContentHandler handler, final List<Group> groups) throws SAXException {
         AttributesImpl atts = new AttributesImpl();
         for (Group group : groups) {
             atts.clear();
@@ -241,7 +248,7 @@ public class GroupReportlet extends AbstractReportlet {
         }
     }
 
-    private void doExtractConf(final ContentHandler handler) throws SAXException {
+    protected void doExtractConf(final ContentHandler handler) throws SAXException {
         if (conf == null) {
             LOG.debug("Report configuration is not present");
         }
@@ -284,11 +291,15 @@ public class GroupReportlet extends AbstractReportlet {
         handler.endElement("", "", "configurations");
     }
 
-    private int count() {
+    protected int count() {
         return StringUtils.isBlank(conf.getMatchingCond())
                 ? groupDAO.count()
-                : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(searchCondVisitor, conf.getMatchingCond()), AnyTypeKind.GROUP);
+                : searchDAO.count(
+                        realmDAO.getRoot(),
+                        true,
+                        SyncopeConstants.FULL_ADMIN_REALMS,
+                        SearchCondConverter.convert(searchCondVisitor, conf.getMatchingCond()),
+                        AnyTypeKind.GROUP);
     }
 
     @Override
@@ -319,6 +330,8 @@ public class GroupReportlet extends AbstractReportlet {
                 groups = groupDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE);
             } else {
                 groups = searchDAO.search(
+                        realmDAO.getRoot(),
+                        true,
                         SyncopeConstants.FULL_ADMIN_REALMS,
                         SearchCondConverter.convert(searchCondVisitor, this.conf.getMatchingCond()),
                         page,

@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.topology;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,7 +49,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
     private static final Logger LOG = LoggerFactory.getLogger(TopologyWebSocketBehavior.class);
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private static final String CONNECTOR_TEST_TIMEOUT_PARAMETER = "connector.test.timeout";
 
@@ -129,7 +129,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
     @Override
     protected void onMessage(final WebSocketRequestHandler handler, final TextMessage message) {
         try {
-            JsonNode obj = OBJECT_MAPPER.readTree(message.getText());
+            JsonNode obj = MAPPER.readTree(message.getText());
             switch (Topology.SupportedOperation.valueOf(obj.get("kind").asText())) {
                 case CHECK_CONNECTOR:
                     String ckey = obj.get("target").asText();

@@ -16,35 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.core.rest.cxf;
 
-import java.util.Date;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.PropertyModel;
+import org.apache.syncope.core.provisioning.java.ExecutorProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-public class DateFormatROModel implements IModel<String> {
+@ConfigurationProperties("rest")
+public class RESTProperties {
 
-    private static final long serialVersionUID = 6677274580927636121L;
+    private final ExecutorProperties batchExecutor = new ExecutorProperties();
 
-    private final PropertyModel model;
-
-    public DateFormatROModel(final PropertyModel model) {
-        this.model = model;
-    }
-
-    @Override
-    public String getObject() {
-        return model.getObject() == null
-                ? ""
-                : SyncopeConsoleSession.get().getDateFormat().format((Date) model.getObject());
-    }
-
-    @Override
-    public void setObject(final String object) {
-    }
-
-    @Override
-    public void detach() {
+    public ExecutorProperties getBatchExecutor() {
+        return batchExecutor;
     }
 }

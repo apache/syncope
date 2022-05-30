@@ -48,7 +48,7 @@ public final class RealmsUtils {
     public static boolean isSearchEnabled(final List<String> realms) {
         return realms.isEmpty()
                 ? false
-                : new RealmRestClient().search(
+                : RealmRestClient.search(
                         new RealmQuery.Builder().keyword(
                                 realms.contains(SyncopeConstants.ROOT_REALM)
                                 ? SyncopeConstants.ROOT_REALM

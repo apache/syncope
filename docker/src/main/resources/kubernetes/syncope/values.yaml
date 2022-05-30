@@ -16,7 +16,7 @@
 # under the License.
 ### Environment Variables that will be set on all 3 syncope docker containers (core, console, enduser)
 syncopeEnvironment:
-  dbUrl: jdbc:postgresql://postgres:5432/syncope
+  dbUrl: jdbc:postgresql://postgres:5432/syncope?stringtype=unspecified
   dbUser: syncope
   dbPoolMax: 10
   dbPoolMin: 2

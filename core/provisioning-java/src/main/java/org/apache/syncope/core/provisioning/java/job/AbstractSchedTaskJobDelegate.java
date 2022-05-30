@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -32,7 +32,6 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -119,7 +118,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
                 orElse(securityProperties.getAdminUser());
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
-        execution.setStart(new Date());
+        execution.setStart(OffsetDateTime.now());
         execution.setTask(task);
         execution.setExecutor(executor);
 
@@ -138,7 +137,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
             execution.setMessage(ExceptionUtils2.getFullStackTrace(e));
             execution.setStatus(TaskJob.Status.FAILURE.name());
         }
-        execution.setEnd(new Date());
+        execution.setEnd(OffsetDateTime.now());
 
         if (hasToBeRegistered(execution)) {
             register(execution);
@@ -148,7 +147,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         status.set("Done");
 
         notificationManager.createTasks(
-                AuthContextUtils.getWho(),
+                executor,
                 AuditElements.EventCategoryType.TASK,
                 this.getClass().getSimpleName(),
                 null,
@@ -158,7 +157,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
                 execution);
 
         auditManager.audit(
-                AuthContextUtils.getWho(),
+                executor,
                 AuditElements.EventCategoryType.TASK,
                 task.getClass().getSimpleName(),
                 null,

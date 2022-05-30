@@ -179,6 +179,7 @@ under the License.
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemProperties>
+            <h2.returnOffsetDateTime>true</h2.returnOffsetDateTime>
             <CORE_PROPERTIES>classpath:core-test.properties</CORE_PROPERTIES>
           </systemProperties>
         </configuration>

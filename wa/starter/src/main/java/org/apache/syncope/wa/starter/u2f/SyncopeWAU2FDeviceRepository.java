@@ -19,11 +19,9 @@
 package org.apache.syncope.wa.starter.u2f;
 
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import java.time.Instant;
-import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -46,13 +44,13 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     private final WARestClient waRestClient;
 
-    private final LocalDate expirationDate;
+    private final OffsetDateTime expirationDate;
 
     public SyncopeWAU2FDeviceRepository(
             final CasConfigurationProperties casProperties,
             final LoadingCache<String, String> requestStorage,
             final WARestClient waRestClient,
-            final LocalDate expirationDate) {
+            final OffsetDateTime expirationDate) {
 
         super(casProperties, requestStorage, CipherExecutor.noOpOfSerializableToString());
         this.waRestClient = waRestClient;
@@ -75,11 +73,8 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     @Override
     public Collection<? extends U2FDeviceRegistration> getRegisteredDevices(final String owner) {
-        U2FDeviceQuery query = new U2FDeviceQuery.Builder()
-                .owner(owner)
-                .expirationDate(Date.from(Instant.from(expirationDate)))
-                .build();
-        return getU2FService().search(query).getResult().
+        return getU2FService().
+                search(new U2FDeviceQuery.Builder().owner(owner).expirationDate(expirationDate).build()).getResult().
                 stream().
                 map(device -> parseRegistrationRecord(owner, device)).
                 filter(Objects::nonNull).
@@ -88,10 +83,7 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     @Override
     public Collection<? extends U2FDeviceRegistration> getRegisteredDevices() {
-        U2FDeviceQuery query = new U2FDeviceQuery.Builder()
-                .expirationDate(Date.from(Instant.from(expirationDate)))
-                .build();
-        return getU2FService().search(query).getResult().
+        return getU2FService().search(new U2FDeviceQuery.Builder().expirationDate(expirationDate).build()).getResult().
                 stream().
                 map(device -> parseRegistrationRecord("", device)).
                 filter(Objects::nonNull).
@@ -101,8 +93,8 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
     @Override
     public U2FDeviceRegistration registerDevice(final U2FDeviceRegistration registration) {
         U2FDevice record = new U2FDevice.Builder().
-                issueDate(Date.from(registration.getCreatedDate().atStartOfDay()
-                        .atZone(ZoneId.systemDefault()).toInstant())).
+                issueDate(OffsetDateTime.of(
+                        registration.getCreatedDate().atStartOfDay(), OffsetDateTime.now().getOffset())).
                 record(registration.getRecord()).
                 id(registration.getId()).
                 build();
@@ -132,13 +124,7 @@ public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     @Override
     public void clean() {
-        Date date = Date.from(expirationDate.atStartOfDay()
-                .atZone(ZoneId.systemDefault())
-                .toInstant());
-        U2FDeviceQuery query = new U2FDeviceQuery.Builder()
-                .expirationDate(date)
-                .build();
-        getU2FService().delete(query);
+        getU2FService().delete(new U2FDeviceQuery.Builder().expirationDate(expirationDate).build());
     }
 
     @Override

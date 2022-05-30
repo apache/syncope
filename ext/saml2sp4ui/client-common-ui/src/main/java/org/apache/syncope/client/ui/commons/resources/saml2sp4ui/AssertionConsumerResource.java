@@ -20,7 +20,7 @@ package org.apache.syncope.client.ui.commons.resources.saml2sp4ui;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
@@ -37,8 +37,8 @@ public abstract class AssertionConsumerResource extends AbstractSAML2SP4UIResour
 
     private static final long serialVersionUID = 3858609271031003370L;
 
-    protected static final ObjectMapper MAPPER =
-            new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+    protected static final JsonMapper MAPPER =
+            JsonMapper.builder().findAndAddModules().serializationInclusion(JsonInclude.Include.NON_EMPTY).build();
 
     protected abstract Class<? extends WebPage> getLoginPageClass();
 

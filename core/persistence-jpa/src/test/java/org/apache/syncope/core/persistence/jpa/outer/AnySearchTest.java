@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -130,14 +131,16 @@ public class AnySearchTest extends AbstractTest {
         anyCond.setSchema("id");
 
         List<User> users = searchDAO.search(
-                Collections.singleton(SyncopeConstants.ROOT_REALM),
+                realmDAO.getRoot(), true,
+                Set.of(SyncopeConstants.ROOT_REALM),
                 SearchCond.getLeaf(anyCond), 1, 100, Collections.emptyList(), AnyTypeKind.USER);
         assertNotNull(users);
         assertTrue(users.stream().anyMatch(user -> rossini.getKey().equals(user.getKey())));
 
         // 3. search all users with director owner's entitlements: only rossini is returned
         users = searchDAO.search(
-                Collections.singleton(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())),
+                group.getRealm(), true,
+                Set.of(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())),
                 SearchCond.getLeaf(anyCond), 1, 100, Collections.emptyList(), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());

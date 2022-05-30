@@ -26,8 +26,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.TreeSet;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +53,7 @@ public abstract class AnyTO implements EntityTO, RealmMember {
      */
     private String creator;
 
-    private Date creationDate;
+    private OffsetDateTime creationDate;
 
     /**
      * Context information about create.
@@ -65,7 +65,7 @@ public abstract class AnyTO implements EntityTO, RealmMember {
      */
     private String lastModifier;
 
-    private Date lastChangeDate;
+    private OffsetDateTime lastChangeDate;
 
     /**
      * Context information about last change.
@@ -107,12 +107,12 @@ public abstract class AnyTO implements EntityTO, RealmMember {
         this.creator = creator;
     }
 
-    public Date getCreationDate() {
-        return Optional.ofNullable(creationDate).map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getCreationDate() {
+        return creationDate;
     }
 
-    public void setCreationDate(final Date creationDate) {
-        this.creationDate = Optional.ofNullable(creationDate).map(date -> new Date(date.getTime())).orElse(null);
+    public void setCreationDate(final OffsetDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 
     public String getCreationContext() {
@@ -131,12 +131,12 @@ public abstract class AnyTO implements EntityTO, RealmMember {
         this.lastModifier = lastModifier;
     }
 
-    public Date getLastChangeDate() {
-        return Optional.ofNullable(lastChangeDate).map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getLastChangeDate() {
+        return lastChangeDate;
     }
 
-    public void setLastChangeDate(final Date lastChangeDate) {
-        this.lastChangeDate = Optional.ofNullable(lastChangeDate).map(date -> new Date(date.getTime())).orElse(null);
+    public void setLastChangeDate(final OffsetDateTime lastChangeDate) {
+        this.lastChangeDate = lastChangeDate;
     }
 
     public String getLastChangeContext() {
@@ -149,9 +149,11 @@ public abstract class AnyTO implements EntityTO, RealmMember {
 
     @JsonIgnore
     public String getETagValue() {
-        Date etagDate = getLastChangeDate() == null
+        OffsetDateTime etagDate = getLastChangeDate() == null
                 ? getCreationDate() : getLastChangeDate();
-        return Optional.ofNullable(etagDate).map(date -> String.valueOf(date.getTime())).orElse(StringUtils.EMPTY);
+        return Optional.ofNullable(etagDate).
+                map(date -> String.valueOf(date.toInstant().toEpochMilli())).
+                orElse(StringUtils.EMPTY);
     }
 
     @Override

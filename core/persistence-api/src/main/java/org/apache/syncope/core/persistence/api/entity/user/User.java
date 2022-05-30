@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity.user;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -29,7 +29,7 @@ public interface User extends Account, GroupableRelatable<User, UMembership, UPl
 
     String getToken();
 
-    Date getTokenExpireTime();
+    OffsetDateTime getTokenExpireTime();
 
     void generateToken(int tokenLength, int tokenExpireTime);
 
@@ -43,9 +43,9 @@ public interface User extends Account, GroupableRelatable<User, UMembership, UPl
 
     void removeClearPassword();
 
-    Date getChangePwdDate();
+    OffsetDateTime getChangePwdDate();
 
-    void setChangePwdDate(Date changePwdDate);
+    void setChangePwdDate(OffsetDateTime changePwdDate);
 
     List<String> getPasswordHistory();
 
@@ -54,16 +54,20 @@ public interface User extends Account, GroupableRelatable<User, UMembership, UPl
     void setSecurityQuestion(SecurityQuestion securityQuestion);
 
     String getSecurityAnswer();
+    
+    String getClearSecurityAnswer();
 
+    void setEncodedSecurityAnswer(String securityAnswer);
+    
     void setSecurityAnswer(String securityAnswer);
 
     Integer getFailedLogins();
 
     void setFailedLogins(Integer failedLogins);
 
-    Date getLastLoginDate();
+    OffsetDateTime getLastLoginDate();
 
-    void setLastLoginDate(Date lastLoginDate);
+    void setLastLoginDate(OffsetDateTime lastLoginDate);
 
     boolean isMustChangePassword();
 

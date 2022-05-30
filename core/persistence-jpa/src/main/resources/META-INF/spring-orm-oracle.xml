@@ -98,41 +98,4 @@ under the License.
       </many-to-one>
     </attributes>
   </entity>
-  
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUniqueValue">
-    <table>
-      <unique-constraint>
-        <column-name>booleanValue</column-name>
-        <column-name>dateValue</column-name>
-        <column-name>stringValue</column-name>
-        <column-name>doubleValue</column-name>
-        <column-name>longValue</column-name>
-        <column-name>schema_id</column-name>
-      </unique-constraint>
-    </table>
-  </entity>    
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue">
-    <table>
-      <unique-constraint>
-        <column-name>booleanValue</column-name>
-        <column-name>dateValue</column-name>
-        <column-name>stringValue</column-name>
-        <column-name>doubleValue</column-name>
-        <column-name>longValue</column-name>
-        <column-name>schema_id</column-name>
-      </unique-constraint>
-    </table>
-  </entity>
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue">
-    <table>
-      <unique-constraint>
-        <column-name>booleanValue</column-name>
-        <column-name>dateValue</column-name>
-        <column-name>stringValue</column-name>
-        <column-name>doubleValue</column-name>
-        <column-name>longValue</column-name>
-        <column-name>schema_id</column-name>
-      </unique-constraint>
-    </table>
-  </entity>
 </entity-mappings>

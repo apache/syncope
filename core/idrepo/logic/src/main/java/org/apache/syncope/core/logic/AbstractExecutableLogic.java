@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.logic;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -36,7 +36,7 @@ public abstract class AbstractExecutableLogic<T extends EntityTO> extends Abstra
         super(jobManager, scheduler);
     }
 
-    public abstract ExecTO execute(String key, Date startAt, boolean dryRun);
+    public abstract ExecTO execute(String key, OffsetDateTime startAt, boolean dryRun);
 
     public abstract Pair<Integer, List<ExecTO>> listExecutions(
             String key, int page, int size, List<OrderByClause> orderByClauses);
@@ -46,7 +46,11 @@ public abstract class AbstractExecutableLogic<T extends EntityTO> extends Abstra
     public abstract ExecTO deleteExecution(String executionKey);
 
     public abstract List<BatchResponseItem> deleteExecutions(
-            String key, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
+            String key,
+            OffsetDateTime startedBefore,
+            OffsetDateTime startedAfter,
+            OffsetDateTime endedBefore,
+            OffsetDateTime endedAfter);
 
     public abstract JobTO getJob(String key);
 

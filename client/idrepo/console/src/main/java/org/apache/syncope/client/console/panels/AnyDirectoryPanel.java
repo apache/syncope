@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -182,7 +183,9 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {
 
             columns.add(new BooleanPropertyColumn<>(new ResourceModel(name, name), name, name));
-        } else if (field != null && !field.isSynthetic() && field.getType().equals(Date.class)) {
+        } else if (field != null && !field.isSynthetic()
+                && (field.getType().equals(Date.class) || field.getType().equals(OffsetDateTime.class))) {
+
             columns.add(new DatePropertyColumn<>(new ResourceModel(name, name), name, name));
         } else {
             columns.add(new PropertyColumn<>(new ResourceModel(name, name), name, name));

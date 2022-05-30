@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -50,9 +50,9 @@ public interface Remediation extends Entity {
 
     void setError(String error);
 
-    Date getInstant();
+    OffsetDateTime getInstant();
 
-    void setInstant(Date instant);
+    void setInstant(OffsetDateTime instant);
 
     PullTask getPullTask();
 

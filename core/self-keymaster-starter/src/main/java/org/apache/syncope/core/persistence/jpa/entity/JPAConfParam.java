@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
@@ -33,7 +33,7 @@ public class JPAConfParam extends AbstractProvidedKeyEntity implements ConfParam
 
     private static final long serialVersionUID = 8742750097008236475L;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     public static final String TABLE = "ConfParam";
 

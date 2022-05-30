@@ -34,10 +34,11 @@ public class IdMClassPathScanImplementationContributor implements ClassPathScanI
 
     @Override
     public Optional<String> getLabel(final Class<?> clazz) {
-        if (PullCorrelationRuleConf.class.isAssignableFrom(clazz)
-                || PushCorrelationRuleConf.class.isAssignableFrom(clazz)) {
-
-            return Optional.of(clazz.getName());
+        if (PullCorrelationRuleConf.class.isAssignableFrom(clazz)) {
+            return Optional.of(PullCorrelationRuleConf.class.getName());
+        }
+        if (PushCorrelationRuleConf.class.isAssignableFrom(clazz)) {
+            return Optional.of(PushCorrelationRuleConf.class.getName());
         }
         return Optional.empty();
     }

@@ -43,7 +43,7 @@ public final class JavaDocUtils {
                 }
             }
             if (!javaDocURLs.isEmpty()) {
-                result = javaDocURLs.toArray(new URL[javaDocURLs.size()]);
+                result = javaDocURLs.toArray(URL[]::new);
             }
         }
 

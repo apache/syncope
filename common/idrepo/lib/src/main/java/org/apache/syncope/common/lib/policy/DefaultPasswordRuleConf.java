@@ -30,100 +30,25 @@ public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
 
     private static final long serialVersionUID = -7988778083915548547L;
 
-    /**
-     * Minimum length.
-     */
     private int maxLength;
 
-    /**
-     * Maximum length.
-     */
     private int minLength;
 
-    /**
-     * Specify if one or more non alphanumeric characters are required.
-     */
-    private boolean nonAlphanumericRequired;
+    private int alphabetical;
 
-    /**
-     * Specify if one or more alphanumeric characters are required.
-     */
-    private boolean alphanumericRequired;
+    private int uppercase;
 
-    /**
-     * Specify if one or more digits are required.
-     */
-    private boolean digitRequired;
+    private int lowercase;
 
-    /**
-     * Specify if one or more lowercase alphabetic characters are required.
-     */
-    private boolean lowercaseRequired;
+    private int digit;
 
-    /**
-     * Specify if one or more uppercase alphabetic characters are required.
-     */
-    private boolean uppercaseRequired;
+    private int special;
 
-    /**
-     * Specify if must start with a digit.
-     */
-    private boolean mustStartWithDigit;
+    private final List<Character> specialChars = new ArrayList<>();
 
-    /**
-     * Specify if mustn't start with a digit.
-     */
-    private boolean mustntStartWithDigit;
+    private final List<Character> illegalChars = new ArrayList<>();
 
-    /**
-     * Specify if must end with a digit.
-     */
-    private boolean mustEndWithDigit;
-
-    /**
-     * Specify if mustn't end with a digit.
-     */
-    private boolean mustntEndWithDigit;
-
-    /**
-     * Specify if must start with a non alphanumeric character.
-     */
-    private boolean mustStartWithNonAlpha;
-
-    /**
-     * Specify if must start with a alphanumeric character.
-     */
-    private boolean mustStartWithAlpha;
-
-    /**
-     * Specify if mustn't start with a non alphanumeric character.
-     */
-    private boolean mustntStartWithNonAlpha;
-
-    /**
-     * Specify if mustn't start with a alphanumeric character.
-     */
-    private boolean mustntStartWithAlpha;
-
-    /**
-     * Specify if must end with a non alphanumeric character.
-     */
-    private boolean mustEndWithNonAlpha;
-
-    /**
-     * Specify if must end with a alphanumeric character.
-     */
-    private boolean mustEndWithAlpha;
-
-    /**
-     * Specify if mustn't end with a non alphanumeric character.
-     */
-    private boolean mustntEndWithNonAlpha;
-
-    /**
-     * Specify if mustn't end with a alphanumeric character.
-     */
-    private boolean mustntEndWithAlpha;
+    private int repeatSame;
 
     /**
      * Specify if using username as password is allowed.
@@ -142,32 +67,6 @@ public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
             type = { SchemaType.PLAIN, SchemaType.DERIVED, SchemaType.VIRTUAL })
     private final List<String> schemasNotPermitted = new ArrayList<>();
 
-    /**
-     * Substrings not permitted as prefix.
-     */
-    private final List<String> prefixesNotPermitted = new ArrayList<>();
-
-    /**
-     * Substrings not permitted as suffix.
-     */
-    private final List<String> suffixesNotPermitted = new ArrayList<>();
-
-    public boolean isDigitRequired() {
-        return digitRequired;
-    }
-
-    public void setDigitRequired(final boolean digitRequired) {
-        this.digitRequired = digitRequired;
-    }
-
-    public boolean isLowercaseRequired() {
-        return lowercaseRequired;
-    }
-
-    public void setLowercaseRequired(final boolean lowercaseRequired) {
-        this.lowercaseRequired = lowercaseRequired;
-    }
-
     public int getMaxLength() {
         return maxLength;
     }
@@ -184,124 +83,64 @@ public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
         this.minLength = minLength;
     }
 
-    public boolean isMustEndWithDigit() {
-        return mustEndWithDigit;
+    public int getAlphabetical() {
+        return alphabetical;
     }
 
-    public void setMustEndWithDigit(final boolean mustEndWithDigit) {
-        this.mustEndWithDigit = mustEndWithDigit;
+    public void setAlphabetical(final int alphabetical) {
+        this.alphabetical = alphabetical;
     }
 
-    public boolean isMustEndWithNonAlpha() {
-        return mustEndWithNonAlpha;
+    public int getUppercase() {
+        return uppercase;
     }
 
-    public void setMustEndWithNonAlpha(final boolean mustEndWithNonAlpha) {
-        this.mustEndWithNonAlpha = mustEndWithNonAlpha;
+    public void setUppercase(final int uppercase) {
+        this.uppercase = uppercase;
     }
 
-    public boolean isMustStartWithDigit() {
-        return mustStartWithDigit;
+    public int getLowercase() {
+        return lowercase;
     }
 
-    public void setMustStartWithDigit(final boolean mustStartWithDigit) {
-        this.mustStartWithDigit = mustStartWithDigit;
+    public void setLowercase(final int lowercase) {
+        this.lowercase = lowercase;
     }
 
-    public boolean isMustStartWithNonAlpha() {
-        return mustStartWithNonAlpha;
+    public int getDigit() {
+        return digit;
     }
 
-    public void setMustStartWithNonAlpha(final boolean mustStartWithNonAlpha) {
-        this.mustStartWithNonAlpha = mustStartWithNonAlpha;
+    public void setDigit(final int digit) {
+        this.digit = digit;
     }
 
-    public boolean isMustntEndWithDigit() {
-        return mustntEndWithDigit;
+    public int getSpecial() {
+        return special;
     }
 
-    public void setMustntEndWithDigit(final boolean mustntEndWithDigit) {
-        this.mustntEndWithDigit = mustntEndWithDigit;
+    public void setSpecial(final int special) {
+        this.special = special;
     }
 
-    public boolean isMustntEndWithNonAlpha() {
-        return mustntEndWithNonAlpha;
+    @JacksonXmlElementWrapper(localName = "specialChars")
+    @JacksonXmlProperty(localName = "char")
+    public List<Character> getSpecialChars() {
+        return specialChars;
     }
 
-    public void setMustntEndWithNonAlpha(final boolean mustntEndWithNonAlpha) {
-        this.mustntEndWithNonAlpha = mustntEndWithNonAlpha;
+    @JacksonXmlElementWrapper(localName = "illegalChars")
+    @JacksonXmlProperty(localName = "char")
+    public List<Character> getIllegalChars() {
+        return illegalChars;
     }
 
-    public boolean isMustntStartWithDigit() {
-        return mustntStartWithDigit;
+    public int getRepeatSame() {
+        return repeatSame;
     }
 
-    public void setMustntStartWithDigit(final boolean mustntStartWithDigit) {
-        this.mustntStartWithDigit = mustntStartWithDigit;
-    }
-
-    public boolean isMustntStartWithNonAlpha() {
-        return mustntStartWithNonAlpha;
-    }
-
-    public void setMustntStartWithNonAlpha(final boolean mustntStartWithNonAlpha) {
-        this.mustntStartWithNonAlpha = mustntStartWithNonAlpha;
-    }
-
-    public boolean isNonAlphanumericRequired() {
-        return nonAlphanumericRequired;
-    }
-
-    public void setNonAlphanumericRequired(final boolean nonAlphanumericRequired) {
-        this.nonAlphanumericRequired = nonAlphanumericRequired;
-    }
-
-    public boolean isUppercaseRequired() {
-        return uppercaseRequired;
-    }
-
-    public void setUppercaseRequired(final boolean uppercaseRequired) {
-        this.uppercaseRequired = uppercaseRequired;
-    }
-
-    public boolean isAlphanumericRequired() {
-        return alphanumericRequired;
-    }
-
-    public void setAlphanumericRequired(final boolean alphanumericRequired) {
-        this.alphanumericRequired = alphanumericRequired;
-    }
-
-    public boolean isMustEndWithAlpha() {
-        return mustEndWithAlpha;
-    }
-
-    public void setMustEndWithAlpha(final boolean mustEndWithAlpha) {
-        this.mustEndWithAlpha = mustEndWithAlpha;
-    }
-
-    public boolean isMustStartWithAlpha() {
-        return mustStartWithAlpha;
-    }
-
-    public void setMustStartWithAlpha(final boolean mustStartWithAlpha) {
-        this.mustStartWithAlpha = mustStartWithAlpha;
-    }
-
-    public boolean isMustntEndWithAlpha() {
-        return mustntEndWithAlpha;
-    }
-
-    public void setMustntEndWithAlpha(final boolean mustntEndWithAlpha) {
-        this.mustntEndWithAlpha = mustntEndWithAlpha;
-    }
-
-    public boolean isMustntStartWithAlpha() {
-        return mustntStartWithAlpha;
-    }
-
-    public void setMustntStartWithAlpha(final boolean mustntStartWithAlpha) {
-        this.mustntStartWithAlpha = mustntStartWithAlpha;
+    public void setRepeatSame(final int repeatSame) {
+        this.repeatSame = repeatSame;
     }
 
     public boolean isUsernameAllowed() {
@@ -318,21 +157,9 @@ public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
         return wordsNotPermitted;
     }
 
-    @JacksonXmlElementWrapper(localName = "prefixesNotPermitted")
-    @JacksonXmlProperty(localName = "prefix")
-    public List<String> getPrefixesNotPermitted() {
-        return prefixesNotPermitted;
-    }
-
     @JacksonXmlElementWrapper(localName = "schemasNotPermitted")
     @JacksonXmlProperty(localName = "schema")
     public List<String> getSchemasNotPermitted() {
         return schemasNotPermitted;
-    }
-
-    @JacksonXmlElementWrapper(localName = "suffixesNotPermitted")
-    @JacksonXmlProperty(localName = "suffix")
-    public List<String> getSuffixesNotPermitted() {
-        return suffixesNotPermitted;
     }
 }

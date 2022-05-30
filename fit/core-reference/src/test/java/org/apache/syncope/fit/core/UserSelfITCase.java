@@ -57,7 +57,6 @@ import org.apache.syncope.common.lib.to.WorkflowTask;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
@@ -341,7 +340,6 @@ public class UserSelfITCase extends AbstractITCase {
         }
         anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "Rossi");
 
-        // SYNCOPE-1293:get users with token not null before requesting password reset
         if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
             try {
                 Thread.sleep(2000);
@@ -349,18 +347,11 @@ public class UserSelfITCase extends AbstractITCase {
                 // ignore
             }
         }
-        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
-            try {
-                PagedResult<UserTO> tokenized = userService.search(new AnyQuery.Builder().fiql("token!=$null").build());
-                return tokenized.getResult().stream().anyMatch(u -> user.getUsername().equals(u.getUsername()));
-            } catch (Exception e) {
-                return false;
-            }
-        });
 
         // 4. get token (normally sent via e-mail, now reading as admin)
-        String token = userService.read(read.getKey()).getToken();
-        assertNotNull(token);
+        String token = await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(
+                () -> userService.read(read.getKey()).getToken(),
+                StringUtils::isNotBlank);
 
         // 5. confirm password reset
         try {
@@ -374,9 +365,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 6. verify that password was reset and token removed
         authClient = clientFactory.create(user.getUsername(), "newPassword123");
-        read = authClient.self().getRight();
-        assertNotNull(read);
-        assertNull(read.getToken());
+        assertNull(authClient.self().getRight().getToken());
 
         // 7. verify that password was changed on external resource
         String newPwdOnResource = queryForObject(jdbcTemplate,

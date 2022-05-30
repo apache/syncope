@@ -29,7 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
-import org.apache.syncope.common.lib.jackson.SyncopeObjectMapper;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
@@ -87,7 +87,7 @@ public class SyncopeClientFactoryBean {
     private JAXRSClientFactoryBean restClientFactoryBean;
 
     protected static JacksonJsonProvider defaultJsonProvider() {
-        return new JacksonJsonProvider(new SyncopeObjectMapper());
+        return new JacksonJsonProvider(new SyncopeJsonMapper());
     }
 
     protected static JacksonXMLProvider defaultXmlProvider() {
@@ -139,9 +139,7 @@ public class SyncopeClientFactoryBean {
     }
 
     public JacksonXMLProvider getXmlProvider() {
-        return xmlProvider == null
-                ? defaultXmlProvider()
-                : xmlProvider;
+        return Optional.ofNullable(xmlProvider).orElseGet(SyncopeClientFactoryBean::defaultXmlProvider);
     }
 
     public void setXmlProvider(final JacksonXMLProvider xmlProvider) {
@@ -149,9 +147,7 @@ public class SyncopeClientFactoryBean {
     }
 
     public JacksonYAMLProvider getYamlProvider() {
-        return yamlProvider == null
-                ? defaultYamlProvider()
-                : yamlProvider;
+        return Optional.ofNullable(yamlProvider).orElseGet(SyncopeClientFactoryBean::defaultYamlProvider);
     }
 
     public void setYamlProvider(final JacksonYAMLProvider yamlProvider) {

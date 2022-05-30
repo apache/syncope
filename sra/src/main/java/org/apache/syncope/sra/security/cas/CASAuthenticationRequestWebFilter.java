@@ -41,12 +41,6 @@ public class CASAuthenticationRequestWebFilter implements WebFilter {
 
     private final ServerWebExchangeMatcher matcher;
 
-    /**
-     * The name of the server. Should be in the following format: {protocol}:{hostName}:{port}.
-     * Standard ports can be excluded.
-     */
-    private final String serverName;
-
     private final Protocol protocol;
 
     /**
@@ -58,17 +52,15 @@ public class CASAuthenticationRequestWebFilter implements WebFilter {
 
     public CASAuthenticationRequestWebFilter(
             final PublicRouteMatcher publicRouteMatcher,
-            final String serverName,
             final Protocol protocol,
             final String casServerUrlPrefix) {
 
-        this.matcher = ServerWebExchangeMatchers.matchers(
+        matcher = ServerWebExchangeMatchers.matchers(
                 publicRouteMatcher,
                 CASUtils.ticketAvailable(protocol),
                 SessionUtils.authInSession());
-        this.serverName = serverName;
         this.protocol = protocol;
-        this.casServerLoginUrl = StringUtils.appendIfMissing(casServerUrlPrefix, "/") + "login";
+        casServerLoginUrl = StringUtils.appendIfMissing(casServerUrlPrefix, "/") + "login";
     }
 
     public void setAuthenticationRedirectStrategy(final ServerRedirectStrategy authenticationRedirectStrategy) {
@@ -87,12 +79,12 @@ public class CASAuthenticationRequestWebFilter implements WebFilter {
 
                     LOG.debug("no ticket and no assertion found");
 
-                    String serviceUrl = CASUtils.constructServiceUrl(exchange, this.serverName, this.protocol);
+                    String serviceUrl = CASUtils.constructServiceUrl(exchange, protocol);
                     LOG.debug("Constructed service url: {}", serviceUrl);
 
                     String urlToRedirectTo = CommonUtils.constructRedirectUrl(
-                            this.casServerLoginUrl,
-                            this.protocol.getServiceParameterName(),
+                            casServerLoginUrl,
+                            protocol.getServiceParameterName(),
                             serviceUrl,
                             false,
                             false,

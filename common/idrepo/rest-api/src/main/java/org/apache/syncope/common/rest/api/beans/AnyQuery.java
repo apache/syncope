@@ -21,14 +21,13 @@ package org.apache.syncope.common.rest.api.beans;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Optional;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
-
-import java.util.Optional;
 
 public class AnyQuery extends AbstractQuery {
 
@@ -39,6 +38,11 @@ public class AnyQuery extends AbstractQuery {
         @Override
         protected AnyQuery newInstance() {
             return new AnyQuery();
+        }
+
+        public Builder recursive(final boolean recursive) {
+            getInstance().setRecursive(recursive);
+            return this;
         }
 
         public Builder details(final boolean details) {
@@ -60,6 +64,8 @@ public class AnyQuery extends AbstractQuery {
 
     private String realm;
 
+    private Boolean recursive;
+
     private Boolean details;
 
     private String fiql;
@@ -77,6 +83,19 @@ public class AnyQuery extends AbstractQuery {
     @QueryParam(JAXRSService.PARAM_REALM)
     public void setRealm(final String realm) {
         this.realm = realm;
+    }
+
+    @Parameter(name = JAXRSService.PARAM_RECURSIVE, description = "whether search results shall be returned from "
+            + "given realm and all children realms, or just the given realm", schema =
+            @Schema(implementation = Boolean.class))
+    public Boolean getRecursive() {
+        return Optional.ofNullable(recursive).orElse(Boolean.TRUE);
+    }
+
+    @QueryParam(JAXRSService.PARAM_RECURSIVE)
+    @DefaultValue("true")
+    public void setRecursive(final Boolean recursive) {
+        this.recursive = recursive;
     }
 
     @Parameter(name = JAXRSService.PARAM_DETAILS, description = "whether detailed information is to be included, "

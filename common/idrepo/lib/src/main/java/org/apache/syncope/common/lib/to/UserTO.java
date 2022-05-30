@@ -23,8 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -42,13 +42,13 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private String token;
 
-    private Date tokenExpireTime;
+    private OffsetDateTime tokenExpireTime;
 
     private String username;
 
-    private Date lastLoginDate;
+    private OffsetDateTime lastLoginDate;
 
-    private Date changePwdDate;
+    private OffsetDateTime changePwdDate;
 
     private Integer failedLogins;
 
@@ -112,19 +112,12 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.token = token;
     }
 
-    public Date getTokenExpireTime() {
-        if (tokenExpireTime != null) {
-            return new Date(tokenExpireTime.getTime());
-        }
-        return null;
+    public OffsetDateTime getTokenExpireTime() {
+        return tokenExpireTime;
     }
 
-    public void setTokenExpireTime(final Date tokenExpireTime) {
-        if (tokenExpireTime != null) {
-            this.tokenExpireTime = new Date(tokenExpireTime.getTime());
-        } else {
-            this.tokenExpireTime = null;
-        }
+    public void setTokenExpireTime(final OffsetDateTime tokenExpireTime) {
+        this.tokenExpireTime = tokenExpireTime;
     }
 
     @JsonProperty(required = true)
@@ -136,42 +129,28 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.username = username;
     }
 
-    public Date getChangePwdDate() {
-        if (changePwdDate != null) {
-            return new Date(changePwdDate.getTime());
-        }
-        return null;
+    public OffsetDateTime getChangePwdDate() {
+        return changePwdDate;
     }
 
     public Integer getFailedLogins() {
         return failedLogins;
     }
 
-    public Date getLastLoginDate() {
-        if (lastLoginDate != null) {
-            return new Date(lastLoginDate.getTime());
-        }
-        return null;
+    public OffsetDateTime getLastLoginDate() {
+        return lastLoginDate;
     }
 
-    public void setChangePwdDate(final Date changePwdDate) {
-        if (changePwdDate != null) {
-            this.changePwdDate = new Date(changePwdDate.getTime());
-        } else {
-            this.changePwdDate = null;
-        }
+    public void setChangePwdDate(final OffsetDateTime changePwdDate) {
+        this.changePwdDate = changePwdDate;
     }
 
     public void setFailedLogins(final Integer failedLogins) {
         this.failedLogins = failedLogins;
     }
 
-    public void setLastLoginDate(final Date lastLoginDate) {
-        if (lastLoginDate != null) {
-            this.lastLoginDate = new Date(lastLoginDate.getTime());
-        } else {
-            this.lastLoginDate = null;
-        }
+    public void setLastLoginDate(final OffsetDateTime lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
     }
 
     public String getSecurityQuestion() {

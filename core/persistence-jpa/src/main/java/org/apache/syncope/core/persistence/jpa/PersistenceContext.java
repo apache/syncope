@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -92,6 +93,7 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAConnInstanceDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPADelegationDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPADerSchemaDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPADynRealmDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAEntityCacheDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAExternalResourceDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAGroupDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAImplementationDAO;
@@ -134,6 +136,7 @@ import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUn
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -202,9 +205,11 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public XMLContentLoader xmlContentLoader(final PersistenceProperties persistenceProperties,
-                                             final ResourceLoader resourceLoader,
-                                             final Environment env) {
+    public XMLContentLoader xmlContentLoader(
+            final PersistenceProperties persistenceProperties,
+            final ResourceLoader resourceLoader,
+            final Environment env) {
+
         return new XMLContentLoader(
                 resourceLoader.getResource(persistenceProperties.getViewsXML()),
                 resourceLoader.getResource(persistenceProperties.getIndexesXML()),
@@ -233,9 +238,10 @@ public class PersistenceContext {
     @Bean
     public RuntimeDomainLoader runtimeDomainLoader(
             final DomainHolder domainHolder,
-            final DomainRegistry domainRegistry) {
+            final DomainRegistry domainRegistry,
+            final ListableBeanFactory beanFactory) {
 
-        return new RuntimeDomainLoader(domainHolder, domainRegistry);
+        return new RuntimeDomainLoader(domainHolder, domainRegistry, beanFactory);
     }
 
     @ConditionalOnMissingBean
@@ -287,6 +293,12 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
+    public EntityCacheDAO entityCacheDAO() {
+        return new JPAEntityCacheDAO();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public AccessTokenDAO accessTokenDAO() {
         return new JPAAccessTokenDAO();
     }
@@ -313,7 +325,6 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public AnyObjectDAO anyObjectDAO(
-            final ApplicationEventPublisher publisher,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
@@ -323,7 +334,6 @@ public class PersistenceContext {
 
         return new JPAAnyObjectDAO(
                 anyUtilsFactory,
-                publisher,
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
@@ -639,7 +649,6 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public UserDAO userDAO(
-            final ApplicationEventPublisher publisher,
             final SecurityProperties securityProperties,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
@@ -653,7 +662,6 @@ public class PersistenceContext {
 
         return new JPAUserDAO(
                 anyUtilsFactory,
-                publisher,
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,

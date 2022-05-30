@@ -32,7 +32,7 @@ under the License.
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>24</version>
+    <version>26</version>
     <relativePath />
   </parent>
 
@@ -391,51 +391,51 @@ under the License.
     <project.build.outputTimestamp>2021-07-16T09:00:00Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.5.0.2</connid.version>
-    <connid.soap.version>1.4.3</connid.soap.version>
-    <connid.rest.version>1.0.5</connid.rest.version>
-    <connid.database.version>2.2.7</connid.database.version>
-    <connid.csvdir.version>0.8.8</connid.csvdir.version>
-    <connid.ldap.version>1.5.4</connid.ldap.version>
-    <connid.ad.version>1.3.6</connid.ad.version>
-    <connid.googleapps.version>1.4.2</connid.googleapps.version>
-    <connid.azure.version>1.0.1</connid.azure.version>
-    <connid.scimv11.version>1.0.1</connid.scimv11.version>
-    <connid.servicenow.version>1.0.0</connid.servicenow.version>
+    <connid.version>1.5.1.0</connid.version>
+    <connid.soap.version>1.4.5</connid.soap.version>
+    <connid.rest.version>1.0.6</connid.rest.version>
+    <connid.database.version>2.2.8</connid.database.version>
+    <connid.csvdir.version>0.8.9</connid.csvdir.version>
+    <connid.ldap.version>1.5.5</connid.ldap.version>
+    <connid.ad.version>1.3.8</connid.ad.version>
+    <connid.googleapps.version>1.4.3</connid.googleapps.version>
+    <connid.azure.version>2.0.0</connid.azure.version>
+    <connid.scimv11.version>1.0.2</connid.scimv11.version>
+    <connid.servicenow.version>1.0.1</connid.servicenow.version>
+    <connid.okta.version>2.1.0</connid.okta.version>
+    <connid.cmd.version>0.5</connid.cmd.version>
 
-    <cxf.version>3.5.0</cxf.version>
+    <cxf.version>3.5.2</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.19</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.23</nimbus-jose-jwt.version>
 
-    <jackson.version>2.13.1</jackson.version>
+    <jackson.version>2.13.3</jackson.version>
 
-    <spring-boot.version>2.6.3</spring-boot.version>
-    <spring-cloud-gateway.version>3.1.0</spring-cloud-gateway.version>
+    <spring-boot.version>2.6.8</spring-boot.version>
+    <spring-cloud-gateway.version>3.1.3</spring-cloud-gateway.version>
 
-    <openjpa.version>3.2.1</openjpa.version>
+    <openjpa.version>3.2.2</openjpa.version>
     <hikaricp.version>5.0.1</hikaricp.version>
     <bval.version>2.0.5</bval.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <quartz.version>2.3.2</quartz.version>
-
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>4.0.0</groovy.version>
+    <groovy.version>4.0.2</groovy.version>
 
     <flowable.version>6.7.2</flowable.version>
 
-    <camel.version>3.15.0</camel.version>
+    <camel.version>3.17.0</camel.version>
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>7.17.0</elasticsearch.version>
+    <elasticsearch.version>8.2.2</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
 
-    <log4j2.version>2.17.1</log4j2.version>
+    <log4j2.version>2.17.2</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
     
     <commons-jexl.version>3.2.1</commons-jexl.version>
@@ -444,17 +444,17 @@ under the License.
     <commons-codec.version>1.15</commons-codec.version>
     <commons-logging.version>1.1.3</commons-logging.version>
 
-    <modernizer-maven.version>2.3.0</modernizer-maven.version>
+    <modernizer-maven.version>2.4.0</modernizer-maven.version>
 
-    <pac4j.version>5.2.1</pac4j.version>
+    <pac4j.version>5.3.1</pac4j.version>
 
-    <cas.version>6.5.0-RC4</cas.version>
+    <cas.version>6.5.4</cas.version>
     <cas-client.version>3.6.4</cas-client.version>
 
-    <h2.version>1.4.200</h2.version>
+    <h2.version>2.1.212</h2.version>
 
     <swagger-core.version>2.1.13</swagger-core.version>
-    <swagger-ui.version>4.5.0</swagger-ui.version>
+    <swagger-ui.version>4.11.1</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
@@ -462,22 +462,21 @@ under the License.
     <bootbox.version>5.5.2</bootbox.version>
     <font-awesome.version>5.15.4</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
-    <highlightjs.version>10.1.2</highlightjs.version>
     <codemirror.version>5.62.2</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
 
-    <wicket.version>9.8.0</wicket.version>
-    <wicketstuff.version>9.6.0</wicketstuff.version>
-    <wicket-jqueryui.version>9.7.0</wicket-jqueryui.version>
+    <wicket.version>9.10.0</wicket.version>
+    <wicketstuff.version>9.10.0</wicketstuff.version>
+    <wicket-jqueryui.version>9.8.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.6</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.1.6</wicket-spring-boot.version>
 
-    <antlr4.version>4.9.3</antlr4.version>
+    <antlr4.version>4.10.1</antlr4.version>
 
     <curator.version>5.2.0</curator.version>
-    <zookeeper.version>3.7.0</zookeeper.version>
+    <zookeeper.version>3.8.0</zookeeper.version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
@@ -502,21 +501,20 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.58</tomcat.version>
-    <wildfly.version>25.0.1.Final</wildfly.version>
-    <payara.version>5.2021.10</payara.version>
+    <tomcat.version>9.0.63</tomcat.version>
+    <wildfly.version>26.1.1.Final</wildfly.version>
+    <payara.version>5.2022.2</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
     <docker.postgresql.version>14</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.3.1</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.3.5</jdbc.postgresql.version>
     <jdbc.mysql.version>8.0.28</jdbc.mysql.version>
-    <!-- see https://jira.mariadb.org/browse/CONJ-921 -->
     <jdbc.mariadb.version>2.7.5</jdbc.mariadb.version>
-    <jdbc.mssql.version>9.4.1.jre</jdbc.mssql.version>
-    <jdbc.oracle.version>21.4.0.0.1</jdbc.oracle.version>
+    <jdbc.mssql.version>10.2.1.jre</jdbc.mssql.version>
+    <jdbc.oracle.version>21.5.0.0</jdbc.oracle.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -685,11 +683,6 @@ under the License.
         <groupId>co.elastic.clients</groupId>
         <artifactId>elasticsearch-java</artifactId>
         <version>${elasticsearch.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.elasticsearch.client</groupId>
-        <artifactId>elasticsearch-rest-client</artifactId>
-        <version>7.16.1</version>
       </dependency>
       <dependency>
         <groupId>jakarta.json</groupId>
@@ -921,6 +914,18 @@ under the License.
 
       <dependency>
         <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-quartz</artifactId>
+        <version>${spring-boot.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-logging</artifactId>
         <exclusions>
           <exclusion>
@@ -986,13 +991,13 @@ under the License.
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.9.8</version>
+        <version>1.9.9.1</version>
       </dependency>
 
       <dependency>
         <groupId>com.github.ben-manes.caffeine</groupId>
         <artifactId>caffeine</artifactId>
-        <version>3.0.5</version>
+        <version>3.1.1</version>
       </dependency>
 
       <dependency>
@@ -1031,7 +1036,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>2.3.0</version>
+        <version>2.4.0</version>
       </dependency>
 
       <dependency>
@@ -1144,7 +1149,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.6.5</version>
+        <version>1.6.8</version>
         <exclusions>
           <exclusion>
             <groupId>junit</groupId>
@@ -1157,26 +1162,6 @@ under the License.
         <groupId>org.jasypt</groupId>
         <artifactId>jasypt</artifactId>
         <version>${jasypt.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.quartz-scheduler</groupId>
-        <artifactId>quartz</artifactId>
-        <version>${quartz.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP-java7</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.mchange</groupId>
-            <artifactId>c3p0</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.mchange</groupId>
-            <artifactId>mchange-commons-java</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
 
       <dependency>
@@ -1272,6 +1257,12 @@ under the License.
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-saml</artifactId>
         <version>${pac4j.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.pac4j</groupId>
@@ -1405,6 +1396,12 @@ under the License.
         <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-syncope-authentication</artifactId>
         <version>${cas.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.github.mmoayyed.cxf</groupId>
+            <artifactId>cxf-rt-rs-extension-search</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apereo.cas</groupId>
@@ -1419,27 +1416,6 @@ under the License.
       <dependency>
         <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-themes</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-radius-core</artifactId>
-        <version>${cas.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>gnu-getopt</groupId>
-            <artifactId>getopt</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-radius</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-radius-mfa</artifactId>
         <version>${cas.version}</version>
       </dependency>
       <dependency>
@@ -1764,7 +1740,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>3.0.0-RC1</version>
+        <version>3.0.0-alpha3</version>
       </dependency>
 
       <dependency>
@@ -1842,6 +1818,14 @@ under the License.
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
 
@@ -1863,9 +1847,15 @@ under the License.
       </dependency>
 
       <dependency>
+        <groupId>org.passay</groupId>
+        <artifactId>passay</artifactId>
+        <version>1.6.1</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.jsoup</groupId>
         <artifactId>jsoup</artifactId>
-        <version>1.14.3</version>
+        <version>1.15.1</version>
       </dependency>
 
       <!-- TEST -->
@@ -1973,7 +1963,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.9.0</version>
+          <version>3.10.1</version>
           <configuration>
             <release>${targetJdk}</release>
             <useIncrementalCompilation>false</useIncrementalCompilation>
@@ -2026,7 +2016,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.3.1</version>
+          <version>3.4.0</version>
           <configuration>
             <source>${targetJdk}</source>
           </configuration>
@@ -2041,65 +2031,87 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.3.0</version>
           <configuration>
             <outputDirectory>${bundles.directory}</outputDirectory>
-            <useBaseVersion>true</useBaseVersion>
             <artifactItems>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles.soap</groupId>
                 <artifactId>net.tirasa.connid.bundles.soap</artifactId>
                 <version>${connid.soap.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.rest</artifactId>
                 <version>${connid.rest.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.csvdir</artifactId>
                 <version>${connid.csvdir.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles.db</groupId>
                 <artifactId>net.tirasa.connid.bundles.db.table</artifactId>
                 <version>${connid.database.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles.db</groupId>
                 <artifactId>net.tirasa.connid.bundles.db.scriptedsql</artifactId>
                 <version>${connid.database.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.ldap</artifactId>
                 <version>${connid.ldap.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.ad</artifactId>
                 <version>${connid.ad.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.googleapps</artifactId>
                 <version>${connid.googleapps.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.azure</artifactId>
                 <version>${connid.azure.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.scimv11</artifactId>
                 <version>${connid.scimv11.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.servicenow</artifactId>
                 <version>${connid.servicenow.version}</version>
+                <classifier>bundle</classifier>
+              </artifactItem>
+              <artifactItem>
+                <groupId>net.tirasa.connid.bundles.okta</groupId>
+                <artifactId>net.tirasa.connid.bundles.okta</artifactId>
+                <version>${connid.okta.version}</version>
+                <classifier>bundle</classifier>
+              </artifactItem>
+              <artifactItem>
+                <groupId>net.tirasa.connid.bundles</groupId>
+                <artifactId>net.tirasa.connid.bundles.cmd</artifactId>
+                <version>${connid.cmd.version}</version>
+                <classifier>bundle</classifier>
               </artifactItem>
             </artifactItems>
           </configuration>
@@ -2132,7 +2144,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-antrun-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.1.0</version>
         </plugin>
 
         <plugin>
@@ -2157,7 +2169,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.9.9</version>
+          <version>1.9.11</version>
           <configuration>
             <configuration>
               <type>standalone</type>
@@ -2209,7 +2221,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>9.3</version>
+              <version>10.1</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -2221,7 +2233,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.39.0</version>
+          <version>0.39.1</version>
         </plugin>
 
         <plugin>
@@ -2251,7 +2263,7 @@ under the License.
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.7</version>
+          <version>0.8.8</version>
         </plugin>
 
         <plugin>
@@ -2520,7 +2532,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>3.3.0</version>
         <configuration>
           <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
@@ -2538,7 +2550,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0</version>
         <configuration>
           <source>${targetJdk}</source>
           <destDir>apidocs/3.0</destDir>
@@ -2567,13 +2579,12 @@ under the License.
             <link>https://ci.apache.org/projects/wicket/apidocs/9.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/2.2.1/api/</link>
+            <link>https://tika.apache.org/2.4.0/api/</link>
             <link>https://docs.spring.io/spring-boot/docs/current/api/</link>
             <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
-            <link>https://build.shibboleth.net/nexus/content/sites/site/java-opensaml/4.1.1/apidocs/</link>
-            <link>http://docs.swagger.io/swagger-core/v2.1.11/apidocs/</link>
+            <link>http://docs.swagger.io/swagger-core/v2.1.13/apidocs/</link>
           </links>
         </configuration>
         <reportSets>
@@ -2671,7 +2682,7 @@ under the License.
               <dependency>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctorj-pdf</artifactId>
-                <version>1.6.2</version>
+                <version>2.0.4</version>
               </dependency>
             </dependencies>
             <configuration>
@@ -2769,7 +2780,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>3.10.0</version>
+            <version>3.12.0</version>
             <configuration>
               <locales>en</locales>
               <generateProjectInfo>false</generateProjectInfo>

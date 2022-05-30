@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
+import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -43,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
@@ -138,6 +140,17 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                     accountPolicy.add(resource);
                 }
             });
+        } else if (policyTO instanceof PropagationPolicyTO) {
+            if (result == null) {
+                result = (T) entityFactory.newEntity(PropagationPolicy.class);
+            }
+
+            PropagationPolicy propagationPolicy = PropagationPolicy.class.cast(result);
+            PropagationPolicyTO propagationPolicyTO = PropagationPolicyTO.class.cast(policyTO);
+
+            propagationPolicy.setBackOffStrategy(propagationPolicyTO.getBackOffStrategy());
+            propagationPolicy.setBackOffParams(propagationPolicyTO.getBackOffParams());
+            propagationPolicy.setMaxAttempts(propagationPolicyTO.getMaxAttempts());
         } else if (policyTO instanceof PullPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(PullPolicy.class);
@@ -169,8 +182,8 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 }
             });
             // remove all rules not contained in the TO
-            pullPolicy.getCorrelationRules().removeIf(anyFilter
-                    -> !pullPolicyTO.getCorrelationRules().containsKey(anyFilter.getAnyType().getKey()));
+            pullPolicy.getCorrelationRules().removeIf(anyFilter -> !pullPolicyTO.getCorrelationRules().
+                    containsKey(anyFilter.getAnyType().getKey()));
         } else if (policyTO instanceof PushPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(PushPolicy.class);
@@ -223,8 +236,12 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             AccessPolicyTO accessPolicyTO = AccessPolicyTO.class.cast(policyTO);
 
             accessPolicy.setName(accessPolicyTO.getKey());
+            accessPolicy.setOrder(accessPolicyTO.getOrder());
             accessPolicy.setEnabled(accessPolicyTO.isEnabled());
             accessPolicy.setSsoEnabled(accessPolicyTO.isSsoEnabled());
+            accessPolicy.setRequireAllAttributes(accessPolicyTO.isRequireAllAttributes());
+            accessPolicy.setCaseInsensitive(accessPolicyTO.isCaseInsensitive());
+            accessPolicy.setUnauthorizedRedirectUrl(accessPolicyTO.getUnauthorizedRedirectUrl());
             accessPolicy.setConf(accessPolicyTO.getConf());
         } else if (policyTO instanceof AttrReleasePolicyTO) {
             if (result == null) {
@@ -235,6 +252,8 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             AttrReleasePolicyTO attrReleasePolicyTO = AttrReleasePolicyTO.class.cast(policyTO);
 
             attrReleasePolicy.setName(attrReleasePolicyTO.getKey());
+            attrReleasePolicy.setOrder(attrReleasePolicyTO.getOrder());
+            attrReleasePolicy.setStatus(attrReleasePolicyTO.getStatus());
             attrReleasePolicy.setConf(attrReleasePolicyTO.getConf());
         }
 
@@ -283,6 +302,14 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
             accountPolicyTO.getPassthroughResources().addAll(
                     accountPolicy.getResources().stream().map(Entity::getKey).collect(Collectors.toList()));
+        } else if (policy instanceof PropagationPolicy) {
+            PropagationPolicy propagationPolicy = PropagationPolicy.class.cast(policy);
+            PropagationPolicyTO propagationPolicyTO = new PropagationPolicyTO();
+            policyTO = (T) propagationPolicyTO;
+
+            propagationPolicyTO.setBackOffStrategy(propagationPolicy.getBackOffStrategy());
+            propagationPolicyTO.setBackOffParams(propagationPolicy.getBackOffParams());
+            propagationPolicyTO.setMaxAttempts(propagationPolicy.getMaxAttempts());
         } else if (policy instanceof PullPolicy) {
             PullPolicy pullPolicy = PullPolicy.class.cast(policy);
             PullPolicyTO pullPolicyTO = new PullPolicyTO();
@@ -311,14 +338,21 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
             policyTO = (T) accessPolicyTO;
 
+            accessPolicyTO.setOrder(accessPolicy.getOrder());
             accessPolicyTO.setEnabled(accessPolicy.isEnabled());
             accessPolicyTO.setSsoEnabled(accessPolicy.isSsoEnabled());
+            accessPolicyTO.setRequireAllAttributes(accessPolicy.isRequireAllAttributes());
+            accessPolicyTO.setCaseInsensitive(accessPolicy.isCaseInsensitive());
+            accessPolicyTO.setUnauthorizedRedirectUrl(accessPolicy.getUnauthorizedRedirectUrl());
             accessPolicyTO.setConf(((AccessPolicy) policy).getConf());
         } else if (policy instanceof AttrReleasePolicy) {
+            AttrReleasePolicy attrReleasePolicy = AttrReleasePolicy.class.cast(policy);
             AttrReleasePolicyTO attrReleasePolicyTO = new AttrReleasePolicyTO();
             policyTO = (T) attrReleasePolicyTO;
 
-            attrReleasePolicyTO.setConf(((AttrReleasePolicy) policy).getConf());
+            attrReleasePolicyTO.setOrder(attrReleasePolicy.getOrder());
+            attrReleasePolicyTO.setStatus(attrReleasePolicy.getStatus());
+            attrReleasePolicyTO.setConf(attrReleasePolicy.getConf());
         }
 
         if (policyTO != null) {

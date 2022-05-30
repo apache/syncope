@@ -54,8 +54,9 @@ public class LoadWidget extends BaseWidget {
         line.getOptions().setMultiTooltipTemplate("<%= datasetLabel %>");
 
         systeminfo.getLoad().forEach(instant -> {
-            line.getData().getLabels().add(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.
-                    format(systeminfo.getStartTime() + instant.getUptime()));
+            line.getData().getLabels().add(
+                    DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(
+                            systeminfo.getStartTime() + instant.getUptime()));
 
             cpuValues.add(instant.getSystemLoadAverage() * 1000);
             memValues.add(instant.getTotalMemory());

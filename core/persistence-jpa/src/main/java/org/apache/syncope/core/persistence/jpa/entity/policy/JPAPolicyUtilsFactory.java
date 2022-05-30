@@ -24,6 +24,7 @@ import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PolicyTO;
+import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -35,6 +36,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtils;
 import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 
@@ -52,6 +54,8 @@ public class JPAPolicyUtilsFactory implements PolicyUtilsFactory {
             type = PolicyType.ACCOUNT;
         } else if (policy instanceof PasswordPolicy) {
             type = PolicyType.PASSWORD;
+        } else if (policy instanceof PropagationPolicy) {
+            type = PolicyType.PROPAGATION;
         } else if (policy instanceof PullPolicy) {
             type = PolicyType.PULL;
         } else if (policy instanceof PushPolicy) {
@@ -76,6 +80,8 @@ public class JPAPolicyUtilsFactory implements PolicyUtilsFactory {
             type = PolicyType.ACCOUNT;
         } else if (policyClass == PasswordPolicyTO.class) {
             type = PolicyType.PASSWORD;
+        } else if (policyClass == PropagationPolicyTO.class) {
+            type = PolicyType.PROPAGATION;
         } else if (policyClass == PullPolicyTO.class) {
             type = PolicyType.PULL;
         } else if (policyClass == PushPolicyTO.class) {

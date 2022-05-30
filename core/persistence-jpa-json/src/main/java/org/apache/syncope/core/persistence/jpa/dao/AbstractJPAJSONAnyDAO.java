@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -335,11 +335,11 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
             }
         }
 
-        // update sysInfo - as org.apache.syncope.core.persistence.jpa.entity.PlainAttrListener is not invoked
-        Date now = new Date();
-        String username = AuthContextUtils.getUsername();
-        LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, username, any);
-        any.setLastModifier(username);
+        // update sysInfo
+        OffsetDateTime now = OffsetDateTime.now();
+        String who = AuthContextUtils.getWho();
+        LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, who, any);
+        any.setLastModifier(who);
         any.setLastChangeDate(now);
     }
 }

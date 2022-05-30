@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.Collection;
@@ -59,7 +59,7 @@ public abstract class DirectoryPanel<
 
     protected static final Logger LOG = LoggerFactory.getLogger(DirectoryPanel.class);
 
-    protected static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     protected E restClient;
 
@@ -278,7 +278,7 @@ public abstract class DirectoryPanel<
 
         // take care of restClient handle: maybe not useful to keep into
         AjaxDataTablePanel.Builder<T, String> resultTableBuilder = new AjaxDataTablePanel.Builder<>(
-            dataProvider, page.getPageReference()) {
+                dataProvider, page.getPageReference()) {
 
             private static final long serialVersionUID = 2205322679547329123L;
 

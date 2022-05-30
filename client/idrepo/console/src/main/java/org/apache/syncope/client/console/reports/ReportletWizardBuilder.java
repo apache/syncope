@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.reports;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.Serializable;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -49,14 +49,11 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private final String report;
 
-    public ReportletWizardBuilder(
-            final String report,
-            final ReportletWrapper reportlet,
-            final PageReference pageRef) {
+    public ReportletWizardBuilder(final String report, final ReportletWrapper reportlet, final PageReference pageRef) {
         super(reportlet, pageRef);
         this.report = report;
     }

@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -189,12 +190,8 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REALM_DELETE + "')")
     public ProvisioningResult<RealmTO> delete(final String fullPath) {
-        Realm realm = realmDAO.findByFullPath(fullPath);
-        if (realm == null) {
-            LOG.error("Could not find realm '" + fullPath + '\'');
-
-            throw new NotFoundException(fullPath);
-        }
+        Realm realm = Optional.ofNullable(realmDAO.findByFullPath(fullPath)).
+                orElseThrow(() -> new NotFoundException("Realm " + fullPath));
 
         if (!realmDAO.findChildren(realm).isEmpty()) {
             throw SyncopeClientException.build(ClientExceptionType.HasChildren);
@@ -204,9 +201,9 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         AnyCond keyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
         keyCond.setSchema("key");
         SearchCond allMatchingCond = SearchCond.getLeaf(keyCond);
-        int users = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.USER);
-        int groups = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.GROUP);
-        int anyObjects = searchDAO.count(adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
+        int users = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.USER);
+        int groups = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.GROUP);
+        int anyObjects = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
 
         if (users + groups + anyObjects > 0) {
             SyncopeClientException containedAnys = SyncopeClientException.build(ClientExceptionType.AssociatedAnys);

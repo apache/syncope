@@ -21,8 +21,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -30,6 +29,7 @@ import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,11 +48,9 @@ public class TaskExecTest extends AbstractTest {
         PropagationTask task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNotNull(task);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.set(2015, 11, 18, 0, 0, 0);
+        OffsetDateTime startedBefore = OffsetDateTime.of(2015, 12, 18, 0, 0, 0, 0, FormatUtils.DEFAULT_OFFSET);
 
-        List<TaskExec> execs = taskExecDAO.findAll(task, calendar.getTime(), null, null, null);
+        List<TaskExec> execs = taskExecDAO.findAll(task, startedBefore, null, null, null);
         assertNotNull(execs);
         assertEquals(1, execs.size());
     }
@@ -76,8 +74,8 @@ public class TaskExecTest extends AbstractTest {
         faultyMessage = faultyMessage.replace('a', '\0');
 
         TaskExec exec = entityFactory.newEntity(TaskExec.class);
-        exec.setStart(new Date());
-        exec.setEnd(new Date());
+        exec.setStart(OffsetDateTime.now());
+        exec.setEnd(OffsetDateTime.now());
         exec.setStatus(ExecStatus.SUCCESS.name());
         exec.setMessage(faultyMessage);
         exec.setExecutor("admin");

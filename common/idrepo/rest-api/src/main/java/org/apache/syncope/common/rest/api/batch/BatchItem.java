@@ -29,9 +29,9 @@ public abstract class BatchItem implements Serializable {
 
     private static final long serialVersionUID = -1393976266651766259L;
 
-    private final Map<String, List<Object>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    protected final Map<String, List<Object>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-    private String content;
+    protected String content;
 
     public Map<String, List<Object>> getHeaders() {
         return headers;

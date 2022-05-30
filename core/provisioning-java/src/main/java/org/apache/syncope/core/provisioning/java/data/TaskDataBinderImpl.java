@@ -73,7 +73,7 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 
-public class TaskDataBinderImpl implements TaskDataBinder {
+public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements TaskDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
@@ -340,10 +340,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(schedTask).getName());
         try {
             Trigger trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
-
             if (trigger != null) {
-                schedTaskTO.setLastExec(trigger.getPreviousFireTime());
-                schedTaskTO.setNextExec(trigger.getNextFireTime());
+                schedTaskTO.setLastExec(toOffsetDateTime(trigger.getPreviousFireTime()));
+                schedTaskTO.setNextExec(toOffsetDateTime(trigger.getNextFireTime()));
             }
         } catch (SchedulerException e) {
             LOG.warn("While trying to get to " + triggerName, e);

@@ -29,8 +29,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadGenerator;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
-import org.apache.syncope.common.rest.api.beans.ExecQuery;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecListQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.service.ExecutableService;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
@@ -41,7 +41,7 @@ public abstract class AbstractExecutableService extends AbstractService implemen
     protected abstract AbstractExecutableLogic<?> getExecutableLogic();
 
     @Override
-    public PagedResult<ExecTO> listExecutions(final ExecQuery query) {
+    public PagedResult<ExecTO> listExecutions(final ExecListQuery query) {
         Pair<Integer, List<ExecTO>> result = getExecutableLogic().listExecutions(
                 query.getKey(),
                 query.getPage(),
@@ -77,7 +77,7 @@ public abstract class AbstractExecutableService extends AbstractService implemen
     }
 
     @Override
-    public ExecTO execute(final ExecuteQuery query) {
+    public ExecTO execute(final ExecSpecs query) {
         return getExecutableLogic().execute(query.getKey(), query.getStartAt(), query.getDryRun());
     }
 

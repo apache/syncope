@@ -19,10 +19,11 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
+import java.time.OffsetDateTime;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -56,6 +57,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
@@ -167,17 +169,21 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             final SearchCond searchCond,
             final int page, final int size, final List<OrderByClause> orderBy,
             final String realm,
+            final boolean recursive,
             final boolean details) {
+
+        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+                orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_SEARCH), realm);
 
         SearchCond effectiveCond = searchCond == null ? groupDAO.getAllMatchingCond() : searchCond;
 
-        int count = searchDAO.count(authRealms, effectiveCond, AnyTypeKind.GROUP);
+        int count = searchDAO.count(base, recursive, authRealms, effectiveCond, AnyTypeKind.GROUP);
 
         List<Group> matching = searchDAO.search(
-                authRealms, effectiveCond, page, size, orderBy, AnyTypeKind.GROUP);
+                base, recursive, authRealms, effectiveCond, page, size, orderBy, AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
                 map(group -> binder.getGroupTO(group, details)).
                 collect(Collectors.toList());
@@ -230,6 +236,9 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 before.getRight());
 
         // check if group can still be managed by the caller
+        authRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_UPDATE),
+                result.getEntity().getRealm());
         groupDAO.securityChecks(
                 authRealms,
                 after.getLeft().getKey(),
@@ -288,13 +297,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     public GroupTO unlink(final String key, final Collection<String> resources) {
         GroupTO groupTO = updateChecks(key);
 
-        GroupUR req = new GroupUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                collect(Collectors.toList()));
-        req.setUDynMembershipCond(groupTO.getUDynMembershipCond());
-        req.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
+        GroupUR req = new GroupUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
+                        collect(Collectors.toList())).
+                udynMembershipCond(groupTO.getUDynMembershipCond()).
+                adynMembershipConds(groupTO.getADynMembershipConds()).
+                build();
 
         return binder.getGroupTO(provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
@@ -304,13 +313,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     public GroupTO link(final String key, final Collection<String> resources) {
         GroupTO groupTO = updateChecks(key);
 
-        GroupUR req = new GroupUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                collect(Collectors.toList()));
-        req.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
-        req.setUDynMembershipCond(groupTO.getUDynMembershipCond());
+        GroupUR req = new GroupUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
+                        collect(Collectors.toList())).
+                udynMembershipCond(groupTO.getUDynMembershipCond()).
+                adynMembershipConds(groupTO.getADynMembershipConds()).
+                build();
 
         return binder.getGroupTO(provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT));
     }
@@ -322,13 +331,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
         GroupTO groupTO = updateChecks(key);
 
-        GroupUR req = new GroupUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                collect(Collectors.toList()));
-        req.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
-        req.setUDynMembershipCond(groupTO.getUDynMembershipCond());
+        GroupUR req = new GroupUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
+                        collect(Collectors.toList())).
+                udynMembershipCond(groupTO.getUDynMembershipCond()).
+                adynMembershipConds(groupTO.getADynMembershipConds()).
+                build();
 
         return update(req, nullPriorityAsync);
     }
@@ -344,13 +353,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
         GroupTO groupTO = updateChecks(key);
 
-        GroupUR req = new GroupUR();
-        req.setKey(key);
-        req.getResources().addAll(resources.stream().
-                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                collect(Collectors.toList()));
-        req.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
-        req.setUDynMembershipCond(groupTO.getUDynMembershipCond());
+        GroupUR req = new GroupUR.Builder(key).
+                resources(resources.stream().
+                        map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
+                        collect(Collectors.toList())).
+                udynMembershipCond(groupTO.getUDynMembershipCond()).
+                adynMembershipConds(groupTO.getADynMembershipConds()).
+                build();
 
         return update(req, nullPriorityAsync);
     }
@@ -445,7 +454,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         result.setJobType(JobType.TASK);
         result.setRefKey(task.getKey());
         result.setRefDesc(taskDataBinder.buildRefDesc(task));
-        result.setStart(new Date());
+        result.setStart(OffsetDateTime.now());
         result.setStatus("JOB_FIRED");
         result.setMessage("Job fired; waiting for results...");
 

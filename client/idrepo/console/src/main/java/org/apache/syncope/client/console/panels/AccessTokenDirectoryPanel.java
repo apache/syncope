@@ -95,14 +95,15 @@ public class AccessTokenDirectoryPanel
 
             @Override
             public void populateItem(
-                final Item<ICellPopulator<AccessTokenTO>> cellItem,
-                final String componentId,
-                final IModel<AccessTokenTO> model) {
+                    final Item<ICellPopulator<AccessTokenTO>> cellItem,
+                    final String componentId,
+                    final IModel<AccessTokenTO> model) {
 
                 try {
                     SignedJWT jwt = SignedJWT.parse(model.getObject().getBody());
-                    cellItem.add(new Label(componentId,
-                        SyncopeConsoleSession.get().getDateFormat().format(jwt.getJWTClaimsSet().getIssueTime())));
+                    cellItem.add(new Label(
+                            componentId,
+                            SyncopeConsoleSession.get().getDateFormat().format(jwt.getJWTClaimsSet().getIssueTime())));
                 } catch (ParseException e) {
                     LOG.error("Could not parse JWT {}", model.getObject().getBody(), e);
                     cellItem.add(new Label(componentId, StringUtils.EMPTY));

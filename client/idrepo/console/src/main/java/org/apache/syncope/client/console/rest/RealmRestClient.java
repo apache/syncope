@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -41,15 +40,15 @@ public class RealmRestClient extends BaseRestClient {
         return getService(RealmService.class).search(query);
     }
 
-    public static List<RealmTO> list() {
-        return getService(RealmService.class).list(SyncopeConstants.ROOT_REALM);
+    public static List<RealmTO> list(final String fullpath) {
+        return getService(RealmService.class).list(fullpath);
     }
 
-    public static List<DynRealmTO> listDynReams() {
+    public static List<DynRealmTO> listDynRealms() {
         return getService(DynRealmService.class).list();
     }
 
-    public static DynRealmTO readDynReams(final String key) {
+    public static DynRealmTO readDynRealm(final String key) {
         return getService(DynRealmService.class).read(key);
     }
 

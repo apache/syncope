@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -66,11 +66,11 @@ import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
-import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
-import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,6 +79,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     public static final String UDYNMEMB_TABLE = "UDynGroupMembers";
 
     public static final String ADYNMEMB_TABLE = "ADynGroupMembers";
+
+    protected final ApplicationEventPublisher publisher;
 
     protected final AnyMatchDAO anyMatchDAO;
 
@@ -105,7 +107,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             final AnySearchDAO searchDAO,
             final SearchCondVisitor searchCondVisitor) {
 
-        super(anyUtilsFactory, publisher, plainSchemaDAO, derSchemaDAO, dynRealmDAO);
+        super(anyUtilsFactory, plainSchemaDAO, derSchemaDAO, dynRealmDAO);
+        this.publisher = publisher;
         this.anyMatchDAO = anyMatchDAO;
         this.plainAttrDAO = plainAttrDAO;
         this.userDAO = userDAO;
@@ -127,7 +130,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public Date findLastChange(final String key) {
+    public OffsetDateTime findLastChange(final String key) {
         return findLastChange(key, JPAGroup.TABLE);
     }
 
@@ -289,15 +292,17 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public Group saveAndRefreshDynMemberships(final Group group) {
         Group merged = save(group);
-        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
 
         // refresh dynamic memberships
         clearUDynMembers(merged);
         if (merged.getUDynMembership() != null) {
             SearchCond cond = buildDynMembershipCond(merged.getUDynMembership().getFIQLCond(), merged.getRealm());
-            int count = anySearchDAO.count(Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.USER);
+            int count = anySearchDAO.count(
+                    merged.getRealm(), true, Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.USER);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                 List<User> matching = anySearchDAO.search(
+                        merged.getRealm(),
+                        true,
                         Set.of(merged.getRealm().getFullPath()),
                         cond,
                         page,
@@ -311,16 +316,20 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                     insert.setParameter(2, merged.getKey());
                     insert.executeUpdate();
 
-                    publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user, AuthContextUtils.getDomain()));
+                    publisher.publishEvent(
+                            new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
                 });
             }
         }
         clearADynMembers(merged);
         merged.getADynMemberships().forEach(memb -> {
             SearchCond cond = buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm());
-            int count = anySearchDAO.count(Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
+            int count = anySearchDAO.count(
+                    merged.getRealm(), true, Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                 List<AnyObject> matching = anySearchDAO.search(
+                        merged.getRealm(),
+                        true,
                         Set.of(merged.getRealm().getFullPath()),
                         cond,
                         page,
@@ -328,15 +337,16 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                         List.of(),
                         AnyTypeKind.ANY_OBJECT);
 
-                matching.forEach(anyObject -> {
+                matching.forEach(any -> {
                     Query insert = entityManager().createNativeQuery(
                             "INSERT INTO " + ADYNMEMB_TABLE + " VALUES(?, ?, ?)");
-                    insert.setParameter(1, anyObject.getType().getKey());
-                    insert.setParameter(2, anyObject.getKey());
+                    insert.setParameter(1, any.getType().getKey());
+                    insert.setParameter(2, any.getKey());
                     insert.setParameter(3, merged.getKey());
                     insert.executeUpdate();
 
-                    publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, anyObject, AuthContextUtils.getDomain()));
+                    publisher.publishEvent(
+                            new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, any, AuthContextUtils.getDomain()));
                 });
             }
         });
@@ -362,7 +372,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             });
 
             anyObjectDAO.save(leftEnd);
-            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, leftEnd, AuthContextUtils.getDomain()));
+            publisher.publishEvent(
+                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, leftEnd, AuthContextUtils.getDomain()));
         });
 
         findUMemberships(group).forEach(membership -> {
@@ -378,15 +389,14 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             });
 
             userDAO.save(leftEnd);
-            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, leftEnd, AuthContextUtils.getDomain()));
+            publisher.publishEvent(
+                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, leftEnd, AuthContextUtils.getDomain()));
         });
 
         clearUDynMembers(group);
         clearADynMembers(group);
 
         entityManager().remove(group);
-        publisher.publishEvent(new AnyDeletedEvent(
-                this, AnyTypeKind.GROUP, group.getKey(), group.getName(), AuthContextUtils.getDomain()));
     }
 
     @Override
@@ -516,7 +526,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                 delete.executeUpdate();
             }
 
-            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, memb.getGroup(), AuthContextUtils.getDomain()));
+            publisher.publishEvent(
+                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
         });
 
         return Pair.of(before, after);
@@ -534,7 +545,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         dynGroups.forEach(group -> {
             before.add(group.getKey());
 
-            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, group, AuthContextUtils.getDomain()));
+            publisher.publishEvent(
+                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain()));
         });
 
         return before;
@@ -614,7 +626,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                 delete.executeUpdate();
             }
 
-            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, memb.getGroup(), AuthContextUtils.getDomain()));
+            publisher.publishEvent(
+                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
         });
 
         return Pair.of(before, after);
@@ -632,7 +645,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         dynGroups.forEach(group -> {
             before.add(group.getKey());
 
-            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, group, AuthContextUtils.getDomain()));
+            publisher.publishEvent(
+                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain()));
         });
 
         return before;

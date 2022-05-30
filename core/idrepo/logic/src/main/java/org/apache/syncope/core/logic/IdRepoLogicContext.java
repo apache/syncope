@@ -106,8 +106,10 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public LogicInvocationHandler logicInvocationHandler(final NotificationManager notificationManager,
-                                                         final AuditManager auditManager) {
+    public LogicInvocationHandler logicInvocationHandler(
+            final NotificationManager notificationManager,
+            final AuditManager auditManager) {
+
         return new LogicInvocationHandler(notificationManager, auditManager);
     }
 
@@ -125,8 +127,11 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuditLoader auditLoader(final AuditAccessor auditAccessor, final ImplementationLookup implementationLookup,
-                                   final LogicProperties logicProperties) {
+    public AuditLoader auditLoader(
+            final AuditAccessor auditAccessor,
+            final ImplementationLookup implementationLookup,
+            final LogicProperties logicProperties) {
+
         return new AuditLoader(auditAccessor, implementationLookup, logicProperties);
     }
 
@@ -150,9 +155,11 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AccessTokenLogic accessTokenLogic(final AccessTokenDataBinder binder,
-                                             final AccessTokenDAO accessTokenDAO,
-                                             final SecurityProperties securityProperties) {
+    public AccessTokenLogic accessTokenLogic(
+            final AccessTokenDataBinder binder,
+            final AccessTokenDAO accessTokenDAO,
+            final SecurityProperties securityProperties) {
+
         return new AccessTokenLogic(securityProperties, binder, accessTokenDAO);
     }
 
@@ -179,16 +186,20 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AnyTypeClassLogic anyTypeClassLogic(final AnyTypeClassDataBinder binder,
-                                               final AnyTypeClassDAO anyTypeClassDAO) {
+    public AnyTypeClassLogic anyTypeClassLogic(
+            final AnyTypeClassDataBinder binder,
+            final AnyTypeClassDAO anyTypeClassDAO) {
+
         return new AnyTypeClassLogic(binder, anyTypeClassDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AnyTypeLogic anyTypeLogic(final AnyTypeDataBinder binder,
-                                     final AnyTypeDAO anyTypeDAO,
-                                     final AnyObjectDAO anyObjectDAO) {
+    public AnyTypeLogic anyTypeLogic(
+            final AnyTypeDataBinder binder,
+            final AnyTypeDAO anyTypeDAO,
+            final AnyObjectDAO anyObjectDAO) {
+
         return new AnyTypeLogic(binder, anyTypeDAO, anyObjectDAO);
     }
 
@@ -222,9 +233,11 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DelegationLogic delegationLogic(final DelegationDataBinder binder,
-                                           final UserDAO userDAO,
-                                           final DelegationDAO delegationDAO) {
+    public DelegationLogic delegationLogic(
+            final DelegationDataBinder binder,
+            final UserDAO userDAO,
+            final DelegationDAO delegationDAO) {
+
         return new DelegationLogic(binder, delegationDAO, userDAO);
     }
 
@@ -239,22 +252,24 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public GroupLogic groupLogic(final GroupProvisioningManager provisioningManager,
-                                 final JobManager jobManager,
-                                 final TemplateUtils templateUtils,
-                                 final EntityFactory entityFactory,
-                                 final RealmDAO realmDAO,
-                                 final AnyTypeDAO anyTypeDAO,
-                                 final UserDAO userDAO,
-                                 final GroupDAO groupDAO,
-                                 final AnySearchDAO anySearchDAO,
-                                 final SchedulerFactoryBean scheduler,
-                                 final TaskDAO taskDAO,
-                                 final ConfParamOps confParamOps,
-                                 final GroupDataBinder groupDataBinder,
-                                 final TaskDataBinder taskDataBinder,
-                                 final ImplementationDAO implementationDAO,
-                                 final SecurityProperties securityProperties) {
+    public GroupLogic groupLogic(
+            final GroupProvisioningManager provisioningManager,
+            final JobManager jobManager,
+            final TemplateUtils templateUtils,
+            final EntityFactory entityFactory,
+            final RealmDAO realmDAO,
+            final AnyTypeDAO anyTypeDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnySearchDAO anySearchDAO,
+            final SchedulerFactoryBean scheduler,
+            final TaskDAO taskDAO,
+            final ConfParamOps confParamOps,
+            final GroupDataBinder groupDataBinder,
+            final TaskDataBinder taskDataBinder,
+            final ImplementationDAO implementationDAO,
+            final SecurityProperties securityProperties) {
+
         return new GroupLogic(
                 realmDAO,
                 anyTypeDAO,
@@ -276,15 +291,17 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ImplementationLogic implementationLogic(final ImplementationDataBinder binder,
-                                                   final PlainSchemaDAO plainSchemaDAO,
-                                                   final RealmDAO realmDAO,
-                                                   final PolicyDAO policyDAO,
-                                                   final ReportDAO reportDAO,
-                                                   final TaskDAO taskDAO,
-                                                   final ExternalResourceDAO externalResourceDAO,
-                                                   final ImplementationDAO implementationDAO,
-                                                   final NotificationDAO notificationDAO) {
+    public ImplementationLogic implementationLogic(
+            final ImplementationDataBinder binder,
+            final PlainSchemaDAO plainSchemaDAO,
+            final RealmDAO realmDAO,
+            final PolicyDAO policyDAO,
+            final ReportDAO reportDAO,
+            final TaskDAO taskDAO,
+            final ExternalResourceDAO externalResourceDAO,
+            final ImplementationDAO implementationDAO,
+            final NotificationDAO notificationDAO) {
+
         return new ImplementationLogic(
                 binder,
                 implementationDAO,
@@ -299,18 +316,22 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public MailTemplateLogic mailTemplateLogic(final MailTemplateDAO mailTemplateDAO,
-                                               final EntityFactory entityFactory,
-                                               final NotificationDAO notificationDAO) {
+    public MailTemplateLogic mailTemplateLogic(
+            final MailTemplateDAO mailTemplateDAO,
+            final EntityFactory entityFactory,
+            final NotificationDAO notificationDAO) {
+
         return new MailTemplateLogic(mailTemplateDAO, notificationDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public NotificationLogic notificationLogic(final NotificationDataBinder binder,
-                                               final JobManager jobManager,
-                                               final SchedulerFactoryBean scheduler,
-                                               final NotificationDAO notificationDAO) {
+    public NotificationLogic notificationLogic(
+            final NotificationDataBinder binder,
+            final JobManager jobManager,
+            final SchedulerFactoryBean scheduler,
+            final NotificationDAO notificationDAO) {
+
         return new NotificationLogic(jobManager, scheduler, notificationDAO, binder);
     }
 
@@ -326,11 +347,13 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public RealmLogic realmLogic(final RealmDataBinder binder,
-                                 final RealmDAO realmDAO,
-                                 final AnySearchDAO anySearchDAO,
-                                 final PropagationManager propagationManager,
-                                 final PropagationTaskExecutor taskExecutor) {
+    public RealmLogic realmLogic(
+            final RealmDataBinder binder,
+            final RealmDAO realmDAO,
+            final AnySearchDAO anySearchDAO,
+            final PropagationManager propagationManager,
+            final PropagationTaskExecutor taskExecutor) {
+
         return new RealmLogic(realmDAO, anySearchDAO, binder, propagationManager, taskExecutor);
     }
 
@@ -359,9 +382,11 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ReportTemplateLogic reportTemplateLogic(final ReportTemplateDAO reportTemplateDAO,
-                                                   final ReportDAO reportDAO,
-                                                   final EntityFactory entityFactory) {
+    public ReportTemplateLogic reportTemplateLogic(
+            final ReportTemplateDAO reportTemplateDAO,
+            final ReportDAO reportDAO,
+            final EntityFactory entityFactory) {
+
         return new ReportTemplateLogic(reportTemplateDAO, reportDAO, entityFactory);
     }
 
@@ -376,11 +401,13 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SchemaLogic schemaLogic(final SchemaDataBinder binder,
-                                   final VirSchemaDAO virSchemaDAO,
-                                   final AnyTypeClassDAO anyTypeClassDAO,
-                                   final DerSchemaDAO derSchemaDAO,
-                                   final PlainSchemaDAO plainSchemaDAO) {
+    public SchemaLogic schemaLogic(
+            final SchemaDataBinder binder,
+            final VirSchemaDAO virSchemaDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
+            final DerSchemaDAO derSchemaDAO,
+            final PlainSchemaDAO plainSchemaDAO) {
+
         return new SchemaLogic(plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyTypeClassDAO, binder);
     }
 
@@ -399,6 +426,7 @@ public class IdRepoLogicContext {
     public SyncopeLogic syncopeLogic(
             final ContentExporter exporter,
             final UserWorkflowAdapter uwfAdapter,
+            final RealmDAO realmDAO,
             final AnyTypeDAO anyTypeDAO,
             final GroupDAO groupDAO,
             final ConfParamOps confParamOps,
@@ -408,6 +436,7 @@ public class IdRepoLogicContext {
             final AnyObjectWorkflowAdapter awfAdapter) {
 
         return new SyncopeLogic(
+                realmDAO,
                 anyTypeDAO,
                 groupDAO,
                 anySearchDAO,

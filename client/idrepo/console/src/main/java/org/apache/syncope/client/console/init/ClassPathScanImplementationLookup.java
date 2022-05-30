@@ -32,6 +32,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.syncope.client.console.ConsoleProperties;
 import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.console.pages.BaseExtPage;
@@ -112,8 +113,12 @@ public class ClassPathScanImplementationLookup {
 
     private List<Class<? extends BasePage>> amPages;
 
-    public ClassPathScanImplementationLookup(final Collection<ClassPathScanImplementationContributor> contributors) {
+    private final ConsoleProperties props;
+
+    public ClassPathScanImplementationLookup(final Collection<ClassPathScanImplementationContributor> contributors,
+                                             final ConsoleProperties props) {
         this.contributors = contributors;
+        this.props = props;
     }
 
     protected ClassPathScanningCandidateComponentProvider scanner() {
@@ -180,7 +185,10 @@ public class ClassPathScanImplementationLookup {
                         }
                     } else if (BasePage.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(IdMPage.class)) {
-                            idmPages.add((Class<? extends BasePage>) clazz);
+                            if (!clazz.getName().endsWith("Topology")
+                                    || (clazz.getName().equals(props.getPage().get("topology").getName()))) {
+                                idmPages.add((Class<? extends BasePage>) clazz);
+                            }
                         } else if (clazz.isAnnotationPresent(AMPage.class)) {
                             amPages.add((Class<? extends BasePage>) clazz);
                         } else {

@@ -100,6 +100,11 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
       <scope>test</scope>
@@ -128,12 +133,32 @@ under the License.
             <timeout>600000</timeout>
             <log>${cargo.log}</log>
             <output>${cargo.output}</output>
+
+            <systemProperties>
+              <java.security.egd>file:/dev/./urandom</java.security.egd>
+              <java.util.secureRandomSeed>true</java.util.secureRandomSeed>
+
+              <h2.returnOffsetDateTime>true</h2.returnOffsetDateTime>
+
+              <javax.net.ssl.trustStore>${basedir}/src/test/resources/keystore.jks</javax.net.ssl.trustStore>
+              <javax.net.ssl.trustStorePassword>password</javax.net.ssl.trustStorePassword>
+            </systemProperties>
           </container>
           <configuration>
             <properties>
               <cargo.jvmargs>
-                -Dspring.profiles.active=embedded,all
+                -Dspring.profiles.active=embedded,https,all
                 -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
+
+              <cargo.servlet.port>9443</cargo.servlet.port>
+              <cargo.protocol>https</cargo.protocol>
+              <cargo.tomcat.connector.keystoreFile>${basedir}/src/test/resources/keystore.jks</cargo.tomcat.connector.keystoreFile>
+              <cargo.tomcat.connector.keystorePass>password</cargo.tomcat.connector.keystorePass>
+              <cargo.tomcat.connector.keyAlias>tomcat</cargo.tomcat.connector.keyAlias>
+              <cargo.tomcat.connector.clientAuth>false</cargo.tomcat.connector.clientAuth>
+              <cargo.tomcat.connector.sslProtocol>TLS</cargo.tomcat.connector.sslProtocol>
+              <cargo.tomcat.connector.redirectPort>9443</cargo.tomcat.connector.redirectPort>
+              <cargo.tomcat.httpSecure>true</cargo.tomcat.httpSecure>
             </properties>
           </configuration>
           <deployables>
@@ -149,7 +174,7 @@ under the License.
               <groupId>org.apache.syncope.fit</groupId>
               <artifactId>syncope-fit-core-reference</artifactId>
               <type>war</type>
-              <pingURL>http://localhost:${cargo.servlet.port}/syncope/index.html</pingURL>
+              <pingURL>https://localhost:9443/syncope/index.html</pingURL>
               <pingTimeout>${cargo.deployable.ping.timeout}</pingTimeout>
               <properties>
                 <context>syncope</context>
@@ -207,11 +232,17 @@ under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <inherited>true</inherited>
+        <configuration>
+          <argLine>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password</argLine>          
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <inherited>true</inherited>
+        <configuration>
+          <argLine>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password</argLine>          
+        </configuration>
         <executions>
           <execution>
             <id>verify</id>
@@ -241,6 +272,9 @@ under the License.
       <testResource>
         <directory>src/test/resources</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>keystore.jks</exclude>
+        </excludes>
       </testResource>
       <testResource>
         <directory>${basedir}/../../sra/src/test/resources/debug</directory>
@@ -276,7 +310,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>
-                    -Dspring.profiles.active=embedded,all
+                    -Dspring.profiles.active=embedded,https,all
                     -Dwicket.core.settings.general.configuration-type=development
                     -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
                     -XX:+CMSClassUnloadingEnabled -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>

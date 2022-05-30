@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ClassUtils;
 
@@ -28,7 +28,7 @@ public enum AttrSchemaType {
     Long(Long.class),
     Double(Double.class),
     Boolean(Boolean.class),
-    Date(Date.class),
+    Date(OffsetDateTime.class),
     Enum(Enum.class),
     Binary(byte[].class),
     Encrypted(byte[].class);
@@ -56,5 +56,4 @@ public enum AttrSchemaType {
                 : ClassUtils.isAssignable(type, item.getType(), true)).
                 findFirst().orElse(AttrSchemaType.String);
     }
-
 }

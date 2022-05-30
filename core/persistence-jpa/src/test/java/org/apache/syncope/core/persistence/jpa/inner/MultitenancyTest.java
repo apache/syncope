@@ -94,7 +94,8 @@ public class MultitenancyTest extends AbstractTest {
 
         User user = entityFactory.newEntity(User.class);
         user.setRealm(realmDAO.getRoot());
-        user.setPassword("password", CipherAlgorithm.SHA256);
+        user.setPassword("password");
+        user.setCipherAlgorithm(CipherAlgorithm.SHA256);
         user.setUsername("username");
 
         User actual = userDAO.save(user);

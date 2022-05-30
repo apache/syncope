@@ -30,8 +30,11 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.springframework.context.ApplicationEventPublisher;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
 
 /**
  * Simple implementation basically not involving any workflow engine.
@@ -40,14 +43,18 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     protected final ConfParamOps confParamOps;
 
+    protected final ApplicationEventPublisher publisher;
+
     public DefaultUserWorkflowAdapter(
             final UserDataBinder dataBinder,
             final UserDAO userDAO,
             final EntityFactory entityFactory,
-            final ConfParamOps confParamOps) {
+            final ConfParamOps confParamOps,
+            final ApplicationEventPublisher publisher) {
 
         super(dataBinder, userDAO, entityFactory);
         this.confParamOps = confParamOps;
+        this.publisher = publisher;
     }
 
     @Override
@@ -83,6 +90,9 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user.setStatus(status);
         user = userDAO.save(user);
 
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.CREATE, user, AuthContextUtils.getDomain()));
+
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.CREATE, userDAO.findAllResourceKeys(user.getKey()));
 
@@ -111,6 +121,9 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user.setStatus("active");
         User updated = userDAO.save(user);
 
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
+
         return new UserWorkflowResult<>(updated.getKey(), null, null, "activate");
     }
 
@@ -122,7 +135,10 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 dataBinder.update(user, userUR);
 
         metadata(user, updater, context);
-        userDAO.save(user);
+        User updated = userDAO.save(user);
+
+        publisher.publishEvent(new AnyLifecycleEvent<>(
+                this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
         return new UserWorkflowResult<>(
                 Pair.of(userUR, !user.isSuspended()),
@@ -137,6 +153,9 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user.setStatus("suspended");
         User updated = userDAO.save(user);
 
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
+
         return new UserWorkflowResult<>(updated.getKey(), null, null, "suspend");
     }
 
@@ -145,6 +164,9 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         metadata(user, updater, context);
         user.setStatus("active");
         User updated = userDAO.save(user);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
         return new UserWorkflowResult<>(updated.getKey(), null, null, "reactivate");
     }
@@ -155,7 +177,10 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 confParamOps.get(AuthContextUtils.getDomain(), "token.length", 256, Integer.class),
                 confParamOps.get(AuthContextUtils.getDomain(), "token.expireTime", 60, Integer.class));
         metadata(user, updater, context);
-        userDAO.save(user);
+        User updated = userDAO.save(user);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
     }
 
     @Override
@@ -179,7 +204,10 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doDelete(final User user) {
+    protected void doDelete(final User user, final String eraser, final String context) {
         userDAO.delete(user);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.DELETE, user, AuthContextUtils.getDomain()));
     }
 }

@@ -64,10 +64,10 @@ public class ProvisioningImpl implements Provisioning {
         try {
             conn = DataSourceUtils.getConnection(dataSource);
 
-            try (PreparedStatement statement = conn.prepareStatement("DELETE FROM user WHERE userId=?")) {
+            try (PreparedStatement statement = conn.prepareStatement("DELETE FROM testuser WHERE userId=?")) {
                 statement.setString(1, accountid);
 
-                String query = "DELETE FROM user WHERE userId='" + accountid + "';";
+                String query = "DELETE FROM testuser WHERE userId='" + accountid + "';";
                 LOG.debug("Execute query: " + query);
 
                 statement.executeUpdate();
@@ -156,9 +156,9 @@ public class ProvisioningImpl implements Provisioning {
 
             if (set.length() > 0) {
                 try (PreparedStatement statement =
-                        conn.prepareStatement("UPDATE user SET " + set.toString() + " WHERE userId=?")) {
+                        conn.prepareStatement("UPDATE testuser SET " + set.toString() + " WHERE userId=?")) {
                     statement.setString(1, accountid);
-                    String query = "UPDATE user SET " + set.toString() + " WHERE userId='" + accountid + "';";
+                    String query = "UPDATE testuser SET " + set.toString() + " WHERE userId='" + accountid + "';";
                     LOG.debug("Execute query: " + query);
 
                     statement.executeUpdate();
@@ -183,7 +183,7 @@ public class ProvisioningImpl implements Provisioning {
         Connection conn = null;
         try {
 
-            String queryString = "SELECT * FROM user" + (Optional.ofNullable(query)
+            String queryString = "SELECT * FROM testuser" + (Optional.ofNullable(query)
                     .map(operand -> " WHERE " + operand.toString()).orElse(""));
 
             queryString = queryString.replaceAll("__NAME__", "userId").
@@ -295,7 +295,7 @@ public class ProvisioningImpl implements Provisioning {
                         }
                     }
                 }
-                query = "INSERT INTO user (" + keys.toString() + ") VALUES (" + values.toString() + ')';
+                query = "INSERT INTO testuser (" + keys.toString() + ") VALUES (" + values.toString() + ')';
                 LOG.debug("Execute query: " + query);
                 statement.executeUpdate(query);
             }
@@ -338,10 +338,10 @@ public class ProvisioningImpl implements Provisioning {
         try {
             conn = DataSourceUtils.getConnection(dataSource);
             PreparedStatement statement =
-                    conn.prepareStatement("SELECT userId FROM user WHERE userId=?");
+                    conn.prepareStatement("SELECT userId FROM testuser WHERE userId=?");
             statement.setString(1, username);
 
-            final String query = "SELECT userId FROM user WHERE userId='" + username + "';";
+            final String query = "SELECT userId FROM testuser WHERE userId='" + username + "';";
 
             LOG.debug("Execute query: " + query);
 

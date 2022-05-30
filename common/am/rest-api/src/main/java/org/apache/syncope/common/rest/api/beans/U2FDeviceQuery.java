@@ -21,7 +21,7 @@ package org.apache.syncope.common.rest.api.beans;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import javax.ws.rs.QueryParam;
 
 public class U2FDeviceQuery extends AbstractQuery {
@@ -45,7 +45,7 @@ public class U2FDeviceQuery extends AbstractQuery {
             return this;
         }
 
-        public U2FDeviceQuery.Builder expirationDate(final Date date) {
+        public U2FDeviceQuery.Builder expirationDate(final OffsetDateTime date) {
             getInstance().setExpirationDate(date);
             return this;
         }
@@ -53,7 +53,7 @@ public class U2FDeviceQuery extends AbstractQuery {
 
     private Long id;
 
-    private Date expirationDate;
+    private OffsetDateTime expirationDate;
 
     private String owner;
 
@@ -69,13 +69,13 @@ public class U2FDeviceQuery extends AbstractQuery {
     }
 
     @Parameter(name = "expirationDate", in = ParameterIn.QUERY, schema =
-            @Schema(implementation = Date.class))
-    public Date getExpirationDate() {
+            @Schema(implementation = OffsetDateTime.class))
+    public OffsetDateTime getExpirationDate() {
         return expirationDate;
     }
 
     @QueryParam("expirationDate")
-    public void setExpirationDate(final Date expirationDate) {
+    public void setExpirationDate(final OffsetDateTime expirationDate) {
         this.expirationDate = expirationDate;
     }
 

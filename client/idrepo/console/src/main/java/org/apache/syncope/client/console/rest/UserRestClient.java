@@ -61,9 +61,8 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     public ProvisioningResult<UserTO> update(final String etag, final UserUR updateReq) {
         ProvisioningResult<UserTO> result;
         synchronized (this) {
-            result = getService(etag, UserService.class).update(updateReq).
-                    readEntity(new GenericType<>() {
-                    });
+            result = getService(etag, UserService.class).update(updateReq).readEntity(new GenericType<>() {
+            });
             resetClient(getAnyServiceClass());
         }
         return result;
@@ -87,9 +86,9 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     }
 
     public ProvisioningResult<UserTO> mustChangePassword(final String etag, final boolean value, final String key) {
-        UserUR userUR = new UserUR();
-        userUR.setKey(key);
-        userUR.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(value).build());
+        UserUR userUR = new UserUR.Builder(key).
+                mustChangePassword(new BooleanReplacePatchItem.Builder().value(value).build()).
+                build();
         return update(etag, userUR);
     }
 

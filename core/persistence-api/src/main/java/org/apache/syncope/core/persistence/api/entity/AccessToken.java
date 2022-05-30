@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 
 public interface AccessToken extends ProvidedKeyEntity {
 
@@ -26,9 +26,9 @@ public interface AccessToken extends ProvidedKeyEntity {
 
     void setBody(String body);
 
-    Date getExpirationTime();
+    OffsetDateTime getExpirationTime();
 
-    void setExpirationTime(Date expirationTime);
+    void setExpirationTime(OffsetDateTime expirationTime);
 
     String getOwner();
 

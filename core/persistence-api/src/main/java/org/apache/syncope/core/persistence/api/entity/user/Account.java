@@ -28,14 +28,16 @@ public interface Account {
 
     CipherAlgorithm getCipherAlgorithm();
 
-    boolean canDecodePassword();
+    boolean canDecodeSecrets();
 
     String getPassword();
 
     void setEncodedPassword(String password, CipherAlgorithm cipherAlgoritm);
 
-    void setPassword(String password, CipherAlgorithm cipherAlgoritm);
+    void setPassword(String password);
 
+    void setCipherAlgorithm(CipherAlgorithm cipherAlgorithm);
+    
     Boolean isSuspended();
 
     void setSuspended(Boolean suspended);

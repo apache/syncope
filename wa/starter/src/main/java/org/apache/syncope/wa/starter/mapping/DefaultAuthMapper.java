@@ -19,7 +19,7 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import java.util.HashSet;
-import org.apache.syncope.common.lib.policy.AuthPolicyConf;
+import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apereo.cas.services.AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria;
 import org.apereo.cas.services.DefaultRegisteredServiceAuthenticationPolicy;
@@ -29,10 +29,10 @@ import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 public class DefaultAuthMapper implements AuthMapper {
 
     @Override
-    public RegisteredServiceAuthenticationPolicy build(final AuthPolicyConf conf) {
+    public RegisteredServiceAuthenticationPolicy build(final AuthPolicyTO policy) {
         DefaultRegisteredServiceAuthenticationPolicy authPolicy = new DefaultRegisteredServiceAuthenticationPolicy();
 
-        DefaultAuthPolicyConf policyConf = (DefaultAuthPolicyConf) conf;
+        DefaultAuthPolicyConf policyConf = (DefaultAuthPolicyConf) policy.getConf();
         if (!policyConf.getAuthModules().isEmpty()) {
             authPolicy.setRequiredAuthenticationHandlers(new HashSet<>(policyConf.getAuthModules()));
         }

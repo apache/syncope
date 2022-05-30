@@ -19,10 +19,10 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.Date;
-import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMGeneralConf;
 import org.apache.wicket.model.Model;
@@ -48,14 +48,14 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
 
                     @Override
                     public Date getObject() {
-                        return scimGeneralConf.getCreationDate();
+                        return DateOps.convert(scimGeneralConf.getCreationDate());
                     }
 
                     @Override
                     public void setObject(final Date object) {
-                        scimGeneralConf.setCreationDate(object);
+                        scimGeneralConf.setCreationDate(DateOps.convert(object));
                     }
-                }, FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN));
+                }, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
         creationDatePanel.setEnabled(false);
 
         AjaxDateTimeFieldPanel lastChangeDatePanel =
@@ -65,97 +65,97 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
 
                     @Override
                     public Date getObject() {
-                        return scimGeneralConf.getLastChangeDate();
+                        return DateOps.convert(scimGeneralConf.getLastChangeDate());
                     }
 
                     @Override
                     public void setObject(final Date object) {
-                        scimGeneralConf.setLastChangeDate(object);
+                        scimGeneralConf.setLastChangeDate(DateOps.convert(object));
                     }
-                }, FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN));
+                }, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
         lastChangeDatePanel.setEnabled(false);
 
         AjaxTextFieldPanel bulkMaxOperationsPanel =
                 new AjaxTextFieldPanel("bulkMaxOperations", "bulkMaxOperations",
-                    new PropertyModel<>("bulkMaxOperations", "bulkMaxOperations") {
+                        new PropertyModel<>("bulkMaxOperations", "bulkMaxOperations") {
 
-                        private static final long serialVersionUID = -6427731218492117883L;
+                    private static final long serialVersionUID = -6427731218492117883L;
 
-                        @Override
-                        public String getObject() {
-                            return String.valueOf(scimGeneralConf.getBulkMaxOperations());
+                    @Override
+                    public String getObject() {
+                        return String.valueOf(scimGeneralConf.getBulkMaxOperations());
+                    }
+
+                    @Override
+                    public void setObject(final String object) {
+                        try {
+                            scimGeneralConf.setBulkMaxOperations(Integer.parseInt(object));
+                        } catch (NumberFormatException e) {
+                            LOG.error("Invalid value provided for 'bulkMaxOperations': {}", object, e);
                         }
-
-                        @Override
-                        public void setObject(final String object) {
-                            try {
-                                scimGeneralConf.setBulkMaxOperations(Integer.parseInt(object));
-                            } catch (NumberFormatException e) {
-                                LOG.error("Invalid value provided for 'bulkMaxOperations': {}", object, e);
-                            }
-                        }
-                    });
+                    }
+                });
         bulkMaxOperationsPanel.setChoices(plainSchemaNames);
 
         AjaxTextFieldPanel bulkMaxMaxPayloadSizePanel =
                 new AjaxTextFieldPanel("bulkMaxMaxPayloadSize", "bulkMaxMaxPayloadSize",
-                    new PropertyModel<>("bulkMaxMaxPayloadSize", "bulkMaxMaxPayloadSize") {
+                        new PropertyModel<>("bulkMaxMaxPayloadSize", "bulkMaxMaxPayloadSize") {
 
-                        private static final long serialVersionUID = -6427731218492117883L;
+                    private static final long serialVersionUID = -6427731218492117883L;
 
-                        @Override
-                        public String getObject() {
-                            return String.valueOf(scimGeneralConf.getBulkMaxPayloadSize());
+                    @Override
+                    public String getObject() {
+                        return String.valueOf(scimGeneralConf.getBulkMaxPayloadSize());
+                    }
+
+                    @Override
+                    public void setObject(final String object) {
+                        try {
+                            scimGeneralConf.setBulkMaxPayloadSize(Integer.parseInt(object));
+                        } catch (NumberFormatException e) {
+                            LOG.error("Invalid value provided for 'bulkMaxPayloadSize': {}", object, e);
                         }
-
-                        @Override
-                        public void setObject(final String object) {
-                            try {
-                                scimGeneralConf.setBulkMaxPayloadSize(Integer.parseInt(object));
-                            } catch (NumberFormatException e) {
-                                LOG.error("Invalid value provided for 'bulkMaxPayloadSize': {}", object, e);
-                            }
-                        }
-                    });
+                    }
+                });
         bulkMaxMaxPayloadSizePanel.setChoices(plainSchemaNames);
 
         AjaxTextFieldPanel filterMaxResultsPanel =
                 new AjaxTextFieldPanel("filterMaxResults", "filterMaxResults",
-                    new PropertyModel<>("filterMaxResults", "filterMaxResults") {
+                        new PropertyModel<>("filterMaxResults", "filterMaxResults") {
 
-                        private static final long serialVersionUID = -6427731218492117883L;
+                    private static final long serialVersionUID = -6427731218492117883L;
 
-                        @Override
-                        public String getObject() {
-                            return String.valueOf(scimGeneralConf.getFilterMaxResults());
+                    @Override
+                    public String getObject() {
+                        return String.valueOf(scimGeneralConf.getFilterMaxResults());
+                    }
+
+                    @Override
+                    public void setObject(final String object) {
+                        try {
+                            scimGeneralConf.setFilterMaxResults(Integer.parseInt(object));
+                        } catch (NumberFormatException e) {
+                            LOG.error("Invalid value provided for 'filterMaxResults': {}", object, e);
                         }
-
-                        @Override
-                        public void setObject(final String object) {
-                            try {
-                                scimGeneralConf.setFilterMaxResults(Integer.parseInt(object));
-                            } catch (NumberFormatException e) {
-                                LOG.error("Invalid value provided for 'filterMaxResults': {}", object, e);
-                            }
-                        }
-                    });
+                    }
+                });
         filterMaxResultsPanel.setChoices(plainSchemaNames);
 
         AjaxTextFieldPanel eTagValuePanel = new AjaxTextFieldPanel("eTagValue", "eTagValue",
-            new PropertyModel<>("eTagValue", "eTagValue") {
+                new PropertyModel<>("eTagValue", "eTagValue") {
 
-                private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                @Override
-                public String getObject() {
-                    return scimGeneralConf.getETagValue();
-                }
+            @Override
+            public String getObject() {
+                return scimGeneralConf.getETagValue();
+            }
 
-                @Override
-                public void setObject(final String object) {
-                    // nothing to do
-                }
-            });
+            @Override
+            public void setObject(final String object) {
+                // nothing to do
+            }
+        });
         eTagValuePanel.setEnabled(false);
 
         add(creationDatePanel);

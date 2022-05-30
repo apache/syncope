@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.common.lib.wa;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -35,7 +34,7 @@ public class GoogleMfaAuthAccount implements BaseBean {
 
         private final GoogleMfaAuthAccount instance = new GoogleMfaAuthAccount();
 
-        public GoogleMfaAuthAccount.Builder registrationDate(final Date date) {
+        public GoogleMfaAuthAccount.Builder registrationDate(final OffsetDateTime date) {
             instance.setRegistrationDate(date);
             return this;
         }
@@ -80,7 +79,7 @@ public class GoogleMfaAuthAccount implements BaseBean {
 
     private List<Integer> scratchCodes = new ArrayList<>(0);
 
-    private Date registrationDate;
+    private OffsetDateTime registrationDate;
 
     public String getName() {
         return name;
@@ -122,14 +121,12 @@ public class GoogleMfaAuthAccount implements BaseBean {
         this.scratchCodes = scratchCodes;
     }
 
-    public Date getRegistrationDate() {
-        return Optional.ofNullable(this.registrationDate).
-                map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getRegistrationDate() {
+        return registrationDate;
     }
 
-    public void setRegistrationDate(final Date registrationDate) {
-        this.registrationDate = Optional.ofNullable(registrationDate).
-                map(date -> new Date(date.getTime())).orElse(null);
+    public void setRegistrationDate(final OffsetDateTime registrationDate) {
+        this.registrationDate = registrationDate;
     }
 
     @Override

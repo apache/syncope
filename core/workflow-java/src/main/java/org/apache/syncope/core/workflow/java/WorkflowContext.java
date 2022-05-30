@@ -30,6 +30,7 @@ import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -42,9 +43,10 @@ public class WorkflowContext {
             final UserDataBinder userDataBinder,
             final UserDAO userDAO,
             final EntityFactory entityFactory,
-            final ConfParamOps confParamOps) {
+            final ConfParamOps confParamOps,
+            final ApplicationEventPublisher publisher) {
 
-        return new DefaultUserWorkflowAdapter(userDataBinder, userDAO, entityFactory, confParamOps);
+        return new DefaultUserWorkflowAdapter(userDataBinder, userDAO, entityFactory, confParamOps, publisher);
     }
 
     @ConditionalOnMissingBean
@@ -52,9 +54,10 @@ public class WorkflowContext {
     public GroupWorkflowAdapter gwfAdapter(
             final GroupDataBinder groupDataBinder,
             final GroupDAO groupDAO,
-            final EntityFactory entityFactory) {
+            final EntityFactory entityFactory,
+            final ApplicationEventPublisher publisher) {
 
-        return new DefaultGroupWorkflowAdapter(groupDataBinder, groupDAO, entityFactory);
+        return new DefaultGroupWorkflowAdapter(groupDataBinder, groupDAO, entityFactory, publisher);
     }
 
     @ConditionalOnMissingBean
@@ -62,8 +65,9 @@ public class WorkflowContext {
     public AnyObjectWorkflowAdapter awfAdapter(
             final AnyObjectDataBinder anyObjectDataBinder,
             final AnyObjectDAO anyObjectDAO,
-            final EntityFactory entityFactory) {
+            final EntityFactory entityFactory,
+            final ApplicationEventPublisher publisher) {
 
-        return new DefaultAnyObjectWorkflowAdapter(anyObjectDataBinder, anyObjectDAO, entityFactory);
+        return new DefaultAnyObjectWorkflowAdapter(anyObjectDataBinder, anyObjectDAO, entityFactory, publisher);
     }
 }

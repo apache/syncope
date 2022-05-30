@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -149,6 +150,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final IModel<List<String>> privilegeNames;
 
+    private final IModel<List<String>> auxClassNames;
+
     private final IModel<List<String>> resourceNames;
 
     private IModel<SearchClause> clause;
@@ -182,6 +185,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final Pair<IModel<List<String>>, IModel<Integer>> groupInfo,
             final IModel<List<String>> roleNames,
             final IModel<List<String>> privilegeNames,
+            final IModel<List<String>> auxClassNames,
             final IModel<List<String>> resourceNames) {
 
         super(id, name, clause);
@@ -196,6 +200,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         this.groupInfo = groupInfo;
         this.roleNames = roleNames;
         this.privilegeNames = privilegeNames;
+        this.auxClassNames = auxClassNames;
         this.resourceNames = resourceNames;
 
         searchButton = new AjaxLink<>("search") {
@@ -238,21 +243,22 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     case ATTRIBUTE:
                         return List.of(SearchClause.Comparator.values());
 
+                    case AUX_CLASS:
                     case ROLE_MEMBERSHIP:
                     case PRIVILEGE:
                     case GROUP_MEMBERSHIP:
                     case GROUP_MEMBER:
                     case RESOURCE:
                         return List.of(
-                            SearchClause.Comparator.EQUALS,
-                            SearchClause.Comparator.NOT_EQUALS);
+                                SearchClause.Comparator.EQUALS,
+                                SearchClause.Comparator.NOT_EQUALS);
 
                     case RELATIONSHIP:
                         return List.of(
-                            SearchClause.Comparator.IS_NOT_NULL,
-                            SearchClause.Comparator.IS_NULL,
-                            SearchClause.Comparator.EQUALS,
-                            SearchClause.Comparator.NOT_EQUALS);
+                                SearchClause.Comparator.IS_NOT_NULL,
+                                SearchClause.Comparator.IS_NULL,
+                                SearchClause.Comparator.EQUALS,
+                                SearchClause.Comparator.NOT_EQUALS);
 
                     case CUSTOM:
                         return customizer.comparators();
@@ -286,19 +292,23 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     case ROLE_MEMBERSHIP:
                         return roleNames.getObject().stream().
-                            sorted().collect(Collectors.toList());
+                                sorted().collect(Collectors.toList());
 
                     case PRIVILEGE:
                         return privilegeNames.getObject().stream().
-                            sorted().collect(Collectors.toList());
+                                sorted().collect(Collectors.toList());
+
+                    case AUX_CLASS:
+                        return auxClassNames.getObject().stream().
+                                sorted().collect(Collectors.toList());
 
                     case RESOURCE:
                         return resourceNames.getObject().stream().
-                            sorted().collect(Collectors.toList());
+                                sorted().collect(Collectors.toList());
 
                     case RELATIONSHIP:
                         return RelationshipTypeRestClient.list().stream().
-                            map(RelationshipTypeTO::getKey).collect(Collectors.toList());
+                                map(RelationshipTypeTO::getKey).collect(Collectors.toList());
 
                     case CUSTOM:
                         return customizer.properties();
@@ -646,6 +656,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     property.setModelObject(StringUtils.EMPTY);
                     break;
 
+                case AUX_CLASS:
                 case RESOURCE:
                     value.setEnabled(false);
                     value.setModelObject(StringUtils.EMPTY);
@@ -758,6 +769,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         }
                         break;
 
+                    case AUX_CLASS:
                     case ROLE_MEMBERSHIP:
                     case PRIVILEGE:
                     case RESOURCE:
@@ -815,7 +827,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
             @Override
             public SearchClause.Comparator getObject(
-                final String id, final IModel<? extends List<? extends SearchClause.Comparator>> choices) {
+                    final String id, final IModel<? extends List<? extends SearchClause.Comparator>> choices) {
 
                 if (id == null) {
                     return SearchClause.Comparator.EQUALS;
@@ -885,14 +897,14 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final SearchClause searchClause,
             final AjaxTextFieldPanel property) {
 
-        PlainSchemaTO plainSchemaTO = anames.getObject().get(property.getModelObject());
-        if (plainSchemaTO == null) {
+        PlainSchemaTO plainSchema = anames.getObject().get(property.getModelObject());
+        if (plainSchema == null) {
             PlainSchemaTO defaultPlainTO = new PlainSchemaTO();
             defaultPlainTO.setType(AttrSchemaType.String);
-            plainSchemaTO = dnames.getObject().getOrDefault(property.getModelObject(), defaultPlainTO);
+            plainSchema = dnames.getObject().getOrDefault(property.getModelObject(), defaultPlainTO);
         }
 
-        switch (plainSchemaTO.getType()) {
+        switch (plainSchema.getType()) {
             case Boolean:
                 value = new AjaxTextFieldPanel(
                         "value",
@@ -904,10 +916,9 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 break;
 
             case Date:
-                FastDateFormat fdf = FastDateFormat.getInstance(
-                        plainSchemaTO.getConversionPattern() == null
-                        ? SyncopeConstants.DEFAULT_DATE_PATTERN
-                        : plainSchemaTO.getConversionPattern());
+                FastDateFormat fdf = plainSchema.getConversionPattern() == null
+                        ? DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT
+                        : FastDateFormat.getInstance(plainSchema.getConversionPattern());
 
                 value = new AjaxDateTimeFieldPanel(
                         "value",
@@ -936,7 +947,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                             super.setObject(object);
                         }
                     }
-                }, FastDateFormat.getInstance(SyncopeConstants.DEFAULT_DATE_PATTERN));
+                }, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
                 break;
 
             case Enum:
@@ -945,10 +956,10 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         "value",
                         new PropertyModel(searchClause, "value"),
                         true);
-                ((AjaxDropDownChoicePanel<String>) value).setChoices(SchemaUtils.getEnumeratedValues(plainSchemaTO));
+                ((AjaxDropDownChoicePanel<String>) value).setChoices(SchemaUtils.getEnumeratedValues(plainSchema));
 
-                if (StringUtils.isNotBlank(plainSchemaTO.getEnumerationKeys())) {
-                    Map<String, String> valueMap = SchemaUtils.getEnumeratedKeyValues(plainSchemaTO);
+                if (StringUtils.isNotBlank(plainSchema.getEnumerationKeys())) {
+                    Map<String, String> valueMap = SchemaUtils.getEnumeratedKeyValues(plainSchema);
                     ((AjaxDropDownChoicePanel) value).setChoiceRenderer(new IChoiceRenderer<String>() {
 
                         private static final long serialVersionUID = -3724971416312135885L;
@@ -1026,7 +1037,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     public FieldPanel<SearchClause> clone() {
         SearchClausePanel panel = new SearchClausePanel(
                 getId(), name, null, required, types, customizer, anames, dnames, groupInfo,
-                roleNames, privilegeNames, resourceNames);
+                roleNames, privilegeNames, auxClassNames, resourceNames);
         panel.setReadOnly(this.isReadOnly());
         panel.setRequired(this.isRequired());
         if (searchButton.isEnabled()) {

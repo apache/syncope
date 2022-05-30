@@ -27,18 +27,26 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * Simple implementation basically not involving any workflow engine.
  */
 public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAdapter {
 
+    protected final ApplicationEventPublisher publisher;
+
     public DefaultAnyObjectWorkflowAdapter(
             final AnyObjectDataBinder dataBinder,
             final AnyObjectDAO anyObjectDAO,
-            final EntityFactory entityFactory) {
+            final EntityFactory entityFactory,
+            final ApplicationEventPublisher publisher) {
 
         super(dataBinder, anyObjectDAO, entityFactory);
+        this.publisher = publisher;
     }
 
     @Override
@@ -49,6 +57,9 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
         dataBinder.create(anyObject, anyObjectCR);
         metadata(anyObject, creator, context);
         anyObject = anyObjectDAO.save(anyObject);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.CREATE, anyObject, AuthContextUtils.getDomain()));
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.CREATE, anyObjectDAO.findAllResourceKeys(anyObject.getKey()));
@@ -62,13 +73,19 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
 
         PropagationByResource<String> propByRes = dataBinder.update(anyObject, anyObjectUR);
         metadata(anyObject, updater, context);
-        anyObjectDAO.save(anyObject);
+        AnyObject updated = anyObjectDAO.save(anyObject);
+
+        publisher.publishEvent(new AnyLifecycleEvent<>(
+                this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
         return new WorkflowResult<>(anyObjectUR, propByRes, "update");
     }
 
     @Override
-    protected void doDelete(final AnyObject anyObject) {
+    protected void doDelete(final AnyObject anyObject, final String eraser, final String context) {
         anyObjectDAO.delete(anyObject);
+
+        publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.DELETE, anyObject, AuthContextUtils.getDomain()));
     }
 }

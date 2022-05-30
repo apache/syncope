@@ -54,6 +54,7 @@ import org.flowable.idm.spring.configurator.SpringIdmEngineConfigurator;
 import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -76,7 +77,7 @@ public class FlowableWorkflowContext {
     @ConditionalOnMissingBean
     @Bean
     public SpringIdmEngineConfigurator syncopeIdmEngineConfigurator(
-        final SpringIdmEngineConfiguration syncopeIdmEngineConfiguration) {
+            final SpringIdmEngineConfiguration syncopeIdmEngineConfiguration) {
         SpringIdmEngineConfigurator configurator = new SpringIdmEngineConfigurator();
         configurator.setIdmEngineConfiguration(syncopeIdmEngineConfiguration);
         return configurator;
@@ -133,11 +134,11 @@ public class FlowableWorkflowContext {
     @Bean
     @Scope("prototype")
     public SpringProcessEngineConfiguration processEngineConfiguration(
-        final WorkflowFlowableProperties props,
-        final SpringIdmEngineConfigurator syncopeIdmEngineConfigurator,
-        final IdGenerator idGenerator,
-        final SyncopeEntitiesVariableType syncopeEntitiesVariableType,
-        final SyncopeFormHandlerHelper syncopeFormHandlerHelper) {
+            final WorkflowFlowableProperties props,
+            final SpringIdmEngineConfigurator syncopeIdmEngineConfigurator,
+            final IdGenerator idGenerator,
+            final SyncopeEntitiesVariableType syncopeEntitiesVariableType,
+            final SyncopeFormHandlerHelper syncopeFormHandlerHelper) {
         SpringProcessEngineConfiguration conf = new SpringProcessEngineConfiguration();
         conf.setDatabaseSchemaUpdate(AbstractEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
         conf.setJpaHandleTransaction(true);
@@ -159,7 +160,7 @@ public class FlowableWorkflowContext {
 
     @Bean
     public Resource userWorkflowDef(final WorkflowFlowableProperties props,
-                                    final ResourceLoader resourceLoader) {
+            final ResourceLoader resourceLoader) {
         return resourceLoader.getResource(props.getUserWorkflowDef());
     }
 
@@ -170,14 +171,16 @@ public class FlowableWorkflowContext {
             final UserDAO userDAO,
             final EntityFactory entityFactory,
             final DomainProcessEngine engine,
-            final UserRequestHandler userRequestHandler) {
+            final UserRequestHandler userRequestHandler,
+            final ApplicationEventPublisher publisher) {
 
         return new FlowableUserWorkflowAdapter(
                 userDataBinder,
                 userDAO,
                 entityFactory,
                 engine,
-                userRequestHandler);
+                userRequestHandler,
+                publisher);
     }
 
     @ConditionalOnMissingBean

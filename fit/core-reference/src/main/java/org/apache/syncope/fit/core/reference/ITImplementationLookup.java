@@ -20,7 +20,6 @@ package org.apache.syncope.fit.core.reference;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -86,76 +85,46 @@ public class ITImplementationLookup implements ImplementationLookup {
 
     private static final Logger LOG = LoggerFactory.getLogger(ITImplementationLookup.class);
 
-    private static final Set<Class<?>> JWTSSOPROVIDER_CLASSES = new HashSet<>(
-            List.of(SyncopeJWTSSOProvider.class, CustomJWTSSOProvider.class));
+    private static final Set<Class<?>> JWTSSOPROVIDER_CLASSES =
+            Set.of(SyncopeJWTSSOProvider.class, CustomJWTSSOProvider.class);
 
     private static final Map<Class<? extends ReportletConf>, Class<? extends Reportlet>> REPORTLET_CLASSES =
-            new HashMap<>() {
-
-        private static final long serialVersionUID = 3109256773218160485L;
-
-        {
-            put(AuditReportletConf.class, AuditReportlet.class);
-            put(ReconciliationReportletConf.class, ReconciliationReportlet.class);
-            put(GroupReportletConf.class, GroupReportlet.class);
-            put(UserReportletConf.class, UserReportlet.class);
-            put(StaticReportletConf.class, StaticReportlet.class);
-        }
-    };
+            Map.of(
+                    AuditReportletConf.class, AuditReportlet.class,
+                    ReconciliationReportletConf.class, ReconciliationReportlet.class,
+                    GroupReportletConf.class, GroupReportlet.class,
+                    UserReportletConf.class, UserReportlet.class,
+                    StaticReportletConf.class, StaticReportlet.class);
 
     private static final Map<Class<? extends AccountRuleConf>, Class<? extends AccountRule>> ACCOUNT_RULE_CLASSES =
-            new HashMap<>() {
-
-        private static final long serialVersionUID = 3109256773218160485L;
-
-        {
-            put(TestAccountRuleConf.class, TestAccountRule.class);
-            put(DefaultAccountRuleConf.class, DefaultAccountRule.class);
-        }
-    };
+            Map.of(
+                    TestAccountRuleConf.class, TestAccountRule.class,
+                    DefaultAccountRuleConf.class, DefaultAccountRule.class);
 
     private static final Map<Class<? extends PasswordRuleConf>, Class<? extends PasswordRule>> PASSWORD_RULE_CLASSES =
-            new HashMap<>() {
-
-        private static final long serialVersionUID = -6624291041977583649L;
-
-        {
-            put(TestPasswordRuleConf.class, TestPasswordRule.class);
-            put(DefaultPasswordRuleConf.class, DefaultPasswordRule.class);
-            put(HaveIBeenPwnedPasswordRuleConf.class, HaveIBeenPwnedPasswordRule.class);
-        }
-    };
+            Map.of(
+                    TestPasswordRuleConf.class, TestPasswordRule.class,
+                    DefaultPasswordRuleConf.class, DefaultPasswordRule.class,
+                    HaveIBeenPwnedPasswordRuleConf.class, HaveIBeenPwnedPasswordRule.class);
 
     private static final Map<
             Class<? extends PullCorrelationRuleConf>, Class<? extends PullCorrelationRule>> PULL_CR_CLASSES =
-            new HashMap<>() {
-
-        private static final long serialVersionUID = 3109256773218160485L;
-
-        {
-            put(DummyPullCorrelationRuleConf.class, DummyPullCorrelationRule.class);
-            put(DefaultPullCorrelationRuleConf.class, DefaultPullCorrelationRule.class);
-            put(LinkedAccountSamplePullCorrelationRuleConf.class, LinkedAccountSamplePullCorrelationRule.class);
-        }
-    };
+            Map.of(
+                    DummyPullCorrelationRuleConf.class, DummyPullCorrelationRule.class,
+                    DefaultPullCorrelationRuleConf.class, DefaultPullCorrelationRule.class,
+                    LinkedAccountSamplePullCorrelationRuleConf.class, LinkedAccountSamplePullCorrelationRule.class);
 
     private static final Map<
             Class<? extends PushCorrelationRuleConf>, Class<? extends PushCorrelationRule>> PUSH_CR_CLASSES =
-            new HashMap<>() {
+            Map.of(
+                    DummyPushCorrelationRuleConf.class, DummyPushCorrelationRule.class,
+                    DefaultPushCorrelationRuleConf.class, DefaultPushCorrelationRule.class);
 
-        private static final long serialVersionUID = 3109256773218160485L;
+    private static final Set<Class<?>> AUDITAPPENDER_CLASSES =
+            Set.of(TestFileAuditAppender.class, TestFileRewriteAuditAppender.class);
 
-        {
-            put(DummyPushCorrelationRuleConf.class, DummyPushCorrelationRule.class);
-            put(DefaultPushCorrelationRuleConf.class, DefaultPushCorrelationRule.class);
-        }
-    };
-
-    private static final Set<Class<?>> AUDITAPPENDER_CLASSES = new HashSet<>(
-            List.of(TestFileAuditAppender.class, TestFileRewriteAuditAppender.class));
-
-    private static final Set<Class<?>> PROVISION_SORTER_CLASSES = new HashSet<>(
-            List.of(DefaultProvisionSorter.class));
+    private static final Set<Class<?>> PROVISION_SORTER_CLASSES =
+            Set.of(DefaultProvisionSorter.class);
 
     private static final Map<String, Set<String>> CLASS_NAMES = new HashMap<>() {
 

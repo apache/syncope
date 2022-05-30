@@ -19,7 +19,7 @@
 package org.apache.syncope.client.enduser;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.giffing.wicket.spring.boot.starter.app.WicketBootStandardWebApplication;
 import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
@@ -75,7 +75,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
     public static final List<Locale> SUPPORTED_LOCALES = List.of(
             Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE);
 
-    protected static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     public static SyncopeWebApplication get() {
         return (SyncopeWebApplication) WebApplication.get();

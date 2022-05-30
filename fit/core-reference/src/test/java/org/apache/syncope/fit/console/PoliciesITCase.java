@@ -149,7 +149,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     private static void createPullPolicy(String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:5:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:6:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
         TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
@@ -244,7 +244,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     private static void deletePullPolicy(String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:5:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:6:link");
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name);

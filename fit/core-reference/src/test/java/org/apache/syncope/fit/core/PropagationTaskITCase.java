@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -27,9 +28,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -41,12 +44,14 @@ import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.core.GenericType;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.TaskTO;
@@ -82,8 +87,8 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
-import org.apache.syncope.common.rest.api.beans.ExecQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
+import org.apache.syncope.common.rest.api.beans.ExecListQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -94,6 +99,8 @@ import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public class PropagationTaskITCase extends AbstractTaskITCase {
 
@@ -281,10 +288,10 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertNotNull(e);
         }
 
-        Calendar oneWeekAgo = Calendar.getInstance();
-        oneWeekAgo.add(Calendar.WEEK_OF_YEAR, -1);
+        OffsetDateTime oneWeekAgo = OffsetDateTime.now().minusWeeks(1);
         Response response = taskService.purgePropagations(
-                oneWeekAgo.getTime(), List.of(ExecStatus.SUCCESS),
+                oneWeekAgo,
+                List.of(ExecStatus.SUCCESS),
                 List.of(RESOURCE_NAME_WS1));
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
@@ -300,8 +307,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                 .page(0).size(10)
                 .build()).getResult().isEmpty());
         // delete all remaining SUCCESS tasks
-        response = taskService.purgePropagations(
-                oneWeekAgo.getTime(), List.of(ExecStatus.SUCCESS), List.of());
+        response = taskService.purgePropagations(oneWeekAgo, List.of(ExecStatus.SUCCESS), List.of());
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         deleted = response.readEntity(new GenericType<List<PropagationTaskTO>>() {
@@ -310,11 +316,46 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
+    public void propagationPolicy() throws InterruptedException {
+        SyncopeClient.nullPriorityAsync(anyObjectService, true);
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        jdbcTemplate.execute("ALTER TABLE TESTPRINTER ADD COLUMN MAND_VALUE VARCHAR(1)");
+        jdbcTemplate.execute("UPDATE TESTPRINTER SET MAND_VALUE='C'");
+        jdbcTemplate.execute("ALTER TABLE TESTPRINTER ALTER COLUMN MAND_VALUE VARCHAR(1) NOT NULL");
+        try {
+            String entityKey = createAnyObject(AnyObjectITCase.getSample("propagationPolicy")).getEntity().getKey();
+
+            Thread.sleep(1000);
+            jdbcTemplate.execute("ALTER TABLE TESTPRINTER DROP COLUMN MAND_VALUE");
+
+            PagedResult<PropagationTaskTO> propagations = await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).until(
+                    () -> taskService.search(
+                            new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_DBSCRIPTED).
+                                    anyTypeKind(AnyTypeKind.ANY_OBJECT).entityKey(entityKey).build()),
+                    p -> p.getTotalCount() > 0);
+
+            propagations.getResult().get(0).getExecutions().stream().
+                    anyMatch(e -> ExecStatus.FAILURE.name().equals(e.getStatus()));
+            propagations.getResult().get(0).getExecutions().stream().
+                    anyMatch(e -> ExecStatus.SUCCESS.name().equals(e.getStatus()));
+        } finally {
+            SyncopeClient.nullPriorityAsync(anyObjectService, false);
+
+            try {
+                jdbcTemplate.execute("ALTER TABLE TESTPRINTER DROP COLUMN MAND_VALUE");
+            } catch (DataAccessException e) {
+                // ignore
+            }
+        }
+    }
+
+    @Test
     public void issueSYNCOPE741() {
         for (int i = 0; i < 3; i++) {
-            taskService.execute(new ExecuteQuery.Builder().
+            taskService.execute(new ExecSpecs.Builder().
                     key("1e697572-b896-484c-ae7f-0c8f63fcbc6c").build());
-            taskService.execute(new ExecuteQuery.Builder().
+            taskService.execute(new ExecSpecs.Builder().
                     key("316285cc-ae52-4ea2-a33b-7355e189ac3f").build());
         }
         try {
@@ -350,7 +391,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertFalse(task.getExecutions().isEmpty());
 
         // check list executions
-        PagedResult<ExecTO> execs = taskService.listExecutions(new ExecQuery.Builder().key(
+        PagedResult<ExecTO> execs = taskService.listExecutions(new ExecListQuery.Builder().key(
                 "1e697572-b896-484c-ae7f-0c8f63fcbc6c").
                 page(1).size(2).build());
         assertTrue(execs.getTotalCount() >= execs.getResult().size());
@@ -436,7 +477,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             loginDateForJexlAsLong.setPurpose(MappingPurpose.PROPAGATION);
             loginDateForJexlAsLong.setIntAttrName("loginDate");
             loginDateForJexlAsLong.setExtAttrName("employeeNumber");
-            loginDateForJexlAsLong.setPropagationJEXLTransformer("value.getTime()");
+            loginDateForJexlAsLong.setPropagationJEXLTransformer("value.toInstant().toEpochMilli()");
             provision.getMapping().add(loginDateForJexlAsLong);
 
             // Date -> string (JEXL expression)
@@ -489,14 +530,12 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                         POJOHelper.deserialize(tasks.getResult().get(0).getAttributes(), Attribute[].class)));
             }
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-            Calendar loginDate = Calendar.getInstance();
-            loginDate.setTime(sdf.parse(user.getPlainAttr("loginDate").get().getValues().get(0)));
+            OffsetDateTime loginDate = LocalDate.parse(user.getPlainAttr("loginDate").get().getValues().get(0)).
+                    atStartOfDay(ZoneOffset.UTC).toOffsetDateTime();
 
             Attribute employeeNumber = AttributeUtil.find("employeeNumber", propagationAttrs);
             assertNotNull(employeeNumber);
-            assertEquals(String.valueOf(loginDate.getTimeInMillis()), employeeNumber.getValue().get(0));
+            assertEquals(String.valueOf(loginDate.toInstant().toEpochMilli()), employeeNumber.getValue().get(0));
 
             Attribute street = AttributeUtil.find("street", propagationAttrs);
             assertNotNull(street);
@@ -504,13 +543,11 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             Attribute st = AttributeUtil.find("st", propagationAttrs);
             assertNotNull(st);
-            assertEquals(loginDate.getTimeInMillis(), st.getValue().get(0));
-
-            loginDate.add(Calendar.DAY_OF_MONTH, 1);
+            assertEquals(loginDate.toInstant().toEpochMilli(), st.getValue().get(0));
 
             Attribute carLicense = AttributeUtil.find("carLicense", propagationAttrs);
             assertNotNull(carLicense);
-            assertEquals(sdf.format(loginDate.getTime()), carLicense.getValue().get(0));
+            assertEquals(DateTimeFormatter.ISO_LOCAL_DATE.format(loginDate.plusDays(1)), carLicense.getValue().get(0));
         } finally {
             try {
                 resourceService.delete(ldap.getKey());

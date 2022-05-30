@@ -19,7 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -67,7 +67,7 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
 
     protected void init() {
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            JsonMapper mapper = JsonMapper.builder().findAndAddModules().build();
             JsonNode tree = mapper.readTree(SCIMLogic.class.getResourceAsStream('/' + SCHEMAS_JSON));
             if (!tree.isArray()) {
                 throw new IOException("JSON node is not a tree");

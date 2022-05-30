@@ -19,7 +19,7 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
@@ -98,12 +98,15 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     }
 
     @Override
-    public Response purgePropagations(final Date since, final List<ExecStatus> statuses, final List<String> resources) {
+    public Response purgePropagations(
+            final OffsetDateTime since,
+            final List<ExecStatus> statuses,
+            final List<String> resources) {
+
         if (since == null && CollectionUtils.isEmpty(statuses) && CollectionUtils.isEmpty(resources)) {
             return Response.status(Response.Status.PRECONDITION_FAILED).build();
         }
 
         return Response.ok(logic.purgePropagations(since, statuses, resources)).build();
     }
-
 }

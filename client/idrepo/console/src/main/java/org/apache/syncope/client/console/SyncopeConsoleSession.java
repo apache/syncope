@@ -48,6 +48,7 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.PlatformInfo;
@@ -291,9 +292,13 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
                 : roots.stream().sorted().collect(Collectors.toList());
     }
 
-    public Optional<String> getRootRealm() {
-        List<String> roots = getSearchableRealms();
-        return roots.isEmpty() ? Optional.empty() : roots.stream().findFirst();
+    public Optional<String> getRootRealm(final String initial) {
+        List<String> searchable = getSearchableRealms();
+        return searchable.isEmpty()
+                ? Optional.empty()
+                : initial != null && searchable.stream().anyMatch(initial::startsWith)
+                ? Optional.of(initial)
+                : searchable.stream().findFirst();
     }
 
     public boolean owns(final String entitlements, final String... realms) {
@@ -337,7 +342,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     @Override
     public Roles getRoles() {
         if (isSignedIn() && roles == null && auth != null) {
-            roles = new Roles(auth.keySet().toArray(new String[] {}));
+            roles = new Roles(auth.keySet().toArray(String[]::new));
             roles.add(Constants.ROLE_AUTHENTICATED);
         }
 
@@ -425,7 +430,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     @Override
-    public FastDateFormat getDateFormat() {
-        return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale());
+    public DateOps.Format getDateFormat() {
+        return new DateOps.Format(FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getLocale()));
     }
 }

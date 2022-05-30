@@ -162,6 +162,13 @@ public class SearchITCase extends AbstractITCase {
         assertTrue(matchingStar.getResult().stream().anyMatch(user -> "verdi".equals(user.getUsername())));
         assertTrue(matchingStar.getResult().stream().anyMatch(user -> "rossini".equals(user.getUsername())));
         assertEquals(union, matchingStar.getResult().stream().map(UserTO::getUsername).collect(Collectors.toSet()));
+
+        matchingStar = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).recursive(false).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups("*child").query()).
+                        build());
+        assertTrue(matchingStar.getResult().stream().anyMatch(user -> "verdi".equals(user.getUsername())));
+        assertTrue(matchingStar.getResult().stream().noneMatch(user -> "rossini".equals(user.getUsername())));
     }
 
     @Test
@@ -249,7 +256,23 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
-    public void searchUserByResourceName() {
+    public void searchByAuxClass() {
+        PagedResult<GroupTO> matchingGroups = groupService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getGroupSearchConditionBuilder().
+                                hasAuxClasses("csv").query()).
+                        build());
+        assertNotNull(matchingGroups);
+        assertFalse(matchingGroups.getResult().isEmpty());
+
+        assertTrue(matchingGroups.getResult().stream().
+                anyMatch(group -> "0626100b-a4ba-4e00-9971-86fad52a6216".equals(group.getKey())));
+        assertTrue(matchingGroups.getResult().stream().
+                anyMatch(group -> "ba9ed509-b1f5-48ab-a334-c8530a6422dc".equals(group.getKey())));
+    }
+
+    @Test
+    public void searchByResource() {
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getUserSearchConditionBuilder().
@@ -817,18 +840,14 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1663() {
-        try {
-            userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                    fiql("lastChangeDate=ge=2022-01-25T17:00:06Z").build());
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
-            assertTrue(e.getElements().stream().
-                    anyMatch(elem -> elem.contains("Could not validate expression 2022-01-25T17:00:06Z")));
-        }
+        PagedResult<UserTO> matching1 = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql("lastChangeDate=ge=2022-01-25T17:00:06Z").build());
+        assertNotNull(matching1);
+        assertFalse(matching1.getResult().isEmpty());
 
-        PagedResult<UserTO> matching = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<UserTO> matching2 = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql("lastChangeDate=ge=2022-01-25T17:00:06+0000").build());
-        assertNotNull(matching);
+        assertNotNull(matching2);
+        assertFalse(matching2.getResult().isEmpty());
     }
 }

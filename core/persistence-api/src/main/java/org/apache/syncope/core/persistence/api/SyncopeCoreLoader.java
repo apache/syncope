@@ -25,14 +25,14 @@ import org.springframework.core.Ordered;
 public interface SyncopeCoreLoader extends Ordered {
 
     /**
-     * Perform generic (not related to any domain) initialization operations.
+     * Perform generic (not related to any domain) init operations.
      */
     default void load() {
         // nothing to do
     }
 
     /**
-     * Perform initialization operations on the given domain.
+     * Perform init operations on the given domain.
      *
      * @param domain domain to initialize
      * @param datasource db access for the given domain
@@ -42,11 +42,18 @@ public interface SyncopeCoreLoader extends Ordered {
     }
 
     /**
-     * Perform closing operations on the given domain.
+     * Perform dispose operations on the given domain.
      *
      * @param domain domain to unload
      */
     default void unload(String domain) {
         // nothing to do        
+    }
+
+    /**
+     * Perform generic (not related to any domain) dispose operations.
+     */
+    default void unload() {
+        // nothing to do
     }
 }

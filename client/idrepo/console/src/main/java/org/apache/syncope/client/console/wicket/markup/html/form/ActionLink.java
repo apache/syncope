@@ -52,6 +52,8 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         REMOVE_SYNC_TOKEN("update"),
         CLONE("create"),
         CREATE("create"),
+        CREATE_CONNECTOR("create"),
+        CREATE_RESOURCE("create"),
         TEMPLATE("read"),
         EDIT("read"),
         TYPE_EXTENSIONS("read"),
@@ -95,6 +97,7 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         PROVISION_MEMBERS("update"),
         RECONCILIATION_PUSH("update"),
         RECONCILIATION_PULL("update"),
+        RECONCILIATION_RESOURCE("update"),
         MANAGE_RESOURCES("update"),
         MANAGE_ACCOUNTS("update"),
         MERGE_ACCOUNTS("update"),
@@ -102,6 +105,8 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         MANAGE_GROUPS("update"),
         PROPAGATION_TASKS("read"),
         NOTIFICATION_TASKS("read"),
+        PULL_TASKS("read"),
+        PUSH_TASKS("read"),
         ZOOM_IN("zoomin"),
         ZOOM_OUT("zoomout"),
         VIEW_EXECUTIONS("read"),
@@ -109,7 +114,8 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         MANAGE_APPROVAL("edit"),
         EDIT_APPROVAL("edit"),
         VIEW_AUDIT_HISTORY("read"),
-        EXTERNAL_EDITOR("externalEditor");
+        EXTERNAL_EDITOR("externalEditor"),
+        EXPLORE_RESOURCE("search");
 
         private final String actionId;
 
@@ -174,4 +180,3 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         return this;
     }
 }
-

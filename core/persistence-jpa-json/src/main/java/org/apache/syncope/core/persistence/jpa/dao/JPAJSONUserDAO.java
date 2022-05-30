@@ -40,10 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.context.ApplicationEventPublisher;
 
 public class JPAJSONUserDAO extends JPAUserDAO {
 
@@ -51,7 +48,6 @@ public class JPAJSONUserDAO extends JPAUserDAO {
 
     public JPAJSONUserDAO(
             final AnyUtilsFactory anyUtilsFactory,
-            final ApplicationEventPublisher publisher,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO,
@@ -64,7 +60,6 @@ public class JPAJSONUserDAO extends JPAUserDAO {
             final JPAJSONAnyDAO anyDAO) {
 
         super(anyUtilsFactory,
-                publisher,
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
@@ -112,6 +107,7 @@ public class JPAJSONUserDAO extends JPAUserDAO {
         String clearPwd = user.getClearPassword();
 
         // 2. save
+        entityManager().flush();
         User merged = entityManager().merge(user);
 
         // 3. set back the sole clear password value
@@ -127,8 +123,6 @@ public class JPAJSONUserDAO extends JPAUserDAO {
 
         // ensure that entity listeners are invoked at this point
         entityManager().flush();
-
-        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
 
         roleDAO.refreshDynMemberships(merged);
         Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);

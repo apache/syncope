@@ -102,7 +102,7 @@ public class ProvisionAuxClassesPanel extends Panel {
         classes.addAll(anyTypeClasses);
 
         return SchemaRestClient.<PlainSchemaTO>getSchemas(
-                SchemaType.PLAIN, null, classes.toArray(new String[] {})).
+                SchemaType.PLAIN, null, classes.toArray(String[]::new)).
                 stream().map(EntityTO::getKey).collect(Collectors.toList());
     }
 }

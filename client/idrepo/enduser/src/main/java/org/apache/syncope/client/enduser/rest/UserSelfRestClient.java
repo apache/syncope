@@ -29,7 +29,7 @@ public class UserSelfRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1575748964398293968L;
 
-    public static void changePassword(final String password) {
+    public static void mustChangePassword(final String password) {
         getService(UserSelfService.class).mustChangePassword(password);
     }
 
@@ -38,19 +38,15 @@ public class UserSelfRestClient extends BaseRestClient {
     }
 
     public ProvisioningResult<UserTO> create(final UserCR createReq) {
-        ProvisioningResult<UserTO> result;
-        result = getService(UserSelfService.class).create(createReq).readEntity(
-            new GenericType<>() {
-            });
-        return result;
+        return getService(UserSelfService.class).create(createReq).readEntity(new GenericType<>() {
+        });
     }
 
-    public ProvisioningResult<UserTO> update(final String etag, final UserUR userPatch) {
+    public ProvisioningResult<UserTO> update(final String etag, final UserUR updateReq) {
         ProvisioningResult<UserTO> result;
         synchronized (this) {
-            result = getService(etag, UserSelfService.class).update(userPatch).
-                    readEntity(new GenericType<>() {
-                    });
+            result = getService(etag, UserSelfService.class).update(updateReq).readEntity(new GenericType<>() {
+            });
             resetClient(UserSelfService.class);
         }
         return result;

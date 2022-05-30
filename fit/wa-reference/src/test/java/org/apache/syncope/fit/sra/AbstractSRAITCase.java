@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
@@ -62,7 +62,7 @@ import org.junit.jupiter.api.BeforeAll;
 
 public abstract class AbstractSRAITCase extends AbstractITCase {
 
-    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     protected static final int PORT = 8080;
 
@@ -163,12 +163,19 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
         String keymasterClientJar = props.getProperty("keymaster-client.jar");
         assertNotNull(keymasterClientJar);
 
+        String trustStore = props.getProperty("trustStore");
+        assertNotNull(trustStore);
+        String trustStorePassword = props.getProperty("trustStorePassword");
+        assertNotNull(trustStorePassword);
+
         String targetTestClasses = props.getProperty("targetTestClasses");
         assertNotNull(targetTestClasses);
 
         ProcessBuilder processBuilder = new ProcessBuilder(
                 javaHome + "/bin/java",
                 "-Dreactor.netty.http.server.accessLogEnabled=true",
+                "-Djavax.net.ssl.trustStore=" + trustStore,
+                "-Djavax.net.ssl.trustStorePassword=" + trustStorePassword,
                 "-jar",
                 "-Xdebug",
                 "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8002",
@@ -238,7 +245,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
 
         assertEquals(MediaType.APPLICATION_JSON, response.getFirstHeader(HttpHeaders.CONTENT_TYPE).getValue());
 
-        JsonNode json = OBJECT_MAPPER.readTree(EntityUtils.toString(response.getEntity()));
+        JsonNode json = MAPPER.readTree(EntityUtils.toString(response.getEntity()));
 
         ObjectNode args = (ObjectNode) json.get("args");
         assertEquals("value1", args.get("key1").asText());

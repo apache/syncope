@@ -30,7 +30,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.Ordered;
 
 /**
- * Take care of all initializations needed by Syncope Core to run up and safe.
+ * Take care of all inits needed by Syncope Core to run up and safe.
  */
 public class SyncopeCoreStart extends KeymasterStart implements Ordered {
 
@@ -55,17 +55,17 @@ public class SyncopeCoreStart extends KeymasterStart implements Ordered {
                 forEachOrdered(loader -> {
                     String loaderName = AopUtils.getTargetClass(loader).getName();
 
-                    LOG.debug("[{}] Starting initialization", loaderName);
+                    LOG.debug("[{}#{}] Starting init", loaderName, loader.getOrder());
 
                     loader.load();
 
                     domainHolder.getDomains().forEach((domain, datasource) -> {
-                        LOG.debug("[{}] Starting on domain '{}'", loaderName, domain);
+                        LOG.debug("[{}] Starting init on domain '{}'", loaderName, domain);
                         loader.load(domain, datasource);
-                        LOG.debug("[{}] Completed on domain '{}'", loaderName, domain);
+                        LOG.debug("[{}] Init completed on domain '{}'", loaderName, domain);
                     });
 
-                    LOG.debug("[{}] Initialization completed", loaderName);
+                    LOG.debug("[{}] Init completed", loaderName);
                 });
 
         super.onApplicationEvent(event);

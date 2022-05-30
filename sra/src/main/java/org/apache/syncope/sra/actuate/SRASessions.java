@@ -19,8 +19,8 @@
 package org.apache.syncope.sra.actuate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Date;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
@@ -45,17 +45,17 @@ import org.springframework.session.MapSession;
 @Endpoint(id = "sraSessions")
 public class SRASessions {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SRASessions.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SRASessions.class);
 
-    private static final ObjectMapper MAPPER = new ObjectMapper().findAndRegisterModules();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    private final CacheManager cacheManager;
+    protected final CacheManager cacheManager;
 
     public SRASessions(final CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
 
-    private static AMSession map(final MapSession mapSession) {
+    protected static AMSession map(final MapSession mapSession) {
         SecurityContext ctx = mapSession.getAttribute(
                 WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
         if (ctx == null) {
@@ -64,7 +64,7 @@ public class SRASessions {
 
         AMSession session = new AMSession();
         session.setKey(mapSession.getId());
-        session.setAuthenticationDate(new Date(mapSession.getCreationTime().toEpochMilli()));
+        session.setAuthenticationDate(mapSession.getCreationTime().atOffset(OffsetDateTime.now().getOffset()));
 
         String principal;
         if (ctx.getAuthentication() instanceof SAML2AuthenticationToken) {

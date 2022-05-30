@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.keymaster.client.zookeeper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,17 +42,17 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class ZookeeperDomainOps implements DomainOps, InitializingBean {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    protected static final Logger LOG = LoggerFactory.getLogger(DomainOps.class);
 
-    private static final Logger LOG = LoggerFactory.getLogger(DomainOps.class);
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    private static final String DOMAIN_PATH = "/domains";
+    protected static final String DOMAIN_PATH = "/domains";
 
     @Autowired
-    private CuratorFramework client;
+    protected CuratorFramework client;
 
     @Autowired(required = false)
-    private DomainWatcher watcher;
+    protected DomainWatcher watcher;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -93,7 +93,7 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
         }
     }
 
-    private static String buildDomainPath(final String... parts) {
+    protected static String buildDomainPath(final String... parts) {
         String prefix = DOMAIN_PATH;
         String suffix = StringUtils.EMPTY;
         if (parts != null && parts.length > 0) {

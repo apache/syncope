@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -143,7 +144,7 @@ public abstract class AbstractCSVSpec implements Serializable {
 
     protected String nullValue = "";
 
-    protected boolean allowComments;
+    protected Boolean allowComments;
 
     protected UnmatchingRule unmatchingRule = UnmatchingRule.PROVISION;
 
@@ -236,11 +237,12 @@ public abstract class AbstractCSVSpec implements Serializable {
     @Parameter(name = PARAM_ALLOWCOMMENTS, description = "are hash comments, e.g. lines where the first non-whitespace "
             + "character is '#' allowed? if so, they will be skipped without processing", schema =
             @Schema(implementation = boolean.class, defaultValue = "false"))
-    public boolean isAllowComments() {
-        return allowComments;
+    public Boolean getAllowComments() {
+        return allowComments == null ? Boolean.FALSE : allowComments;
     }
 
     @QueryParam(PARAM_ALLOWCOMMENTS)
+    @DefaultValue("false")
     public void setAllowComments(final boolean allowComments) {
         this.allowComments = allowComments;
     }

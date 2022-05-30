@@ -20,9 +20,9 @@ package org.apache.syncope.core.provisioning.java;
 
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import java.text.ParseException;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -34,7 +34,6 @@ import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -91,7 +90,6 @@ import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.identityconnectors.framework.common.FrameworkUtil;
@@ -104,6 +102,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.Uid;
 
@@ -509,7 +508,7 @@ public class DefaultMappingManager implements MappingManager {
         } else {
             if (StringUtils.isNotBlank(defaultValue)) {
                 passwordAttrValue = defaultValue;
-            } else if (account.canDecodePassword()) {
+            } else if (account.canDecodeSecrets()) {
                 passwordAttrValue = decodePassword(account);
             } else {
                 passwordAttrValue = null;
@@ -517,11 +516,7 @@ public class DefaultMappingManager implements MappingManager {
         }
 
         if (passwordAttrValue == null && provision.getResource().isRandomPwdIfNotProvided()) {
-            try {
-                passwordAttrValue = passwordGenerator.generate(provision.getResource());
-            } catch (InvalidPasswordRuleConf e) {
-                LOG.error("Could not generate policy-compliant random password for {}", account, e);
-            }
+            passwordAttrValue = passwordGenerator.generate(provision.getResource());
         }
 
         return passwordAttrValue;
@@ -763,10 +758,9 @@ public class DefaultMappingManager implements MappingManager {
                     default:
                         try {
                         Object fieldValue = FieldUtils.readField(ref, intAttrName.getField(), true);
-                        if (fieldValue instanceof Date) {
+                        if (fieldValue instanceof TemporalAccessor) {
                             // needed because ConnId does not natively supports the Date type
-                            attrValue.setStringValue(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.
-                                    format((Date) fieldValue));
+                            attrValue.setStringValue(FormatUtils.format((TemporalAccessor) fieldValue));
                         } else if (Boolean.TYPE.isInstance(fieldValue)) {
                             attrValue.setBooleanValue((Boolean) fieldValue);
                         } else if (Double.TYPE.isInstance(fieldValue) || Float.TYPE.isInstance(fieldValue)) {

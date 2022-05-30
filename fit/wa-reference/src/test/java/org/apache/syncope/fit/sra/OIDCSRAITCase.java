@@ -20,7 +20,6 @@ package org.apache.syncope.fit.sra;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -61,6 +60,7 @@ import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -164,12 +164,12 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
 
         // 2a. redirected to WA login screen
         String responseBody = EntityUtils.toString(response.getEntity());
-        response = authenticateToCas("bellini", "password", responseBody, httpclient, context);
+        response = authenticateToWA("bellini", "password", responseBody, httpclient, context);
 
         // 2b. WA attribute consent screen
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             responseBody = EntityUtils.toString(response.getEntity());
-            String execution = extractCASExecution(responseBody);
+            String execution = extractWAExecution(responseBody);
 
             List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("_eventId", "confirm"));
@@ -195,14 +195,9 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
 
         responseBody = EntityUtils.toString(response.getEntity());
 
-        int begin = responseBody.indexOf("name=\"allow\"");
-        assertNotEquals(-1, begin);
-        begin = responseBody.indexOf("href=\"", begin);
-        assertNotEquals(-1, begin);
-        int end = responseBody.indexOf("\">", begin);
-        assertNotEquals(-1, end);
-
-        String allow = responseBody.substring(begin + 6, end).replace("&amp;", "&");
+        String allow = Jsoup.parse(responseBody).body().
+                getElementsByTag("a").select("a[name=allow]").first().
+                attr("href");
         assertNotNull(allow);
 
         // 2d. finally get requested content
@@ -253,7 +248,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertTrue(response.getHeaderString(HttpHeaders.CONTENT_TYPE).startsWith(MediaType.APPLICATION_JSON));
 
-        JsonNode json = OBJECT_MAPPER.readTree(response.readEntity(String.class));
+        JsonNode json = MAPPER.readTree(response.readEntity(String.class));
 
         // 1a. verify id_token
         checkIdToken(json);
@@ -270,7 +265,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
 
         assertEquals(HttpStatus.SC_OK, response.getStatus());
 
-        json = OBJECT_MAPPER.readTree(response.readEntity(String.class));
+        json = MAPPER.readTree(response.readEntity(String.class));
 
         ObjectNode headers = (ObjectNode) json.get("headers");
         assertEquals(MediaType.APPLICATION_JSON, headers.get(HttpHeaders.ACCEPT).asText());

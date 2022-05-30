@@ -37,11 +37,13 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
@@ -54,6 +56,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
 public class SyncopeLogic extends AbstractLogic<EntityTO> {
+
+    protected final RealmDAO realmDAO;
 
     protected final AnyTypeDAO anyTypeDAO;
 
@@ -74,6 +78,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
     protected final AnyObjectWorkflowAdapter awfAdapter;
 
     public SyncopeLogic(
+            final RealmDAO realmDAO,
             final AnyTypeDAO anyTypeDAO,
             final GroupDAO groupDAO,
             final AnySearchDAO searchDAO,
@@ -84,6 +89,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             final GroupWorkflowAdapter gwfAdapter,
             final AnyObjectWorkflowAdapter awfAdapter) {
 
+        this.realmDAO = realmDAO;
         this.anyTypeDAO = anyTypeDAO;
         this.groupDAO = groupDAO;
         this.searchDAO = searchDAO;
@@ -114,6 +120,9 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             final int page,
             final int size) {
 
+        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+                orElseThrow(() -> new NotFoundException("Realm " + realm));
+
         AssignableCond assignableCond = new AssignableCond();
         assignableCond.setRealmFullPath(realm);
 
@@ -137,16 +146,20 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             searchCond = SearchCond.getLeaf(assignableCond);
         }
 
-        int count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.GROUP);
+        int count = searchDAO.count(base, true, SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.GROUP);
 
         OrderByClause orderByClause = new OrderByClause();
         orderByClause.setField("name");
         orderByClause.setDirection(OrderByClause.Direction.ASC);
         List<Group> matching = searchDAO.search(
+                base,
+                true,
                 SyncopeConstants.FULL_ADMIN_REALMS,
                 searchCond,
-                page, size,
-                List.of(orderByClause), AnyTypeKind.GROUP);
+                page,
+                size,
+                List.of(orderByClause),
+                AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
                 map(group -> groupDataBinder.getGroupTO(group, false)).collect(Collectors.toList());
 

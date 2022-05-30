@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.console;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -28,6 +28,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.wicket.util.cookies.CookieDefaults;
@@ -45,7 +46,7 @@ public final class PreferenceManager implements Serializable {
 
     private static final int ONE_YEAR_TIME = 60 * 60 * 24 * 365;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private static final TypeReference<Map<String, String>> MAP_TYPE_REF = new TypeReference<>() {
     };
@@ -132,7 +133,7 @@ public final class PreferenceManager implements Serializable {
         }
 
         // after retrieved previous setting in order to overwrite the key ...
-        prefs.forEach((key, values) -> current.put(key, StringUtils.join(values, ";")));
+        prefs.forEach((key, values) -> current.put(key, values.stream().collect(Collectors.joining(";"))));
 
         try {
             COOKIE_UTILS.save(COOKIE_NAME, Base64.getEncoder().encodeToString(setPrefs(current).getBytes()));
@@ -160,7 +161,7 @@ public final class PreferenceManager implements Serializable {
     }
 
     public static void setList(final String key, final List<String> values) {
-        set(key, StringUtils.join(values, ";"));
+        set(key, values.stream().collect(Collectors.joining(";")));
     }
 
     public static void setList(final Map<String, List<String>> prefs) {

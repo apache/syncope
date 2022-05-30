@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -196,7 +196,6 @@ public class UserTest extends AbstractTest {
         } catch (InvalidEntityException e) {
             assertNotNull(e);
         }
-        entityManager().flush();
     }
 
     @Test
@@ -255,7 +254,8 @@ public class UserTest extends AbstractTest {
         account.add(applicationDAO.findPrivilege("getMighty"));
 
         account.setUsername(UUID.randomUUID().toString());
-        account.setPassword("Password123", CipherAlgorithm.AES);
+        account.setCipherAlgorithm(CipherAlgorithm.AES);
+        account.setPassword("Password123");
 
         AnyUtils anyUtils = anyUtilsFactory.getLinkedAccountInstance();
         LAPlainAttr attr = anyUtils.newPlainAttr();
@@ -339,7 +339,7 @@ public class UserTest extends AbstractTest {
         Delegation delegation = entityFactory.newEntity(Delegation.class);
         delegation.setDelegating(bellini);
         delegation.setDelegated(rossini);
-        delegation.setStart(new Date());
+        delegation.setStart(OffsetDateTime.now());
         delegation.add(reviewer);
         delegation = delegationDAO.save(delegation);
 

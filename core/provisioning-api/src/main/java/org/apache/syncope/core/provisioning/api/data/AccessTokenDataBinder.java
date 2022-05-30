@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
@@ -26,12 +26,13 @@ import org.apache.syncope.core.persistence.api.entity.AccessToken;
 
 public interface AccessTokenDataBinder {
 
-    Pair<String, Date> generateJWT(String tokenId, String subject, long duration, Map<String, Object> claims);
+    Pair<String, OffsetDateTime> generateJWT(
+            String tokenId, String subject, long duration, Map<String, Object> claims);
 
-    Pair<String, Date> create(String subject, Map<String, Object> claims, byte[] authorities, boolean replace);
+    Pair<String, OffsetDateTime> create(
+            String subject, Map<String, Object> claims, byte[] authorities, boolean replace);
 
-    Pair<String, Date> update(AccessToken accessToken, byte[] authorities);
+    Pair<String, OffsetDateTime> update(AccessToken accessToken, byte[] authorities);
 
     AccessTokenTO getAccessTokenTO(AccessToken accessToken);
-
 }

@@ -36,7 +36,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.springframework.transaction.annotation.Propagation;
@@ -159,7 +158,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
         // task defined in workflow process definition: this because this
         // information could only be available after awfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
-        // impossible by NotificationManager to fetch required user information
+        // impossible by NotificationManager to fetch required any object information
         List<PropagationTaskInfo> taskInfos = propagationManager.getDeleteTasks(
                 AnyTypeKind.ANY_OBJECT,
                 key,
@@ -168,11 +167,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, eraser);
 
-        try {
-            awfAdapter.delete(key);
-        } catch (PropagationException e) {
-            throw e;
-        }
+        awfAdapter.delete(key, eraser, context);
 
         return propagationReporter.getStatuses();
     }

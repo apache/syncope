@@ -18,6 +18,11 @@ This product includes software developed by the AOP Alliance (Java/J2EE AOP stan
 
 ==
 
+This product includes software developed by the args4j project.
+Copyright (c) 2013 Kohsuke Kawaguchi and other contributors
+
+==
+
 This product includes software developed by the Bootbox.js project.
 Copyright (C) 2011-2015 by Nick Payne nick@kurai.co.uk
 
@@ -38,6 +43,21 @@ Copyright (C) 2016
 
 ==
 
+This product includes software developed by COSE-JAVA
+Copyright (c) 2016, All rights reserved.
+
+==
+
+This product includes software developed by Auth0 Java JWT
+Copyright (c) 2015 Auth0, Inc. <support@auth0.com> (http://auth0.com)
+
+==
+
+This product includes software developed by Duo Auth API
+Copyright (c) 2012, Duo Security, Inc.
+
+==
+
 This product includes software developed by the Jackson project.
 
 ==
@@ -46,8 +66,81 @@ This product includes software developed by the Java Uuid Generator (JUG) projec
 
 ==
 
+This product includes software developed by the Caffeine project.
+Copyright (c) 2021 Ben Manes. All Rights Reserved.
+
+==
+
+This product includes software developed by the Open JSON project.
+
+==
+
+This product includes software developed by Operating System and Hardware Information
+Copyright (c) 2016-2022 The OSHI Project Contributors
+
+==
+
+This product includes software developed by ScribeJava
+Copyright (c) 2010 Pablo Fernandez
+
+==
+
+This product includes software developed by the Gson project.
+Copyright (c) 2008 Google Inc.
+
+==
+
+This product includes software developed by Elemental2
+Copyright 2018 Google Inc.
+
+==
+
+This product includes software developed by Error Prone.
+
+==
+
 This product includes software developed by the Google Guava project.
 Copyright (c) 2016 The Guava Authors.
+
+==
+
+This product includes software developed by J2ObjC: Java to Objective-C Translator and Runtime.
+
+==
+
+This product includes software developed by The Closure Compiler.
+Copyright (c) 2009 The Closure Compiler Authors.
+
+==
+
+This product includes software developed by JsInterop Base
+Copyright 2017 Google Inc.
+
+==
+
+This product includes software developed by JsInterop Annotations.
+Copyright (c) 2019 Google Inc. All Rights Reserved.
+
+==
+
+This product includes software developed by Protocol Buffers
+Copyright 2008 Google Inc. All rights reserved.
+
+==
+
+This product includes software developed by RE2/J
+Copyright (c) 2009 The Go Authors. All rights reserved.
+
+==
+
+This product includes software developed by ZXing
+Copyright: 2007-2020, ZXing authors
+
+==
+
+This product includes software developed by OWASP Java HTML Sanitizer.
+Copyright (c) 2011, Mike Samuel
+All rights reserved.
 
 ==
 
@@ -56,12 +149,142 @@ Copyright 2012-2013 Sebastien Briquet
 
 ==
 
+This product includes software developed by the GreenMail project.
+Copyright (c) 2006 - 2019, Wael Chatila and GreenMail project contributors
+
+==
+
+This product includes software developed by mchange-commons-java
+Copyright (C) 2015 Machinery For Change, Inc.
+
+==
+
+This product includes software developed by Microsoft OAuth 2.0 User Agent library for Java
+Copyright (c) Microsoft Corporation
+
+==
+
+This product includes software developed by Nimbus Content Type
+Copyright 2020, Connect2id Ltd
+
+==
+
+This product includes software developed by Nimbus Language Tags
+Copyright 2012-2022, Connect2id Ltd
+
+==
+
+This product includes software developed by Nimbus JOSE-JWT
+Copyright 2012-2022, Connect2id Ltd
+
+==
+
+This product includes software developed by OAuth 2.0 SDK with OpenID Connect extensions
+Copyright 2012-2022, Connect2id Ltd
+
+==
+
+This product includes software developed by Moshi
+Copyright (C) 2020 Square, Inc.
+
+==
+
+This product includes software developed by OkHttp
+Copyright (c) 2022 Square, Inc.
+
+==
+
+This product includes software developed by Okio
+Copyright 2013 Square, Inc.
+
+==
+
+This product includes software developed by Retrofit
+Copyright 2014 Square, Inc.
+
+==
+
+This product includes software developed by Retrofit
+Copyright 2014 Square, Inc.
+
+==
+
+This product includes software developed by Jakarta Mail
+Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
+
+==
+
 This product includes software developed by the JAXB project.
 Copyright (c) 2013-2016 The JAXB project.
 
 ==
 
+This product includes software produced and maintained by Eclipse Metro
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software developed by QDox.
+Copyright 2002-2009 Joe Walnes and QDox Project Team
+
+==
+
+This product includes software developed by UnboundID LDAP SDK for Java
+Copyright 2007-2022 Ping Identity Corporation
+
+==
+
+This product includes software developed by Semver4j
+Copyright (c) 2015-present Vincent DURMONT <vdurmont@gmail.com>
+
+==
+
+This product includes software developed by GoogleAuth
+Copyright (c) 2013 Warren Strange
+Copyright (c) 2014-2017 Enrico M. Crisostomo
+
+==
+
+This product includes software developed by Yubico
+Copyright (c) 2014-2018, Yubico AB
+
+==
+
 This product includes software developed by the HikariCP project.
+
+==
+
+This product includes software developed by Dough Lea
+
+==
+
+This product includes software developed by DataTables
+Copyright (c) 2008-present, SpryMedia Limited
+
+==
+
+This product includes software developed by de.cronn:reflection-util
+Copyright © 2015-2021 the original authors.
+
+==
+
+This product includes software produced and maintained by Jakarta Activation project
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software produced and maintained by Jakarta Eclipse Implementation of JAXB
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software produced and maintained by Jakarta XML Web Services
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software developed by es5-shim
+Copyright (C) 2009-2016 Kristopher Michael Kowal and contributors
 
 ==
 
@@ -70,18 +293,33 @@ Copyright (c) 2006 Google Inc.
 
 ==
 
-This product includes the Javascript syntax highlighter.
-Copyright (c) 2006, Ivan Sagalaev
-
-==
-
 This product includes software developed by the Metrics project.
 Copyright (c) 2010-2014 Coda Hale, Yammer.com
 
 ==
 
+This product includes software developed by the ClassGraph project.
+Copyright (c) 2020 Luke Hutchison
+
+==
+
+This product includes software developed by Micrometer Application Metrics
+Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
+
+==
+
+This product includes software developed by Netty
+Copyright 2014 The Netty Project
+
+==
+
 This product includes software developed by the Swagger project.
 Copyright 2016 SmartBear Software
+
+==
+
+This product includes software developed by Userinfo.io
+Copyright (c) 2014 Vincent DURMONT <vdurmont@gmail.com>
 
 ==
 
@@ -95,23 +333,44 @@ Copyright (c) 2011 Piotr Rochala (http://rocha.la)
 
 ==
 
+This product includes software produced and maintained by Jakarta Annotations
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software produced and maintained by Jakarta Persistence project
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software developed by the Eclipse Project for JAX-RS.
+Eclipse Project for JAX-RS is a trademark of the Eclipse Foundation.
+All content is the property of the respective authors or their employers. For more information regarding authorship of content, please consult the listed source code repository logs.
+
+==
+
 This product includs software developed by Oracle.
 Copyright (c) 2012-2013 Oracle and/or its affiliates. All rights reserved.
 
 ==
 
-This product includes software developed by the Java Community Process (https://jcp.org/en/jsr/detail?id=181).
- Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
+This product includes software developed by Expression Language 3.0 API
+Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+
+==
+
+This product includes software developed by Java(TM) Persistence API
+Copyright (c) 2017 Oracle and/or its affiliates. All rights reserved.
+
+==
+
+This product includes software developed by Java Servlet API
+Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
 
 ==
 
 This product includes software developed by the Bean Validation Project (http://beanvalidation.org).
 Copyright (c) Red Hat, Inc., Emmanuel Bernard
-
-==
-
-This product includes software developed by the JAX-RS project.
-Copyright (c) 2014, Oracle Corporation and/or its affiliates. All rights reserved.
 
 ==
 
@@ -122,6 +381,12 @@ This product includes software developed by the SAAJ Standard Implementation (ht
 
 This product includes software developed by the JAX-WS project.
  Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+
+==
+
+This product includes software developed by the Jline v2 project.
+Copyright (c) 2002-2016, the original author or authors.
+All rights reserved.
 
 ==
 
@@ -155,18 +420,8 @@ Copyright (c) 2010 - 2014 jsPlumb, http://jsplumbtoolkit.com/
 
 ==
 
-This product includes software developed by the Kendo UI project.
-Copyright (c) 2014-2015 Telerik]
-
-==
-
-This product includes software developed by the lodash project.
-Copyright jQuery Foundation and other contributors <https://jquery.org/>]
-
-==
-
-This product includes software developed by Terracotta. Inc.
-Ehcache source code and documentation are Copyright (c) Terracotta, Inc.
+This product includes software developed by Byte Buddy
+Copyright 2014 - Present Rafael Winterhalter
 
 ==
 
@@ -182,7 +437,33 @@ Copyright 2011-2016 Tirasa S.r.l. All rights reserved.
 
 ==
 
-This product includes software developed by the Flowable project.
+This product includes software developed by Groovy Extensions
+Copyright 2022, Emanuel Rabina (http://www.ultraq.net.nz/)
+
+==
+
+This product includes software developed by Thymeleaf Expression Processor
+Copyright 2016, Emanuel Rabina (http://www.ultraq.net.nz/)
+
+==
+
+This product includes software developed by Thymeleaf Layout Dialect
+Copyright 2019, Emanuel Rabina (http://www.ultraq.net.nz/)
+
+==
+
+This product includes software developed by OGNL
+Copyright (c) 2004, Drew Davidson and Luke Blanshard
+
+==
+
+This product includes software developed by the ANTLR project.
+Copyright (c) 2012 Terence Parr and Sam Harwell. All rights reserved.
+
+==
+
+This product includes software developed by Apereo CAS
+Copyright 2022, The Apereo Foundation
 
 ==
 
@@ -191,8 +472,28 @@ Software Foundation.
 
 ==
 
+This product includes software developed by attoparser
+Copyright (c) 2012-2014, The ATTOPARSER team (http://www.attoparser.org)
+
+==
+
+This product includes software developed by jose.4.j
+Copyright 2012-2015 Brian Campbell
+
+==
+
 This product includes software developed by the Legion of the Bouncy Castle.
 Copyright (c) 2000-2016 The Legion of the Bouncy Castle Inc. (http://www.bouncycastle.org)
+
+==
+
+This product includes software developed by The Checker Framework.
+Copyright (c) 2004-present by the Checker Framework developers
+
+==
+
+This product includes software developed by MojoHaus AnimalSniffer Maven Plugin
+Copyright (c) 2009, codehaus.org
 
 ==
 
@@ -201,6 +502,36 @@ This product includes software developed by the Stax 2 Extension API Project.
 ==
 
 This product includes software developed by the Woodstox Project.
+
+==
+
+This product includes software developed by Serializable java.util.function Interfaces.
+Copyright (c) 2015 Jakub Danek
+
+==
+
+This product includes software developed by the Flowable project.
+
+==
+
+This product includes software developed by Java EE API modules repackaged as OSGi bundles in GlassFish
+Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+
+==
+
+This product includes software produced and maintained by Jakarta JSON Processing
+All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software developed by Hjson Library
+Copyright (c) 2013, 2014 EclipseSource
+Copyright (c) 2015-2016 Christian Zangl
+
+==
+
+This product includes software developed by Java Apereo CAS Client
+Copyright (c) 2007, JA-SIG, Inc.
 
 ==
 
@@ -214,7 +545,42 @@ Copyright (C) 1999- by Shigeru Chiba, All rights reserved.
 
 ==
 
+This product includes software developed by the JDOM project.
+ Copyright (C) 2000-2012 Jason Hunter & Brett McLaughlin.
+ All rights reserved.
+
+==
+
+This product includes software developed by JetBrains Java Annotations
+Copyright 2000-2021 JetBrains s.r.o.
+
+==
+
+This product includes software developed by jOOL
+Copyright (c), Data Geekery GmbH, contact@datageekery.com
+
+==
+
+This product includes software developed by JSON in Java
+Copyright (c) 2002 JSON.org
+
+==
+
+This product includes software developed by Ldaptive Java Library
+Copyright (C) 2003-2021 Virginia Tech. All Rights Reserved.
+
+==
+
+This product includes software developed by the Liquibase project.
+
+==
+
 This product includes software developed by the MyBatis project.
+
+==
+
+This product includes software developed by Objenesis
+Copyright 2006-2022 the original author or authors.
 
 ==
 
@@ -225,6 +591,16 @@ This product includes software developed by the Shibboleth project.
 This product includes software developed by the ASM project.
 Copyright (c) 2000-2011 INRIA, France Telecom
 All rights reserved.
+
+==
+
+This product includes software developed by Passay
+Copyright (C) 2003-2022 Virginia Tech. All rights reserved.
+
+==
+
+This product includes software developed by Project Lombok
+Copyright (C) 2009-2021 The Project Lombok Authors.
 
 ==
 
@@ -242,24 +618,24 @@ Copyright (c) 2004-2016 QOS.ch.
 
 ==
 
+This product includes software developed by Spring openapi documentation
+Copyright 2019-2020 the original author or authors.
+
+==
+
 This product includes software developed by SpringSource.
-Copyright (c) 2004-2016 SpringSource
+Copyright (c) 2004-2022 SpringSource
 All rights reserved.
 
 ==
 
-This product includes software developed by the spin.js project.
-Copyright (c) 2011-2015 Felix Gnass [fgnass at gmail dot com]
+This product includes software developed by Thymeleaf
+Copyright (c) 2011-2018, The THYMELEAF team (http://www.thymeleaf.org)
 
 ==
 
-This product includes software developed by the FileSaver.js project.
-Copyright (c) 2015 Carlos A. Gomes.
-
-==
-
-This product includes software developed by the Bootstrap File Input project.
-Copyright (c) 2014 - 2016, Kartik Visweswaran Krajee.com All rights reserved.
+This product includes software developed by unbescape
+Copyright 2012 Twitter, Inc.
 
 ==
 
@@ -268,15 +644,68 @@ Copyright (c) 2018 Chart.js Contributors
 
 ==
 
-This product contains unmodified binary redistributions for H2 database engine,
-which is dual licensed and available under a modified version of the MPL 1.1 (Mozilla Public License) or under the
-(unmodified) EPL 1.0 (Eclipse Public License).
-An original copy of the license agreement can be found at: http://www.h2database.com/html/license.html
+This product includes software developed by Moment.js.
+Copyright (c) JS Foundation and other contributors
 
 ==
 
-This product includes software developed by the Select2 project.
-Copyright (c) 2012-2015 Kevin Brown, Igor Vaynberg, and Select2 contributors
+This product includes software developed by zxcvbn
+Copyright (c) 2012-2016 Dan Wheeler and Dropbox, Inc.
+
+==
+
+This product includes software developed by balanced-match
+Copyright (c) 2013 Julian Gruber <julian@juliangruber.com>
+
+==
+
+This product includes software developed by base64-js
+Copyright (c) 2014 Jameson Little
+
+==
+
+This product includes software developed by css-vars-ponyfill
+Copyright (c) 2018 John Hildenbiddle
+
+==
+
+This product includes software developed by get-css-data
+Copyright (c) 2018 John Hildenbiddle
+
+==
+
+This product includes software developed by Inputmask
+Copyright (c) 2010 - 2018 Robin Herbots
+
+==
+
+This product includes software developed by Material Components for the web
+Copyright 2018 Google Inc.
+
+==
+
+This product includes software developed by normalize.css
+Copyright © Nicolas Gallagher and Jonathan Neal
+
+==
+
+This product includes software developed by Summernote
+Copyright (c) 2015~ Summernote Team (https://github.com/orgs/summernote/people)
+
+==
+
+This product includes software developed by tslib
+Copyright (c) Microsoft Corporation.
+
+==
+
+This product includes software developed by window.fetch polyfill
+Copyright (c) 2014-2016 GitHub, Inc.
+
+==
+
+This product includes software developed by WicketStuff
+Copyright (c) 1998-2004, Drew Davidson and Luke Blanshard
 
 ==
 
@@ -284,16 +713,21 @@ This product includes software developed by the SnakeYAML project.
 
 ==
 
+This product includes software developed by popper.js
+Copyright (c) 2021 Floating UI contributors
+
+==
+
+This product includes software developed by Tempus Dominus Bootstrap 4 Datetime Picker
+Copyright (c) 2016 Tempus Dominus
+
+==
+
+This product includes software developed by Webjars-locator core functionality
+Copyright (c) 2013 James Ward
+
+==
+
 This product includes software developed by the Web Services Description Language for Java project.
 Copyright (c) Dice.
 All Rights Reserved.
-
-==
-
-This product includes software developed by the X-editable project.
-Copyright (c) 2012 Vitaliy Potapov
-
-==
-
-This product includes software developed by Adobe Systems Incorporated (http://www.adobe.com/).
-Copyright 2010, 2012, 2014 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. All Rights Reserved. Source is a trademark of Adobe Systems Incorporated in the United States and/or other countries.

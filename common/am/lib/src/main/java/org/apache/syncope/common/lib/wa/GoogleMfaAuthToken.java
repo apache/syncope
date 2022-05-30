@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.common.lib.wa;
 
-import java.util.Date;
-import java.util.Optional;
+import java.time.OffsetDateTime;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -33,8 +32,8 @@ public class GoogleMfaAuthToken implements BaseBean {
 
         private final GoogleMfaAuthToken instance = new GoogleMfaAuthToken();
 
-        public GoogleMfaAuthToken.Builder issueDate(final Date issued) {
-            instance.setIssueDate(issued);
+        public GoogleMfaAuthToken.Builder issueDate(final OffsetDateTime issueDate) {
+            instance.setIssueDate(issueDate);
             return this;
         }
 
@@ -50,7 +49,7 @@ public class GoogleMfaAuthToken implements BaseBean {
 
     private int otp;
 
-    private Date issueDate;
+    private OffsetDateTime issueDate;
 
     public int getOtp() {
         return otp;
@@ -60,14 +59,12 @@ public class GoogleMfaAuthToken implements BaseBean {
         this.otp = otp;
     }
 
-    public Date getIssueDate() {
-        return Optional.ofNullable(this.issueDate).
-                map(date -> new Date(date.getTime())).orElse(null);
+    public OffsetDateTime getIssueDate() {
+        return issueDate;
     }
 
-    public void setIssueDate(final Date issueDate) {
-        this.issueDate = Optional.ofNullable(issueDate).
-                map(date -> new Date(date.getTime())).orElse(null);
+    public void setIssueDate(final OffsetDateTime issueDate) {
+        this.issueDate = issueDate;
     }
 
     @Override

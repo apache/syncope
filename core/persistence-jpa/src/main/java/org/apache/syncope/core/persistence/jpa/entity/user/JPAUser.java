@@ -18,9 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,17 +39,17 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -106,8 +105,7 @@ public class JPAUser
     @Lob
     private String token;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date tokenExpireTime;
+    private OffsetDateTime tokenExpireTime;
 
     @Column(nullable = true)
     @Enumerated(EnumType.STRING)
@@ -135,16 +133,12 @@ public class JPAUser
     /**
      * Last successful login date.
      */
-    @Column(nullable = true)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lastLoginDate;
+    private OffsetDateTime lastLoginDate;
 
     /**
      * Change password date.
      */
-    @Column(nullable = true)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date changePwdDate;
+    private OffsetDateTime changePwdDate;
 
     private Boolean suspended = false;
 
@@ -184,6 +178,9 @@ public class JPAUser
 
     @Column(nullable = true)
     private String securityAnswer;
+
+    @Transient
+    private String clearSecurityAnswer;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
     @Valid
@@ -241,21 +238,24 @@ public class JPAUser
     }
 
     @Override
-    public void setEncodedPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
+    public void setEncodedPassword(final String password, final CipherAlgorithm cipherAlgorithm) {
         this.clearPassword = null;
 
         this.password = password;
-        this.cipherAlgorithm = cipherAlgoritm;
+        this.cipherAlgorithm = cipherAlgorithm;
         setMustChangePassword(false);
     }
 
     @Override
-    public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
+    public void setPassword(final String password) {
         this.clearPassword = password;
 
         try {
-            this.password = ENCRYPTOR.encode(password, cipherAlgoritm);
-            this.cipherAlgorithm = cipherAlgoritm;
+            this.password = ENCRYPTOR.encode(password, cipherAlgorithm == null
+                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
+                            get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
+                                    String.class))
+                    : cipherAlgorithm);
             setMustChangePassword(false);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
@@ -269,7 +269,16 @@ public class JPAUser
     }
 
     @Override
-    public boolean canDecodePassword() {
+    public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
+        if (this.cipherAlgorithm == null || cipherAlgorithm == null) {
+            this.cipherAlgorithm = cipherAlgorithm;
+        } else {
+            throw new IllegalArgumentException("Cannot override existing cipher algorithm");
+        }
+    }
+
+    @Override
+    public boolean canDecodeSecrets() {
         return this.cipherAlgorithm != null && this.cipherAlgorithm.isInvertible();
     }
 
@@ -297,10 +306,7 @@ public class JPAUser
     @Override
     public void generateToken(final int tokenLength, final int tokenExpireTime) {
         this.token = SecureRandomUtils.generateRandomPassword(tokenLength);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, tokenExpireTime);
-        this.tokenExpireTime = calendar.getTime();
+        this.tokenExpireTime = OffsetDateTime.now().plusMinutes(tokenExpireTime);
     }
 
     @Override
@@ -315,19 +321,22 @@ public class JPAUser
     }
 
     @Override
-    public Date getTokenExpireTime() {
-        return Optional.ofNullable(tokenExpireTime).map(expireTime -> new Date(expireTime.getTime())).orElse(null);
+    public OffsetDateTime getTokenExpireTime() {
+        return tokenExpireTime;
     }
 
     @Override
     public boolean checkToken(final String token) {
-        return Optional.ofNullable(this.token)
-            .map(s -> s.equals(token) && !hasTokenExpired()).orElseGet(() -> token == null);
+        return Optional.ofNullable(this.token).
+                map(s -> s.equals(token) && !hasTokenExpired()).
+                orElseGet(() -> token == null);
     }
 
     @Override
     public boolean hasTokenExpired() {
-        return Optional.ofNullable(tokenExpireTime).filter(expireTime -> expireTime.before(new Date())).isPresent();
+        return Optional.ofNullable(tokenExpireTime).
+                filter(expireTime -> expireTime.isBefore(OffsetDateTime.now())).
+                isPresent();
     }
 
     @Override
@@ -336,14 +345,13 @@ public class JPAUser
     }
 
     @Override
-    public Date getChangePwdDate() {
-        return Optional.ofNullable(changePwdDate).map(pwdDate -> new Date(pwdDate.getTime())).orElse(null);
+    public OffsetDateTime getChangePwdDate() {
+        return changePwdDate;
     }
 
     @Override
-    public void setChangePwdDate(final Date changePwdDate) {
-        this.changePwdDate = Optional.ofNullable(changePwdDate)
-            .map(pwdDate -> new Date(pwdDate.getTime())).orElse(null);
+    public void setChangePwdDate(final OffsetDateTime changePwdDate) {
+        this.changePwdDate = changePwdDate;
     }
 
     @Override
@@ -357,14 +365,13 @@ public class JPAUser
     }
 
     @Override
-    public Date getLastLoginDate() {
-        return Optional.ofNullable(lastLoginDate).map(loginDate -> new Date(loginDate.getTime())).orElse(null);
+    public OffsetDateTime getLastLoginDate() {
+        return lastLoginDate;
     }
 
     @Override
-    public void setLastLoginDate(final Date lastLoginDate) {
-        this.lastLoginDate = Optional.ofNullable(lastLoginDate)
-            .map(loginDate -> new Date(loginDate.getTime())).orElse(null);
+    public void setLastLoginDate(final OffsetDateTime lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
     }
 
     @Override
@@ -414,8 +421,31 @@ public class JPAUser
     }
 
     @Override
+    public String getClearSecurityAnswer() {
+        return clearSecurityAnswer;
+    }
+
+    @Override
+    public void setEncodedSecurityAnswer(final String securityAnswer) {
+        this.clearSecurityAnswer = null;
+
+        this.securityAnswer = securityAnswer;
+    }
+
+    @Override
     public void setSecurityAnswer(final String securityAnswer) {
         this.securityAnswer = securityAnswer;
+
+        try {
+            this.securityAnswer = ENCRYPTOR.encode(securityAnswer, cipherAlgorithm == null
+                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
+                            get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
+                                    String.class))
+                    : cipherAlgorithm);
+        } catch (Exception e) {
+            LOG.error("Could not encode security answer", e);
+            this.securityAnswer = null;
+        }
     }
 
     @Override

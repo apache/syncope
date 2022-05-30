@@ -83,7 +83,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 PageReference pageRef);
     }
 
-    protected static DirectoryPanelSupplier DEFAULT_DIRECTORYPANEL_SUPPLIER =
+    protected static final DirectoryPanelSupplier DEFAULT_DIRECTORYPANEL_SUPPLIER =
             (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
 
                 Panel panel;

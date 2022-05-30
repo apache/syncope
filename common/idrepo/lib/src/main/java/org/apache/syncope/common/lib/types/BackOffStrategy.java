@@ -16,26 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java.job;
+package org.apache.syncope.common.lib.types;
 
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+public enum BackOffStrategy {
+    FIXED("1000"),
+    EXPONENTIAL("100;30000;2"),
+    RANDOM("100;30000;2");
 
-/**
- * Clean shutdown for Quartz scheduler.
- */
-public class SchedulerShutdown implements DisposableBean {
+    private final String defaultBackOffParams;
 
-    private final ApplicationContext ctx;
-
-    public SchedulerShutdown(final ApplicationContext ctx) {
-        this.ctx = ctx;
+    BackOffStrategy(final String defaultBackOffParams) {
+        this.defaultBackOffParams = defaultBackOffParams;
     }
 
-    @Override
-    public void destroy() throws Exception {
-        SchedulerFactoryBean scheduler = ctx.getBean(SchedulerFactoryBean.class);
-        scheduler.getScheduler().shutdown();
+    public String getDefaultBackOffParams() {
+        return defaultBackOffParams;
     }
 }

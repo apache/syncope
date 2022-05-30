@@ -16,22 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.spring.policy;
+package org.apache.syncope.core.provisioning.java.data;
 
-/**
- * Raise when the merge of two or more PasswordRuleconf instances led to an inconsistent condition.
- *
- * @see org.apache.syncope.common.lib.policy.PasswordRuleConf
- */
-public class InvalidPasswordRuleConf extends Exception {
+import java.time.OffsetDateTime;
+import java.util.Date;
+import java.util.Optional;
+import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 
-    private static final long serialVersionUID = 4810651743226663580L;
+public abstract class AbstractExecutableDatabinder {
 
-    public InvalidPasswordRuleConf(final String msg) {
-        super(msg);
-    }
-
-    public InvalidPasswordRuleConf(final String msg, final Exception e) {
-        super(msg, e);
+    protected OffsetDateTime toOffsetDateTime(final Date date) {
+        return Optional.ofNullable(date).
+                map(d -> d.toInstant().atOffset(FormatUtils.DEFAULT_OFFSET)).
+                orElse(null);
     }
 }

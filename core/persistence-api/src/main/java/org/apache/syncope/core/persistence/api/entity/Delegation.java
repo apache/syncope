@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
@@ -32,13 +32,13 @@ public interface Delegation extends Entity {
 
     void setDelegated(User delegated);
 
-    void setStart(Date start);
+    void setStart(OffsetDateTime start);
 
-    Date getStart();
+    OffsetDateTime getStart();
 
-    void setEnd(Date end);
+    void setEnd(OffsetDateTime end);
 
-    Date getEnd();
+    OffsetDateTime getEnd();
 
     boolean add(Role role);
 

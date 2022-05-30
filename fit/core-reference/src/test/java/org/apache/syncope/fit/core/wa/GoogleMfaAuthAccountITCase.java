@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -38,7 +38,7 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
 
     private static GoogleMfaAuthAccount createGoogleMfaAuthAccount() {
         return new GoogleMfaAuthAccount.Builder()
-                .registrationDate(new Date())
+                .registrationDate(OffsetDateTime.now())
                 .scratchCodes(List.of(1, 2, 3, 4, 5))
                 .secretKey(SecureRandomUtils.generateRandomUUID().toString())
                 .validationCode(123456)

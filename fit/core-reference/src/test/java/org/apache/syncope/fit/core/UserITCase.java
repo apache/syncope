@@ -29,8 +29,10 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
 import java.security.AccessControlException;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +42,6 @@ import java.util.stream.Collectors;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -116,7 +117,7 @@ public class UserITCase extends AbstractITCase {
                 plainAttr(attr("ctype", "a type")).
                 plainAttr(attr("userId", email)).
                 plainAttr(attr("email", email)).
-                plainAttr(attr("loginDate", DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date()))).
+                plainAttr(attr("loginDate", DateTimeFormatter.ISO_LOCAL_DATE.format(OffsetDateTime.now()))).
                 build();
     }
 
@@ -309,7 +310,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO.getCreator());
         assertNotNull(userTO.getLastChangeDate());
         assertNotNull(userTO.getLastModifier());
-        assertTrue(userTO.getLastChangeDate().getTime() - userTO.getCreationDate().getTime() < 3000);
+        assertTrue(userTO.getLastChangeDate().toEpochSecond() - userTO.getCreationDate().toEpochSecond() < 3);
 
         assertFalse(userTO.getPlainAttrs().contains(attrWithInvalidSchemaTO));
 
@@ -577,7 +578,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO.getCreator());
         assertNotNull(userTO.getLastChangeDate());
         assertNotNull(userTO.getLastModifier());
-        assertTrue(userTO.getCreationDate().before(userTO.getLastChangeDate()));
+        assertTrue(userTO.getCreationDate().isBefore(userTO.getLastChangeDate()));
 
         assertEquals(1, userTO.getMemberships().size());
         assertFalse(userTO.getDerAttrs().isEmpty());
@@ -879,8 +880,8 @@ public class UserITCase extends AbstractITCase {
         userCR.getResources().add(RESOURCE_NAME_LDAP);
 
         ProvisioningResult<UserTO> result = asyncService.create(userCR).readEntity(
-            new GenericType<>() {
-            });
+                new GenericType<>() {
+        });
         assertNotNull(result);
         verifyAsyncResult(result.getPropagationStatuses());
 
@@ -891,14 +892,14 @@ public class UserITCase extends AbstractITCase {
                 value("password321").build());
 
         result = asyncService.update(userUR).readEntity(
-            new GenericType<>() {
-            });
+                new GenericType<>() {
+        });
         assertNotNull(result);
         verifyAsyncResult(result.getPropagationStatuses());
 
         result = asyncService.delete(result.getEntity().getKey()).readEntity(
-            new GenericType<>() {
-            });
+                new GenericType<>() {
+        });
         assertNotNull(result);
         verifyAsyncResult(result.getPropagationStatuses());
     }

@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Objects;
-
 import javax.sql.DataSource;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
@@ -69,9 +68,10 @@ public class MasterDomain {
     @ConditionalOnMissingBean(name = "MasterDataSourceInitializer")
     @Bean(name = "MasterDataSourceInitializer")
     public DataSourceInitializer masterDataSourceInitializer(
-        final PersistenceProperties props,
-        @Qualifier("MasterDataSource")
-        final JndiObjectFactoryBean masterDataSource) {
+            final PersistenceProperties props,
+            @Qualifier("MasterDataSource")
+            final JndiObjectFactoryBean masterDataSource) {
+
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
         databasePopulator.setContinueOnError(true);
         databasePopulator.setIgnoreFailedDrops(true);
@@ -89,10 +89,11 @@ public class MasterDomain {
     @DependsOn("commonEMFConf")
     @Bean(name = "MasterEntityManagerFactory")
     public DomainEntityManagerFactoryBean masterEntityManagerFactory(
-        final PersistenceProperties props,
-        @Qualifier("MasterDataSource")
-        final JndiObjectFactoryBean masterDataSource,
-        final CommonEntityManagerFactoryConf commonEMFConf) {
+            final PersistenceProperties props,
+            @Qualifier("MasterDataSource")
+            final JndiObjectFactoryBean masterDataSource,
+            final CommonEntityManagerFactoryConf commonEMFConf) {
+
         OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
         vendorAdapter.setGenerateDdl(true);
@@ -117,20 +118,25 @@ public class MasterDomain {
     @ConditionalOnMissingBean(name = "MasterTransactionManager")
     @Bean(name = { "MasterTransactionManager", "Master" })
     public PlatformTransactionManager transactionManager(
-        @Qualifier("MasterEntityManagerFactory")
-        final DomainEntityManagerFactoryBean masterEntityManagerFactory) {
+            @Qualifier("MasterEntityManagerFactory")
+            final DomainEntityManagerFactoryBean masterEntityManagerFactory) {
+
         return new JpaTransactionManager(Objects.requireNonNull(masterEntityManagerFactory.getObject()));
     }
 
     @Bean(name = "MasterContentXML")
-    public InputStream masterContentXML(final ResourceLoader resourceLoader,
-                                        final PersistenceProperties props) throws IOException {
+    public InputStream masterContentXML(
+            final ResourceLoader resourceLoader,
+            final PersistenceProperties props) throws IOException {
+
         return resourceLoader.getResource(props.getDomain().get(0).getContent()).getInputStream();
     }
 
     @Bean(name = "MasterKeymasterConfParamsJSON")
-    public InputStream masterKeymasterConfParamsJSON(final ResourceLoader resourceLoader,
-                                                     final PersistenceProperties props) throws IOException {
+    public InputStream masterKeymasterConfParamsJSON(
+            final ResourceLoader resourceLoader,
+            final PersistenceProperties props) throws IOException {
+
         return resourceLoader.getResource(props.getDomain().get(0).getKeymasterConfParams()).getInputStream();
     }
 

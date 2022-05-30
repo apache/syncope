@@ -23,7 +23,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import java.lang.reflect.Method;
 import java.text.ParseException;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -241,7 +241,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             LOG.error("Could not fetch authorities", e);
         }
 
-        Pair<String, Date> accessTokenInfo =
+        Pair<String, OffsetDateTime> accessTokenInfo =
                 accessTokenDataBinder.create(loginResponse.getUsername(), claims, authorities, true);
         loginResponse.setAccessToken(accessTokenInfo.getLeft());
         loginResponse.setAccessTokenExpiryTime(accessTokenInfo.getRight());
