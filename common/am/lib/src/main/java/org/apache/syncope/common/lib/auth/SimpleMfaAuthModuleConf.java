@@ -25,6 +25,56 @@ public class SimpleMfaAuthModuleConf implements AuthModuleConf {
     
     private int tokenLength = 6;
 
+    private String bypassGroovyScript;
+
+    private String emailAttribute = "email";
+
+    private String emailFrom;
+
+    private String emailSubject;
+
+    private String emailText;
+
+    public String getEmailFrom() {
+        return emailFrom;
+    }
+
+    public void setEmailFrom(final String emailFrom) {
+        this.emailFrom = emailFrom;
+    }
+
+    public String getEmailSubject() {
+        return emailSubject;
+    }
+
+    public void setEmailSubject(final String emailSubject) {
+        this.emailSubject = emailSubject;
+    }
+
+    public String getEmailText() {
+        return emailText;
+    }
+
+    public void setEmailText(final String emailText) {
+        this.emailText = emailText;
+    }
+
+    public String getBypassGroovyScript() {
+        return bypassGroovyScript;
+    }
+
+    public void setBypassGroovyScript(final String bypassGroovyScript) {
+        this.bypassGroovyScript = bypassGroovyScript;
+    }
+
+    public String getEmailAttribute() {
+        return emailAttribute;
+    }
+
+    public void setEmailAttribute(final String emailAttribute) {
+        this.emailAttribute = emailAttribute;
+    }
+
     public long getTimeToKillInSeconds() {
         return timeToKillInSeconds;
     }
