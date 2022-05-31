@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.auth.JaasAuthModuleConf;
 import org.apache.syncope.common.lib.auth.LDAPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
+import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
@@ -65,6 +66,10 @@ public class AuthModuleTest extends AbstractTest {
         AuthModule authModule = authModuleDAO.find("DefaultLDAPAuthModule");
         assertNotNull(authModule);
         assertTrue(authModule.getConf() instanceof LDAPAuthModuleConf);
+
+        authModule = authModuleDAO.find("DefaultSimpleMfaAuthModule");
+        assertNotNull(authModule);
+        assertTrue(authModule.getConf() instanceof SimpleMfaAuthModuleConf);
 
         authModule = authModuleDAO.find("DefaultJDBCAuthModule");
         assertNotNull(authModule);
@@ -232,6 +237,14 @@ public class AuthModuleTest extends AbstractTest {
         saveAuthModule("SAML2IdPAuthModuleTest", conf);
     }
 
+    @Test
+    public void saveWithSimpleMfaModule() {
+        SimpleMfaAuthModuleConf conf = new SimpleMfaAuthModuleConf();
+        conf.setTokenLength(9);
+        conf.setTimeToKillInSeconds(120);
+        saveAuthModule("SimpleMfaAuthModuleConf", conf);
+    }
+    
     @Test
     public void saveWithU2FModule() {
         U2FAuthModuleConf conf = new U2FAuthModuleConf();
