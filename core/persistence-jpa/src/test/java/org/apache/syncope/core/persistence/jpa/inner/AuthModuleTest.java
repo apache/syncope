@@ -67,7 +67,7 @@ public class AuthModuleTest extends AbstractTest {
         assertNotNull(authModule);
         assertTrue(authModule.getConf() instanceof LDAPAuthModuleConf);
 
-        authModule = authModuleDAO.find("SimpleMfaAuthModuleConf");
+        authModule = authModuleDAO.find("SimpleMfaAuthModule");
         assertNotNull(authModule);
         assertTrue(authModule.getConf() instanceof SimpleMfaAuthModuleConf);
 
