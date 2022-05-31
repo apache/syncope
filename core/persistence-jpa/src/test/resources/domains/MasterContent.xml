@@ -69,7 +69,7 @@ under the License.
               description="JDBC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JDBCAuthModuleConf","sql":"SELECT * FROM users_table WHERE name=?", "fieldPassword": "password"}'/>
   <AuthModule id="DefaultGoogleMfaAuthModule"
               description="Google Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf","codeDigits":6,"issuer":"SyncopeTest", "label":"SyncopeTest", "timeStepSize":30, "windowSize":3}'/>
-  <AuthModule id="SimpleMfaAuthModule"
+  <AuthModule id="DefaultSimpleMfaAuthModule"
               description="Simple Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf","tokenLength":6, "timeToKillInSeconds":30}'/>
   <AuthModule id="DefaultDuoMfaAuthModule"
               description="Duo Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf","integrationKey":"DIOXVRZD2UMZ8XXMNFQ5","secretKey":"Q2IU2i8BFNd6VYflZT8Evl6lF7oPlj3PM15BmRU7", "applicationKey":"u1IHBaREMB7Cb5S4QMISAgHycpj8lPBkDGfWt23I", "apiHost":"theapi.duosecurity.com"}'/>
