@@ -71,7 +71,9 @@ import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRepository;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.u2f.U2FCoreMultifactorAuthenticationProperties;
+import org.apereo.cas.gauth.credential.LdapGoogleAuthenticatorTokenCredentialRepository;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
@@ -84,15 +86,21 @@ import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerat
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
 import org.apereo.cas.util.DateTimeUtils;
+import org.apereo.cas.util.LdapUtils;
 import org.apereo.cas.util.crypto.CipherExecutor;
 import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
+
+import org.ldaptive.ConnectionFactory;
 import org.pac4j.core.client.Client;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ScopedProxyMode;
 
 @Configuration(proxyBeanMethods = false)
 public class SyncopeWAConfiguration {
@@ -258,10 +266,27 @@ public class SyncopeWAConfiguration {
                 restClient, casProperties.getAuthn().getMfa().getGauth().getCore().getTimeStepSize());
     }
 
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
     @Bean
     public OneTimeTokenCredentialRepository googleAuthenticatorAccountRegistry(
+            final CasConfigurationProperties casProperties,
+            @Qualifier("googleAuthenticatorAccountCipherExecutor") final CipherExecutor cipherExecutor,
             final IGoogleAuthenticator googleAuthenticatorInstance, final WARestClient restClient) {
 
+        /*
+        Declaring the LDAP-based repository as a Spring bean that would be conditionally activated
+        via properties using annotations is not possible; conditionally-created spring beans cannot be
+        refreshed, which means the settings ever change and the context is refreshed, the repository
+        option can not be re-created. This could be revisited later in CAS 6.6.x using the {@code BeanSupplier}
+        API construct to recreate the same bean in a more conventional way.
+         */
+        LdapGoogleAuthenticatorMultifactorProperties ldap = casProperties.getAuthn().getMfa().getGauth().getLdap();
+        if (StringUtils.isNotBlank(ldap.getBaseDn()) && StringUtils.isNotBlank(ldap.getLdapUrl())
+            && StringUtils.isNotBlank(ldap.getSearchFilter())) {
+            ConnectionFactory connectionFactory = LdapUtils.newLdaptiveConnectionFactory(ldap);
+            return new LdapGoogleAuthenticatorTokenCredentialRepository(cipherExecutor,
+                googleAuthenticatorInstance, connectionFactory, ldap);
+        }
         return new SyncopeWAGoogleMfaAuthCredentialRepository(restClient, googleAuthenticatorInstance);
     }
 

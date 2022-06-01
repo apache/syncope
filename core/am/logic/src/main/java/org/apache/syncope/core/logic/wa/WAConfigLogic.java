@@ -97,13 +97,14 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
     public void pushToWA() {
         try {
             NetworkService wa = serviceOps.get(NetworkService.Type.WA);
-            HttpClient.newBuilder().build().send(
+            HttpResponse response = HttpClient.newBuilder().build().send(
                     HttpRequest.newBuilder(URI.create(
                             StringUtils.appendIfMissing(wa.getAddress(), "/") + "actuator/refresh")).
                             header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
                                     securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey())).
                             POST(HttpRequest.BodyPublishers.noBody()).build(),
                     HttpResponse.BodyHandlers.discarding());
+            LOG.info("Pushed changes to WA with status: {}", response.statusCode());
         } catch (KeymasterException e) {
             throw new NotFoundException("Could not find any WA instance", e);
         } catch (IOException | InterruptedException e) {
