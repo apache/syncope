@@ -448,7 +448,7 @@ under the License.
 
     <pac4j.version>5.3.1</pac4j.version>
 
-    <cas.version>6.5.4</cas.version>
+    <cas.version>6.5.5</cas.version>
     <cas-client.version>3.6.4</cas-client.version>
 
     <h2.version>2.1.212</h2.version>
@@ -1548,6 +1548,16 @@ under the License.
       <dependency>
         <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-gauth</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-ldap-core</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-gauth-ldap</artifactId>
         <version>${cas.version}</version>
       </dependency>
       <dependency>

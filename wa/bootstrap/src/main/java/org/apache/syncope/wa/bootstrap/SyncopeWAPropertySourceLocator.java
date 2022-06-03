@@ -53,6 +53,7 @@ import org.apereo.cas.configuration.model.support.ldap.LdapAuthenticationPropert
 import org.apereo.cas.configuration.model.support.mfa.DuoSecurityMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.MultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorProperties;
+import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.simple.CasSimpleMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.Pac4jDelegatedAuthenticationProperties;
@@ -248,17 +249,26 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
         final String authModule,
         final GoogleMfaAuthModuleConf conf) {
 
-        GoogleAuthenticatorMultifactorProperties props =
+        GoogleAuthenticatorMultifactorProperties gauthProps =
             new GoogleAuthenticatorMultifactorProperties();
-        props.setName(authModule);
-        props.getCore().setIssuer(conf.getIssuer());
-        props.getCore().setCodeDigits(conf.getCodeDigits());
-        props.getCore().setLabel(conf.getLabel());
-        props.getCore().setTimeStepSize(conf.getTimeStepSize());
-        props.getCore().setWindowSize(conf.getWindowSize());
+        gauthProps.setName(authModule);
+        gauthProps.getCore().setIssuer(conf.getIssuer());
+        gauthProps.getCore().setCodeDigits(conf.getCodeDigits());
+        gauthProps.getCore().setLabel(conf.getLabel());
+        gauthProps.getCore().setTimeStepSize(conf.getTimeStepSize());
+        gauthProps.getCore().setWindowSize(conf.getWindowSize());
+
+        LdapGoogleAuthenticatorMultifactorProperties ldapProps = new LdapGoogleAuthenticatorMultifactorProperties();
+        ldapProps.setAccountAttributeName(conf.getLdapAccountAttributeName());
+        ldapProps.setBaseDn(conf.getLdapBaseDn());
+        ldapProps.setBindCredential(conf.getLdapBindCredential());
+        ldapProps.setBindDn(conf.getLdapBindDn());
+        ldapProps.setSearchFilter(conf.getLdapSearchFilter());
+        ldapProps.setLdapUrl(conf.getLdapUrl());
+        gauthProps.setLdap(ldapProps);
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getMfa().setGauth(props);
+        casProperties.getAuthn().getMfa().setGauth(gauthProps);
 
         SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.addFilter(

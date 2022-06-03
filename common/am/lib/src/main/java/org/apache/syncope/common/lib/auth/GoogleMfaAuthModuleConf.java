@@ -52,6 +52,99 @@ public class GoogleMfaAuthModuleConf implements AuthModuleConf {
      */
     private int windowSize = 3;
 
+    /**
+     * Name of LDAP attribute that holds GAuth account/credential as JSON.
+     */
+    private String ldapAccountAttributeName = "casGAuthRecord";
+
+    /**
+     * Base DN to use. There may be scenarios where different parts of a single LDAP tree
+     * could be considered as base-dns. Each entry can be specified
+     * and joined together using a special delimiter character.
+     */
+    private String ldapBaseDn;
+
+    /**
+     * The bind credential to use when connecting to LDAP.
+     */
+    private String ldapBindCredential;
+
+    /**
+     * The bind DN to use when connecting to LDAP.
+     */
+    private String ldapBindDn;
+
+    /**
+     * The LDAP url to the server. More than one may be specified, separated by space and/or comma.
+     */
+    private String ldapUrl;
+
+    /**
+     * User filter to use for searching. Syntax is i.e.  cn={user} or cn={0}.
+     */
+    private String ldapSearchFilter;
+
+    /**
+     * Whether subtree searching is allowed.
+     */
+    private boolean ldapSubtreeSearch = true;
+
+    public String getLdapAccountAttributeName() {
+        return ldapAccountAttributeName;
+    }
+
+    public void setLdapAccountAttributeName(final String ldapAccountAttributeName) {
+        this.ldapAccountAttributeName = ldapAccountAttributeName;
+    }
+
+    public String getLdapBaseDn() {
+        return ldapBaseDn;
+    }
+
+    public void setLdapBaseDn(final String ldapBaseDn) {
+        this.ldapBaseDn = ldapBaseDn;
+    }
+
+    public String getLdapBindCredential() {
+        return ldapBindCredential;
+    }
+
+    public void setLdapBindCredential(final String ldapBindCredential) {
+        this.ldapBindCredential = ldapBindCredential;
+    }
+
+    public String getLdapBindDn() {
+        return ldapBindDn;
+    }
+
+    public void setLdapBindDn(final String ldapBindDn) {
+        this.ldapBindDn = ldapBindDn;
+    }
+
+    public String getLdapUrl() {
+        return ldapUrl;
+    }
+
+    public void setLdapUrl(final String ldapUrl) {
+        this.ldapUrl = ldapUrl;
+    }
+
+    public String getLdapSearchFilter() {
+        return ldapSearchFilter;
+    }
+
+    public void setLdapSearchFilter(final String ldapSearchFilter) {
+        this.ldapSearchFilter = ldapSearchFilter;
+    }
+
+    public boolean isLdapSubtreeSearch() {
+        return ldapSubtreeSearch;
+    }
+
+    public void setLdapSubtreeSearch(final boolean ldapSubtreeSearch) {
+        this.ldapSubtreeSearch = ldapSubtreeSearch;
+    }
+
     public String getIssuer() {
         return issuer;
     }
