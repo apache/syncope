@@ -82,6 +82,8 @@ public class OIDC extends Panel {
 
         view = new AjaxLink<>("view") {
 
+            private static final long serialVersionUID = 6250423506463465679L;
+
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 String pretty;
@@ -113,6 +115,8 @@ public class OIDC extends Panel {
 
         generate = new AjaxLink<>("generate") {
 
+            private static final long serialVersionUID = 6250423506463465679L;
+
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
@@ -143,6 +147,8 @@ public class OIDC extends Panel {
         MetaDataRoleAuthorizationStrategy.authorize(generate, ENABLE, AMEntitlement.OIDC_JWKS_GENERATE);
 
         delete = new AjaxLink<>("delete") {
+
+            private static final long serialVersionUID = 6250423506463465679L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {

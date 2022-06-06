@@ -79,6 +79,8 @@ public class WA extends BasePage {
 
         AjaxLink<?> push = new AjaxLink<>("push") {
 
+            private static final long serialVersionUID = -817438685948164787L;
+
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
@@ -129,6 +131,10 @@ public class WA extends BasePage {
                 }
             } catch (Exception e) {
                 LOG.error("While contacting {}", actuatorEndpoint, e);
+            }
+
+            if (StringUtils.isBlank(waPrefix)) {
+                waPrefix = StringUtils.removeEnd(instances.get(0).getAddress(), "/");
             }
         }
     }
