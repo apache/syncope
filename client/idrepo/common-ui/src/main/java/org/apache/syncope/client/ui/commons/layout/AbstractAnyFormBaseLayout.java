@@ -26,7 +26,7 @@ public abstract class AbstractAnyFormBaseLayout<A extends AnyTO, F extends AnyFo
 
     private static final long serialVersionUID = -6061683026789976508L;
 
-    private Class<F> formClass;
+    private Class<? extends F> formClass;
 
     private boolean auxClasses = true;
 
@@ -46,7 +46,7 @@ public abstract class AbstractAnyFormBaseLayout<A extends AnyTO, F extends AnyFo
         return formClass == null ? getDefaultFormClass() : formClass;
     }
 
-    public void setFormClass(final Class<F> formClass) {
+    public void setFormClass(final Class<? extends F> formClass) {
         this.formClass = formClass;
     }
 

@@ -49,6 +49,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.string.Strings;
+import org.danekja.java.util.function.serializable.SerializableFunction;
 
 public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel<List<T>> {
 
@@ -130,7 +131,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
     protected Palette<T> buildPalette(final IModel<List<T>> model, final Builder<T> builder) {
         return new NonI18nPalette<>(
-            "paletteField", model, choicesModel, builder.renderer, 8, builder.allowOrder, builder.allowMoveAll) {
+                "paletteField", model, choicesModel, builder.renderer, 8, builder.allowOrder, builder.allowMoveAll) {
 
             private static final long serialVersionUID = -3074655279011678437L;
 
@@ -173,7 +174,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
                         // reduce number of method calls by building a lookup table
                         Map<T, String> idForChoice = choices.stream().collect(Collectors.toMap(
-                            Function.identity(), choice -> renderer.getIdValue(choice, 0), (c1, c2) -> c1));
+                                Function.identity(), choice -> renderer.getIdValue(choice, 0), (c1, c2) -> c1));
 
                         List<T> selected = new ArrayList<>(choices.size());
                         builder.idExtractor.apply(getValue()).forEach(id -> {
@@ -205,8 +206,8 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             @Override
             protected Map<String, String> getAdditionalAttributes(final Object choice) {
                 return builder.additionalAttributes == null
-                    ? super.getAdditionalAttributes(choice)
-                    : builder.additionalAttributes.apply(choice);
+                        ? super.getAdditionalAttributes(choice)
+                        : builder.additionalAttributes.apply(choice);
             }
         };
     }
@@ -267,12 +268,12 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         protected boolean warnIfEmptyFilter = true;
 
-        protected Function<String, Stream<String>> idExtractor =
-                (Function<String, Stream<String>> & Serializable) input -> Stream.of(Strings.split(input, ','));
+        protected SerializableFunction<String, Stream<String>> idExtractor =
+                input -> Stream.of(Strings.split(input, ','));
 
-        protected Function<AjaxRequestTarget, Boolean> event;
+        protected SerializableFunction<AjaxRequestTarget, Boolean> event;
 
-        protected Function<Object, Map<String, String>> additionalAttributes;
+        protected SerializableFunction<Object, Map<String, String>> additionalAttributes;
 
         public Builder<T> setName(final String name) {
             this.name = name;
@@ -320,17 +321,19 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             return this;
         }
 
-        public Builder<T> idExtractor(final Function<String, Stream<String>> idExtractor) {
+        public Builder<T> idExtractor(final SerializableFunction<String, Stream<String>> idExtractor) {
             this.idExtractor = idExtractor;
             return this;
         }
 
-        public Builder<T> event(final Function<AjaxRequestTarget, Boolean> event) {
+        public Builder<T> event(final SerializableFunction<AjaxRequestTarget, Boolean> event) {
             this.event = event;
             return this;
         }
 
-        public Builder<T> additionalAttributes(final Function<Object, Map<String, String>> additionalAttributes) {
+        public Builder<T> additionalAttributes(
+                final SerializableFunction<Object, Map<String, String>> additionalAttributes) {
+
             this.additionalAttributes = additionalAttributes;
             return this;
         }
@@ -404,14 +407,9 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
             Pattern pattern = Pattern.compile(filter, Pattern.CASE_INSENSITIVE);
 
-            List<T> filtered = new ArrayList<>(choices.size());
-            choices.forEach(choice -> {
-                if (pattern.matcher(idForChoice.get(choice)).matches()) {
-                    filtered.add(choice);
-                }
-            });
-
-            return filtered;
+            return choices.stream().
+                    filter(choice -> pattern.matcher(idForChoice.get(choice)).matches()).
+                    collect(Collectors.toList());
         }
     }
 

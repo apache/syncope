@@ -46,8 +46,8 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
             final AnyObjectFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
 
-        super(Optional.ofNullable(anyObjectTO).map(AnyObjectWrapper::new)
-                .orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
+        super(Optional.ofNullable(anyObjectTO).map(AnyObjectWrapper::new).
+                orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     /**
@@ -100,6 +100,7 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
         return Optional.of(new AnyObjectDetails(
                 modelObject,
                 mode == AjaxWizard.Mode.TEMPLATE,
-                modelObject.getInnerObject().getKey() != null, pageRef));
+                modelObject.getInnerObject().getKey() != null,
+                pageRef));
     }
 }

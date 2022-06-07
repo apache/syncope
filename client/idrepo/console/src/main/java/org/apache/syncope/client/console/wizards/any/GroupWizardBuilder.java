@@ -49,8 +49,8 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             final GroupFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
 
-        super(Optional.ofNullable(groupTO).map(GroupWrapper::new)
-                .orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
+        super(Optional.ofNullable(groupTO).map(GroupWrapper::new).
+                orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     /**
@@ -131,6 +131,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
         return Optional.of(new GroupDetails(
                 GroupWrapper.class.cast(modelObject),
                 mode == AjaxWizard.Mode.TEMPLATE,
-                modelObject.getInnerObject().getKey() != null, pageRef));
+                modelObject.getInnerObject().getKey() != null,
+                pageRef));
     }
 }

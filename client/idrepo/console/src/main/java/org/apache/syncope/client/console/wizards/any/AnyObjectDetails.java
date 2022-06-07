@@ -29,6 +29,8 @@ public class AnyObjectDetails extends Details<AnyObjectTO> {
 
     private static final long serialVersionUID = 855618618337931784L;
 
+    protected final AjaxTextFieldPanel name;
+
     public AnyObjectDetails(
             final AnyWrapper<AnyObjectTO> wrapper,
             final boolean templateMode,
@@ -37,7 +39,7 @@ public class AnyObjectDetails extends Details<AnyObjectTO> {
 
         super(wrapper, templateMode, includeStatusPanel, pageRef);
 
-        AjaxTextFieldPanel name = new AjaxTextFieldPanel(
+        name = new AjaxTextFieldPanel(
                 Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME,
                 new PropertyModel<>(wrapper.getInnerObject(), Constants.NAME_FIELD_NAME), false);
         if (templateMode) {
@@ -45,6 +47,6 @@ public class AnyObjectDetails extends Details<AnyObjectTO> {
         } else {
             name.addRequiredLabel();
         }
-        this.add(name);
+        add(name);
     }
 }

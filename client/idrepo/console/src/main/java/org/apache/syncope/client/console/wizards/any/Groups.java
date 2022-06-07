@@ -68,6 +68,8 @@ public class Groups extends AbstractGroups {
 
     protected final ConsoleGroupsModel groupsModel;
 
+    protected AjaxPalettePanel.Builder<MembershipTO> groups;
+
     public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject, final boolean templateMode) {
         super(modelObject);
         this.templateMode = templateMode;
@@ -110,31 +112,30 @@ public class Groups extends AbstractGroups {
             dyngroupsContainer.add(new Label("dyngroups").setVisible(false));
             dyngroupsContainer.setVisible(false);
         } else {
-            AjaxPalettePanel.Builder<MembershipTO> builder = new AjaxPalettePanel.Builder<MembershipTO>().
-                    setRenderer(new IChoiceRenderer<>() {
+            groups = new AjaxPalettePanel.Builder<MembershipTO>().setRenderer(new IChoiceRenderer<>() {
 
-                        private static final long serialVersionUID = -3086661086073628855L;
+                private static final long serialVersionUID = -3086661086073628855L;
 
-                        @Override
-                        public Object getDisplayValue(final MembershipTO object) {
-                            return object.getGroupName();
-                        }
+                @Override
+                public Object getDisplayValue(final MembershipTO object) {
+                    return object.getGroupName();
+                }
 
-                        @Override
-                        public String getIdValue(final MembershipTO object, final int index) {
-                            return object.getGroupName();
-                        }
+                @Override
+                public String getIdValue(final MembershipTO object, final int index) {
+                    return object.getGroupName();
+                }
 
-                        @Override
-                        public MembershipTO getObject(
-                                final String id, final IModel<? extends List<? extends MembershipTO>> choices) {
+                @Override
+                public MembershipTO getObject(
+                        final String id, final IModel<? extends List<? extends MembershipTO>> choices) {
 
-                            return choices.getObject().stream().
-                                    filter(object -> id.equalsIgnoreCase(object.getGroupName())).findAny().orElse(null);
-                        }
-                    });
+                    return choices.getObject().stream().
+                            filter(object -> id.equalsIgnoreCase(object.getGroupName())).findAny().orElse(null);
+                }
+            });
 
-            groupsContainer.add(builder.setAllowOrder(true).withFilter("*").build("groups", new ListModel<>() {
+            groupsContainer.add(groups.setAllowOrder(true).withFilter("*").build("groups", new ListModel<>() {
 
                 private static final long serialVersionUID = -2583290457773357445L;
 

@@ -130,14 +130,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
         if (StringUtils.isNotBlank(term)) {
             AnyCond termCond = new AnyCond(AttrCond.Type.ILIKE);
             termCond.setSchema("name");
-
-            String termSearchableValue = (term.startsWith("*") && !term.endsWith("*"))
-                    ? term + '%'
-                    : (!term.startsWith("*") && term.endsWith("*"))
-                    ? '%' + term
-                    : (term.startsWith("*") && term.endsWith("*")
-                    ? term : '%' + term + '%');
-            termCond.setExpression(termSearchableValue);
+            termCond.setExpression(term.replace("*", "%"));
 
             searchCond = SearchCond.getAnd(
                     SearchCond.getLeaf(assignableCond),
