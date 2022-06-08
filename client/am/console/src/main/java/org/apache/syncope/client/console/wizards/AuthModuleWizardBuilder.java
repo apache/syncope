@@ -27,16 +27,20 @@ import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.AuthModuleRestClient;
 import org.apache.syncope.client.console.wizards.mapping.AuthModuleMappingPanel;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -44,9 +48,9 @@ import org.springframework.util.ClassUtils;
 
 public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -6163230263062920394L;
 
-    private final LoadableDetachableModel<List<String>> authModuleConfs;
+    protected final LoadableDetachableModel<List<String>> authModuleConfs;
 
     public AuthModuleWizardBuilder(final AuthModuleTO defaultItem, final PageReference pageRef) {
 
@@ -59,7 +63,7 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
             @Override
             protected List<String> load() {
                 return SyncopeWebApplication.get().getLookup().getClasses(AuthModuleConf.class).stream().
-                    map(Class::getName).sorted().collect(Collectors.toList());
+                        map(Class::getName).sorted().collect(Collectors.toList());
             }
         };
     }
@@ -78,6 +82,11 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
     protected WizardModel buildModelSteps(final AuthModuleTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new Profile(modelObject, authModuleConfs));
         wizardModel.add(new Configuration(modelObject));
+
+        if (modelObject.getConf() instanceof GoogleMfaAuthModuleConf) {
+            wizardModel.add(new GoogleMfaAuthModuleConfLDAP((GoogleMfaAuthModuleConf) modelObject.getConf()));
+        }
+
         wizardModel.add(new Mapping(modelObject));
         return wizardModel;
     }
@@ -130,16 +139,58 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
         }
     }
 
-    private static class Configuration extends WizardStep {
+    protected static class Configuration extends WizardStep {
 
         private static final long serialVersionUID = -785981096328637758L;
 
         Configuration(final AuthModuleTO authModule) {
-            add(new BeanPanel<>("bean", new PropertyModel<>(authModule, "conf")).setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", new PropertyModel<>(authModule, "conf"), "ldap").setRenderBodyOnly(true));
         }
     }
 
-    private static final class Mapping extends WizardStep {
+    protected static class GoogleMfaAuthModuleConfLDAP extends WizardStep {
+
+        private static final long serialVersionUID = 5328049907748683944L;
+
+        GoogleMfaAuthModuleConfLDAP(final GoogleMfaAuthModuleConf authModuleConf) {
+            PropertyModel<GoogleMfaAuthModuleConf.LDAP> beanPanelModel = new PropertyModel<>(authModuleConf, "ldap");
+
+            AjaxCheckBoxPanel enable = new AjaxCheckBoxPanel("enable", "enableLDAP", new IModel<Boolean>() {
+
+                private static final long serialVersionUID = -7126718045816207110L;
+
+                @Override
+                public Boolean getObject() {
+                    return beanPanelModel.getObject() != null;
+                }
+
+                @Override
+                public void setObject(final Boolean object) {
+                    // nothing to do
+                }
+            });
+            enable.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                private static final long serialVersionUID = -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(final AjaxRequestTarget target) {
+                    if (beanPanelModel.getObject() == null) {
+                        beanPanelModel.setObject(new GoogleMfaAuthModuleConf.LDAP());
+                    } else {
+                        beanPanelModel.setObject(null);
+                    }
+                    target.add(GoogleMfaAuthModuleConfLDAP.this);
+                }
+            });
+            add(enable);
+
+            add(new BeanPanel<>("bean", beanPanelModel).setRenderBodyOnly(true));
+            setOutputMarkupId(true);
+        }
+    }
+
+    protected static final class Mapping extends WizardStep {
 
         private static final long serialVersionUID = 3454904947720856253L;
 
