@@ -18,9 +18,109 @@
  */
 package org.apache.syncope.common.lib.auth;
 
+import java.io.Serializable;
+
 public class GoogleMfaAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -7883257599139312426L;
+
+    public static class LDAP implements Serializable {
+
+        private static final long serialVersionUID = -7274446267090678730L;
+
+        /**
+         * Name of LDAP attribute that holds GAuth account/credential as JSON.
+         */
+        private String accountAttributeName = "casGAuthRecord";
+
+        /**
+         * Base DN to use. There may be scenarios where different parts of a single LDAP tree
+         * could be considered as base-dns. Each entry can be specified
+         * and joined together using a special delimiter character.
+         */
+        private String baseDn;
+
+        /**
+         * The bind credential to use when connecting to LDAP.
+         */
+        private String bindCredential;
+
+        /**
+         * The bind DN to use when connecting to LDAP.
+         */
+        private String bindDn;
+
+        /**
+         * The LDAP url to the server. More than one may be specified, separated by space and/or comma.
+         */
+        private String url;
+
+        /**
+         * User filter to use for searching. Syntax is i.e. cn={user} or cn={0}.
+         */
+        private String searchFilter;
+
+        /**
+         * Whether subtree searching is allowed.
+         */
+        private boolean subtreeSearch = true;
+
+        public String getAccountAttributeName() {
+            return accountAttributeName;
+        }
+
+        public void setAccountAttributeName(final String accountAttributeName) {
+            this.accountAttributeName = accountAttributeName;
+        }
+
+        public String getBaseDn() {
+            return baseDn;
+        }
+
+        public void setBaseDn(final String baseDn) {
+            this.baseDn = baseDn;
+        }
+
+        public String getBindCredential() {
+            return bindCredential;
+        }
+
+        public void setBindCredential(final String bindCredential) {
+            this.bindCredential = bindCredential;
+        }
+
+        public String getBindDn() {
+            return bindDn;
+        }
+
+        public void setBindDn(final String bindDn) {
+            this.bindDn = bindDn;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(final String url) {
+            this.url = url;
+        }
+
+        public String getSearchFilter() {
+            return searchFilter;
+        }
+
+        public void setSearchFilter(final String searchFilter) {
+            this.searchFilter = searchFilter;
+        }
+
+        public boolean isSubtreeSearch() {
+            return subtreeSearch;
+        }
+
+        public void setSubtreeSearch(final boolean subtreeSearch) {
+            this.subtreeSearch = subtreeSearch;
+        }
+    }
 
     /**
      * Issuer used in the barcode when dealing with device registration events.
@@ -52,98 +152,7 @@ public class GoogleMfaAuthModuleConf implements AuthModuleConf {
      */
     private int windowSize = 3;
 
-    /**
-     * Name of LDAP attribute that holds GAuth account/credential as JSON.
-     */
-    private String ldapAccountAttributeName = "casGAuthRecord";
-
-    /**
-     * Base DN to use. There may be scenarios where different parts of a single LDAP tree
-     * could be considered as base-dns. Each entry can be specified
-     * and joined together using a special delimiter character.
-     */
-    private String ldapBaseDn;
-
-    /**
-     * The bind credential to use when connecting to LDAP.
-     */
-    private String ldapBindCredential;
-
-    /**
-     * The bind DN to use when connecting to LDAP.
-     */
-    private String ldapBindDn;
-
-    /**
-     * The LDAP url to the server. More than one may be specified, separated by space and/or comma.
-     */
-    private String ldapUrl;
-
-    /**
-     * User filter to use for searching. Syntax is i.e.  cn={user} or cn={0}.
-     */
-    private String ldapSearchFilter;
-
-    /**
-     * Whether subtree searching is allowed.
-     */
-    private boolean ldapSubtreeSearch = true;
-
-    public String getLdapAccountAttributeName() {
-        return ldapAccountAttributeName;
-    }
-
-    public void setLdapAccountAttributeName(final String ldapAccountAttributeName) {
-        this.ldapAccountAttributeName = ldapAccountAttributeName;
-    }
-
-    public String getLdapBaseDn() {
-        return ldapBaseDn;
-    }
-
-    public void setLdapBaseDn(final String ldapBaseDn) {
-        this.ldapBaseDn = ldapBaseDn;
-    }
-
-    public String getLdapBindCredential() {
-        return ldapBindCredential;
-    }
-
-    public void setLdapBindCredential(final String ldapBindCredential) {
-        this.ldapBindCredential = ldapBindCredential;
-    }
-
-    public String getLdapBindDn() {
-        return ldapBindDn;
-    }
-
-    public void setLdapBindDn(final String ldapBindDn) {
-        this.ldapBindDn = ldapBindDn;
-    }
-
-    public String getLdapUrl() {
-        return ldapUrl;
-    }
-
-    public void setLdapUrl(final String ldapUrl) {
-        this.ldapUrl = ldapUrl;
-    }
-
-    public String getLdapSearchFilter() {
-        return ldapSearchFilter;
-    }
-
-    public void setLdapSearchFilter(final String ldapSearchFilter) {
-        this.ldapSearchFilter = ldapSearchFilter;
-    }
-
-    public boolean isLdapSubtreeSearch() {
-        return ldapSubtreeSearch;
-    }
-
-    public void setLdapSubtreeSearch(final boolean ldapSubtreeSearch) {
-        this.ldapSubtreeSearch = ldapSubtreeSearch;
-    }
+    private LDAP ldap;
 
     public String getIssuer() {
         return issuer;
@@ -183,5 +192,13 @@ public class GoogleMfaAuthModuleConf implements AuthModuleConf {
 
     public void setWindowSize(final int windowSize) {
         this.windowSize = windowSize;
+    }
+
+    public LDAP getLdap() {
+        return ldap;
+    }
+
+    public void setLdap(final LDAP ldap) {
+        this.ldap = ldap;
     }
 }

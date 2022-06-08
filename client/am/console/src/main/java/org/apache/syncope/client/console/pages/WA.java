@@ -62,12 +62,12 @@ public class WA extends BasePage {
 
     private static final long serialVersionUID = 9200112197134882164L;
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     @SpringBean
-    private ServiceOps serviceOps;
+    protected ServiceOps serviceOps;
 
-    private String waPrefix = "";
+    protected String waPrefix = "";
 
     public WA(final PageParameters parameters) {
         super(parameters);
@@ -139,7 +139,7 @@ public class WA extends BasePage {
         }
     }
 
-    private List<ITab> buildTabList(final List<NetworkService> instances) {
+    protected List<ITab> buildTabList(final List<NetworkService> instances) {
         List<ITab> tabs = new ArrayList<>();
 
         if (SyncopeConsoleSession.get().owns(AMEntitlement.AUTH_MODULE_LIST)) {

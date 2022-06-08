@@ -89,7 +89,6 @@ import org.apereo.cas.util.DateTimeUtils;
 import org.apereo.cas.util.LdapUtils;
 import org.apereo.cas.util.crypto.CipherExecutor;
 import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
-
 import org.ldaptive.ConnectionFactory;
 import org.pac4j.core.client.Client;
 import org.springframework.beans.factory.ObjectProvider;
@@ -246,9 +245,11 @@ public class SyncopeWAConfiguration {
     }
 
     @Bean
-    public CasEventRepository casEventRepository(final WARestClient restClient,
+    public CasEventRepository casEventRepository(
+            final WARestClient restClient,
             @Qualifier("syncopeWAEventRepositoryFilter")
             final CasEventRepositoryFilter syncopeWAEventRepositoryFilter) {
+
         return new SyncopeWAEventRepository(syncopeWAEventRepositoryFilter, restClient);
     }
 
@@ -261,6 +262,7 @@ public class SyncopeWAConfiguration {
     public OneTimeTokenRepository oneTimeTokenAuthenticatorTokenRepository(
             final CasConfigurationProperties casProperties,
             final WARestClient restClient) {
+
         return new SyncopeWAGoogleMfaAuthTokenRepository(
                 restClient, casProperties.getAuthn().getMfa().getGauth().getCore().getTimeStepSize());
     }
@@ -269,22 +271,26 @@ public class SyncopeWAConfiguration {
     @Bean
     public OneTimeTokenCredentialRepository googleAuthenticatorAccountRegistry(
             final CasConfigurationProperties casProperties,
-            @Qualifier("googleAuthenticatorAccountCipherExecutor") final CipherExecutor cipherExecutor,
-            final IGoogleAuthenticator googleAuthenticatorInstance, final WARestClient restClient) {
+            @Qualifier("googleAuthenticatorAccountCipherExecutor")
+            final CipherExecutor<String, String> cipherExecutor,
+            final IGoogleAuthenticator googleAuthenticatorInstance,
+            final WARestClient restClient) {
 
         /*
-        Declaring the LDAP-based repository as a Spring bean that would be conditionally activated
-        via properties using annotations is not possible; conditionally-created spring beans cannot be
-        refreshed, which means the settings ever change and the context is refreshed, the repository
-        option can not be re-created. This could be revisited later in CAS 6.6.x using the {@code BeanSupplier}
-        API construct to recreate the same bean in a more conventional way.
+         * Declaring the LDAP-based repository as a Spring bean that would be conditionally activated
+         * via properties using annotations is not possible; conditionally-created spring beans cannot be
+         * refreshed, which means the settings ever change and the context is refreshed, the repository
+         * option can not be re-created. This could be revisited later in CAS 6.6.x using the {@code BeanSupplier}
+         * API construct to recreate the same bean in a more conventional way.
          */
         LdapGoogleAuthenticatorMultifactorProperties ldap = casProperties.getAuthn().getMfa().getGauth().getLdap();
-        if (StringUtils.isNotBlank(ldap.getBaseDn()) && StringUtils.isNotBlank(ldap.getLdapUrl())
-            && StringUtils.isNotBlank(ldap.getSearchFilter())) {
+        if (StringUtils.isNotBlank(ldap.getBaseDn())
+                && StringUtils.isNotBlank(ldap.getLdapUrl())
+                && StringUtils.isNotBlank(ldap.getSearchFilter())) {
+
             ConnectionFactory connectionFactory = LdapUtils.newLdaptiveConnectionFactory(ldap);
-            return new LdapGoogleAuthenticatorTokenCredentialRepository(cipherExecutor,
-                googleAuthenticatorInstance, connectionFactory, ldap);
+            return new LdapGoogleAuthenticatorTokenCredentialRepository(
+                    cipherExecutor, googleAuthenticatorInstance, connectionFactory, ldap);
         }
         return new SyncopeWAGoogleMfaAuthCredentialRepository(restClient, googleAuthenticatorInstance);
     }
@@ -293,6 +299,7 @@ public class SyncopeWAConfiguration {
     public OidcJsonWebKeystoreGeneratorService oidcJsonWebKeystoreGeneratorService(
             final ConfigurableApplicationContext ctx,
             final WARestClient restClient) {
+
         int size = ctx.getEnvironment().
                 getProperty("cas.authn.oidc.jwks.size", int.class, 2048);
         JWSAlgorithm algorithm = ctx.getEnvironment().
@@ -304,6 +311,7 @@ public class SyncopeWAConfiguration {
     public WebAuthnCredentialRepository webAuthnCredentialRepository(
             final CasConfigurationProperties casProperties,
             final WARestClient restClient) {
+
         return new SyncopeWAWebAuthnCredentialRepository(casProperties, restClient);
     }
 
