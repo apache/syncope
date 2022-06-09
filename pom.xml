@@ -2603,7 +2603,7 @@ under the License.
             <link>https://docs.spring.io/spring-boot/docs/current/api/</link>
             <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
-            <link>http://www.flowable.org/docs/javadocs/</link>
+            <link>https://www.flowable.com/open-source/docs/javadocs/</link>
             <link>http://docs.swagger.io/swagger-core/v2.1.13/apidocs/</link>
           </links>
         </configuration>
