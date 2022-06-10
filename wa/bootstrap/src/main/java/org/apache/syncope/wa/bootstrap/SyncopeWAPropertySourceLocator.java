@@ -500,8 +500,8 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             }
         });
 
-        syncopeClient.getService(WAConfigService.class).list().
-                forEach(attr -> properties.put(attr.getSchema(), attr.getValues()));
+        syncopeClient.getService(WAConfigService.class).list().forEach(attr -> properties.put(
+                attr.getSchema(), attr.getValues().stream().collect(Collectors.joining(","))));
         LOG.debug("Collected WA properties: {}", properties);
         return new MapPropertySource(getClass().getName(), properties);
     }
