@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
+import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
 
 public interface WAConfigDataBinder {
 

@@ -21,6 +21,10 @@ package org.apache.syncope.wa.starter.mapping;
 import java.util.HashSet;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apereo.cas.authentication.principal.DefaultPrincipalAttributesRepository;
+import org.apereo.cas.authentication.principal.cache.AbstractPrincipalAttributesRepository;
+import org.apereo.cas.authentication.principal.cache.CachingPrincipalAttributesRepository;
+import org.apereo.cas.configuration.model.core.authentication.PrincipalAttributesCoreProperties;
 import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
@@ -32,22 +36,41 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
 
     @Override
     public RegisteredServiceAttributeReleasePolicy build(final AttrReleasePolicyTO policy) {
-        DefaultAttrReleasePolicyConf aarpc = (DefaultAttrReleasePolicyConf) policy.getConf();
+        DefaultAttrReleasePolicyConf conf = (DefaultAttrReleasePolicyConf) policy.getConf();
 
-        if (aarpc.getAllowedAttrs().isEmpty()) {
+        if (conf.getAllowedAttrs().isEmpty()) {
             return new DenyAllAttributeReleasePolicy();
         }
 
-        DefaultRegisteredServiceConsentPolicy consentPolicy = new DefaultRegisteredServiceConsentPolicy(
-                new HashSet<>(aarpc.getExcludedAttrs()), new HashSet<>(aarpc.getIncludeOnlyAttrs()));
-        consentPolicy.setOrder(policy.getOrder());
-        consentPolicy.setStatus(
-                policy.getStatus() == null ? TriStateBoolean.UNDEFINED
-                : TriStateBoolean.fromBoolean(policy.getStatus()));
-
         ReturnAllowedAttributeReleasePolicy attributeReleasePolicy = new ReturnAllowedAttributeReleasePolicy();
-        attributeReleasePolicy.setAllowedAttributes((aarpc.getAllowedAttrs()));
+        attributeReleasePolicy.setAllowedAttributes((conf.getAllowedAttrs()));
+
+        DefaultRegisteredServiceConsentPolicy consentPolicy = new DefaultRegisteredServiceConsentPolicy(
+                new HashSet<>(conf.getExcludedAttrs()), new HashSet<>(conf.getIncludeOnlyAttrs()));
+        consentPolicy.setOrder(policy.getOrder());
+        consentPolicy.setStatus(policy.getStatus() == null
+                ? TriStateBoolean.UNDEFINED
+                : TriStateBoolean.fromBoolean(policy.getStatus()));
         attributeReleasePolicy.setConsentPolicy(consentPolicy);
+
+        if (conf.getPrincipalIdAttr() != null) {
+            attributeReleasePolicy.setPrincipalIdAttribute(conf.getPrincipalIdAttr());
+        }
+
+        if (conf.getPrincipalAttrRepoConf() != null) {
+            DefaultAttrReleasePolicyConf.PrincipalAttrRepoConf parc = conf.getPrincipalAttrRepoConf();
+
+            AbstractPrincipalAttributesRepository par = parc.getExpiration() > 0
+                    ? new CachingPrincipalAttributesRepository(parc.getTimeUnit().name(), parc.getExpiration())
+                    : new DefaultPrincipalAttributesRepository();
+
+            par.setMergingStrategy(
+                    PrincipalAttributesCoreProperties.MergingStrategyTypes.valueOf(parc.getMergingStrategy().name()));
+            par.setIgnoreResolvedAttributes(par.isIgnoreResolvedAttributes());
+            par.setAttributeRepositoryIds(new HashSet<>(parc.getAttrRepos()));
+            attributeReleasePolicy.setPrincipalAttributesRepository(par);
+        }
+
         return attributeReleasePolicy;
     }
 }

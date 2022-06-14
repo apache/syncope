@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
+import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
@@ -32,6 +33,7 @@ import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
+import org.apache.syncope.core.logic.AttrRepoLogic;
 import org.apache.syncope.core.logic.AuthModuleLogic;
 import org.apache.syncope.core.logic.AuthProfileLogic;
 import org.apache.syncope.core.logic.ClientAppLogic;
@@ -46,6 +48,7 @@ import org.apache.syncope.core.logic.wa.U2FRegistrationLogic;
 import org.apache.syncope.core.logic.wa.WAClientAppLogic;
 import org.apache.syncope.core.logic.wa.WAConfigLogic;
 import org.apache.syncope.core.logic.wa.WebAuthnRegistrationLogic;
+import org.apache.syncope.core.rest.cxf.service.AttrRepoServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AuthModuleServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AuthProfileServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.ClientAppServiceImpl;
@@ -71,6 +74,12 @@ public class AMRESTCXFContext {
     @Bean
     public AuthModuleService authModuleService(final AuthModuleLogic authModuleLogic) {
         return new AuthModuleServiceImpl(authModuleLogic);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AttrRepoService attrRepoService(final AttrRepoLogic attrRepoLogic) {
+        return new AttrRepoServiceImpl(attrRepoLogic);
     }
 
     @ConditionalOnMissingBean

@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPEntity;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
 
 public interface SAML2IdPEntityDataBinder {
 

@@ -27,18 +27,20 @@ import org.apache.syncope.core.logic.wa.U2FRegistrationLogic;
 import org.apache.syncope.core.logic.wa.WAClientAppLogic;
 import org.apache.syncope.core.logic.wa.WAConfigLogic;
 import org.apache.syncope.core.logic.wa.WebAuthnRegistrationLogic;
+import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
+import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
+import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
+import org.apache.syncope.core.persistence.api.dao.CASSPDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCRPDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2IdPEntityDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPEntityDAO;
 import org.apache.syncope.core.persistence.api.dao.SRARouteDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.OIDCJWKSDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.SAML2IdPEntityDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPEntityDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
+import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.am.ClientAppUtilsFactory;
+import org.apache.syncope.core.provisioning.api.data.AttrRepoDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
@@ -73,8 +75,17 @@ public class AMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
+    public AttrRepoLogic attrRepoLogic(
+            final AttrRepoDataBinder binder,
+            final AttrRepoDAO attrRepoDAO) {
+
+        return new AttrRepoLogic(binder, attrRepoDAO);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public AuthProfileLogic authProfileLogic(final AuthProfileDAO authProfileDAO,
-                                             final AuthProfileDataBinder authProfileDataBinder) {
+            final AuthProfileDataBinder authProfileDataBinder) {
         return new AuthProfileLogic(authProfileDAO, authProfileDataBinder);
     }
 
@@ -141,41 +152,41 @@ public class AMLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public GoogleMfaAuthAccountLogic googleMfaAuthAccountLogic(final AuthProfileDAO authProfileDAO,
-                                                               final AuthProfileDataBinder authProfileDataBinder,
-                                                               final EntityFactory entityFactory) {
+            final AuthProfileDataBinder authProfileDataBinder,
+            final EntityFactory entityFactory) {
         return new GoogleMfaAuthAccountLogic(entityFactory, authProfileDAO, authProfileDataBinder);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public GoogleMfaAuthTokenLogic googleMfaAuthTokenLogic(final AuthProfileDAO authProfileDAO,
-                                                           final AuthProfileDataBinder authProfileDataBinder,
-                                                           final EntityFactory entityFactory) {
+            final AuthProfileDataBinder authProfileDataBinder,
+            final EntityFactory entityFactory) {
         return new GoogleMfaAuthTokenLogic(entityFactory, authProfileDAO, authProfileDataBinder);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public ImpersonationLogic impersonationLogic(final AuthProfileDAO authProfileDAO,
-                                                 final AuthProfileDataBinder authProfileDataBinder,
-                                                 final EntityFactory entityFactory) {
+            final AuthProfileDataBinder authProfileDataBinder,
+            final EntityFactory entityFactory) {
         return new ImpersonationLogic(entityFactory, authProfileDAO, authProfileDataBinder);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public U2FRegistrationLogic u2fRegistrationLogic(final AuthProfileDAO authProfileDAO,
-                                                     final AuthProfileDataBinder authProfileDataBinder,
-                                                     final EntityFactory entityFactory) {
+            final AuthProfileDataBinder authProfileDataBinder,
+            final EntityFactory entityFactory) {
         return new U2FRegistrationLogic(entityFactory, authProfileDAO, authProfileDataBinder);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public WAClientAppLogic waClientAppLogic(final WAClientAppDataBinder binder,
-                                             final SAML2SPDAO saml2spDAO,
-                                             final OIDCRPDAO oidcrpDAO,
-                                             final CASSPDAO casspDAO) {
+            final SAML2SPDAO saml2spDAO,
+            final OIDCRPDAO oidcrpDAO,
+            final CASSPDAO casspDAO) {
         return new WAClientAppLogic(binder, saml2spDAO, oidcrpDAO, casspDAO);
     }
 
@@ -193,8 +204,8 @@ public class AMLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public WebAuthnRegistrationLogic webAuthnRegistrationLogic(final AuthProfileDAO authProfileDAO,
-                                                               final AuthProfileDataBinder authProfileDataBinder,
-                                                               final EntityFactory entityFactory) {
+            final AuthProfileDataBinder authProfileDataBinder,
+            final EntityFactory entityFactory) {
         return new WebAuthnRegistrationLogic(entityFactory, authProfileDAO, authProfileDataBinder);
     }
 }

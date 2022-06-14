@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
 import org.apache.syncope.core.provisioning.api.data.OIDCJWKSDataBinder;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.slf4j.Logger;

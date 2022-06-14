@@ -134,12 +134,12 @@ public class WAClientAppITCase extends AbstractITCase {
         ItemTO keyMapping = new ItemTO();
         keyMapping.setIntAttrName("uid");
         keyMapping.setExtAttrName("username");
-        authModuleTO.add(keyMapping);
+        authModuleTO.getItems().add(keyMapping);
 
         ItemTO fullnameMapping = new ItemTO();
         fullnameMapping.setIntAttrName("cn");
         fullnameMapping.setExtAttrName("fullname");
-        authModuleTO.add(fullnameMapping);
+        authModuleTO.getItems().add(fullnameMapping);
 
         authModuleService.update(authModuleTO);
 

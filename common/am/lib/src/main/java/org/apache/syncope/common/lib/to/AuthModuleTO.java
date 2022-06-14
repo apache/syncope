@@ -20,7 +20,6 @@ package org.apache.syncope.common.lib.to;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -67,14 +66,6 @@ public class AuthModuleTO implements EntityTO {
 
     public List<ItemTO> getItems() {
         return items;
-    }
-
-    public boolean add(final ItemTO item) {
-        return Optional.ofNullable(item).filter(itemTO -> items.contains(itemTO) || items.add(itemTO)).isPresent();
-    }
-
-    public boolean remove(final ItemTO item) {
-        return this.items.remove(item);
     }
 
     @Override

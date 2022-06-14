@@ -20,7 +20,7 @@ package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.JWSAlgorithm;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
 
 public interface OIDCJWKSDataBinder {
 

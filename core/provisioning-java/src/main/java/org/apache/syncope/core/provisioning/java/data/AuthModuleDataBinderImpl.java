@@ -25,8 +25,8 @@ import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
+import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
+import org.apache.syncope.core.persistence.api.entity.am.AuthModuleItem;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.slf4j.Logger;
@@ -106,7 +106,7 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
         return authModule;
     }
 
-    protected static void populateItems(final AuthModule authModule, final AuthModuleTO authModuleTO) {
+    protected void populateItems(final AuthModule authModule, final AuthModuleTO authModuleTO) {
         authModule.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());
@@ -119,7 +119,7 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
             itemTO.setPullJEXLTransformer(item.getPullJEXLTransformer());
             itemTO.setPurpose(MappingPurpose.NONE);
 
-            authModuleTO.add(itemTO);
+            authModuleTO.getItems().add(itemTO);
         });
     }
 

@@ -21,10 +21,10 @@ package org.apache.syncope.core.provisioning.java.data.wa;
 import org.apache.syncope.common.lib.policy.AuthPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
-import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
+import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
+import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
+import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.slf4j.Logger;
@@ -96,16 +96,6 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
             } else if (clientApp.getRealm() != null && clientApp.getRealm().getAttrReleasePolicy() != null) {
                 waClientApp.setAttrReleasePolicy(
                         policyDataBinder.getPolicyTO(clientApp.getRealm().getAttrReleasePolicy()));
-            }
-
-            if (waClientApp.getReleaseAttrs().isEmpty()) {
-                if (clientApp.getAttrReleasePolicy() != null) {
-                    waClientApp.setAttrReleasePolicy(
-                            policyDataBinder.getPolicyTO(clientApp.getAttrReleasePolicy()));
-                } else if (clientApp.getRealm() != null && clientApp.getRealm().getAttrReleasePolicy() != null) {
-                    waClientApp.setAttrReleasePolicy(
-                            policyDataBinder.getPolicyTO(clientApp.getRealm().getAttrReleasePolicy()));
-                }
             }
         } catch (Exception e) {
             LOG.error("While building the configuration from an application's policy ", e);

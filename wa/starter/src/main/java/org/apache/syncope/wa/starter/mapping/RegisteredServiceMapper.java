@@ -100,15 +100,15 @@ public class RegisteredServiceMapper {
         }
 
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy = null;
-        if (!clientApp.getReleaseAttrs().isEmpty()) {
-            if (clientApp.getAttrReleasePolicy() == null) {
+        if (clientApp.getAttrReleasePolicy() == null) {
+            if (!clientApp.getReleaseAttrs().isEmpty()) {
                 attributeReleasePolicy = new ReturnMappedAttributeReleasePolicy(clientApp.getReleaseAttrs());
-            } else {
-                AttrReleaseMapper attrReleasePolicyConfMapper = attrReleasePolicyConfMappers.get(
-                        clientApp.getAttrReleasePolicy().getConf().getClass().getName());
-                attributeReleasePolicy = Optional.ofNullable(attrReleasePolicyConfMapper).
-                        map(mapper -> mapper.build(clientApp.getAttrReleasePolicy())).orElse(null);
             }
+        } else {
+            AttrReleaseMapper attrReleasePolicyConfMapper = attrReleasePolicyConfMappers.get(
+                    clientApp.getAttrReleasePolicy().getConf().getClass().getName());
+            attributeReleasePolicy = Optional.ofNullable(attrReleasePolicyConfMapper).
+                    map(mapper -> mapper.build(clientApp.getAttrReleasePolicy())).orElse(null);
         }
 
         return clientAppMapper.map(clientApp, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy);

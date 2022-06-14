@@ -66,8 +66,8 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
+import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
+import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
@@ -88,6 +88,7 @@ import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ApplicationDataBinder;
+import org.apache.syncope.core.provisioning.api.data.AttrRepoDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
@@ -127,6 +128,7 @@ import org.apache.syncope.core.provisioning.java.data.AnyObjectDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyTypeClassDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyTypeDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.ApplicationDataBinderImpl;
+import org.apache.syncope.core.provisioning.java.data.AttrRepoDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AuditDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AuthModuleDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AuthProfileDataBinderImpl;
@@ -897,6 +899,12 @@ public class ProvisioningContext {
     @Bean
     public AuthModuleDataBinder authModuleDataBinder(final EntityFactory entityFactory) {
         return new AuthModuleDataBinderImpl(entityFactory);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AttrRepoDataBinder attrRepoDataBinder(final EntityFactory entityFactory) {
+        return new AttrRepoDataBinderImpl(entityFactory);
     }
 
     @ConditionalOnMissingBean

@@ -106,6 +106,8 @@ under the License.
   <AuthModuleItem id="a1933059-e64f-409f-a86c-5b54da21787e" extAttrName="cn" intAttrName="cn"
                   password="0" purpose="NONE" mandatoryCondition="false" connObjectKey="0" authModule_id="DefaultLDAPAuthModule"/>
 
+  <!-- Attribute repositories -->
+  
   <RelationshipType id="inclusion" description="Models the act that an object is included in another"/>
   <RelationshipType id="neighborhood" description="Models the act that an object is near another"/>
   

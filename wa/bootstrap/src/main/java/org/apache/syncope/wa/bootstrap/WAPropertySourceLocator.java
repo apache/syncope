@@ -27,6 +27,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.attr.AttrRepoConf;
+import org.apache.syncope.common.lib.attr.JDBCAttrRepoConf;
+import org.apache.syncope.common.lib.attr.LDAPAttrRepoConf;
+import org.apache.syncope.common.lib.attr.StubAttrRepoConf;
+import org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
 import org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
@@ -39,17 +44,24 @@ import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
+import org.apache.syncope.common.lib.to.AttrRepoTO;
+import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.CasCoreConfigurationUtils;
+import org.apereo.cas.configuration.model.core.authentication.AttributeRepositoryStates;
 import org.apereo.cas.configuration.model.core.authentication.AuthenticationProperties;
+import org.apereo.cas.configuration.model.core.authentication.PrincipalAttributesProperties;
+import org.apereo.cas.configuration.model.core.authentication.StubPrincipalAttributesProperties;
 import org.apereo.cas.configuration.model.support.generic.AcceptAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jaas.JaasAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jdbc.JdbcAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.jdbc.JdbcPrincipalAttributesProperties;
 import org.apereo.cas.configuration.model.support.jdbc.authn.QueryJdbcAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.ldap.AbstractLdapAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.ldap.LdapAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.ldap.LdapPrincipalAttributesProperties;
 import org.apereo.cas.configuration.model.support.mfa.DuoSecurityMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.MultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorProperties;
@@ -61,6 +73,7 @@ import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGenericOidcCli
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.saml.Pac4jSamlClientProperties;
 import org.apereo.cas.configuration.model.support.syncope.SyncopeAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.syncope.SyncopePrincipalAttributesProperties;
 import org.apereo.cas.util.ResourceUtils;
 import org.apereo.cas.util.model.TriStateBoolean;
 import org.slf4j.Logger;
@@ -459,6 +472,125 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
         return filterCasProperties(casProperties, filterProvider);
     }
 
+    protected Map<String, Object> mapAttrRepo(
+            final AttrRepoTO attrRepoTO,
+            final StubAttrRepoConf conf) {
+
+        StubPrincipalAttributesProperties props = new StubPrincipalAttributesProperties();
+        props.setId(attrRepoTO.getKey());
+        props.setState(AttributeRepositoryStates.valueOf(attrRepoTO.getState().name()));
+        props.setOrder(attrRepoTO.getOrder());
+        props.setAttributes(conf.getAttributes());
+
+        CasConfigurationProperties casProperties = new CasConfigurationProperties();
+        casProperties.getAuthn().getAttributeRepository().setStub(props);
+
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
+        filterProvider.addFilter(
+                PrincipalAttributesProperties.class.getSimpleName(),
+                SimpleBeanPropertyFilter.filterOutAllExcept(
+                        CasCoreConfigurationUtils.getPropertyName(
+                                PrincipalAttributesProperties.class,
+                                PrincipalAttributesProperties::getStub)));
+        return filterCasProperties(casProperties, filterProvider);
+    }
+
+    protected Map<String, Object> mapAttrRepo(
+            final AttrRepoTO attrRepoTO,
+            final LDAPAttrRepoConf conf) {
+
+        LdapPrincipalAttributesProperties props = new LdapPrincipalAttributesProperties();
+        props.setId(attrRepoTO.getKey());
+        props.setState(AttributeRepositoryStates.valueOf(attrRepoTO.getState().name()));
+        props.setOrder(attrRepoTO.getOrder());
+        props.setLdapUrl(conf.getLdapUrl());
+        props.setBaseDn(conf.getBaseDn());
+        props.setSearchFilter(conf.getSearchFilter());
+        props.setBindDn(conf.getBindDn());
+        props.setBindCredential(conf.getBindCredential());
+        props.setSubtreeSearch(conf.isSubtreeSearch());
+        props.setAttributes(conf.getAttributes());
+        props.setUseAllQueryAttributes(conf.isUseAllQueryAttributes());
+        props.setQueryAttributes(conf.getQueryAttributes());
+
+        CasConfigurationProperties casProperties = new CasConfigurationProperties();
+        casProperties.getAuthn().getAttributeRepository().getLdap().add(props);
+
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
+        filterProvider.addFilter(
+                PrincipalAttributesProperties.class.getSimpleName(),
+                SimpleBeanPropertyFilter.filterOutAllExcept(
+                        CasCoreConfigurationUtils.getPropertyName(
+                                PrincipalAttributesProperties.class,
+                                PrincipalAttributesProperties::getLdap)));
+        return filterCasProperties(casProperties, filterProvider);
+    }
+
+    protected Map<String, Object> mapAttrRepo(
+            final AttrRepoTO attrRepoTO,
+            final JDBCAttrRepoConf conf) {
+
+        JdbcPrincipalAttributesProperties props = new JdbcPrincipalAttributesProperties();
+        props.setId(attrRepoTO.getKey());
+        props.setState(AttributeRepositoryStates.valueOf(attrRepoTO.getState().name()));
+        props.setOrder(attrRepoTO.getOrder());
+        props.setSql(conf.getSql());
+        props.setDialect(conf.getDialect());
+        props.setDriverClass(conf.getDriverClass());
+        props.setPassword(conf.getPassword());
+        props.setUrl(conf.getUrl());
+        props.setUser(conf.getUser());
+        props.setSingleRow(conf.isSingleRow());
+        props.setRequireAllAttributes(conf.isRequireAllAttributes());
+        props.setCaseCanonicalization(conf.getCaseCanonicalization().name());
+        props.setQueryType(conf.getQueryType().name());
+        props.setColumnMappings(conf.getColumnMappings());
+        props.setUsername(conf.getUsername());
+        props.setAttributes(conf.getAttributes());
+        props.setCaseInsensitiveQueryAttributes(conf.getCaseInsensitiveQueryAttributes());
+        props.setQueryAttributes(conf.getQueryAttributes());
+
+        CasConfigurationProperties casProperties = new CasConfigurationProperties();
+        casProperties.getAuthn().getAttributeRepository().getJdbc().add(props);
+
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
+        filterProvider.
+                addFilter(PrincipalAttributesProperties.class.getSimpleName(),
+                        SimpleBeanPropertyFilter.filterOutAllExcept(
+                                CasCoreConfigurationUtils.getPropertyName(
+                                        PrincipalAttributesProperties.class,
+                                        PrincipalAttributesProperties::getJdbc)));
+        return filterCasProperties(casProperties, filterProvider);
+    }
+
+    protected Map<String, Object> mapAttrRepo(
+            final AttrRepoTO attrRepoTO,
+            final SyncopeAttrRepoConf conf,
+            final String address) {
+
+        SyncopePrincipalAttributesProperties props = new SyncopePrincipalAttributesProperties();
+        props.setId(attrRepoTO.getKey());
+        props.setState(AttributeRepositoryStates.valueOf(attrRepoTO.getState().name()));
+        props.setOrder(attrRepoTO.getOrder());
+        props.setDomain(conf.getDomain());
+        props.setUrl(StringUtils.substringBefore(address, "/rest"));
+        props.setSearchFilter(conf.getSearchFilter());
+        props.setBasicAuthUsername(conf.getBasicAuthUsername());
+        props.setBasicAuthPassword(conf.getBasicAuthPassword());
+        props.setHeaders(props.getHeaders());
+
+        CasConfigurationProperties casProperties = new CasConfigurationProperties();
+        casProperties.getAuthn().getAttributeRepository().setSyncope(props);
+
+        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
+        filterProvider.addFilter(PrincipalAttributesProperties.class.getSimpleName(),
+                SimpleBeanPropertyFilter.filterOutAllExcept(
+                        CasCoreConfigurationUtils.getPropertyName(
+                                PrincipalAttributesProperties.class,
+                                PrincipalAttributesProperties::getSyncope)));
+        return filterCasProperties(casProperties, filterProvider);
+    }
+
     @Override
     public PropertySource<?> locate(final Environment environment) {
         SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
@@ -471,37 +603,53 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
         Map<String, Object> properties = new TreeMap<>();
 
         syncopeClient.getService(AuthModuleService.class).list().forEach(authModuleTO -> {
-            AuthModuleConf authConf = authModuleTO.getConf();
+            AuthModuleConf conf = authModuleTO.getConf();
             LOG.debug("Mapping auth module {} ", authModuleTO.getKey());
 
-            if (authConf instanceof LDAPAuthModuleConf) {
-                properties.putAll(mapAuthModule(authModuleTO.getKey(), (LDAPAuthModuleConf) authConf));
-            } else if (authConf instanceof StaticAuthModuleConf) {
-                properties.putAll(mapAuthModule(authModuleTO.getKey(), (StaticAuthModuleConf) authConf));
-            } else if (authConf instanceof SyncopeAuthModuleConf) {
-                properties.putAll(mapAuthModule(authModuleTO.getKey(),
-                        (SyncopeAuthModuleConf) authConf, syncopeClient.getAddress()));
-            } else if (authConf instanceof GoogleMfaAuthModuleConf) {
-                properties.putAll(mapAuthModule(authModuleTO.getKey(), (GoogleMfaAuthModuleConf) authConf));
-            } else if (authConf instanceof SimpleMfaAuthModuleConf) {
-                properties.putAll(mapAuthModule(authModuleTO.getKey(), (SimpleMfaAuthModuleConf) authConf));
-            } else if (authConf instanceof DuoMfaAuthModuleConf) {
-                properties.putAll(mapAuthModule(authModuleTO.getKey(), (DuoMfaAuthModuleConf) authConf));
-            } else if (authConf instanceof JaasAuthModuleConf) {
-                properties.putAll(mapAuthModule(authModuleTO.getKey(), (JaasAuthModuleConf) authConf));
-            } else if (authConf instanceof JDBCAuthModuleConf) {
-                properties.putAll(mapAuthModule(authModuleTO.getKey(), (JDBCAuthModuleConf) authConf));
-            } else if (authConf instanceof OIDCAuthModuleConf) {
-                properties.putAll(mapAuthModule(authModuleTO.getKey(), (OIDCAuthModuleConf) authConf));
-            } else if (authConf instanceof SAML2IdPAuthModuleConf) {
-                properties.putAll(mapAuthModule(authModuleTO.getKey(), (SAML2IdPAuthModuleConf) authConf));
-            } else if (authConf instanceof U2FAuthModuleConf) {
-                properties.putAll(mapAuthModule(authModuleTO.getKey(), (U2FAuthModuleConf) authConf));
+            if (conf instanceof StaticAuthModuleConf) {
+                properties.putAll(mapAuthModule(authModuleTO.getKey(), (StaticAuthModuleConf) conf));
+            } else if (conf instanceof LDAPAuthModuleConf) {
+                properties.putAll(mapAuthModule(authModuleTO.getKey(), (LDAPAuthModuleConf) conf));
+            } else if (conf instanceof SyncopeAuthModuleConf) {
+                properties.putAll(mapAuthModule(authModuleTO.getKey(), 
+                        (SyncopeAuthModuleConf) conf, syncopeClient.getAddress()));
+            } else if (conf instanceof GoogleMfaAuthModuleConf) {
+                properties.putAll(mapAuthModule(authModuleTO.getKey(), (GoogleMfaAuthModuleConf) conf));
+            } else if (conf instanceof SimpleMfaAuthModuleConf) {
+                properties.putAll(mapAuthModule(authModuleTO.getKey(), (SimpleMfaAuthModuleConf) conf));
+            } else if (conf instanceof DuoMfaAuthModuleConf) {
+                properties.putAll(mapAuthModule(authModuleTO.getKey(), (DuoMfaAuthModuleConf) conf));
+            } else if (conf instanceof JaasAuthModuleConf) {
+                properties.putAll(mapAuthModule(authModuleTO.getKey(), (JaasAuthModuleConf) conf));
+            } else if (conf instanceof JDBCAuthModuleConf) {
+                properties.putAll(mapAuthModule(authModuleTO.getKey(), (JDBCAuthModuleConf) conf));
+            } else if (conf instanceof OIDCAuthModuleConf) {
+                properties.putAll(mapAuthModule(authModuleTO.getKey(), (OIDCAuthModuleConf) conf));
+            } else if (conf instanceof SAML2IdPAuthModuleConf) {
+                properties.putAll(mapAuthModule(authModuleTO.getKey(), (SAML2IdPAuthModuleConf) conf));
+            } else if (conf instanceof U2FAuthModuleConf) {
+                properties.putAll(mapAuthModule(authModuleTO.getKey(), (U2FAuthModuleConf) conf));
+            }
+        });
+
+        syncopeClient.getService(AttrRepoService.class).list().forEach(attrRepoTO -> {
+            AttrRepoConf conf = attrRepoTO.getConf();
+            LOG.debug("Mapping attr repo {} ", attrRepoTO.getKey());
+
+            if (conf instanceof StubAttrRepoConf) {
+                properties.putAll(mapAttrRepo(attrRepoTO, (StubAttrRepoConf) conf));
+            } else if (conf instanceof LDAPAttrRepoConf) {
+                properties.putAll(mapAttrRepo(attrRepoTO, (LDAPAttrRepoConf) conf));
+            } else if (conf instanceof JDBCAttrRepoConf) {
+                properties.putAll(mapAttrRepo(attrRepoTO, (JDBCAttrRepoConf) conf));
+            } else if (conf instanceof SyncopeAttrRepoConf) {
+                properties.putAll(mapAttrRepo(attrRepoTO, (SyncopeAttrRepoConf) conf, syncopeClient.getAddress()));
             }
         });
 
         syncopeClient.getService(WAConfigService.class).list().forEach(attr -> properties.put(
                 attr.getSchema(), attr.getValues().stream().collect(Collectors.joining(","))));
+
         LOG.debug("Collected WA properties: {}", properties);
         return new MapPropertySource(getClass().getName(), properties);
     }
