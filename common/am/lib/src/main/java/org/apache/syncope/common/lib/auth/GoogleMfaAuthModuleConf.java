@@ -20,7 +20,7 @@ package org.apache.syncope.common.lib.auth;
 
 import java.io.Serializable;
 
-public class GoogleMfaAuthModuleConf implements AuthModuleConf {
+public class GoogleMfaAuthModuleConf implements MFAAuthModuleConf {
 
     private static final long serialVersionUID = -7883257599139312426L;
 
@@ -153,6 +153,11 @@ public class GoogleMfaAuthModuleConf implements AuthModuleConf {
     private int windowSize = 3;
 
     private LDAP ldap;
+
+    @Override
+    public String getFriendlyName() {
+        return "Google Authenticator";
+    }
 
     public String getIssuer() {
         return issuer;

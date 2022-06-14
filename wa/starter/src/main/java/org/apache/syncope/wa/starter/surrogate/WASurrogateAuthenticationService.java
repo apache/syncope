@@ -30,13 +30,13 @@ import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SyncopeWASurrogateAuthenticationService implements SurrogateAuthenticationService {
+public class WASurrogateAuthenticationService implements SurrogateAuthenticationService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASurrogateAuthenticationService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WASurrogateAuthenticationService.class);
 
     private final WARestClient waRestClient;
 
-    public SyncopeWASurrogateAuthenticationService(final WARestClient waRestClient) {
+    public WASurrogateAuthenticationService(final WARestClient waRestClient) {
         this.waRestClient = waRestClient;
     }
 

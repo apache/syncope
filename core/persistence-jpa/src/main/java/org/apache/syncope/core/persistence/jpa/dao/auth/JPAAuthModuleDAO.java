@@ -20,13 +20,22 @@ package org.apache.syncope.core.persistence.jpa.dao.auth;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
+import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
+import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModule;
 import org.springframework.transaction.annotation.Transactional;
 
 public class JPAAuthModuleDAO extends AbstractDAO<AuthModule> implements AuthModuleDAO {
+
+    protected final PolicyDAO policyDAO;
+
+    public JPAAuthModuleDAO(final PolicyDAO policyDAO) {
+        this.policyDAO = policyDAO;
+    }
 
     @Transactional(readOnly = true)
     @Override
@@ -59,6 +68,16 @@ public class JPAAuthModuleDAO extends AbstractDAO<AuthModule> implements AuthMod
 
     @Override
     public void delete(final AuthModule authModule) {
+        policyDAO.find(AuthPolicy.class).stream().
+                filter(policy -> policy.getConf() instanceof DefaultAuthPolicyConf).
+                forEach(policy -> {
+                    DefaultAuthPolicyConf conf = (DefaultAuthPolicyConf) policy.getConf();
+                    if (conf.getAuthModules().remove(authModule.getKey())) {
+                        policy.setConf(conf);
+                        policyDAO.save(policy);
+                    }
+                });
+
         entityManager().remove(authModule);
     }
 }

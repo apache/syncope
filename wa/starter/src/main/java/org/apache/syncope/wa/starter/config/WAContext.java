@@ -40,10 +40,10 @@ import org.apache.syncope.wa.bootstrap.WAProperties;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.wa.starter.actuate.SyncopeWAInfoContributor;
-import org.apache.syncope.wa.starter.audit.SyncopeWAAuditTrailManager;
-import org.apache.syncope.wa.starter.events.SyncopeWAEventRepository;
-import org.apache.syncope.wa.starter.gauth.SyncopeWAGoogleMfaAuthCredentialRepository;
-import org.apache.syncope.wa.starter.gauth.SyncopeWAGoogleMfaAuthTokenRepository;
+import org.apache.syncope.wa.starter.audit.WAAuditTrailManager;
+import org.apache.syncope.wa.starter.events.WAEventRepository;
+import org.apache.syncope.wa.starter.gauth.WAGoogleMfaAuthCredentialRepository;
+import org.apache.syncope.wa.starter.gauth.WAGoogleMfaAuthTokenRepository;
 import org.apache.syncope.wa.starter.mapping.AccessMapFor;
 import org.apache.syncope.wa.starter.mapping.AccessMapper;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
@@ -59,16 +59,17 @@ import org.apache.syncope.wa.starter.mapping.DefaultAuthMapper;
 import org.apache.syncope.wa.starter.mapping.OIDCRPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
 import org.apache.syncope.wa.starter.mapping.SAML2SPClientAppTOMapper;
-import org.apache.syncope.wa.starter.oidc.SyncopeWAOIDCJWKSGeneratorService;
-import org.apache.syncope.wa.starter.pac4j.saml.SyncopeWASAML2ClientCustomizer;
+import org.apache.syncope.wa.starter.oidc.WAOIDCJWKSGeneratorService;
+import org.apache.syncope.wa.starter.pac4j.saml.WASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
 import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
-import org.apache.syncope.wa.starter.services.SyncopeWAServiceRegistry;
-import org.apache.syncope.wa.starter.surrogate.SyncopeWASurrogateAuthenticationService;
-import org.apache.syncope.wa.starter.u2f.SyncopeWAU2FDeviceRepository;
-import org.apache.syncope.wa.starter.webauthn.SyncopeWAWebAuthnCredentialRepository;
+import org.apache.syncope.wa.starter.services.WAServiceRegistry;
+import org.apache.syncope.wa.starter.surrogate.WASurrogateAuthenticationService;
+import org.apache.syncope.wa.starter.u2f.WAU2FDeviceRepository;
+import org.apache.syncope.wa.starter.webauthn.WAWebAuthnCredentialRepository;
 import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRepository;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
+import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
@@ -101,7 +102,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ScopedProxyMode;
 
 @Configuration(proxyBeanMethods = false)
-public class SyncopeWAConfiguration {
+public class WAContext {
 
     private static String version(final ConfigurableApplicationContext ctx) {
         return ctx.getEnvironment().getProperty("version");
@@ -162,7 +163,10 @@ public class SyncopeWAConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    public RegisteredServiceMapper registeredServiceMapper(final ConfigurableApplicationContext ctx) {
+    public RegisteredServiceMapper registeredServiceMapper(
+            final ConfigurableApplicationContext ctx,
+            final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan) {
+
         Map<String, AuthMapper> authPolicyConfMappers = new HashMap<>();
         ctx.getBeansOfType(AuthMapper.class).forEach((name, bean) -> {
             AuthMapFor authMapFor = ctx.findAnnotationOnBean(name, AuthMapFor.class);
@@ -197,6 +201,8 @@ public class SyncopeWAConfiguration {
         });
 
         return new RegisteredServiceMapper(
+                ctx,
+                authenticationEventExecutionPlan,
                 authPolicyConfMappers,
                 accessPolicyConfMappers,
                 attrReleasePolicyConfMappers,
@@ -211,7 +217,7 @@ public class SyncopeWAConfiguration {
             @Qualifier("serviceRegistryListeners")
             final ObjectProvider<List<ServiceRegistryListener>> serviceRegistryListeners) {
 
-        SyncopeWAServiceRegistry registry = new SyncopeWAServiceRegistry(
+        WAServiceRegistry registry = new WAServiceRegistry(
                 restClient, registeredServiceMapper, ctx,
                 Optional.ofNullable(serviceRegistryListeners.getIfAvailable()).orElseGet(ArrayList::new));
         return plan -> plan.registerServiceRegistry(registry);
@@ -235,7 +241,7 @@ public class SyncopeWAConfiguration {
 
     @Bean
     public AuditTrailExecutionPlanConfigurer auditConfigurer(final WARestClient restClient) {
-        return plan -> plan.registerAuditTrailManager(new SyncopeWAAuditTrailManager(restClient));
+        return plan -> plan.registerAuditTrailManager(new WAAuditTrailManager(restClient));
     }
 
     @ConditionalOnMissingBean(name = "syncopeWaEventRepositoryFilter")
@@ -250,12 +256,12 @@ public class SyncopeWAConfiguration {
             @Qualifier("syncopeWAEventRepositoryFilter")
             final CasEventRepositoryFilter syncopeWAEventRepositoryFilter) {
 
-        return new SyncopeWAEventRepository(syncopeWAEventRepositoryFilter, restClient);
+        return new WAEventRepository(syncopeWAEventRepositoryFilter, restClient);
     }
 
     @Bean
     public DelegatedClientFactoryCustomizer<Client> delegatedClientCustomizer(final WARestClient restClient) {
-        return new SyncopeWASAML2ClientCustomizer(restClient);
+        return new WASAML2ClientCustomizer(restClient);
     }
 
     @Bean
@@ -263,7 +269,7 @@ public class SyncopeWAConfiguration {
             final CasConfigurationProperties casProperties,
             final WARestClient restClient) {
 
-        return new SyncopeWAGoogleMfaAuthTokenRepository(
+        return new WAGoogleMfaAuthTokenRepository(
                 restClient, casProperties.getAuthn().getMfa().getGauth().getCore().getTimeStepSize());
     }
 
@@ -292,7 +298,7 @@ public class SyncopeWAConfiguration {
             return new LdapGoogleAuthenticatorTokenCredentialRepository(
                     cipherExecutor, googleAuthenticatorInstance, connectionFactory, ldap);
         }
-        return new SyncopeWAGoogleMfaAuthCredentialRepository(restClient, googleAuthenticatorInstance);
+        return new WAGoogleMfaAuthCredentialRepository(restClient, googleAuthenticatorInstance);
     }
 
     @Bean
@@ -304,7 +310,7 @@ public class SyncopeWAConfiguration {
                 getProperty("cas.authn.oidc.jwks.size", int.class, 2048);
         JWSAlgorithm algorithm = ctx.getEnvironment().
                 getProperty("cas.authn.oidc.jwks.algorithm", JWSAlgorithm.class, JWSAlgorithm.RS256);
-        return new SyncopeWAOIDCJWKSGeneratorService(restClient, size, algorithm);
+        return new WAOIDCJWKSGeneratorService(restClient, size, algorithm);
     }
 
     @Bean
@@ -312,7 +318,7 @@ public class SyncopeWAConfiguration {
             final CasConfigurationProperties casProperties,
             final WARestClient restClient) {
 
-        return new SyncopeWAWebAuthnCredentialRepository(casProperties, restClient);
+        return new WAWebAuthnCredentialRepository(casProperties, restClient);
     }
 
     @Bean
@@ -326,12 +332,12 @@ public class SyncopeWAConfiguration {
         LoadingCache<String, String> requestStorage = Caffeine.newBuilder().
                 expireAfterWrite(u2f.getExpireRegistrations(), u2f.getExpireRegistrationsTimeUnit()).
                 build(key -> StringUtils.EMPTY);
-        return new SyncopeWAU2FDeviceRepository(casProperties, requestStorage, restClient, expirationDate);
+        return new WAU2FDeviceRepository(casProperties, requestStorage, restClient, expirationDate);
     }
 
     @Bean
     public SurrogateAuthenticationService surrogateAuthenticationService(final WARestClient restClient) {
-        return new SyncopeWASurrogateAuthenticationService(restClient);
+        return new WASurrogateAuthenticationService(restClient);
     }
 
     @ConditionalOnMissingBean

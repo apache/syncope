@@ -19,8 +19,6 @@
 package org.apache.syncope.wa.starter.gauth;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
@@ -30,15 +28,15 @@ import org.apereo.cas.otp.repository.token.BaseOneTimeTokenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepository {
+public class WAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAGoogleMfaAuthTokenRepository.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WAGoogleMfaAuthTokenRepository.class);
 
-    private final WARestClient waRestClient;
+    protected final WARestClient waRestClient;
 
-    private final long expireTokensInSeconds;
+    protected final long expireTokensInSeconds;
 
-    public SyncopeWAGoogleMfaAuthTokenRepository(final WARestClient waRestClient, final long expireTokensInSeconds) {
+    public WAGoogleMfaAuthTokenRepository(final WARestClient waRestClient, final long expireTokensInSeconds) {
         this.waRestClient = waRestClient;
         this.expireTokensInSeconds = expireTokensInSeconds;
     }
@@ -49,15 +47,15 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
 
     @Override
     protected void cleanInternal() {
-        service().delete(OffsetDateTime.now().minusSeconds(expireTokensInSeconds));
+        service().delete(LocalDateTime.now().minusSeconds(expireTokensInSeconds));
     }
 
     @Override
     public void store(final OneTimeToken token) {
-        GoogleMfaAuthToken tokenTO = new GoogleMfaAuthToken.Builder()
-                .token(token.getToken())
-                .issueDate(OffsetDateTime.of(token.getIssuedDateTime(), OffsetDateTime.now().getOffset()))
-                .build();
+        GoogleMfaAuthToken tokenTO = new GoogleMfaAuthToken.Builder().
+                token(token.getToken()).
+                issueDate(token.getIssuedDateTime()).
+                build();
         service().store(token.getUserId(), tokenTO);
     }
 
@@ -66,8 +64,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
         try {
             GoogleMfaAuthToken tokenTO = service().read(username, otp);
             GoogleAuthenticatorToken token = new GoogleAuthenticatorToken(tokenTO.getOtp(), username);
-            LocalDateTime dateTime = tokenTO.getIssueDate().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
-            token.setIssuedDateTime(dateTime);
+            token.setIssuedDateTime(tokenTO.getIssueDate());
             return token;
         } catch (final Exception e) {
             LOG.debug("Unable to fetch token {} for user {}", otp, username);
@@ -92,7 +89,7 @@ public class SyncopeWAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepos
 
     @Override
     public void removeAll() {
-        service().delete((OffsetDateTime) null);
+        service().delete((LocalDateTime) null);
     }
 
     @Override

@@ -16,9 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.wa.starter.pac4j.saml;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.Signature;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.util.Base64;
+import java.util.Date;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.ASN1Integer;
@@ -37,20 +48,7 @@ import org.pac4j.saml.config.SAML2Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.Signature;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
-import java.util.Base64;
-import java.util.Date;
-
-public abstract class BaseSyncopeWASAML2ClientTest {
+public abstract class BaseWASAML2ClientTest {
 
     protected static Certificate createSelfSignedCert(final KeyPair keyPair) throws Exception {
         final X500Name dn = new X500Name("cn=Unknown");
@@ -64,7 +62,8 @@ public abstract class BaseSyncopeWASAML2ClientTest {
         final Date expiration = new Date(System.currentTimeMillis() + 100000);
         certGen.setEndDate(new Time(expiration));
 
-        final AlgorithmIdentifier sigAlgID = new AlgorithmIdentifier(PKCSObjectIdentifiers.sha1WithRSAEncryption, DERNull.INSTANCE);
+        final AlgorithmIdentifier sigAlgID = new AlgorithmIdentifier(PKCSObjectIdentifiers.sha1WithRSAEncryption,
+                DERNull.INSTANCE);
         certGen.setSignature(sigAlgID);
         certGen.setSubjectPublicKeyInfo(SubjectPublicKeyInfo.getInstance(keyPair.getPublic().getEncoded()));
 
@@ -80,7 +79,7 @@ public abstract class BaseSyncopeWASAML2ClientTest {
         v.add(new DERBitString(sig.sign()));
 
         final Certificate cert = CertificateFactory.getInstance("X.509")
-            .generateCertificate(new ByteArrayInputStream(new DERSequence(v).getEncoded(ASN1Encoding.DER)));
+                .generateCertificate(new ByteArrayInputStream(new DERSequence(v).getEncoded(ASN1Encoding.DER)));
         cert.verify(keyPair.getPublic());
         return cert;
     }
@@ -91,7 +90,8 @@ public abstract class BaseSyncopeWASAML2ClientTest {
         saml2Configuration.setPrivateKeyPassword("password");
         saml2Configuration.setKeystoreAlias("Syncope");
         saml2Configuration.setIdentityProviderMetadataResource(new ClassPathResource("idp-metadata.xml"));
-        saml2Configuration.setServiceProviderMetadataResource(new FileSystemResource(File.createTempFile("sp-metadata", ".xml")));
+        saml2Configuration.setServiceProviderMetadataResource(new FileSystemResource(File.createTempFile("sp-metadata",
+                ".xml")));
         SAML2Client client = new SAML2Client(saml2Configuration);
         client.setCallbackUrl("https://syncope.apache.org");
         return client;
@@ -105,13 +105,13 @@ public abstract class BaseSyncopeWASAML2ClientTest {
         keyPairGenerator.initialize(4096);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
         Certificate certificate = createSelfSignedCert(keyPair);
-        ks.setKeyEntry("Syncope", keyPair.getPrivate(), "password".toCharArray(), new Certificate[]{certificate});
+        ks.setKeyEntry("Syncope", keyPair.getPrivate(), "password".toCharArray(), new Certificate[] { certificate });
         return ks;
     }
 
     protected static String getKeystoreAsString() throws Exception {
         char[] pwdArray = "password".toCharArray();
-        try (ByteArrayOutputStream fos = new ByteArrayOutputStream()) {
+        try ( ByteArrayOutputStream fos = new ByteArrayOutputStream()) {
             getKeystore().store(fos, pwdArray);
             fos.flush();
             return Base64.getEncoder().encodeToString(fos.toByteArray());

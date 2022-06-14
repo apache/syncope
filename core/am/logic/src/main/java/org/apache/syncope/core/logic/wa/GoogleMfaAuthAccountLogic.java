@@ -74,11 +74,12 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
                 stream().
                 allMatch(acct -> acct.getId() == id)).
                 findFirst().
-                ifPresentOrElse(profile -> {
-                    if (profile.getGoogleMfaAuthAccounts().removeIf(acct -> acct.getId() == id)) {
-                        authProfileDAO.save(profile);
-                    }
-                },
+                ifPresentOrElse(
+                        profile -> {
+                            if (profile.getGoogleMfaAuthAccounts().removeIf(acct -> acct.getId() == id)) {
+                                authProfileDAO.save(profile);
+                            }
+                        },
                         () -> {
                             throw new NotFoundException("Could not find account for id " + id);
                         });

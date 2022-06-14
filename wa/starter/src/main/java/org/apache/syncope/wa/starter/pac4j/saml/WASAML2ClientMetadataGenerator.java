@@ -31,22 +31,22 @@ import org.springframework.core.io.Resource;
 import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 
-public class SyncopeWASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
+public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASAML2ClientMetadataGenerator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WASAML2ClientMetadataGenerator.class);
 
     private final WARestClient restClient;
 
     private final SAML2Client saml2Client;
 
-    SyncopeWASAML2ClientMetadataGenerator(final WARestClient restClient, final SAML2Client saml2Client) {
+    WASAML2ClientMetadataGenerator(final WARestClient restClient, final SAML2Client saml2Client) {
         this.restClient = restClient;
         this.saml2Client = saml2Client;
     }
 
     @Override
     protected AbstractBatchMetadataResolver createMetadataResolver(final Resource metadataResource) {
-        return new SyncopeWASAML2MetadataResolver(restClient, saml2Client);
+        return new WASAML2MetadataResolver(restClient, saml2Client);
     }
 
     @Override

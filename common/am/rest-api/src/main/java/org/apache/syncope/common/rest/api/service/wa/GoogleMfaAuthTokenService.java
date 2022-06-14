@@ -21,7 +21,7 @@ package org.apache.syncope.common.rest.api.service.wa;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -48,7 +48,7 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
     @Path("tokens")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void delete(@QueryParam("expirationDate") OffsetDateTime expirationDate);
+    void delete(@QueryParam("expirationDate") LocalDateTime expirationDate);
 
     @DELETE
     @Path("tokens/{owner}/{otp}")

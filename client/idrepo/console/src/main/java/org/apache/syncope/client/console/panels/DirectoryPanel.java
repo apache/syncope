@@ -184,6 +184,7 @@ public abstract class DirectoryPanel<
 
             send(DirectoryPanel.this, Broadcast.EXACT, data);
 
+            displayAttributeModal.size(Modal.Size.Default);
             modal.show(false);
         });
         displayAttributeModal.size(Modal.Size.Default);

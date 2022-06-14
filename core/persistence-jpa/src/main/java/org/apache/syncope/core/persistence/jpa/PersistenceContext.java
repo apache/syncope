@@ -391,8 +391,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthModuleDAO authModuleDAO() {
-        return new JPAAuthModuleDAO();
+    public AuthModuleDAO authModuleDAO(final PolicyDAO policyDAO) {
+        return new JPAAuthModuleDAO(policyDAO);
     }
 
     @ConditionalOnMissingBean

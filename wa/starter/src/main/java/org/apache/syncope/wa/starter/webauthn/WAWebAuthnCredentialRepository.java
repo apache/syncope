@@ -38,13 +38,13 @@ import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SyncopeWAWebAuthnCredentialRepository extends BaseWebAuthnCredentialRepository {
+public class WAWebAuthnCredentialRepository extends BaseWebAuthnCredentialRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAWebAuthnCredentialRepository.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WAWebAuthnCredentialRepository.class);
 
     private final WARestClient waRestClient;
 
-    public SyncopeWAWebAuthnCredentialRepository(final CasConfigurationProperties properties,
+    public WAWebAuthnCredentialRepository(final CasConfigurationProperties properties,
             final WARestClient waRestClient) {
         super(properties, CipherExecutor.noOpOfStringToString());
         this.waRestClient = waRestClient;

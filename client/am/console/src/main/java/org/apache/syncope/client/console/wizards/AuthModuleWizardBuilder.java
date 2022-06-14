@@ -52,6 +52,8 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
 
     protected final LoadableDetachableModel<List<String>> authModuleConfs;
 
+    protected Model<Class<? extends AuthModuleConf>> authModuleConfClass = Model.of();
+
     public AuthModuleWizardBuilder(final AuthModuleTO defaultItem, final PageReference pageRef) {
 
         super(defaultItem, pageRef);
@@ -80,23 +82,26 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
 
     @Override
     protected WizardModel buildModelSteps(final AuthModuleTO modelObject, final WizardModel wizardModel) {
-        wizardModel.add(new Profile(modelObject, authModuleConfs));
+        wizardModel.add(new Profile(modelObject, authModuleConfs, authModuleConfClass));
         wizardModel.add(new Configuration(modelObject));
-
-        if (modelObject.getConf() instanceof GoogleMfaAuthModuleConf) {
-            wizardModel.add(new GoogleMfaAuthModuleConfLDAP((GoogleMfaAuthModuleConf) modelObject.getConf()));
-        }
-
+        wizardModel.add(new GoogleMfaAuthModuleConfLDAP(modelObject, authModuleConfClass));
         wizardModel.add(new Mapping(modelObject));
         return wizardModel;
     }
 
-    public static class Profile extends WizardStep {
+    protected static class Profile extends WizardStep {
 
         private static final long serialVersionUID = -3043839139187792810L;
 
-        Profile(final AuthModuleTO authModule, final LoadableDetachableModel<List<String>> authModuleConfs) {
+        Profile(
+                final AuthModuleTO authModule,
+                final LoadableDetachableModel<List<String>> authModuleConfs,
+                final Model<Class<? extends AuthModuleConf>> authModuleConfClass) {
+
             boolean isNew = authModule.getConf() == null;
+            if (!isNew) {
+                authModuleConfClass.setObject(authModule.getConf().getClass());
+            }
 
             AjaxTextFieldPanel key = new AjaxTextFieldPanel(
                     Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME,
@@ -125,11 +130,12 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
                 @Override
                 protected void onEvent(final AjaxRequestTarget target) {
                     try {
-                        Class<? extends AuthModuleConf> authModuleConfClass =
+                        Class<? extends AuthModuleConf> clazz =
                                 (Class<? extends AuthModuleConf>) ClassUtils.resolveClassName(
                                         conf.getModelObject(), ClassUtils.getDefaultClassLoader());
 
-                        authModule.setConf(authModuleConfClass.getConstructor().newInstance());
+                        authModule.setConf(clazz.getConstructor().newInstance());
+                        authModuleConfClass.setObject(clazz);
                     } catch (Exception e) {
                         LOG.error("During deserialization", e);
                     }
@@ -148,12 +154,20 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
         }
     }
 
-    protected static class GoogleMfaAuthModuleConfLDAP extends WizardStep {
+    protected static class GoogleMfaAuthModuleConfLDAP extends WizardStep implements WizardModel.ICondition {
 
         private static final long serialVersionUID = 5328049907748683944L;
 
-        GoogleMfaAuthModuleConfLDAP(final GoogleMfaAuthModuleConf authModuleConf) {
-            PropertyModel<GoogleMfaAuthModuleConf.LDAP> beanPanelModel = new PropertyModel<>(authModuleConf, "ldap");
+        private final Model<Class<? extends AuthModuleConf>> authModuleConfClass;
+
+        GoogleMfaAuthModuleConfLDAP(
+                final AuthModuleTO authModule,
+                final Model<Class<? extends AuthModuleConf>> authModuleConfClass) {
+
+            this.authModuleConfClass = authModuleConfClass;
+
+            PropertyModel<GoogleMfaAuthModuleConf.LDAP> beanPanelModel =
+                    new PropertyModel<>(authModule.getConf(), "ldap");
 
             AjaxCheckBoxPanel enable = new AjaxCheckBoxPanel("enable", "enableLDAP", new IModel<Boolean>() {
 
@@ -187,6 +201,11 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
 
             add(new BeanPanel<>("bean", beanPanelModel).setRenderBodyOnly(true));
             setOutputMarkupId(true);
+        }
+
+        @Override
+        public boolean evaluate() {
+            return GoogleMfaAuthModuleConf.class.equals(authModuleConfClass.getObject());
         }
     }
 

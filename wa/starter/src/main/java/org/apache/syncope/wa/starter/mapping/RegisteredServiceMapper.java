@@ -20,18 +20,27 @@ package org.apache.syncope.wa.starter.mapping;
 
 import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
+import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.apereo.cas.services.ReturnMappedAttributeReleasePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ConfigurableApplicationContext;
 
 public class RegisteredServiceMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegisteredServiceMapper.class);
+
+    protected final ConfigurableApplicationContext ctx;
+
+    protected final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan;
 
     protected final Map<String, AuthMapper> authPolicyConfMappers;
 
@@ -42,11 +51,15 @@ public class RegisteredServiceMapper {
     protected final Map<String, ClientAppMapper> clientAppTOMappers;
 
     public RegisteredServiceMapper(
+            final ConfigurableApplicationContext ctx,
+            final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan,
             final Map<String, AuthMapper> authPolicyConfMappers,
             final Map<String, AccessMapper> accessPolicyConfMappers,
             final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers,
             final Map<String, ClientAppMapper> clientAppTOMappers) {
 
+        this.ctx = ctx;
+        this.authenticationEventExecutionPlan = authenticationEventExecutionPlan;
         this.authPolicyConfMappers = authPolicyConfMappers;
         this.accessPolicyConfMappers = accessPolicyConfMappers;
         this.attrReleasePolicyConfMappers = attrReleasePolicyConfMappers;
@@ -62,11 +75,20 @@ public class RegisteredServiceMapper {
         }
 
         RegisteredServiceAuthenticationPolicy authPolicy = null;
+        RegisteredServiceMultifactorPolicy mfaPolicy = null;
         if (clientApp.getAuthPolicy() != null) {
             AuthMapper authMapper = authPolicyConfMappers.get(
                     clientApp.getAuthPolicy().getConf().getClass().getName());
-            authPolicy = Optional.ofNullable(authMapper).
-                    map(mapper -> mapper.build(clientApp.getAuthPolicy())).orElse(null);
+            Pair<RegisteredServiceAuthenticationPolicy, RegisteredServiceMultifactorPolicy> mapped =
+                    Optional.ofNullable(authMapper).map(mapper -> mapper.build(
+                    ctx, authenticationEventExecutionPlan, clientApp.getAuthPolicy(), clientApp.getAuthModules())).
+                            orElseGet(() -> Pair.of(null, null));
+            if (mapped.getLeft() != null) {
+                authPolicy = mapped.getLeft();
+            }
+            if (mapped.getRight() != null) {
+                mfaPolicy = mapped.getRight();
+            }
         }
 
         RegisteredServiceAccessStrategy accessStrategy = null;
@@ -89,6 +111,6 @@ public class RegisteredServiceMapper {
             }
         }
 
-        return clientAppMapper.map(clientApp, authPolicy, accessStrategy, attributeReleasePolicy);
+        return clientAppMapper.map(clientApp, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy);
     }
 }

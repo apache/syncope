@@ -1258,8 +1258,10 @@ public class ProvisioningContext {
     public WAClientAppDataBinder waClientAppDataBinder(
             final ClientAppDataBinder clientAppDataBinder,
             final PolicyDataBinder policyDataBinder,
+            final AuthModuleDataBinder authModuleDataBinder,
             final AuthModuleDAO authModuleDAO) {
 
-        return new WAClientAppDataBinderImpl(clientAppDataBinder, policyDataBinder, authModuleDAO);
+        return new WAClientAppDataBinderImpl(
+                clientAppDataBinder, policyDataBinder, authModuleDataBinder, authModuleDAO);
     }
 }

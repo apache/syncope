@@ -33,15 +33,15 @@ import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SyncopeWASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
+public class WASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWASAML2ClientKeystoreGenerator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WASAML2ClientKeystoreGenerator.class);
 
     private final WARestClient restClient;
 
     private final SAML2Client saml2Client;
 
-    SyncopeWASAML2ClientKeystoreGenerator(final WARestClient restClient, final SAML2Client saml2Client) {
+    WASAML2ClientKeystoreGenerator(final WARestClient restClient, final SAML2Client saml2Client) {
         super(saml2Client.getConfiguration());
         this.restClient = restClient;
         this.saml2Client = saml2Client;

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.logic.wa;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -46,16 +46,24 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
         this.entityFactory = entityFactory;
     }
 
+    protected void removeTokenAndSave(final AuthProfile profile, final Predicate<GoogleMfaAuthToken> criteria) {
+        List<GoogleMfaAuthToken> tokens = profile.getGoogleMfaAuthTokens();
+        if (tokens.removeIf(criteria)) {
+            profile.setGoogleMfaAuthTokens(tokens);
+            authProfileDAO.save(profile);
+        }
+    }
+
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void delete(final OffsetDateTime expirationDate) {
+    public void delete(final LocalDateTime expirationDate) {
         authProfileDAO.findAll(-1, -1).forEach(profile -> removeTokenAndSave(
                 profile, token -> token.getIssueDate().compareTo(expirationDate) >= 0));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final String owner, final int otp) {
-        authProfileDAO.findByOwner(owner).ifPresent(profile -> removeTokenAndSave(
-                profile, token -> token.getOtp() == otp));
+        authProfileDAO.findByOwner(owner).
+                ifPresent(profile -> removeTokenAndSave(profile, token -> token.getOtp() == otp));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -89,6 +97,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
         });
 
         List<GoogleMfaAuthToken> tokens = profile.getGoogleMfaAuthTokens();
+        tokens.removeIf(t -> t.getOtp() == token.getOtp());
         tokens.add(token);
         profile.setGoogleMfaAuthTokens(tokens);
         authProfileDAO.save(profile);
@@ -103,7 +112,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
                 flatMap(List::stream).
                 filter(token -> token.getOtp() == otp).
                 findFirst().
-                orElseThrow(() -> new NotFoundException("Could not find token for Owner " + owner + " and otp " + otp));
+                orElseThrow(() -> new NotFoundException("Could not find token for owner " + owner + " and otp " + otp));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -121,13 +130,5 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
         return authProfileDAO.findByOwner(owner).
                 map(AuthProfile::getGoogleMfaAuthTokens).
                 orElse(List.of());
-    }
-
-    private void removeTokenAndSave(final AuthProfile profile, final Predicate<GoogleMfaAuthToken> criteria) {
-        List<GoogleMfaAuthToken> tokens = profile.getGoogleMfaAuthTokens();
-        if (tokens.removeIf(criteria)) {
-            profile.setGoogleMfaAuthTokens(tokens);
-            authProfileDAO.save(profile);
-        }
     }
 }

@@ -18,11 +18,8 @@
  */
 package org.apache.syncope.wa.starter.oidc;
 
-import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
@@ -30,6 +27,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.JsonWebKeySet;
 import org.slf4j.Logger;
@@ -37,9 +35,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 
-public class SyncopeWAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorService {
+public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAOIDCJWKSGeneratorService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WAOIDCJWKSGeneratorService.class);
 
     private final WARestClient waRestClient;
 
@@ -47,7 +45,7 @@ public class SyncopeWAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGen
 
     private final JWSAlgorithm algorithm;
 
-    public SyncopeWAOIDCJWKSGeneratorService(
+    public WAOIDCJWKSGeneratorService(
             final WARestClient restClient, final int size, final JWSAlgorithm algorithm) {
 
         this.waRestClient = restClient;

@@ -16,44 +16,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.wa.starter.audit;
+package org.apache.syncope.wa.starter.events;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Date;
+import java.util.Map;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.AbstractTest;
-import org.apereo.inspektr.audit.AuditActionContext;
+import org.apereo.cas.support.events.CasEventRepositoryFilter;
+import org.apereo.cas.support.events.dao.CasEvent;
 import org.junit.jupiter.api.Test;
 import org.apache.syncope.common.rest.api.service.AuditService;
 
-public class SyncopeWAAuditTrailManagerTest extends AbstractTest {
+public class WAEventRepositoryTest extends AbstractTest {
 
-    private static AuditService loggerService;
+    private static AuditService auditService;
 
     private static WARestClient getWaRestClient() {
         WARestClient restClient = mock(WARestClient.class);
         SyncopeClient syncopeClient = mock(SyncopeClient.class);
-        loggerService = mock(AuditService.class);
+        auditService = mock(AuditService.class);
 
         when(restClient.getSyncopeClient()).thenReturn(syncopeClient);
-        when(syncopeClient.getService(AuditService.class)).thenReturn(loggerService);
+        when(syncopeClient.getService(AuditService.class)).thenReturn(auditService);
 
         return restClient;
     }
 
     @Test
-    public void saveAuditRecord() {
-        AuditActionContext audit = new AuditActionContext("principal", "resourceOperatedUpon", "actionPerformed",
-                "applicationCode", new Date(), "clientIpAddress", "serverIpAddress", "userAgent");
-        SyncopeWAAuditTrailManager auditTrailManager = new SyncopeWAAuditTrailManager(getWaRestClient());
-        auditTrailManager.saveAuditRecord(audit);
-        verify(loggerService).create(any(AuditEntry.class));
+    public void saveInternal() {
+        CasEvent event = new CasEvent(1L, "Auth", "principalId", "creationTime", Map.of("timestamp", "1"));
+        WAEventRepository eventRepository = new WAEventRepository(CasEventRepositoryFilter.noOp(),
+                getWaRestClient());
+        eventRepository.saveInternal(event);
+        verify(auditService).create(any(AuditEntry.class));
     }
-
 }

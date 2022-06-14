@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
-import org.apache.syncope.wa.starter.config.SyncopeWARefreshContextJob;
+import org.apache.syncope.wa.starter.config.WARefreshContextJob;
 
 import org.apereo.cas.config.GoogleAuthenticatorLdapConfiguration;
 import org.apereo.cas.configuration.CasConfigurationProperties;
@@ -128,7 +128,7 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
             Trigger trigger = TriggerBuilder.newTrigger().startAt(date).build();
             JobKey jobKey = new JobKey(getClass().getSimpleName());
 
-            JobDetail job = JobBuilder.newJob(SyncopeWARefreshContextJob.class).
+            JobDetail job = JobBuilder.newJob(WARefreshContextJob.class).
                     withIdentity(jobKey).
                     build();
             LOG.info("Scheduled job to refresh application context @ [{}]", date);

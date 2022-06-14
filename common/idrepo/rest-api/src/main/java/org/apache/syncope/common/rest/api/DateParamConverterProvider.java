@@ -20,6 +20,7 @@ package org.apache.syncope.common.rest.api;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -28,7 +29,7 @@ import javax.ws.rs.ext.ParamConverterProvider;
 
 public class DateParamConverterProvider implements ParamConverterProvider {
 
-    private static class DateParamConverter implements ParamConverter<OffsetDateTime> {
+    protected static class OffsetDateTimeParamConverter implements ParamConverter<OffsetDateTime> {
 
         @Override
         public OffsetDateTime fromString(final String value) {
@@ -45,13 +46,33 @@ public class DateParamConverterProvider implements ParamConverterProvider {
         }
     }
 
+    protected static class LocalDateTimeParamConverter implements ParamConverter<LocalDateTime> {
+
+        @Override
+        public LocalDateTime fromString(final String value) {
+            try {
+                return LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Unparsable date: " + value, e);
+            }
+        }
+
+        @Override
+        public String toString(final LocalDateTime value) {
+            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(value);
+        }
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public <T> ParamConverter<T> getConverter(
             final Class<T> rawType, final Type genericType, final Annotation[] annotations) {
 
         if (OffsetDateTime.class.equals(rawType)) {
-            return (ParamConverter<T>) new DateParamConverter();
+            return (ParamConverter<T>) new OffsetDateTimeParamConverter();
+        }
+        if (LocalDateTime.class.equals(rawType)) {
+            return (ParamConverter<T>) new LocalDateTimeParamConverter();
         }
 
         return null;
