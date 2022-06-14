@@ -18,11 +18,12 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-public class SimpleMfaAuthModuleConf implements AuthModuleConf {
+public class SimpleMfaAuthModuleConf implements MFAAuthModuleConf {
+
     private static final long serialVersionUID = -7663257599139312426L;
 
     private long timeToKillInSeconds = 30L;
-    
+
     private int tokenLength = 6;
 
     private String bypassGroovyScript;
@@ -34,6 +35,11 @@ public class SimpleMfaAuthModuleConf implements AuthModuleConf {
     private String emailSubject;
 
     private String emailText;
+
+    @Override
+    public String getFriendlyName() {
+        return "CAS Simple Multifactor Authentication";
+    }
 
     public String getEmailFrom() {
         return emailFrom;

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-public class DuoMfaAuthModuleConf implements AuthModuleConf {
+public class DuoMfaAuthModuleConf implements MFAAuthModuleConf {
 
     private static final long serialVersionUID = -2883257599439312426L;
 
@@ -29,6 +29,11 @@ public class DuoMfaAuthModuleConf implements AuthModuleConf {
     private String applicationKey;
 
     private String apiHost;
+
+    @Override
+    public String getFriendlyName() {
+        return "Duo Security";
+    }
 
     public String getIntegrationKey() {
         return integrationKey;

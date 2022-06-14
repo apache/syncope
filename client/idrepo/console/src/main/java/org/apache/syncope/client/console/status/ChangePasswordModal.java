@@ -58,7 +58,7 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
 
         this.wrapper = wrapper;
 
-        final PasswordPanel passwordPanel = new PasswordPanel("passwordPanel", wrapper, false, false);
+        PasswordPanel passwordPanel = new PasswordPanel("passwordPanel", wrapper, false, false);
         passwordPanel.setOutputMarkupId(true);
         add(passwordPanel);
 
@@ -70,13 +70,13 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
 
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
-        final UserTO inner = wrapper.getInnerObject();
+        UserTO inner = wrapper.getInnerObject();
 
         try {
             if (StringUtils.isBlank(inner.getPassword()) || statusModel.getObject().isEmpty()) {
                 SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
             } else {
-                final List<String> resources = new ArrayList<>();
+                List<String> resources = new ArrayList<>();
                 boolean isOnSyncope = false;
                 for (StatusBean sb : statusModel.getObject()) {
                     if (sb.getResource().equals(Constants.SYNCOPE)) {

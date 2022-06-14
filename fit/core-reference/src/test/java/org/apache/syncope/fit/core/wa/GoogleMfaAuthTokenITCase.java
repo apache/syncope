@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.security.SecureRandom;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
@@ -41,12 +41,12 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
 
     private static GoogleMfaAuthToken createGoogleMfaAuthToken() {
         int token = SECURE_RANDOM.ints(100_000, 999_999).findFirst().getAsInt();
-        return new GoogleMfaAuthToken.Builder().token(token).issueDate(OffsetDateTime.now()).build();
+        return new GoogleMfaAuthToken.Builder().token(token).issueDate(LocalDateTime.now()).build();
     }
 
     @BeforeEach
     public void setup() {
-        googleMfaAuthTokenService.delete((OffsetDateTime) null);
+        googleMfaAuthTokenService.delete((LocalDateTime) null);
     }
 
     @Test
@@ -109,7 +109,7 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
     public void deleteByDate() {
         String owner = UUID.randomUUID().toString();
         createGoogleMfaAuthToken();
-        googleMfaAuthTokenService.delete(OffsetDateTime.now().minusDays(1));
+        googleMfaAuthTokenService.delete(LocalDateTime.now().minusDays(1));
         assertTrue(googleMfaAuthTokenService.read(owner).getResult().isEmpty());
         assertEquals(0, googleMfaAuthTokenService.read(owner).getTotalCount());
     }

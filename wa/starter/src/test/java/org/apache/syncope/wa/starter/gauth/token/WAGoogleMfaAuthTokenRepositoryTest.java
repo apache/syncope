@@ -26,7 +26,7 @@ import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SyncopeWAGoogleMfaAuthTokenRepositoryTest extends AbstractTest {
+public class WAGoogleMfaAuthTokenRepositoryTest extends AbstractTest {
 
     @Autowired
     private OneTimeTokenRepository tokenRepository;

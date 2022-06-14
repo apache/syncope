@@ -18,24 +18,23 @@
  */
 package org.apache.syncope.wa.starter.config;
 
+import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.wa.bootstrap.WARestClient;
-import org.apache.commons.lang.StringUtils;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
 import org.apereo.cas.util.AsciiArtUtils;
-
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.refresh.ContextRefresher;
-import java.util.Optional;
-import org.quartz.JobExecutionException;
 
-public class SyncopeWARefreshContextJob implements Job {
+public class WARefreshContextJob implements Job {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWARefreshContextJob.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WARefreshContextJob.class);
 
     @Autowired
     private ContextRefresher contextRefresher;
@@ -43,7 +42,7 @@ public class SyncopeWARefreshContextJob implements Job {
     @Autowired
     private SamlIdPMetadataGenerator metadataGenerator;
 
-    public SyncopeWARefreshContextJob() {
+    public WARefreshContextJob() {
     }
 
     @Override

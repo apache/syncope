@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -184,7 +185,7 @@ public class AuthProfileTest extends AbstractTest {
     private AuthProfile createAuthProfileWithToken(final String owner, final Integer otp) {
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
         profile.setOwner(owner);
-        GoogleMfaAuthToken token = new GoogleMfaAuthToken.Builder().issueDate(OffsetDateTime.now()).token(otp).build();
+        GoogleMfaAuthToken token = new GoogleMfaAuthToken.Builder().issueDate(LocalDateTime.now()).token(otp).build();
         profile.setGoogleMfaAuthTokens(List.of(token));
         return authProfileDAO.save(profile);
     }

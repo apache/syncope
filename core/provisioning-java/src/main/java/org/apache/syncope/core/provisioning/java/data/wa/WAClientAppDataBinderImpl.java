@@ -24,6 +24,7 @@ import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
+import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.slf4j.Logger;
@@ -38,15 +39,19 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
 
     protected final PolicyDataBinder policyDataBinder;
 
+    protected final AuthModuleDataBinder authModuleDataBinder;
+
     protected final AuthModuleDAO authModuleDAO;
 
     public WAClientAppDataBinderImpl(
             final ClientAppDataBinder clientAppDataBinder,
             final PolicyDataBinder policyDataBinder,
+            final AuthModuleDataBinder authModuleDataBinder,
             final AuthModuleDAO authModuleDAO) {
 
         this.clientAppDataBinder = clientAppDataBinder;
         this.policyDataBinder = policyDataBinder;
+        this.authModuleDataBinder = authModuleDataBinder;
         this.authModuleDAO = authModuleDAO;
     }
 
@@ -70,6 +75,8 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
                     if (authModule == null) {
                         LOG.warn("AuthModule " + authModule + " not found");
                     } else {
+                        waClientApp.getAuthModules().add(authModuleDataBinder.getAuthModuleTO(authModule));
+
                         authModule.getItems().
                                 forEach(item -> waClientApp.getReleaseAttrs().put(
                                 item.getIntAttrName(), item.getExtAttrName()));

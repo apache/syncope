@@ -72,13 +72,13 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.PropertySource;
 
 @Order
-public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
+public class WAPropertySourceLocator implements PropertySourceLocator {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeWAPropertySourceLocator.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WAPropertySourceLocator.class);
 
     protected final WARestClient waRestClient;
 
-    public SyncopeWAPropertySourceLocator(final WARestClient waRestClient) {
+    public WAPropertySourceLocator(final WARestClient waRestClient) {
         this.waRestClient = waRestClient;
     }
 
@@ -104,13 +104,13 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             final SyncopeAuthModuleConf conf,
             final String address) {
 
-        SyncopeAuthenticationProperties syncopeProps = new SyncopeAuthenticationProperties();
-        syncopeProps.setName(authModule);
-        syncopeProps.setDomain(conf.getDomain());
-        syncopeProps.setUrl(StringUtils.substringBefore(address, "/rest"));
+        SyncopeAuthenticationProperties props = new SyncopeAuthenticationProperties();
+        props.setName(authModule);
+        props.setDomain(conf.getDomain());
+        props.setUrl(StringUtils.substringBefore(address, "/rest"));
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().setSyncope(syncopeProps);
+        casProperties.getAuthn().setSyncope(props);
 
         SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.addFilter(AuthenticationProperties.class.getSimpleName(),
@@ -125,15 +125,15 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             final String authModule,
             final StaticAuthModuleConf conf) {
 
-        AcceptAuthenticationProperties staticProps = new AcceptAuthenticationProperties();
-        staticProps.setName(authModule);
+        AcceptAuthenticationProperties props = new AcceptAuthenticationProperties();
+        props.setName(authModule);
         String users = conf.getUsers().entrySet().stream().
                 map(entry -> entry.getKey() + "::" + entry.getValue()).
                 collect(Collectors.joining(","));
-        staticProps.setUsers(users);
+        props.setUsers(users);
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().setAccept(staticProps);
+        casProperties.getAuthn().setAccept(props);
 
         SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.addFilter(AuthenticationProperties.class.getSimpleName(),
@@ -148,22 +148,22 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             final String authModule,
             final LDAPAuthModuleConf conf) {
 
-        LdapAuthenticationProperties ldapProps = new LdapAuthenticationProperties();
-        ldapProps.setName(authModule);
-        ldapProps.setLdapUrl(conf.getLdapUrl());
-        ldapProps.setBaseDn(conf.getBaseDn());
-        ldapProps.setSearchFilter(conf.getSearchFilter());
-        ldapProps.setBindDn(conf.getBindDn());
-        ldapProps.setBindCredential(conf.getBindCredential());
+        LdapAuthenticationProperties props = new LdapAuthenticationProperties();
+        props.setName(authModule);
+        props.setLdapUrl(conf.getLdapUrl());
+        props.setBaseDn(conf.getBaseDn());
+        props.setSearchFilter(conf.getSearchFilter());
+        props.setBindDn(conf.getBindDn());
+        props.setBindCredential(conf.getBindCredential());
         if (StringUtils.isNotBlank(conf.getBindDn()) && StringUtils.isNotBlank(conf.getBindCredential())) {
-            ldapProps.setType(AbstractLdapAuthenticationProperties.AuthenticationTypes.AUTHENTICATED);
+            props.setType(AbstractLdapAuthenticationProperties.AuthenticationTypes.AUTHENTICATED);
         }
-        ldapProps.setPrincipalAttributeId(conf.getUserIdAttribute());
-        ldapProps.setSubtreeSearch(conf.isSubtreeSearch());
-        ldapProps.setPrincipalAttributeList(conf.getPrincipalAttributeList());
+        props.setPrincipalAttributeId(conf.getUserIdAttribute());
+        props.setSubtreeSearch(conf.isSubtreeSearch());
+        props.setPrincipalAttributeList(conf.getPrincipalAttributeList());
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getLdap().add(ldapProps);
+        casProperties.getAuthn().getLdap().add(props);
 
         SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.addFilter(
@@ -250,13 +250,13 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             final String authModule,
             final GoogleMfaAuthModuleConf conf) {
 
-        GoogleAuthenticatorMultifactorProperties gauthProps = new GoogleAuthenticatorMultifactorProperties();
-        gauthProps.setName(authModule);
-        gauthProps.getCore().setIssuer(conf.getIssuer());
-        gauthProps.getCore().setCodeDigits(conf.getCodeDigits());
-        gauthProps.getCore().setLabel(conf.getLabel());
-        gauthProps.getCore().setTimeStepSize(conf.getTimeStepSize());
-        gauthProps.getCore().setWindowSize(conf.getWindowSize());
+        GoogleAuthenticatorMultifactorProperties props = new GoogleAuthenticatorMultifactorProperties();
+        props.setName(authModule);
+        props.getCore().setIssuer(conf.getIssuer());
+        props.getCore().setCodeDigits(conf.getCodeDigits());
+        props.getCore().setLabel(conf.getLabel());
+        props.getCore().setTimeStepSize(conf.getTimeStepSize());
+        props.getCore().setWindowSize(conf.getWindowSize());
 
         if (conf.getLdap() != null) {
             LdapGoogleAuthenticatorMultifactorProperties ldapProps = new LdapGoogleAuthenticatorMultifactorProperties();
@@ -266,11 +266,11 @@ public class SyncopeWAPropertySourceLocator implements PropertySourceLocator {
             ldapProps.setBindDn(conf.getLdap().getBindDn());
             ldapProps.setSearchFilter(conf.getLdap().getSearchFilter());
             ldapProps.setLdapUrl(conf.getLdap().getUrl());
-            gauthProps.setLdap(ldapProps);
+            props.setLdap(ldapProps);
         }
 
         CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getMfa().setGauth(gauthProps);
+        casProperties.getAuthn().getMfa().setGauth(props);
 
         SimpleFilterProvider filterProvider = getParentCasFilterProvider();
         filterProvider.addFilter(

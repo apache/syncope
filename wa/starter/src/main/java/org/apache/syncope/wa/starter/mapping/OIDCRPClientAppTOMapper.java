@@ -40,6 +40,7 @@ import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
+import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.apereo.cas.services.ReturnMappedAttributeReleasePolicy;
 import org.apereo.cas.util.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
@@ -56,7 +57,8 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
     @Override
     public RegisteredService map(
             final WAClientApp clientApp,
-            final RegisteredServiceAuthenticationPolicy authenticationPolicy,
+            final RegisteredServiceAuthenticationPolicy authPolicy,
+            final RegisteredServiceMultifactorPolicy mfaPolicy,
             final RegisteredServiceAccessStrategy accessStrategy,
             final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy) {
 
@@ -83,7 +85,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         }
         service.setLogoutUrl(rp.getLogoutUri());
 
-        setPolicies(service, authenticationPolicy, accessStrategy, attributeReleasePolicy);
+        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy);
         if (attributeReleasePolicy != null) {
             ChainingAttributeReleasePolicy chain = new ChainingAttributeReleasePolicy();
             if (attributeReleasePolicy instanceof ReturnMappedAttributeReleasePolicy) {

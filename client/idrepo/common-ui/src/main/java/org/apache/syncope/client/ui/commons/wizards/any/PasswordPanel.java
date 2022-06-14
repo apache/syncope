@@ -22,7 +22,6 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.stre
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.validation.EqualPasswordInputValidator;
@@ -40,6 +39,7 @@ public class PasswordPanel extends Panel {
             final UserWrapper wrapper,
             final Boolean storePasswordInSyncope,
             final boolean templateMode) {
+
         this(id, wrapper, templateMode, storePasswordInSyncope, null);
     }
 
@@ -56,13 +56,10 @@ public class PasswordPanel extends Panel {
         Form<?> form = new Form<>("passwordInnerForm");
         add(form);
 
-        FieldPanel<String> confirmPasswordField = new AjaxPasswordFieldPanel(
+        AjaxPasswordFieldPanel confirmPasswordField = new AjaxPasswordFieldPanel(
                 "confirmPassword", "confirmPassword", new Model<>(), false, null);
-
-        confirmPasswordField.setMarkupId("confirmPassword");
-        confirmPasswordField.setPlaceholder("confirmPassword");
         ((PasswordTextField) confirmPasswordField.getField()).setResetPassword(false);
-        form.add(confirmPasswordField);
+        form.add(confirmPasswordField.setPlaceholder("confirmPassword").setMarkupId("confirmPassword"));
 
         if (templateMode) {
             confirmPasswordField.setEnabled(false);

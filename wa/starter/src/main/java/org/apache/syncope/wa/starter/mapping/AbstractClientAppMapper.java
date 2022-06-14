@@ -27,6 +27,7 @@ import org.apereo.cas.services.RegexRegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
+import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.apereo.cas.services.RegisteredServiceProperty;
 
 abstract class AbstractClientAppMapper implements ClientAppMapper {
@@ -48,12 +49,16 @@ abstract class AbstractClientAppMapper implements ClientAppMapper {
 
     protected void setPolicies(
             final RegexRegisteredService service,
-            final RegisteredServiceAuthenticationPolicy authenticationPolicy,
+            final RegisteredServiceAuthenticationPolicy authPolicy,
+            final RegisteredServiceMultifactorPolicy mfaPolicy,
             final RegisteredServiceAccessStrategy accessStrategy,
             final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy) {
 
-        if (authenticationPolicy != null) {
-            service.setAuthenticationPolicy(authenticationPolicy);
+        if (authPolicy != null) {
+            service.setAuthenticationPolicy(authPolicy);
+        }
+        if (mfaPolicy != null) {
+            service.setMultifactorPolicy(mfaPolicy);
         }
         if (accessStrategy != null) {
             service.setAccessStrategy(accessStrategy);

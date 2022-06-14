@@ -16,22 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.wa.starter.mapping;
+package org.apache.syncope.common.lib.auth;
 
-import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apereo.cas.services.RegisteredService;
-import org.apereo.cas.services.RegisteredServiceAccessStrategy;
-import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
-import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
-import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@FunctionalInterface
-public interface ClientAppMapper {
+public interface MFAAuthModuleConf extends AuthModuleConf {
 
-    RegisteredService map(
-            WAClientApp clientApp,
-            RegisteredServiceAuthenticationPolicy authPolicy,
-            RegisteredServiceMultifactorPolicy mfaPolicy,
-            RegisteredServiceAccessStrategy accessStrategy,
-            RegisteredServiceAttributeReleasePolicy attributeReleasePolicy);
+    @JsonIgnore
+    String getFriendlyName();
 }

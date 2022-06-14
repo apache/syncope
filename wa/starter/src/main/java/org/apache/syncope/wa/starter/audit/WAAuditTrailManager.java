@@ -23,7 +23,6 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 import org.apereo.cas.audit.spi.AbstractAuditTrailManager;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.time.OffsetDateTime;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -34,13 +33,11 @@ import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.inspektr.audit.AuditActionContext;
 
-public class SyncopeWAAuditTrailManager extends AbstractAuditTrailManager {
-
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+public class WAAuditTrailManager extends AbstractAuditTrailManager {
 
     private final WARestClient waRestClient;
 
-    public SyncopeWAAuditTrailManager(final WARestClient restClient) {
+    public WAAuditTrailManager(final WARestClient restClient) {
         super(true);
         this.waRestClient = restClient;
     }

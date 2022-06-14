@@ -32,7 +32,7 @@ import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class SyncopeWASurrogateAuthenticationServiceTest extends AbstractTest {
+public class WASurrogateAuthenticationServiceTest extends AbstractTest {
 
     @Autowired
     private WARestClient waRestClient;

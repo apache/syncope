@@ -36,7 +36,7 @@ import org.pac4j.saml.metadata.keystore.SAML2KeystoreGenerator;
 import org.springframework.core.io.ClassPathResource;
 import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 
-public class SyncopeWASAML2ClientKeystoreGeneratorTest extends BaseSyncopeWASAML2ClientTest {
+public class WASAML2ClientKeystoreGeneratorTest extends BaseWASAML2ClientTest {
 
     private static WARestClient getWaRestClient() throws Exception {
         WARestClient restClient = mock(WARestClient.class);
@@ -60,7 +60,7 @@ public class SyncopeWASAML2ClientKeystoreGeneratorTest extends BaseSyncopeWASAML
     @Test
     public void generate() throws Exception {
         SAML2Client client = getSAML2Client();
-        SAML2KeystoreGenerator generator = new SyncopeWASAML2ClientKeystoreGenerator(getWaRestClient(), client);
+        SAML2KeystoreGenerator generator = new WASAML2ClientKeystoreGenerator(getWaRestClient(), client);
         assertDoesNotThrow(generator::generate);
     }
 }

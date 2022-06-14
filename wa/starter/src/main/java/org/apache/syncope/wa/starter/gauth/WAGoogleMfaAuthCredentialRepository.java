@@ -35,30 +35,30 @@ import org.apereo.cas.util.crypto.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthenticatorTokenCredentialRepository {
+public class WAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthenticatorTokenCredentialRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAGoogleMfaAuthTokenRepository.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WAGoogleMfaAuthTokenRepository.class);
 
-    private final WARestClient waRestClient;
+    protected final WARestClient waRestClient;
 
-    public SyncopeWAGoogleMfaAuthCredentialRepository(
+    public WAGoogleMfaAuthCredentialRepository(
             final WARestClient waRestClient, final IGoogleAuthenticator googleAuthenticator) {
 
         super(CipherExecutor.noOpOfStringToString(), googleAuthenticator);
         this.waRestClient = waRestClient;
     }
 
-    private static GoogleMfaAuthAccount mapGoogleMfaAuthAccount(final OneTimeTokenAccount account) {
-        return new GoogleMfaAuthAccount.Builder()
-                .registrationDate(OffsetDateTime.now())
-                .scratchCodes(account.getScratchCodes())
-                .validationCode(account.getValidationCode())
-                .secretKey(account.getSecretKey())
-                .id(account.getId())
-                .build();
+    protected GoogleMfaAuthAccount mapGoogleMfaAuthAccount(final OneTimeTokenAccount account) {
+        return new GoogleMfaAuthAccount.Builder().
+                registrationDate(OffsetDateTime.now()).
+                scratchCodes(account.getScratchCodes()).
+                validationCode(account.getValidationCode()).
+                secretKey(account.getSecretKey()).
+                id(account.getId()).
+                build();
     }
 
-    private static GoogleAuthenticatorAccount mapGoogleMfaAuthAccount(final GoogleMfaAuthAccount account) {
+    protected GoogleAuthenticatorAccount mapGoogleMfaAuthAccount(final GoogleMfaAuthAccount account) {
         return GoogleAuthenticatorAccount.builder().
                 secretKey(account.getSecretKey()).
                 validationCode(account.getValidationCode()).
@@ -68,15 +68,18 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
                 build();
     }
 
+    protected GoogleMfaAuthAccountService service() {
+        return waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class);
+    }
+
     @Override
     public OneTimeTokenAccount get(final long id) {
         try {
-            GoogleMfaAuthAccount account =
-                    waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).read(id);
+            GoogleMfaAuthAccount account = service().read(id);
             if (account != null) {
                 return mapGoogleMfaAuthAccount(account);
             }
-        } catch (final SyncopeClientException e) {
+        } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 LOG.info("Could not locate account for id {}", id);
             } else {
@@ -89,12 +92,13 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
     @Override
     public OneTimeTokenAccount get(final String username, final long id) {
         try {
-            waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).read(username).
+            return service().read(username).
                     getResult().stream().
                     filter(account -> account.getId() == id).
-                    map(SyncopeWAGoogleMfaAuthCredentialRepository::mapGoogleMfaAuthAccount).
-                    collect(Collectors.toList());
-        } catch (final SyncopeClientException e) {
+                    map(this::mapGoogleMfaAuthAccount).
+                    findFirst().
+                    orElse(null);
+        } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 LOG.info("Could not locate account for owner {} and id {}", username, id);
             } else {
@@ -107,11 +111,11 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
     @Override
     public Collection<? extends OneTimeTokenAccount> get(final String username) {
         try {
-            waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).read(username).
+            return service().read(username).
                     getResult().stream().
-                    map(SyncopeWAGoogleMfaAuthCredentialRepository::mapGoogleMfaAuthAccount).
+                    map(this::mapGoogleMfaAuthAccount).
                     collect(Collectors.toList());
-        } catch (final SyncopeClientException e) {
+        } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 LOG.info("Could not locate account for owner {}", username);
             } else {
@@ -123,22 +127,22 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
 
     @Override
     public Collection<? extends OneTimeTokenAccount> load() {
-        return waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).list().
+        return service().list().
                 getResult().stream().
-                map(SyncopeWAGoogleMfaAuthCredentialRepository::mapGoogleMfaAuthAccount).
+                map(this::mapGoogleMfaAuthAccount).
                 collect(Collectors.toList());
     }
 
     @Override
     public OneTimeTokenAccount save(final OneTimeTokenAccount tokenAccount) {
-        GoogleMfaAuthAccount account = new GoogleMfaAuthAccount.Builder()
-                .registrationDate(OffsetDateTime.now())
-                .scratchCodes(tokenAccount.getScratchCodes())
-                .validationCode(tokenAccount.getValidationCode())
-                .secretKey(tokenAccount.getSecretKey())
-                .name(tokenAccount.getName())
-                .id(tokenAccount.getId())
-                .build();
+        GoogleMfaAuthAccount account = new GoogleMfaAuthAccount.Builder().
+                registrationDate(OffsetDateTime.now()).
+                scratchCodes(tokenAccount.getScratchCodes()).
+                validationCode(tokenAccount.getValidationCode()).
+                secretKey(tokenAccount.getSecretKey()).
+                name(tokenAccount.getName()).
+                id(tokenAccount.getId()).
+                build();
         waRestClient.getSyncopeClient().
                 getService(GoogleMfaAuthAccountService.class).create(tokenAccount.getUsername(), account);
         return mapGoogleMfaAuthAccount(account);
@@ -147,34 +151,49 @@ public class SyncopeWAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthen
     @Override
     public OneTimeTokenAccount update(final OneTimeTokenAccount tokenAccount) {
         GoogleMfaAuthAccount acct = mapGoogleMfaAuthAccount(tokenAccount);
-        waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).
-                update(tokenAccount.getUsername(), acct);
+        service().update(tokenAccount.getUsername(), acct);
         return tokenAccount;
     }
 
     @Override
     public void deleteAll() {
-        waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).deleteAll();
+        service().deleteAll();
     }
 
     @Override
     public void delete(final String username) {
-        waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).delete(username);
+        try {
+            service().delete(username);
+        } catch (SyncopeClientException e) {
+            if (e.getType() == ClientExceptionType.NotFound) {
+                LOG.info("Could not locate account for owner {}", username);
+            } else {
+                LOG.error(e.getMessage(), e);
+            }
+        }
     }
 
     @Override
     public void delete(final long id) {
-        waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).delete(id);
+        service().delete(id);
     }
 
     @Override
     public long count() {
-        return waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).list().getTotalCount();
+        return service().list().getTotalCount();
     }
 
     @Override
     public long count(final String username) {
-        return waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class).
-                read(username).getTotalCount();
+        try {
+            return service().read(username).getTotalCount();
+        } catch (SyncopeClientException e) {
+            if (e.getType() == ClientExceptionType.NotFound) {
+                LOG.info("Could not locate account for owner {}", username);
+            } else {
+                LOG.error(e.getMessage(), e);
+            }
+            return 0L;
+        }
     }
 }

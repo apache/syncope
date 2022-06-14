@@ -38,15 +38,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-public class SyncopeWAU2FDeviceRepository extends BaseU2FDeviceRepository {
+public class WAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAU2FDeviceRepository.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WAU2FDeviceRepository.class);
 
     private final WARestClient waRestClient;
 
     private final OffsetDateTime expirationDate;
 
-    public SyncopeWAU2FDeviceRepository(
+    public WAU2FDeviceRepository(
             final CasConfigurationProperties casProperties,
             final LoadingCache<String, String> requestStorage,
             final WARestClient waRestClient,

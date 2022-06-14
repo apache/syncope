@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.wa.starter.services;
 
-import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
 import org.apereo.cas.services.AbstractServiceRegistry;
 import org.apereo.cas.services.OidcRegisteredService;
 import org.apereo.cas.services.RegisteredService;
@@ -33,17 +34,16 @@ import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 
-public class SyncopeWAServiceRegistry extends AbstractServiceRegistry {
+public class WAServiceRegistry extends AbstractServiceRegistry {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeWAServiceRegistry.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WAServiceRegistry.class);
 
     private final WARestClient waRestClient;
 
     private final RegisteredServiceMapper registeredServiceMapper;
 
-    public SyncopeWAServiceRegistry(
+    public WAServiceRegistry(
             final WARestClient restClient,
             final RegisteredServiceMapper registeredServiceMapper,
             final ConfigurableApplicationContext applicationContext,

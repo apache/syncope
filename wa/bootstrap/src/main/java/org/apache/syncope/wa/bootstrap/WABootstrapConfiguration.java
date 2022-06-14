@@ -27,7 +27,7 @@ import org.springframework.context.annotation.PropertySource;
 @Configuration(proxyBeanMethods = false)
 @PropertySource("classpath:wa.properties")
 @PropertySource(value = "file:${conf.directory}/wa.properties", ignoreResourceNotFound = true)
-public class SyncopeWABootstrapConfiguration {
+public class WABootstrapConfiguration {
 
     @Configuration(proxyBeanMethods = false)
     public static class WAClientConfiguration {
@@ -50,7 +50,7 @@ public class SyncopeWABootstrapConfiguration {
     public static class PropertySourceConfiguration {
         @Bean
         public PropertySourceLocator configPropertySourceLocator(final WARestClient waRestClient) {
-            return new SyncopeWAPropertySourceLocator(waRestClient);
+            return new WAPropertySourceLocator(waRestClient);
         }
     }
 }

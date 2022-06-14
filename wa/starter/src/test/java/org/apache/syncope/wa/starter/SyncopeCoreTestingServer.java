@@ -20,7 +20,7 @@ package org.apache.syncope.wa.starter;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -124,7 +124,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         private final Map<String, GoogleMfaAuthToken> tokens = new HashMap<>();
 
         @Override
-        public void delete(final OffsetDateTime expirationDate) {
+        public void delete(final LocalDateTime expirationDate) {
             if (expirationDate == null) {
                 tokens.clear();
             } else {
@@ -155,9 +155,9 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
 
         @Override
         public GoogleMfaAuthToken read(final String owner, final int otp) {
-            return tokens.entrySet().stream()
-                    .filter(to -> to.getValue().getOtp() == otp && to.getKey().equalsIgnoreCase(owner))
-                    .findFirst().get().getValue();
+            return tokens.entrySet().stream().
+                    filter(to -> to.getValue().getOtp() == otp && to.getKey().equalsIgnoreCase(owner)).
+                    findFirst().get().getValue();
         }
 
         @Override

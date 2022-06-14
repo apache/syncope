@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.wa;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -32,7 +32,7 @@ public class GoogleMfaAuthToken implements BaseBean {
 
         private final GoogleMfaAuthToken instance = new GoogleMfaAuthToken();
 
-        public GoogleMfaAuthToken.Builder issueDate(final OffsetDateTime issueDate) {
+        public GoogleMfaAuthToken.Builder issueDate(final LocalDateTime issueDate) {
             instance.setIssueDate(issueDate);
             return this;
         }
@@ -49,7 +49,7 @@ public class GoogleMfaAuthToken implements BaseBean {
 
     private int otp;
 
-    private OffsetDateTime issueDate;
+    private LocalDateTime issueDate;
 
     public int getOtp() {
         return otp;
@@ -59,11 +59,11 @@ public class GoogleMfaAuthToken implements BaseBean {
         this.otp = otp;
     }
 
-    public OffsetDateTime getIssueDate() {
+    public LocalDateTime getIssueDate() {
         return issueDate;
     }
 
-    public void setIssueDate(final OffsetDateTime issueDate) {
+    public void setIssueDate(final LocalDateTime issueDate) {
         this.issueDate = issueDate;
     }
 

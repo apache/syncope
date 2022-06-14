@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-public class U2FAuthModuleConf implements AuthModuleConf {
+public class U2FAuthModuleConf implements MFAAuthModuleConf {
 
     private static final long serialVersionUID = -1235771400318503131L;
 
@@ -29,6 +29,11 @@ public class U2FAuthModuleConf implements AuthModuleConf {
     private long expireDevices = 30;
 
     private String expireDevicesTimeUnit = "DAYS";
+
+    @Override
+    public String getFriendlyName() {
+        return "FIDO U2F";
+    }
 
     public long getExpireRegistrations() {
         return expireRegistrations;
