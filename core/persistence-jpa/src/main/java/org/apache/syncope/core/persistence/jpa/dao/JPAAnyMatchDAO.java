@@ -279,7 +279,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
 
     protected boolean matches(final Any<?> any, final ResourceCond cond, final boolean not) {
         boolean found = anyUtilsFactory.getInstance(any).getAllResources(any).stream().
-                anyMatch(resource -> resource.getKey().equals(cond.getResourceKey()));
+                anyMatch(resource -> resource.getKey().equals(cond.getResource()));
         return not ? !found : found;
     }
 

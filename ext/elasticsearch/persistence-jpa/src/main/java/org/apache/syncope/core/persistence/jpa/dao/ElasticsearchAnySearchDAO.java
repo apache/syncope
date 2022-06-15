@@ -518,7 +518,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected Query getQuery(final ResourceCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("resources").value(FieldValue.of(cond.getResourceKey())).build()).
+                field("resources").value(FieldValue.of(cond.getResource())).build()).
                 build();
     }
 

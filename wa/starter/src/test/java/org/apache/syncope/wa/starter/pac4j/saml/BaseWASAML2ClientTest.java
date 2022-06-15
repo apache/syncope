@@ -111,7 +111,7 @@ public abstract class BaseWASAML2ClientTest {
 
     protected static String getKeystoreAsString() throws Exception {
         char[] pwdArray = "password".toCharArray();
-        try ( ByteArrayOutputStream fos = new ByteArrayOutputStream()) {
+        try (ByteArrayOutputStream fos = new ByteArrayOutputStream()) {
             getKeystore().store(fos, pwdArray);
             fos.flush();
             return Base64.getEncoder().encodeToString(fos.toByteArray());

@@ -160,7 +160,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             
                         case RESOURCES:
                             ResourceCond resourceCond = new ResourceCond();
-                            resourceCond.setResourceKey(value);
+                            resourceCond.setResource(value);
                             leaf = SearchCond.getLeaf(resourceCond);
                             break;
 

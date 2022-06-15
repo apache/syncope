@@ -63,10 +63,10 @@ public class AnyMatchTest extends AbstractTest {
         assertNotNull(user);
 
         ResourceCond resourceCond = new ResourceCond();
-        resourceCond.setResourceKey("resource-testdb2");
+        resourceCond.setResource("resource-testdb2");
         assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(resourceCond)));
 
-        resourceCond.setResourceKey("ws-target-resource-delete");
+        resourceCond.setResource("ws-target-resource-delete");
         assertFalse(anyMatcher.matches(user, SearchCond.getLeaf(resourceCond)));
     }
 
