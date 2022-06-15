@@ -451,7 +451,7 @@ under the License.
     <cas.version>6.5.5</cas.version>
     <cas-client.version>3.6.4</cas-client.version>
 
-    <h2.version>2.1.212</h2.version>
+    <h2.version>2.1.214</h2.version>
 
     <swagger-core.version>2.1.13</swagger-core.version>
     <swagger-ui.version>4.11.1</swagger-ui.version>
