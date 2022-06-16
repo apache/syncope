@@ -101,7 +101,7 @@ public class SearchCond extends AbstractSearchCond {
         if (conditions.size() == 1) {
             return conditions.get(0);
         } else if (conditions.size() > 2) {
-            return getOr(conditions.get(0), getAnd(conditions.subList(1, conditions.size())));
+            return getOr(conditions.get(0), getOr(conditions.subList(1, conditions.size())));
         } else {
             return getOr(conditions.get(0), conditions.get(1));
         }
