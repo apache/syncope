@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import org.apache.syncope.core.provisioning.api.data.SecurityQuestionDataBinder;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
+import org.apache.syncope.core.provisioning.api.data.SecurityQuestionDataBinder;
 
 public class SecurityQuestionDataBinderImpl implements SecurityQuestionDataBinder {
 

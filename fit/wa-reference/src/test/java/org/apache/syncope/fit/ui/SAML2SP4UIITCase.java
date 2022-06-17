@@ -19,8 +19,8 @@
 package org.apache.syncope.fit.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -60,7 +60,7 @@ import org.junit.jupiter.api.Test;
 public class SAML2SP4UIITCase extends AbstractUIITCase {
 
     private static void clientAppSetup(final String appName, final String entityId, final long appId) {
-        SAML2SPClientAppTO clientApp = clientAppService.list(ClientAppType.SAML2SP).stream().
+        SAML2SPClientAppTO clientApp = CLIENT_APP_SERVICE.list(ClientAppType.SAML2SP).stream().
                 filter(app -> appName.equals(app.getName())).
                 map(SAML2SPClientAppTO.class::cast).
                 findFirst().
@@ -71,12 +71,12 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
                     app.setEntityId(entityId);
                     app.setMetadataLocation(entityId + SAML2SP4UIConstants.URL_CONTEXT + "/metadata");
 
-                    Response response = clientAppService.create(ClientAppType.SAML2SP, app);
+                    Response response = CLIENT_APP_SERVICE.create(ClientAppType.SAML2SP, app);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
                         fail("Could not create SAML2 Client App");
                     }
 
-                    return clientAppService.read(
+                    return CLIENT_APP_SERVICE.read(
                             ClientAppType.SAML2SP, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 });
 
@@ -85,8 +85,8 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         clientApp.setRequiredNameIdFormat(SAML2SPNameId.PERSISTENT);
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
 
-        clientAppService.update(ClientAppType.SAML2SP, clientApp);
-        clientAppService.pushToWA();
+        CLIENT_APP_SERVICE.update(ClientAppType.SAML2SP, clientApp);
+        CLIENT_APP_SERVICE.pushToWA();
     }
 
     @BeforeAll
@@ -101,21 +101,21 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
     @BeforeAll
     public static void idpSetup() {
-        WebClient.client(saml2sp4UIIdPService).
+        WebClient.client(SAML2SP4UI_IDP_SERVICE).
                 accept(MediaType.APPLICATION_XML_TYPE).
                 type(MediaType.APPLICATION_XML_TYPE);
         try {
-            saml2sp4UIIdPService.importFromMetadata(
+            SAML2SP4UI_IDP_SERVICE.importFromMetadata(
                     (InputStream) WebClient.create(WA_ADDRESS + "/idp/metadata").get().getEntity());
         } catch (SyncopeClientException e) {
             // nothing bad if already imported
         } finally {
-            WebClient.client(saml2sp4UIIdPService).
-                    accept(clientFactory.getContentType().getMediaType()).
-                    type(clientFactory.getContentType().getMediaType());
+            WebClient.client(SAML2SP4UI_IDP_SERVICE).
+                    accept(CLIENT_FACTORY.getContentType().getMediaType()).
+                    type(CLIENT_FACTORY.getContentType().getMediaType());
         }
 
-        List<SAML2SP4UIIdPTO> idps = saml2sp4UIIdPService.list();
+        List<SAML2SP4UIIdPTO> idps = SAML2SP4UI_IDP_SERVICE.list();
         assertEquals(1, idps.size());
 
         SAML2SP4UIIdPTO cas = idps.get(0);
@@ -156,7 +156,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         item.setExtAttrName("cn");
         cas.add(item);
 
-        saml2sp4UIIdPService.update(cas);
+        SAML2SP4UI_IDP_SERVICE.update(cas);
     }
 
     @Test
@@ -288,20 +288,20 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
     @Override
     protected void doSelfReg(final Runnable runnable) {
-        List<SAML2SP4UIIdPTO> idps = saml2sp4UIIdPService.list();
+        List<SAML2SP4UIIdPTO> idps = SAML2SP4UI_IDP_SERVICE.list();
         assertEquals(1, idps.size());
 
         SAML2SP4UIIdPTO cas = idps.get(0);
         cas.setCreateUnmatching(false);
         cas.setSelfRegUnmatching(true);
-        saml2sp4UIIdPService.update(cas);
+        SAML2SP4UI_IDP_SERVICE.update(cas);
 
         try {
             runnable.run();
         } finally {
             cas.setCreateUnmatching(true);
             cas.setSelfRegUnmatching(false);
-            saml2sp4UIIdPService.update(cas);
+            SAML2SP4UI_IDP_SERVICE.update(cas);
         }
     }
 }

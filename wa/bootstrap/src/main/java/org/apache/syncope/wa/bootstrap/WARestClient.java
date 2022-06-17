@@ -18,18 +18,18 @@
  */
 package org.apache.syncope.wa.bootstrap;
 
+import java.util.Collection;
 import java.util.Optional;
-import org.apereo.cas.util.spring.ApplicationContextProvider;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apereo.cas.util.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import java.util.Collection;
 
 public class WARestClient {
 

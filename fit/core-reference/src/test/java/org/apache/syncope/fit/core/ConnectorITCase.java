@@ -66,13 +66,13 @@ import org.junit.jupiter.api.Test;
 
 public class ConnectorITCase extends AbstractITCase {
 
-    private static String connectorServerLocation;
+    private static String CONNECTOR_SERVER_LOCATION;
 
-    private static String connIdSoapVersion;
+    private static String CONNID_SOAP_VERSION;
 
-    private static String connIdDbVersion;
+    private static String CONNID_DB_VERSION;
 
-    private static String testJDBCURL;
+    private static String TEST_JDBC_URL;
 
     @BeforeAll
     public static void setUpConnIdBundles() throws IOException {
@@ -80,10 +80,10 @@ public class ConnectorITCase extends AbstractITCase {
             Properties props = new Properties();
             props.load(propStream);
 
-            connIdSoapVersion = props.getProperty("connid.soap.version");
-            connIdDbVersion = props.getProperty("connid.database.version");
+            CONNID_SOAP_VERSION = props.getProperty("connid.soap.version");
+            CONNID_DB_VERSION = props.getProperty("connid.database.version");
 
-            testJDBCURL = props.getProperty("testdb.url");
+            TEST_JDBC_URL = props.getProperty("testdb.url");
         } catch (Exception e) {
             LOG.error("Could not load /test.properties", e);
         }
@@ -94,17 +94,17 @@ public class ConnectorITCase extends AbstractITCase {
 
             for (String location : props.getProperty("provisioning.connIdLocation").split(",")) {
                 if (!location.startsWith("file")) {
-                    connectorServerLocation = location;
+                    CONNECTOR_SERVER_LOCATION = location;
                 }
             }
         } catch (Exception e) {
             LOG.error("Could not load /core-embedded.properties", e);
         }
 
-        assertNotNull(connectorServerLocation);
-        assertNotNull(connIdSoapVersion);
-        assertNotNull(connIdDbVersion);
-        assertNotNull(testJDBCURL);
+        assertNotNull(CONNECTOR_SERVER_LOCATION);
+        assertNotNull(CONNID_SOAP_VERSION);
+        assertNotNull(CONNID_DB_VERSION);
+        assertNotNull(TEST_JDBC_URL);
     }
 
     @Test
@@ -112,9 +112,9 @@ public class ConnectorITCase extends AbstractITCase {
         assertThrows(SyncopeClientException.class, () -> {
             ConnInstanceTO connectorTO = new ConnInstanceTO();
 
-            Response response = connectorService.create(connectorTO);
+            Response response = CONNECTOR_SERVICE.create(connectorTO);
             if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-                throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
+                throw (RuntimeException) CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
             }
         });
     }
@@ -123,9 +123,9 @@ public class ConnectorITCase extends AbstractITCase {
     public void create() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
         connectorTO.setAdminRealm(SyncopeConstants.ROOT_REALM);
-        connectorTO.setLocation(connectorService.read(
+        connectorTO.setLocation(CONNECTOR_SERVICE.read(
                 "88a7a819-dab5-46b4-9b90-0b9769eabdb8", Locale.ENGLISH.getLanguage()).getLocation());
-        connectorTO.setVersion(connIdSoapVersion);
+        connectorTO.setVersion(CONNID_SOAP_VERSION);
         connectorTO.setConnectorName("net.tirasa.connid.bundles.soap.WebServiceConnector");
         connectorTO.setBundleName("net.tirasa.connid.bundles.soap");
         connectorTO.setDisplayName("Display name");
@@ -164,9 +164,9 @@ public class ConnectorITCase extends AbstractITCase {
         cpc.setMaxObjects(1534);
         connectorTO.setPoolConf(cpc);
 
-        Response response = connectorService.create(connectorTO);
+        Response response = CONNECTOR_SERVICE.create(connectorTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
+            throw (RuntimeException) CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
         }
 
         ConnInstanceTO actual = getObject(
@@ -190,8 +190,8 @@ public class ConnectorITCase extends AbstractITCase {
         actual.getPoolConf().setMaxObjects(null);
 
         try {
-            connectorService.update(actual);
-            actual = connectorService.read(actual.getKey(), Locale.ENGLISH.getLanguage());
+            CONNECTOR_SERVICE.update(actual);
+            actual = CONNECTOR_SERVICE.read(actual.getKey(), Locale.ENGLISH.getLanguage());
         } catch (SyncopeClientException e) {
             LOG.error("update failed", e);
             t = e;
@@ -204,7 +204,7 @@ public class ConnectorITCase extends AbstractITCase {
 
         // check also for the deletion of the created object
         try {
-            connectorService.delete(actual.getKey());
+            CONNECTOR_SERVICE.delete(actual.getKey());
         } catch (SyncopeClientException e) {
             LOG.error("delete failed", e);
             t = e;
@@ -214,7 +214,7 @@ public class ConnectorITCase extends AbstractITCase {
 
         // check the non existence
         try {
-            connectorService.read(actual.getKey(), Locale.ENGLISH.getLanguage());
+            CONNECTOR_SERVICE.read(actual.getKey(), Locale.ENGLISH.getLanguage());
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -229,7 +229,7 @@ public class ConnectorITCase extends AbstractITCase {
         connectorTO.setKey("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b");
 
         // set connector version
-        connectorTO.setVersion(connIdSoapVersion);
+        connectorTO.setVersion(CONNID_SOAP_VERSION);
 
         // set connector name
         connectorTO.setConnectorName("net.tirasa.connid.bundles.soap.WebServiceConnector");
@@ -263,12 +263,12 @@ public class ConnectorITCase extends AbstractITCase {
         // set connector configuration
         connectorTO.getConf().addAll(conf);
 
-        connectorService.update(connectorTO);
-        ConnInstanceTO actual = connectorService.read(connectorTO.getKey(), Locale.ENGLISH.getLanguage());
+        CONNECTOR_SERVICE.update(connectorTO);
+        ConnInstanceTO actual = CONNECTOR_SERVICE.read(connectorTO.getKey(), Locale.ENGLISH.getLanguage());
 
         assertNotNull(actual);
 
-        actual = connectorService.read(actual.getKey(), Locale.ENGLISH.getLanguage());
+        actual = CONNECTOR_SERVICE.read(actual.getKey(), Locale.ENGLISH.getLanguage());
 
         assertNotNull(actual);
         assertEquals(actual.getBundleName(), connectorTO.getBundleName());
@@ -279,13 +279,13 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void reload() {
-        connectorService.reload();
+        CONNECTOR_SERVICE.reload();
     }
 
     @Test
     public void deleteWithException() {
         try {
-            connectorService.delete(UUID.randomUUID().toString());
+            CONNECTOR_SERVICE.delete(UUID.randomUUID().toString());
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -293,7 +293,7 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<ConnInstanceTO> connInstances = connectorService.list(null);
+        List<ConnInstanceTO> connInstances = CONNECTOR_SERVICE.list(null);
         assertNotNull(connInstances);
         assertFalse(connInstances.isEmpty());
         connInstances.forEach(Assertions::assertNotNull);
@@ -301,14 +301,14 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        ConnInstanceTO connInstance = connectorService.read(
+        ConnInstanceTO connInstance = CONNECTOR_SERVICE.read(
                 "88a7a819-dab5-46b4-9b90-0b9769eabdb8", Locale.ENGLISH.getLanguage());
         assertNotNull(connInstance);
         assertFalse(connInstance.isErrored());
         assertNotNull(connInstance.getLocation());
         assertFalse(connInstance.getConf().isEmpty());
 
-        connInstance = connectorService.read(
+        connInstance = CONNECTOR_SERVICE.read(
                 "413bf072-678a-41d3-9d20-8c453b3a39d1", Locale.ENGLISH.getLanguage());
         assertNotNull(connInstance);
         assertTrue(connInstance.isErrored());
@@ -318,7 +318,7 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void getBundles() {
-        List<ConnBundleTO> bundles = connectorService.getBundles(Locale.ENGLISH.getLanguage());
+        List<ConnBundleTO> bundles = CONNECTOR_SERVICE.getBundles(Locale.ENGLISH.getLanguage());
         assertNotNull(bundles);
         assertFalse(bundles.isEmpty());
         bundles.forEach(Assertions::assertNotNull);
@@ -326,7 +326,7 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void getConnectorConfiguration() {
-        List<ConnConfProperty> props = connectorService.read(
+        List<ConnConfProperty> props = CONNECTOR_SERVICE.read(
                 "6c2acf1b-b052-46f0-8c56-7a8ad6905edf", Locale.ENGLISH.getLanguage()).getConf();
         assertNotNull(props);
         assertFalse(props.isEmpty());
@@ -334,7 +334,7 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void checkHiddenProperty() {
-        ConnInstanceTO connInstanceTO = connectorService.read(
+        ConnInstanceTO connInstanceTO = CONNECTOR_SERVICE.read(
                 "88a7a819-dab5-46b4-9b90-0b9769eabdb8", Locale.ENGLISH.getLanguage());
 
         boolean check = false;
@@ -350,7 +350,7 @@ public class ConnectorITCase extends AbstractITCase {
     @Test
     public void checkSelectedLanguage() {
         // 1. Check Italian
-        List<ConnInstanceTO> connInstances = connectorService.list("it");
+        List<ConnInstanceTO> connInstances = CONNECTOR_SERVICE.list("it");
 
         for (ConnInstanceTO instance : connInstances) {
             if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
@@ -359,7 +359,7 @@ public class ConnectorITCase extends AbstractITCase {
         }
 
         // 2. Check English (default)
-        connInstances = connectorService.list(null);
+        connInstances = CONNECTOR_SERVICE.list(null);
 
         for (ConnInstanceTO instance : connInstances) {
             if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
@@ -372,8 +372,8 @@ public class ConnectorITCase extends AbstractITCase {
     public void validate() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
         connectorTO.setAdminRealm(SyncopeConstants.ROOT_REALM);
-        connectorTO.setLocation(connectorServerLocation);
-        connectorTO.setVersion(connIdDbVersion);
+        connectorTO.setLocation(CONNECTOR_SERVER_LOCATION);
+        connectorTO.setVersion(CONNID_DB_VERSION);
         connectorTO.setConnectorName("net.tirasa.connid.bundles.db.table.DatabaseTableConnector");
         connectorTO.setBundleName("net.tirasa.connid.bundles.db.table");
         connectorTO.setDisplayName("H2Test");
@@ -396,7 +396,7 @@ public class ConnectorITCase extends AbstractITCase {
         jdbcUrlTemplateSchema.setRequired(true);
         ConnConfProperty jdbcUrlTemplate = new ConnConfProperty();
         jdbcUrlTemplate.setSchema(jdbcUrlTemplateSchema);
-        jdbcUrlTemplate.getValues().add(testJDBCURL);
+        jdbcUrlTemplate.getValues().add(TEST_JDBC_URL);
         conf.add(jdbcUrlTemplate);
 
         ConnConfPropSchema userSchema = new ConnConfPropSchema();
@@ -448,7 +448,7 @@ public class ConnectorITCase extends AbstractITCase {
         connectorTO.getConf().addAll(conf);
 
         try {
-            connectorService.check(connectorTO);
+            CONNECTOR_SERVICE.check(connectorTO);
         } catch (Exception e) {
             fail(ExceptionUtils.getStackTrace(e));
         }
@@ -459,7 +459,7 @@ public class ConnectorITCase extends AbstractITCase {
         conf.add(password);
 
         try {
-            connectorService.check(connectorTO);
+            CONNECTOR_SERVICE.check(connectorTO);
             fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
@@ -468,21 +468,21 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void buildObjectClassInfo() {
-        ConnInstanceTO db = connectorService.read(
+        ConnInstanceTO db = CONNECTOR_SERVICE.read(
                 "5aa5b8be-7521-481a-9651-c557aea078c1", Locale.ENGLISH.getLanguage());
         assertNotNull(db);
 
-        List<ConnIdObjectClassTO> objectClassInfo = connectorService.buildObjectClassInfo(db, true);
+        List<ConnIdObjectClassTO> objectClassInfo = CONNECTOR_SERVICE.buildObjectClassInfo(db, true);
         assertNotNull(objectClassInfo);
         assertEquals(1, objectClassInfo.size());
         assertEquals(ObjectClass.ACCOUNT_NAME, objectClassInfo.get(0).getType());
         assertTrue(objectClassInfo.get(0).getAttributes().stream().anyMatch(schema -> "ID".equals(schema.getKey())));
 
-        ConnInstanceTO ldap = connectorService.read(
+        ConnInstanceTO ldap = CONNECTOR_SERVICE.read(
                 "74141a3b-0762-4720-a4aa-fc3e374ef3ef", Locale.ENGLISH.getLanguage());
         assertNotNull(ldap);
 
-        objectClassInfo = connectorService.buildObjectClassInfo(ldap, true);
+        objectClassInfo = CONNECTOR_SERVICE.buildObjectClassInfo(ldap, true);
         assertNotNull(objectClassInfo);
 
         Collection<String> objectClasses = objectClassInfo.stream().
@@ -493,7 +493,7 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void authorizations() {
-        SyncopeClient puccini = clientFactory.create("puccini", ADMIN_PWD);
+        SyncopeClient puccini = CLIENT_FACTORY.create("puccini", ADMIN_PWD);
         ConnectorService pcs = puccini.getService(ConnectorService.class);
 
         // 1. list connectors: get only the ones allowed
@@ -525,10 +525,10 @@ public class ConnectorITCase extends AbstractITCase {
             reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution").get();
             assertEquals("false", reloadScriptOnExecution.getValues().get(0).toString());
         } finally {
-            ConnInstanceTO scriptedsql = connectorService.read("a6d017fd-a705-4507-bb7c-6ab6a6745997", null);
+            ConnInstanceTO scriptedsql = CONNECTOR_SERVICE.read("a6d017fd-a705-4507-bb7c-6ab6a6745997", null);
             ConnConfProperty reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution").get();
             reloadScriptOnExecution.getValues().set(0, "true");
-            connectorService.update(scriptedsql);
+            CONNECTOR_SERVICE.update(scriptedsql);
         }
     }
 
@@ -538,12 +538,12 @@ public class ConnectorITCase extends AbstractITCase {
         // Copy resource and connector in order to create new objects.
         // ----------------------------------
         // Retrieve a connector instance template.
-        ConnInstanceTO connInstanceTO = connectorService.read(
+        ConnInstanceTO connInstanceTO = CONNECTOR_SERVICE.read(
                 "fcf9f2b0-f7d6-42c9-84a6-61b28255a42b", Locale.ENGLISH.getLanguage());
         assertNotNull(connInstanceTO);
 
         // check for resource
-        List<ResourceTO> resources = resourceService.list().stream().
+        List<ResourceTO> resources = RESOURCE_SERVICE.list().stream().
                 filter(resource -> "fcf9f2b0-f7d6-42c9-84a6-61b28255a42b".equals(resource.getConnector())).
                 collect(Collectors.toList());
         assertEquals(4, resources.size());
@@ -562,9 +562,9 @@ public class ConnectorITCase extends AbstractITCase {
         // ----------------------------------
         // Create a new connector instance.
         // ----------------------------------
-        Response response = connectorService.create(connInstanceTO);
+        Response response = CONNECTOR_SERVICE.create(connInstanceTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
+            throw (RuntimeException) CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
         }
 
         connInstanceTO = getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
@@ -580,12 +580,12 @@ public class ConnectorITCase extends AbstractITCase {
         // ----------------------------------
         // Check for connector instance update after resource creation.
         // ----------------------------------
-        response = resourceService.create(resourceTO);
+        response = RESOURCE_SERVICE.create(resourceTO);
         resourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
 
         assertNotNull(resourceTO);
 
-        resources = resourceService.list().stream().
+        resources = RESOURCE_SERVICE.list().stream().
                 filter(resource -> connKey.equals(resource.getConnector())).collect(Collectors.toList());
         assertEquals(1, resources.size());
         // ----------------------------------
@@ -593,7 +593,7 @@ public class ConnectorITCase extends AbstractITCase {
         // ----------------------------------
         // Check for spring bean.
         // ----------------------------------
-        ConnInstanceTO connInstanceBean = connectorService.readByResource(
+        ConnInstanceTO connInstanceBean = CONNECTOR_SERVICE.readByResource(
                 resourceTO.getKey(), Locale.ENGLISH.getLanguage());
         assertNotNull(connInstanceBean);
         assertFalse(connInstanceBean.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
@@ -604,13 +604,13 @@ public class ConnectorITCase extends AbstractITCase {
         // ----------------------------------
         connInstanceTO.getCapabilities().add(ConnectorCapability.AUTHENTICATE);
 
-        connectorService.update(connInstanceTO);
-        ConnInstanceTO actual = connectorService.read(connInstanceTO.getKey(), Locale.ENGLISH.getLanguage());
+        CONNECTOR_SERVICE.update(connInstanceTO);
+        ConnInstanceTO actual = CONNECTOR_SERVICE.read(connInstanceTO.getKey(), Locale.ENGLISH.getLanguage());
         assertNotNull(actual);
         assertTrue(connInstanceTO.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
 
         // check for spring bean update
-        connInstanceBean = connectorService.readByResource(resourceTO.getKey(), Locale.ENGLISH.getLanguage());
+        connInstanceBean = CONNECTOR_SERVICE.readByResource(resourceTO.getKey(), Locale.ENGLISH.getLanguage());
         assertTrue(connInstanceBean.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
         // ----------------------------------
     }
@@ -623,11 +623,11 @@ public class ConnectorITCase extends AbstractITCase {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
         connectorTO.setAdminRealm(SyncopeConstants.ROOT_REALM);
 
-        connectorTO.setLocation(connectorService.read(
+        connectorTO.setLocation(CONNECTOR_SERVICE.read(
                 "88a7a819-dab5-46b4-9b90-0b9769eabdb8", Locale.ENGLISH.getLanguage()).getLocation());
 
         // set connector version
-        connectorTO.setVersion(connIdSoapVersion);
+        connectorTO.setVersion(CONNID_SOAP_VERSION);
 
         // set connector name
         connectorTO.setConnectorName("net.tirasa.connid.bundles.soap.WebServiceConnector");
@@ -667,15 +667,15 @@ public class ConnectorITCase extends AbstractITCase {
 
         try {
             try {
-                connectorService.check(connectorTO);
+                CONNECTOR_SERVICE.check(connectorTO);
                 fail("This should not happen");
             } catch (Exception e) {
                 assertNotNull(e);
             }
 
-            Response response = connectorService.create(connectorTO);
+            Response response = CONNECTOR_SERVICE.create(connectorTO);
             if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-                throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
+                throw (RuntimeException) CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
             }
 
             connectorTO = getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
@@ -717,27 +717,27 @@ public class ConnectorITCase extends AbstractITCase {
             // Check connection without saving the resource ....
             // ----------------------------------------
             try {
-                resourceService.check(resourceTO);
+                RESOURCE_SERVICE.check(resourceTO);
             } catch (Exception e) {
                 fail(ExceptionUtils.getStackTrace(e));
             }
             // ----------------------------------------
         } finally {
             // Remove connector from db to make test re-runnable
-            connectorService.delete(connectorTO.getKey());
+            CONNECTOR_SERVICE.delete(connectorTO.getKey());
         }
     }
 
     @Test
     public void issueSYNCOPE605() {
-        ConnInstanceTO connInstance = connectorService.read(
+        ConnInstanceTO connInstance = CONNECTOR_SERVICE.read(
                 "fcf9f2b0-f7d6-42c9-84a6-61b28255a42b", Locale.ENGLISH.getLanguage());
         assertTrue(connInstance.getCapabilities().isEmpty());
 
         connInstance.getCapabilities().add(ConnectorCapability.SEARCH);
-        connectorService.update(connInstance);
+        CONNECTOR_SERVICE.update(connInstance);
 
-        ConnInstanceTO updatedCapabilities = connectorService.read(
+        ConnInstanceTO updatedCapabilities = CONNECTOR_SERVICE.read(
                 connInstance.getKey(), Locale.ENGLISH.getLanguage());
         assertNotNull(updatedCapabilities.getCapabilities());
         assertTrue(updatedCapabilities.getCapabilities().size() == 1);

@@ -143,7 +143,7 @@ public class DBPasswordPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void after(@Mock User user) throws JobExecutionException {
+    public void after(final @Mock User user) throws JobExecutionException {
         when(userDAO.find(user.getKey())).thenReturn(user);
 
         dBPasswordPullActions.after(profile, syncDelta, userTO, result);

@@ -31,13 +31,13 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
+import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.junit.jupiter.api.Test;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.metadata.SAML2MetadataGenerator;
 import org.springframework.core.io.ClassPathResource;
-import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 
 public class WASAML2ClientMetadataGeneratorTest extends BaseWASAML2ClientTest {
 

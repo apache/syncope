@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.to.UserTO;
 
 public interface OIDCC4UIProviderActions {

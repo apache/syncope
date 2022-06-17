@@ -20,11 +20,11 @@ package org.apache.syncope.fit;
 
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 
-public class OIDCClientDetector {
+public final class OIDCClientDetector {
 
     private static final Logger LOG = LoggerFactory.getLogger(OIDCClientDetector.class);
 
@@ -48,5 +48,9 @@ public class OIDCClientDetector {
             }
         }
         return ENABLED;
+    }
+
+    private OIDCClientDetector() {
+        // private constructor for static utility class
     }
 }

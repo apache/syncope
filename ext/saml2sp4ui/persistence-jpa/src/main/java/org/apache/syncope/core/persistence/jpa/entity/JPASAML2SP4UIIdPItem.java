@@ -31,9 +31,9 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.jpa.entity.resource.AbstractItem;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdPItem;
+import org.apache.syncope.core.persistence.jpa.entity.resource.AbstractItem;
 
 @Entity
 @Table(name = JPASAML2SP4UIIdPItem.TABLE)

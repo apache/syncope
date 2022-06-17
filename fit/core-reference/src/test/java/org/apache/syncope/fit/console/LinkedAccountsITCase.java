@@ -75,7 +75,7 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
 
     private static final String CONTAINER = TAB_PANEL + "container:content:";
 
-    private static UserTO user;
+    private static UserTO USER;
 
     @BeforeEach
     public void login() {
@@ -92,16 +92,16 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
 
         UserService userService = SyncopeConsoleSession.get().getService(UserService.class);
         Response response = userService.create(userCR);
-        user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        USER = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
-        assertNotNull(user.getKey());
-        assertEquals(account.getConnObjectKeyValue(), user.getLinkedAccounts().get(0).getConnObjectKeyValue());
+        assertNotNull(USER.getKey());
+        assertEquals(account.getConnObjectKeyValue(), USER.getLinkedAccounts().get(0).getConnObjectKeyValue());
     }
 
     @AfterEach
     public void cleanUp() {
         try {
-            SyncopeConsoleSession.get().getService(UserService.class).delete(user.getKey());
+            SyncopeConsoleSession.get().getService(UserService.class).delete(USER.getKey());
         } catch (SyncopeClientException e) {
             if (e.getType() != ClientExceptionType.NotFound) {
                 throw e;
@@ -137,7 +137,7 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
         formTester.setValue("content:view:0:panel:container:property:textField", "username");
         TESTER.executeAjaxEvent(formTester.getForm().
                 get("content:view:0:panel:container:property:textField"), Constants.ON_KEYDOWN);
-        formTester.setValue("content:view:0:panel:container:value:textField", user.getUsername());
+        formTester.setValue("content:view:0:panel:container:value:textField", USER.getUsername());
         TESTER.executeAjaxEvent(formTester.getForm().
                 get("content:view:0:panel:container:value:textField"), Constants.ON_KEYDOWN);
 
@@ -149,7 +149,7 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
         TESTER.assertNoErrorMessage();
 
         // Locate result in data table
-        Component comp = findComponentByProp("username", TAB_PANEL + SEARCH_PANEL + RESULT_DATA_TABLE, user.
+        Component comp = findComponentByProp("username", TAB_PANEL + SEARCH_PANEL + RESULT_DATA_TABLE, USER.
                 getUsername());
         TESTER.executeAjaxEvent(comp.getPageRelativePath(), Constants.ON_CLICK);
 
@@ -181,7 +181,7 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
 
         // User must have been deleted after the merge
         try {
-            userService.read(user.getKey());
+            userService.read(USER.getKey());
             fail("User must have been deleted; expect an exception here");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());

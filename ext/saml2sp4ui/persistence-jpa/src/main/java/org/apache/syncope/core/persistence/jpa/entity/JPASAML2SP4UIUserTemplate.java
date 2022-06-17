@@ -22,9 +22,9 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import org.apache.syncope.core.persistence.jpa.entity.resource.AbstractAnyTemplate;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIUserTemplate;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIUserTemplate;
+import org.apache.syncope.core.persistence.jpa.entity.resource.AbstractAnyTemplate;
 
 @Entity
 @Table(name = JPASAML2SP4UIUserTemplate.TABLE, uniqueConstraints =

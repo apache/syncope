@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.lib;
 
-import org.apache.syncope.client.lib.batch.BatchRequest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -45,14 +44,15 @@ import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.ConnObjectTOFiqlSearchConditionBuilder;
-import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.Preference;

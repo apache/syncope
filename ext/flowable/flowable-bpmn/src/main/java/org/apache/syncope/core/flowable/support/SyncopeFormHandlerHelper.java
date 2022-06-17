@@ -19,8 +19,8 @@
 package org.apache.syncope.core.flowable.support;
 
 import org.flowable.bpmn.model.FlowElement;
-import org.flowable.bpmn.model.UserTask;
 import org.flowable.bpmn.model.Process;
+import org.flowable.bpmn.model.UserTask;
 import org.flowable.engine.impl.form.FormHandlerHelper;
 import org.flowable.engine.impl.form.TaskFormHandler;
 import org.flowable.engine.impl.persistence.entity.DeploymentEntity;

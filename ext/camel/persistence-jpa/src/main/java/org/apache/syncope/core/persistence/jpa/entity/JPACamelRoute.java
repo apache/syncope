@@ -19,9 +19,9 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Entity;
-import javax.persistence.Lob;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AnyTypeKind;

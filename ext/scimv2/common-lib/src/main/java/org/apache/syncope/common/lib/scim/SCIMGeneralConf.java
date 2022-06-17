@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
 
 public class SCIMGeneralConf implements Serializable {

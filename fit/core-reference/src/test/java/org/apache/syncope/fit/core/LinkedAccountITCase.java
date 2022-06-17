@@ -34,14 +34,14 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.syncope.common.lib.request.LinkedAccountUR;
-import org.apache.syncope.common.lib.request.UserCR;
-import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
+import org.apache.syncope.common.lib.request.LinkedAccountUR;
+import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -81,7 +81,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getSample(
                 "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
-        String privilege = applicationService.read("mightyApp").getPrivileges().get(0).getKey();
+        String privilege = APPLICATION_SERVICE.read("mightyApp").getPrivileges().get(0).getKey();
 
         LinkedAccountTO account = new LinkedAccountTO.Builder(RESOURCE_NAME_LDAP, connObjectKeyValue).build();
         account.getPlainAttrs().add(attr("surname", "LINKED_SURNAME"));
@@ -93,7 +93,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertEquals(privilege, user.getLinkedAccounts().get(0).getPrivileges().iterator().next());
 
         // 2. verify that propagation task was generated and that account is found on resource
-        PagedResult<PropagationTaskTO> tasks = taskService.search(
+        PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
                         anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
         assertEquals(1, tasks.getTotalCount());
@@ -101,7 +101,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
         assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
 
-        ConnObjectTO ldapObj = resourceService.readConnObject(
+        ConnObjectTO ldapObj = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), connObjectKeyValue);
         assertNotNull(ldapObj);
         assertEquals(user.getPlainAttr("email").get().getValues(), ldapObj.getAttr("mail").get().getValues());
@@ -120,7 +120,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertEquals(1, user.getLinkedAccounts().size());
 
         // 4 verify that account was updated on resource
-        ldapObj = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), connObjectKeyValue);
+        ldapObj = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), connObjectKeyValue);
         assertNotNull(ldapObj);
 
         assertTrue(ldapObj.getAttr("mail").get().getValues().contains("UPDATED_EMAIL@syncope.apache.org"));
@@ -137,7 +137,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertTrue(user.getLinkedAccounts().isEmpty());
 
         // 6. verify that propagation task was generated and that account is not any more on resource
-        tasks = taskService.search(
+        tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
                         anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
         assertEquals(3, tasks.getTotalCount());
@@ -157,7 +157,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getSample(
                 "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
-        String privilege = applicationService.read("mightyApp").getPrivileges().get(0).getKey();
+        String privilege = APPLICATION_SERVICE.read("mightyApp").getPrivileges().get(0).getKey();
 
         LinkedAccountTO account = new LinkedAccountTO.Builder(RESOURCE_NAME_LDAP, connObjectKeyValue).build();
         account.setUsername("LinkedUsername");
@@ -202,7 +202,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertNotNull(user.getKey());
         assertTrue(user.getLinkedAccounts().isEmpty());
 
-        PagedResult<PropagationTaskTO> tasks = taskService.search(
+        PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
                         anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
         assertEquals(0, tasks.getTotalCount());
@@ -222,7 +222,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertEquals(1, user.getLinkedAccounts().size());
 
         // 3. verify that propagation task was generated and that account is found on resource
-        tasks = taskService.search(
+        tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
                         anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
         assertEquals(1, tasks.getTotalCount());
@@ -230,7 +230,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
         assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
 
-        ConnObjectTO ldapObj = resourceService.readConnObject(
+        ConnObjectTO ldapObj = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), connObjectKeyValue);
         assertNotNull(ldapObj);
         assertEquals(user.getPlainAttr("email").get().getValues(), ldapObj.getAttr("mail").get().getValues());
@@ -318,7 +318,7 @@ public class LinkedAccountITCase extends AbstractITCase {
             assertNotEquals(userKey, connObjectKeyValue);
 
             // 2. verify that account is found on resource
-            PagedResult<PropagationTaskTO> tasks = taskService.search(
+            PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(
                     new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST).
                             anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
             assertEquals(1, tasks.getTotalCount());
@@ -349,19 +349,19 @@ public class LinkedAccountITCase extends AbstractITCase {
             sendUser.setPerformCreate(true);
             sendUser.setPerformUpdate(true);
 
-            response = taskService.create(TaskType.PUSH, sendUser);
+            response = TASK_SERVICE.create(TaskType.PUSH, sendUser);
             sendUser = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
             assertNotNull(sendUser);
 
             // 5. execute PushTask
             AbstractTaskITCase.execProvisioningTask(
-                    taskService, TaskType.PUSH, sendUser.getKey(), MAX_WAIT_SECONDS, false);
+                    TASK_SERVICE, TaskType.PUSH, sendUser.getKey(), MAX_WAIT_SECONDS, false);
 
-            TaskTO task = taskService.read(TaskType.PUSH, sendUser.getKey(), true);
+            TaskTO task = TASK_SERVICE.read(TaskType.PUSH, sendUser.getKey(), true);
             assertEquals(1, task.getExecutions().size());
             assertEquals(ExecStatus.SUCCESS.name(), task.getExecutions().get(0).getStatus());
 
-            tasks = taskService.search(
+            tasks = TASK_SERVICE.search(
                     new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST).
                             anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
             assertEquals(3, tasks.getTotalCount());
@@ -383,7 +383,7 @@ public class LinkedAccountITCase extends AbstractITCase {
                 WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/users/" + connObjectKeyValue).delete();
                 WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/users/" + userKey).delete();
 
-                userService.delete(userKey);
+                USER_SERVICE.delete(userKey);
             }
         }
     }
@@ -393,11 +393,11 @@ public class LinkedAccountITCase extends AbstractITCase {
         // -----------------------------
         // Add a custom policy with correlation rule
         // -----------------------------
-        ResourceTO restResource = resourceService.read(RESOURCE_NAME_REST);
+        ResourceTO restResource = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
         if (restResource.getPullPolicy() == null) {
             ImplementationTO rule = null;
             try {
-                rule = implementationService.read(
+                rule = IMPLEMENTATION_SERVICE.read(
                         IdMImplementationType.PULL_CORRELATION_RULE, "LinkedAccountSamplePullCorrelationRule");
             } catch (SyncopeClientException e) {
                 if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
@@ -406,8 +406,8 @@ public class LinkedAccountITCase extends AbstractITCase {
                     rule.setEngine(ImplementationEngine.JAVA);
                     rule.setType(IdMImplementationType.PULL_CORRELATION_RULE);
                     rule.setBody(POJOHelper.serialize(new LinkedAccountSamplePullCorrelationRuleConf()));
-                    Response response = implementationService.create(rule);
-                    rule = implementationService.read(
+                    Response response = IMPLEMENTATION_SERVICE.create(rule);
+                    rule = IMPLEMENTATION_SERVICE.read(
                             rule.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                     assertNotNull(rule.getKey());
                 }
@@ -417,12 +417,12 @@ public class LinkedAccountITCase extends AbstractITCase {
             PullPolicyTO policy = new PullPolicyTO();
             policy.setName("Linked Account sample Pull policy");
             policy.getCorrelationRules().put(AnyTypeKind.USER.name(), rule.getKey());
-            Response response = policyService.create(PolicyType.PULL, policy);
-            policy = policyService.read(PolicyType.PULL, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+            Response response = POLICY_SERVICE.create(PolicyType.PULL, policy);
+            policy = POLICY_SERVICE.read(PolicyType.PULL, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
             assertNotNull(policy.getKey());
 
             restResource.setPullPolicy(policy.getKey());
-            resourceService.update(restResource);
+            RESOURCE_SERVICE.update(restResource);
         }
 
         // -----------------------------
@@ -431,7 +431,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         // -----------------------------
         String pullTaskKey;
 
-        PagedResult<PullTaskTO> tasks = taskService.search(
+        PagedResult<PullTaskTO> tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PULL).resource(RESOURCE_NAME_REST).build());
         if (tasks.getTotalCount() > 0) {
             pullTaskKey = tasks.getResult().get(0).getKey();
@@ -447,8 +447,8 @@ public class LinkedAccountITCase extends AbstractITCase {
             task.setPerformDelete(true);
             task.setSyncStatus(true);
 
-            Response response = taskService.create(TaskType.PULL, task);
-            task = taskService.read(TaskType.PULL, response.getHeaderString(RESTHeaders.RESOURCE_KEY), false);
+            Response response = TASK_SERVICE.create(TaskType.PULL, task);
+            task = TASK_SERVICE.read(TaskType.PULL, response.getHeaderString(RESTHeaders.RESOURCE_KEY), false);
             assertNotNull(task.getKey());
             pullTaskKey = task.getKey();
         }
@@ -495,15 +495,15 @@ public class LinkedAccountITCase extends AbstractITCase {
 
         // 2. execute pull task and verify linked accounts were pulled
         try {
-            List<LinkedAccountTO> accounts = userService.read("vivaldi").getLinkedAccounts();
+            List<LinkedAccountTO> accounts = USER_SERVICE.read("vivaldi").getLinkedAccounts();
             assertTrue(accounts.isEmpty());
 
             ExecTO exec = AbstractTaskITCase.execProvisioningTask(
-                    taskService, TaskType.PULL, pullTaskKey, MAX_WAIT_SECONDS, false);
+                    TASK_SERVICE, TaskType.PULL, pullTaskKey, MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
             assertTrue(exec.getMessage().contains("Accounts created"));
 
-            accounts = userService.read("vivaldi").getLinkedAccounts();
+            accounts = USER_SERVICE.read("vivaldi").getLinkedAccounts();
             assertEquals(3, accounts.size());
 
             Optional<LinkedAccountTO> firstAccount = accounts.stream().
@@ -549,12 +549,12 @@ public class LinkedAccountITCase extends AbstractITCase {
 
             // 4. execute pull task again and verify linked accounts were pulled
             exec = AbstractTaskITCase.execProvisioningTask(
-                    taskService, TaskType.PULL, pullTaskKey, MAX_WAIT_SECONDS, false);
+                    TASK_SERVICE, TaskType.PULL, pullTaskKey, MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
             assertTrue(exec.getMessage().contains("Accounts updated"));
             assertTrue(exec.getMessage().contains("Accounts deleted"));
 
-            accounts = userService.read("vivaldi").getLinkedAccounts();
+            accounts = USER_SERVICE.read("vivaldi").getLinkedAccounts();
             assertEquals(2, accounts.size());
 
             firstAccount = accounts.stream().
@@ -588,7 +588,7 @@ public class LinkedAccountITCase extends AbstractITCase {
                     operation(PatchOperation.DELETE).
                     linkedAccountTO(new LinkedAccountTO.Builder(RESOURCE_NAME_REST, user3Key).build()).
                     build());
-            userService.update(patch);
+            USER_SERVICE.update(patch);
 
             webClient.replacePath(user2Key).delete();
             webClient.replacePath(user3Key).delete();

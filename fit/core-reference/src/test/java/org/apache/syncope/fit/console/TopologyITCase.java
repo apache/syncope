@@ -22,15 +22,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import java.util.UUID;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.topology.Topology;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.NonI18nPalette;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;

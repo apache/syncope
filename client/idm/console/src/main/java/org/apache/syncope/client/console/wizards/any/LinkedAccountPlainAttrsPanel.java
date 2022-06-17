@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import org.apache.syncope.client.ui.commons.wizards.any.EntityWrapper;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggle;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.util.ArrayList;
@@ -28,21 +27,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.syncope.client.console.commons.LinkedAccountPlainAttrProperty;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.common.lib.EntityTOUtils;
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.LinkedAccountTO;
-import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.client.console.commons.LinkedAccountPlainAttrProperty;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.client.ui.commons.wizards.any.EntityWrapper;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.LinkedAccountTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;

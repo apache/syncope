@@ -19,8 +19,8 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.ws.rs.HttpMethod;

@@ -25,8 +25,8 @@ import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActi
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
-import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.IdRepoAnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.IdRepoExternalResourceProvider;
 import org.apache.syncope.client.console.commons.IdRepoImplementationInfoProvider;

@@ -236,8 +236,8 @@ public class UserTest extends AbstractTest {
         assertNull(user.getPlainAttr("obscure").get().getMembership());
         assertEquals(2, user.getPlainAttrs("obscure").size());
         assertTrue(user.getPlainAttrs("obscure").contains(user.getPlainAttr("obscure").get()));
-        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(plainAttr -> plainAttr.getMembership() == null));
-        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(plainAttr -> newM.equals(plainAttr.getMembership())));
+        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(a -> a.getMembership() == null));
+        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(a -> newM.equals(a.getMembership())));
     }
 
     private LinkedAccount newLinkedAccount(final String connObjectKeyValue) {

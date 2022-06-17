@@ -20,9 +20,11 @@ package org.apache.syncope.wa.starter.saml.idp.metadata;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
+import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.support.saml.idp.metadata.generator.BaseSamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
@@ -30,8 +32,6 @@ import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Optional;
-import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 
 public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerator {
 

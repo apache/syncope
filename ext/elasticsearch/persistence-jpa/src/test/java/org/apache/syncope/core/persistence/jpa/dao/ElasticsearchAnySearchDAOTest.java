@@ -88,7 +88,7 @@ public class ElasticsearchAnySearchDAOTest {
     private ElasticsearchAnySearchDAO searchDAO;
 
     @Test
-    public void getAdminRealmsFilter_realm() throws IOException {
+    public void getAdminRealmsFilter4realm() throws IOException {
         // 1. mock
         Realm root = mock(Realm.class);
         when(root.getFullPath()).thenReturn(SyncopeConstants.ROOT_REALM);
@@ -112,7 +112,7 @@ public class ElasticsearchAnySearchDAOTest {
     }
 
     @Test
-    public void getAdminRealmsFilter_dynRealm() {
+    public void getAdminRealmsFilter4dynRealm() {
         // 1. mock
         DynRealm dyn = mock(DynRealm.class);
         when(dyn.getKey()).thenReturn("dyn");
@@ -129,7 +129,7 @@ public class ElasticsearchAnySearchDAOTest {
     }
 
     @Test
-    public void getAdminRealmsFilter_groupOwner() {
+    public void getAdminRealmsFilter4groupOwner() {
         Set<String> adminRealms = Set.of(RealmUtils.getGroupOwnerRealm("/any", "groupKey"));
         Triple<Optional<Query>, Set<String>, Set<String>> filter =
                 searchDAO.getAdminRealmsFilter(realmDAO.getRoot(), true, adminRealms, AnyTypeKind.USER);
@@ -139,7 +139,7 @@ public class ElasticsearchAnySearchDAOTest {
     }
 
     @Test
-    public void searchRequest_groupOwner() throws IOException {
+    public void searchRequest4groupOwner() throws IOException {
         // 1. mock
         AnyUtils anyUtils = mock(AnyUtils.class);
         when(anyUtils.getField("id")).thenReturn(ReflectionUtils.findField(JPAUser.class, "id"));

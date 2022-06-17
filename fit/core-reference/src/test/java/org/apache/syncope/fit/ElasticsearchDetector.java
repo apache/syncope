@@ -20,9 +20,13 @@ package org.apache.syncope.fit;
 
 import org.apache.syncope.common.lib.info.PlatformInfo;
 
-public class ElasticsearchDetector {
+public final class ElasticsearchDetector {
 
     public static boolean isElasticSearchEnabled(final PlatformInfo platform) {
         return platform.getPersistenceInfo().getAnySearchDAO().contains("Elasticsearch");
     }
+    
+    private ElasticsearchDetector() {
+        // private constructor for static utility class
+    }    
 }

@@ -22,20 +22,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.jupiter.api.Test;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class GroupsITCase extends AbstractConsoleITCase {
 
-    private final static String TAB_PANEL = "body:content:body:container:content:tabbedPanel:panel:searchResult:";
+    private static final String TAB_PANEL = "body:content:body:container:content:tabbedPanel:panel:searchResult:";
 
-    private final static String CONTAINER = TAB_PANEL + "container:content:";
+    private static final String CONTAINER = TAB_PANEL + "container:content:";
 
     @BeforeEach
     public void login() {

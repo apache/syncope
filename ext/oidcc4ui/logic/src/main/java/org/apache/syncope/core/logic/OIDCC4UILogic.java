@@ -32,9 +32,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.oidc.OIDCRequest;
 import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
+import org.apache.syncope.common.lib.oidc.OIDCRequest;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -44,19 +44,19 @@ import org.apache.syncope.core.logic.oidc.OIDC4UIContext;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.logic.oidc.OIDCUserManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
+import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
+import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.Encryptor;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
-import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
-import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.profile.OidcProfile;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 

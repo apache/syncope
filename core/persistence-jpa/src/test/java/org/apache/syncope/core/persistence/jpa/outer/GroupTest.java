@@ -183,8 +183,7 @@ public class GroupTest extends AbstractTest {
                 : ((String) resultKey)).
                 forEach(actualKey -> {
                     Group group = groupDAO.find(actualKey.toString());
-                    if (group == null) {
-                    } else if (!result.contains(group)) {
+                    if (group != null && !result.contains(group)) {
                         result.add(group);
                     }
                 });
@@ -284,8 +283,7 @@ public class GroupTest extends AbstractTest {
                 : ((String) resultKey)).
                 forEach(actualKey -> {
                     Group group = groupDAO.find(actualKey.toString());
-                    if (group == null) {
-                    } else if (!result.contains(group)) {
+                    if (group != null && !result.contains(group)) {
                         result.add(group);
                     }
                 });

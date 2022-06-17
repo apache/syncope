@@ -119,7 +119,7 @@ public class SCIMITCase extends AbstractITCase {
                         findAndAddModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build()))).
                 accept(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 type(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT());
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT());
     }
 
     @Test
@@ -222,10 +222,10 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void conf() {
-        SCIMConf conf = scimConfService.get();
+        SCIMConf conf = SCIM_CONF_SERVICE.get();
         assertNotNull(conf);
 
-        scimConfService.set(CONF);
+        SCIM_CONF_SERVICE.set(CONF);
 
         Response response = webClient().path("Users").path("1417acbe-cbf6-4277-9372-e75e04f97000").get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -309,7 +309,7 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals("additional", additional.getDisplayName());
 
         // gt
-        UserTO newUser = userService.create(UserITCase.getUniqueSample("scimsearch@syncope.apache.org")).
+        UserTO newUser = USER_SERVICE.create(UserITCase.getUniqueSample("scimsearch@syncope.apache.org")).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
 
@@ -355,7 +355,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void createUser() throws JsonProcessingException {
-        scimConfService.set(CONF);
+        SCIM_CONF_SERVICE.set(CONF);
 
         SCIMUser user = getSampleUser(UUID.randomUUID().toString());
         user.getRoles().add(new Value("User reviewer"));
@@ -368,7 +368,7 @@ public class SCIMITCase extends AbstractITCase {
         assertNotNull(user.getId());
         assertTrue(response.getLocation().toASCIIString().endsWith(user.getId()));
 
-        UserTO userTO = userService.read(user.getId());
+        UserTO userTO = USER_SERVICE.read(user.getId());
         assertEquals(user.getUserName(), userTO.getUsername());
         assertTrue(user.isActive());
         assertEquals(user.getDisplayName(), userTO.getDerAttr("cn").get().getValues().get(0));
@@ -383,7 +383,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void replaceUser() {
-        scimConfService.set(CONF);
+        SCIM_CONF_SERVICE.set(CONF);
 
         SCIMUser user = getSampleUser(UUID.randomUUID().toString());
 
@@ -404,7 +404,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void deleteUser() {
-        scimConfService.set(CONF);
+        SCIM_CONF_SERVICE.set(CONF);
 
         SCIMUser user = getSampleUser(UUID.randomUUID().toString());
 

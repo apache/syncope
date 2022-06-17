@@ -30,7 +30,6 @@ import java.util.stream.Stream;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
@@ -46,16 +45,16 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
 import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtils;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
-import org.apache.syncope.core.spring.security.SecurityProperties;
 
 public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
 

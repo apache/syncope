@@ -32,10 +32,10 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.logic.LogicProperties;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.audit.JdbcAuditAppender;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 

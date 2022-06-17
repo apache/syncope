@@ -21,10 +21,10 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.persistence.jpa.entity.JPASAML2SP4UIIdP;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
-import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 
 public class JPASAML2SP4UIIdPDAO extends AbstractDAO<SAML2SP4UIIdP> implements SAML2SP4UIIdPDAO {
 

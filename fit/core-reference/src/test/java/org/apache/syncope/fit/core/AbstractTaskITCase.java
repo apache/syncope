@@ -33,10 +33,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.ResourceDR;
-import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
@@ -61,8 +61,8 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         for (int i = 0; i < 10; i++) {
             String cUserName = "test" + i;
             try {
-                UserTO cUserTO = userService.read(cUserName);
-                userService.delete(cUserTO.getKey());
+                UserTO cUserTO = USER_SERVICE.read(cUserName);
+                USER_SERVICE.delete(cUserTO.getKey());
             } catch (Exception e) {
                 // Ignore
             }
@@ -73,19 +73,19 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
      * Clean Syncope and LDAP resource status.
      */
     protected void ldapCleanup() {
-        groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        GROUP_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
                 build()).getResult().forEach(group -> {
-                    groupService.deassociate(new ResourceDR.Builder().key(group.getKey()).
+                    GROUP_SERVICE.deassociate(new ResourceDR.Builder().key(group.getKey()).
                             action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_LDAP).build());
-                    groupService.delete(group.getKey());
+                    GROUP_SERVICE.delete(group.getKey());
                 });
-        userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
                 build()).getResult().forEach(user -> {
-                    userService.deassociate(new ResourceDR.Builder().key(user.getKey()).
+                    USER_SERVICE.deassociate(new ResourceDR.Builder().key(user.getKey()).
                             action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_LDAP).build());
-                    userService.delete(user.getKey());
+                    USER_SERVICE.delete(user.getKey());
                 });
     }
 
@@ -175,7 +175,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         AtomicReference<NotificationTaskTO> notificationTask = new AtomicReference<>();
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                PagedResult<NotificationTaskTO> tasks = taskService.search(
+                PagedResult<NotificationTaskTO> tasks = TASK_SERVICE.search(
                         new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).build());
                 if (!tasks.getResult().isEmpty()) {
                     notificationTask.set(tasks.getResult().get(0));

@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.ui.commons.panels.AbstractOIDCSSOLoginFormPanel;
 import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.client.ui.commons.panels.AbstractOIDCSSOLoginFormPanel;
 
 public class OIDCSSOLoginFormPanel extends AbstractOIDCSSOLoginFormPanel {
 

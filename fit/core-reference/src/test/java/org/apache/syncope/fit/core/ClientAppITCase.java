@@ -49,7 +49,7 @@ public class ClientAppITCase extends AbstractITCase {
         SAML2SPClientAppTO samlSpTO = buildSAML2SP();
         samlSpTO = createClientApp(ClientAppType.SAML2SP, samlSpTO);
 
-        SAML2SPClientAppTO found = clientAppService.read(ClientAppType.SAML2SP, samlSpTO.getKey());
+        SAML2SPClientAppTO found = CLIENT_APP_SERVICE.read(ClientAppType.SAML2SP, samlSpTO.getKey());
         assertNotNull(found);
         assertFalse(StringUtils.isBlank(found.getEntityId()));
         assertFalse(StringUtils.isBlank(found.getMetadataLocation()));
@@ -74,8 +74,8 @@ public class ClientAppITCase extends AbstractITCase {
         samlSpTO.setEntityId("newEntityId");
         samlSpTO.setAccessPolicy(accessPolicyTO.getKey());
 
-        clientAppService.update(ClientAppType.SAML2SP, samlSpTO);
-        SAML2SPClientAppTO updated = clientAppService.read(ClientAppType.SAML2SP, samlSpTO.getKey());
+        CLIENT_APP_SERVICE.update(ClientAppType.SAML2SP, samlSpTO);
+        SAML2SPClientAppTO updated = CLIENT_APP_SERVICE.read(ClientAppType.SAML2SP, samlSpTO.getKey());
 
         assertNotNull(updated);
         assertEquals("newEntityId", updated.getEntityId());
@@ -87,10 +87,10 @@ public class ClientAppITCase extends AbstractITCase {
         SAML2SPClientAppTO samlSpTO = buildSAML2SP();
         samlSpTO = createClientApp(ClientAppType.SAML2SP, samlSpTO);
 
-        clientAppService.delete(ClientAppType.SAML2SP, samlSpTO.getKey());
+        CLIENT_APP_SERVICE.delete(ClientAppType.SAML2SP, samlSpTO.getKey());
 
         try {
-            clientAppService.read(ClientAppType.SAML2SP, samlSpTO.getKey());
+            CLIENT_APP_SERVICE.read(ClientAppType.SAML2SP, samlSpTO.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertNotNull(e);
@@ -112,7 +112,7 @@ public class ClientAppITCase extends AbstractITCase {
         OIDCRPClientAppTO oidcrpTO = buildOIDCRP();
         oidcrpTO = createClientApp(ClientAppType.OIDCRP, oidcrpTO);
 
-        OIDCRPClientAppTO found = clientAppService.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
+        OIDCRPClientAppTO found = CLIENT_APP_SERVICE.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
         assertNotNull(found);
         assertFalse(StringUtils.isBlank(found.getClientId()));
         assertFalse(StringUtils.isBlank(found.getClientSecret()));
@@ -127,7 +127,7 @@ public class ClientAppITCase extends AbstractITCase {
     public void readCASSP() {
         CASSPClientAppTO casspTO = buildCASSP();
         casspTO = createClientApp(ClientAppType.CASSP, casspTO);
-        CASSPClientAppTO found = clientAppService.read(ClientAppType.CASSP, casspTO.getKey());
+        CASSPClientAppTO found = CLIENT_APP_SERVICE.read(ClientAppType.CASSP, casspTO.getKey());
         assertNotNull(found);
         assertNotNull(found.getServiceId());
         assertNotNull(found.getAccessPolicy());
@@ -148,8 +148,8 @@ public class ClientAppITCase extends AbstractITCase {
         oidcrpTO.setClientId("newClientId");
         oidcrpTO.setAccessPolicy(accessPolicyTO.getKey());
 
-        clientAppService.update(ClientAppType.OIDCRP, oidcrpTO);
-        OIDCRPClientAppTO updated = clientAppService.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
+        CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, oidcrpTO);
+        OIDCRPClientAppTO updated = CLIENT_APP_SERVICE.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
 
         assertNotNull(updated);
         assertEquals("newClientId", updated.getClientId());
@@ -161,10 +161,10 @@ public class ClientAppITCase extends AbstractITCase {
         OIDCRPClientAppTO oidcrpTO = buildOIDCRP();
         oidcrpTO = createClientApp(ClientAppType.OIDCRP, oidcrpTO);
 
-        clientAppService.delete(ClientAppType.OIDCRP, oidcrpTO.getKey());
+        CLIENT_APP_SERVICE.delete(ClientAppType.OIDCRP, oidcrpTO.getKey());
 
         try {
-            clientAppService.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
+            CLIENT_APP_SERVICE.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertNotNull(e);
@@ -176,10 +176,10 @@ public class ClientAppITCase extends AbstractITCase {
         CASSPClientAppTO casspTO = buildCASSP();
         casspTO = createClientApp(ClientAppType.CASSP, casspTO);
 
-        clientAppService.delete(ClientAppType.CASSP, casspTO.getKey());
+        CLIENT_APP_SERVICE.delete(ClientAppType.CASSP, casspTO.getKey());
 
         try {
-            clientAppService.read(ClientAppType.CASSP, casspTO.getKey());
+            CLIENT_APP_SERVICE.read(ClientAppType.CASSP, casspTO.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertNotNull(e);

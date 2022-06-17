@@ -160,7 +160,8 @@ public class SCIMFilterTest {
 
     @Test
     public void type() {
-        SearchCond cond = SearchCondConverter.convert(VISITOR, "userType eq \"Employee\" and (emails.type eq \"work\")");
+        SearchCond cond = SearchCondConverter.convert(
+                VISITOR, "userType eq \"Employee\" and (emails.type eq \"work\")");
         assertNotNull(cond);
         assertEquals(SearchCond.Type.AND, cond.getType());
 

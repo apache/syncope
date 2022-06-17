@@ -19,7 +19,6 @@
 package org.apache.syncope.common.lib.search;
 
 import java.util.Map;
-
 import org.apache.cxf.jaxrs.ext.search.Beanspector;
 import org.apache.cxf.jaxrs.ext.search.ConditionType;
 import org.apache.cxf.jaxrs.ext.search.SimpleSearchCondition;

@@ -27,11 +27,11 @@ import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.auth.SAML2IdPEntityDAO;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPEntity;
+import org.apache.syncope.core.provisioning.api.data.SAML2IdPEntityDataBinder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPEntity;
-import org.apache.syncope.core.persistence.api.dao.auth.SAML2IdPEntityDAO;
-import org.apache.syncope.core.provisioning.api.data.SAML2IdPEntityDataBinder;
 
 public class SAML2IdPEntityLogic extends AbstractTransactionalLogic<SAML2IdPEntityTO> {
 

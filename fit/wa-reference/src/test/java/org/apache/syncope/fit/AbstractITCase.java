@@ -55,7 +55,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbstractITCase {
+public abstract class AbstractITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSRAITCase.class);
 
@@ -73,38 +73,38 @@ public class AbstractITCase {
 
     protected static final String EN_LANGUAGE = "en-US,en;q=0.5";
 
-    protected static SyncopeClientFactoryBean clientFactory;
+    protected static SyncopeClientFactoryBean CLIENT_FACTORY;
 
-    protected static SyncopeClient adminClient;
+    protected static SyncopeClient ADMIN_CLIENT;
 
-    protected static UserService userService;
+    protected static UserService USER_SERVICE;
 
-    protected static PolicyService policyService;
+    protected static PolicyService POLICY_SERVICE;
 
-    protected static ClientAppService clientAppService;
+    protected static ClientAppService CLIENT_APP_SERVICE;
 
-    protected static SRARouteService sraRouteService;
+    protected static SRARouteService SRA_ROUTE_SERVICE;
 
-    protected static SAML2SP4UIIdPService saml2sp4UIIdPService;
+    protected static SAML2SP4UIIdPService SAML2SP4UI_IDP_SERVICE;
 
-    protected static OIDCC4UIProviderService oidcProviderService;
+    protected static OIDCC4UIProviderService OIDCC4UI_PROVIDER_SERVICE;
 
     @BeforeAll
     public static void restSetup() {
-        clientFactory = new SyncopeClientFactoryBean().setAddress(CORE_ADDRESS);
-        adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(CORE_ADDRESS);
+        ADMIN_CLIENT = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
 
-        userService = adminClient.getService(UserService.class);
-        policyService = adminClient.getService(PolicyService.class);
-        clientAppService = adminClient.getService(ClientAppService.class);
-        sraRouteService = adminClient.getService(SRARouteService.class);
-        saml2sp4UIIdPService = adminClient.getService(SAML2SP4UIIdPService.class);
-        oidcProviderService = adminClient.getService(OIDCC4UIProviderService.class);
+        USER_SERVICE = ADMIN_CLIENT.getService(UserService.class);
+        POLICY_SERVICE = ADMIN_CLIENT.getService(PolicyService.class);
+        CLIENT_APP_SERVICE = ADMIN_CLIENT.getService(ClientAppService.class);
+        SRA_ROUTE_SERVICE = ADMIN_CLIENT.getService(SRARouteService.class);
+        SAML2SP4UI_IDP_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIIdPService.class);
+        OIDCC4UI_PROVIDER_SERVICE = ADMIN_CLIENT.getService(OIDCC4UIProviderService.class);
     }
 
     @BeforeAll
     public static void waitForWARefresh() {
-        SAML2IdPEntityService samlIdPEntityService = adminClient.getService(SAML2IdPEntityService.class);
+        SAML2IdPEntityService samlIdPEntityService = ADMIN_CLIENT.getService(SAML2IdPEntityService.class);
 
         await().atMost(50, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             boolean refreshed = false;

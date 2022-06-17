@@ -45,6 +45,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
@@ -57,25 +58,24 @@ import org.apache.syncope.common.lib.request.ResourceAR;
 import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
-import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.request.UserCR;
-import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
@@ -122,7 +122,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void readPrivileges() {
-        Set<String> privileges = userService.read("rossini").getPrivileges();
+        Set<String> privileges = USER_SERVICE.read("rossini").getPrivileges();
         assertNotNull(privileges);
         assertEquals(1, privileges.size());
     }
@@ -137,7 +137,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = createUser(req).getEntity();
 
         // get the propagation task just created
-        PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+        PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
                 anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
@@ -177,12 +177,12 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void enforceMandatoryConditionOnDerived() {
-        ResourceTO resourceTO = resourceService.read(RESOURCE_NAME_CSV);
+        ResourceTO resourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);
         assertNotNull(resourceTO);
         resourceTO.setKey("resource-csv-enforcing");
         resourceTO.setEnforceMandatoryCondition(true);
 
-        Response response = resourceService.create(resourceTO);
+        Response response = RESOURCE_SERVICE.create(resourceTO);
         resourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
         assertNotNull(resourceTO);
 
@@ -204,7 +204,7 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(userTO);
             assertEquals(Set.of(resourceTO.getKey()), userTO.getResources());
         } finally {
-            resourceService.delete(resourceTO.getKey());
+            RESOURCE_SERVICE.delete(resourceTO.getKey());
         }
     }
 
@@ -276,13 +276,13 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void create() {
         // get task list
-        PagedResult<PropagationTaskTO> tasks = taskService.search(
+        PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
         String maxKey = tasks.getResult().iterator().next().getKey();
-        PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, maxKey, true);
+        PropagationTaskTO taskTO = TASK_SERVICE.read(TaskType.PROPAGATION, maxKey, true);
 
         assertNotNull(taskTO);
         int maxTaskExecutions = taskTO.getExecutions().size();
@@ -317,7 +317,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO.getCreationDate());
 
         // get the new task list
-        tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
+        tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -329,7 +329,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(newMaxKey, maxKey);
 
         // get last task
-        taskTO = taskService.read(TaskType.PROPAGATION, newMaxKey, true);
+        taskTO = TASK_SERVICE.read(TaskType.PROPAGATION, newMaxKey, true);
 
         assertNotNull(taskTO);
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
@@ -337,14 +337,14 @@ public class UserITCase extends AbstractITCase {
         // 3. verify password
         try {
             Triple<Map<String, Set<String>>, List<String>, UserTO> self =
-                    clientFactory.create(userTO.getUsername(), "password123").self();
+                    CLIENT_FACTORY.create(userTO.getUsername(), "password123").self();
             assertNotNull(self);
         } catch (AccessControlException e) {
             fail("Credentials should be valid and not cause AccessControlException");
         }
 
         try {
-            clientFactory.create(userTO.getUsername(), "passwordXX").getService(UserSelfService.class);
+            CLIENT_FACTORY.create(userTO.getUsername(), "passwordXX").getService(UserSelfService.class);
             fail("Credentials are invalid, thus request should raise AccessControlException");
         } catch (AccessControlException e) {
             assertNotNull(e);
@@ -398,7 +398,7 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void delete() {
         try {
-            userService.delete(UUID.randomUUID().toString());
+            USER_SERVICE.delete(UUID.randomUUID().toString());
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -423,7 +423,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
         try {
-            userService.delete(userTO.getKey());
+            USER_SERVICE.delete(userTO.getKey());
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -439,7 +439,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = createUser(userCR).getEntity();
 
         String key = userTO.getKey();
-        userTO = userService.read(key);
+        userTO = USER_SERVICE.read(key);
 
         ProvisioningResult<UserTO> result = deleteUser(userTO.getKey());
         assertNotNull(result);
@@ -452,7 +452,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
         try {
-            userService.read(userTO.getKey());
+            USER_SERVICE.read(userTO.getKey());
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -460,7 +460,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        PagedResult<UserTO> users = userService.search(
+        PagedResult<UserTO> users = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(2).build());
         assertNotNull(users);
         assertFalse(users.getResult().isEmpty());
@@ -470,13 +470,13 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(user);
         }
 
-        users = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 page(2).size(2).build());
         assertNotNull(users);
         assertEquals(2, users.getPage());
         assertEquals(2, users.getResult().size());
 
-        users = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 page(100).size(2).build());
         assertNotNull(users);
         assertTrue(users.getResult().isEmpty());
@@ -484,7 +484,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        UserTO userTO = userService.read("1417acbe-cbf6-4277-9372-e75e04f97000");
+        UserTO userTO = USER_SERVICE.read("1417acbe-cbf6-4277-9372-e75e04f97000");
 
         assertNotNull(userTO);
         assertNull(userTO.getPassword());
@@ -522,7 +522,7 @@ public class UserITCase extends AbstractITCase {
             userUR.setKey(userTO.getKey());
             userUR.setPassword(new PasswordPatch.Builder().value("pass").build());
 
-            userService.update(userUR);
+            USER_SERVICE.update(userUR);
         });
     }
 
@@ -539,7 +539,7 @@ public class UserITCase extends AbstractITCase {
             userUR.setKey(userTO.getKey());
             userUR.setPassword(new PasswordPatch.Builder().value("password123").build());
 
-            userService.update(userUR);
+            USER_SERVICE.update(userUR);
         });
     }
 
@@ -601,7 +601,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void updatePasswordOnly() {
-        int beforeTasks = taskService.search(
+        int beforeTasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build()).getTotalCount();
         assertFalse(beforeTasks <= 0);
 
@@ -619,7 +619,7 @@ public class UserITCase extends AbstractITCase {
         // check for changePwdDate
         assertNotNull(userTO.getChangePwdDate());
 
-        int afterTasks = taskService.search(
+        int afterTasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build()).getTotalCount();
         assertFalse(afterTasks <= 0);
 
@@ -630,7 +630,7 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void verifyTaskRegistration() {
         // get task list
-        PagedResult<PropagationTaskTO> tasks = taskService.search(
+        PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
@@ -650,7 +650,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
+        tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -674,13 +674,13 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
+        tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
 
         // default configuration for ws-target-resource2 during update:
         // all update executions have to be registered
         newMaxKey = tasks.getResult().iterator().next().getKey();
 
-        PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, newMaxKey, true);
+        PropagationTaskTO taskTO = TASK_SERVICE.read(TaskType.PROPAGATION, newMaxKey, true);
 
         assertNotNull(taskTO);
         assertEquals(1, taskTO.getExecutions().size());
@@ -688,10 +688,10 @@ public class UserITCase extends AbstractITCase {
         // --------------------------------------
         // Delete operation
         // --------------------------------------
-        userService.delete(userTO.getKey());
+        USER_SERVICE.delete(userTO.getKey());
 
         // get the new task list
-        tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
+        tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
 
         maxKey = newMaxKey;
         newMaxKey = tasks.getResult().iterator().next().getKey();
@@ -703,7 +703,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void createActivate() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform()));
 
         UserCR userCR = getUniqueSample("createActivate@syncope.apache.org");
 
@@ -720,7 +720,7 @@ public class UserITCase extends AbstractITCase {
         StatusR statusR = new StatusR.Builder().key(userTO.getKey()).
                 type(StatusRType.ACTIVATE).token(userTO.getToken()).build();
 
-        userTO = userService.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        userTO = USER_SERVICE.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
 
         assertNotNull(userTO);
@@ -738,21 +738,21 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = createUser(userCR).getEntity();
 
         assertNotNull(userTO);
-        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform())
+        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform())
                 ? "active"
                 : "created", userTO.getStatus());
 
         StatusR statusR = new StatusR.Builder().key(userTO.getKey()).
                 type(StatusRType.SUSPEND).token(userTO.getToken()).build();
 
-        userTO = userService.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        userTO = USER_SERVICE.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
         statusR = new StatusR.Builder().key(userTO.getKey()).type(StatusRType.REACTIVATE).build();
 
-        userTO = userService.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        userTO = USER_SERVICE.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
@@ -761,9 +761,9 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void suspendReactivateOnResource() {
         // Assert resources are present
-        ResourceTO dbTable = resourceService.read(RESOURCE_NAME_TESTDB);
+        ResourceTO dbTable = RESOURCE_SERVICE.read(RESOURCE_NAME_TESTDB);
         assertNotNull(dbTable);
-        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         assertNotNull(ldap);
 
         // Create user with reference to resources
@@ -774,7 +774,7 @@ public class UserITCase extends AbstractITCase {
         userCR.getResources().add(RESOURCE_NAME_LDAP);
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
-        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform())
+        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform())
                 ? "active"
                 : "created", userTO.getStatus());
         String userKey = userTO.getKey();
@@ -785,16 +785,16 @@ public class UserITCase extends AbstractITCase {
                 onSyncope(true).
                 resources(RESOURCE_NAME_TESTDB, RESOURCE_NAME_LDAP).
                 build();
-        userTO = userService.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        userTO = USER_SERVICE.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
         ConnObjectTO connObjectTO =
-                resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userKey);
+                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userKey);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userKey);
+        connObjectTO = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userKey);
         assertNotNull(connObjectTO);
 
         // Suspend and reactivate only on ldap => db and syncope should still show suspended
@@ -803,14 +803,14 @@ public class UserITCase extends AbstractITCase {
                 onSyncope(false).
                 resources(RESOURCE_NAME_LDAP).
                 build();
-        userService.status(statusR);
+        USER_SERVICE.status(statusR);
         statusR.setType(StatusRType.REACTIVATE);
-        userTO = userService.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        userTO = USER_SERVICE.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userKey);
+        connObjectTO = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userKey);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
         // Reactivate on syncope and db => syncope and db should show the user as active
@@ -819,12 +819,12 @@ public class UserITCase extends AbstractITCase {
                 onSyncope(true).
                 resources(RESOURCE_NAME_TESTDB).
                 build();
-        userTO = userService.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        userTO = USER_SERVICE.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userKey);
+        connObjectTO = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userKey);
         assertTrue(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
     }
 
@@ -870,7 +870,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void async() {
-        SyncopeClient asyncClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        SyncopeClient asyncClient = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
         UserService asyncService = SyncopeClient.nullPriorityAsync(asyncClient.getService(UserService.class), true);
 
         UserCR userCR = getUniqueSample("async@syncope.apache.org");
@@ -921,7 +921,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO.getDerAttr("csvuserid"));
 
         ConnObjectTO connObjectTO =
-                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
+                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttr("THEIRGROUP").get().getValues().get(0));
     }
@@ -933,7 +933,7 @@ public class UserITCase extends AbstractITCase {
         implementationTO.setEngine(ImplementationEngine.JAVA);
         implementationTO.setType(IdRepoImplementationType.ACCOUNT_RULE);
         implementationTO.setBody(POJOHelper.serialize(new TestAccountRuleConf()));
-        Response response = implementationService.create(implementationTO);
+        Response response = IMPLEMENTATION_SERVICE.create(implementationTO);
         implementationTO.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         AccountPolicyTO accountPolicy = new AccountPolicyTO();
@@ -947,7 +947,7 @@ public class UserITCase extends AbstractITCase {
         implementationTO.setEngine(ImplementationEngine.JAVA);
         implementationTO.setType(IdRepoImplementationType.PASSWORD_RULE);
         implementationTO.setBody(POJOHelper.serialize(new TestPasswordRuleConf()));
-        response = implementationService.create(implementationTO);
+        response = IMPLEMENTATION_SERVICE.create(implementationTO);
         implementationTO.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         PasswordPolicyTO passwordPolicy = new PasswordPolicyTO();
@@ -956,12 +956,12 @@ public class UserITCase extends AbstractITCase {
         passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
-        RealmTO realm = realmService.search(new RealmQuery.Builder().keyword("two").build()).getResult().get(0);
+        RealmTO realm = REALM_SERVICE.search(new RealmQuery.Builder().keyword("two").build()).getResult().get(0);
         String oldAccountPolicy = realm.getAccountPolicy();
         realm.setAccountPolicy(accountPolicy.getKey());
         String oldPasswordPolicy = realm.getPasswordPolicy();
         realm.setPasswordPolicy(passwordPolicy.getKey());
-        realmService.update(realm);
+        REALM_SERVICE.update(realm);
 
         try {
             UserCR userCR = getUniqueSample("custompolicyrules@syncope.apache.org");
@@ -989,10 +989,10 @@ public class UserITCase extends AbstractITCase {
         } finally {
             realm.setAccountPolicy(oldAccountPolicy);
             realm.setPasswordPolicy(oldPasswordPolicy);
-            realmService.update(realm);
+            REALM_SERVICE.update(realm);
 
-            policyService.delete(PolicyType.PASSWORD, passwordPolicy.getKey());
-            policyService.delete(PolicyType.ACCOUNT, accountPolicy.getKey());
+            POLICY_SERVICE.delete(PolicyType.PASSWORD, passwordPolicy.getKey());
+            POLICY_SERVICE.delete(PolicyType.ACCOUNT, accountPolicy.getKey());
         }
     }
 
@@ -1008,7 +1008,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         ConnObjectTO connObjectTO =
-                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
+                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertFalse(connObjectTO.getAttr("email").isPresent());
     }
 
@@ -1025,7 +1025,7 @@ public class UserITCase extends AbstractITCase {
 
         assertEquals(11, users.size());
 
-        BatchRequest batchRequest = adminClient.batch();
+        BatchRequest batchRequest = ADMIN_CLIENT.batch();
 
         UserService batchUserService = batchRequest.getService(UserService.class);
         users.forEach(user -> batchUserService.status(new StatusR.Builder().key(user).type(StatusRType.SUSPEND).
@@ -1036,7 +1036,7 @@ public class UserITCase extends AbstractITCase {
                 filter(item -> Response.Status.OK.getStatusCode() == item.getStatus()).count());
         assertEquals(1, batchResponseItems.stream().
                 filter(item -> Response.Status.NOT_FOUND.getStatusCode() == item.getStatus()).count());
-        assertEquals("suspended", userService.read(users.get(3)).getStatus());
+        assertEquals("suspended", USER_SERVICE.read(users.get(3)).getStatus());
 
         UserService batchUserService2 = batchRequest.getService(UserService.class);
         users.forEach(user -> batchUserService2.status(new StatusR.Builder().key(user).type(StatusRType.REACTIVATE).
@@ -1047,7 +1047,7 @@ public class UserITCase extends AbstractITCase {
                 filter(item -> Response.Status.OK.getStatusCode() == item.getStatus()).count());
         assertEquals(1, batchResponseItems.stream().
                 filter(item -> Response.Status.NOT_FOUND.getStatusCode() == item.getStatus()).count());
-        assertEquals("active", userService.read(users.get(3)).getStatus());
+        assertEquals("active", USER_SERVICE.read(users.get(3)).getStatus());
 
         UserService batchUserService3 = batchRequest.getService(UserService.class);
         users.forEach(batchUserService3::delete);
@@ -1058,7 +1058,7 @@ public class UserITCase extends AbstractITCase {
                 filter(item -> Response.Status.NOT_FOUND.getStatusCode() == item.getStatus()).count());
 
         try {
-            userService.read(users.get(3));
+            USER_SERVICE.read(users.get(3));
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -1076,18 +1076,18 @@ public class UserITCase extends AbstractITCase {
 
         UserTO actual = createUser(userCR).getEntity();
         assertNotNull(actual);
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
+        assertNotNull(RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
         ResourceDR resourceDR = new ResourceDR.Builder().key(actual.getKey()).
                 action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(parseBatchResponse(userService.deassociate(resourceDR)));
+        assertNotNull(parseBatchResponse(USER_SERVICE.deassociate(resourceDR)));
 
-        actual = userService.read(actual.getKey());
+        actual = USER_SERVICE.read(actual.getKey());
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
 
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
+        assertNotNull(RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
     }
 
     @Test
@@ -1103,7 +1103,7 @@ public class UserITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+            RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
@@ -1112,14 +1112,14 @@ public class UserITCase extends AbstractITCase {
         ResourceAR resourceAR = new ResourceAR.Builder().key(actual.getKey()).
                 action(ResourceAssociationAction.LINK).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(parseBatchResponse(userService.associate(resourceAR)));
+        assertNotNull(parseBatchResponse(USER_SERVICE.associate(resourceAR)));
 
-        actual = userService.read(actual.getKey());
+        actual = USER_SERVICE.read(actual.getKey());
         assertNotNull(actual);
         assertFalse(actual.getResources().isEmpty());
 
         try {
-            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+            RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
@@ -1137,19 +1137,19 @@ public class UserITCase extends AbstractITCase {
 
         UserTO actual = createUser(userCR).getEntity();
         assertNotNull(actual);
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
+        assertNotNull(RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
         ResourceDR resourceDR = new ResourceDR.Builder().key(actual.getKey()).
                 action(ResourceDeassociationAction.UNASSIGN).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(parseBatchResponse(userService.deassociate(resourceDR)));
+        assertNotNull(parseBatchResponse(USER_SERVICE.deassociate(resourceDR)));
 
-        actual = userService.read(actual.getKey());
+        actual = USER_SERVICE.read(actual.getKey());
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+            RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
@@ -1169,7 +1169,7 @@ public class UserITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+            RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
@@ -1178,12 +1178,12 @@ public class UserITCase extends AbstractITCase {
         ResourceAR resourceAR = new ResourceAR.Builder().key(actual.getKey()).
                 value("password").action(ResourceAssociationAction.ASSIGN).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(parseBatchResponse(userService.associate(resourceAR)));
+        assertNotNull(parseBatchResponse(USER_SERVICE.associate(resourceAR)));
 
-        actual = userService.read(actual.getKey());
+        actual = USER_SERVICE.read(actual.getKey());
         assertNotNull(actual);
         assertFalse(actual.getResources().isEmpty());
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
+        assertNotNull(RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
     }
 
     @Test
@@ -1197,19 +1197,19 @@ public class UserITCase extends AbstractITCase {
 
         UserTO actual = createUser(userCR).getEntity();
         assertNotNull(actual);
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
+        assertNotNull(RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
         ResourceDR resourceDR = new ResourceDR.Builder().key(actual.getKey()).
                 action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(parseBatchResponse(userService.deassociate(resourceDR)));
+        assertNotNull(parseBatchResponse(USER_SERVICE.deassociate(resourceDR)));
 
-        actual = userService.read(actual.getKey());
+        actual = USER_SERVICE.read(actual.getKey());
         assertNotNull(actual);
         assertFalse(actual.getResources().isEmpty());
 
         try {
-            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+            RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -1229,7 +1229,7 @@ public class UserITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+            RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
@@ -1238,12 +1238,12 @@ public class UserITCase extends AbstractITCase {
         ResourceAR resourceAR = new ResourceAR.Builder().key(actual.getKey()).
                 value("password").action(ResourceAssociationAction.PROVISION).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(parseBatchResponse(userService.associate(resourceAR)));
+        assertNotNull(parseBatchResponse(USER_SERVICE.associate(resourceAR)));
 
-        actual = userService.read(actual.getKey());
+        actual = USER_SERVICE.read(actual.getKey());
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
+        assertNotNull(RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
     }
 
     @Test
@@ -1259,7 +1259,7 @@ public class UserITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+            RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
@@ -1268,24 +1268,24 @@ public class UserITCase extends AbstractITCase {
         ResourceAR resourceAR = new ResourceAR.Builder().key(actual.getKey()).
                 value("password").action(ResourceAssociationAction.PROVISION).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(parseBatchResponse(userService.associate(resourceAR)));
+        assertNotNull(parseBatchResponse(USER_SERVICE.associate(resourceAR)));
 
-        actual = userService.read(actual.getKey());
+        actual = USER_SERVICE.read(actual.getKey());
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
+        assertNotNull(RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
         ResourceDR resourceDR = new ResourceDR.Builder().key(actual.getKey()).
                 action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_CSV).build();
 
-        assertNotNull(parseBatchResponse(userService.deassociate(resourceDR)));
+        assertNotNull(parseBatchResponse(USER_SERVICE.deassociate(resourceDR)));
 
-        actual = userService.read(actual.getKey());
+        actual = USER_SERVICE.read(actual.getKey());
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
+            RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
@@ -1343,7 +1343,7 @@ public class UserITCase extends AbstractITCase {
         rule.setEngine(ImplementationEngine.JAVA);
         rule.setType(IdRepoImplementationType.PASSWORD_RULE);
         rule.setBody(POJOHelper.serialize(new HaveIBeenPwnedPasswordRuleConf()));
-        Response response = implementationService.create(rule);
+        Response response = IMPLEMENTATION_SERVICE.create(rule);
         rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         PasswordPolicyTO pwdPolicy = new PasswordPolicyTO();
@@ -1355,7 +1355,7 @@ public class UserITCase extends AbstractITCase {
         RealmTO realm = new RealmTO();
         realm.setName("hibp");
         realm.setPasswordPolicy(pwdPolicy.getKey());
-        realmService.create(SyncopeConstants.ROOT_REALM, realm);
+        REALM_SERVICE.create(SyncopeConstants.ROOT_REALM, realm);
 
         UserCR userCR = getUniqueSample("hibp@syncope.apache.org");
         userCR.setRealm("/hibp");

@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Objects;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.wicket.Component;

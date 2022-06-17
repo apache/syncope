@@ -35,10 +35,10 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIUserTemplate;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.jpa.validation.entity.OIDCC4UIProviderCheck;
 
 @Entity

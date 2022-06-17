@@ -20,9 +20,9 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
+import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.core.logic.SAML2SPEntityLogic;
 import org.springframework.stereotype.Service;
-import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 
 @Service
 public class SAML2SPEntityServiceImpl extends AbstractService implements SAML2SPEntityService {

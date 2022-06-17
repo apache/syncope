@@ -22,8 +22,8 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
+import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 

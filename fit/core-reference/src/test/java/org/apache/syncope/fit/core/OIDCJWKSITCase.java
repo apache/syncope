@@ -37,32 +37,32 @@ import org.springframework.http.HttpStatus;
 
 public class OIDCJWKSITCase extends AbstractITCase {
 
-    private static OIDCJWKSService waOIDCJWKSService;
+    private static OIDCJWKSService WA_OIDC_JWKS_SERVICE;
 
     @BeforeAll
     public static void setup() {
-        assumeTrue(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
+        assumeTrue(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
 
-        SyncopeClient anonymous = clientFactory.create(
+        SyncopeClient anonymous = CLIENT_FACTORY.create(
                 new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
-        waOIDCJWKSService = anonymous.getService(OIDCJWKSService.class);
+        WA_OIDC_JWKS_SERVICE = anonymous.getService(OIDCJWKSService.class);
     }
 
     @Test
     public void deleteGetSet() {
         try {
-            oidcJWKSService.delete();
+            OIDC_JWKS_SERVICE.delete();
 
-            waOIDCJWKSService.get();
+            WA_OIDC_JWKS_SERVICE.get();
             fail("Should not locate an OIDC JWKS");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
-        Response response = waOIDCJWKSService.generate(2048, JWSAlgorithm.RS256);
+        Response response = WA_OIDC_JWKS_SERVICE.generate(2048, JWSAlgorithm.RS256);
         assertEquals(HttpStatus.CREATED.value(), response.getStatus());
         try {
-            waOIDCJWKSService.generate(2048, JWSAlgorithm.RS512);
+            WA_OIDC_JWKS_SERVICE.generate(2048, JWSAlgorithm.RS512);
             fail("Should not recreate an OIDC JWKS");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());

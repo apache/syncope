@@ -55,33 +55,33 @@ public class WebAuthnAccountITCase extends AbstractITCase {
     public void listAndFind() {
         String owner = UUID.randomUUID().toString();
         WebAuthnAccount acct = createWebAuthnRegisteredAccount();
-        webAuthnRegistrationService.create(owner, acct);
-        assertFalse(webAuthnRegistrationService.list().isEmpty());
-        assertNotNull(webAuthnRegistrationService.read(owner));
+        WEBAUTHN_REGISTRATION_SERVICE.create(owner, acct);
+        assertFalse(WEBAUTHN_REGISTRATION_SERVICE.list().isEmpty());
+        assertNotNull(WEBAUTHN_REGISTRATION_SERVICE.read(owner));
     }
 
     @Test
     public void deleteByOwner() {
         String owner = UUID.randomUUID().toString();
         WebAuthnAccount acct = createWebAuthnRegisteredAccount();
-        webAuthnRegistrationService.create(owner, acct);
-        webAuthnRegistrationService.delete(owner);
-        assertTrue(webAuthnRegistrationService.read(owner).getCredentials().isEmpty());
+        WEBAUTHN_REGISTRATION_SERVICE.create(owner, acct);
+        WEBAUTHN_REGISTRATION_SERVICE.delete(owner);
+        assertTrue(WEBAUTHN_REGISTRATION_SERVICE.read(owner).getCredentials().isEmpty());
     }
 
     @Test
     public void deleteByAcct() {
         String owner = UUID.randomUUID().toString();
         WebAuthnAccount acct = createWebAuthnRegisteredAccount();
-        webAuthnRegistrationService.create(owner, acct);
-        webAuthnRegistrationService.delete(owner, acct.getCredentials().get(0).getIdentifier());
-        acct = webAuthnRegistrationService.read(owner);
+        WEBAUTHN_REGISTRATION_SERVICE.create(owner, acct);
+        WEBAUTHN_REGISTRATION_SERVICE.delete(owner, acct.getCredentials().get(0).getIdentifier());
+        acct = WEBAUTHN_REGISTRATION_SERVICE.read(owner);
         assertTrue(acct.getCredentials().isEmpty());
     }
 
     @Test
     public void create() {
         WebAuthnAccount acct = createWebAuthnRegisteredAccount();
-        assertDoesNotThrow(() -> webAuthnRegistrationService.create(UUID.randomUUID().toString(), acct));
+        assertDoesNotThrow(() -> WEBAUTHN_REGISTRATION_SERVICE.create(UUID.randomUUID().toString(), acct));
     }
 }

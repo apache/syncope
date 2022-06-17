@@ -19,10 +19,10 @@
 package org.apache.syncope.client.console.tasks;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.StartAtTogglePanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;

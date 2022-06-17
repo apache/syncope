@@ -20,10 +20,10 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import org.apache.syncope.client.console.rest.ApplicationRestClient;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.ApplicationTO;
 import org.apache.syncope.common.lib.to.PrivilegeTO;
 import org.apache.wicket.PageReference;

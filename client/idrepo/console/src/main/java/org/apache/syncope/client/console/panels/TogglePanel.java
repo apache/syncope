@@ -20,13 +20,12 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.console.policies.PolicyRuleWrapper;
 import org.apache.syncope.client.console.reports.ReportletWrapper;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.Attr;

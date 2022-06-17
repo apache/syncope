@@ -26,6 +26,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
+import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -36,7 +37,6 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 
 public abstract class AbstractSAMLSSOLoginFormPanel extends BaseSSOLoginFormPanel {
 

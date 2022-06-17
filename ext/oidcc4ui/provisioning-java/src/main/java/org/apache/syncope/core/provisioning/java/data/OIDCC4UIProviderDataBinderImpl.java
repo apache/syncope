@@ -31,19 +31,19 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.provisioning.api.IntAttrName;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
-import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIEntityFactory;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIUserTemplate;
-import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
+import org.apache.syncope.core.provisioning.api.IntAttrName;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.data.OIDCC4UIProviderDataBinder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinder {
 

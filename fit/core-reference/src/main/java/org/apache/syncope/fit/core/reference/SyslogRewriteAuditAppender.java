@@ -27,8 +27,8 @@ import org.apache.logging.log4j.core.net.Protocol;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.logic.ConnectorLogic;
-import org.apache.syncope.core.logic.audit.DefaultRewriteAuditAppender;
 import org.apache.syncope.core.logic.ResourceLogic;
+import org.apache.syncope.core.logic.audit.DefaultRewriteAuditAppender;
 
 public class SyslogRewriteAuditAppender extends DefaultRewriteAuditAppender {
 

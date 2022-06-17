@@ -18,8 +18,16 @@
  */
 package org.apache.syncope.client.enduser.panels;
 
+import java.util.List;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
+import org.apache.syncope.client.enduser.commons.EnduserConstants;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
+import org.apache.syncope.client.enduser.panels.any.DerAttrs;
+import org.apache.syncope.client.enduser.panels.any.Details;
+import org.apache.syncope.client.enduser.panels.any.Groups;
+import org.apache.syncope.client.enduser.panels.any.PlainAttrs;
+import org.apache.syncope.client.enduser.panels.any.Resources;
+import org.apache.syncope.client.enduser.panels.any.VirAttrs;
 import org.apache.syncope.client.enduser.panels.captcha.CaptchaPanel;
 import org.apache.syncope.client.ui.commons.panels.CardPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
@@ -28,14 +36,6 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
-import java.util.List;
-import org.apache.syncope.client.enduser.commons.EnduserConstants;
-import org.apache.syncope.client.enduser.panels.any.DerAttrs;
-import org.apache.syncope.client.enduser.panels.any.Details;
-import org.apache.syncope.client.enduser.panels.any.Groups;
-import org.apache.syncope.client.enduser.panels.any.PlainAttrs;
-import org.apache.syncope.client.enduser.panels.any.Resources;
-import org.apache.syncope.client.enduser.panels.any.VirAttrs;
 
 public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
 

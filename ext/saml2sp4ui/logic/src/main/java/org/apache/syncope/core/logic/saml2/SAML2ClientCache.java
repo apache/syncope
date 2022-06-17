@@ -32,17 +32,17 @@ import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
-import org.springframework.core.io.ByteArrayResource;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.pac4j.saml.metadata.SAML2IdentityProviderMetadataResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
 
 /**
  * Basic in-memory cache for available {@link SAML2Client} instances.

@@ -19,11 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.spring.security.SecureRandomUtils;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIUserTemplate;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIEntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdPItem;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIUserTemplate;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 public class JPASAML2SP4UIEntityFactory implements SAML2SP4UIEntityFactory {
 

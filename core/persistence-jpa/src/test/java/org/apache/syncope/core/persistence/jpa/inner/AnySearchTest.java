@@ -168,7 +168,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchWithNotCondition_AttrCond() {
+    public void searchWithNotAttrCond() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.EQ);
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("Giuseppe Verdi");
@@ -186,7 +186,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchWithNotCondition_AnyCond() {
+    public void searchWithNotAnyCond() {
         AnyCond usernameLeafCond = new AnyCond(AttrCond.Type.EQ);
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("verdi");

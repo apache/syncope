@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.io.Serializable;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
-
-import java.io.Serializable;
 
 public class MergeLinkedAccountsWizardModel implements Serializable {
     private static final long serialVersionUID = -2420343164344634869L;

@@ -21,9 +21,9 @@ package org.apache.syncope.core.flowable.task;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
-import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.flowable.engine.delegate.DelegateExecution;
 
 /**

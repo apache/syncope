@@ -21,12 +21,12 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 import java.util.Base64;
 import net.shibboleth.utilities.java.support.resolver.ResolverException;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
+import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.opensaml.saml.metadata.resolver.impl.AbstractReloadingMetadataResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 
 public class WASAML2MetadataResolver extends AbstractReloadingMetadataResolver {
 

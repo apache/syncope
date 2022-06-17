@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;

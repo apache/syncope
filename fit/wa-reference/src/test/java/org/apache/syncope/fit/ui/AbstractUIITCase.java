@@ -40,7 +40,7 @@ public abstract class AbstractUIITCase extends AbstractITCase {
         String ldapAuthModule = "DefaultLDAPAuthModule";
         String description = "UI auth policy";
 
-        return policyService.list(PolicyType.AUTH).stream().
+        return POLICY_SERVICE.list(PolicyType.AUTH).stream().
                 map(AuthPolicyTO.class::cast).
                 filter(policy -> description.equals(policy.getName())
                 && policy.getConf() instanceof DefaultAuthPolicyConf
@@ -56,12 +56,12 @@ public abstract class AbstractUIITCase extends AbstractITCase {
                     policy.setName(description);
                     policy.setConf(policyConf);
 
-                    Response response = policyService.create(PolicyType.AUTH, policy);
+                    Response response = POLICY_SERVICE.create(PolicyType.AUTH, policy);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
                         fail("Could not create Test Auth Policy");
                     }
 
-                    return policyService.read(PolicyType.AUTH, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                    return POLICY_SERVICE.read(PolicyType.AUTH, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 });
     }
 
@@ -80,14 +80,14 @@ public abstract class AbstractUIITCase extends AbstractITCase {
     @Test
     public void createUnmatching() throws IOException {
         try {
-            userService.delete("pullFromLDAP");
+            USER_SERVICE.delete("pullFromLDAP");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
         sso(CONSOLE_ADDRESS, "pullFromLDAP", "Password123");
 
-        assertNotNull(userService.read("pullFromLDAP"));
+        assertNotNull(USER_SERVICE.read("pullFromLDAP"));
     }
 
     protected abstract void doSelfReg(Runnable runnable);
@@ -95,7 +95,7 @@ public abstract class AbstractUIITCase extends AbstractITCase {
     @Test
     public void selfRegUnmatching() throws IOException {
         try {
-            userService.delete("pullFromLDAP");
+            USER_SERVICE.delete("pullFromLDAP");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
@@ -109,7 +109,7 @@ public abstract class AbstractUIITCase extends AbstractITCase {
         });
 
         try {
-            userService.read("pullFromLDAP");
+            USER_SERVICE.read("pullFromLDAP");
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
