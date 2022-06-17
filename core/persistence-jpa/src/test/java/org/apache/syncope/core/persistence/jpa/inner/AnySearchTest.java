@@ -375,10 +375,10 @@ public class AnySearchTest extends AbstractTest {
     @Test
     public void searchByResource() {
         ResourceCond ws2 = new ResourceCond();
-        ws2.setResourceKey("ws-target-resource-2");
+        ws2.setResource("ws-target-resource-2");
 
         ResourceCond ws1 = new ResourceCond();
-        ws1.setResourceKey("ws-target-resource-list-mappings-2");
+        ws1.setResource("ws-target-resource-list-mappings-2");
 
         SearchCond searchCondition = SearchCond.getAnd(SearchCond.getNotLeaf(ws2), SearchCond.getLeaf(ws1));
         assertTrue(searchCondition.isValid());
@@ -712,10 +712,10 @@ public class AnySearchTest extends AbstractTest {
     @Test
     public void issue202() {
         ResourceCond ws2 = new ResourceCond();
-        ws2.setResourceKey("ws-target-resource-2");
+        ws2.setResource("ws-target-resource-2");
 
         ResourceCond ws1 = new ResourceCond();
-        ws1.setResourceKey("ws-target-resource-list-mappings-1");
+        ws1.setResource("ws-target-resource-list-mappings-1");
 
         SearchCond searchCondition =
                 SearchCond.getAnd(SearchCond.getNotLeaf(ws2), SearchCond.getNotLeaf(ws1));

@@ -245,7 +245,7 @@ public class SearchCondConverterTest {
         assertEquals(SpecialAttr.RESOURCES + "==resource-ldap", fiql);
 
         ResourceCond resCond = new ResourceCond();
-        resCond.setResourceKey("resource-ldap");
+        resCond.setResource("resource-ldap");
         SearchCond leaf = SearchCond.getLeaf(resCond);
 
         assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
