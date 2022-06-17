@@ -20,9 +20,13 @@ package org.apache.syncope.fit;
 
 import org.apache.syncope.common.lib.info.PlatformInfo;
 
-public class FlowableDetector {
+public final class FlowableDetector {
 
     public static boolean isFlowableEnabledForUserWorkflow(final PlatformInfo platform) {
         return platform.getWorkflowInfo().getUserWorkflowAdapter().contains("Flowable");
+    }
+
+    private FlowableDetector() {
+        // private constructor for static utility class
     }
 }

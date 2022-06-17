@@ -35,13 +35,9 @@ import java.security.cert.CertificateFactory;
 import java.util.Date;
 import java.util.UUID;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPEntity;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPEntityDAO;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPEntity;
+import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.ASN1Integer;
@@ -55,6 +51,10 @@ import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.asn1.x509.TBSCertificate;
 import org.bouncycastle.asn1.x509.Time;
 import org.bouncycastle.asn1.x509.V3TBSCertificateGenerator;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class SAML2SPEntityTest extends AbstractTest {

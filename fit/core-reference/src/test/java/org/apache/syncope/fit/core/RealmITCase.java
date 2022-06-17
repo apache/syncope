@@ -33,23 +33,23 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
-import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
-import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
-import org.apache.syncope.common.lib.policy.AccountPolicyTO;
-import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.service.RealmService;
@@ -61,24 +61,24 @@ import org.junit.jupiter.api.Test;
 public class RealmITCase extends AbstractITCase {
 
     private static Optional<RealmTO> getRealm(final String fullPath) {
-        return realmService.list(fullPath).stream().filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
+        return REALM_SERVICE.list(fullPath).stream().filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
     }
 
     @Test
     public void search() {
-        PagedResult<RealmTO> match = realmService.search(new RealmQuery.Builder().keyword("*o*").build());
+        PagedResult<RealmTO> match = REALM_SERVICE.search(new RealmQuery.Builder().keyword("*o*").build());
         assertTrue(match.getResult().stream().allMatch(realm -> realm.getName().contains("o")));
     }
 
     @Test
     public void list() {
-        List<RealmTO> realms = realmService.list(SyncopeConstants.ROOT_REALM);
+        List<RealmTO> realms = REALM_SERVICE.list(SyncopeConstants.ROOT_REALM);
         assertNotNull(realms);
         assertFalse(realms.isEmpty());
         realms.forEach(Assertions::assertNotNull);
 
         try {
-            realmService.list("a name");
+            REALM_SERVICE.list("a name");
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPath, e.getType());
@@ -91,7 +91,7 @@ public class RealmITCase extends AbstractITCase {
         realm.setName("last");
 
         // 1. create
-        Response response = realmService.create("/even/two", realm);
+        Response response = REALM_SERVICE.create("/even/two", realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
         assertTrue(actuals.length > 0);
@@ -109,7 +109,7 @@ public class RealmITCase extends AbstractITCase {
         actual.setAuthPolicy("b912a0d4-a890-416f-9ab8-84ab077eb028");
         actual.setAccessPolicy("419935c7-deb3-40b3-8a9a-683037e523a2");
         actual.setAttrReleasePolicy("319935c7-deb3-40b3-8a9a-683037e523a2");
-        realmService.update(actual);
+        REALM_SERVICE.update(actual);
 
         actual = getRealm(actual.getFullPath()).get();
         assertNotNull(actual.getAccountPolicy());
@@ -120,18 +120,18 @@ public class RealmITCase extends AbstractITCase {
 
         // 3. update changing parent
         actual.setParent(getRealm("/odd").get().getKey());
-        realmService.update(actual);
+        REALM_SERVICE.update(actual);
 
         actual = getRealm("/odd/last").get();
         assertNotNull(actual);
         assertEquals("/odd/last", actual.getFullPath());
 
-        assertEquals(1, realmService.list(SyncopeConstants.ROOT_REALM).stream().
+        assertEquals(1, REALM_SERVICE.list(SyncopeConstants.ROOT_REALM).stream().
                 filter(object -> realm.getName().equals(object.getName())).count());
 
         // 4. create under invalid path
         try {
-            realmService.create("a name", realm);
+            REALM_SERVICE.create("a name", realm);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPath, e.getType());
@@ -139,7 +139,7 @@ public class RealmITCase extends AbstractITCase {
 
         // 5. attempt to create duplicate
         try {
-            realmService.create("/odd", realm);
+            REALM_SERVICE.create("/odd", realm);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());
@@ -151,10 +151,10 @@ public class RealmITCase extends AbstractITCase {
         RealmTO realm = new RealmTO();
         realm.setName("73~1~19534");
 
-        Response response = realmService.create("/even/two", realm);
+        Response response = REALM_SERVICE.create("/even/two", realm);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
-        List<RealmTO> realms = realmService.list("/even/two/73~1~19534");
+        List<RealmTO> realms = REALM_SERVICE.list("/even/two/73~1~19534");
         assertEquals(1, realms.size());
         assertEquals(realm.getName(), realms.get(0).getName());
     }
@@ -171,7 +171,7 @@ public class RealmITCase extends AbstractITCase {
         rule.setEngine(ImplementationEngine.JAVA);
         rule.setType(IdRepoImplementationType.ACCOUNT_RULE);
         rule.setBody(POJOHelper.serialize(ruleConf));
-        Response response = implementationService.create(rule);
+        Response response = IMPLEMENTATION_SERVICE.create(rule);
         rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         AccountPolicyTO policy = new AccountPolicyTO();
@@ -185,7 +185,7 @@ public class RealmITCase extends AbstractITCase {
         RealmTO realm = new RealmTO();
         realm.setName("withPolicy");
 
-        response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
+        response = REALM_SERVICE.create(SyncopeConstants.ROOT_REALM, realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
         assertTrue(actuals.length > 0);
@@ -194,7 +194,7 @@ public class RealmITCase extends AbstractITCase {
         String existingAccountPolicy = realm.getAccountPolicy();
 
         realm.setAccountPolicy(policy.getKey());
-        realmService.update(realm);
+        REALM_SERVICE.update(realm);
 
         actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
@@ -203,7 +203,7 @@ public class RealmITCase extends AbstractITCase {
         assertEquals(policy.getKey(), actual.getAccountPolicy());
 
         // 3. remove policy
-        policyService.delete(PolicyType.ACCOUNT, policy.getKey());
+        POLICY_SERVICE.delete(PolicyType.ACCOUNT, policy.getKey());
 
         // 4. verify
         actual = getRealm(actual.getFullPath()).get();
@@ -226,7 +226,7 @@ public class RealmITCase extends AbstractITCase {
         RealmTO realm = new RealmTO();
         realm.setName("withAuthPolicy");
 
-        Response response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
+        Response response = REALM_SERVICE.create(SyncopeConstants.ROOT_REALM, realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
         assertTrue(actuals.length > 0);
@@ -235,7 +235,7 @@ public class RealmITCase extends AbstractITCase {
         String existingAuthPolicy = realm.getAuthPolicy();
 
         realm.setAuthPolicy(policy.getKey());
-        realmService.update(realm);
+        REALM_SERVICE.update(realm);
 
         actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
@@ -244,7 +244,7 @@ public class RealmITCase extends AbstractITCase {
         assertEquals(policy.getKey(), actual.getAuthPolicy());
 
         // 3. remove policy
-        policyService.delete(PolicyType.AUTH, policy.getKey());
+        POLICY_SERVICE.delete(PolicyType.AUTH, policy.getKey());
 
         // 4. verify
         actual = getRealm(actual.getFullPath()).get();
@@ -267,7 +267,7 @@ public class RealmITCase extends AbstractITCase {
         RealmTO realm = new RealmTO();
         realm.setName("withAccessPolicy");
 
-        Response response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
+        Response response = REALM_SERVICE.create(SyncopeConstants.ROOT_REALM, realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
         assertTrue(actuals.length > 0);
@@ -276,7 +276,7 @@ public class RealmITCase extends AbstractITCase {
         String existingAccessPolicy = realm.getAccessPolicy();
 
         realm.setAccessPolicy(policy.getKey());
-        realmService.update(realm);
+        REALM_SERVICE.update(realm);
 
         actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
@@ -285,7 +285,7 @@ public class RealmITCase extends AbstractITCase {
         assertEquals(policy.getKey(), actual.getAccessPolicy());
 
         // 3. remove policy
-        policyService.delete(PolicyType.ACCESS, policy.getKey());
+        POLICY_SERVICE.delete(PolicyType.ACCESS, policy.getKey());
 
         // 4. verify
         actual = getRealm(actual.getFullPath()).get();
@@ -309,7 +309,7 @@ public class RealmITCase extends AbstractITCase {
         RealmTO realm = new RealmTO();
         realm.setName("withAttrReleasePolicy");
 
-        Response response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
+        Response response = REALM_SERVICE.create(SyncopeConstants.ROOT_REALM, realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
         assertTrue(actuals.length > 0);
@@ -318,7 +318,7 @@ public class RealmITCase extends AbstractITCase {
         String existingAttrReleasePolicy = realm.getAttrReleasePolicy();
 
         realm.setAttrReleasePolicy(policy.getKey());
-        realmService.update(realm);
+        REALM_SERVICE.update(realm);
 
         actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
@@ -327,7 +327,7 @@ public class RealmITCase extends AbstractITCase {
         assertEquals(policy.getKey(), actual.getAttrReleasePolicy());
 
         // 3. remove policy
-        policyService.delete(PolicyType.ATTR_RELEASE, policy.getKey());
+        POLICY_SERVICE.delete(PolicyType.ATTR_RELEASE, policy.getKey());
 
         // 4. verify
         actual = getRealm(actual.getFullPath()).get();
@@ -339,16 +339,16 @@ public class RealmITCase extends AbstractITCase {
         RealmTO realm = new RealmTO();
         realm.setName("deletable3");
 
-        Response response = realmService.create("/even/two", realm);
+        Response response = REALM_SERVICE.create("/even/two", realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
         assertTrue(actuals.length > 0);
         RealmTO actual = actuals[0];
 
-        realmService.delete(actual.getFullPath());
+        REALM_SERVICE.delete(actual.getFullPath());
 
         try {
-            realmService.list(actual.getFullPath());
+            REALM_SERVICE.list(actual.getFullPath());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -358,7 +358,7 @@ public class RealmITCase extends AbstractITCase {
     @Test
     public void deleteNonEmpty() {
         try {
-            realmService.delete("/even/two");
+            REALM_SERVICE.delete("/even/two");
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.AssociatedAnys, e.getType());
@@ -380,7 +380,7 @@ public class RealmITCase extends AbstractITCase {
         descendantRealm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
 
         // 2. check propagation
-        ProvisioningResult<RealmTO> result = realmService.create("/", realm).readEntity(
+        ProvisioningResult<RealmTO> result = REALM_SERVICE.create("/", realm).readEntity(
             new GenericType<>() {
             });
         assertNotNull(result);
@@ -388,7 +388,7 @@ public class RealmITCase extends AbstractITCase {
         assertEquals(RESOURCE_NAME_LDAP_ORGUNIT, result.getPropagationStatuses().get(0).getResource());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
-        ProvisioningResult<RealmTO> resultChild = realmService.create("/test", childRealm).readEntity(
+        ProvisioningResult<RealmTO> resultChild = REALM_SERVICE.create("/test", childRealm).readEntity(
             new GenericType<>() {
             });
         assertNotNull(resultChild);
@@ -396,7 +396,7 @@ public class RealmITCase extends AbstractITCase {
         assertEquals(RESOURCE_NAME_LDAP_ORGUNIT, resultChild.getPropagationStatuses().get(0).getResource());
         assertEquals(ExecStatus.SUCCESS, resultChild.getPropagationStatuses().get(0).getStatus());
 
-        ProvisioningResult<RealmTO> resultDescendant = realmService.create("/test/child", descendantRealm).readEntity(
+        ProvisioningResult<RealmTO> resultDescendant = REALM_SERVICE.create("/test/child", descendantRealm).readEntity(
             new GenericType<>() {
             });
         assertNotNull(resultDescendant);
@@ -413,9 +413,9 @@ public class RealmITCase extends AbstractITCase {
                 getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=test,ou=child,ou=test,o=isp"));
 
         // 4. remove realms
-        realmService.delete("/test/child/test");
-        realmService.delete("/test/child");
-        realmService.delete("/test");
+        REALM_SERVICE.delete("/test/child/test");
+        REALM_SERVICE.delete("/test/child");
+        REALM_SERVICE.delete("/test");
 
         // 5. check on LDAP: both realms should be deleted
         assertNull(
@@ -429,17 +429,17 @@ public class RealmITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1472() {
         // 1. assign twice resource-ldap-orgunit to /odd
-        RealmTO realmTO = realmService.list("/odd").get(0);
+        RealmTO realmTO = REALM_SERVICE.list("/odd").get(0);
         realmTO.getResources().clear();
         realmTO.getResources().add("resource-ldap-orgunit");
         realmTO.getResources().add("resource-ldap-orgunit");
-        realmTO = realmService.update(realmTO).readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
+        realmTO = REALM_SERVICE.update(realmTO).readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
         }).getEntity();
 
         // 2. remove resource-ldap-orgunit resource
         realmTO.getResources().remove("resource-ldap-orgunit");
 
-        realmTO = realmService.update(realmTO).readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
+        realmTO = REALM_SERVICE.update(realmTO).readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
         }).getEntity();
 
         assertFalse(realmTO.getResources().contains("resource-ldap-orgunit"), "Should not contain removed resources");

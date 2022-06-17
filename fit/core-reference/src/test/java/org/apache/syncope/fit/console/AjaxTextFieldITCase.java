@@ -22,12 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.util.string.Strings;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.validation.validator.StringValidator;
 import org.junit.jupiter.api.Test;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 
 public class AjaxTextFieldITCase extends AbstractConsoleITCase {
 

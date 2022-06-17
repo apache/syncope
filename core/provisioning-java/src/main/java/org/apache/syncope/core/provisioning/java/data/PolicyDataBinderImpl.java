@@ -19,15 +19,15 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.stream.Collectors;
-import org.apache.syncope.common.lib.policy.AccountPolicyTO;
-import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
-import org.apache.syncope.common.lib.policy.PolicyTO;
-import org.apache.syncope.common.lib.policy.PullPolicyTO;
-import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
+import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
+import org.apache.syncope.common.lib.policy.PullPolicyTO;
+import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;

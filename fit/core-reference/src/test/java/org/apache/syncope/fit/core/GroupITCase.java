@@ -47,37 +47,37 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
-import org.apache.syncope.common.lib.request.ResourceAR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
-import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.ResourceAR;
+import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -85,9 +85,9 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
@@ -134,7 +134,7 @@ public class GroupITCase extends AbstractITCase {
         assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         ConnObjectTO connObjectTO =
-                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttr("owner"));
 
@@ -157,7 +157,7 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void delete() {
         try {
-            groupService.delete(UUID.randomUUID().toString());
+            GROUP_SERVICE.delete(UUID.randomUUID().toString());
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -175,7 +175,7 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(deletedGroup);
 
         try {
-            groupService.read(deletedGroup.getKey());
+            GROUP_SERVICE.read(deletedGroup.getKey());
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -184,7 +184,7 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void list() {
         PagedResult<GroupTO> groupTOs =
-                groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
+                GROUP_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
         assertNotNull(groupTOs);
         assertTrue(groupTOs.getResult().size() >= 8);
         groupTOs.getResult().forEach(Assertions::assertNotNull);
@@ -192,7 +192,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        GroupTO groupTO = groupService.read("37d15e4c-cdc1-460b-a591-8505c8133806");
+        GroupTO groupTO = GROUP_SERVICE.read("37d15e4c-cdc1-460b-a591-8505c8133806");
 
         assertNotNull(groupTO);
         assertNotNull(groupTO.getPlainAttrs());
@@ -202,13 +202,13 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void selfRead() {
-        UserTO userTO = userService.read("1417acbe-cbf6-4277-9372-e75e04f97000");
+        UserTO userTO = USER_SERVICE.read("1417acbe-cbf6-4277-9372-e75e04f97000");
         assertNotNull(userTO);
 
         assertTrue(userTO.getMembership("37d15e4c-cdc1-460b-a591-8505c8133806").isPresent());
         assertFalse(userTO.getMembership("29f96485-729e-4d31-88a1-6fc60e4677f3").isPresent());
 
-        GroupService groupService2 = clientFactory.create("rossini", ADMIN_PWD).getService(GroupService.class);
+        GroupService groupService2 = CLIENT_FACTORY.create("rossini", ADMIN_PWD).getService(GroupService.class);
 
         try {
             groupService2.read("29f96485-729e-4d31-88a1-6fc60e4677f3");
@@ -269,7 +269,7 @@ public class GroupITCase extends AbstractITCase {
         created.getPlainAttrs().add(new Attr.Builder("rderived_dx").value("dx").build());
         created.getPlainAttrs().add(new Attr.Builder("title").value("mr").build());
 
-        GroupTO original = groupService.read(created.getKey());
+        GroupTO original = GROUP_SERVICE.read(created.getKey());
 
         GroupUR groupUR = AnyOperations.diff(created, original, true);
         GroupTO updated = updateGroup(groupUR).getEntity();
@@ -285,7 +285,7 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void updateAsGroupOwner() {
         // 1. read group as admin
-        GroupTO groupTO = groupService.read("ebf97068-aa4b-4a85-9f01-680e8c4cf227");
+        GroupTO groupTO = GROUP_SERVICE.read("ebf97068-aa4b-4a85-9f01-680e8c4cf227");
 
         // issue SYNCOPE-15
         assertNotNull(groupTO.getCreationDate());
@@ -299,7 +299,7 @@ public class GroupITCase extends AbstractITCase {
         groupUR.setName(new StringReplacePatchItem.Builder().value("Director").build());
 
         // 3. try to update as verdi, not owner of group 6 - fail
-        GroupService groupService2 = clientFactory.create("verdi", ADMIN_PWD).getService(GroupService.class);
+        GroupService groupService2 = CLIENT_FACTORY.create("verdi", ADMIN_PWD).getService(GroupService.class);
 
         try {
             groupService2.update(groupUR);
@@ -309,7 +309,7 @@ public class GroupITCase extends AbstractITCase {
         }
 
         // 4. update as puccini, owner of group 6 - success
-        GroupService groupService3 = clientFactory.create("puccini", ADMIN_PWD).getService(GroupService.class);
+        GroupService groupService3 = CLIENT_FACTORY.create("puccini", ADMIN_PWD).getService(GroupService.class);
 
         groupTO = groupService3.update(groupUR).readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
         }).getEntity();
@@ -328,18 +328,18 @@ public class GroupITCase extends AbstractITCase {
         GroupTO actual = createGroup(getSample("unlink")).getEntity();
         assertNotNull(actual);
 
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
+        assertNotNull(RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
 
         ResourceDR resourceDR = new ResourceDR.Builder().key(actual.getKey()).
                 action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_LDAP).build();
 
-        assertNotNull(parseBatchResponse(groupService.deassociate(resourceDR)));
+        assertNotNull(parseBatchResponse(GROUP_SERVICE.deassociate(resourceDR)));
 
-        actual = groupService.read(actual.getKey());
+        actual = GROUP_SERVICE.read(actual.getKey());
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
 
-        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
+        assertNotNull(RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
     }
 
     @Test
@@ -351,7 +351,7 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(actual);
 
         try {
-            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
+            RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
             fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
@@ -360,13 +360,13 @@ public class GroupITCase extends AbstractITCase {
         ResourceAR resourceAR = new ResourceAR.Builder().key(actual.getKey()).
                 action(ResourceAssociationAction.LINK).resource(RESOURCE_NAME_LDAP).build();
 
-        assertNotNull(parseBatchResponse(groupService.associate(resourceAR)));
+        assertNotNull(parseBatchResponse(GROUP_SERVICE.associate(resourceAR)));
 
-        actual = groupService.read(actual.getKey());
+        actual = GROUP_SERVICE.read(actual.getKey());
         assertFalse(actual.getResources().isEmpty());
 
         try {
-            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
+            RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
             fail("This should not happen");
         } catch (Exception e) {
             assertNotNull(e);
@@ -381,7 +381,7 @@ public class GroupITCase extends AbstractITCase {
             groupTO = createGroup(getSample("unassign")).getEntity();
             assertNotNull(groupTO);
 
-            assertNotNull(resourceService.readConnObject(
+            assertNotNull(RESOURCE_SERVICE.readConnObject(
                     RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey()));
 
             ResourceDR resourceDR = new ResourceDR();
@@ -389,21 +389,21 @@ public class GroupITCase extends AbstractITCase {
             resourceDR.setAction(ResourceDeassociationAction.UNASSIGN);
             resourceDR.getResources().add(RESOURCE_NAME_LDAP);
 
-            assertNotNull(parseBatchResponse(groupService.deassociate(resourceDR)));
+            assertNotNull(parseBatchResponse(GROUP_SERVICE.deassociate(resourceDR)));
 
-            groupTO = groupService.read(groupTO.getKey());
+            groupTO = GROUP_SERVICE.read(groupTO.getKey());
             assertNotNull(groupTO);
             assertTrue(groupTO.getResources().isEmpty());
 
             try {
-                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
                 fail("This should not happen");
             } catch (Exception e) {
                 assertNotNull(e);
             }
         } finally {
             if (groupTO != null) {
-                groupService.delete(groupTO.getKey());
+                GROUP_SERVICE.delete(groupTO.getKey());
             }
         }
     }
@@ -419,7 +419,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(groupTO);
 
             try {
-                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
                 fail("This should not happen");
             } catch (Exception e) {
                 assertNotNull(e);
@@ -428,15 +428,15 @@ public class GroupITCase extends AbstractITCase {
             ResourceAR resourceAR = new ResourceAR.Builder().key(groupTO.getKey()).
                     action(ResourceAssociationAction.ASSIGN).resource(RESOURCE_NAME_LDAP).build();
 
-            assertNotNull(parseBatchResponse(groupService.associate(resourceAR)));
+            assertNotNull(parseBatchResponse(GROUP_SERVICE.associate(resourceAR)));
 
-            groupTO = groupService.read(groupTO.getKey());
+            groupTO = GROUP_SERVICE.read(groupTO.getKey());
             assertFalse(groupTO.getResources().isEmpty());
-            assertNotNull(resourceService.readConnObject(
+            assertNotNull(RESOURCE_SERVICE.readConnObject(
                     RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey()));
         } finally {
             if (groupTO != null) {
-                groupService.delete(groupTO.getKey());
+                GROUP_SERVICE.delete(groupTO.getKey());
             }
         }
     }
@@ -450,26 +450,27 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(groupTO);
             assertNotNull(groupTO.getKey());
 
-            assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey()));
+            assertNotNull(
+                    RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey()));
 
             ResourceDR resourceDR = new ResourceDR.Builder().key(groupTO.getKey()).
                     action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_LDAP).build();
 
-            assertNotNull(parseBatchResponse(groupService.deassociate(resourceDR)));
+            assertNotNull(parseBatchResponse(GROUP_SERVICE.deassociate(resourceDR)));
 
-            groupTO = groupService.read(groupTO.getKey());
+            groupTO = GROUP_SERVICE.read(groupTO.getKey());
             assertNotNull(groupTO);
             assertFalse(groupTO.getResources().isEmpty());
 
             try {
-                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
                 fail("This should not happen");
             } catch (Exception e) {
                 assertNotNull(e);
             }
         } finally {
             if (groupTO != null) {
-                groupService.delete(groupTO.getKey());
+                GROUP_SERVICE.delete(groupTO.getKey());
             }
         }
     }
@@ -485,7 +486,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(groupTO);
 
             try {
-                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
                 fail("This should not happen");
             } catch (Exception e) {
                 assertNotNull(e);
@@ -494,16 +495,16 @@ public class GroupITCase extends AbstractITCase {
             ResourceAR resourceAR = new ResourceAR.Builder().key(groupTO.getKey()).
                     action(ResourceAssociationAction.PROVISION).resource(RESOURCE_NAME_LDAP).build();
 
-            assertNotNull(parseBatchResponse(groupService.associate(resourceAR)));
+            assertNotNull(parseBatchResponse(GROUP_SERVICE.associate(resourceAR)));
 
-            groupTO = groupService.read(groupTO.getKey());
+            groupTO = GROUP_SERVICE.read(groupTO.getKey());
             assertTrue(groupTO.getResources().isEmpty());
 
-            assertNotNull(resourceService.readConnObject(
+            assertNotNull(RESOURCE_SERVICE.readConnObject(
                     RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey()));
         } finally {
             if (groupTO != null) {
-                groupService.delete(groupTO.getKey());
+                GROUP_SERVICE.delete(groupTO.getKey());
             }
         }
     }
@@ -519,7 +520,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(groupTO);
 
             try {
-                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
                 fail("This should not happen");
             } catch (Exception e) {
                 assertNotNull(e);
@@ -528,32 +529,32 @@ public class GroupITCase extends AbstractITCase {
             ResourceAR resourceAR = new ResourceAR.Builder().key(groupTO.getKey()).
                     action(ResourceAssociationAction.PROVISION).resource(RESOURCE_NAME_LDAP).build();
 
-            assertNotNull(parseBatchResponse(groupService.associate(resourceAR)));
+            assertNotNull(parseBatchResponse(GROUP_SERVICE.associate(resourceAR)));
 
-            groupTO = groupService.read(groupTO.getKey());
+            groupTO = GROUP_SERVICE.read(groupTO.getKey());
             assertTrue(groupTO.getResources().isEmpty());
 
-            assertNotNull(resourceService.readConnObject(
+            assertNotNull(RESOURCE_SERVICE.readConnObject(
                     RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey()));
 
             ResourceDR resourceDR = new ResourceDR.Builder().key(groupTO.getKey()).
                     action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_LDAP).build();
 
-            assertNotNull(parseBatchResponse(groupService.deassociate(resourceDR)));
+            assertNotNull(parseBatchResponse(GROUP_SERVICE.deassociate(resourceDR)));
 
-            groupTO = groupService.read(groupTO.getKey());
+            groupTO = GROUP_SERVICE.read(groupTO.getKey());
             assertNotNull(groupTO);
             assertTrue(groupTO.getResources().isEmpty());
 
             try {
-                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
                 fail("This should not happen");
             } catch (Exception e) {
                 assertNotNull(e);
             }
         } finally {
             if (groupTO != null) {
-                groupService.delete(groupTO.getKey());
+                GROUP_SERVICE.delete(groupTO.getKey());
             }
         }
     }
@@ -564,7 +565,7 @@ public class GroupITCase extends AbstractITCase {
         PlainSchemaTO badge = new PlainSchemaTO();
         badge.setKey("badge" + getUUIDString());
         badge.setMandatoryCondition("true");
-        schemaService.create(SchemaType.PLAIN, badge);
+        SCHEMA_SERVICE.create(SchemaType.PLAIN, badge);
 
         // 2. create a group *without* an attribute for that schema: it works
         GroupCR groupCR = getSample("lastGroup");
@@ -573,12 +574,12 @@ public class GroupITCase extends AbstractITCase {
         assertFalse(groupTO.getPlainAttr(badge.getKey()).isPresent());
 
         // 3. add the new mandatory schema to the default group type
-        AnyTypeTO type = anyTypeService.read(AnyTypeKind.GROUP.name());
+        AnyTypeTO type = ANY_TYPE_SERVICE.read(AnyTypeKind.GROUP.name());
         String typeClassName = type.getClasses().get(0);
-        AnyTypeClassTO typeClass = anyTypeClassService.read(typeClassName);
+        AnyTypeClassTO typeClass = ANY_TYPE_CLASS_SERVICE.read(typeClassName);
         typeClass.getPlainSchemas().add(badge.getKey());
-        anyTypeClassService.update(typeClass);
-        typeClass = anyTypeClassService.read(typeClassName);
+        ANY_TYPE_CLASS_SERVICE.update(typeClass);
+        typeClass = ANY_TYPE_CLASS_SERVICE.read(typeClassName);
         assertTrue(typeClass.getPlainSchemas().contains(badge.getKey()));
 
         try {
@@ -602,8 +603,8 @@ public class GroupITCase extends AbstractITCase {
         } finally {
             // restore the original group class
             typeClass.getPlainSchemas().remove(badge.getKey());
-            anyTypeClassService.update(typeClass);
-            typeClass = anyTypeClassService.read(typeClassName);
+            ANY_TYPE_CLASS_SERVICE.update(typeClass);
+            typeClass = ANY_TYPE_CLASS_SERVICE.read(typeClassName);
             assertFalse(typeClass.getPlainSchemas().contains(badge.getKey()));
         }
     }
@@ -616,15 +617,15 @@ public class GroupITCase extends AbstractITCase {
         encrypted.setType(AttrSchemaType.Encrypted);
         encrypted.setCipherAlgorithm(CipherAlgorithm.SHA512);
         encrypted.setSecretKey("${obscureSecretKey}");
-        schemaService.create(SchemaType.PLAIN, encrypted);
+        SCHEMA_SERVICE.create(SchemaType.PLAIN, encrypted);
 
         // 2. add the new schema to the default group type
-        AnyTypeTO type = anyTypeService.read(AnyTypeKind.GROUP.name());
+        AnyTypeTO type = ANY_TYPE_SERVICE.read(AnyTypeKind.GROUP.name());
         String typeClassName = type.getClasses().get(0);
-        AnyTypeClassTO typeClass = anyTypeClassService.read(typeClassName);
+        AnyTypeClassTO typeClass = ANY_TYPE_CLASS_SERVICE.read(typeClassName);
         typeClass.getPlainSchemas().add(encrypted.getKey());
-        anyTypeClassService.update(typeClass);
-        typeClass = anyTypeClassService.read(typeClassName);
+        ANY_TYPE_CLASS_SERVICE.update(typeClass);
+        typeClass = ANY_TYPE_CLASS_SERVICE.read(typeClassName);
         assertTrue(typeClass.getPlainSchemas().contains(encrypted.getKey()));
 
         // 3. create group, verify that the correct encrypted value is returned
@@ -640,7 +641,7 @@ public class GroupITCase extends AbstractITCase {
         encrypted.setAnyTypeClass(typeClassName);
         encrypted.setCipherAlgorithm(CipherAlgorithm.AES);
         encrypted.setConversionPattern(SyncopeConstants.ENCRYPTED_DECODE_CONVERSION_PATTERN);
-        schemaService.update(SchemaType.PLAIN, encrypted);
+        SCHEMA_SERVICE.update(SchemaType.PLAIN, encrypted);
 
         // 5. update group, verify that the cleartext value is returned
         GroupUR groupUR = new GroupUR();
@@ -653,15 +654,15 @@ public class GroupITCase extends AbstractITCase {
 
         // 6. update schema again to disallow cleartext values
         encrypted.setConversionPattern(null);
-        schemaService.update(SchemaType.PLAIN, encrypted);
+        SCHEMA_SERVICE.update(SchemaType.PLAIN, encrypted);
 
-        group = groupService.read(group.getKey());
+        group = GROUP_SERVICE.read(group.getKey());
         assertNotEquals("testvalue", group.getPlainAttr(encrypted.getKey()).get().getValues().get(0));
     }
 
     @Test
     public void anonymous() {
-        GroupService unauthenticated = clientFactory.create().getService(GroupService.class);
+        GroupService unauthenticated = CLIENT_FACTORY.create().getService(GroupService.class);
         try {
             unauthenticated.search(new AnyQuery.Builder().realm("/even").build());
             fail("This should not happen");
@@ -669,7 +670,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        SyncopeClient anonymous = clientFactory.create(
+        SyncopeClient anonymous = CLIENT_FACTORY.create(
                 new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
         try {
             anonymous.getService(GroupService.class).
@@ -685,7 +686,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void uDynMembership() {
-        assertTrue(userService.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
+        assertTrue(USER_SERVICE.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
 
         GroupCR groupCR = getBasicSample("uDynMembership");
         groupCR.setUDynMembershipCond("cool==true");
@@ -693,18 +694,18 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(group);
         final String groupKey = group.getKey();
 
-        List<MembershipTO> memberships = userService.read(
+        List<MembershipTO> memberships = USER_SERVICE.read(
                 "c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships();
         assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
-        assertEquals(1, groupService.read(group.getKey()).getDynamicUserMembershipCount());
+        assertEquals(1, GROUP_SERVICE.read(group.getKey()).getDynamicUserMembershipCount());
 
         GroupUR groupUR = new GroupUR();
         groupUR.setKey(group.getKey());
         groupUR.setUDynMembershipCond("cool==false");
-        groupService.update(groupUR);
+        GROUP_SERVICE.update(groupUR);
 
-        assertTrue(userService.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
-        assertEquals(0, groupService.read(group.getKey()).getDynamicUserMembershipCount());
+        assertTrue(USER_SERVICE.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
+        assertEquals(0, GROUP_SERVICE.read(group.getKey()).getDynamicUserMembershipCount());
     }
 
     @Test
@@ -717,7 +718,7 @@ public class GroupITCase extends AbstractITCase {
         GroupTO group = createGroup(groupCR).getEntity();
         assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
-        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
+        if (ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform())) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -725,7 +726,7 @@ public class GroupITCase extends AbstractITCase {
             }
         }
 
-        group = groupService.read(group.getKey());
+        group = GROUP_SERVICE.read(group.getKey());
         String groupKey = group.getKey();
         assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
@@ -734,15 +735,15 @@ public class GroupITCase extends AbstractITCase {
         newAnyCR.getResources().clear();
         AnyObjectTO newAny = createAnyObject(newAnyCR).getEntity();
         assertNotNull(newAny.getPlainAttr("location"));
-        List<MembershipTO> memberships = anyObjectService.read(
+        List<MembershipTO> memberships = ANY_OBJECT_SERVICE.read(
                 "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
         assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
 
-        memberships = anyObjectService.read(
+        memberships = ANY_OBJECT_SERVICE.read(
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
         assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
 
-        memberships = anyObjectService.read(newAny.getKey()).getDynMemberships();
+        memberships = ANY_OBJECT_SERVICE.read(newAny.getKey()).getDynMemberships();
         assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
 
         // 2. update group and change aDynMembership condition
@@ -755,7 +756,7 @@ public class GroupITCase extends AbstractITCase {
         group = updateGroup(groupUR).getEntity();
         assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
-        group = groupService.read(group.getKey());
+        group = GROUP_SERVICE.read(group.getKey());
         assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
         // verify that the condition is dynamically applied
@@ -767,13 +768,13 @@ public class GroupITCase extends AbstractITCase {
         newAny = updateAnyObject(anyObjectUR).getEntity();
         assertFalse(newAny.getPlainAttr("location").isPresent());
 
-        memberships = anyObjectService.read(
+        memberships = ANY_OBJECT_SERVICE.read(
                 "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
         assertFalse(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
-        memberships = anyObjectService.read(
+        memberships = ANY_OBJECT_SERVICE.read(
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
         assertFalse(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
-        memberships = anyObjectService.read(newAny.getKey()).getDynMemberships();
+        memberships = ANY_OBJECT_SERVICE.read(newAny.getKey()).getDynMemberships();
         assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
     }
 
@@ -792,12 +793,12 @@ public class GroupITCase extends AbstractITCase {
         printerCR.getPlainAttrs().add(new Attr.Builder("location").value("home").build());
         AnyObjectTO printer = createAnyObject(printerCR).getEntity();
 
-        group = groupService.read(group.getKey());
+        group = GROUP_SERVICE.read(group.getKey());
         assertEquals(0, group.getStaticAnyObjectMembershipCount());
         assertEquals(1, group.getDynamicAnyObjectMembershipCount());
 
-        anyObjectService.delete(printer.getKey());
-        groupService.delete(group.getKey());
+        ANY_OBJECT_SERVICE.delete(printer.getKey());
+        GROUP_SERVICE.delete(group.getKey());
     }
 
     @Test
@@ -813,24 +814,24 @@ public class GroupITCase extends AbstractITCase {
         printerCR.getMemberships().add(new MembershipTO.Builder(group.getKey()).build());
         AnyObjectTO printer = createAnyObject(printerCR).getEntity();
 
-        group = groupService.read(group.getKey());
+        group = GROUP_SERVICE.read(group.getKey());
         assertEquals(0, group.getDynamicAnyObjectMembershipCount());
         assertEquals(1, group.getStaticAnyObjectMembershipCount());
 
-        anyObjectService.delete(printer.getKey());
-        groupService.delete(group.getKey());
+        ANY_OBJECT_SERVICE.delete(printer.getKey());
+        GROUP_SERVICE.delete(group.getKey());
     }
 
     @Test
     public void capabilitiesOverride() {
         // resource with no capability override
-        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         assertNotNull(ldap);
         assertFalse(ldap.isOverrideCapabilities());
         assertTrue(ldap.getCapabilitiesOverride().isEmpty());
 
         // connector with all required for create and update
-        ConnInstanceTO conn = connectorService.read(ldap.getConnector(), null);
+        ConnInstanceTO conn = CONNECTOR_SERVICE.read(ldap.getConnector(), null);
         assertNotNull(conn);
         assertTrue(conn.getCapabilities().contains(ConnectorCapability.CREATE));
         assertTrue(conn.getCapabilities().contains(ConnectorCapability.UPDATE));
@@ -863,8 +864,8 @@ public class GroupITCase extends AbstractITCase {
 
             // 3. set capability override with only search allowed, but not enable
             ldap.getCapabilitiesOverride().add(ConnectorCapability.SEARCH);
-            resourceService.update(ldap);
-            ldap = resourceService.read(RESOURCE_NAME_LDAP);
+            RESOURCE_SERVICE.update(ldap);
+            ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
             assertNotNull(ldap);
             assertFalse(ldap.isOverrideCapabilities());
             assertEquals(1, ldap.getCapabilitiesOverride().size());
@@ -885,8 +886,8 @@ public class GroupITCase extends AbstractITCase {
 
             // 5. enable capability override
             ldap.setOverrideCapabilities(true);
-            resourceService.update(ldap);
-            ldap = resourceService.read(RESOURCE_NAME_LDAP);
+            RESOURCE_SERVICE.update(ldap);
+            ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
             assertNotNull(ldap);
             assertTrue(ldap.isOverrideCapabilities());
             assertEquals(1, ldap.getCapabilitiesOverride().size());
@@ -906,7 +907,7 @@ public class GroupITCase extends AbstractITCase {
         } finally {
             ldap.getCapabilitiesOverride().clear();
             ldap.setOverrideCapabilities(false);
-            resourceService.update(ldap);
+            RESOURCE_SERVICE.update(ldap);
         }
     }
 
@@ -944,7 +945,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void provisionMembers() throws InterruptedException {
-        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform()));
+        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform()));
 
         // 1. create group without resources
         GroupCR groupCR = getBasicSample("forProvision");
@@ -968,7 +969,7 @@ public class GroupITCase extends AbstractITCase {
 
         // 4. verify that the user above is not found on LDAP
         try {
-            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
+            RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -976,13 +977,13 @@ public class GroupITCase extends AbstractITCase {
 
         try {
             // 5. provision group members
-            ExecTO exec = groupService.provisionMembers(groupTO.getKey(), ProvisionAction.PROVISION);
+            ExecTO exec = GROUP_SERVICE.provisionMembers(groupTO.getKey(), ProvisionAction.PROVISION);
             assertNotNull(exec.getRefKey());
 
             AtomicReference<List<ExecTO>> execs = new AtomicReference<>();
             await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
                 try {
-                    execs.set(taskService.read(TaskType.SCHEDULED, exec.getRefKey(), true).getExecutions());
+                    execs.set(TASK_SERVICE.read(TaskType.SCHEDULED, exec.getRefKey(), true).getExecutions());
                     return !execs.get().isEmpty();
                 } catch (Exception e) {
                     return false;
@@ -992,11 +993,11 @@ public class GroupITCase extends AbstractITCase {
 
             // 6. verify that the user above is now fond on LDAP
             ConnObjectTO userOnLdap =
-                    resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
+                    RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(userOnLdap);
         } finally {
-            groupService.delete(groupTO.getKey());
-            userService.delete(userTO.getKey());
+            GROUP_SERVICE.delete(groupTO.getKey());
+            USER_SERVICE.delete(userTO.getKey());
         }
     }
 
@@ -1024,14 +1025,14 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE632() {
-        DerSchemaTO orig = schemaService.read(SchemaType.DERIVED, "displayProperty");
+        DerSchemaTO orig = SCHEMA_SERVICE.read(SchemaType.DERIVED, "displayProperty");
         DerSchemaTO modified = SerializationUtils.clone(orig);
         modified.setExpression("icon + '_' + show");
 
         GroupCR groupCR = GroupITCase.getSample("lastGroup");
         GroupTO groupTO = null;
         try {
-            schemaService.update(SchemaType.DERIVED, modified);
+            SCHEMA_SERVICE.update(SchemaType.DERIVED, modified);
 
             // 0. create group
             groupCR.getPlainAttrs().add(attr("icon", "anIcon"));
@@ -1042,7 +1043,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(groupTO);
 
             // 1. create new LDAP resource having ConnObjectKey mapped to a derived attribute
-            ResourceTO newLDAP = resourceService.read(RESOURCE_NAME_LDAP);
+            ResourceTO newLDAP = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
             newLDAP.setKey("new-ldap");
             newLDAP.setPropagationPriority(0);
 
@@ -1115,11 +1116,11 @@ public class GroupITCase extends AbstractITCase {
 
             assertEquals(1, entries);
         } finally {
-            schemaService.update(SchemaType.DERIVED, orig);
+            SCHEMA_SERVICE.update(SchemaType.DERIVED, orig);
             if (groupTO != null) {
-                groupService.delete(groupTO.getKey());
+                GROUP_SERVICE.delete(groupTO.getKey());
             }
-            resourceService.delete("new-ldap");
+            RESOURCE_SERVICE.delete("new-ldap");
         }
     }
 
@@ -1136,10 +1137,10 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(schema);
         assertNull(schema.getConversionPattern());
 
-        AnyTypeClassTO minimalGroup = anyTypeClassService.read("minimal group");
+        AnyTypeClassTO minimalGroup = ANY_TYPE_CLASS_SERVICE.read("minimal group");
         assertNotNull(minimalGroup);
         minimalGroup.getPlainSchemas().add(doubleSchemaName);
-        anyTypeClassService.update(minimalGroup);
+        ANY_TYPE_CLASS_SERVICE.update(minimalGroup);
 
         // 2. create group, provide valid input value
         GroupCR groupCR = GroupITCase.getBasicSample("syncope717");
@@ -1150,12 +1151,12 @@ public class GroupITCase extends AbstractITCase {
         assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).get().getValues().get(0));
 
         // 3. update schema, set conversion pattern
-        schema = schemaService.read(SchemaType.PLAIN, schema.getKey());
+        schema = SCHEMA_SERVICE.read(SchemaType.PLAIN, schema.getKey());
         schema.setConversionPattern("0.000");
-        schemaService.update(SchemaType.PLAIN, schema);
+        SCHEMA_SERVICE.update(SchemaType.PLAIN, schema);
 
         // 4. re-read group, verify that pattern was applied
-        groupTO = groupService.read(groupTO.getKey());
+        groupTO = GROUP_SERVICE.read(groupTO.getKey());
         assertNotNull(groupTO);
         assertEquals("11.230", groupTO.getPlainAttr(doubleSchemaName).get().getValues().get(0));
 
@@ -1170,7 +1171,7 @@ public class GroupITCase extends AbstractITCase {
 
         // 6. update schema, unset conversion pattern
         schema.setConversionPattern(null);
-        schemaService.update(SchemaType.PLAIN, schema);
+        SCHEMA_SERVICE.update(SchemaType.PLAIN, schema);
 
         // 7. modify group with new double value, verify that no pattern is applied
         groupUR = new GroupUR();
@@ -1196,7 +1197,7 @@ public class GroupITCase extends AbstractITCase {
             assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
 
             ConnObjectTO connObjectTO =
-                    resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+                    RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
             assertNotNull(connObjectTO);
             assertEquals("issueSYNCOPE1467", connObjectTO.getAttr("cn").get().getValues().get(0));
 
@@ -1207,16 +1208,16 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(updateGroup(groupUR).getEntity());
 
             // Assert resources are present
-            ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+            ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
             assertNotNull(ldap);
 
-            connObjectTO = resourceService.
+            connObjectTO = RESOURCE_SERVICE.
                     readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
             assertNotNull(connObjectTO);
             assertEquals("fixedSYNCOPE1467", connObjectTO.getAttr("cn").get().getValues().get(0));
         } finally {
             if (groupTO.getKey() != null) {
-                groupService.delete(groupTO.getKey());
+                GROUP_SERVICE.delete(groupTO.getKey());
             }
         }
     }
@@ -1252,7 +1253,7 @@ public class GroupITCase extends AbstractITCase {
 
         updateGroup(groupUR);
 
-        GroupTO groupTO = groupService.read("ece66293-8f31-4a84-8e8d-23da36e70846");
+        GroupTO groupTO = GROUP_SERVICE.read("ece66293-8f31-4a84-8e8d-23da36e70846");
         assertFalse(groupTO.getResources().contains(RESOURCE_NAME_TESTDB), "Should not contain removed resources");
         assertFalse(groupTO.getAuxClasses().contains("csv"), "Should not contain removed auxiliary classes");
     }

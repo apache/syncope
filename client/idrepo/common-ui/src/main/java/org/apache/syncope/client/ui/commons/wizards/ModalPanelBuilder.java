@@ -19,8 +19,8 @@
 package org.apache.syncope.client.ui.commons.wizards;
 
 import java.io.Serializable;
-import org.apache.wicket.PageReference;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.event.IEventSink;
 
 public interface ModalPanelBuilder<T extends Serializable> extends Serializable {

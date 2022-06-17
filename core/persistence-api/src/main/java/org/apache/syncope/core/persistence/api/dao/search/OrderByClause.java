@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.dao.search;
 
 import java.io.Serializable;
 import java.util.Optional;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;

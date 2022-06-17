@@ -38,8 +38,8 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntit
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
@@ -183,8 +183,7 @@ public class GroupTest extends AbstractTest {
                 : ((String) resultKey)).
                 forEach(actualKey -> {
                     Group group = groupDAO.find(actualKey.toString());
-                    if (group == null) {
-                    } else if (!result.contains(group)) {
+                    if (group != null && !result.contains(group)) {
                         result.add(group);
                     }
                 });
@@ -284,8 +283,7 @@ public class GroupTest extends AbstractTest {
                 : ((String) resultKey)).
                 forEach(actualKey -> {
                     Group group = groupDAO.find(actualKey.toString());
-                    if (group == null) {
-                    } else if (!result.contains(group)) {
+                    if (group != null && !result.contains(group)) {
                         result.add(group);
                     }
                 });

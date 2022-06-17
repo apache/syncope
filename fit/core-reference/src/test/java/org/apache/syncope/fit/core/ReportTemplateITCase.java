@@ -44,13 +44,13 @@ public class ReportTemplateITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        ReportTemplateTO reportTemplateTO = reportTemplateService.read("sample");
+        ReportTemplateTO reportTemplateTO = REPORT_TEMPLATE_SERVICE.read("sample");
         assertNotNull(reportTemplateTO);
     }
 
     @Test
     public void list() {
-        List<ReportTemplateTO> reportTemplateTOs = reportTemplateService.list();
+        List<ReportTemplateTO> reportTemplateTOs = REPORT_TEMPLATE_SERVICE.list();
         assertNotNull(reportTemplateTOs);
         assertFalse(reportTemplateTOs.isEmpty());
         reportTemplateTOs.forEach(Assertions::assertNotNull);
@@ -64,18 +64,18 @@ public class ReportTemplateITCase extends AbstractITCase {
         ReportTemplateTO reportTemplateTO = new ReportTemplateTO();
         reportTemplateTO.setKey(key);
 
-        Response response = reportTemplateService.create(reportTemplateTO);
+        Response response = REPORT_TEMPLATE_SERVICE.create(reportTemplateTO);
         assertEquals(201, response.getStatus());
 
         // 2. attempt to read HTML and CSV -> fail
         try {
-            reportTemplateService.getFormat(key, ReportTemplateFormat.HTML);
+            REPORT_TEMPLATE_SERVICE.getFormat(key, ReportTemplateFormat.HTML);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
         try {
-            reportTemplateService.getFormat(key, ReportTemplateFormat.CSV);
+            REPORT_TEMPLATE_SERVICE.getFormat(key, ReportTemplateFormat.CSV);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -84,10 +84,10 @@ public class ReportTemplateITCase extends AbstractITCase {
         // 3. set CSV
         String csvTemplate =
                 "<xsl:stylesheet xmlns:xsl='http://www.w3.org/1999/XSL/Transform' version='1.0'></xsl:stylesheet>";
-        reportTemplateService.setFormat(
+        REPORT_TEMPLATE_SERVICE.setFormat(
                 key, ReportTemplateFormat.CSV, IOUtils.toInputStream(csvTemplate, StandardCharsets.UTF_8));
 
-        response = reportTemplateService.getFormat(key, ReportTemplateFormat.CSV);
+        response = REPORT_TEMPLATE_SERVICE.getFormat(key, ReportTemplateFormat.CSV);
         assertEquals(200, response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.APPLICATION_XML));
         assertTrue(response.getEntity() instanceof InputStream);
@@ -98,10 +98,10 @@ public class ReportTemplateITCase extends AbstractITCase {
         // 3. set HTML
         String htmlTemplate =
                 "<xsl:stylesheet xmlns:xsl='http://www.w3.org/1999/XSL/Transform' version='1.0'></xsl:stylesheet>";
-        reportTemplateService.setFormat(
+        REPORT_TEMPLATE_SERVICE.setFormat(
                 key, ReportTemplateFormat.HTML, IOUtils.toInputStream(htmlTemplate, StandardCharsets.UTF_8));
 
-        response = reportTemplateService.getFormat(key, ReportTemplateFormat.HTML);
+        response = REPORT_TEMPLATE_SERVICE.getFormat(key, ReportTemplateFormat.HTML);
         assertEquals(200, response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.APPLICATION_XML));
         assertTrue(response.getEntity() instanceof InputStream);
@@ -110,16 +110,16 @@ public class ReportTemplateITCase extends AbstractITCase {
                 IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
 
         // 4. remove HTML
-        reportTemplateService.removeFormat(key, ReportTemplateFormat.HTML);
+        REPORT_TEMPLATE_SERVICE.removeFormat(key, ReportTemplateFormat.HTML);
 
         try {
-            reportTemplateService.getFormat(key, ReportTemplateFormat.HTML);
+            REPORT_TEMPLATE_SERVICE.getFormat(key, ReportTemplateFormat.HTML);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
-        response = reportTemplateService.getFormat(key, ReportTemplateFormat.CSV);
+        response = REPORT_TEMPLATE_SERVICE.getFormat(key, ReportTemplateFormat.CSV);
         assertEquals(200, response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.APPLICATION_XML));
         assertTrue(response.getEntity() instanceof InputStream);
@@ -128,22 +128,22 @@ public class ReportTemplateITCase extends AbstractITCase {
                 IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
 
         // 5. remove report template
-        reportTemplateService.delete(key);
+        REPORT_TEMPLATE_SERVICE.delete(key);
 
         try {
-            reportTemplateService.read(key);
+            REPORT_TEMPLATE_SERVICE.read(key);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
         try {
-            reportTemplateService.getFormat(key, ReportTemplateFormat.HTML);
+            REPORT_TEMPLATE_SERVICE.getFormat(key, ReportTemplateFormat.HTML);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
         try {
-            reportTemplateService.getFormat(key, ReportTemplateFormat.CSV);
+            REPORT_TEMPLATE_SERVICE.getFormat(key, ReportTemplateFormat.CSV);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -152,13 +152,13 @@ public class ReportTemplateITCase extends AbstractITCase {
 
     @Test
     public void safeTemplate() throws IOException {
-        Response response = reportTemplateService.getFormat("sample", ReportTemplateFormat.HTML);
+        Response response = REPORT_TEMPLATE_SERVICE.getFormat("sample", ReportTemplateFormat.HTML);
         String before = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
         assertNotNull(before);
 
         String execKey = ReportITCase.execReport("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         assertNotNull(execKey);
-        response = reportService.exportExecutionResult(execKey, ReportExecExportFormat.HTML);
+        response = REPORT_SERVICE.exportExecutionResult(execKey, ReportExecExportFormat.HTML);
         String result = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
         assertNotNull(result);
         assertTrue(result.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -172,15 +172,15 @@ public class ReportTemplateITCase extends AbstractITCase {
                 + "    <xsl:template match=\"/\">&file;</xsl:template>\n"
                 + "</xsl:stylesheet>";
         try {
-            reportTemplateService.setFormat("sample", ReportTemplateFormat.HTML,
+            REPORT_TEMPLATE_SERVICE.setFormat("sample", ReportTemplateFormat.HTML,
                     IOUtils.toInputStream(malicious, StandardCharsets.UTF_8));
 
-            response = reportService.exportExecutionResult(execKey, ReportExecExportFormat.HTML);
+            response = REPORT_SERVICE.exportExecutionResult(execKey, ReportExecExportFormat.HTML);
             result = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
             assertNotNull(result);
             assertTrue(result.isEmpty());
         } finally {
-            reportTemplateService.setFormat("sample", ReportTemplateFormat.HTML,
+            REPORT_TEMPLATE_SERVICE.setFormat("sample", ReportTemplateFormat.HTML,
                     IOUtils.toInputStream(before, StandardCharsets.UTF_8));
         }
     }
@@ -190,7 +190,7 @@ public class ReportTemplateITCase extends AbstractITCase {
         ReportTemplateTO reportTemplateTO = new ReportTemplateTO();
         reportTemplateTO.setKey("empty");
         try {
-            reportTemplateService.create(reportTemplateTO);
+            REPORT_TEMPLATE_SERVICE.create(reportTemplateTO);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());

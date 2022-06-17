@@ -22,11 +22,11 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.apache.syncope.common.lib.to.BpmnProcess;
-import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.syncope.common.lib.types.BpmnProcessFormat;
+import org.apache.syncope.common.lib.types.FlowableEntitlement;
+import org.apache.syncope.core.flowable.api.BpmnProcessManager;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.flowable.api.BpmnProcessManager;
 
 public class BpmnProcessLogic extends AbstractTransactionalLogic<BpmnProcess> {
 

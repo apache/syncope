@@ -62,14 +62,14 @@ import org.junit.jupiter.api.Test;
 public class ReportITCase extends AbstractITCase {
 
     protected static String execReport(final String reportKey) {
-        AtomicReference<ReportTO> reportTO = new AtomicReference<>(reportService.read(reportKey));
+        AtomicReference<ReportTO> reportTO = new AtomicReference<>(REPORT_SERVICE.read(reportKey));
         int preExecSize = reportTO.get().getExecutions().size();
-        ExecTO execution = reportService.execute(new ExecSpecs.Builder().key(reportKey).build());
+        ExecTO execution = REPORT_SERVICE.execute(new ExecSpecs.Builder().key(reportKey).build());
         assertNotNull(execution.getExecutor());
 
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                reportTO.set(reportService.read(reportKey));
+                reportTO.set(REPORT_SERVICE.read(reportKey));
                 return preExecSize < reportTO.get().getExecutions().size();
             } catch (Exception e) {
                 return false;
@@ -82,7 +82,7 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void getReportletConfs() {
-        Set<String> reportletConfs = adminClient.platform().
+        Set<String> reportletConfs = ADMIN_CLIENT.platform().
                 getJavaImplInfo(IdRepoImplementationType.REPORTLET).get().getClasses();
         assertNotNull(reportletConfs);
         assertFalse(reportletConfs.isEmpty());
@@ -91,7 +91,7 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<ReportTO> reports = reportService.list();
+        List<ReportTO> reports = REPORT_SERVICE.list();
         assertNotNull(reports);
         assertFalse(reports.isEmpty());
         reports.forEach(Assertions::assertNotNull);
@@ -99,7 +99,7 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        ReportTO reportTO = reportService.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
+        ReportTO reportTO = REPORT_SERVICE.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
 
         assertNotNull(reportTO);
         assertNotNull(reportTO.getExecutions());
@@ -113,7 +113,7 @@ public class ReportITCase extends AbstractITCase {
         reportlet1.setEngine(ImplementationEngine.JAVA);
         reportlet1.setType(IdRepoImplementationType.REPORTLET);
         reportlet1.setBody(POJOHelper.serialize(new UserReportletConf("first")));
-        Response response = implementationService.create(reportlet1);
+        Response response = IMPLEMENTATION_SERVICE.create(reportlet1);
         reportlet1.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         ImplementationTO reportlet2 = new ImplementationTO();
@@ -121,7 +121,7 @@ public class ReportITCase extends AbstractITCase {
         reportlet2.setEngine(ImplementationEngine.JAVA);
         reportlet2.setType(IdRepoImplementationType.REPORTLET);
         reportlet2.setBody(POJOHelper.serialize(new UserReportletConf("second")));
-        response = implementationService.create(reportlet2);
+        response = IMPLEMENTATION_SERVICE.create(reportlet2);
         reportlet2.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         ReportTO report = new ReportTO();
@@ -132,7 +132,7 @@ public class ReportITCase extends AbstractITCase {
 
         report = createReport(report);
         assertNotNull(report);
-        ReportTO actual = reportService.read(report.getKey());
+        ReportTO actual = REPORT_SERVICE.read(report.getKey());
         assertNotNull(actual);
         assertEquals(actual, report);
     }
@@ -144,7 +144,7 @@ public class ReportITCase extends AbstractITCase {
         reportlet1.setEngine(ImplementationEngine.JAVA);
         reportlet1.setType(IdRepoImplementationType.REPORTLET);
         reportlet1.setBody(POJOHelper.serialize(new UserReportletConf("first")));
-        Response response = implementationService.create(reportlet1);
+        Response response = IMPLEMENTATION_SERVICE.create(reportlet1);
         reportlet1.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         ImplementationTO reportlet2 = new ImplementationTO();
@@ -152,7 +152,7 @@ public class ReportITCase extends AbstractITCase {
         reportlet2.setEngine(ImplementationEngine.JAVA);
         reportlet2.setType(IdRepoImplementationType.REPORTLET);
         reportlet2.setBody(POJOHelper.serialize(new UserReportletConf("second")));
-        response = implementationService.create(reportlet2);
+        response = IMPLEMENTATION_SERVICE.create(reportlet2);
         reportlet2.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         ReportTO report = new ReportTO();
@@ -170,13 +170,13 @@ public class ReportITCase extends AbstractITCase {
         reportlet3.setEngine(ImplementationEngine.JAVA);
         reportlet3.setType(IdRepoImplementationType.REPORTLET);
         reportlet3.setBody(POJOHelper.serialize(new UserReportletConf("last")));
-        response = implementationService.create(reportlet3);
+        response = IMPLEMENTATION_SERVICE.create(reportlet3);
         reportlet3.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         report.getReportlets().add(reportlet3.getKey());
 
-        reportService.update(report);
-        ReportTO updated = reportService.read(report.getKey());
+        REPORT_SERVICE.update(report);
+        ReportTO updated = REPORT_SERVICE.read(report.getKey());
         assertNotNull(updated);
         assertEquals(3, updated.getReportlets().size());
     }
@@ -188,7 +188,7 @@ public class ReportITCase extends AbstractITCase {
         reportlet1.setEngine(ImplementationEngine.JAVA);
         reportlet1.setType(IdRepoImplementationType.REPORTLET);
         reportlet1.setBody(POJOHelper.serialize(new UserReportletConf("first")));
-        Response response = implementationService.create(reportlet1);
+        Response response = IMPLEMENTATION_SERVICE.create(reportlet1);
         reportlet1.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         ImplementationTO reportlet2 = new ImplementationTO();
@@ -196,7 +196,7 @@ public class ReportITCase extends AbstractITCase {
         reportlet2.setEngine(ImplementationEngine.JAVA);
         reportlet2.setType(IdRepoImplementationType.REPORTLET);
         reportlet2.setBody(POJOHelper.serialize(new UserReportletConf("second")));
-        response = implementationService.create(reportlet2);
+        response = IMPLEMENTATION_SERVICE.create(reportlet2);
         reportlet2.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         ReportTO report = new ReportTO();
@@ -208,10 +208,10 @@ public class ReportITCase extends AbstractITCase {
         report = createReport(report);
         assertNotNull(report);
 
-        reportService.delete(report.getKey());
+        REPORT_SERVICE.delete(report.getKey());
 
         try {
-            reportService.read(report.getKey());
+            REPORT_SERVICE.read(report.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
@@ -219,7 +219,7 @@ public class ReportITCase extends AbstractITCase {
     }
 
     private static void checkExport(final String execKey, final ReportExecExportFormat fmt) throws IOException {
-        Response response = reportService.exportExecutionResult(execKey, fmt);
+        Response response = REPORT_SERVICE.exportExecutionResult(execKey, fmt);
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
         assertNotNull(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION));
@@ -232,7 +232,7 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void executeAndExport() throws IOException {
-        ReportTO reportTO = reportService.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
+        ReportTO reportTO = REPORT_SERVICE.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         reportTO.setName("executeAndExport" + getUUIDString());
         reportTO.setActive(false);
         reportTO.getExecutions().clear();
@@ -248,7 +248,7 @@ public class ReportITCase extends AbstractITCase {
         }
 
         reportTO.setActive(true);
-        reportService.update(reportTO);
+        REPORT_SERVICE.update(reportTO);
 
         String execKey = execReport(reportTO.getKey());
 
@@ -268,7 +268,7 @@ public class ReportITCase extends AbstractITCase {
             // ignore
         }
 
-        ReportTO reportTO = reportService.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
+        ReportTO reportTO = REPORT_SERVICE.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         reportTO.setName("deleteExecutions" + getUUIDString());
         reportTO.getExecutions().clear();
         reportTO = createReport(reportTO);
@@ -283,7 +283,7 @@ public class ReportITCase extends AbstractITCase {
         }
         OffsetDateTime end = OffsetDateTime.now();
 
-        Response response = reportService.deleteExecutions(
+        Response response = REPORT_SERVICE.deleteExecutions(
                 new ExecDeleteQuery.Builder().key(reportTO.getKey()).startedAfter(start).endedBefore(end).build());
         List<BatchResponseItem> batchResponseItems = parseBatchResponse(response);
         assertEquals(1, batchResponseItems.size());
@@ -303,14 +303,14 @@ public class ReportITCase extends AbstractITCase {
         try {
             AuditConfTO audit = new AuditConfTO();
             audit.setKey(auditLoggerName.toAuditKey());
-            auditService.create(audit);
+            AUDIT_SERVICE.create(audit);
 
             ImplementationTO auditReportlet = new ImplementationTO();
             auditReportlet.setKey("UserReportletConf" + getUUIDString());
             auditReportlet.setEngine(ImplementationEngine.JAVA);
             auditReportlet.setType(IdRepoImplementationType.REPORTLET);
             auditReportlet.setBody(POJOHelper.serialize(new AuditReportletConf("auditReportlet" + getUUIDString())));
-            Response response = implementationService.create(auditReportlet);
+            Response response = IMPLEMENTATION_SERVICE.create(auditReportlet);
             auditReportlet.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
             ReportTO report = new ReportTO();
@@ -323,10 +323,10 @@ public class ReportITCase extends AbstractITCase {
             String execKey = execReport(report.getKey());
             checkExport(execKey, ReportExecExportFormat.XML);
 
-            report = reportService.read(report.getKey());
+            report = REPORT_SERVICE.read(report.getKey());
             assertNotNull(report.getLastExec());
         } finally {
-            auditService.delete(auditLoggerName.toAuditKey());
+            AUDIT_SERVICE.delete(auditLoggerName.toAuditKey());
         }
     }
 
@@ -340,14 +340,14 @@ public class ReportITCase extends AbstractITCase {
         assertNotNull(reportTO.getKey());
 
         execReport(reportTO.getKey());
-        reportTO = reportService.read(reportTO.getKey());
+        reportTO = REPORT_SERVICE.read(reportTO.getKey());
         assertEquals(1, reportTO.getExecutions().size());
     }
 
     @Test
     public void issueSYNCOPE102() throws IOException {
         // Create
-        ReportTO reportTO = reportService.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
+        ReportTO reportTO = REPORT_SERVICE.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         reportTO.setName("issueSYNCOPE102" + getUUIDString());
         reportTO = createReport(reportTO);
         assertNotNull(reportTO.getKey());
@@ -355,13 +355,13 @@ public class ReportITCase extends AbstractITCase {
 
         // Execute (multiple requests)
         for (int i = 0; i < 10; i++) {
-            assertNotNull(reportService.execute(new ExecSpecs.Builder().key(reportKey).build()));
+            assertNotNull(REPORT_SERVICE.execute(new ExecSpecs.Builder().key(reportKey).build()));
         }
 
         // Wait for one execution
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                return !reportService.read(reportKey).getExecutions().isEmpty();
+                return !REPORT_SERVICE.read(reportKey).getExecutions().isEmpty();
             } catch (Exception e) {
                 return false;
             }

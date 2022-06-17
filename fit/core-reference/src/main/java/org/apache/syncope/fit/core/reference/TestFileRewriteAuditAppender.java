@@ -29,8 +29,8 @@ import org.apache.logging.log4j.core.appender.rewrite.RewritePolicy;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
-import org.apache.syncope.core.logic.audit.DefaultRewriteAuditAppender;
 import org.apache.syncope.core.logic.ResourceLogic;
+import org.apache.syncope.core.logic.audit.DefaultRewriteAuditAppender;
 
 public class TestFileRewriteAuditAppender extends DefaultRewriteAuditAppender {
 

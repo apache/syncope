@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.auth;
 
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.auth.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCJWKS;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
 
 public class JPAOIDCJWKSDAO extends AbstractDAO<OIDCJWKS> implements OIDCJWKSDAO {
 

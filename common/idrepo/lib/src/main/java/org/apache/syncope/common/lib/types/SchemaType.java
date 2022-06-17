@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 
 public enum SchemaType {

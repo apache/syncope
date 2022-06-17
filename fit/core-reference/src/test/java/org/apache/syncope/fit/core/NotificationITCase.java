@@ -58,14 +58,14 @@ public class NotificationITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        NotificationTO notificationTO = notificationService.read(
+        NotificationTO notificationTO = NOTIFICATION_SERVICE.read(
                 "9e2b911c-25de-4c77-bcea-b86ed9451050");
         assertNotNull(notificationTO);
     }
 
     @Test
     public void list() {
-        List<NotificationTO> notificationTOs = notificationService.list();
+        List<NotificationTO> notificationTOs = NOTIFICATION_SERVICE.list();
         assertNotNull(notificationTOs);
         assertFalse(notificationTOs.isEmpty());
         notificationTOs.forEach(Assertions::assertNotNull);
@@ -77,7 +77,7 @@ public class NotificationITCase extends AbstractITCase {
         notificationTO.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().
                 inGroups("bf825fe1-7320-4a54-bd64-143b5c18ab97").query());
 
-        Response response = notificationService.create(notificationTO);
+        Response response = NOTIFICATION_SERVICE.create(notificationTO);
         NotificationTO actual = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
 
         assertNotNull(actual);
@@ -88,12 +88,12 @@ public class NotificationITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        NotificationTO notificationTO = notificationService.read("9e2b911c-25de-4c77-bcea-b86ed9451050");
+        NotificationTO notificationTO = NOTIFICATION_SERVICE.read("9e2b911c-25de-4c77-bcea-b86ed9451050");
         notificationTO.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().
                 inGroups("bf825fe1-7320-4a54-bd64-143b5c18ab97").query());
 
-        notificationService.update(notificationTO);
-        NotificationTO actual = notificationService.read(notificationTO.getKey());
+        NOTIFICATION_SERVICE.update(notificationTO);
+        NotificationTO actual = NOTIFICATION_SERVICE.read(notificationTO.getKey());
         assertNotNull(actual);
         assertEquals(actual, notificationTO);
     }
@@ -102,13 +102,13 @@ public class NotificationITCase extends AbstractITCase {
     public void delete() {
         NotificationTO notification = buildNotificationTO();
         notification.setSelfAsRecipient(true);
-        Response response = notificationService.create(notification);
+        Response response = NOTIFICATION_SERVICE.create(notification);
         notification = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
 
-        notificationService.delete(notification.getKey());
+        NOTIFICATION_SERVICE.delete(notification.getKey());
 
         try {
-            notificationService.read(notification.getKey());
+            NOTIFICATION_SERVICE.read(notification.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -122,7 +122,7 @@ public class NotificationITCase extends AbstractITCase {
 
         NotificationTO actual = null;
         try {
-            Response response = notificationService.create(notificationTO);
+            Response response = NOTIFICATION_SERVICE.create(notificationTO);
             actual = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
         } catch (SyncopeClientException e) {
             assertNotNull(e);
@@ -140,7 +140,7 @@ public class NotificationITCase extends AbstractITCase {
 
         NotificationTO actual = null;
         try {
-            Response response = notificationService.create(notificationTO);
+            Response response = NOTIFICATION_SERVICE.create(notificationTO);
             actual = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
         } catch (SyncopeClientException e) {
             assertNotNull(e);
@@ -160,7 +160,7 @@ public class NotificationITCase extends AbstractITCase {
 
         NotificationTO actual = null;
         try {
-            Response response = notificationService.create(notificationTO);
+            Response response = NOTIFICATION_SERVICE.create(notificationTO);
             actual = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
         } catch (SyncopeClientException e) {
             assertNotNull(e);
@@ -183,7 +183,7 @@ public class NotificationITCase extends AbstractITCase {
         notificationTO.setActive(true);
 
         try {
-            notificationService.create(notificationTO);
+            NOTIFICATION_SERVICE.create(notificationTO);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());

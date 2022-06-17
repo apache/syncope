@@ -32,14 +32,17 @@ import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.saml2.SAML2LoginResponse;
+import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.SAML2SP4UIIdPActions;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -51,9 +54,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
-import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
-import org.apache.syncope.core.provisioning.api.SAML2SP4UIIdPActions;
 
 public class SAML2SP4UIUserManager {
 

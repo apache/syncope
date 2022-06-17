@@ -87,7 +87,7 @@ public class BodyPropertyAddingGatewayFilterFactory extends CustomGatewayFilterF
             return new ServerHttpResponseDecorator(originalResponse) {
 
                 @Override
-                public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
+                public Mono<Void> writeWith(final Publisher<? extends DataBuffer> body) {
                     return super.writeWith(Flux.from(body).buffer().map(dataBuffers -> {
                         ByteArrayOutputStream payload = new ByteArrayOutputStream();
                         dataBuffers.forEach(buffer -> {
@@ -126,8 +126,8 @@ public class BodyPropertyAddingGatewayFilterFactory extends CustomGatewayFilterF
                         }
 
                         if (compressed) {
-                            try (ByteArrayOutputStream baos = new ByteArrayOutputStream(output.length);  GZIPOutputStream gzipos =
-                                    new GZIPOutputStream(baos)) {
+                            try (ByteArrayOutputStream baos = new ByteArrayOutputStream(output.length);  
+                                 GZIPOutputStream gzipos = new GZIPOutputStream(baos)) {
 
                                 gzipos.write(output);
                                 gzipos.close();

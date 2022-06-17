@@ -32,8 +32,8 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPa
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
-import org.apache.syncope.common.lib.to.UserRequestFormProperty;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.lib.to.UserRequestFormProperty;
 import org.apache.syncope.common.lib.to.UserRequestFormPropertyValue;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;

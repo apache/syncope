@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
-import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 
 public interface UserDataBinder {
 

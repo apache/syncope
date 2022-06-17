@@ -39,10 +39,10 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.lib.types.SAML2SP4UIImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIUserTemplate;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdPItem;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIUserTemplate;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.jpa.validation.entity.SAML2SP4UIIdPCheck;
 
 @Entity

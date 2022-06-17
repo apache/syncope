@@ -82,7 +82,7 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void getJWTToken() throws ParseException, JOSEException {
         // Get the token
-        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        SyncopeClient localClient = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
@@ -126,7 +126,7 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void queryUsingToken() throws ParseException {
         // Get the token
-        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        SyncopeClient localClient = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
@@ -134,12 +134,12 @@ public class JWTITCase extends AbstractITCase {
         assertNotNull(token);
 
         // Query the UserSelfService using the token
-        SyncopeClient jwtClient = clientFactory.create(token);
+        SyncopeClient jwtClient = CLIENT_FACTORY.create(token);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
         jwtUserSelfService.read();
 
         // Test a "bad" token
-        jwtClient = clientFactory.create(token + "xyz");
+        jwtClient = CLIENT_FACTORY.create(token + "xyz");
         jwtUserSelfService = jwtClient.getService(UserSelfService.class);
         try {
             jwtUserSelfService.read();
@@ -152,7 +152,7 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void tokenValidation() throws ParseException, JOSEException {
         // Get an initial token
-        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        SyncopeClient localClient = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
@@ -179,7 +179,7 @@ public class JWTITCase extends AbstractITCase {
         jwt.sign(JWS_SIGNER);
         String signed = jwt.serialize();
 
-        SyncopeClient jwtClient = clientFactory.create(signed);
+        SyncopeClient jwtClient = CLIENT_FACTORY.create(signed);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
         jwtUserSelfService.read();
     }
@@ -187,7 +187,7 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void invalidIssuer() throws ParseException, JOSEException {
         // Get an initial token
-        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        SyncopeClient localClient = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
@@ -213,7 +213,7 @@ public class JWTITCase extends AbstractITCase {
         jwt.sign(JWS_SIGNER);
         String signed = jwt.serialize();
 
-        SyncopeClient jwtClient = clientFactory.create(signed);
+        SyncopeClient jwtClient = CLIENT_FACTORY.create(signed);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
         try {
             jwtUserSelfService.read();
@@ -226,7 +226,7 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void expiredToken() throws ParseException, JOSEException {
         // Get an initial token
-        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        SyncopeClient localClient = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
@@ -249,7 +249,7 @@ public class JWTITCase extends AbstractITCase {
         jwt.sign(JWS_SIGNER);
         String signed = jwt.serialize();
 
-        SyncopeClient jwtClient = clientFactory.create(signed);
+        SyncopeClient jwtClient = CLIENT_FACTORY.create(signed);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
         try {
             jwtUserSelfService.read();
@@ -262,7 +262,7 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void notBefore() throws ParseException, JOSEException {
         // Get an initial token
-        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        SyncopeClient localClient = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
@@ -289,7 +289,7 @@ public class JWTITCase extends AbstractITCase {
         jwt.sign(JWS_SIGNER);
         String signed = jwt.serialize();
 
-        SyncopeClient jwtClient = clientFactory.create(signed);
+        SyncopeClient jwtClient = CLIENT_FACTORY.create(signed);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
         try {
             jwtUserSelfService.read();
@@ -302,7 +302,7 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void noSignature() throws ParseException {
         // Get an initial token
-        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        SyncopeClient localClient = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
@@ -315,7 +315,7 @@ public class JWTITCase extends AbstractITCase {
         jwt = new PlainJWT(claimsSet.build());
         String bearer = jwt.serialize();
 
-        SyncopeClient jwtClient = clientFactory.create(bearer);
+        SyncopeClient jwtClient = CLIENT_FACTORY.create(bearer);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
         try {
             jwtUserSelfService.read();
@@ -328,7 +328,7 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void unknownId() throws ParseException, JOSEException {
         // Get an initial token
-        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        SyncopeClient localClient = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
@@ -343,7 +343,7 @@ public class JWTITCase extends AbstractITCase {
         jwt.sign(JWS_SIGNER);
         String signed = jwt.serialize();
 
-        SyncopeClient jwtClient = clientFactory.create(signed);
+        SyncopeClient jwtClient = CLIENT_FACTORY.create(signed);
         UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
         try {
             jwtUserSelfService.read();
@@ -375,7 +375,7 @@ public class JWTITCase extends AbstractITCase {
         jwt.sign(new MACSigner(CustomJWTSSOProvider.CUSTOM_KEY));
         String signed = jwt.serialize();
 
-        SyncopeClient jwtClient = clientFactory.create(signed);
+        SyncopeClient jwtClient = CLIENT_FACTORY.create(signed);
 
         Triple<Map<String, Set<String>>, List<String>, UserTO> self = jwtClient.self();
         assertFalse(self.getLeft().isEmpty());
@@ -404,7 +404,7 @@ public class JWTITCase extends AbstractITCase {
         jwt.sign(JWS_SIGNER);
         String signed = jwt.serialize();
 
-        SyncopeClient jwtClient = clientFactory.create(signed);
+        SyncopeClient jwtClient = CLIENT_FACTORY.create(signed);
 
         try {
             jwtClient.self();
@@ -436,7 +436,7 @@ public class JWTITCase extends AbstractITCase {
         jwt.sign(JWS_SIGNER);
         String signed = jwt.serialize();
 
-        SyncopeClient jwtClient = clientFactory.create(signed);
+        SyncopeClient jwtClient = CLIENT_FACTORY.create(signed);
 
         try {
             jwtClient.self();
@@ -475,7 +475,7 @@ public class JWTITCase extends AbstractITCase {
         jwt.sign(customJWSSigner);
         String signed = jwt.serialize();
 
-        SyncopeClient jwtClient = clientFactory.create(signed);
+        SyncopeClient jwtClient = CLIENT_FACTORY.create(signed);
 
         try {
             jwtClient.self();
@@ -497,7 +497,7 @@ public class JWTITCase extends AbstractITCase {
             assertNotNull(user);
 
             // login, get JWT with  expiryTime
-            String jwt = clientFactory.create(user.getUsername(), "password123").getJWT();
+            String jwt = CLIENT_FACTORY.create(user.getUsername(), "password123").getJWT();
 
             Date expirationTime = SignedJWT.parse(jwt).getJWTClaimsSet().getExpirationTime();
             assertNotNull(expirationTime);
@@ -512,7 +512,7 @@ public class JWTITCase extends AbstractITCase {
 
             // login again, get new JWT
             // (even if ExpiredAccessTokenCleanup did not run yet, as it is scheduled every 5 minutes)
-            String newJWT = clientFactory.create(user.getUsername(), "password123").getJWT();
+            String newJWT = CLIENT_FACTORY.create(user.getUsername(), "password123").getJWT();
             assertNotEquals(jwt, newJWT);
         } finally {
             confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "jwt.lifetime.minutes", orig);

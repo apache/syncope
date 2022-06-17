@@ -33,19 +33,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.JobTO;
-import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.PushTaskTO;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.to.JobTO;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.ExecListQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.core.reference.TestSampleJobDelegate;
@@ -55,7 +55,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void getJobClasses() {
-        Set<String> jobClasses = adminClient.platform().
+        Set<String> jobClasses = ADMIN_CLIENT.platform().
                 getJavaImplInfo(IdRepoImplementationType.TASKJOB_DELEGATE).get().getClasses();
         assertNotNull(jobClasses);
         assertFalse(jobClasses.isEmpty());
@@ -64,7 +64,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
     @Test
     public void list() {
         PagedResult<SchedTaskTO> tasks =
-                taskService.search(new TaskQuery.Builder(TaskType.SCHEDULED).build());
+                TASK_SERVICE.search(new TaskQuery.Builder(TaskType.SCHEDULED).build());
         assertFalse(tasks.getResult().isEmpty());
         tasks.getResult().stream().filter(
                 task -> !(task instanceof SchedTaskTO) || task instanceof PullTaskTO || task instanceof PushTaskTO).
@@ -73,7 +73,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void update() {
-        SchedTaskTO task = taskService.read(TaskType.SCHEDULED, SCHED_TASK_KEY, true);
+        SchedTaskTO task = TASK_SERVICE.read(TaskType.SCHEDULED, SCHED_TASK_KEY, true);
         assertNotNull(task);
 
         SchedTaskTO taskMod = new SchedTaskTO();
@@ -81,8 +81,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         taskMod.setName(task.getName());
         taskMod.setCronExpression(null);
 
-        taskService.update(TaskType.SCHEDULED, taskMod);
-        SchedTaskTO actual = taskService.read(TaskType.SCHEDULED, taskMod.getKey(), true);
+        TASK_SERVICE.update(TaskType.SCHEDULED, taskMod);
+        SchedTaskTO actual = TASK_SERVICE.read(TaskType.SCHEDULED, taskMod.getKey(), true);
         assertNotNull(actual);
         assertEquals(task.getKey(), actual.getKey());
         assertNull(actual.getCronExpression());
@@ -90,7 +90,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void deferred() {
-        ImplementationTO taskJobDelegate = implementationService.read(
+        ImplementationTO taskJobDelegate = IMPLEMENTATION_SERVICE.read(
                 IdRepoImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
         assertNotNull(taskJobDelegate);
 
@@ -99,7 +99,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         task.setName("deferred");
         task.setJobDelegate(taskJobDelegate.getKey());
 
-        Response response = taskService.create(TaskType.SCHEDULED, task);
+        Response response = TASK_SERVICE.create(TaskType.SCHEDULED, task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
         assertNotNull(task);
         String taskKey = task.getKey();
@@ -110,12 +110,12 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
         AtomicReference<TaskTO> taskTO = new AtomicReference<>(task);
         int preSyncSize = taskTO.get().getExecutions().size();
-        ExecTO execution = taskService.execute(new ExecSpecs.Builder().key(task.getKey()).startAt(later).build());
+        ExecTO execution = TASK_SERVICE.execute(new ExecSpecs.Builder().key(task.getKey()).startAt(later).build());
         assertNotNull(execution.getExecutor());
 
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                taskTO.set(taskService.read(TaskType.SCHEDULED, taskKey, true));
+                taskTO.set(TASK_SERVICE.read(TaskType.SCHEDULED, taskKey, true));
                 return preSyncSize < taskTO.get().getExecutions().size();
             } catch (Exception e) {
                 return false;
@@ -123,7 +123,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         });
 
         PagedResult<ExecTO> execs =
-                taskService.listExecutions(new ExecListQuery.Builder().key(task.getKey()).build());
+                TASK_SERVICE.listExecutions(new ExecListQuery.Builder().key(task.getKey()).build());
         assertEquals(1, execs.getTotalCount());
         assertTrue(execs.getResult().get(0).getStart().isAfter(initial));
         // round 1 sec for safety
@@ -132,7 +132,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE144() {
-        ImplementationTO taskJobDelegate = implementationService.read(
+        ImplementationTO taskJobDelegate = IMPLEMENTATION_SERVICE.read(
                 IdRepoImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
         assertNotNull(taskJobDelegate);
 
@@ -141,13 +141,13 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         task.setDescription("issueSYNCOPE144 Description");
         task.setJobDelegate(taskJobDelegate.getKey());
 
-        Response response = taskService.create(TaskType.SCHEDULED, task);
+        Response response = TASK_SERVICE.create(TaskType.SCHEDULED, task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
         assertNotNull(task);
         assertEquals("issueSYNCOPE144", task.getName());
         assertEquals("issueSYNCOPE144 Description", task.getDescription());
 
-        task = taskService.read(TaskType.SCHEDULED, task.getKey(), true);
+        task = TASK_SERVICE.read(TaskType.SCHEDULED, task.getKey(), true);
         assertNotNull(task);
         assertEquals("issueSYNCOPE144", task.getName());
         assertEquals("issueSYNCOPE144 Description", task.getDescription());
@@ -155,7 +155,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         task.setName("issueSYNCOPE144_2");
         task.setDescription("issueSYNCOPE144 Description_2");
 
-        response = taskService.create(TaskType.SCHEDULED, task);
+        response = TASK_SERVICE.create(TaskType.SCHEDULED, task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
         assertNotNull(task);
         assertEquals("issueSYNCOPE144_2", task.getName());
@@ -164,10 +164,10 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE660() {
-        List<JobTO> jobs = taskService.listJobs();
+        List<JobTO> jobs = TASK_SERVICE.listJobs();
         int oldSize = jobs.size();
 
-        ImplementationTO taskJobDelegate = implementationService.read(
+        ImplementationTO taskJobDelegate = IMPLEMENTATION_SERVICE.read(
                 IdRepoImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
         assertNotNull(taskJobDelegate);
 
@@ -176,18 +176,18 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         task.setDescription("issueSYNCOPE660 Description");
         task.setJobDelegate(taskJobDelegate.getKey());
 
-        Response response = taskService.create(TaskType.SCHEDULED, task);
+        Response response = TASK_SERVICE.create(TaskType.SCHEDULED, task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
 
-        jobs = taskService.listJobs();
+        jobs = TASK_SERVICE.listJobs();
         assertEquals(oldSize + 1, jobs.size());
 
-        taskService.actionJob(task.getKey(), JobAction.START);
+        TASK_SERVICE.actionJob(task.getKey(), JobAction.START);
 
         AtomicReference<List<JobTO>> run = new AtomicReference<>();
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                run.set(taskService.listJobs().stream().filter(JobTO::isRunning).collect(Collectors.toList()));
+                run.set(TASK_SERVICE.listJobs().stream().filter(JobTO::isRunning).collect(Collectors.toList()));
                 return !run.get().isEmpty();
             } catch (Exception e) {
                 return false;
@@ -196,12 +196,12 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         assertEquals(1, run.get().size());
         assertEquals(task.getKey(), run.get().get(0).getRefKey());
 
-        taskService.actionJob(task.getKey(), JobAction.STOP);
+        TASK_SERVICE.actionJob(task.getKey(), JobAction.STOP);
 
         run.set(List.of());
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                run.set(taskService.listJobs().stream().filter(JobTO::isRunning).collect(Collectors.toList()));
+                run.set(TASK_SERVICE.listJobs().stream().filter(JobTO::isRunning).collect(Collectors.toList()));
                 return run.get().isEmpty();
             } catch (Exception e) {
                 return false;

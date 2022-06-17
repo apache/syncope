@@ -19,8 +19,8 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.common.lib.to.AuditConfTO;
-import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
+import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 
 public class AuditDataBinderImpl implements AuditDataBinder {
 

@@ -20,8 +20,8 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import java.util.concurrent.atomic.AtomicReference;
 import javax.validation.ConstraintValidatorContext;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 
 public class JPAJSONAttributableValidator extends AbstractValidator<JPAJSONAttributableCheck, JSONAttributable<?>> {
 

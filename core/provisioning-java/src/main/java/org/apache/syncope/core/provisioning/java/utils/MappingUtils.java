@@ -31,8 +31,11 @@ import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
 import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
@@ -41,9 +44,6 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
-import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
-import org.apache.syncope.core.spring.ImplementationManager;
 
 public final class MappingUtils {
 

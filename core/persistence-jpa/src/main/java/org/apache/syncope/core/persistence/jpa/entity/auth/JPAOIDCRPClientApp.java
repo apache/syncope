@@ -18,17 +18,17 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
-import java.util.HashSet;
-import java.util.Set;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;

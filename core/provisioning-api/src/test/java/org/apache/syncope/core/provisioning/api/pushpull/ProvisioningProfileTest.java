@@ -31,11 +31,11 @@ import org.mockito.Mock;
 
 public class ProvisioningProfileTest extends AbstractTest {
 
-
     @Test
     public void test(
-            @Mock Connector connector,
-            @Mock PushTask pushTask) {
+            final @Mock Connector connector,
+            final @Mock PushTask pushTask) {
+
         boolean dryRun = false;
         ConflictResolutionAction conflictResolutionAction = ConflictResolutionAction.FIRSTMATCH;
         ProvisioningProfile<PushTask, PushActions> profile;

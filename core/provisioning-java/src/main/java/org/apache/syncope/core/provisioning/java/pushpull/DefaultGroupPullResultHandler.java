@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
@@ -30,8 +29,9 @@ import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.PropagationStatus;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -40,9 +40,8 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.common.lib.to.ProvisioningReport;
-import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
+import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class DefaultGroupPullResultHandler extends AbstractPullResultHandler implements GroupPullResultHandler {

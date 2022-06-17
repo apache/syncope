@@ -20,11 +20,11 @@ package org.apache.syncope.core.provisioning.java.job.notification;
 
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.DomainHolder;
-import org.apache.syncope.core.provisioning.api.job.JobManager;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.api.job.JobDelegate;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

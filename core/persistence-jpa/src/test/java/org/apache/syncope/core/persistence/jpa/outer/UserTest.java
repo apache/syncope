@@ -37,8 +37,8 @@ import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -236,8 +236,8 @@ public class UserTest extends AbstractTest {
         assertNull(user.getPlainAttr("obscure").get().getMembership());
         assertEquals(2, user.getPlainAttrs("obscure").size());
         assertTrue(user.getPlainAttrs("obscure").contains(user.getPlainAttr("obscure").get()));
-        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(plainAttr -> plainAttr.getMembership() == null));
-        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(plainAttr -> newM.equals(plainAttr.getMembership())));
+        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(a -> a.getMembership() == null));
+        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(a -> newM.equals(a.getMembership())));
     }
 
     private LinkedAccount newLinkedAccount(final String connObjectKeyValue) {

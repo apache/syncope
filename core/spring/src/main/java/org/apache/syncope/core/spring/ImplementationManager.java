@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.spring;
 
+import groovy.lang.GroovyClassLoader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import groovy.lang.GroovyClassLoader;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;

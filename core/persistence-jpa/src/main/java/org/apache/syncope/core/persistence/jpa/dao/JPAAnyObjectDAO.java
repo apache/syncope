@@ -35,9 +35,6 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
@@ -48,6 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
@@ -62,6 +60,8 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 

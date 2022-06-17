@@ -63,7 +63,7 @@ public class CASSRAITCase extends AbstractSRAITCase {
     @BeforeAll
     public static void clientAppSetup() {
         String appName = CASSRAITCase.class.getName();
-        CASSPClientAppTO clientApp = clientAppService.list(ClientAppType.CASSP).stream().
+        CASSPClientAppTO clientApp = CLIENT_APP_SERVICE.list(ClientAppType.CASSP).stream().
                 filter(app -> appName.equals(app.getName())).
                 map(CASSPClientAppTO.class::cast).
                 findFirst().
@@ -73,19 +73,19 @@ public class CASSRAITCase extends AbstractSRAITCase {
                     app.setClientAppId(4L);
                     app.setServiceId("http://localhost:8080/.*");
 
-                    Response response = clientAppService.create(ClientAppType.CASSP, app);
+                    Response response = CLIENT_APP_SERVICE.create(ClientAppType.CASSP, app);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
                         fail("Could not create CAS Client App");
                     }
 
-                    return clientAppService.read(
+                    return CLIENT_APP_SERVICE.read(
                             ClientAppType.CASSP, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 });
 
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
 
-        clientAppService.update(ClientAppType.CASSP, clientApp);
-        clientAppService.pushToWA();
+        CLIENT_APP_SERVICE.update(ClientAppType.CASSP, clientApp);
+        CLIENT_APP_SERVICE.pushToWA();
     }
 
     @Test

@@ -34,17 +34,20 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.console.ConsoleProperties;
 import org.apache.syncope.client.console.annotations.AMPage;
-import org.apache.syncope.client.ui.commons.annotations.ExtPage;
-import org.apache.syncope.client.console.pages.BaseExtPage;
-import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
-import org.apache.syncope.client.ui.commons.annotations.ExtWidget;
 import org.apache.syncope.client.console.annotations.IdMPage;
-import org.apache.syncope.client.ui.commons.annotations.Resource;
+import org.apache.syncope.client.console.annotations.UserFormFinalize;
+import org.apache.syncope.client.console.pages.BaseExtPage;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
 import org.apache.syncope.client.console.widgets.BaseExtWidget;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
+import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
+import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
+import org.apache.syncope.client.ui.commons.annotations.ExtPage;
+import org.apache.syncope.client.ui.commons.annotations.ExtWidget;
+import org.apache.syncope.client.ui.commons.annotations.Resource;
+import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
+import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
@@ -57,9 +60,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
-import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
-import org.apache.syncope.client.console.annotations.UserFormFinalize;
-import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 
 public class ClassPathScanImplementationLookup {
 

@@ -25,12 +25,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserRequest;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
-import org.apache.syncope.core.logic.UserRequestLogic;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
+import org.apache.syncope.core.logic.UserRequestLogic;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.springframework.stereotype.Service;
 

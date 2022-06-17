@@ -20,7 +20,6 @@ package org.apache.syncope.common.keymaster.client.self;
 
 import java.util.List;
 import java.util.Map;
-
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;

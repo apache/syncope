@@ -30,11 +30,11 @@ import org.apache.syncope.common.lib.types.SAML2SP4UIEntitlement;
 import org.apache.syncope.core.logic.init.SAML2SP4UILoader;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
+import org.apache.syncope.core.provisioning.api.data.SAML2SP4UIIdPDataBinder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
-import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
-import org.apache.syncope.core.provisioning.api.data.SAML2SP4UIIdPDataBinder;
 
 public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML2SP4UIIdPTO> {
 

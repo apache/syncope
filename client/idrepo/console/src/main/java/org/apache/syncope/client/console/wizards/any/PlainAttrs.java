@@ -25,8 +25,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
+import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
+import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.Attributable;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -46,8 +48,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.Attributable;
 
 public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 

@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic.cocoon;
 
 import java.io.File;
 import java.io.OutputStream;
-
 import org.apache.cocoon.pipeline.ProcessingException;
 import org.apache.cocoon.pipeline.caching.CacheKey;
 import org.apache.cocoon.pipeline.caching.SimpleCacheKey;

@@ -31,12 +31,12 @@ public class ImpersonationITCase extends AbstractITCase {
         String owner = getUUIDString();
         ImpersonationAccount account = new ImpersonationAccount.Builder().impersonated(getUUIDString()).build();
 
-        impersonationService.create(owner, account);
+        IMPERSONATION_SERVICE.create(owner, account);
 
-        assertTrue(impersonationService.read(owner).contains(account));
+        assertTrue(IMPERSONATION_SERVICE.read(owner).contains(account));
 
-        impersonationService.delete(owner, account.getImpersonated());
+        IMPERSONATION_SERVICE.delete(owner, account.getImpersonated());
 
-        assertTrue(impersonationService.read(owner).isEmpty());
+        assertTrue(IMPERSONATION_SERVICE.read(owner).isEmpty());
     }
 }

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.camel.producer;
 
 import java.util.List;
-
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.commons.lang3.tuple.Pair;

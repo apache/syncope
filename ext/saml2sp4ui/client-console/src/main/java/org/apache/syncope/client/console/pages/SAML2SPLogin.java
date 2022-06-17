@@ -23,10 +23,10 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.wicket.authentication.IAuthenticationStrategy;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.wicket.markup.html.WebPage;
 
 public class SAML2SPLogin extends WebPage {
 

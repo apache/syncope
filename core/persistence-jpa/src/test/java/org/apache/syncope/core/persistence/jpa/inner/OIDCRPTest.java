@@ -27,12 +27,12 @@ import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
+import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
 @Transactional("Master")
 public class OIDCRPTest extends AbstractClientAppTest {

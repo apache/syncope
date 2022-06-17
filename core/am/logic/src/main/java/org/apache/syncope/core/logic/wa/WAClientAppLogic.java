@@ -22,19 +22,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
 import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
 import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
+import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 public class WAClientAppLogic {
 

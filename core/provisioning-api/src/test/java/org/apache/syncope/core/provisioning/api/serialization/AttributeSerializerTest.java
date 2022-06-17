@@ -41,8 +41,12 @@ import org.mockito.Mock;
 public class AttributeSerializerTest extends AbstractTest {
 
     @Test
-    public void serialize(@Mock Attribute source, @Mock JsonGenerator jgen, @Mock SerializerProvider sp)
+    public void serialize(
+            final @Mock Attribute source,
+            final @Mock JsonGenerator jgen,
+            final @Mock SerializerProvider sp)
             throws IOException {
+
         AttributeSerializer serializer = new AttributeSerializer();
         when(source.getValue()).thenReturn(null);
         serializer.serialize(source, jgen, sp);

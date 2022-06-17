@@ -18,13 +18,12 @@
  */
 package org.apache.syncope.wa.starter;
 
-import org.apache.syncope.wa.bootstrap.WAProperties;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
+import org.apache.syncope.wa.bootstrap.WAProperties;
 import org.apache.syncope.wa.starter.config.WARefreshContextJob;
-
 import org.apereo.cas.config.GoogleAuthenticatorLdapConfiguration;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.CasConfigurationPropertiesValidator;

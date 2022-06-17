@@ -19,8 +19,8 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import java.util.HashSet;
-import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;

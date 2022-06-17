@@ -26,14 +26,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
+import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
-import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 
 @PullCorrelationRuleConfClass(DefaultPullCorrelationRuleConf.class)

@@ -18,9 +18,8 @@
  */
 package org.apache.syncope.core.flowable.support;
 
-import org.flowable.engine.form.AbstractFormType;
-
 import java.util.Optional;
+import org.flowable.engine.form.AbstractFormType;
 
 /**
  * Extension to predefined Flowable form types relying on the provided

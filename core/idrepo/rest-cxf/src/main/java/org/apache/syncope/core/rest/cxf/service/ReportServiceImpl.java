@@ -21,7 +21,6 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;

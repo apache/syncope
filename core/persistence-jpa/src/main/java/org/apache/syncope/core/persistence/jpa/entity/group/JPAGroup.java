@@ -35,7 +35,6 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -49,10 +48,11 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAny;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
-import org.apache.syncope.core.persistence.jpa.validation.entity.GroupCheck;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
+import org.apache.syncope.core.persistence.jpa.validation.entity.GroupCheck;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 @Entity
 @Table(name = JPAGroup.TABLE)

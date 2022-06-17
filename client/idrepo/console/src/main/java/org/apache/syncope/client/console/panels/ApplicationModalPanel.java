@@ -19,10 +19,10 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.ApplicationTO;
 import org.apache.wicket.PageReference;

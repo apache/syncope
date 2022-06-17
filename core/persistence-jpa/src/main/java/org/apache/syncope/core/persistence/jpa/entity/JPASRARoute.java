@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -33,9 +32,9 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.common.lib.types.SRARouteFilter;
 import org.apache.syncope.common.lib.types.SRARoutePredicate;
 import org.apache.syncope.common.lib.types.SRARouteType;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.SRARoute;
 import org.apache.syncope.core.persistence.jpa.validation.entity.SRARouteCheck;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPASRARoute.TABLE)

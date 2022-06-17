@@ -40,19 +40,19 @@ public class AnyTypeITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        AnyTypeTO userType = anyTypeService.read(AnyTypeKind.USER.name());
+        AnyTypeTO userType = ANY_TYPE_SERVICE.read(AnyTypeKind.USER.name());
         assertNotNull(userType);
         assertEquals(AnyTypeKind.USER, userType.getKind());
         assertEquals(AnyTypeKind.USER.name(), userType.getKey());
         assertFalse(userType.getClasses().isEmpty());
 
-        AnyTypeTO groupType = anyTypeService.read(AnyTypeKind.GROUP.name());
+        AnyTypeTO groupType = ANY_TYPE_SERVICE.read(AnyTypeKind.GROUP.name());
         assertNotNull(groupType);
         assertEquals(AnyTypeKind.GROUP, groupType.getKind());
         assertEquals(AnyTypeKind.GROUP.name(), groupType.getKey());
         assertFalse(groupType.getClasses().isEmpty());
 
-        AnyTypeTO otherType = anyTypeService.read(PRINTER);
+        AnyTypeTO otherType = ANY_TYPE_SERVICE.read(PRINTER);
         assertNotNull(otherType);
         assertEquals(AnyTypeKind.ANY_OBJECT, otherType.getKind());
         assertEquals(PRINTER, otherType.getKey());
@@ -60,7 +60,7 @@ public class AnyTypeITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<AnyTypeTO> list = anyTypeService.list();
+        List<AnyTypeTO> list = ANY_TYPE_SERVICE.list();
         assertFalse(list.isEmpty());
     }
 
@@ -72,7 +72,7 @@ public class AnyTypeITCase extends AbstractITCase {
         newType.getClasses().add("generic membership");
         newType.getClasses().add("csv");
 
-        Response response = anyTypeService.create(newType);
+        Response response = ANY_TYPE_SERVICE.create(newType);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
 
         newType = getObject(response.getLocation(), AnyTypeService.class, AnyTypeTO.class);
@@ -82,17 +82,17 @@ public class AnyTypeITCase extends AbstractITCase {
         assertTrue(newType.getClasses().contains("csv"));
 
         newType.getClasses().remove("generic membership");
-        anyTypeService.update(newType);
+        ANY_TYPE_SERVICE.update(newType);
 
-        newType = anyTypeService.read(newType.getKey());
+        newType = ANY_TYPE_SERVICE.read(newType.getKey());
         assertNotNull(newType);
         assertEquals(1, newType.getClasses().size());
         assertTrue(newType.getClasses().contains("csv"));
 
-        anyTypeService.delete(newType.getKey());
+        ANY_TYPE_SERVICE.delete(newType.getKey());
 
         try {
-            anyTypeService.read(newType.getKey());
+            ANY_TYPE_SERVICE.read(newType.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -105,7 +105,7 @@ public class AnyTypeITCase extends AbstractITCase {
         newType.setKey("new type");
         newType.setKind(AnyTypeKind.USER);
         try {
-            anyTypeService.create(newType);
+            ANY_TYPE_SERVICE.create(newType);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidAnyType, e.getType());
@@ -118,7 +118,7 @@ public class AnyTypeITCase extends AbstractITCase {
         newType.setKey("GROUP");
         newType.setKind(AnyTypeKind.GROUP);
         try {
-            anyTypeService.create(newType);
+            ANY_TYPE_SERVICE.create(newType);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());
@@ -131,70 +131,70 @@ public class AnyTypeITCase extends AbstractITCase {
         newClass.setKey("new class" + getUUIDString());
         newClass.getDerSchemas().add("cn");
 
-        Response response = anyTypeClassService.create(newClass);
+        Response response = ANY_TYPE_CLASS_SERVICE.create(newClass);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
 
         newClass = getObject(response.getLocation(), AnyTypeClassService.class, AnyTypeClassTO.class);
         assertNotNull(newClass);
 
-        AnyTypeTO other = anyTypeService.read(PRINTER);
+        AnyTypeTO other = ANY_TYPE_SERVICE.read(PRINTER);
         assertNotNull(other);
 
         other.getClasses().add(newClass.getKey());
-        anyTypeService.update(other);
+        ANY_TYPE_SERVICE.update(other);
 
-        other = anyTypeService.read(other.getKey());
+        other = ANY_TYPE_SERVICE.read(other.getKey());
         assertNotNull(other);
         assertTrue(other.getClasses().contains(newClass.getKey()));
 
-        anyTypeClassService.delete(newClass.getKey());
+        ANY_TYPE_CLASS_SERVICE.delete(newClass.getKey());
 
-        other = anyTypeService.read(other.getKey());
+        other = ANY_TYPE_SERVICE.read(other.getKey());
         assertNotNull(other);
         assertFalse(other.getClasses().contains(newClass.getKey()));
     }
 
     @Test
     public void issueSYNCOPE754() {
-        AnyTypeClassTO other = anyTypeClassService.read("other");
+        AnyTypeClassTO other = ANY_TYPE_CLASS_SERVICE.read("other");
         assertNotNull(other);
 
-        AnyTypeTO group = anyTypeService.read(AnyTypeKind.GROUP.name());
+        AnyTypeTO group = ANY_TYPE_SERVICE.read(AnyTypeKind.GROUP.name());
         try {
             assertFalse(group.getClasses().contains("other"));
             group.getClasses().add("other");
 
-            anyTypeService.update(group);
+            ANY_TYPE_SERVICE.update(group);
 
-            group = anyTypeService.read(AnyTypeKind.GROUP.name());
+            group = ANY_TYPE_SERVICE.read(AnyTypeKind.GROUP.name());
             assertTrue(group.getClasses().contains("other"));
 
-            other = anyTypeClassService.read("other");
+            other = ANY_TYPE_CLASS_SERVICE.read("other");
             assertEquals(2, other.getInUseByTypes().size());
             assertTrue(other.getInUseByTypes().contains(AnyTypeKind.USER.name()));
             assertTrue(other.getInUseByTypes().contains(AnyTypeKind.GROUP.name()));
         } finally {
             group.getClasses().remove("other");
-            anyTypeService.update(group);
+            ANY_TYPE_SERVICE.update(group);
         }
     }
 
     @Test
     public void issueSYNCOPE1472() {
         // 1. add any type class csv twice to PRINTER any type
-        AnyTypeTO anyTypeTO = anyTypeService.read(PRINTER);
+        AnyTypeTO anyTypeTO = ANY_TYPE_SERVICE.read(PRINTER);
         anyTypeTO.getClasses().clear();
         anyTypeTO.getClasses().add("minimal printer");
         anyTypeTO.getClasses().add("csv");
         anyTypeTO.getClasses().add("csv");
-        anyTypeService.update(anyTypeTO);
+        ANY_TYPE_SERVICE.update(anyTypeTO);
 
         // 2. read again and remove any type class
-        anyTypeTO = anyTypeService.read(PRINTER);
+        anyTypeTO = ANY_TYPE_SERVICE.read(PRINTER);
         anyTypeTO.getClasses().remove("csv");
-        anyTypeService.update(anyTypeTO);
+        ANY_TYPE_SERVICE.update(anyTypeTO);
 
-        assertFalse(anyTypeService.read(PRINTER).getClasses().contains("csv"), 
+        assertFalse(ANY_TYPE_SERVICE.read(PRINTER).getClasses().contains("csv"), 
                 "Should not contain removed any type classes");
     }
 }

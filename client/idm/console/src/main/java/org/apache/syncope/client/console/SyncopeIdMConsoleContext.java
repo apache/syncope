@@ -18,11 +18,12 @@
  */
 package org.apache.syncope.client.console;
 
+import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
-import org.apache.syncope.client.console.commons.IdMAnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.IdMAnyDirectoryPanelAdditionalActionLinksProvider;
+import org.apache.syncope.client.console.commons.IdMAnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.IdMAnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.IdMExternalResourceProvider;
 import org.apache.syncope.client.console.commons.IdMImplementationInfoProvider;
@@ -33,11 +34,10 @@ import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationContributor;
 import org.apache.syncope.client.console.init.IdMClassPathScanImplementationContributor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
 public class SyncopeIdMConsoleContext {

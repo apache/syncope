@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.sra.security.saml2;
 
+import org.apache.syncope.sra.SessionConfig;
 import org.apache.syncope.sra.security.pac4j.NoOpSessionStore;
 import org.apache.syncope.sra.security.pac4j.RedirectionActionUtils;
-import org.apache.syncope.sra.SessionConfig;
 import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.credentials.SAML2Credentials;

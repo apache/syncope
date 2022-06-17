@@ -18,17 +18,22 @@
  */
 package org.apache.syncope.client.console.wizards;
 
-import org.apache.syncope.client.ui.commons.wizards.ModalPanelBuilder;
-import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wizards.any.ResultPage;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
+import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
+import org.apache.syncope.client.ui.commons.wizards.AbstractWizardMgtPanel;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.client.ui.commons.wizards.ModalPanelBuilder;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageReference;
@@ -37,6 +42,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -45,12 +51,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
-import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
-import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
-import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
-import org.apache.syncope.client.ui.commons.wizards.AbstractWizardMgtPanel;
-import org.apache.wicket.markup.html.basic.Label;
 
 public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWizardMgtPanel<T> {
 

@@ -70,7 +70,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         AnyTypeClassTO typeClass = new AnyTypeClassTO();
         typeClass.setKey("camelAttribute" + getUUIDString());
         typeClass.getPlainSchemas().add(schemaTO.getKey());
-        anyTypeClassService.create(typeClass);
+        ANY_TYPE_CLASS_SERVICE.create(typeClass);
 
         // 2. create an user with mandatory attributes and unique
         UserCR userTO1 = new UserCR();
@@ -156,19 +156,19 @@ public class ExceptionMapperITCase extends AbstractITCase {
     @Test
     public void invalidRequests() {
         try {
-            taskService.search(new TaskQuery.Builder(TaskType.NOTIFICATION).resource(RESOURCE_NAME_LDAP).build());
+            TASK_SERVICE.search(new TaskQuery.Builder(TaskType.NOTIFICATION).resource(RESOURCE_NAME_LDAP).build());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidRequest, e.getType());
         }
         try {
-            taskService.search(new TaskQuery.Builder(TaskType.PULL).anyTypeKind(AnyTypeKind.ANY_OBJECT).build());
+            TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PULL).anyTypeKind(AnyTypeKind.ANY_OBJECT).build());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidRequest, e.getType());
         }
         try {
-            taskService.search(new TaskQuery.Builder(TaskType.PULL).
+            TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PULL).
                     notification("e00945b5-1184-4d43-8e45-4318a8dcdfd4").build());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
@@ -176,24 +176,24 @@ public class ExceptionMapperITCase extends AbstractITCase {
         }
 
         try {
-            anyTypeService.delete(AnyTypeKind.USER.name());
+            ANY_TYPE_SERVICE.delete(AnyTypeKind.USER.name());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidRequest, e.getType());
         }
 
         try {
-            clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(AccessTokenService.class).login();
+            CLIENT_FACTORY.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(AccessTokenService.class).login();
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidRequest, e.getType());
         }
 
         try {
-            ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+            ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
             ItemTO mapping = ldap.getProvisions().get(0).getMapping().getItems().get(0);
             mapping.setIntAttrName("memberships.cn");
-            resourceService.update(ldap);
+            RESOURCE_SERVICE.update(ldap);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidMapping, e.getType());

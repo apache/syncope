@@ -36,14 +36,14 @@ public class RelationshipTypeITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        RelationshipTypeTO otherType = relationshipTypeService.read("inclusion");
+        RelationshipTypeTO otherType = RELATIONSHIP_TYPE_SERVICE.read("inclusion");
         assertNotNull(otherType);
         assertEquals("inclusion", otherType.getKey());
     }
 
     @Test
     public void list() {
-        List<RelationshipTypeTO> list = relationshipTypeService.list();
+        List<RelationshipTypeTO> list = RELATIONSHIP_TYPE_SERVICE.list();
         assertFalse(list.isEmpty());
     }
 
@@ -53,7 +53,7 @@ public class RelationshipTypeITCase extends AbstractITCase {
         newType.setKey("new type");
         newType.setDescription("description");
 
-        Response response = relationshipTypeService.create(newType);
+        Response response = RELATIONSHIP_TYPE_SERVICE.create(newType);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
 
         newType = getObject(response.getLocation(), RelationshipTypeService.class, RelationshipTypeTO.class);
@@ -61,16 +61,16 @@ public class RelationshipTypeITCase extends AbstractITCase {
         assertEquals("description", newType.getDescription());
 
         newType.setDescription("new description");
-        relationshipTypeService.update(newType);
+        RELATIONSHIP_TYPE_SERVICE.update(newType);
 
-        newType = relationshipTypeService.read(newType.getKey());
+        newType = RELATIONSHIP_TYPE_SERVICE.read(newType.getKey());
         assertNotNull(newType);
         assertEquals("new description", newType.getDescription());
 
-        relationshipTypeService.delete(newType.getKey());
+        RELATIONSHIP_TYPE_SERVICE.delete(newType.getKey());
 
         try {
-            relationshipTypeService.read(newType.getKey());
+            RELATIONSHIP_TYPE_SERVICE.read(newType.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -82,7 +82,7 @@ public class RelationshipTypeITCase extends AbstractITCase {
         RelationshipTypeTO newType = new RelationshipTypeTO();
         newType.setKey("membership");
         try {
-            relationshipTypeService.create(newType);
+            RELATIONSHIP_TYPE_SERVICE.create(newType);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidRelationshipType, e.getType());

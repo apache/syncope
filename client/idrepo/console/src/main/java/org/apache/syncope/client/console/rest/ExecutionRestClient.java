@@ -19,10 +19,10 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.Date;
-import org.apache.syncope.client.ui.commons.rest.RestClient;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.lib.batch.BatchRequest;
+import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 

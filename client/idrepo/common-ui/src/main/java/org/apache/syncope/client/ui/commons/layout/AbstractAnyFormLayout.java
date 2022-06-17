@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.ui.commons.layout;
 
-import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
 import org.apache.syncope.common.lib.to.AnyTO;
 
 public abstract class AbstractAnyFormLayout<A extends AnyTO, F extends AnyForm<A>>

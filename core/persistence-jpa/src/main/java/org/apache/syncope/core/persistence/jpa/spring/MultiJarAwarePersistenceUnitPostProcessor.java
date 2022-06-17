@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.spring;
 
+import java.util.Objects;
 import javax.persistence.Entity;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
 import org.slf4j.Logger;
@@ -26,8 +27,6 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
-
-import java.util.Objects;
 
 /**
  * Allows having JPA entities spread in several JAR files; this is needed in order to support the Syncope extensions.

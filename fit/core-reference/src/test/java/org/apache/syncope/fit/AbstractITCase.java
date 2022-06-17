@@ -62,37 +62,37 @@ import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.request.AnyObjectUR;
-import org.apache.syncope.common.lib.request.AttrPatch;
-import org.apache.syncope.common.lib.request.GroupUR;
-import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.audit.AuditEntry;
+import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.AuthPolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.UserCR;
-import org.apache.syncope.common.lib.to.SchemaTO;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.policy.AccessPolicyTO;
-import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
-import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
-import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
-import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
+import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.RoleTO;
-import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.to.AuthModuleTO;
-import org.apache.syncope.common.lib.policy.AuthPolicyTO;
-import org.apache.syncope.common.lib.to.ClientAppTO;
-import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
@@ -114,44 +114,44 @@ import org.apache.syncope.common.rest.api.service.ApplicationService;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
+import org.apache.syncope.common.rest.api.service.BpmnProcessService;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
+import org.apache.syncope.common.rest.api.service.DelegationService;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
-import org.apache.syncope.common.rest.api.service.NotificationService;
-import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
-import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
-import org.apache.syncope.common.rest.api.service.PolicyService;
-import org.apache.syncope.common.rest.api.service.ReportService;
-import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
+import org.apache.syncope.common.rest.api.service.NotificationService;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
+import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
+import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.syncope.common.rest.api.service.RemediationService;
+import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
+import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.RoleService;
-import org.apache.syncope.common.rest.api.service.SCIMConfService;
-import org.apache.syncope.common.rest.api.service.SchemaService;
-import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
-import org.apache.syncope.common.rest.api.service.TaskService;
-import org.apache.syncope.common.rest.api.service.UserSelfService;
-import org.apache.syncope.common.rest.api.service.UserService;
-import org.apache.syncope.common.rest.api.service.UserRequestService;
-import org.apache.syncope.common.rest.api.service.BpmnProcessService;
-import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
-import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
-import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIService;
 import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
+import org.apache.syncope.common.rest.api.service.SCIMConfService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
-import org.apache.syncope.common.rest.api.service.DelegationService;
+import org.apache.syncope.common.rest.api.service.SchemaService;
+import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
+import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.common.rest.api.service.UserRequestService;
+import org.apache.syncope.common.rest.api.service.UserSelfService;
+import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
+import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
+import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
@@ -279,109 +279,109 @@ public abstract class AbstractITCase {
 
     protected static JWSAlgorithm JWS_ALGORITHM;
 
-    protected static SyncopeClientFactoryBean clientFactory;
+    protected static SyncopeClientFactoryBean CLIENT_FACTORY;
 
-    protected static SyncopeClient adminClient;
+    protected static SyncopeClient ADMIN_CLIENT;
 
-    protected static SyncopeClient anonymusClient;
+    protected static SyncopeClient ANONYMOUS_CLIENT;
 
-    protected static SyncopeService syncopeService;
+    protected static SyncopeService SYNCOPE_SERVICE;
 
-    protected static ApplicationService applicationService;
+    protected static ApplicationService APPLICATION_SERVICE;
 
-    protected static AnyTypeClassService anyTypeClassService;
+    protected static AnyTypeClassService ANY_TYPE_CLASS_SERVICE;
 
-    protected static AnyTypeService anyTypeService;
+    protected static AnyTypeService ANY_TYPE_SERVICE;
 
-    protected static RelationshipTypeService relationshipTypeService;
+    protected static RelationshipTypeService RELATIONSHIP_TYPE_SERVICE;
 
-    protected static RealmService realmService;
+    protected static RealmService REALM_SERVICE;
 
-    protected static AnyObjectService anyObjectService;
+    protected static AnyObjectService ANY_OBJECT_SERVICE;
 
-    protected static RoleService roleService;
+    protected static RoleService ROLE_SERVICE;
 
-    protected static DynRealmService dynRealmService;
+    protected static DynRealmService DYN_REALM_SERVICE;
 
-    protected static UserService userService;
+    protected static UserService USER_SERVICE;
 
-    protected static UserSelfService userSelfService;
+    protected static UserSelfService USER_SELF_SERVICE;
 
-    protected static UserRequestService userRequestService;
+    protected static UserRequestService USER_REQUEST_SERVICE;
 
-    protected static UserWorkflowTaskService userWorkflowTaskService;
+    protected static UserWorkflowTaskService USER_WORKFLOW_TASK_SERVICE;
 
-    protected static GroupService groupService;
+    protected static GroupService GROUP_SERVICE;
 
-    protected static ResourceService resourceService;
+    protected static ResourceService RESOURCE_SERVICE;
 
-    protected static ConnectorService connectorService;
+    protected static ConnectorService CONNECTOR_SERVICE;
 
-    protected static AuditService auditService;
+    protected static AuditService AUDIT_SERVICE;
 
-    protected static ReportTemplateService reportTemplateService;
+    protected static ReportTemplateService REPORT_TEMPLATE_SERVICE;
 
-    protected static ReportService reportService;
+    protected static ReportService REPORT_SERVICE;
 
-    protected static TaskService taskService;
+    protected static TaskService TASK_SERVICE;
 
-    protected static ReconciliationService reconciliationService;
+    protected static ReconciliationService RECONCILIATION_SERVICE;
 
-    protected static BpmnProcessService bpmnProcessService;
+    protected static BpmnProcessService BPMN_PROCESS_SERVICE;
 
-    protected static MailTemplateService mailTemplateService;
+    protected static MailTemplateService MAIL_TEMPLATE_SERVICE;
 
-    protected static NotificationService notificationService;
+    protected static NotificationService NOTIFICATION_SERVICE;
 
-    protected static SchemaService schemaService;
+    protected static SchemaService SCHEMA_SERVICE;
 
-    protected static PolicyService policyService;
+    protected static PolicyService POLICY_SERVICE;
 
-    protected static AuthModuleService authModuleService;
+    protected static AuthModuleService AUTH_MODULE_SERVICE;
 
-    protected static SecurityQuestionService securityQuestionService;
+    protected static SecurityQuestionService SECURITY_QUESTION_SERVICE;
 
-    protected static ImplementationService implementationService;
+    protected static ImplementationService IMPLEMENTATION_SERVICE;
 
-    protected static RemediationService remediationService;
+    protected static RemediationService REMEDIATION_SERVICE;
 
-    protected static DelegationService delegationService;
+    protected static DelegationService DELEGATION_SERVICE;
 
-    protected static SRARouteService sraRouteService;
+    protected static SRARouteService SRA_ROUTE_SERVICE;
 
-    protected static CamelRouteService camelRouteService;
+    protected static CamelRouteService CAMEL_ROUTE_SERVICE;
 
-    protected static SAML2SP4UIService saml2SP4UIService;
+    protected static SAML2SP4UIService SAML2SP4UI_SERVICE;
 
-    protected static SAML2SP4UIIdPService saml2SP4UIIdPService;
+    protected static SAML2SP4UIIdPService SAML2SP4UI_IDP_SERVICE;
 
-    protected static OIDCC4UIService oidcClientService;
+    protected static OIDCC4UIService OIDCC4UI_SERVICE;
 
-    protected static OIDCC4UIProviderService oidcProviderService;
+    protected static OIDCC4UIProviderService OIDCC4UI_PROVIDER_SERVICE;
 
-    protected static SCIMConfService scimConfService;
+    protected static SCIMConfService SCIM_CONF_SERVICE;
 
-    protected static ClientAppService clientAppService;
+    protected static ClientAppService CLIENT_APP_SERVICE;
 
-    protected static AuthProfileService authProfileService;
+    protected static AuthProfileService AUTH_PROFILE_SERVICE;
 
-    protected static SAML2SPEntityService saml2SPEntityService;
+    protected static SAML2SPEntityService SAML2SP_ENTITY_SERVICE;
 
-    protected static SAML2IdPEntityService saml2IdPEntityService;
+    protected static SAML2IdPEntityService SAML2IDP_ENTITY_SERVICE;
 
-    protected static OIDCJWKSService oidcJWKSService;
+    protected static OIDCJWKSService OIDC_JWKS_SERVICE;
 
-    protected static WAConfigService waConfigService;
+    protected static WAConfigService WA_CONFIG_SERVICE;
 
-    protected static GoogleMfaAuthTokenService googleMfaAuthTokenService;
+    protected static GoogleMfaAuthTokenService GOOGLE_MFA_AUTH_TOKEN_SERVICE;
 
-    protected static GoogleMfaAuthAccountService googleMfaAuthAccountService;
+    protected static GoogleMfaAuthAccountService GOOGLE_MFA_AUTH_ACCOUNT_SERVICE;
 
-    protected static U2FRegistrationService u2fRegistrationService;
+    protected static U2FRegistrationService U2F_REGISTRATION_SERVICE;
 
-    protected static WebAuthnRegistrationService webAuthnRegistrationService;
+    protected static WebAuthnRegistrationService WEBAUTHN_REGISTRATION_SERVICE;
 
-    protected static ImpersonationService impersonationService;
+    protected static ImpersonationService IMPERSONATION_SERVICE;
 
     @BeforeAll
     public static void securitySetup() {
@@ -403,71 +403,71 @@ public abstract class AbstractITCase {
         assertNotNull(JWS_KEY);
         assertNotNull(JWT_ISSUER);
 
-        anonymusClient = clientFactory.create(new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
+        ANONYMOUS_CLIENT = CLIENT_FACTORY.create(new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
 
-        googleMfaAuthTokenService = anonymusClient.getService(GoogleMfaAuthTokenService.class);
-        googleMfaAuthAccountService = anonymusClient.getService(GoogleMfaAuthAccountService.class);
-        u2fRegistrationService = anonymusClient.getService(U2FRegistrationService.class);
-        webAuthnRegistrationService = anonymusClient.getService(WebAuthnRegistrationService.class);
-        impersonationService = anonymusClient.getService(ImpersonationService.class);
+        GOOGLE_MFA_AUTH_TOKEN_SERVICE = ANONYMOUS_CLIENT.getService(GoogleMfaAuthTokenService.class);
+        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE = ANONYMOUS_CLIENT.getService(GoogleMfaAuthAccountService.class);
+        U2F_REGISTRATION_SERVICE = ANONYMOUS_CLIENT.getService(U2FRegistrationService.class);
+        WEBAUTHN_REGISTRATION_SERVICE = ANONYMOUS_CLIENT.getService(WebAuthnRegistrationService.class);
+        IMPERSONATION_SERVICE = ANONYMOUS_CLIENT.getService(ImpersonationService.class);
     }
 
     @BeforeAll
     public static void restSetup() {
-        clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS);
+        CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(ADDRESS);
 
         String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
         if (StringUtils.isNotBlank(envContentType)) {
-            clientFactory.setContentType(envContentType);
+            CLIENT_FACTORY.setContentType(envContentType);
         }
-        LOG.info("Performing IT with content type {}", clientFactory.getContentType().getMediaType());
+        LOG.info("Performing IT with content type {}", CLIENT_FACTORY.getContentType().getMediaType());
 
-        adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        ADMIN_CLIENT = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
 
-        syncopeService = adminClient.getService(SyncopeService.class);
-        applicationService = adminClient.getService(ApplicationService.class);
-        anyTypeClassService = adminClient.getService(AnyTypeClassService.class);
-        anyTypeService = adminClient.getService(AnyTypeService.class);
-        relationshipTypeService = adminClient.getService(RelationshipTypeService.class);
-        realmService = adminClient.getService(RealmService.class);
-        anyObjectService = adminClient.getService(AnyObjectService.class);
-        roleService = adminClient.getService(RoleService.class);
-        dynRealmService = adminClient.getService(DynRealmService.class);
-        userService = adminClient.getService(UserService.class);
-        userSelfService = adminClient.getService(UserSelfService.class);
-        userRequestService = adminClient.getService(UserRequestService.class);
-        userWorkflowTaskService = adminClient.getService(UserWorkflowTaskService.class);
-        groupService = adminClient.getService(GroupService.class);
-        resourceService = adminClient.getService(ResourceService.class);
-        connectorService = adminClient.getService(ConnectorService.class);
-        auditService = adminClient.getService(AuditService.class);
-        reportTemplateService = adminClient.getService(ReportTemplateService.class);
-        reportService = adminClient.getService(ReportService.class);
-        taskService = adminClient.getService(TaskService.class);
-        reconciliationService = adminClient.getService(ReconciliationService.class);
-        policyService = adminClient.getService(PolicyService.class);
-        bpmnProcessService = adminClient.getService(BpmnProcessService.class);
-        mailTemplateService = adminClient.getService(MailTemplateService.class);
-        notificationService = adminClient.getService(NotificationService.class);
-        schemaService = adminClient.getService(SchemaService.class);
-        securityQuestionService = adminClient.getService(SecurityQuestionService.class);
-        implementationService = adminClient.getService(ImplementationService.class);
-        remediationService = adminClient.getService(RemediationService.class);
-        delegationService = adminClient.getService(DelegationService.class);
-        sraRouteService = adminClient.getService(SRARouteService.class);
-        camelRouteService = adminClient.getService(CamelRouteService.class);
-        saml2SP4UIService = adminClient.getService(SAML2SP4UIService.class);
-        saml2SP4UIIdPService = adminClient.getService(SAML2SP4UIIdPService.class);
-        oidcClientService = adminClient.getService(OIDCC4UIService.class);
-        oidcProviderService = adminClient.getService(OIDCC4UIProviderService.class);
-        scimConfService = adminClient.getService(SCIMConfService.class);
-        clientAppService = adminClient.getService(ClientAppService.class);
-        authModuleService = adminClient.getService(AuthModuleService.class);
-        saml2SPEntityService = adminClient.getService(SAML2SPEntityService.class);
-        saml2IdPEntityService = adminClient.getService(SAML2IdPEntityService.class);
-        authProfileService = adminClient.getService(AuthProfileService.class);
-        oidcJWKSService = adminClient.getService(OIDCJWKSService.class);
-        waConfigService = adminClient.getService(WAConfigService.class);
+        SYNCOPE_SERVICE = ADMIN_CLIENT.getService(SyncopeService.class);
+        APPLICATION_SERVICE = ADMIN_CLIENT.getService(ApplicationService.class);
+        ANY_TYPE_CLASS_SERVICE = ADMIN_CLIENT.getService(AnyTypeClassService.class);
+        ANY_TYPE_SERVICE = ADMIN_CLIENT.getService(AnyTypeService.class);
+        RELATIONSHIP_TYPE_SERVICE = ADMIN_CLIENT.getService(RelationshipTypeService.class);
+        REALM_SERVICE = ADMIN_CLIENT.getService(RealmService.class);
+        ANY_OBJECT_SERVICE = ADMIN_CLIENT.getService(AnyObjectService.class);
+        ROLE_SERVICE = ADMIN_CLIENT.getService(RoleService.class);
+        DYN_REALM_SERVICE = ADMIN_CLIENT.getService(DynRealmService.class);
+        USER_SERVICE = ADMIN_CLIENT.getService(UserService.class);
+        USER_SELF_SERVICE = ADMIN_CLIENT.getService(UserSelfService.class);
+        USER_REQUEST_SERVICE = ADMIN_CLIENT.getService(UserRequestService.class);
+        USER_WORKFLOW_TASK_SERVICE = ADMIN_CLIENT.getService(UserWorkflowTaskService.class);
+        GROUP_SERVICE = ADMIN_CLIENT.getService(GroupService.class);
+        RESOURCE_SERVICE = ADMIN_CLIENT.getService(ResourceService.class);
+        CONNECTOR_SERVICE = ADMIN_CLIENT.getService(ConnectorService.class);
+        AUDIT_SERVICE = ADMIN_CLIENT.getService(AuditService.class);
+        REPORT_TEMPLATE_SERVICE = ADMIN_CLIENT.getService(ReportTemplateService.class);
+        REPORT_SERVICE = ADMIN_CLIENT.getService(ReportService.class);
+        TASK_SERVICE = ADMIN_CLIENT.getService(TaskService.class);
+        RECONCILIATION_SERVICE = ADMIN_CLIENT.getService(ReconciliationService.class);
+        POLICY_SERVICE = ADMIN_CLIENT.getService(PolicyService.class);
+        BPMN_PROCESS_SERVICE = ADMIN_CLIENT.getService(BpmnProcessService.class);
+        MAIL_TEMPLATE_SERVICE = ADMIN_CLIENT.getService(MailTemplateService.class);
+        NOTIFICATION_SERVICE = ADMIN_CLIENT.getService(NotificationService.class);
+        SCHEMA_SERVICE = ADMIN_CLIENT.getService(SchemaService.class);
+        SECURITY_QUESTION_SERVICE = ADMIN_CLIENT.getService(SecurityQuestionService.class);
+        IMPLEMENTATION_SERVICE = ADMIN_CLIENT.getService(ImplementationService.class);
+        REMEDIATION_SERVICE = ADMIN_CLIENT.getService(RemediationService.class);
+        DELEGATION_SERVICE = ADMIN_CLIENT.getService(DelegationService.class);
+        SRA_ROUTE_SERVICE = ADMIN_CLIENT.getService(SRARouteService.class);
+        CAMEL_ROUTE_SERVICE = ADMIN_CLIENT.getService(CamelRouteService.class);
+        SAML2SP4UI_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIService.class);
+        SAML2SP4UI_IDP_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIIdPService.class);
+        OIDCC4UI_SERVICE = ADMIN_CLIENT.getService(OIDCC4UIService.class);
+        OIDCC4UI_PROVIDER_SERVICE = ADMIN_CLIENT.getService(OIDCC4UIProviderService.class);
+        SCIM_CONF_SERVICE = ADMIN_CLIENT.getService(SCIMConfService.class);
+        CLIENT_APP_SERVICE = ADMIN_CLIENT.getService(ClientAppService.class);
+        AUTH_MODULE_SERVICE = ADMIN_CLIENT.getService(AuthModuleService.class);
+        SAML2SP_ENTITY_SERVICE = ADMIN_CLIENT.getService(SAML2SPEntityService.class);
+        SAML2IDP_ENTITY_SERVICE = ADMIN_CLIENT.getService(SAML2IdPEntityService.class);
+        AUTH_PROFILE_SERVICE = ADMIN_CLIENT.getService(AuthProfileService.class);
+        OIDC_JWKS_SERVICE = ADMIN_CLIENT.getService(OIDCJWKSService.class);
+        WA_CONFIG_SERVICE = ADMIN_CLIENT.getService(WAConfigService.class);
     }
 
     protected static String getUUIDString() {
@@ -483,12 +483,12 @@ public abstract class AbstractITCase {
     }
 
     protected static <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {
-        WebClient webClient = WebClient.fromClient(WebClient.client(adminClient.getService(serviceClass)));
-        webClient.accept(clientFactory.getContentType().getMediaType()).to(location.toASCIIString(), false);
+        WebClient webClient = WebClient.fromClient(WebClient.client(ADMIN_CLIENT.getService(serviceClass)));
+        webClient.accept(CLIENT_FACTORY.getContentType().getMediaType()).to(location.toASCIIString(), false);
 
         return webClient.
-                header(RESTHeaders.DOMAIN, adminClient.getDomain()).
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT()).
+                header(RESTHeaders.DOMAIN, ADMIN_CLIENT.getDomain()).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT()).
                 get(resultClass);
     }
 
@@ -506,9 +506,9 @@ public abstract class AbstractITCase {
 
     @SuppressWarnings("unchecked")
     protected <T extends SchemaTO> T createSchema(final SchemaType type, final T schemaTO) {
-        Response response = schemaService.create(type, schemaTO);
+        Response response = SCHEMA_SERVICE.create(type, schemaTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
@@ -518,9 +518,9 @@ public abstract class AbstractITCase {
     }
 
     protected RoleTO createRole(final RoleTO roleTO) {
-        Response response = roleService.create(roleTO);
+        Response response = ROLE_SERVICE.create(roleTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
@@ -529,7 +529,7 @@ public abstract class AbstractITCase {
     }
 
     protected ReportTO createReport(final ReportTO report) {
-        Response response = reportService.create(report);
+        Response response = REPORT_SERVICE.create(report);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
         return getObject(response.getLocation(), ReportService.class, ReportTO.class);
     }
@@ -566,7 +566,7 @@ public abstract class AbstractITCase {
         notification.setTemplate("optin");
         notification.setActive(active);
 
-        Response response = notificationService.create(notification);
+        Response response = NOTIFICATION_SERVICE.create(notification);
         notification = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
         assertNotNull(notification);
 
@@ -580,9 +580,9 @@ public abstract class AbstractITCase {
     }
 
     protected ProvisioningResult<UserTO> createUser(final UserCR req) {
-        Response response = userService.create(req);
+        Response response = USER_SERVICE.create(req);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
@@ -592,28 +592,28 @@ public abstract class AbstractITCase {
     }
 
     protected ProvisioningResult<UserTO> updateUser(final UserUR req) {
-        return userService.update(req).
+        return USER_SERVICE.update(req).
                 readEntity(new GenericType<>() {
                 });
     }
 
     protected ProvisioningResult<UserTO> updateUser(final UserTO userTO) {
-        UserTO before = userService.read(userTO.getKey());
-        return userService.update(AnyOperations.diff(userTO, before, false)).
+        UserTO before = USER_SERVICE.read(userTO.getKey());
+        return USER_SERVICE.update(AnyOperations.diff(userTO, before, false)).
                 readEntity(new GenericType<>() {
                 });
     }
 
     protected ProvisioningResult<UserTO> deleteUser(final String key) {
-        return userService.delete(key).
+        return USER_SERVICE.delete(key).
                 readEntity(new GenericType<>() {
                 });
     }
 
     protected ProvisioningResult<AnyObjectTO> createAnyObject(final AnyObjectCR req) {
-        Response response = anyObjectService.create(req);
+        Response response = ANY_OBJECT_SERVICE.create(req);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
@@ -623,21 +623,21 @@ public abstract class AbstractITCase {
     }
 
     protected ProvisioningResult<AnyObjectTO> updateAnyObject(final AnyObjectUR req) {
-        return anyObjectService.update(req).
+        return ANY_OBJECT_SERVICE.update(req).
                 readEntity(new GenericType<>() {
                 });
     }
 
     protected ProvisioningResult<AnyObjectTO> deleteAnyObject(final String key) {
-        return anyObjectService.delete(key).
+        return ANY_OBJECT_SERVICE.delete(key).
                 readEntity(new GenericType<>() {
                 });
     }
 
     protected ProvisioningResult<GroupTO> createGroup(final GroupCR req) {
-        Response response = groupService.create(req);
+        Response response = GROUP_SERVICE.create(req);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
@@ -647,22 +647,22 @@ public abstract class AbstractITCase {
     }
 
     protected ProvisioningResult<GroupTO> updateGroup(final GroupUR req) {
-        return groupService.update(req).
+        return GROUP_SERVICE.update(req).
                 readEntity(new GenericType<>() {
                 });
     }
 
     protected ProvisioningResult<GroupTO> deleteGroup(final String key) {
-        return groupService.delete(key).
+        return GROUP_SERVICE.delete(key).
                 readEntity(new GenericType<>() {
                 });
     }
 
     @SuppressWarnings("unchecked")
     protected <T extends PolicyTO> T createPolicy(final PolicyType type, final T policy) {
-        Response response = policyService.create(type, policy);
+        Response response = POLICY_SERVICE.create(type, policy);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
@@ -672,9 +672,9 @@ public abstract class AbstractITCase {
 
     @SuppressWarnings("unchecked")
     protected AuthModuleTO createAuthModule(final AuthModuleTO authModule) {
-        Response response = authModuleService.create(authModule);
+        Response response = AUTH_MODULE_SERVICE.create(authModule);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
@@ -683,9 +683,9 @@ public abstract class AbstractITCase {
     }
 
     protected ResourceTO createResource(final ResourceTO resourceTO) {
-        Response response = resourceService.create(resourceTO);
+        Response response = RESOURCE_SERVICE.create(resourceTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
@@ -702,8 +702,8 @@ public abstract class AbstractITCase {
     @SuppressWarnings({ "unchecked", "rawtypes", "UseOfObsoleteCollectionType" })
     protected InitialDirContext getLdapResourceDirContext(final String bindDn, final String bindPwd)
             throws NamingException {
-        ResourceTO ldapRes = resourceService.read(RESOURCE_NAME_LDAP);
-        ConnInstanceTO ldapConn = connectorService.read(ldapRes.getConnector(), Locale.ENGLISH.getLanguage());
+        ResourceTO ldapRes = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
+        ConnInstanceTO ldapConn = CONNECTOR_SERVICE.read(ldapRes.getConnector(), Locale.ENGLISH.getLanguage());
 
         Properties env = new Properties();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -894,9 +894,9 @@ public abstract class AbstractITCase {
 
     @SuppressWarnings("unchecked")
     protected <T extends ClientAppTO> T createClientApp(final ClientAppType type, final T clientAppTO) {
-        Response response = clientAppService.create(type, clientAppTO);
+        Response response = CLIENT_APP_SERVICE.create(type, clientAppTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
@@ -949,7 +949,7 @@ public abstract class AbstractITCase {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
-            results = auditService.search(query).getResult();
+            results = AUDIT_SERVICE.search(query).getResult();
             i++;
         } while (results.isEmpty() && i < maxWaitSeconds);
         return results;

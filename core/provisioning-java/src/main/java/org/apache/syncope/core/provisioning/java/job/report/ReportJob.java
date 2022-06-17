@@ -20,16 +20,16 @@ package org.apache.syncope.core.provisioning.java.job.report;
 
 import java.util.Optional;
 import org.apache.syncope.core.provisioning.api.job.JobDelegate;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
+import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Quartz job for executing a given report.

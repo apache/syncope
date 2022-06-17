@@ -22,11 +22,11 @@ import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.panel.Panel;
 
 public abstract class ResultPage<T extends Serializable> extends Panel implements WizardModalPanel<T> {
 

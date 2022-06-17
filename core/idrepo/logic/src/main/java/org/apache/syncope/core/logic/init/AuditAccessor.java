@@ -25,10 +25,10 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
+import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.AuditConf;
-import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 
 /**
  * Domain-sensible (via {@code @Transactional} access to audit data.

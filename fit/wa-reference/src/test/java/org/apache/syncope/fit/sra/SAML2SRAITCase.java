@@ -66,7 +66,7 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
     @BeforeAll
     public static void clientAppSetup() {
         String appName = SAML2SRAITCase.class.getName();
-        SAML2SPClientAppTO clientApp = clientAppService.list(ClientAppType.SAML2SP).stream().
+        SAML2SPClientAppTO clientApp = CLIENT_APP_SERVICE.list(ClientAppType.SAML2SP).stream().
                 filter(app -> appName.equals(app.getName())).
                 map(SAML2SPClientAppTO.class::cast).
                 findFirst().
@@ -77,12 +77,12 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
                     app.setEntityId(SRA_ADDRESS);
                     app.setMetadataLocation(SRA_ADDRESS + "/saml2/metadata");
 
-                    Response response = clientAppService.create(ClientAppType.SAML2SP, app);
+                    Response response = CLIENT_APP_SERVICE.create(ClientAppType.SAML2SP, app);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
                         fail("Could not create SAML2 Client App");
                     }
 
-                    return clientAppService.read(
+                    return CLIENT_APP_SERVICE.read(
                             ClientAppType.SAML2SP, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 });
 
@@ -91,8 +91,8 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
         clientApp.setRequiredNameIdFormat(SAML2SPNameId.PERSISTENT);
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
 
-        clientAppService.update(ClientAppType.SAML2SP, clientApp);
-        clientAppService.pushToWA();
+        CLIENT_APP_SERVICE.update(ClientAppType.SAML2SP, clientApp);
+        CLIENT_APP_SERVICE.pushToWA();
     }
 
     @Test

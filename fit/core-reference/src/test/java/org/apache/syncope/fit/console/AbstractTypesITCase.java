@@ -19,9 +19,9 @@
 package org.apache.syncope.fit.console;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.BeforeEach;
 

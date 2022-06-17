@@ -29,11 +29,11 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.OIDC4UIEntitlement;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
+import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
+import org.apache.syncope.core.provisioning.api.data.OIDCC4UIProviderDataBinder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
-import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
-import org.apache.syncope.core.provisioning.api.data.OIDCC4UIProviderDataBinder;
 
 public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIProviderTO> {
 

@@ -23,8 +23,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -43,21 +45,19 @@ import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.common.lib.to.ProvisioningReport;
-import org.apache.syncope.common.lib.types.IdMImplementationType;
-import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
-import org.apache.syncope.core.spring.ImplementationManager;
-import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStreamPullExecutor {
 

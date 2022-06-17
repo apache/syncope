@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface Realm extends Entity {
 

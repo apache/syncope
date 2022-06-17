@@ -46,7 +46,7 @@ public class ConnPoolConfUtilsTest extends AbstractTest {
     }
 
     @Test
-    public void updateObjectPoolConfiguration(@Mock ObjectPoolConfiguration opc) {
+    public void updateObjectPoolConfiguration(final @Mock ObjectPoolConfiguration opc) {
         ConnPoolConfUtils.updateObjectPoolConfiguration(opc, cpc);
         verify(opc).setMaxIdle(anyInt());
         verify(opc).setMaxObjects(anyInt());

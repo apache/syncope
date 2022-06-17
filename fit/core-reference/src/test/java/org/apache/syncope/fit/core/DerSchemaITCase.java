@@ -41,18 +41,18 @@ public class DerSchemaITCase extends AbstractITCase {
 
     @Test
     public void search() {
-        List<DerSchemaTO> schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.DERIVED).build());
+        List<DerSchemaTO> schemas = SCHEMA_SERVICE.search(new SchemaQuery.Builder().type(SchemaType.DERIVED).build());
         assertFalse(schemas.isEmpty());
         schemas.forEach(Assertions::assertNotNull);
 
-        schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.DERIVED).keyword("mder*").build());
+        schemas = SCHEMA_SERVICE.search(new SchemaQuery.Builder().type(SchemaType.DERIVED).keyword("mder*").build());
         assertFalse(schemas.isEmpty());
         schemas.forEach(Assertions::assertNotNull);
     }
 
     @Test
     public void read() {
-        DerSchemaTO derivedSchemaTO = schemaService.read(SchemaType.DERIVED, "cn");
+        DerSchemaTO derivedSchemaTO = SCHEMA_SERVICE.read(SchemaType.DERIVED, "cn");
         assertNotNull(derivedSchemaTO);
     }
 
@@ -70,20 +70,20 @@ public class DerSchemaITCase extends AbstractITCase {
         assertEquals("Derivato", actual.getLabel(Locale.ITALIAN));
         assertEquals(schema.getKey(), actual.getLabel(Locale.JAPANESE));
 
-        actual = schemaService.read(SchemaType.DERIVED, actual.getKey());
+        actual = SCHEMA_SERVICE.read(SchemaType.DERIVED, actual.getKey());
         assertNotNull(actual);
         assertEquals(actual.getExpression(), "derived_sx + '_' + derived_dx");
     }
 
     @Test
     public void delete() {
-        DerSchemaTO schema = schemaService.read(SchemaType.DERIVED, "rderiveddata");
+        DerSchemaTO schema = SCHEMA_SERVICE.read(SchemaType.DERIVED, "rderiveddata");
         assertNotNull(schema);
 
-        schemaService.delete(SchemaType.DERIVED, schema.getKey());
+        SCHEMA_SERVICE.delete(SchemaType.DERIVED, schema.getKey());
 
         try {
-            schemaService.read(SchemaType.DERIVED, "rderiveddata");
+            SCHEMA_SERVICE.read(SchemaType.DERIVED, "rderiveddata");
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -96,27 +96,27 @@ public class DerSchemaITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        DerSchemaTO schema = schemaService.read(SchemaType.DERIVED, "mderiveddata");
+        DerSchemaTO schema = SCHEMA_SERVICE.read(SchemaType.DERIVED, "mderiveddata");
         assertNotNull(schema);
         assertEquals("mderived_sx + '-' + mderived_dx", schema.getExpression());
         try {
             schema.setExpression("mderived_sx + '.' + mderived_dx");
 
-            schemaService.update(SchemaType.DERIVED, schema);
+            SCHEMA_SERVICE.update(SchemaType.DERIVED, schema);
 
-            schema = schemaService.read(SchemaType.DERIVED, "mderiveddata");
+            schema = SCHEMA_SERVICE.read(SchemaType.DERIVED, "mderiveddata");
             assertNotNull(schema);
             assertEquals("mderived_sx + '.' + mderived_dx", schema.getExpression());
         } finally {
             // Set updated back to make test re-runnable
             schema.setExpression("mderived_sx + '-' + mderived_dx");
-            schemaService.update(SchemaType.DERIVED, schema);
+            SCHEMA_SERVICE.update(SchemaType.DERIVED, schema);
         }
     }
 
     @Test
     public void issueSYNCOPE323() {
-        DerSchemaTO actual = schemaService.read(SchemaType.DERIVED, "rderiveddata");
+        DerSchemaTO actual = SCHEMA_SERVICE.read(SchemaType.DERIVED, "rderiveddata");
         assertNotNull(actual);
 
         try {

@@ -19,11 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.entity.auth;
 
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtils;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 
 public class JPAClientAppUtils implements ClientAppUtils {
 

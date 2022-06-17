@@ -48,22 +48,22 @@ public class ImplementationITCase extends AbstractITCase {
 
         // fail because type is wrong
         try {
-            implementationService.create(implementationTO);
+            IMPLEMENTATION_SERVICE.create(implementationTO);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidImplementation, e.getType());
         }
         implementationTO.setType(IdMImplementationType.PULL_ACTIONS);
 
-        Response response = implementationService.create(implementationTO);
+        Response response = IMPLEMENTATION_SERVICE.create(implementationTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
         }
 
-        ImplementationTO actual = implementationService.read(
+        ImplementationTO actual = IMPLEMENTATION_SERVICE.read(
                 implementationTO.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
         assertNotNull(actual);
         assertEquals(actual, implementationTO);
@@ -77,17 +77,17 @@ public class ImplementationITCase extends AbstractITCase {
         implementationTO.setType(IdMImplementationType.PULL_ACTIONS);
         implementationTO.setBody(TestPullActions.class.getName());
 
-        implementationService.create(implementationTO);
+        IMPLEMENTATION_SERVICE.create(implementationTO);
 
-        PullTaskTO pullTask = taskService.read(TaskType.PULL, AbstractTaskITCase.PULL_TASK_KEY, false);
+        PullTaskTO pullTask = TASK_SERVICE.read(TaskType.PULL, AbstractTaskITCase.PULL_TASK_KEY, false);
         assertNotNull(pullTask);
 
         int before = pullTask.getActions().size();
 
         pullTask.getActions().add(implementationTO.getKey());
-        taskService.update(TaskType.PULL, pullTask);
+        TASK_SERVICE.update(TaskType.PULL, pullTask);
 
-        pullTask = taskService.read(TaskType.PULL, AbstractTaskITCase.PULL_TASK_KEY, false);
+        pullTask = TASK_SERVICE.read(TaskType.PULL, AbstractTaskITCase.PULL_TASK_KEY, false);
         assertNotNull(pullTask);
 
         int after = pullTask.getActions().size();
@@ -95,16 +95,16 @@ public class ImplementationITCase extends AbstractITCase {
 
         // fails because the implementation is used
         try {
-            implementationService.delete(implementationTO.getType(), implementationTO.getKey());
+            IMPLEMENTATION_SERVICE.delete(implementationTO.getType(), implementationTO.getKey());
             fail("Unexpected");
         } catch (SyncopeClientException e) {
             assertEquals(e.getType(), ClientExceptionType.InUse);
         }
 
         pullTask.getActions().remove(implementationTO.getKey());
-        taskService.update(TaskType.PULL, pullTask);
+        TASK_SERVICE.update(TaskType.PULL, pullTask);
 
-        implementationService.delete(implementationTO.getType(), implementationTO.getKey());
+        IMPLEMENTATION_SERVICE.delete(implementationTO.getType(), implementationTO.getKey());
     }
 
 }

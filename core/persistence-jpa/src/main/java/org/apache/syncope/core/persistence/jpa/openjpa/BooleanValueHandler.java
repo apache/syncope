@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.openjpa;
 
+import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.openjpa.jdbc.identifier.DBIdentifier;
 import org.apache.openjpa.jdbc.kernel.JDBCStore;
@@ -27,8 +28,6 @@ import org.apache.openjpa.jdbc.schema.Column;
 import org.apache.openjpa.jdbc.schema.ColumnIO;
 import org.apache.openjpa.jdbc.sql.DBDictionary;
 import org.apache.openjpa.meta.JavaTypes;
-
-import java.util.Optional;
 
 public class BooleanValueHandler extends AbstractValueHandler {
 

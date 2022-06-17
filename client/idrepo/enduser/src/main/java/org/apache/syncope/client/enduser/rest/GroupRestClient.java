@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.enduser.rest;
 
+import java.util.List;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.GroupCR;
@@ -28,9 +31,6 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
-import java.util.List;
 
 /**
  * Console client for invoking Rest Group's services.

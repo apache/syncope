@@ -20,9 +20,9 @@ package org.apache.syncope.common.lib.report;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import org.apache.syncope.common.lib.Schema;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.common.lib.Schema;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 

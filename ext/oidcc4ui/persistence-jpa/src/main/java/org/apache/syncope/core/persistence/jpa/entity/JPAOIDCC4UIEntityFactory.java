@@ -19,11 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIEntityFactory;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIUserTemplate;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 public class JPAOIDCC4UIEntityFactory implements OIDCC4UIEntityFactory {
 

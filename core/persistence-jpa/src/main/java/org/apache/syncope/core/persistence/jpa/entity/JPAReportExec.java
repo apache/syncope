@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import java.util.Optional;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -28,8 +29,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
-
-import java.util.Optional;
 
 @Entity
 @Table(name = JPAReportExec.TABLE)

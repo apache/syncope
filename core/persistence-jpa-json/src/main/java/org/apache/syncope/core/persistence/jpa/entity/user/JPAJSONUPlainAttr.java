@@ -29,6 +29,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -39,7 +40,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 
 @JsonIgnoreProperties("valuesAsStrings")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)

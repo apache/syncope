@@ -20,9 +20,9 @@ package org.apache.syncope.client.enduser.pages;
 
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.enduser.panels.ChangePasswordPanel;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;

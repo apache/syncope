@@ -21,9 +21,9 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 
 public class SAML2SP4UIIdPValidator extends AbstractValidator<SAML2SP4UIIdPCheck, SAML2SP4UIIdP> {
 

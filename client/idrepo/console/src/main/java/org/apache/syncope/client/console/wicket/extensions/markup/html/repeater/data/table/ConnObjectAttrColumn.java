@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -28,7 +29,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
 
 public class ConnObjectAttrColumn extends AbstractColumn<ConnObjectTO, String> {
 

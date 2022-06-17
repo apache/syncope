@@ -58,21 +58,21 @@ public class JobNamerTest extends AbstractTest {
     }
 
     @Test
-    public void getJobKey(@Mock Task task) {
+    public void getJobKey(final @Mock Task task) {
         String uuid = UUID.randomUUID().toString();
         when(task.getKey()).thenReturn(uuid);
         assertTrue(EqualsBuilder.reflectionEquals(new JobKey("taskJob" + task.getKey(), Scheduler.DEFAULT_GROUP),
                 JobNamer.getJobKey(task)));
     }
-    
+
     @Test
-    public void getJobKey(@Mock Report report) {
+    public void getJobKey(final @Mock Report report) {
         String uuid = UUID.randomUUID().toString();
         when(report.getKey()).thenReturn(uuid);
         assertTrue(EqualsBuilder.reflectionEquals(new JobKey("reportJob" + report.getKey(), Scheduler.DEFAULT_GROUP),
                 JobNamer.getJobKey(report)));
     }
-    
+
     @Test
     public void getTriggerName() {
         String jobName = "testJobName";

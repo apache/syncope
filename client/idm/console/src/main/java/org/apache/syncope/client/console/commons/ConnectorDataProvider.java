@@ -18,6 +18,13 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -33,13 +40,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ConnectorDataProvider extends DirectoryDataProvider<Serializable> {
 

@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.notifications.NotificationDirectoryPanel.NotificationProvider;
@@ -38,6 +37,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.NotificationTO;

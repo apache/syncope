@@ -25,7 +25,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DynMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -34,6 +33,7 @@ import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

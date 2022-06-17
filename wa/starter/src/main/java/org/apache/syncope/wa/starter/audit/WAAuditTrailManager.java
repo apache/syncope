@@ -20,10 +20,9 @@ package org.apache.syncope.wa.starter.audit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Set;
-import org.apereo.cas.audit.spi.AbstractAuditTrailManager;
-import java.time.OffsetDateTime;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.audit.AuditEntry;
@@ -31,6 +30,7 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apereo.cas.audit.spi.AbstractAuditTrailManager;
 import org.apereo.inspektr.audit.AuditActionContext;
 
 public class WAAuditTrailManager extends AbstractAuditTrailManager {

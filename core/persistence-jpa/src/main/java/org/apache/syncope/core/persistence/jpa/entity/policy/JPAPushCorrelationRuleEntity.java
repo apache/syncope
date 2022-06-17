@@ -23,8 +23,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
-import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 
 @Entity
 @Table(name = JPAPushCorrelationRuleEntity.TABLE, uniqueConstraints =

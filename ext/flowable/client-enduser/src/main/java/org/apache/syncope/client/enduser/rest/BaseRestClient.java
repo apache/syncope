@@ -20,10 +20,10 @@ package org.apache.syncope.client.enduser.rest;
 
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
-import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

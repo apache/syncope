@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.flowable.task;
 
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.flowable.engine.delegate.DelegateExecution;
 
 public class Delete extends FlowableServiceTask {

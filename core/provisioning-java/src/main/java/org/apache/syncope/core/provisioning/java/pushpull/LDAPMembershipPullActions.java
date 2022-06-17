@@ -27,14 +27,15 @@ import java.util.Set;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
+import org.apache.syncope.core.provisioning.java.job.SetUMembershipsJob;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -44,7 +45,6 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.syncope.core.provisioning.java.job.SetUMembershipsJob;
 import org.springframework.transaction.annotation.Transactional;
 
 /**

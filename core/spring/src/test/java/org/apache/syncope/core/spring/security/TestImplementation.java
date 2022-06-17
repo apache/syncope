@@ -44,7 +44,7 @@ public class TestImplementation implements Implementation {
     }
 
     @Override
-    public void setEngine(ImplementationEngine engine) {
+    public void setEngine(final ImplementationEngine engine) {
         // nothing to do
     }
 
@@ -54,7 +54,7 @@ public class TestImplementation implements Implementation {
     }
 
     @Override
-    public void setType(String type) {
+    public void setType(final String type) {
         // nothing to do
     }
 
@@ -67,5 +67,4 @@ public class TestImplementation implements Implementation {
     public void setBody(final String body) {
         this.body = body;
     }
-
 }

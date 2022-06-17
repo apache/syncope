@@ -21,11 +21,11 @@ package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater
 import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.navigation.paging.AjaxDataNavigationToolbar;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;

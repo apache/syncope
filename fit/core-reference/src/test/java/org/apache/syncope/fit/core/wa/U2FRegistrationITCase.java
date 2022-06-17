@@ -47,12 +47,12 @@ public class U2FRegistrationITCase extends AbstractITCase {
 
     @BeforeEach
     public void setup() {
-        u2fRegistrationService.delete(new U2FDeviceQuery.Builder().build());
+        U2F_REGISTRATION_SERVICE.delete(new U2FDeviceQuery.Builder().build());
     }
 
     @Test
     public void create() {
-        assertDoesNotThrow(() -> u2fRegistrationService.create(
+        assertDoesNotThrow(() -> U2F_REGISTRATION_SERVICE.create(
                 UUID.randomUUID().toString(), createDeviceRegistration()));
     }
 
@@ -60,17 +60,17 @@ public class U2FRegistrationITCase extends AbstractITCase {
     public void count() {
         String owner = UUID.randomUUID().toString();
         U2FDevice device = createDeviceRegistration();
-        u2fRegistrationService.create(owner, device);
+        U2F_REGISTRATION_SERVICE.create(owner, device);
 
-        List<U2FDevice> devices = u2fRegistrationService.search(new U2FDeviceQuery.Builder().
+        List<U2FDevice> devices = U2F_REGISTRATION_SERVICE.search(new U2FDeviceQuery.Builder().
                 owner(owner).
                 expirationDate(OffsetDateTime.now().minusDays(1)).
                 build()).getResult();
         assertEquals(1, devices.size());
 
-        u2fRegistrationService.delete(new U2FDeviceQuery.Builder().id(device.getId()).build());
+        U2F_REGISTRATION_SERVICE.delete(new U2FDeviceQuery.Builder().id(device.getId()).build());
 
-        devices = u2fRegistrationService.search(new U2FDeviceQuery.Builder().build()).getResult();
+        devices = U2F_REGISTRATION_SERVICE.search(new U2FDeviceQuery.Builder().build()).getResult();
         assertTrue(devices.isEmpty());
     }
 
@@ -78,17 +78,17 @@ public class U2FRegistrationITCase extends AbstractITCase {
     public void delete() {
         U2FDevice device = createDeviceRegistration();
         String owner = UUID.randomUUID().toString();
-        u2fRegistrationService.create(owner, device);
+        U2F_REGISTRATION_SERVICE.create(owner, device);
 
-        u2fRegistrationService.delete(new U2FDeviceQuery.Builder().owner(owner).build());
-        assertTrue(u2fRegistrationService.search(
+        U2F_REGISTRATION_SERVICE.delete(new U2FDeviceQuery.Builder().owner(owner).build());
+        assertTrue(U2F_REGISTRATION_SERVICE.search(
                 new U2FDeviceQuery.Builder().owner(owner).build()).getResult().isEmpty());
 
         OffsetDateTime date = OffsetDateTime.now().plusDays(1);
 
-        u2fRegistrationService.delete(new U2FDeviceQuery.Builder().expirationDate(date).build());
+        U2F_REGISTRATION_SERVICE.delete(new U2FDeviceQuery.Builder().expirationDate(date).build());
 
-        assertTrue(u2fRegistrationService.search(
+        assertTrue(U2F_REGISTRATION_SERVICE.search(
                 new U2FDeviceQuery.Builder().expirationDate(date).build()).getResult().isEmpty());
     }
 }
