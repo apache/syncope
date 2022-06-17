@@ -23,12 +23,12 @@ import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtils;
 import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 
 public class JPAClientAppUtilsFactory implements ClientAppUtilsFactory {
 

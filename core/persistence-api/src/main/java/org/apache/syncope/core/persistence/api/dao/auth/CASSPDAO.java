@@ -18,9 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.dao.auth;
 
-import org.apache.syncope.core.persistence.api.dao.DAO;
-
 import java.util.List;
+import org.apache.syncope.core.persistence.api.dao.DAO;
 import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
 
 public interface CASSPDAO extends DAO<CASSPClientApp> {

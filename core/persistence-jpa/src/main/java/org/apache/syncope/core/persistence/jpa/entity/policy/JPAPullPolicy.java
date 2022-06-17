@@ -27,8 +27,8 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 
 @Entity
 @Table(name = JPAPullPolicy.TABLE)

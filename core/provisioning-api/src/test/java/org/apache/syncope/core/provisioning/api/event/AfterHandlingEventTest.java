@@ -30,7 +30,7 @@ public class AfterHandlingEventTest extends AbstractTest {
 
     @Test
     public void test() {
-     String who = "testUser";
+        String who = "testUser";
         AuditElements.EventCategoryType type = AuditElements.EventCategoryType.CUSTOM;
         String category = SyncopeConstants.REALM_ANYTYPE.toLowerCase();
         String subcategory = UUID.randomUUID().toString();
@@ -43,13 +43,13 @@ public class AfterHandlingEventTest extends AbstractTest {
                 who,
                 type,
                 category,
-                subcategory, 
+                subcategory,
                 event,
                 condition,
-                before, 
-                output, 
+                before,
+                output,
                 input);
-        
+
         assertEquals(who, afterHandlingEvent.getWho());
         assertEquals(type, afterHandlingEvent.getType());
         assertEquals(category, afterHandlingEvent.getCategory());

@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.entity.auth;
 
-import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
 public interface WAConfigEntry extends ProvidedKeyEntity {
 

@@ -25,9 +25,9 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 
 @Entity
 @Table(name = JPAPushTaskAnyFilter.TABLE, uniqueConstraints =

@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 
 public interface Role extends ProvidedKeyEntity {
 

@@ -40,12 +40,12 @@ import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
 import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
+import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
+import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
 
 @Transactional("Master")
 public class AuthModuleTest extends AbstractTest {

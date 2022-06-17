@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Objects;
-
 import org.identityconnectors.framework.common.objects.SyncToken;
 
 class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
@@ -64,5 +63,4 @@ class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
 
         return new SyncToken(Objects.requireNonNull(value));
     }
-
 }

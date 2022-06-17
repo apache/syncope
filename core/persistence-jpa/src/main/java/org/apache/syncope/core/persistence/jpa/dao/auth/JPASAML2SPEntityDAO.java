@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.jpa.dao.auth;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPEntityDAO;
+import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPEntity;
 import org.apache.syncope.core.persistence.jpa.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPEntity;
-import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPEntityDAO;
 
 public class JPASAML2SPEntityDAO extends AbstractDAO<SAML2SPEntity> implements SAML2SPEntityDAO {
 

@@ -19,8 +19,8 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.time.OffsetDateTime;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface Any<P extends PlainAttr<?>> extends Attributable<P>, Entity {
 

@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
-import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 
 public interface SyncopePullResultHandler extends SyncopeResultHandler<PullTask, PullActions>, SyncResultsHandler {
 

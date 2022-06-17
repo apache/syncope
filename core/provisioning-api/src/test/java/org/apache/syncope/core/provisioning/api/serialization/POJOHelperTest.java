@@ -43,7 +43,7 @@ public class POJOHelperTest extends AbstractTest {
     }
 
     @Test
-    public void deserializeWithTypeReference(@Mock TypeReference<? extends Object> reference) {
+    public void deserializeWithTypeReference(final @Mock TypeReference<? extends Object> reference) {
         String serialized = "false";
 
         assertNull(POJOHelper.deserialize(serialized, reference));

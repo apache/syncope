@@ -44,11 +44,11 @@ public class PropagationByResourceTest extends AbstractTest {
 
     @Test
     public void voidMethods(
-            @Mock Set<String> toBeCreated,
-            @Mock Set<String> toBeUpdated,
-            @Mock Set<String> toBeDeleted,
-            @Mock Map<String, String> oldConnObjectKeys,
-            @Mock PropagationByResource<String> propByRes) {
+            final @Mock Set<String> toBeCreated,
+            final @Mock Set<String> toBeUpdated,
+            final @Mock Set<String> toBeDeleted,
+            final @Mock Map<String, String> oldConnObjectKeys,
+            final @Mock PropagationByResource<String> propByRes) {
 
         ReflectionTestUtils.setField(propagationByResource, "toBeCreated", toBeCreated);
         ReflectionTestUtils.setField(propagationByResource, "toBeUpdated", toBeUpdated);

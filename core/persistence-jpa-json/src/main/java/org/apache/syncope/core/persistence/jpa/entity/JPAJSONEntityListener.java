@@ -19,12 +19,12 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
+import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 public abstract class JPAJSONEntityListener<A extends Any<?>> {
 

@@ -23,8 +23,8 @@ import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 
 @Entity
 @Table(name = JPASAML2SPEntity.TABLE)
