@@ -27,8 +27,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.oidc.OIDCConstants;
-import org.apache.syncope.common.lib.oidc.OIDCRequest;
 import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
+import org.apache.syncope.common.lib.oidc.OIDCRequest;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**

@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -48,15 +49,14 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.common.lib.to.ProvisioningReport;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -188,7 +188,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void afterWithEmptyAttributes(@Mock Attribute attribute) throws JobExecutionException {
+    public void afterWithEmptyAttributes(final @Mock Attribute attribute) throws JobExecutionException {
         entity = new GroupTO();
 
         when(connectorObj.getAttributeByName(anyString())).thenReturn(attribute);
@@ -220,9 +220,9 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
     @Test
     public void afterAll(
-            @Mock Map<String, Object> jobMap,
-            @Mock SchedulerFactoryBean schedulerFactoryBean,
-            @Mock Scheduler scheduler) throws JobExecutionException, SchedulerException {
+            final @Mock Map<String, Object> jobMap,
+            final @Mock SchedulerFactoryBean schedulerFactoryBean,
+            final @Mock Scheduler scheduler) throws JobExecutionException, SchedulerException {
 
         ReflectionTestUtils.setField(ldapMembershipPullActions, "scheduler", schedulerFactoryBean);
         when(schedulerFactoryBean.getScheduler()).thenReturn(scheduler);

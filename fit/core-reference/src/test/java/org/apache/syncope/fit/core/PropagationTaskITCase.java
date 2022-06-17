@@ -37,49 +37,49 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.Response;
-import org.apache.syncope.client.lib.batch.BatchRequest;
-import org.apache.syncope.common.lib.request.AnyObjectCR;
-import org.apache.syncope.common.lib.request.AttrPatch;
-import org.apache.syncope.common.lib.request.UserCR;
-import org.apache.syncope.common.lib.request.UserUR;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.batch.BatchRequest;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.TaskTO;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
+import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.ResourceDR;
+import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
@@ -87,8 +87,8 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.ExecListQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -97,8 +97,8 @@ import org.apache.syncope.fit.core.reference.DateToLongItemTransformer;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -109,9 +109,9 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ImplementationTO dateToLong = null;
         ImplementationTO dateToDate = null;
         try {
-            dateToLong = implementationService.read(
+            dateToLong = IMPLEMENTATION_SERVICE.read(
                     IdRepoImplementationType.ITEM_TRANSFORMER, DateToLongItemTransformer.class.getSimpleName());
-            dateToDate = implementationService.read(
+            dateToDate = IMPLEMENTATION_SERVICE.read(
                     IdRepoImplementationType.ITEM_TRANSFORMER, DateToDateItemTransformer.class.getSimpleName());
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
@@ -120,8 +120,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                 dateToLong.setEngine(ImplementationEngine.JAVA);
                 dateToLong.setType(IdRepoImplementationType.ITEM_TRANSFORMER);
                 dateToLong.setBody(DateToLongItemTransformer.class.getName());
-                Response response = implementationService.create(dateToLong);
-                dateToLong = implementationService.read(
+                Response response = IMPLEMENTATION_SERVICE.create(dateToLong);
+                dateToLong = IMPLEMENTATION_SERVICE.read(
                         dateToLong.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 assertNotNull(dateToLong);
 
@@ -130,8 +130,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                 dateToDate.setEngine(ImplementationEngine.JAVA);
                 dateToDate.setType(IdRepoImplementationType.ITEM_TRANSFORMER);
                 dateToDate.setBody(DateToDateItemTransformer.class.getName());
-                response = implementationService.create(dateToDate);
-                dateToDate = implementationService.read(
+                response = IMPLEMENTATION_SERVICE.create(dateToDate);
+                dateToDate = IMPLEMENTATION_SERVICE.read(
                         dateToDate.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 assertNotNull(dateToDate);
             }
@@ -142,7 +142,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void paginatedList() {
-        PagedResult<PropagationTaskTO> tasks = taskService.search(
+        PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(2).build());
         assertNotNull(tasks);
         assertEquals(2, tasks.getResult().size());
@@ -151,7 +151,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertNotNull(task);
         }
 
-        tasks = taskService.search(
+        tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).page(2).size(2).build());
         assertNotNull(tasks);
         assertEquals(2, tasks.getPage());
@@ -161,7 +161,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertNotNull(task);
         }
 
-        tasks = taskService.search(
+        tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).page(1000).size(2).build());
         assertNotNull(tasks);
         assertTrue(tasks.getResult().isEmpty());
@@ -169,7 +169,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void read() {
-        PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, "316285cc-ae52-4ea2-a33b-7355e189ac3f", true);
+        PropagationTaskTO taskTO = TASK_SERVICE.read(
+                TaskType.PROPAGATION, "316285cc-ae52-4ea2-a33b-7355e189ac3f", true);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
         assertTrue(taskTO.getExecutions().isEmpty());
@@ -183,12 +184,12 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         UserTO userTO = createUser(userCR).getEntity();
 
         List<PropagationTaskTO> tasks = new ArrayList<>(
-                taskService.<PropagationTaskTO>search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                TASK_SERVICE.<PropagationTaskTO>search(new TaskQuery.Builder(TaskType.PROPAGATION).
                         anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).build()).
                         getResult());
         assertFalse(tasks.isEmpty());
 
-        BatchRequest batchRequest = adminClient.batch();
+        BatchRequest batchRequest = ADMIN_CLIENT.batch();
 
         TaskService batchTaskService = batchRequest.getService(TaskService.class);
         tasks.forEach(task -> batchTaskService.delete(TaskType.PROPAGATION, task.getKey()));
@@ -196,7 +197,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         Response response = batchRequest.commit().getResponse();
         parseBatchResponse(response);
 
-        assertFalse(taskService.search(
+        assertFalse(TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(100).build()).
                 getResult().containsAll(tasks));
     }
@@ -204,7 +205,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     @Test
     public void propagationJEXLTransformer() {
         // 0. Set propagation JEXL MappingItemTransformer
-        ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
+        ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
         ProvisionTO provision = resource.getProvision(PRINTER).get();
         assertNotNull(provision);
@@ -218,7 +219,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         mappingItem.get().setPropagationJEXLTransformer("value + '" + suffix + '\'');
 
         try {
-            resourceService.update(resource);
+            RESOURCE_SERVICE.update(resource);
 
             // 1. create printer on external resource
             AnyObjectCR anyObjectCR = AnyObjectITCase.getSample("propagationJEXLTransformer");
@@ -230,18 +231,18 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             // 2. verify that JEXL MappingItemTransformer was applied during propagation
             // (location ends with given suffix on external resource)
-            ConnObjectTO connObjectTO = resourceService.
+            ConnObjectTO connObjectTO = RESOURCE_SERVICE.
                     readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
             assertFalse(anyObjectTO.getPlainAttr("location").get().getValues().get(0).endsWith(suffix));
             assertTrue(connObjectTO.getAttr("LOCATION").get().getValues().get(0).endsWith(suffix));
         } finally {
-            resourceService.update(originalResource);
+            RESOURCE_SERVICE.update(originalResource);
         }
     }
 
     @Test
     public void privileges() {
-        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         ldap.setKey("ldapWithPrivileges");
 
         ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
@@ -275,21 +276,21 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertEquals(1, businessCategory.getValues().size());
             assertEquals("postMighty", businessCategory.getValues().get(0));
         } finally {
-            resourceService.delete(ldap.getKey());
+            RESOURCE_SERVICE.delete(ldap.getKey());
         }
     }
 
     @Test
     public void purgePropagations() {
         try {
-            taskService.purgePropagations(null, null, null);
+            TASK_SERVICE.purgePropagations(null, null, null);
             fail();
         } catch (WebServiceException e) {
             assertNotNull(e);
         }
 
         OffsetDateTime oneWeekAgo = OffsetDateTime.now().minusWeeks(1);
-        Response response = taskService.purgePropagations(
+        Response response = TASK_SERVICE.purgePropagations(
                 oneWeekAgo,
                 List.of(ExecStatus.SUCCESS),
                 List.of(RESOURCE_NAME_WS1));
@@ -302,12 +303,12 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertEquals(1, deleted.size());
         assertTrue(deleted.stream().allMatch(d -> RESOURCE_NAME_WS1.equals(d.getResource())));
         // check that other propagation tasks haven't been affected
-        assertFalse(taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION)
+        assertFalse(TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION)
                 .anyTypeKind(AnyTypeKind.USER)
                 .page(0).size(10)
                 .build()).getResult().isEmpty());
         // delete all remaining SUCCESS tasks
-        response = taskService.purgePropagations(oneWeekAgo, List.of(ExecStatus.SUCCESS), List.of());
+        response = TASK_SERVICE.purgePropagations(oneWeekAgo, List.of(ExecStatus.SUCCESS), List.of());
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         deleted = response.readEntity(new GenericType<List<PropagationTaskTO>>() {
@@ -317,7 +318,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void propagationPolicy() throws InterruptedException {
-        SyncopeClient.nullPriorityAsync(anyObjectService, true);
+        SyncopeClient.nullPriorityAsync(ANY_OBJECT_SERVICE, true);
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         jdbcTemplate.execute("ALTER TABLE TESTPRINTER ADD COLUMN MAND_VALUE VARCHAR(1)");
@@ -330,7 +331,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             jdbcTemplate.execute("ALTER TABLE TESTPRINTER DROP COLUMN MAND_VALUE");
 
             PagedResult<PropagationTaskTO> propagations = await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).until(
-                    () -> taskService.search(
+                    () -> TASK_SERVICE.search(
                             new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_DBSCRIPTED).
                                     anyTypeKind(AnyTypeKind.ANY_OBJECT).entityKey(entityKey).build()),
                     p -> p.getTotalCount() > 0);
@@ -340,7 +341,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             propagations.getResult().get(0).getExecutions().stream().
                     anyMatch(e -> ExecStatus.SUCCESS.name().equals(e.getStatus()));
         } finally {
-            SyncopeClient.nullPriorityAsync(anyObjectService, false);
+            SyncopeClient.nullPriorityAsync(ANY_OBJECT_SERVICE, false);
 
             try {
                 jdbcTemplate.execute("ALTER TABLE TESTPRINTER DROP COLUMN MAND_VALUE");
@@ -353,9 +354,9 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE741() {
         for (int i = 0; i < 3; i++) {
-            taskService.execute(new ExecSpecs.Builder().
+            TASK_SERVICE.execute(new ExecSpecs.Builder().
                     key("1e697572-b896-484c-ae7f-0c8f63fcbc6c").build());
-            taskService.execute(new ExecSpecs.Builder().
+            TASK_SERVICE.execute(new ExecSpecs.Builder().
                     key("316285cc-ae52-4ea2-a33b-7355e189ac3f").build());
         }
         try {
@@ -365,14 +366,14 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         }
 
         // check list
-        PagedResult<TaskTO> tasks = taskService.search(
+        PagedResult<TaskTO> tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).
                         page(1).size(2).orderBy("operation DESC").details(false).build());
         for (TaskTO item : tasks.getResult()) {
             assertTrue(item.getExecutions().isEmpty());
         }
 
-        tasks = taskService.search(
+        tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).
                         page(1).size(2).orderBy("operation DESC").details(true).build());
         for (TaskTO item : tasks.getResult()) {
@@ -380,18 +381,18 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         }
 
         // check read
-        PropagationTaskTO task = taskService.read(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c", false);
+        PropagationTaskTO task = TASK_SERVICE.read(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c", false);
         assertNotNull(task);
         assertEquals("1e697572-b896-484c-ae7f-0c8f63fcbc6c", task.getKey());
         assertTrue(task.getExecutions().isEmpty());
 
-        task = taskService.read(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c", true);
+        task = TASK_SERVICE.read(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c", true);
         assertNotNull(task);
         assertEquals("1e697572-b896-484c-ae7f-0c8f63fcbc6c", task.getKey());
         assertFalse(task.getExecutions().isEmpty());
 
         // check list executions
-        PagedResult<ExecTO> execs = taskService.listExecutions(new ExecListQuery.Builder().key(
+        PagedResult<ExecTO> execs = TASK_SERVICE.listExecutions(new ExecListQuery.Builder().key(
                 "1e697572-b896-484c-ae7f-0c8f63fcbc6c").
                 page(1).size(2).build());
         assertTrue(execs.getTotalCount() >= execs.getResult().size());
@@ -415,11 +416,11 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                     operation(PatchOperation.ADD_REPLACE).
                     build());
 
-            userService.update(userUR);
+            USER_SERVICE.update(userUR);
         }
 
         // ASC order
-        PagedResult<TaskTO> unorderedTasks = taskService.search(
+        PagedResult<TaskTO> unorderedTasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).
                         resource(RESOURCE_NAME_LDAP).
                         entityKey(userTO.getKey()).
@@ -432,7 +433,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertFalse(unorderedTasks.getResult().isEmpty());
         assertEquals(10, unorderedTasks.getResult().size());
 
-        PagedResult<TaskTO> orderedTasks = taskService.search(
+        PagedResult<TaskTO> orderedTasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).
                         resource(RESOURCE_NAME_LDAP).
                         entityKey(userTO.getKey()).
@@ -449,7 +450,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
         // DESC order
         Collections.reverse(unorderedTasks.getResult());
-        orderedTasks = taskService.search(
+        orderedTasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).
                         resource(RESOURCE_NAME_LDAP).
                         entityKey(userTO.getKey()).
@@ -464,7 +465,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE1430() throws ParseException {
-        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         try {
             // 1. clone the LDAP resource and add some sensible mappings
             ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
@@ -508,7 +509,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             ldap.getProvisions().clear();
             ldap.getProvisions().add(provision);
             ldap.setKey(RESOURCE_NAME_LDAP + "1430" + getUUIDString());
-            resourceService.create(ldap);
+            RESOURCE_SERVICE.create(ldap);
 
             // 2. create user with the new resource assigned
             UserCR createReq = UserITCase.getUniqueSample("syncope1430@syncope.apache.org");
@@ -519,7 +520,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             UserTO user = createUser(createReq).getEntity();
 
             // 3. check attributes prepared for propagation
-            PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+            PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
                     resource(user.getResources().iterator().next()).
                     anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
             assertEquals(1, tasks.getSize());
@@ -550,7 +551,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertEquals(DateTimeFormatter.ISO_LOCAL_DATE.format(loginDate.plusDays(1)), carLicense.getValue().get(0));
         } finally {
             try {
-                resourceService.delete(ldap.getKey());
+                RESOURCE_SERVICE.delete(ldap.getKey());
             } catch (Exception ignore) {
                 // ignore
             }
@@ -570,7 +571,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         schemaTO = createSchema(SchemaType.PLAIN, schemaTO);
         assertNotNull(schemaTO);
 
-        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         UserTO userTO = null;
         try {
             // 1. clone the LDAP resource and add some sensible mappings
@@ -595,7 +596,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             ldap.getProvisions().add(provisionUser);
             ldap.getProvisions().add(provisionGroup);
             ldap.setKey(RESOURCE_NAME_LDAP + "1473" + getUUIDString());
-            resourceService.create(ldap);
+            RESOURCE_SERVICE.create(ldap);
 
             // 1. create group with the new resource assigned
             GroupCR groupCR = new GroupCR();
@@ -616,7 +617,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertNotNull(userTO);
 
             // 3. check attributes prepared for propagation
-            PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+            PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
                     resource(userTO.getResources().iterator().next()).
                     anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).build());
             assertEquals(1, tasks.getSize());
@@ -624,8 +625,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             ResourceDR resourceDR = new ResourceDR.Builder().key(groupTO.getKey()).
                     action(ResourceDeassociationAction.UNLINK).resource(ldap.getKey()).build();
 
-            groupService.deassociate(resourceDR);
-            groupService.delete(groupTO.getKey());
+            GROUP_SERVICE.deassociate(resourceDR);
+            GROUP_SERVICE.delete(groupTO.getKey());
 
             GroupCR newGroupCR = new GroupCR();
             newGroupCR.setName("NEWSYNCOPEGROUP1473-" + getUUIDString());
@@ -639,20 +640,20 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             userUR.setKey(userTO.getKey());
             userUR.getMemberships().add(
                     new MembershipUR.Builder(newGroupTO.getKey()).operation(PatchOperation.ADD_REPLACE).build());
-            userService.update(userUR);
+            USER_SERVICE.update(userUR);
 
             ConnObjectTO connObject =
-                    resourceService.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
+                    RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(connObject);
             assertTrue(connObject.getAttr("ldapGroups").isPresent());
             assertEquals(2, connObject.getAttr("ldapGroups").get().getValues().size());
         } finally {
             try {
-                resourceService.delete(ldap.getKey());
+                RESOURCE_SERVICE.delete(ldap.getKey());
                 if (userTO != null) {
-                    userService.delete(userTO.getKey());
+                    USER_SERVICE.delete(userTO.getKey());
                 }
-                schemaService.delete(SchemaType.PLAIN, schemaTO.getKey());
+                SCHEMA_SERVICE.delete(SchemaType.PLAIN, schemaTO.getKey());
             } catch (Exception ignore) {
                 // ignore
             }
@@ -661,7 +662,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE1567() {
-        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         try {
             // 1. clone the LDAP resource and add the relationships mapping
             ProvisionTO provisionUser =
@@ -678,7 +679,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             ldap.getProvisions().clear();
             ldap.getProvisions().add(provisionUser);
             ldap.setKey(RESOURCE_NAME_LDAP + "1567" + getUUIDString());
-            resourceService.create(ldap);
+            RESOURCE_SERVICE.create(ldap);
 
             // 1. create user with relationship and the new resource assigned
             UserCR userCR = UserITCase.getUniqueSample("syncope1567@syncope.apache.org");
@@ -692,7 +693,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertFalse(userTO.getRelationships().isEmpty());
 
             // 2. check attributes prepared for propagation
-            PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+            PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
                     resource(userCR.getResources().iterator().next()).
                     anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).build());
             assertEquals(1, tasks.getSize());
@@ -707,13 +708,13 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             // 3. check propagated value
             ConnObjectTO connObject =
-                    resourceService.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
+                    RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(connObject);
             assertTrue(connObject.getAttr("l").isPresent());
             assertEquals("Canon MFC8030", connObject.getAttr("l").get().getValues().get(0));
         } finally {
             try {
-                resourceService.delete(ldap.getKey());
+                RESOURCE_SERVICE.delete(ldap.getKey());
             } catch (Exception ignore) {
                 // ignore
             }
@@ -722,7 +723,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE1605() throws ParseException {
-        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         try {
             // 1. clone the LDAP resource and add some sensible mappings
             ProvisionTO provisionGroup =
@@ -744,7 +745,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             ldap.getProvisions().add(provisionGroup);
 
             ldap.setKey(RESOURCE_NAME_LDAP + "1605" + getUUIDString());
-            resourceService.create(ldap);
+            RESOURCE_SERVICE.create(ldap);
 
             // 1. create group with the new resource assigned
             String originalName = "grp1605-" + getUUIDString();
@@ -759,14 +760,14 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertNotNull(groupTO);
 
             // 3. check attributes prepared for propagation
-            PagedResult<PropagationTaskTO> tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+            PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
                     resource(ldap.getKey()).anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).build());
             assertEquals(1, tasks.getSize());
             assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
             assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
 
             ConnObjectTO beforeConnObject =
-                    resourceService.readConnObject(ldap.getKey(), AnyTypeKind.GROUP.name(), groupTO.getKey());
+                    RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.GROUP.name(), groupTO.getKey());
 
             GroupUR groupUR = new GroupUR();
             groupUR.setKey(groupTO.getKey());
@@ -774,7 +775,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             groupUR.getPlainAttrs().add(attrAddReplacePatch("originalName", "new" + originalName));
             groupTO = updateGroup(groupUR).getEntity();
 
-            tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+            tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
                     resource(ldap.getKey()).anyTypeKind(AnyTypeKind.GROUP).entityKey(groupTO.getKey()).
                     orderBy("start DESC").build());
             assertEquals(2, tasks.getSize());
@@ -782,13 +783,13 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
 
             ConnObjectTO afterConnObject =
-                    resourceService.readConnObject(ldap.getKey(), AnyTypeKind.GROUP.name(), groupTO.getKey());
+                    RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.GROUP.name(), groupTO.getKey());
             assertNotEquals(afterConnObject.getAttr(Name.NAME).get().getValues().get(0),
                     beforeConnObject.getAttr(Name.NAME).get().getValues().get(0));
             assertTrue(afterConnObject.getAttr(Name.NAME).get().getValues().get(0).contains("new" + originalName));
         } finally {
             try {
-                resourceService.delete(ldap.getKey());
+                RESOURCE_SERVICE.delete(ldap.getKey());
             } catch (Exception ignore) {
                 // ignore
             }

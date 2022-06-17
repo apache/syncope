@@ -77,7 +77,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
 
     @BeforeAll
     public static void sraRouteSetup() {
-        sraRouteService.list().forEach(route -> sraRouteService.delete(route.getKey()));
+        SRA_ROUTE_SERVICE.list().forEach(route -> SRA_ROUTE_SERVICE.delete(route.getKey()));
 
         SRARouteTO publicRoute = new SRARouteTO();
         publicRoute.setName("public");
@@ -89,7 +89,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
         publicRoute.getFilters().add(new SRARouteFilter.Builder().
                 factory(SRARouteFilterFactory.SET_PATH).args("/{segment}").build());
 
-        Response response = sraRouteService.create(publicRoute);
+        Response response = SRA_ROUTE_SERVICE.create(publicRoute);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             fail("Could not create public SRA Route");
         }
@@ -104,7 +104,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
         protectedRoute.getFilters().add(new SRARouteFilter.Builder().
                 factory(SRARouteFilterFactory.SET_PATH).args("/{segment}").build());
 
-        response = sraRouteService.create(protectedRoute);
+        response = SRA_ROUTE_SERVICE.create(protectedRoute);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             fail("Could not create protected SRA Route");
         }
@@ -118,7 +118,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
                 factory(SRARoutePredicateFactory.PATH).args("/protected/logout").build());
         logoutRoute.setOrder(-1);
 
-        response = sraRouteService.create(logoutRoute);
+        response = SRA_ROUTE_SERVICE.create(logoutRoute);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             fail("Could not create logout SRA Route");
         }
@@ -135,7 +135,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
                 factory(SRARouteFilterFactory.SET_RESPONSE_HEADER).args(LOGGED_OUT_HEADER + ", true").build());
         postLogout.setOrder(-10);
 
-        response = sraRouteService.create(postLogout);
+        response = SRA_ROUTE_SERVICE.create(postLogout);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             fail("Could not create logout SRA Route");
         }
@@ -200,7 +200,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
         });
         assertDoesNotThrow(() -> WebClient.create(SRA_ADDRESS).get().getStatus());
 
-        sraRouteService.pushToSRA();
+        SRA_ROUTE_SERVICE.pushToSRA();
     }
 
     @AfterAll
@@ -215,7 +215,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
         String authModule = "DefaultSyncopeAuthModule";
         String description = "SRA auth policy";
 
-        return policyService.list(PolicyType.AUTH).stream().
+        return POLICY_SERVICE.list(PolicyType.AUTH).stream().
                 map(AuthPolicyTO.class::cast).
                 filter(policy -> description.equals(policy.getName())
                 && policy.getConf() instanceof DefaultAuthPolicyConf
@@ -229,12 +229,12 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
                     policy.setName(description);
                     policy.setConf(policyConf);
 
-                    Response response = policyService.create(PolicyType.AUTH, policy);
+                    Response response = POLICY_SERVICE.create(PolicyType.AUTH, policy);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
                         fail("Could not create Syncope Auth Policy");
                     }
 
-                    return policyService.read(PolicyType.AUTH, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                    return POLICY_SERVICE.read(PolicyType.AUTH, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 });
     }
 

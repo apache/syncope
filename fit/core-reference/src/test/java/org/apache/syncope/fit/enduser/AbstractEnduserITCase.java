@@ -28,6 +28,10 @@ import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+import org.apache.syncope.client.enduser.EnduserProperties;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
@@ -46,6 +50,7 @@ import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractUIITCase;
+import org.apache.syncope.fit.console.AbstractConsoleITCase;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.AfterAll;
@@ -54,11 +59,6 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
-import org.apache.syncope.client.enduser.EnduserProperties;
-import org.apache.syncope.fit.console.AbstractConsoleITCase;
 import org.springframework.test.context.support.TestPropertySourceUtils;
 
 public abstract class AbstractEnduserITCase extends AbstractUIITCase {
@@ -126,13 +126,13 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
         }
     }
 
-    protected static SyncopeClientFactoryBean clientFactory;
+    protected static SyncopeClientFactoryBean CLIENT_FACTORY;
 
-    protected static SyncopeClient adminClient;
+    protected static SyncopeClient ADMIN_CLIENT;
 
-    protected static UserService userService;
+    protected static UserService USER_SERVICE;
 
-    protected static SecurityQuestionService securityQuestionService;
+    protected static SecurityQuestionService SECURITY_QUESTION_SERVICE;
 
     @BeforeAll
     public static void setUp() {
@@ -177,15 +177,15 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
 
     @BeforeAll
     public static void restSetup() {
-        clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS);
-        LOG.info("Performing IT with content type {}", clientFactory.getContentType().getMediaType());
+        CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(ADDRESS);
+        LOG.info("Performing IT with content type {}", CLIENT_FACTORY.getContentType().getMediaType());
 
-        adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        ADMIN_CLIENT = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
 
-        userService = adminClient.getService(UserService.class);
+        USER_SERVICE = ADMIN_CLIENT.getService(UserService.class);
 
         // create test user for must change password
-        userService.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustchangepassword").
+        USER_SERVICE.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustchangepassword").
                 password("password123").
                 mustChangePassword(true).
                 plainAttr(attr("fullname", "mustchangepassword@apache.org")).
@@ -198,7 +198,7 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
                 build());
 
         // create test user for self password reset
-        userService.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfpwdreset").
+        USER_SERVICE.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfpwdreset").
                 password("password123").
                 plainAttr(attr("fullname", "selfpwdreset@apache.org")).
                 plainAttr(attr("firstname", "selfpwdreset@apache.org")).
@@ -210,7 +210,7 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
                 build());
 
         // create test user for self update
-        userService.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfupdate").
+        USER_SERVICE.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfupdate").
                 password("password123").
                 plainAttr(attr("fullname", "selfupdate@apache.org")).
                 plainAttr(attr("firstname", "selfupdate@apache.org")).
@@ -219,17 +219,17 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
                 plainAttr(attr("userId", "selfupdate@apache.org")).
                 build());
 
-        securityQuestionService = adminClient.getService(SecurityQuestionService.class);
+        SECURITY_QUESTION_SERVICE = ADMIN_CLIENT.getService(SecurityQuestionService.class);
     }
 
     @AfterAll
     public static void cleanUp() {
-        userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().
                         is("username").equalTo("selfupdate").
                         or("username").equalTo("selfpwdreset").
                         or("username").equalTo("mustchangepassword").query()).
-                build()).getResult().forEach(user -> userService.delete(user.getKey()));
+                build()).getResult().forEach(user -> USER_SERVICE.delete(user.getKey()));
     }
 
     protected static void doLogin(final String user, final String passwd) {

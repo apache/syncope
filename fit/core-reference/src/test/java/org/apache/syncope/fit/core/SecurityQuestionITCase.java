@@ -36,14 +36,14 @@ public class SecurityQuestionITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        SecurityQuestionTO securityQuestionTO = securityQuestionService.read(
+        SecurityQuestionTO securityQuestionTO = SECURITY_QUESTION_SERVICE.read(
                 "887028ea-66fc-41e7-b397-620d7ea6dfbb");
         assertNotNull(securityQuestionTO);
     }
 
     @Test
     public void list() {
-        List<SecurityQuestionTO> securityQuestionTOs = securityQuestionService.list();
+        List<SecurityQuestionTO> securityQuestionTOs = SECURITY_QUESTION_SERVICE.list();
         assertNotNull(securityQuestionTOs);
         assertFalse(securityQuestionTOs.isEmpty());
         for (SecurityQuestionTO instance : securityQuestionTOs) {
@@ -56,7 +56,7 @@ public class SecurityQuestionITCase extends AbstractITCase {
         SecurityQuestionTO securityQuestionTO = new SecurityQuestionTO();
         securityQuestionTO.setContent("What is your favorite pet's name?");
 
-        Response response = securityQuestionService.create(securityQuestionTO);
+        Response response = SECURITY_QUESTION_SERVICE.create(securityQuestionTO);
         SecurityQuestionTO actual = getObject(response.getLocation(), SecurityQuestionService.class,
                 SecurityQuestionTO.class);
 
@@ -68,12 +68,12 @@ public class SecurityQuestionITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        SecurityQuestionTO securityQuestionTO = securityQuestionService.read(
+        SecurityQuestionTO securityQuestionTO = SECURITY_QUESTION_SERVICE.read(
                 "887028ea-66fc-41e7-b397-620d7ea6dfbb");
         securityQuestionTO.setContent("What is your favorite color?");
 
-        securityQuestionService.update(securityQuestionTO);
-        SecurityQuestionTO actual = securityQuestionService.read(securityQuestionTO.getKey());
+        SECURITY_QUESTION_SERVICE.update(securityQuestionTO);
+        SecurityQuestionTO actual = SECURITY_QUESTION_SERVICE.read(securityQuestionTO.getKey());
         assertNotNull(actual);
         assertEquals(actual, securityQuestionTO);
     }
@@ -83,13 +83,13 @@ public class SecurityQuestionITCase extends AbstractITCase {
         SecurityQuestionTO securityQuestion = new SecurityQuestionTO();
         securityQuestion.setContent("What is your first pet's name?");
 
-        Response response = securityQuestionService.create(securityQuestion);
+        Response response = SECURITY_QUESTION_SERVICE.create(securityQuestion);
         securityQuestion = getObject(response.getLocation(), SecurityQuestionService.class, SecurityQuestionTO.class);
 
-        securityQuestionService.delete(securityQuestion.getKey());
+        SECURITY_QUESTION_SERVICE.delete(securityQuestion.getKey());
 
         try {
-            securityQuestionService.read(securityQuestion.getKey());
+            SECURITY_QUESTION_SERVICE.read(securityQuestion.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());

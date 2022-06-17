@@ -39,13 +39,13 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 import org.apache.syncope.core.persistence.api.entity.Application;
-import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
-import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
-import org.apache.syncope.core.persistence.jpa.validation.entity.RoleCheck;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
+import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
+import org.apache.syncope.core.persistence.jpa.validation.entity.RoleCheck;
 
 @Entity
 @Table(name = JPARole.TABLE)

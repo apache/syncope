@@ -22,15 +22,15 @@ import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.pages.Realms;
+import org.apache.syncope.client.console.pages.Security;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.ajax.AjaxEventBehavior;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.syncope.client.console.pages.Realms;
-import org.apache.syncope.client.console.pages.Security;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class NumberWidget extends BaseWidget {

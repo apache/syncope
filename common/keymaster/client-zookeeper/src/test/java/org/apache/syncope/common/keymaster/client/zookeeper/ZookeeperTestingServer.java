@@ -30,7 +30,7 @@ import javax.security.auth.login.Configuration;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingServer;
 
-public class ZookeeperTestingServer {
+public final class ZookeeperTestingServer {
 
     private static TestingServer ZK_SERVER;
 
@@ -70,5 +70,9 @@ public class ZookeeperTestingServer {
             InstanceSpec spec = new InstanceSpec(null, 2181, -1, -1, true, 1, -1, -1, customProperties);
             ZK_SERVER = new TestingServer(spec, true);
         }
+    }
+
+    private ZookeeperTestingServer() {
+        // private constructor for static utility class
     }
 }

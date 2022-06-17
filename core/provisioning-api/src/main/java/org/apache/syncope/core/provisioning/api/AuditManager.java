@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
-import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 
 public interface AuditManager {
 

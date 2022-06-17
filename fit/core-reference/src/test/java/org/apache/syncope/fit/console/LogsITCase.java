@@ -21,8 +21,8 @@ package org.apache.syncope.fit.console;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.reflect.InvocationTargetException;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.Logs;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.Component;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.markup.html.WebMarkupContainer;

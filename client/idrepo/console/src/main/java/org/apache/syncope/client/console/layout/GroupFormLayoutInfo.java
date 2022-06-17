@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.console.layout;
 
-import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.console.wizards.any.GroupWizardBuilder;
+import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.common.lib.to.GroupTO;
 
 public class GroupFormLayoutInfo extends AbstractAnyFormLayout<GroupTO, GroupForm> {

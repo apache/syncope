@@ -44,18 +44,19 @@ public class VirSchemaITCase extends AbstractITCase {
 
     @Test
     public void search() {
-        List<VirSchemaTO> schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
+        List<VirSchemaTO> schemas = SCHEMA_SERVICE.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
         assertFalse(schemas.isEmpty());
         schemas.forEach(Assertions::assertNotNull);
 
-        schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).keyword("rvirtual*").build());
+        schemas = SCHEMA_SERVICE.search(
+                new SchemaQuery.Builder().type(SchemaType.VIRTUAL).keyword("rvirtual*").build());
         assertFalse(schemas.isEmpty());
         schemas.forEach(Assertions::assertNotNull);
     }
 
     @Test
     public void crud() {
-        ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);
+        ResourceTO csv = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);
         assertNotNull(csv);
         assertEquals(1, csv.getProvisions().size());
         assertTrue(csv.getProvisions().get(0).getVirSchemas().isEmpty());
@@ -74,24 +75,24 @@ public class VirSchemaITCase extends AbstractITCase {
         assertEquals("Virtual", schema.getLabel(Locale.ENGLISH));
         assertEquals(schema.getKey(), schema.getLabel(Locale.CHINESE));
 
-        csv = resourceService.read(RESOURCE_NAME_CSV);
+        csv = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);
         assertNotNull(csv);
         assertEquals(1, csv.getProvisions().size());
         assertFalse(csv.getProvisions().get(0).getVirSchemas().isEmpty());
 
-        schema = schemaService.read(SchemaType.VIRTUAL, schema.getKey());
+        schema = SCHEMA_SERVICE.read(SchemaType.VIRTUAL, schema.getKey());
         assertNotNull(schema);
 
-        schemaService.delete(SchemaType.VIRTUAL, schema.getKey());
+        SCHEMA_SERVICE.delete(SchemaType.VIRTUAL, schema.getKey());
 
         try {
-            schemaService.read(SchemaType.VIRTUAL, schema.getKey());
+            SCHEMA_SERVICE.read(SchemaType.VIRTUAL, schema.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
-        csv = resourceService.read(RESOURCE_NAME_CSV);
+        csv = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);
         assertNotNull(csv);
         assertEquals(1, csv.getProvisions().size());
         assertTrue(csv.getProvisions().get(0).getVirSchemas().isEmpty());
@@ -99,7 +100,7 @@ public class VirSchemaITCase extends AbstractITCase {
 
     @Test
     public void anonymous() {
-        SchemaService unauthenticated = clientFactory.create().getService(SchemaService.class);
+        SchemaService unauthenticated = CLIENT_FACTORY.create().getService(SchemaService.class);
         try {
             unauthenticated.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
             fail("This should not happen");
@@ -107,13 +108,13 @@ public class VirSchemaITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        SchemaService anonymous = anonymusClient.getService(SchemaService.class);
+        SchemaService anonymous = ANONYMOUS_CLIENT.getService(SchemaService.class);
         assertFalse(anonymous.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build()).isEmpty());
     }
 
     @Test
     public void issueSYNCOPE323() {
-        VirSchemaTO actual = schemaService.read(SchemaType.VIRTUAL, "virtualdata");
+        VirSchemaTO actual = SCHEMA_SERVICE.read(SchemaType.VIRTUAL, "virtualdata");
         assertNotNull(actual);
 
         try {
@@ -136,7 +137,7 @@ public class VirSchemaITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE418() {
-        ResourceTO ws1 = resourceService.read(RESOURCE_NAME_WS1);
+        ResourceTO ws1 = RESOURCE_SERVICE.read(RESOURCE_NAME_WS1);
         assertNotNull(ws1);
         assertEquals(1, ws1.getProvisions().size());
         assertTrue(ws1.getProvisions().get(0).getVirSchemas().isEmpty());

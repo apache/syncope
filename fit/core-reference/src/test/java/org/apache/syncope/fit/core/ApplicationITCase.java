@@ -43,16 +43,16 @@ public class ApplicationITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        ApplicationTO mightyApp = applicationService.read("mightyApp");
+        ApplicationTO mightyApp = APPLICATION_SERVICE.read("mightyApp");
         assertNotNull(mightyApp);
         assertEquals(2, mightyApp.getPrivileges().size());
         assertTrue(mightyApp.getPrivileges().stream().anyMatch(privilege -> "postMighty".equals(privilege.getKey())));
 
-        PrivilegeTO getMighty = applicationService.readPrivilege("getMighty");
+        PrivilegeTO getMighty = APPLICATION_SERVICE.readPrivilege("getMighty");
         assertNotNull(getMighty);
         assertEquals("mightyApp", getMighty.getApplication());
 
-        RoleTO role = roleService.read("Other");
+        RoleTO role = ROLE_SERVICE.read("Other");
         assertFalse(role.getPrivileges().isEmpty());
         assertEquals(1, role.getPrivileges().size());
         assertTrue(role.getPrivileges().stream().anyMatch("postMighty"::equals));
@@ -79,7 +79,7 @@ public class ApplicationITCase extends AbstractITCase {
         privilegeTO.setSpec("{ \"three\": true }");
         application.getPrivileges().add(privilegeTO);
 
-        Response response = applicationService.create(application);
+        Response response = APPLICATION_SERVICE.create(application);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
 
         application = getObject(response.getLocation(), ApplicationService.class, ApplicationTO.class);
@@ -91,9 +91,9 @@ public class ApplicationITCase extends AbstractITCase {
         application.setDescription("A description");
         application.getPrivileges().remove(1);
 
-        applicationService.update(application);
+        APPLICATION_SERVICE.update(application);
 
-        application = applicationService.read(application.getKey());
+        application = APPLICATION_SERVICE.read(application.getKey());
         assertNotNull(application);
         assertNotNull(application.getDescription());
         assertEquals(2, application.getPrivileges().size());
@@ -104,7 +104,7 @@ public class ApplicationITCase extends AbstractITCase {
         role.getPrivileges().addAll(
                 application.getPrivileges().stream().map(EntityTO::getKey).collect(Collectors.toList()));
 
-        response = roleService.create(role);
+        response = ROLE_SERVICE.create(role);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
 
         role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
@@ -112,16 +112,16 @@ public class ApplicationITCase extends AbstractITCase {
         assertEquals(2, role.getPrivileges().size());
 
         // 4. delete application => delete privileges
-        applicationService.delete(application.getKey());
+        APPLICATION_SERVICE.delete(application.getKey());
 
         try {
-            applicationService.read(application.getKey());
+            APPLICATION_SERVICE.read(application.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
-        role = roleService.read(role.getKey());
+        role = ROLE_SERVICE.read(role.getKey());
         assertNotNull(role);
         assertTrue(role.getPrivileges().isEmpty());
     }

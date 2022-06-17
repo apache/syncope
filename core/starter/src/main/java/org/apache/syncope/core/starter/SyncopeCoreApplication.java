@@ -57,10 +57,10 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.java.ProvisioningProperties;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.apache.syncope.core.starter.actuate.DomainsHealthIndicator;
-import org.apache.syncope.core.starter.actuate.ExternalResourcesHealthIndicator;
 import org.apache.syncope.core.starter.actuate.DefaultSyncopeCoreInfoContributor;
+import org.apache.syncope.core.starter.actuate.DomainsHealthIndicator;
 import org.apache.syncope.core.starter.actuate.EntityCacheEndpoint;
+import org.apache.syncope.core.starter.actuate.ExternalResourcesHealthIndicator;
 import org.apache.syncope.core.starter.actuate.SyncopeCoreInfoContributor;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;

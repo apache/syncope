@@ -32,11 +32,11 @@ import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.SRARouteTO;
+import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.common.rest.api.service.SRARouteService;
 
 @Component
 public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefreshedEvent> {

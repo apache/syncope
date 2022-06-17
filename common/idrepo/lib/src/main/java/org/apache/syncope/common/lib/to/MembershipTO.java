@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.Attributable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -32,6 +28,10 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.Attributable;
 import org.apache.syncope.common.lib.BaseBean;
 
 public class MembershipTO implements BaseBean, Attributable {

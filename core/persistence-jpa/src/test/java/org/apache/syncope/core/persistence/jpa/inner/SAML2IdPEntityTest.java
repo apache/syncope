@@ -24,12 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import org.apache.syncope.core.persistence.api.dao.SAML2IdPEntityDAO;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.dao.SAML2IdPEntityDAO;
-import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
 
 @Transactional("Master")
 public class SAML2IdPEntityTest extends AbstractTest {

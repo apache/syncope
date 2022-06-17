@@ -19,11 +19,11 @@
 package org.apache.syncope.fit.core.reference;
 
 import java.util.Optional;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.UserCR;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;

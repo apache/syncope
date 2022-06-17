@@ -21,9 +21,9 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
-import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 
 public class OIDCC4UIProviderValidator extends AbstractValidator<OIDCC4UIProviderCheck, OIDCC4UIProvider> {
 

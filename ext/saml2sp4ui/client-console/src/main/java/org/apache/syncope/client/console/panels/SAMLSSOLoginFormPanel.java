@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.ui.commons.panels.AbstractSAMLSSOLoginFormPanel;
 import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.client.ui.commons.panels.AbstractSAMLSSOLoginFormPanel;
 
 public class SAMLSSOLoginFormPanel extends AbstractSAMLSSOLoginFormPanel {
 

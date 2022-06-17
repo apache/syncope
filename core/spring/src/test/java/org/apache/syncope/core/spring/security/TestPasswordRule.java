@@ -51,7 +51,7 @@ public class TestPasswordRule implements PasswordRule {
     }
 
     @Override
-    public void enforce(LinkedAccount account) {
+    public void enforce(final LinkedAccount account) {
         // nothing to do
     }
 }

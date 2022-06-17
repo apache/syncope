@@ -27,9 +27,9 @@ import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AccessTokenQuery;
-import org.springframework.stereotype.Service;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.core.logic.AccessTokenLogic;
+import org.springframework.stereotype.Service;
 
 @Service
 public class AccessTokenServiceImpl extends AbstractService implements AccessTokenService {

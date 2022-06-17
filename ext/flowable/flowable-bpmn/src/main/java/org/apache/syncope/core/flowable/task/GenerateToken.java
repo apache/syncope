@@ -19,8 +19,8 @@
 package org.apache.syncope.core.flowable.task;
 
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.flowable.engine.delegate.DelegateExecution;
 

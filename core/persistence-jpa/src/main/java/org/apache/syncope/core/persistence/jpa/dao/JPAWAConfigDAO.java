@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.List;
+import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
+import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAWAConfigEntry;
 import org.springframework.transaction.annotation.Transactional;
-import javax.persistence.TypedQuery;
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
 
 public class JPAWAConfigDAO extends AbstractDAO<WAConfigEntry> implements WAConfigDAO {
 

@@ -33,65 +33,65 @@ import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 
 public class WAClientAppITCase extends AbstractITCase {
 
     private static final String AUTH_MODULE = "DefaultJDBCAuthModule";
 
-    private static WAClientAppService waClientAppService;
+    private static WAClientAppService WA_CLIENT_APP_SERVICE;
 
     @BeforeAll
     public static void setup() {
-        assumeTrue(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
+        assumeTrue(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
 
-        SyncopeClient anonymous = clientFactory.create(
+        SyncopeClient anonymous = CLIENT_FACTORY.create(
                 new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
-        waClientAppService = anonymous.getService(WAClientAppService.class);
+        WA_CLIENT_APP_SERVICE = anonymous.getService(WAClientAppService.class);
     }
 
     @Test
     public void list() {
         createClientApp(ClientAppType.OIDCRP, buildOIDCRP());
 
-        List<WAClientApp> list = waClientAppService.list();
+        List<WAClientApp> list = WA_CLIENT_APP_SERVICE.list();
         assertFalse(list.isEmpty());
     }
 
     @Test
     public void read() {
         OIDCRPClientAppTO oidcrpto = createClientApp(ClientAppType.OIDCRP, buildOIDCRP());
-        WAClientApp waClientApp = waClientAppService.read(oidcrpto.getClientAppId(), null);
+        WAClientApp waClientApp = WA_CLIENT_APP_SERVICE.read(oidcrpto.getClientAppId(), null);
         assertNotNull(waClientApp);
 
-        waClientApp = waClientAppService.read(oidcrpto.getClientAppId(), ClientAppType.OIDCRP);
+        waClientApp = WA_CLIENT_APP_SERVICE.read(oidcrpto.getClientAppId(), ClientAppType.OIDCRP);
         assertNotNull(waClientApp);
 
-        waClientApp = waClientAppService.read(oidcrpto.getName(), null);
+        waClientApp = WA_CLIENT_APP_SERVICE.read(oidcrpto.getName(), null);
         assertNotNull(waClientApp);
 
-        waClientApp = waClientAppService.read(oidcrpto.getName(), ClientAppType.OIDCRP);
+        waClientApp = WA_CLIENT_APP_SERVICE.read(oidcrpto.getName(), ClientAppType.OIDCRP);
         assertNotNull(waClientApp);
 
         SAML2SPClientAppTO samlspto = createClientApp(ClientAppType.SAML2SP, buildSAML2SP());
-        WAClientApp registeredSamlClientApp = waClientAppService.read(samlspto.getClientAppId(), null);
+        WAClientApp registeredSamlClientApp = WA_CLIENT_APP_SERVICE.read(samlspto.getClientAppId(), null);
         assertNotNull(registeredSamlClientApp);
 
-        registeredSamlClientApp = waClientAppService.read(samlspto.getClientAppId(), ClientAppType.SAML2SP);
+        registeredSamlClientApp = WA_CLIENT_APP_SERVICE.read(samlspto.getClientAppId(), ClientAppType.SAML2SP);
         assertNotNull(registeredSamlClientApp);
 
-        registeredSamlClientApp = waClientAppService.read(samlspto.getName(), null);
+        registeredSamlClientApp = WA_CLIENT_APP_SERVICE.read(samlspto.getName(), null);
         assertNotNull(registeredSamlClientApp);
 
-        registeredSamlClientApp = waClientAppService.read(samlspto.getName(), ClientAppType.SAML2SP);
+        registeredSamlClientApp = WA_CLIENT_APP_SERVICE.read(samlspto.getName(), ClientAppType.SAML2SP);
         assertNotNull(registeredSamlClientApp);
     }
 
@@ -111,14 +111,14 @@ public class WAClientAppITCase extends AbstractITCase {
 
         oidcrpto = createClientApp(ClientAppType.OIDCRP, oidcrpto);
 
-        WAClientApp waClientApp = waClientAppService.read(oidcrpto.getClientAppId(), null);
+        WAClientApp waClientApp = WA_CLIENT_APP_SERVICE.read(oidcrpto.getClientAppId(), null);
         assertNotNull(waClientApp);
         assertTrue(waClientApp.getReleaseAttrs().isEmpty());
 
         // add items to the authentication module
         addItems();
         try {
-            waClientApp = waClientAppService.read(oidcrpto.getClientAppId(), null);
+            waClientApp = WA_CLIENT_APP_SERVICE.read(oidcrpto.getClientAppId(), null);
             assertNotNull(waClientApp);
             assertFalse(waClientApp.getReleaseAttrs().isEmpty());
             assertEquals("username", waClientApp.getReleaseAttrs().get("uid"));
@@ -129,7 +129,7 @@ public class WAClientAppITCase extends AbstractITCase {
     }
 
     private void addItems() {
-        AuthModuleTO authModuleTO = authModuleService.read(AUTH_MODULE);
+        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read(AUTH_MODULE);
 
         ItemTO keyMapping = new ItemTO();
         keyMapping.setIntAttrName("uid");
@@ -141,19 +141,19 @@ public class WAClientAppITCase extends AbstractITCase {
         fullnameMapping.setExtAttrName("fullname");
         authModuleTO.getItems().add(fullnameMapping);
 
-        authModuleService.update(authModuleTO);
+        AUTH_MODULE_SERVICE.update(authModuleTO);
 
-        authModuleTO = authModuleService.read(AUTH_MODULE);
+        authModuleTO = AUTH_MODULE_SERVICE.read(AUTH_MODULE);
         assertFalse(authModuleTO.getItems().isEmpty());
     }
 
     private void removeItems() {
-        AuthModuleTO authModuleTO = authModuleService.read(AUTH_MODULE);
+        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read(AUTH_MODULE);
         authModuleTO.getItems().clear();
 
-        authModuleService.update(authModuleTO);
+        AUTH_MODULE_SERVICE.update(authModuleTO);
 
-        authModuleTO = authModuleService.read(AUTH_MODULE);
+        authModuleTO = AUTH_MODULE_SERVICE.read(AUTH_MODULE);
         assertTrue(authModuleTO.getItems().isEmpty());
     }
 }

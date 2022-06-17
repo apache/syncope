@@ -19,8 +19,8 @@
 package org.apache.syncope.core.provisioning.java.job.report;
 
 import java.util.concurrent.atomic.AtomicReference;
-import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;

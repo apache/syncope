@@ -18,16 +18,15 @@
  */
 package org.apache.syncope.client.console.wizards.resources;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.client.console.panels.ToggleableTarget;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public class ResourceProvision implements ToggleableTarget {
 

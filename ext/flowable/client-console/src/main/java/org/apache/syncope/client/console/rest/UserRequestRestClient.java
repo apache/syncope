@@ -33,8 +33,8 @@ import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 public class UserRequestRestClient extends BaseRestClient {
 

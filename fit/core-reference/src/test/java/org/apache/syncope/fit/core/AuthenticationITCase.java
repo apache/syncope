@@ -42,8 +42,8 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.MembershipUR;
-import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
@@ -58,16 +58,16 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RoleTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.UserRequestForm;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -95,14 +95,14 @@ public class AuthenticationITCase extends AbstractITCase {
     public void readEntitlements() {
         // 1. as not authenticated (not allowed)
         try {
-            clientFactory.create().self();
+            CLIENT_FACTORY.create().self();
             fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
         // 2. as anonymous
-        Triple<Map<String, Set<String>>, List<String>, UserTO> self = clientFactory.create(
+        Triple<Map<String, Set<String>>, List<String>, UserTO> self = CLIENT_FACTORY.create(
                 new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY)).self();
         assertEquals(1, self.getLeft().size());
         assertTrue(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
@@ -110,14 +110,14 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals(ANONYMOUS_UNAME, self.getRight().getUsername());
 
         // 3. as admin
-        self = adminClient.self();
-        assertEquals(adminClient.platform().getEntitlements().size(), self.getLeft().size());
+        self = ADMIN_CLIENT.self();
+        assertEquals(ADMIN_CLIENT.platform().getEntitlements().size(), self.getLeft().size());
         assertFalse(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
         assertEquals(List.of(), self.getMiddle());
         assertEquals(ADMIN_UNAME, self.getRight().getUsername());
 
         // 4. as user
-        self = clientFactory.create("bellini", ADMIN_PWD).self();
+        self = CLIENT_FACTORY.create("bellini", ADMIN_PWD).self();
         assertFalse(self.getLeft().isEmpty());
         assertFalse(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
         assertEquals(List.of(), self.getMiddle());
@@ -143,11 +143,11 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // 3. read the schema created above (as admin) - success
-        schemaTO = schemaService.read(SchemaType.PLAIN, schemaName);
+        schemaTO = SCHEMA_SERVICE.read(SchemaType.PLAIN, schemaName);
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        SchemaService schemaService2 = clientFactory.create(userTO.getUsername(), "password123").
+        SchemaService schemaService2 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
                 getService(SchemaService.class);
         schemaTO = schemaService2.read(SchemaType.PLAIN, schemaName);
         assertNotNull(schemaTO);
@@ -160,7 +160,7 @@ public class AuthenticationITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        assertEquals(0, getFailedLogins(userService, userTO.getKey()));
+        assertEquals(0, getFailedLogins(USER_SERVICE, userTO.getKey()));
     }
 
     @Test
@@ -171,13 +171,13 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
 
-        UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
+        UserService userService2 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
 
         UserTO readUserTO = userService2.read("1417acbe-cbf6-4277-9372-e75e04f97000");
         assertNotNull(readUserTO);
 
-        UserService userService3 = clientFactory.create("puccini", ADMIN_PWD).getService(UserService.class);
+        UserService userService3 = CLIENT_FACTORY.create("puccini", ADMIN_PWD).getService(UserService.class);
 
         try {
             userService3.read("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
@@ -198,10 +198,10 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 1. user assigned to role 1, with search entitlement on realms /odd and /even: won't find anything with 
         // root realm
-        UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
+        UserService userService2 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
 
-        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
+        if (ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform())) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -221,7 +221,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertFalse(matchingUserKeys.contains("823074dc-d280-436d-a7dd-07399fae48ec"));
 
         // 2. user assigned to role 4, with search entitlement on realm /even/two
-        UserService userService3 = clientFactory.create("puccini", ADMIN_PWD).getService(UserService.class);
+        UserService userService3 = CLIENT_FACTORY.create("puccini", ADMIN_PWD).getService(UserService.class);
 
         matchingUsers = userService3.search(new AnyQuery.Builder().realm("/even/two").
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
@@ -244,7 +244,7 @@ public class AuthenticationITCase extends AbstractITCase {
             role.getEntitlements().add(IdRepoEntitlement.USER_READ);
             role.getRealms().add("/even/two");
 
-            roleKey = roleService.create(role).getHeaderString(RESTHeaders.RESOURCE_KEY);
+            roleKey = ROLE_SERVICE.create(role).getHeaderString(RESTHeaders.RESOURCE_KEY);
             assertNotNull(roleKey);
 
             // 2. as admin, create delegated admin user, and assign the role just created
@@ -255,7 +255,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
             // 3. instantiate a delegate user service client, for further operations
             UserService delegatedUserService =
-                    clientFactory.create(delegatedAdmin.getUsername(), "password123").getService(UserService.class);
+                    CLIENT_FACTORY.create(delegatedAdmin.getUsername(), "password123").getService(UserService.class);
 
             // 4. as delegated, create user under realm / -> fail
             UserCR userCR = UserITCase.getUniqueSample("delegated@syncope.apache.org");
@@ -303,17 +303,17 @@ public class AuthenticationITCase extends AbstractITCase {
             delegatedUserService.delete(user.getKey());
 
             try {
-                userService.read(user.getKey());
+                USER_SERVICE.read(user.getKey());
                 fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.NotFound, e.getType());
             }
         } finally {
             if (roleKey != null) {
-                roleService.delete(roleKey);
+                ROLE_SERVICE.delete(roleKey);
             }
             if (delegatedAdminKey != null) {
-                userService.delete(delegatedAdminKey);
+                USER_SERVICE.delete(delegatedAdminKey);
             }
         }
     }
@@ -327,26 +327,26 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(userTO);
         String userKey = userTO.getKey();
 
-        UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
+        UserService userService2 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
         assertEquals(0, getFailedLogins(userService2, userKey));
 
         // authentications failed ...
         try {
-            clientFactory.create(userTO.getUsername(), "wrongpwd1");
+            CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
         try {
-            clientFactory.create(userTO.getUsername(), "wrongpwd1");
+            CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
-        assertEquals(2, getFailedLogins(userService, userKey));
+        assertEquals(2, getFailedLogins(USER_SERVICE, userKey));
 
-        UserService userService4 = clientFactory.create(userTO.getUsername(), "password123").
+        UserService userService4 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
         assertEquals(0, getFailedLogins(userService4, userKey));
     }
@@ -361,39 +361,39 @@ public class AuthenticationITCase extends AbstractITCase {
         String userKey = userTO.getKey();
         assertNotNull(userTO);
 
-        assertEquals(0, getFailedLogins(userService, userKey));
+        assertEquals(0, getFailedLogins(USER_SERVICE, userKey));
 
         // authentications failed ...
         try {
-            clientFactory.create(userTO.getUsername(), "wrongpwd1");
+            CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
         try {
-            clientFactory.create(userTO.getUsername(), "wrongpwd1");
+            CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
         try {
-            clientFactory.create(userTO.getUsername(), "wrongpwd1");
+            CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
-        assertEquals(3, getFailedLogins(userService, userKey));
+        assertEquals(3, getFailedLogins(USER_SERVICE, userKey));
 
         // last authentication before suspension
         try {
-            clientFactory.create(userTO.getUsername(), "wrongpwd1");
+            CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
-        userTO = userService.read(userTO.getKey());
+        userTO = USER_SERVICE.read(userTO.getKey());
         assertNotNull(userTO);
         assertNotNull(userTO.getFailedLogins());
         assertEquals(3, userTO.getFailedLogins().intValue());
@@ -401,7 +401,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // Access with correct credentials should fail as user is suspended
         try {
-            clientFactory.create(userTO.getUsername(), "password123");
+            CLIENT_FACTORY.create(userTO.getUsername(), "password123");
             fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
@@ -409,12 +409,12 @@ public class AuthenticationITCase extends AbstractITCase {
 
         StatusR reactivate = new StatusR.Builder().key(userTO.getKey()).
                 type(StatusRType.REACTIVATE).build();
-        userTO = userService.status(reactivate).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        userTO = USER_SERVICE.status(reactivate).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        SyncopeClient goodPwdClient = clientFactory.create(userTO.getUsername(), "password123");
+        SyncopeClient goodPwdClient = CLIENT_FACTORY.create(userTO.getUsername(), "password123");
         assertEquals(0, goodPwdClient.self().getRight().getFailedLogins().intValue());
     }
 
@@ -423,7 +423,7 @@ public class AuthenticationITCase extends AbstractITCase {
         String anyTypeKey = "FOLDER " + getUUIDString();
 
         // 1. no entitlement exists (yet) for the any type to be created
-        assertFalse(adminClient.platform().getEntitlements().stream().
+        assertFalse(ADMIN_CLIENT.platform().getEntitlements().stream().
                 anyMatch(entitlement -> entitlement.contains(anyTypeKey)));
 
         // 2. create plain schema, any type class and any type
@@ -435,16 +435,16 @@ public class AuthenticationITCase extends AbstractITCase {
         AnyTypeClassTO anyTypeClass = new AnyTypeClassTO();
         anyTypeClass.setKey("folder" + getUUIDString());
         anyTypeClass.getPlainSchemas().add(path.getKey());
-        anyTypeClassService.create(anyTypeClass);
+        ANY_TYPE_CLASS_SERVICE.create(anyTypeClass);
 
         AnyTypeTO anyTypeTO = new AnyTypeTO();
         anyTypeTO.setKey(anyTypeKey);
         anyTypeTO.setKind(AnyTypeKind.ANY_OBJECT);
         anyTypeTO.getClasses().add(anyTypeClass.getKey());
-        anyTypeService.create(anyTypeTO);
+        ANY_TYPE_SERVICE.create(anyTypeTO);
 
         // 2. now entitlement exists for the any type just created
-        assertTrue(adminClient.platform().getEntitlements().stream().
+        assertTrue(ADMIN_CLIENT.platform().getEntitlements().stream().
                 anyMatch(entitlement -> entitlement.contains(anyTypeKey)));
 
         // 3. attempt to create an instance of the type above: fail because no entitlement was assigned
@@ -454,7 +454,7 @@ public class AuthenticationITCase extends AbstractITCase {
         folder.setType(anyTypeKey);
         folder.getPlainAttrs().add(attr(path.getKey(), "/home"));
 
-        SyncopeClient belliniClient = clientFactory.create("bellini", ADMIN_PWD);
+        SyncopeClient belliniClient = CLIENT_FACTORY.create("bellini", ADMIN_PWD);
         try {
             belliniClient.getService(AnyObjectService.class).create(folder);
             fail("This should not happen");
@@ -470,7 +470,7 @@ public class AuthenticationITCase extends AbstractITCase {
         role.getEntitlements().add(anyTypeKey + "_CREATE");
         role = createRole(role);
 
-        UserTO bellini = userService.read("bellini");
+        UserTO bellini = USER_SERVICE.read("bellini");
         UserUR req = new UserUR();
         req.setKey(bellini.getKey());
         req.getRoles().add(new StringPatchItem.Builder().
@@ -503,7 +503,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals(2, member.getMemberships().size());
         String memberKey = member.getKey();
 
-        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
+        if (ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform())) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -511,14 +511,14 @@ public class AuthenticationITCase extends AbstractITCase {
             }
         }
 
-        PagedResult<UserTO> matching = userService.search(
+        PagedResult<UserTO> matching = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(group.getKey()).query()).
                         page(1).size(1000).build());
         int fullMatchSize = matching.getResult().size();
         assertTrue(matching.getResult().stream().anyMatch(user -> memberKey.equals(user.getKey())));
 
-        UserService groupOwnerService = clientFactory.create(owner.getUsername(), "password123").
+        UserService groupOwnerService = CLIENT_FACTORY.create(owner.getUsername(), "password123").
                 getService(UserService.class);
 
         // 1. search
@@ -579,7 +579,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 6 delete
         groupOwnerService.delete(memberKey);
         try {
-            userService.read(memberKey);
+            USER_SERVICE.read(memberKey);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -588,7 +588,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE434() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform()));
 
         // 1. create user with group 'groupForWorkflowApproval' 
         // (users with group groupForWorkflowApproval are defined in workflow as subject to approval)
@@ -601,25 +601,25 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 2. try to authenticate: fail
         try {
-            clientFactory.create(userTO.getUsername(), "password123").self();
+            CLIENT_FACTORY.create(userTO.getUsername(), "password123").self();
             fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
         // 3. approve user
-        UserRequestForm form = userRequestService.listForms(
+        UserRequestForm form = USER_REQUEST_SERVICE.listForms(
                 new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
-        form = userRequestService.claimForm(form.getTaskId());
+        form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
-        userTO = userRequestService.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        userTO = USER_REQUEST_SERVICE.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
         // 4. try to authenticate again: success
         Triple<Map<String, Set<String>>, List<String>, UserTO> self =
-                clientFactory.create(userTO.getUsername(), "password123").self();
+                CLIENT_FACTORY.create(userTO.getUsername(), "password123").self();
         assertNotNull(self);
         assertNotNull(self.getLeft());
         assertEquals(List.of(), self.getMiddle());
@@ -639,7 +639,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 2. unlink the resource from the created user
         ResourceDR resourceDR = new ResourceDR.Builder().key(user.getKey()).
                 action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_TESTDB).build();
-        assertNotNull(parseBatchResponse(userService.deassociate(resourceDR)));
+        assertNotNull(parseBatchResponse(USER_SERVICE.deassociate(resourceDR)));
 
         // 3. change password on Syncope
         UserUR userUR = new UserUR();
@@ -656,9 +656,9 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 5. successfully authenticate with old (on db resource) and new (on internal storage) password values
         Triple<Map<String, Set<String>>, List<String>, UserTO> self =
-                clientFactory.create(user.getUsername(), "password123").self();
+                CLIENT_FACTORY.create(user.getUsername(), "password123").self();
         assertNotNull(self);
-        self = clientFactory.create(user.getUsername(), "password234").self();
+        self = CLIENT_FACTORY.create(user.getUsername(), "password234").self();
         assertNotNull(self);
     }
 
@@ -666,14 +666,14 @@ public class AuthenticationITCase extends AbstractITCase {
     public void issueSYNCOPE706() {
         String username = getUUIDString();
         try {
-            userService.read(username);
+            USER_SERVICE.read(username);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
         try {
-            clientFactory.create(username, "anypassword").self();
+            CLIENT_FACTORY.create(username, "anypassword").self();
             fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e.getMessage());

@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.core.provisioning.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,24 +28,24 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 public class WorkflowResultTest extends AbstractTest {
-    
+
     @Test
-    public void test(@Mock PropagationByResource<String> propByRes) {
+    public void test(final @Mock PropagationByResource<String> propByRes) {
         String result = "result";
         Set<String> performedTasks = new HashSet<>();
         performedTasks.add("TEST");
         WorkflowResult<String> workflowResult = new WorkflowResult<>(result, propByRes, performedTasks);
         WorkflowResult<String> workflowResult2 = new WorkflowResult<>(result, propByRes, performedTasks);
-        
+
         assertTrue(workflowResult.equals(workflowResult));
         assertTrue(workflowResult.equals(workflowResult2));
         assertFalse(workflowResult.equals(null));
         assertFalse(workflowResult.equals(String.class));
-        
+
         result = "newResult";
         workflowResult.setResult(result);
         assertEquals(result, workflowResult.getResult());
-        
+
         assertEquals(propByRes, workflowResult2.getPropByRes());
     }
 }

@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.client.enduser.panels.UserFormPanel;
 import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormBaseLayout;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.client.ui.commons.layout.UserForm;
+import org.apache.syncope.common.lib.to.UserTO;
 
 public class UserFormLayoutInfo extends AbstractAnyFormBaseLayout<UserTO, UserForm> {
 

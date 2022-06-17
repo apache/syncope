@@ -34,9 +34,10 @@ import org.mockito.Mock;
 public class SyncTokenSerializerTest extends AbstractTest {
 
     @Test
-    public void SyncTokenSerializer(
-            @Mock JsonGenerator jgen,
-            @Mock SerializerProvider sp) throws IOException {
+    public void syncTokenSerializer(
+            final @Mock JsonGenerator jgen,
+            final @Mock SerializerProvider sp) throws IOException {
+
         SyncTokenSerializer serializer = new SyncTokenSerializer();
         SyncToken source = new SyncToken(UUID.randomUUID().toString());
         serializer.serialize(source, jgen, sp);

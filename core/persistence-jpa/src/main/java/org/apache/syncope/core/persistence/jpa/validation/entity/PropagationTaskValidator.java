@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import java.util.List;
-
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.ExecStatus;

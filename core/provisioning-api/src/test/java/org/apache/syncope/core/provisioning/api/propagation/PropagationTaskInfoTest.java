@@ -45,7 +45,7 @@ public class PropagationTaskInfoTest extends AbstractTest {
     private PropagationTaskInfo propagationTaskInfo;
 
     @Test
-    public void test(@Mock Optional<ConnectorObject> beforeObj) {
+    public void test(final @Mock Optional<ConnectorObject> beforeObj) {
         PropagationTaskInfo propagationTaskInfo2 = new PropagationTaskInfo(externalResource);
         Object nullObj = null;
 
@@ -64,7 +64,7 @@ public class PropagationTaskInfoTest extends AbstractTest {
                 assertThrows(IllegalArgumentException.class, () -> propagationTaskInfo.setResource("testResource"));
         assertEquals(exception.getClass(), IllegalArgumentException.class);
         assertNull(propagationTaskInfo2.getResource());
-        
+
         propagationTaskInfo.setBeforeObj(beforeObj);
         assertEquals(beforeObj, propagationTaskInfo.getBeforeObj());
     }

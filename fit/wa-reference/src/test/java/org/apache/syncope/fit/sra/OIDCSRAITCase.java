@@ -86,7 +86,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
             final String clientId,
             final String clientSecret) {
 
-        OIDCRPClientAppTO clientApp = clientAppService.list(ClientAppType.OIDCRP).stream().
+        OIDCRPClientAppTO clientApp = CLIENT_APP_SERVICE.list(ClientAppType.OIDCRP).stream().
                 filter(app -> appName.equals(app.getName())).
                 map(OIDCRPClientAppTO.class::cast).
                 findFirst().
@@ -97,12 +97,12 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
                     app.setClientId(clientId);
                     app.setClientSecret(clientSecret);
 
-                    Response response = clientAppService.create(ClientAppType.OIDCRP, app);
+                    Response response = CLIENT_APP_SERVICE.create(ClientAppType.OIDCRP, app);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
                         fail("Could not create OIDC Client App");
                     }
 
-                    return clientAppService.read(
+                    return CLIENT_APP_SERVICE.read(
                             ClientAppType.OIDCRP, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 });
 
@@ -116,8 +116,8 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         clientApp.setSignIdToken(true);
         clientApp.setLogoutUri(SRA_ADDRESS + "/logout");
 
-        clientAppService.update(ClientAppType.OIDCRP, clientApp);
-        clientAppService.pushToWA();
+        CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
+        CLIENT_APP_SERVICE.pushToWA();
     }
 
     @BeforeAll

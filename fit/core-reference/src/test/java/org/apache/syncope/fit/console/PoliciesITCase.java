@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.Policies;
 import org.apache.syncope.client.console.pages.Realms;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.TextField;
@@ -41,7 +41,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertRenderedPage(Policies.class);
     }
 
-    private static void createAccountPolicy(String name) {
+    private static void createAccountPolicy(final String name) {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
         TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
@@ -98,7 +98,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         assertNotNull(component);
     }
 
-    private static void createPasswordPolicy(String name) {
+    private static void createPasswordPolicy(final String name) {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
         TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
@@ -148,7 +148,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name));
     }
 
-    private static void createPullPolicy(String name) {
+    private static void createPullPolicy(final String name) {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:6:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
         TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
@@ -193,7 +193,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name));
     }
 
-    private static void deleteAccountPolicy(String name) {
+    private static void deleteAccountPolicy(final String name) {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -218,7 +218,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name));
     }
 
-    private static void deletePasswordPolicy(String name) {
+    private static void deletePasswordPolicy(final String name) {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -243,7 +243,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name));
     }
 
-    private static void deletePullPolicy(String name) {
+    private static void deletePullPolicy(final String name) {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:6:link");
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"

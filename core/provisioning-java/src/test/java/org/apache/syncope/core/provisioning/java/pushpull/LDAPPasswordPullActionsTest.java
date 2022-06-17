@@ -21,8 +21,8 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -75,7 +75,7 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void after(@Mock User user) throws JobExecutionException {
+    public void after(final @Mock User user) throws JobExecutionException {
         UserTO userTO = new UserTO();
         userTO.setKey(UUID.randomUUID().toString());
         when(userDAO.find(userTO.getKey())).thenReturn(user);

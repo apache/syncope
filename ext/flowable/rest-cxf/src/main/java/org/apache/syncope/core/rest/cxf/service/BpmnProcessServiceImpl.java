@@ -25,9 +25,9 @@ import javax.ws.rs.core.StreamingOutput;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.lib.types.BpmnProcessFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.BpmnProcessService;
 import org.apache.syncope.core.logic.BpmnProcessLogic;
 import org.springframework.stereotype.Service;
-import org.apache.syncope.common.rest.api.service.BpmnProcessService;
 
 @Service
 public class BpmnProcessServiceImpl extends AbstractService implements BpmnProcessService {

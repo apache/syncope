@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.ui.commons.layout;
 
-import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
 import java.io.Serializable;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
 import org.apache.syncope.common.lib.to.AnyTO;
 
 public abstract class AbstractAnyFormBaseLayout<A extends AnyTO, F extends AnyForm<A>> implements Serializable {

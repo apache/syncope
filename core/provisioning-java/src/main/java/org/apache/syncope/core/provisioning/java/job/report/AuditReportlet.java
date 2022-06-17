@@ -27,15 +27,15 @@ import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.DomainHolder;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
-import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 
 @ReportletConfClass(AuditReportletConf.class)
 public class AuditReportlet extends AbstractReportlet {

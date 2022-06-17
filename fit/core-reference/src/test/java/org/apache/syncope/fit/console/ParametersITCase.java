@@ -21,8 +21,8 @@ package org.apache.syncope.fit.console;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.Parameters;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.util.tester.FormTester;

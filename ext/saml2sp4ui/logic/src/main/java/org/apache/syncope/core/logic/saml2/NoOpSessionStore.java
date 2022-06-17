@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic.saml2;
 
 import java.util.Optional;
-
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 

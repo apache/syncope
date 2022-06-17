@@ -29,24 +29,24 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
+import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 
 public class SAML2SPEntityITCase extends AbstractITCase {
 
     private static final String OWNER = "owner";
 
-    private static SAML2SPEntityService waSAML2SPEntityService;
+    private static SAML2SPEntityService WA_SAML2SP_ENTITY_SERVICE;
 
     @BeforeAll
     public static void setup() {
-        assumeTrue(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
+        assumeTrue(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
 
-        SyncopeClient anonymous = clientFactory.create(
+        SyncopeClient anonymous = CLIENT_FACTORY.create(
                 new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
-        waSAML2SPEntityService = anonymous.getService(SAML2SPEntityService.class);
+        WA_SAML2SP_ENTITY_SERVICE = anonymous.getService(SAML2SPEntityService.class);
     }
 
     private static SAML2SPEntityTO set() {
@@ -54,7 +54,7 @@ public class SAML2SPEntityITCase extends AbstractITCase {
                 key(OWNER).
                 metadata(Base64.getEncoder().encodeToString("testMetadata".getBytes(StandardCharsets.UTF_8))).
                 build();
-        waSAML2SPEntityService.set(entityTO);
+        WA_SAML2SP_ENTITY_SERVICE.set(entityTO);
 
         return entityTO;
     }
@@ -63,7 +63,7 @@ public class SAML2SPEntityITCase extends AbstractITCase {
     public void get() {
         SAML2SPEntityTO entityTO;
         try {
-            entityTO = waSAML2SPEntityService.get(OWNER);
+            entityTO = WA_SAML2SP_ENTITY_SERVICE.get(OWNER);
         } catch (SyncopeClientException e) {
             entityTO = set();
         }
@@ -76,16 +76,16 @@ public class SAML2SPEntityITCase extends AbstractITCase {
     public void getAndSet() {
         SAML2SPEntityTO entityTO;
         try {
-            entityTO = waSAML2SPEntityService.get(OWNER);
+            entityTO = WA_SAML2SP_ENTITY_SERVICE.get(OWNER);
         } catch (SyncopeClientException e) {
             entityTO = set();
         }
         assertNotNull(entityTO);
 
         entityTO.setMetadata(Base64.getEncoder().encodeToString("new metadata".getBytes(StandardCharsets.UTF_8)));
-        waSAML2SPEntityService.set(entityTO);
+        WA_SAML2SP_ENTITY_SERVICE.set(entityTO);
 
-        entityTO = waSAML2SPEntityService.get(entityTO.getKey());
+        entityTO = WA_SAML2SP_ENTITY_SERVICE.get(entityTO.getKey());
         assertEquals(
                 "new metadata",
                 new String(Base64.getDecoder().decode(entityTO.getMetadata()), StandardCharsets.UTF_8));

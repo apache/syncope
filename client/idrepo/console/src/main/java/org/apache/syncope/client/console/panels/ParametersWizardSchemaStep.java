@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.List;
-
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.types.AttrSchemaType;

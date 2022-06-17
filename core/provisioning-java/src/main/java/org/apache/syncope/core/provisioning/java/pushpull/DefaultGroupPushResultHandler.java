@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;

@@ -19,10 +19,10 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.rest.UserRequestRestClient;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.client.console.annotations.UserFormFinalize;
+import org.apache.syncope.client.console.rest.UserRequestRestClient;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.common.lib.SyncopeClientException;
 
 @UserFormFinalize(mode = AjaxWizard.Mode.EDIT_APPROVAL)
 public class UserRequestFormFinalizer implements UserFormFinalizer {

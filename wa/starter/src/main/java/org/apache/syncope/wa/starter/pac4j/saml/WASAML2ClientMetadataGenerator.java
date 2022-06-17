@@ -21,15 +21,15 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
+import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.metadata.resolver.impl.AbstractBatchMetadataResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.metadata.BaseSAML2MetadataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
-import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
-import org.opensaml.saml.metadata.resolver.MetadataResolver;
 
 public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
 

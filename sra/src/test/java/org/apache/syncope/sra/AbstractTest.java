@@ -39,7 +39,7 @@ public abstract class AbstractTest {
 
     protected static final JsonMapper MAPPER = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
-    public static boolean available(int port) {
+    public static boolean available(final int port) {
         try (Socket ignored = new Socket("localhost", port)) {
             return false;
         } catch (IOException ignored) {

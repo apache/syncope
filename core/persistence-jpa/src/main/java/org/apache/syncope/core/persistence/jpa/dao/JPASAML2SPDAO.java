@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2SPClientApp;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
-import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.SAML2SPDAO;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2SPClientApp;
+import org.springframework.transaction.annotation.Transactional;
 
 public class JPASAML2SPDAO extends AbstractDAO<SAML2SPClientApp> implements SAML2SPDAO {
 

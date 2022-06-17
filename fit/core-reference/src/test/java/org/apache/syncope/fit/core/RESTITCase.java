@@ -67,13 +67,13 @@ public class RESTITCase extends AbstractITCase {
     @Test
     public void unauthorizedOrForbidden() {
         // service as admin: it works
-        List<ConnInstanceTO> connectors = connectorService.list(null);
+        List<ConnInstanceTO> connectors = CONNECTOR_SERVICE.list(null);
         assertNotNull(connectors);
         assertFalse(connectors.isEmpty());
 
         // service with bad password: 401 unauthorized
         try {
-            clientFactory.create("bellini", "passwor");
+            CLIENT_FACTORY.create("bellini", "passwor");
             fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
@@ -81,14 +81,14 @@ public class RESTITCase extends AbstractITCase {
 
         // service with invalid JWT string: 401 unauthorized
         try {
-            clientFactory.create(RandomStringUtils.random(20, true, true)).self();
+            CLIENT_FACTORY.create(RandomStringUtils.random(20, true, true)).self();
             fail("This should not happen");
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
         // service with good password, but no entitlements owned: 403 forbidden
-        SyncopeClient goodClient = clientFactory.create("bellini", "password");
+        SyncopeClient goodClient = CLIENT_FACTORY.create("bellini", "password");
         try {
             goodClient.getService(ConnectorService.class).list(null);
             fail("This should not happen");
@@ -99,7 +99,7 @@ public class RESTITCase extends AbstractITCase {
 
     @Test
     public void noContent() throws IOException {
-        SyncopeClient noContentclient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        SyncopeClient noContentclient = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
         GroupService noContentService = SyncopeClient.prefer(
                 noContentclient.getService(GroupService.class), Preference.RETURN_NO_CONTENT);
 
@@ -136,26 +136,26 @@ public class RESTITCase extends AbstractITCase {
 
     @Test
     public void ifMatch() {
-        UserTO userTO = userService.create(UserITCase.getUniqueSample("ifmatch@syncope.apache.org")).
+        UserTO userTO = USER_SERVICE.create(UserITCase.getUniqueSample("ifmatch@syncope.apache.org")).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
         assertNotNull(userTO);
         assertNotNull(userTO.getKey());
 
-        EntityTag etag = SyncopeClient.getLatestEntityTag(userService);
+        EntityTag etag = SyncopeClient.getLatestEntityTag(USER_SERVICE);
         assertNotNull(etag);
         assertTrue(StringUtils.isNotBlank(etag.getValue()));
 
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
         userUR.setUsername(new StringReplacePatchItem.Builder().value(userTO.getUsername() + "XX").build());
-        userTO = userService.update(userUR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        userTO = USER_SERVICE.update(userUR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertTrue(userTO.getUsername().endsWith("XX"));
-        EntityTag etag1 = SyncopeClient.getLatestEntityTag(userService);
+        EntityTag etag1 = SyncopeClient.getLatestEntityTag(USER_SERVICE);
         assertFalse(etag.getValue().equals(etag1.getValue()));
 
-        UserService ifMatchService = SyncopeClient.ifMatch(adminClient.getService(UserService.class), etag);
+        UserService ifMatchService = SyncopeClient.ifMatch(ADMIN_CLIENT.getService(UserService.class), etag);
         userUR.setUsername(new StringReplacePatchItem.Builder().value(userTO.getUsername() + "YY").build());
         try {
             ifMatchService.update(userUR);
@@ -164,7 +164,7 @@ public class RESTITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.ConcurrentModification, e.getType());
         }
 
-        userTO = userService.read(userTO.getKey());
+        userTO = USER_SERVICE.read(userTO.getKey());
         assertTrue(userTO.getUsername().endsWith("XX"));
     }
 
@@ -195,7 +195,7 @@ public class RESTITCase extends AbstractITCase {
 
     @Test
     public void exportInternalStorageContent() throws IOException {
-        Response response = syncopeService.exportInternalStorageContent();
+        Response response = SYNCOPE_SERVICE.exportInternalStorageContent();
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_XML));

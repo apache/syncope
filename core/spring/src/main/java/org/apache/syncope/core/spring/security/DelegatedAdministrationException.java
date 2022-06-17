@@ -18,9 +18,8 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import org.apache.syncope.common.lib.types.AnyTypeKind;
-
 import java.util.Optional;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public class DelegatedAdministrationException extends RuntimeException {
 

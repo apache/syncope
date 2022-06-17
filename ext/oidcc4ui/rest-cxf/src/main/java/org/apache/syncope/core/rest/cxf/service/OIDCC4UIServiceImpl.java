@@ -20,11 +20,11 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.Optional;
 import javax.ws.rs.core.HttpHeaders;
+import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.oidc.OIDCRequest;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
 import org.apache.syncope.core.logic.OIDCC4UILogic;
 import org.springframework.stereotype.Service;
-import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
-import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
 
 @Service
 public class OIDCC4UIServiceImpl extends AbstractService implements OIDCC4UIService {

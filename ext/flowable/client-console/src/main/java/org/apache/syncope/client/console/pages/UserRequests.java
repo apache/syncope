@@ -22,8 +22,8 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
-import org.apache.syncope.client.console.panels.UserRequestFormDirectoryPanel;
 import org.apache.syncope.client.console.panels.UserRequestDirectoryPanel;
+import org.apache.syncope.client.console.panels.UserRequestFormDirectoryPanel;
 import org.apache.syncope.client.console.panels.UserRequestsPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;

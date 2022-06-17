@@ -41,8 +41,8 @@ import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
-import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.identityconnectors.framework.api.ConnectorInfo;
+import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -42,6 +42,7 @@ import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalServiceOp
 import org.apache.syncope.core.keymaster.rest.cxf.service.ConfParamServiceImpl;
 import org.apache.syncope.core.keymaster.rest.cxf.service.DomainServiceImpl;
 import org.apache.syncope.core.keymaster.rest.cxf.service.NetworkServiceServiceImpl;
+import org.apache.syncope.core.keymaster.rest.security.SelfKeymasterUsernamePasswordAuthenticationProvider;
 import org.apache.syncope.core.logic.ConfParamLogic;
 import org.apache.syncope.core.logic.DomainLogic;
 import org.apache.syncope.core.logic.NetworkServiceLogic;
@@ -55,7 +56,6 @@ import org.apache.syncope.core.persistence.jpa.dao.JPANetworkServiceDAO;
 import org.apache.syncope.core.persistence.jpa.entity.JPASelfKeymasterEntityFactory;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
-import org.apache.syncope.core.keymaster.rest.security.SelfKeymasterUsernamePasswordAuthenticationProvider;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.SecurityProperties;

@@ -20,9 +20,9 @@ package org.apache.syncope.fit.core.wa;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -46,71 +46,71 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
 
     @BeforeEach
     public void setup() {
-        googleMfaAuthTokenService.delete((LocalDateTime) null);
+        GOOGLE_MFA_AUTH_TOKEN_SERVICE.delete((LocalDateTime) null);
     }
 
     @Test
     public void create() {
         GoogleMfaAuthToken token = createGoogleMfaAuthToken();
-        assertDoesNotThrow(() -> googleMfaAuthTokenService.store(UUID.randomUUID().toString(), token));
+        assertDoesNotThrow(() -> GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(UUID.randomUUID().toString(), token));
     }
 
     @Test
     public void count() {
         String owner = UUID.randomUUID().toString();
         GoogleMfaAuthToken token = createGoogleMfaAuthToken();
-        googleMfaAuthTokenService.store(owner, token);
-        assertEquals(1, googleMfaAuthTokenService.list().getTotalCount());
-        assertEquals(1, googleMfaAuthTokenService.read(owner).getTotalCount());
+        GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(owner, token);
+        assertEquals(1, GOOGLE_MFA_AUTH_TOKEN_SERVICE.list().getTotalCount());
+        assertEquals(1, GOOGLE_MFA_AUTH_TOKEN_SERVICE.read(owner).getTotalCount());
     }
 
     @Test
     public void verifyProfile() {
         String owner = UUID.randomUUID().toString();
         GoogleMfaAuthToken token = createGoogleMfaAuthToken();
-        googleMfaAuthTokenService.store(owner, token);
-        PagedResult<AuthProfileTO> results = authProfileService.list(1, 100);
+        GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(owner, token);
+        PagedResult<AuthProfileTO> results = AUTH_PROFILE_SERVICE.list(1, 100);
         assertFalse(results.getResult().isEmpty());
         AuthProfileTO profileTO = results.getResult().stream().
                 filter(p -> owner.equals(p.getOwner())).findFirst().get();
-        assertEquals(profileTO, authProfileService.read(profileTO.getKey()));
-        authProfileService.delete(profileTO.getKey());
-        assertThrows(SyncopeClientException.class, () -> authProfileService.read(profileTO.getKey()));
+        assertEquals(profileTO, AUTH_PROFILE_SERVICE.read(profileTO.getKey()));
+        AUTH_PROFILE_SERVICE.delete(profileTO.getKey());
+        assertThrows(SyncopeClientException.class, () -> AUTH_PROFILE_SERVICE.read(profileTO.getKey()));
     }
 
     @Test
     public void deleteByToken() {
         String owner = UUID.randomUUID().toString();
         GoogleMfaAuthToken token = createGoogleMfaAuthToken();
-        googleMfaAuthTokenService.store(owner, token);
-        googleMfaAuthTokenService.delete(token.getOtp());
-        assertTrue(googleMfaAuthTokenService.read(owner).getResult().isEmpty());
+        GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(owner, token);
+        GOOGLE_MFA_AUTH_TOKEN_SERVICE.delete(token.getOtp());
+        assertTrue(GOOGLE_MFA_AUTH_TOKEN_SERVICE.read(owner).getResult().isEmpty());
     }
 
     @Test
     public void delete() {
         String owner = UUID.randomUUID().toString();
         GoogleMfaAuthToken token = createGoogleMfaAuthToken();
-        googleMfaAuthTokenService.store(owner, token);
-        googleMfaAuthTokenService.delete(owner);
-        assertTrue(googleMfaAuthTokenService.read(owner).getResult().isEmpty());
+        GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(owner, token);
+        GOOGLE_MFA_AUTH_TOKEN_SERVICE.delete(owner);
+        assertTrue(GOOGLE_MFA_AUTH_TOKEN_SERVICE.read(owner).getResult().isEmpty());
     }
 
     @Test
     public void deleteByOwnerAndToken() {
         String owner = UUID.randomUUID().toString();
         GoogleMfaAuthToken token = createGoogleMfaAuthToken();
-        googleMfaAuthTokenService.store(owner, token);
-        googleMfaAuthTokenService.delete(owner, token.getOtp());
-        assertTrue(googleMfaAuthTokenService.read(owner).getResult().isEmpty());
+        GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(owner, token);
+        GOOGLE_MFA_AUTH_TOKEN_SERVICE.delete(owner, token.getOtp());
+        assertTrue(GOOGLE_MFA_AUTH_TOKEN_SERVICE.read(owner).getResult().isEmpty());
     }
 
     @Test
     public void deleteByDate() {
         String owner = UUID.randomUUID().toString();
         createGoogleMfaAuthToken();
-        googleMfaAuthTokenService.delete(LocalDateTime.now().minusDays(1));
-        assertTrue(googleMfaAuthTokenService.read(owner).getResult().isEmpty());
-        assertEquals(0, googleMfaAuthTokenService.read(owner).getTotalCount());
+        GOOGLE_MFA_AUTH_TOKEN_SERVICE.delete(LocalDateTime.now().minusDays(1));
+        assertTrue(GOOGLE_MFA_AUTH_TOKEN_SERVICE.read(owner).getResult().isEmpty());
+        assertEquals(0, GOOGLE_MFA_AUTH_TOKEN_SERVICE.read(owner).getTotalCount());
     }
 }

@@ -18,13 +18,12 @@
  */
 package org.apache.syncope.client.ui.commons.markup.html.form;
 
-import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAutoCompleteBehavior;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;

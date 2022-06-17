@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.UUID;
-import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
+import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.SAML2SPDAO;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;

@@ -42,7 +42,7 @@ public class AnyTypeClassITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        AnyTypeClassTO minimalGroup = anyTypeClassService.read("minimal group");
+        AnyTypeClassTO minimalGroup = ANY_TYPE_CLASS_SERVICE.read("minimal group");
         assertNotNull(minimalGroup);
 
         assertFalse(minimalGroup.getPlainSchemas().isEmpty());
@@ -52,7 +52,7 @@ public class AnyTypeClassITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<AnyTypeClassTO> list = anyTypeClassService.list();
+        List<AnyTypeClassTO> list = ANY_TYPE_CLASS_SERVICE.list();
         assertFalse(list.isEmpty());
     }
 
@@ -74,7 +74,7 @@ public class AnyTypeClassITCase extends AbstractITCase {
         newClass.setKey("new class" + getUUIDString());
         newClass.getPlainSchemas().add(plainSchema.getKey());
 
-        Response response = anyTypeClassService.create(newClass);
+        Response response = ANY_TYPE_CLASS_SERVICE.create(newClass);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
 
         newClass = getObject(response.getLocation(), AnyTypeClassService.class, AnyTypeClassTO.class);
@@ -84,28 +84,28 @@ public class AnyTypeClassITCase extends AbstractITCase {
         assertTrue(newClass.getVirSchemas().isEmpty());
 
         newClass.getDerSchemas().add(derSchema.getKey());
-        anyTypeClassService.update(newClass);
+        ANY_TYPE_CLASS_SERVICE.update(newClass);
 
-        newClass = anyTypeClassService.read(newClass.getKey());
+        newClass = ANY_TYPE_CLASS_SERVICE.read(newClass.getKey());
         assertNotNull(newClass);
         assertFalse(newClass.getPlainSchemas().isEmpty());
         assertFalse(newClass.getDerSchemas().isEmpty());
         assertTrue(newClass.getVirSchemas().isEmpty());
 
-        assertEquals(newClass.getKey(), schemaService.read(SchemaType.PLAIN, plainSchema.getKey()).getAnyTypeClass());
-        assertEquals(newClass.getKey(), schemaService.read(SchemaType.DERIVED, derSchema.getKey()).getAnyTypeClass());
+        assertEquals(newClass.getKey(), SCHEMA_SERVICE.read(SchemaType.PLAIN, plainSchema.getKey()).getAnyTypeClass());
+        assertEquals(newClass.getKey(), SCHEMA_SERVICE.read(SchemaType.DERIVED, derSchema.getKey()).getAnyTypeClass());
 
-        anyTypeClassService.delete(newClass.getKey());
+        ANY_TYPE_CLASS_SERVICE.delete(newClass.getKey());
 
         try {
-            anyTypeClassService.read(newClass.getKey());
+            ANY_TYPE_CLASS_SERVICE.read(newClass.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
-        assertNull(schemaService.read(SchemaType.PLAIN, plainSchema.getKey()).getAnyTypeClass());
-        assertNull(schemaService.read(SchemaType.DERIVED, derSchema.getKey()).getAnyTypeClass());
+        assertNull(SCHEMA_SERVICE.read(SchemaType.PLAIN, plainSchema.getKey()).getAnyTypeClass());
+        assertNull(SCHEMA_SERVICE.read(SchemaType.DERIVED, derSchema.getKey()).getAnyTypeClass());
     }
 
     @Test
@@ -119,30 +119,30 @@ public class AnyTypeClassITCase extends AbstractITCase {
         newClass.setKey("new class" + getUUIDString());
         newClass.getPlainSchemas().add(newSchema.getKey());
 
-        Response response = anyTypeClassService.create(newClass);
+        Response response = ANY_TYPE_CLASS_SERVICE.create(newClass);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
 
         newClass = getObject(response.getLocation(), AnyTypeClassService.class, AnyTypeClassTO.class);
         assertNotNull(newClass);
         assertTrue(newClass.getPlainSchemas().contains(newSchema.getKey()));
 
-        schemaService.delete(SchemaType.PLAIN, newSchema.getKey());
+        SCHEMA_SERVICE.delete(SchemaType.PLAIN, newSchema.getKey());
 
-        newClass = anyTypeClassService.read(newClass.getKey());
+        newClass = ANY_TYPE_CLASS_SERVICE.read(newClass.getKey());
         assertNotNull(newClass);
         assertFalse(newClass.getPlainSchemas().contains(newSchema.getKey()));
     }
 
     @Test
     public void issueSYNCOPE759() {
-        AnyTypeClassTO minimalGroup = anyTypeClassService.read("minimal group");
+        AnyTypeClassTO minimalGroup = ANY_TYPE_CLASS_SERVICE.read("minimal group");
         assertNotNull(minimalGroup);
 
         AnyTypeClassTO newAnyTypeClass = new AnyTypeClassTO();
         newAnyTypeClass.setKey(minimalGroup.getKey());
 
         try {
-            anyTypeClassService.create(newAnyTypeClass);
+            ANY_TYPE_CLASS_SERVICE.create(newAnyTypeClass);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());

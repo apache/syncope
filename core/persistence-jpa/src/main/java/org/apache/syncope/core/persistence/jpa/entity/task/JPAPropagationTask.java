@@ -32,8 +32,8 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.persistence.jpa.validation.entity.PropagationTaskCheck;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
+import org.apache.syncope.core.persistence.jpa.validation.entity.PropagationTaskCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.identityconnectors.framework.common.objects.Attribute;
 

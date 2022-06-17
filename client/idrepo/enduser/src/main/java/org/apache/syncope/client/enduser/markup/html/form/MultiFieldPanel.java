@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.client.enduser.markup.html.form;
 
-import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
-import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractMultiPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.panel.Panel;

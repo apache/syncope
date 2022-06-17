@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.openjpa;
 
 import java.util.Locale;
 import java.util.Optional;
-
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.openjpa.jdbc.identifier.DBIdentifier;
 import org.apache.openjpa.jdbc.kernel.JDBCStore;

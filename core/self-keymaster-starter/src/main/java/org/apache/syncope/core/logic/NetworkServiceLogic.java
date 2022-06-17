@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
 import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
-import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
 
 public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
 

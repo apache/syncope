@@ -19,8 +19,8 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.model.PropertyModel;

@@ -27,18 +27,18 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.StringResourceStream;
 
-public class TestPage<T extends Serializable, S extends Panel>
+public final class TestPage<T extends Serializable, S extends Panel>
         extends WebPage implements IMarkupResourceStreamProvider {
 
     private static final long serialVersionUID = 483736530078975170L;
 
-    public static String FIELD = "field";
+    public static final String FIELD = "field";
 
     private final Form<T> form;
 
     private final S fieldPanel;
 
-    private TestPage(S field, final Builder<T, S> builder) {
+    private TestPage(final S field, final Builder<T, S> builder) {
         this.form = builder.form;
         this.fieldPanel = field;
 

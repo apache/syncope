@@ -27,9 +27,9 @@ import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
+import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
 
 public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
 
