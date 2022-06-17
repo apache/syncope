@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
 import org.apache.syncope.core.provisioning.api.data.AttrRepoDataBinder;
 import org.slf4j.Logger;
