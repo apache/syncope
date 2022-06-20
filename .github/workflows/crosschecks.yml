@@ -42,6 +42,7 @@ jobs:
     - name: Setup Java JDK
       uses: actions/setup-java@v3
       with:
+        distribution: 'zulu'
         java-version: ${{ matrix.java }}
     - uses: actions/cache@v3
       with:
