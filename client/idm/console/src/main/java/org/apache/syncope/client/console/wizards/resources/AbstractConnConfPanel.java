@@ -76,7 +76,7 @@ public abstract class AbstractConnConfPanel<T extends EntityTO> extends WizardSt
     }
 
     protected void setConfPropertyListView(final IModel<List<ConnConfProperty>> model, final boolean withOverridable) {
-        propertiesContainer.add(new ConnConfPropertyListView(
+        propertiesContainer.addOrReplace(new ConnConfPropertyListView(
                 "connectorProperties", model, withOverridable).setOutputMarkupId(true));
     }
 

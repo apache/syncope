@@ -50,6 +50,8 @@ public class ResourceDetailsPanel extends WizardStep {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
+    private AjaxDropDownChoicePanel<String> connector;
+
     private final IModel<List<String>> propagationActions = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
@@ -151,7 +153,7 @@ public class ResourceDetailsPanel extends WizardStep {
                     new Model<>(resourceTO.getConnectorDisplayName()),
                     false).addRequiredLabel().setEnabled(false));
         } else {
-            final AjaxDropDownChoicePanel<String> connector = new AjaxDropDownChoicePanel<>(
+            connector = new AjaxDropDownChoicePanel<>(
                     "connector",
                     new ResourceModel("connector", "connector").getObject(),
                     new PropertyModel<>(resourceTO, "connector"), false);
@@ -185,5 +187,9 @@ public class ResourceDetailsPanel extends WizardStep {
             connector.getField().setOutputMarkupId(true);
             container.add(connector);
         }
+    }
+
+    public AjaxDropDownChoicePanel<String> getConnector() {
+        return connector;
     }
 }
