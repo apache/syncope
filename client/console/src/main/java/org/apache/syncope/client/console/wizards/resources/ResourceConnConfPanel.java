@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 
@@ -113,5 +114,13 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
         }
 
         return props;
+    }
+
+    public LoadableDetachableModel<List<ConnConfProperty>> getModel() {
+        return model;
+    }
+
+    public AjaxButton getCheck() {
+        return check;
     }
 }
