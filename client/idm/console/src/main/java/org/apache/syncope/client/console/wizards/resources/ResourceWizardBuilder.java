@@ -19,17 +19,24 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.PropertyModel;
 
 /**
  * Resource wizard builder.
@@ -53,8 +60,9 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
     @Override
     protected WizardModel buildModelSteps(final Serializable modelObject, final WizardModel wizardModel) {
         ResourceTO resourceTO = ResourceTO.class.cast(modelObject);
-        wizardModel.add(new ResourceDetailsPanel(resourceTO, createFlag));
-        wizardModel.add(new ResourceConnConfPanel(resourceTO, createFlag) {
+        ResourceDetailsPanel resourceDetailsPanel = new ResourceDetailsPanel(resourceTO, createFlag);
+
+        ResourceConnConfPanel resourceConnConfPanel = new ResourceConnConfPanel(resourceTO, createFlag) {
 
             private static final long serialVersionUID = -1128269449868933504L;
 
@@ -68,7 +76,59 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
                 tag.append("class", "scrollable-tab-content", " ");
             }
 
-        });
+        };
+
+        if (createFlag && resourceDetailsPanel.getConnector() != null) {
+            resourceDetailsPanel.getConnector().getField().add(
+                    new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                        private static final long serialVersionUID = 4600298808455564695L;
+
+                        @Override
+                        protected void onUpdate(final AjaxRequestTarget target) {
+                            resourceTO.setConnector(resourceDetailsPanel.getConnector().getModelObject());
+
+                            LoadableDetachableModel<List<ConnConfProperty>> model =
+                                    new LoadableDetachableModel<>() {
+
+                                        private static final long serialVersionUID = -2965284931860212687L;
+
+                                        @Override
+                                        protected List<ConnConfProperty> load() {
+                                            List<ConnConfProperty> confOverride =
+                                                    resourceConnConfPanel.getConnProperties(resourceTO);
+                                            resourceTO.getConfOverride().clear();
+                                            resourceTO.getConfOverride().addAll(confOverride);
+
+                                            return new PropertyModel<List<ConnConfProperty>>(modelObject, "confOverride") {
+
+                                                private static final long serialVersionUID = -7809699384012595307L;
+
+                                                @Override
+                                                public List<ConnConfProperty> getObject() {
+                                                    List<ConnConfProperty> res = new ArrayList<>(super.getObject());
+
+                                                    // re-order properties
+                                                    Collections.sort(res, (left, right) -> {
+                                                        if (left == null) {
+                                                            return -1;
+                                                        } else {
+                                                            return left.compareTo(right);
+                                                        }
+                                                    });
+
+                                                    return res;
+                                                }
+                                            }.getObject();
+                                        }
+                                    };
+                            resourceConnConfPanel.setConfPropertyListView(model, true);
+                            target.add(resourceConnConfPanel.getCheck().setVisible(true).setEnabled(true));
+                        }
+                    });
+        }
+        wizardModel.add(resourceDetailsPanel);
+        wizardModel.add(resourceConnConfPanel);
         if (resourceTO.getConnector() != null) {
             wizardModel.add(new ResourceConnCapabilitiesPanel(
                     resourceTO, ConnectorRestClient.read(resourceTO.getConnector()).getCapabilities()));
