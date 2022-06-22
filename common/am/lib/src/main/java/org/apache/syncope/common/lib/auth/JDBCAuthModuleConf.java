@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.auth;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class JDBCAuthModuleConf implements AuthModuleConf {
 
@@ -153,5 +154,10 @@ public class JDBCAuthModuleConf implements AuthModuleConf {
 
     public void setPassword(final String password) {
         this.password = password;
+    }
+
+    @Override
+    public Map<String, Object> map(final Mapper mapper) {
+        return mapper.map(this);
     }
 }

@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.lib.auth;
 
+import java.util.Map;
+
 public class U2FAuthModuleConf implements MFAAuthModuleConf {
 
     private static final long serialVersionUID = -1235771400318503131L;
@@ -65,5 +67,10 @@ public class U2FAuthModuleConf implements MFAAuthModuleConf {
 
     public void setExpireDevicesTimeUnit(final String expireDevicesTimeUnit) {
         this.expireDevicesTimeUnit = expireDevicesTimeUnit;
+    }
+
+    @Override
+    public Map<String, Object> map(final Mapper mapper) {
+        return mapper.map(this);
     }
 }

@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.auth;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LDAPAuthModuleConf implements AuthModuleConf {
 
@@ -128,5 +129,10 @@ public class LDAPAuthModuleConf implements AuthModuleConf {
 
     public List<String> getPrincipalAttributeList() {
         return principalAttributeList;
+    }
+
+    @Override
+    public Map<String, Object> map(final Mapper mapper) {
+        return mapper.map(this);
     }
 }

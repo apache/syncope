@@ -86,4 +86,9 @@ public class SyncopeAttrRepoConf implements AttrRepoConf {
     public Map<String, String> getHeaders() {
         return headers;
     }
+
+    @Override
+    public Map<String, Object> map(final Mapper mapper) {
+        return mapper.map(this);
+    }
 }

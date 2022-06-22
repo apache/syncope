@@ -230,4 +230,9 @@ public class JDBCAttrRepoConf implements AttrRepoConf {
     public Map<String, String> getQueryAttributes() {
         return queryAttributes;
     }
+
+    @Override
+    public Map<String, Object> map(final Mapper mapper) {
+        return mapper.map(this);
+    }
 }

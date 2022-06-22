@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.auth;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 
 public class SAML2IdPAuthModuleConf implements AuthModuleConf {
@@ -382,5 +383,10 @@ public class SAML2IdPAuthModuleConf implements AuthModuleConf {
 
     public void setProviderName(final String providerName) {
         this.providerName = providerName;
+    }
+
+    @Override
+    public Map<String, Object> map(final Mapper mapper) {
+        return mapper.map(this);
     }
 }

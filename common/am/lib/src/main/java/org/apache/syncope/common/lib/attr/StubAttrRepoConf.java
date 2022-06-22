@@ -35,4 +35,9 @@ public class StubAttrRepoConf implements AttrRepoConf {
     public Map<String, String> getAttributes() {
         return attributes;
     }
+
+    @Override
+    public Map<String, Object> map(final Mapper mapper) {
+        return mapper.map(this);
+    }
 }

@@ -19,6 +19,7 @@
 package org.apache.syncope.common.lib.auth;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public class GoogleMfaAuthModuleConf implements MFAAuthModuleConf {
 
@@ -205,5 +206,10 @@ public class GoogleMfaAuthModuleConf implements MFAAuthModuleConf {
 
     public void setLdap(final LDAP ldap) {
         this.ldap = ldap;
+    }
+
+    @Override
+    public Map<String, Object> map(final Mapper mapper) {
+        return mapper.map(this);
     }
 }

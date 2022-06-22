@@ -166,4 +166,9 @@ public class OIDCAuthModuleConf implements AuthModuleConf {
     public void setResponseType(final String responseType) {
         this.responseType = responseType;
     }
+
+    @Override
+    public Map<String, Object> map(final Mapper mapper) {
+        return mapper.map(this);
+    }
 }
