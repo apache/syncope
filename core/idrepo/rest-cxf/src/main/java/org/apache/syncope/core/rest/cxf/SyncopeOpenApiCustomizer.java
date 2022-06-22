@@ -188,11 +188,11 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
         Schema<ErrorTO> errorSchema = new Schema<>();
         errorSchema.example(sampleError).
-                addProperties("status", new IntegerSchema().description("HTTP status code")).
-                addProperties("type", new StringSchema().
+                addProperty("status", new IntegerSchema().description("HTTP status code")).
+                addProperty("type", new StringSchema().
                         _enum(Stream.of(ClientExceptionType.values()).map(Enum::name).collect(Collectors.toList())).
                         description("Error code")).
-                addProperties("elements", new ArraySchema().type("string").description("Error message(s)"));
+                addProperty("elements", new ArraySchema().type("string").description("Error message(s)"));
 
         Content content = new Content();
         content.addMediaType(

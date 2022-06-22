@@ -107,7 +107,18 @@ under the License.
                   password="0" purpose="NONE" mandatoryCondition="false" connObjectKey="0" authModule_id="DefaultLDAPAuthModule"/>
 
   <!-- Attribute repositories -->
-  
+  <AttrRepo id="DefaultLDAPAttrRepo" attrRepoState="ACTIVE"
+            description="LDAP attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.LDAPAttrRepoConf","searchFilter":"cn={user}","subtreeSearch":true,"ldapUrl":"ldap://localhost:1389","bindDn":null,"bindCredential":"Password","baseDn":"dc=example,dc=org","attributes":{},"useAllQueryAttributes":true,"queryAttributes":{}}'/>
+  <AttrRepo id="DefaultJDBCAttrRepo" attrRepoState="ACTIVE"
+            description="JDBC attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.JDBCAttrRepoConf","sql":"SELECT * FROM table WHERE name=?","dialect":"org.hibernate.dialect.H2Dialect","driverClass":"org.h2.Driver","url":"jdbc:h2:mem:syncopedb;DB_CLOSE_DELAY=-1","user":"username","password":"password","singleRow":true,"requireAllAttributes":true,"caseCanonicalization":"NONE","queryType":"AND","columnMappings":{},"username":[],"attributes":{},"caseInsensitiveQueryAttributes":[],"queryAttributes":{}}'/>
+  <AttrRepo id="DefaultStubAttrRepo" attrRepoState="ACTIVE"
+            description="Stub attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.StubAttrRepoConf","attributes":{"attr1":"value1"}}'/>
+  <AttrRepo id="DefaultSyncopeAttrRepo" attrRepoState="ACTIVE"
+            description="Syncope attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf","domain":"Master","searchFilter":null,"basicAuthUsername":null,"basicAuthPassword":null,"headers":{}}'/>
+
+  <AttrRepoItem id="d2d9e7be-d82b-4698-b0fb-67d480413049" extAttrName="identifier" intAttrName="attr1"
+                password="0" purpose="NONE" mandatoryCondition="false" connObjectKey="0" attrRepo_id="DefaultStubAttrRepo"/>
+
   <RelationshipType id="inclusion" description="Models the act that an object is included in another"/>
   <RelationshipType id="neighborhood" description="Models the act that an object is near another"/>
   

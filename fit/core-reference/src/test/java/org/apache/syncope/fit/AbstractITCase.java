@@ -79,7 +79,6 @@ import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -111,6 +110,7 @@ import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.ApplicationService;
+import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
@@ -339,6 +339,8 @@ public abstract class AbstractITCase {
 
     protected static AuthModuleService AUTH_MODULE_SERVICE;
 
+    protected static AttrRepoService ATTR_REPO_SERVICE;
+
     protected static SecurityQuestionService SECURITY_QUESTION_SERVICE;
 
     protected static ImplementationService IMPLEMENTATION_SERVICE;
@@ -463,6 +465,7 @@ public abstract class AbstractITCase {
         SCIM_CONF_SERVICE = ADMIN_CLIENT.getService(SCIMConfService.class);
         CLIENT_APP_SERVICE = ADMIN_CLIENT.getService(ClientAppService.class);
         AUTH_MODULE_SERVICE = ADMIN_CLIENT.getService(AuthModuleService.class);
+        ATTR_REPO_SERVICE = ADMIN_CLIENT.getService(AttrRepoService.class);
         SAML2SP_ENTITY_SERVICE = ADMIN_CLIENT.getService(SAML2SPEntityService.class);
         SAML2IDP_ENTITY_SERVICE = ADMIN_CLIENT.getService(SAML2IdPEntityService.class);
         AUTH_PROFILE_SERVICE = ADMIN_CLIENT.getService(AuthProfileService.class);
@@ -492,20 +495,8 @@ public abstract class AbstractITCase {
                 get(resultClass);
     }
 
-    @Autowired
-    protected ConfParamOps confParamOps;
-
-    @Autowired
-    protected ServiceOps serviceOps;
-
-    @Autowired
-    protected DomainOps domainOps;
-
-    @Autowired
-    protected DataSource testDataSource;
-
     @SuppressWarnings("unchecked")
-    protected <T extends SchemaTO> T createSchema(final SchemaType type, final T schemaTO) {
+    protected static <T extends SchemaTO> T createSchema(final SchemaType type, final T schemaTO) {
         Response response = SCHEMA_SERVICE.create(type, schemaTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
@@ -517,7 +508,7 @@ public abstract class AbstractITCase {
         return (T) getObject(response.getLocation(), SchemaService.class, schemaTO.getClass());
     }
 
-    protected RoleTO createRole(final RoleTO roleTO) {
+    protected static RoleTO createRole(final RoleTO roleTO) {
         Response response = ROLE_SERVICE.create(roleTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
@@ -528,13 +519,13 @@ public abstract class AbstractITCase {
         return getObject(response.getLocation(), RoleService.class, RoleTO.class);
     }
 
-    protected ReportTO createReport(final ReportTO report) {
+    protected static ReportTO createReport(final ReportTO report) {
         Response response = REPORT_SERVICE.create(report);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
         return getObject(response.getLocation(), ReportService.class, ReportTO.class);
     }
 
-    protected Pair<String, String> createNotificationTask(
+    protected static Pair<String, String> createNotificationTask(
             final boolean active,
             final boolean includeAbout,
             final TraceLevel traceLevel,
@@ -579,7 +570,7 @@ public abstract class AbstractITCase {
         return Pair.of(notification.getKey(), req.getUsername());
     }
 
-    protected ProvisioningResult<UserTO> createUser(final UserCR req) {
+    protected static ProvisioningResult<UserTO> createUser(final UserCR req) {
         Response response = USER_SERVICE.create(req);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
@@ -591,26 +582,26 @@ public abstract class AbstractITCase {
         });
     }
 
-    protected ProvisioningResult<UserTO> updateUser(final UserUR req) {
+    protected static ProvisioningResult<UserTO> updateUser(final UserUR req) {
         return USER_SERVICE.update(req).
                 readEntity(new GenericType<>() {
                 });
     }
 
-    protected ProvisioningResult<UserTO> updateUser(final UserTO userTO) {
+    protected static ProvisioningResult<UserTO> updateUser(final UserTO userTO) {
         UserTO before = USER_SERVICE.read(userTO.getKey());
         return USER_SERVICE.update(AnyOperations.diff(userTO, before, false)).
                 readEntity(new GenericType<>() {
                 });
     }
 
-    protected ProvisioningResult<UserTO> deleteUser(final String key) {
+    protected static ProvisioningResult<UserTO> deleteUser(final String key) {
         return USER_SERVICE.delete(key).
                 readEntity(new GenericType<>() {
                 });
     }
 
-    protected ProvisioningResult<AnyObjectTO> createAnyObject(final AnyObjectCR req) {
+    protected static ProvisioningResult<AnyObjectTO> createAnyObject(final AnyObjectCR req) {
         Response response = ANY_OBJECT_SERVICE.create(req);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
@@ -622,19 +613,19 @@ public abstract class AbstractITCase {
         });
     }
 
-    protected ProvisioningResult<AnyObjectTO> updateAnyObject(final AnyObjectUR req) {
+    protected static ProvisioningResult<AnyObjectTO> updateAnyObject(final AnyObjectUR req) {
         return ANY_OBJECT_SERVICE.update(req).
                 readEntity(new GenericType<>() {
                 });
     }
 
-    protected ProvisioningResult<AnyObjectTO> deleteAnyObject(final String key) {
+    protected static ProvisioningResult<AnyObjectTO> deleteAnyObject(final String key) {
         return ANY_OBJECT_SERVICE.delete(key).
                 readEntity(new GenericType<>() {
                 });
     }
 
-    protected ProvisioningResult<GroupTO> createGroup(final GroupCR req) {
+    protected static ProvisioningResult<GroupTO> createGroup(final GroupCR req) {
         Response response = GROUP_SERVICE.create(req);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
@@ -646,20 +637,20 @@ public abstract class AbstractITCase {
         });
     }
 
-    protected ProvisioningResult<GroupTO> updateGroup(final GroupUR req) {
+    protected static ProvisioningResult<GroupTO> updateGroup(final GroupUR req) {
         return GROUP_SERVICE.update(req).
                 readEntity(new GenericType<>() {
                 });
     }
 
-    protected ProvisioningResult<GroupTO> deleteGroup(final String key) {
+    protected static ProvisioningResult<GroupTO> deleteGroup(final String key) {
         return GROUP_SERVICE.delete(key).
                 readEntity(new GenericType<>() {
                 });
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends PolicyTO> T createPolicy(final PolicyType type, final T policy) {
+    protected static <T extends PolicyTO> T createPolicy(final PolicyType type, final T policy) {
         Response response = POLICY_SERVICE.create(type, policy);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
@@ -670,19 +661,7 @@ public abstract class AbstractITCase {
         return (T) getObject(response.getLocation(), PolicyService.class, policy.getClass());
     }
 
-    @SuppressWarnings("unchecked")
-    protected AuthModuleTO createAuthModule(final AuthModuleTO authModule) {
-        Response response = AUTH_MODULE_SERVICE.create(authModule);
-        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
-            if (ex != null) {
-                throw (RuntimeException) ex;
-            }
-        }
-        return getObject(response.getLocation(), AuthModuleService.class, authModule.getClass());
-    }
-
-    protected ResourceTO createResource(final ResourceTO resourceTO) {
+    protected static ResourceTO createResource(final ResourceTO resourceTO) {
         Response response = RESOURCE_SERVICE.create(resourceTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
@@ -693,14 +672,14 @@ public abstract class AbstractITCase {
         return getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
     }
 
-    protected List<BatchResponseItem> parseBatchResponse(final Response response) throws IOException {
+    protected static List<BatchResponseItem> parseBatchResponse(final Response response) throws IOException {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         return BatchPayloadParser.parse(
                 (InputStream) response.getEntity(), response.getMediaType(), new BatchResponseItem());
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes", "UseOfObsoleteCollectionType" })
-    protected InitialDirContext getLdapResourceDirContext(final String bindDn, final String bindPwd)
+    protected static InitialDirContext getLdapResourceDirContext(final String bindDn, final String bindPwd)
             throws NamingException {
         ResourceTO ldapRes = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         ConnInstanceTO ldapConn = CONNECTOR_SERVICE.read(ldapRes.getConnector(), Locale.ENGLISH.getLanguage());
@@ -718,7 +697,7 @@ public abstract class AbstractITCase {
         return new InitialDirContext(env);
     }
 
-    protected Object getLdapRemoteObject(final String bindDn, final String bindPwd, final String objectDn) {
+    protected static Object getLdapRemoteObject(final String bindDn, final String bindPwd, final String objectDn) {
         InitialDirContext ctx = null;
         try {
             ctx = getLdapResourceDirContext(bindDn, bindPwd);
@@ -737,7 +716,7 @@ public abstract class AbstractITCase {
         }
     }
 
-    protected void createLdapRemoteObject(
+    protected static void createLdapRemoteObject(
             final String bindDn,
             final String bindPwd,
             final Pair<String, Set<Attribute>> entryAttrs) throws NamingException {
@@ -765,7 +744,7 @@ public abstract class AbstractITCase {
         }
     }
 
-    protected void updateLdapRemoteObject(
+    protected static void updateLdapRemoteObject(
             final String bindDn,
             final String bindPwd,
             final String objectDn,
@@ -793,7 +772,7 @@ public abstract class AbstractITCase {
         }
     }
 
-    protected void removeLdapRemoteObject(
+    protected static void removeLdapRemoteObject(
             final String bindDn,
             final String bindPwd,
             final String objectDn) {
@@ -816,7 +795,7 @@ public abstract class AbstractITCase {
         }
     }
 
-    protected <T> T queryForObject(
+    protected static <T> T queryForObject(
             final JdbcTemplate jdbcTemplate,
             final int maxWaitSeconds,
             final String sql, final Class<T> requiredType, final Object... args) {
@@ -834,7 +813,7 @@ public abstract class AbstractITCase {
         return object.get();
     }
 
-    protected OIDCRPClientAppTO buildOIDCRP() {
+    protected static OIDCRPClientAppTO buildOIDCRP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
         authPolicyTO.setName("Authentication Policy");
@@ -863,7 +842,7 @@ public abstract class AbstractITCase {
         return oidcrpTO;
     }
 
-    protected SAML2SPClientAppTO buildSAML2SP() {
+    protected static SAML2SPClientAppTO buildSAML2SP() {
         AuthPolicyTO authPolicyTO = new AuthPolicyTO();
         authPolicyTO.setKey("AuthPolicyTest_" + getUUIDString());
         authPolicyTO.setName("Authentication Policy");
@@ -893,7 +872,7 @@ public abstract class AbstractITCase {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends ClientAppTO> T createClientApp(final ClientAppType type, final T clientAppTO) {
+    protected static <T extends ClientAppTO> T createClientApp(final ClientAppType type, final T clientAppTO) {
         Response response = CLIENT_APP_SERVICE.create(type, clientAppTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
@@ -904,7 +883,7 @@ public abstract class AbstractITCase {
         return (T) getObject(response.getLocation(), ClientAppService.class, clientAppTO.getClass());
     }
 
-    protected AuthPolicyTO buildAuthPolicyTO(final String authModuleKey) {
+    protected static AuthPolicyTO buildAuthPolicyTO(final String authModuleKey) {
         AuthPolicyTO policy = new AuthPolicyTO();
         policy.setName("Test Authentication policy");
 
@@ -915,7 +894,7 @@ public abstract class AbstractITCase {
         return policy;
     }
 
-    protected AttrReleasePolicyTO buildAttrReleasePolicyTO() {
+    protected static AttrReleasePolicyTO buildAttrReleasePolicyTO() {
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
         policy.setName("Test Attribute Release policy");
         policy.setStatus(Boolean.TRUE);
@@ -929,7 +908,7 @@ public abstract class AbstractITCase {
         return policy;
     }
 
-    protected AccessPolicyTO buildAccessPolicyTO() {
+    protected static AccessPolicyTO buildAccessPolicyTO() {
         AccessPolicyTO policy = new AccessPolicyTO();
         policy.setName("Test Access policy");
         policy.setEnabled(true);
@@ -941,7 +920,7 @@ public abstract class AbstractITCase {
         return policy;
     }
 
-    protected List<AuditEntry> query(final AuditQuery query, final int maxWaitSeconds) {
+    protected static List<AuditEntry> query(final AuditQuery query, final int maxWaitSeconds) {
         int i = 0;
         List<AuditEntry> results = List.of();
         do {
@@ -954,5 +933,17 @@ public abstract class AbstractITCase {
         } while (results.isEmpty() && i < maxWaitSeconds);
         return results;
     }
+
+    @Autowired
+    protected ConfParamOps confParamOps;
+
+    @Autowired
+    protected ServiceOps serviceOps;
+
+    @Autowired
+    protected DomainOps domainOps;
+
+    @Autowired
+    protected DataSource testDataSource;
 
 }

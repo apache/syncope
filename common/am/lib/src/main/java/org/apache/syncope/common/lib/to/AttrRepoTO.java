@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -35,6 +37,8 @@ public class AttrRepoTO implements EntityTO {
     private AttrRepoState state;
 
     private int order;
+
+    private final List<ItemTO> items = new ArrayList<>();
 
     private AttrRepoConf conf;
 
@@ -73,6 +77,10 @@ public class AttrRepoTO implements EntityTO {
         this.order = order;
     }
 
+    public List<ItemTO> getItems() {
+        return items;
+    }
+
     public AttrRepoConf getConf() {
         return conf;
     }
@@ -96,6 +104,7 @@ public class AttrRepoTO implements EntityTO {
         return new EqualsBuilder().
                 append(key, other.key).
                 append(description, other.description).
+                append(items, other.items).
                 append(conf, other.conf).
                 build();
     }
@@ -105,6 +114,7 @@ public class AttrRepoTO implements EntityTO {
         return new HashCodeBuilder().
                 append(key).
                 append(description).
+                append(items).
                 append(conf).
                 build();
     }

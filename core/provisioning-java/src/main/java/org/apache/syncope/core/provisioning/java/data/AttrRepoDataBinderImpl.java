@@ -18,10 +18,17 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import org.apache.syncope.common.lib.SyncopeClientCompositeException;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
+import org.apache.syncope.core.persistence.api.entity.am.AttrRepoItem;
 import org.apache.syncope.core.provisioning.api.data.AttrRepoDataBinder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +40,52 @@ public class AttrRepoDataBinderImpl implements AttrRepoDataBinder {
 
     public AttrRepoDataBinderImpl(final EntityFactory entityFactory) {
         this.entityFactory = entityFactory;
+    }
+
+    protected void populateItems(final AttrRepoTO attrRepoTO, final AttrRepo attrRepo) {
+        SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
+        SyncopeClientException invalidMapping =
+                SyncopeClientException.build(ClientExceptionType.InvalidMapping);
+        SyncopeClientException requiredValuesMissing =
+                SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+
+        attrRepoTO.getItems().forEach(itemTO -> {
+            if (itemTO == null) {
+                LOG.error("Null {}", ItemTO.class.getSimpleName());
+                invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
+            } else if (itemTO.getIntAttrName() == null) {
+                requiredValuesMissing.getElements().add("intAttrName");
+                scce.addException(requiredValuesMissing);
+            } else {
+                // no mandatory condition implies mandatory condition false
+                if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
+                        ? "false" : itemTO.getMandatoryCondition())) {
+
+                    SyncopeClientException invalidMandatoryCondition =
+                            SyncopeClientException.build(ClientExceptionType.InvalidValues);
+                    invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
+                    scce.addException(invalidMandatoryCondition);
+                }
+
+                AttrRepoItem item = entityFactory.newEntity(AttrRepoItem.class);
+                item.setIntAttrName(itemTO.getIntAttrName());
+                item.setExtAttrName(itemTO.getExtAttrName());
+                item.setMandatoryCondition(itemTO.getMandatoryCondition());
+                item.setConnObjectKey(itemTO.isConnObjectKey());
+                item.setPassword(itemTO.isPassword());
+                item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
+                item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
+                item.setAttrRepo(attrRepo);
+                attrRepo.add(item);
+            }
+        });
+
+        if (!invalidMapping.getElements().isEmpty()) {
+            scce.addException(invalidMapping);
+        }
+        if (scce.hasExceptions()) {
+            throw scce;
+        }
     }
 
     @Override
@@ -49,7 +102,27 @@ public class AttrRepoDataBinderImpl implements AttrRepoDataBinder {
         attrRepo.setOrder(attrRepoTO.getOrder());
         attrRepo.setConf(attrRepoTO.getConf());
 
+        attrRepo.getItems().clear();
+        populateItems(attrRepoTO, attrRepo);
+
         return attrRepo;
+    }
+
+    protected void populateItems(final AttrRepo attrRepo, final AttrRepoTO attrRepoTO) {
+        attrRepo.getItems().forEach(item -> {
+            ItemTO itemTO = new ItemTO();
+            itemTO.setKey(item.getKey());
+            itemTO.setIntAttrName(item.getIntAttrName());
+            itemTO.setExtAttrName(item.getExtAttrName());
+            itemTO.setMandatoryCondition(item.getMandatoryCondition());
+            itemTO.setConnObjectKey(item.isConnObjectKey());
+            itemTO.setPassword(item.isPassword());
+            itemTO.setPropagationJEXLTransformer(item.getPropagationJEXLTransformer());
+            itemTO.setPullJEXLTransformer(item.getPullJEXLTransformer());
+            itemTO.setPurpose(MappingPurpose.NONE);
+
+            attrRepoTO.getItems().add(itemTO);
+        });
     }
 
     @Override
@@ -61,6 +134,8 @@ public class AttrRepoDataBinderImpl implements AttrRepoDataBinder {
         attrRepoTO.setState(attrRepo.getState());
         attrRepoTO.setOrder(attrRepo.getOrder());
         attrRepoTO.setConf(attrRepo.getConf());
+
+        populateItems(attrRepo, attrRepoTO);
 
         return attrRepoTO;
     }

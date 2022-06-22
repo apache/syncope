@@ -33,9 +33,9 @@ public class AuthModuleTO implements EntityTO {
 
     private String description;
 
-    private AuthModuleConf conf;
-
     private final List<ItemTO> items = new ArrayList<>();
+
+    private AuthModuleConf conf;
 
     @Override
     public String getKey() {
@@ -56,16 +56,16 @@ public class AuthModuleTO implements EntityTO {
         this.description = description;
     }
 
+    public List<ItemTO> getItems() {
+        return items;
+    }
+
     public AuthModuleConf getConf() {
         return conf;
     }
 
     public void setConf(final AuthModuleConf conf) {
         this.conf = conf;
-    }
-
-    public List<ItemTO> getItems() {
-        return items;
     }
 
     @Override

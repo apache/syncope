@@ -51,6 +51,7 @@ import org.apache.syncope.core.persistence.api.entity.SRARoute;
 import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
+import org.apache.syncope.core.persistence.api.entity.am.AttrRepoItem;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModuleItem;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
@@ -112,6 +113,7 @@ import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAttrRepo;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAAttrRepoItem;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthModule;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthModuleItem;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthProfile;
@@ -334,6 +336,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAAuthModuleItem();
         } else if (reference.equals(AttrRepo.class)) {
             result = (E) new JPAAttrRepo();
+        } else if (reference.equals(AttrRepoItem.class)) {
+            result = (E) new JPAAttrRepoItem();
         } else if (reference.equals(AuthPolicy.class)) {
             result = (E) new JPAAuthPolicy();
         } else if (reference.equals(AccessPolicy.class)) {

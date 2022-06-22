@@ -18,16 +18,23 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.am;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
 import org.apache.syncope.common.lib.types.AttrRepoState;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
+import org.apache.syncope.core.persistence.api.entity.am.AttrRepoItem;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
@@ -47,6 +54,9 @@ public class JPAAttrRepo extends AbstractProvidedKeyEntity implements AttrRepo {
 
     @NotNull
     private Integer attrRepoOrder = 0;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "attrRepo")
+    private List<JPAAttrRepoItem> items = new ArrayList<>();
 
     @Lob
     private String jsonConf;
@@ -73,12 +83,23 @@ public class JPAAttrRepo extends AbstractProvidedKeyEntity implements AttrRepo {
 
     @Override
     public int getOrder() {
-        return attrRepoOrder;
+        return Optional.ofNullable(attrRepoOrder).orElse(0);
     }
 
     @Override
     public void setOrder(final int order) {
         this.attrRepoOrder = order;
+    }
+
+    @Override
+    public List<? extends AttrRepoItem> getItems() {
+        return items;
+    }
+
+    @Override
+    public boolean add(final AttrRepoItem item) {
+        checkType(item, JPAAttrRepoItem.class);
+        return items.contains((JPAAttrRepoItem) item) || items.add((JPAAttrRepoItem) item);
     }
 
     @Override

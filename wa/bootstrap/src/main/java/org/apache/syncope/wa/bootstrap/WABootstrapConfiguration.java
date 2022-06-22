@@ -31,6 +31,7 @@ public class WABootstrapConfiguration {
 
     @Configuration(proxyBeanMethods = false)
     public static class WAClientConfiguration {
+
         @Value("${wa.anonymousUser}")
         private String anonymousUser;
 
@@ -48,6 +49,7 @@ public class WABootstrapConfiguration {
 
     @Configuration(proxyBeanMethods = false)
     public static class PropertySourceConfiguration {
+
         @Bean
         public PropertySourceLocator configPropertySourceLocator(final WARestClient waRestClient) {
             return new WAPropertySourceLocator(waRestClient);

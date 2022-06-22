@@ -18,30 +18,11 @@
  */
 package org.apache.syncope.core.persistence.api.entity.am;
 
-import java.util.List;
-import org.apache.syncope.common.lib.attr.AttrRepoConf;
-import org.apache.syncope.common.lib.types.AttrRepoState;
-import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 
-public interface AttrRepo extends ProvidedKeyEntity {
+public interface AttrRepoItem extends Item {
 
-    String getDescription();
+    AttrRepo getAttrRepo();
 
-    void setDescription(String description);
-
-    AttrRepoState getState();
-
-    void setState(AttrRepoState state);
-
-    int getOrder();
-
-    void setOrder(int order);
-
-    AttrRepoConf getConf();
-
-    void setConf(AttrRepoConf conf);
-
-    List<? extends AttrRepoItem> getItems();
-
-    boolean add(AttrRepoItem item);
+    void setAttrRepo(AttrRepo attrRepo);
 }
