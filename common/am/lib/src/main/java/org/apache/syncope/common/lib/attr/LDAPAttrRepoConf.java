@@ -20,43 +20,11 @@ package org.apache.syncope.common.lib.attr;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.syncope.common.lib.AbstractLDAPConf;
 
-public class LDAPAttrRepoConf implements AttrRepoConf {
+public class LDAPAttrRepoConf extends AbstractLDAPConf implements AttrRepoConf {
 
     private static final long serialVersionUID = -471527731042579422L;
-
-    protected String searchFilter;
-
-    /**
-     * Whether subtree searching is allowed.
-     */
-    private boolean subtreeSearch = true;
-
-    private String ldapUrl;
-
-    /**
-     * The bind DN to use when connecting to LDAP.
-     * LDAP connection configuration injected into the LDAP connection pool
-     * can be initialized with the following parameters:
-     * <ul>
-     * <li>{@code bindDn/bindCredential} provided - Use the provided credentials
-     * to bind when initializing connections.</li>
-     * <li>{@code bindDn/bindCredential} set to {@code *} - Use a fast-bind
-     * strategy to initialize the pool.</li>
-     * <li>{@code bindDn/bindCredential} set to blank - Skip connection
-     * initializing; perform operations anonymously.</li>
-     * <li>SASL mechanism provided - Use the given SASL mechanism
-     * to bind when initializing connections. </li>
-     * </ul>
-     */
-    private String bindDn;
-
-    /**
-     * The bind credential to use when connecting to LDAP.
-     */
-    private String bindCredential;
-
-    private String baseDn;
 
     /**
      * Map of attributes to fetch from the database.
@@ -81,54 +49,6 @@ public class LDAPAttrRepoConf implements AttrRepoConf {
      * and the value is the column/field that should map.
      */
     private final Map<String, String> queryAttributes = new HashMap<>(0);
-
-    public String getSearchFilter() {
-        return searchFilter;
-    }
-
-    public void setSearchFilter(final String searchFilter) {
-        this.searchFilter = searchFilter;
-    }
-
-    public boolean isSubtreeSearch() {
-        return subtreeSearch;
-    }
-
-    public void setSubtreeSearch(final boolean subtreeSearch) {
-        this.subtreeSearch = subtreeSearch;
-    }
-
-    public String getLdapUrl() {
-        return ldapUrl;
-    }
-
-    public void setLdapUrl(final String ldapUrl) {
-        this.ldapUrl = ldapUrl;
-    }
-
-    public String getBindDn() {
-        return bindDn;
-    }
-
-    public void setBindDn(final String bindDn) {
-        this.bindDn = bindDn;
-    }
-
-    public String getBindCredential() {
-        return bindCredential;
-    }
-
-    public void setBindCredential(final String bindCredential) {
-        this.bindCredential = bindCredential;
-    }
-
-    public String getBaseDn() {
-        return baseDn;
-    }
-
-    public void setBaseDn(final String baseDn) {
-        this.baseDn = baseDn;
-    }
 
     public boolean isUseAllQueryAttributes() {
         return useAllQueryAttributes;

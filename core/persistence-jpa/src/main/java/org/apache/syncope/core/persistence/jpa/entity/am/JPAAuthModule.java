@@ -20,14 +20,19 @@ package org.apache.syncope.core.persistence.jpa.entity.am;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModuleItem;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
@@ -43,6 +48,13 @@ public class JPAAuthModule extends AbstractProvidedKeyEntity implements AuthModu
 
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private AuthModuleState authModuleState;
+
+    @NotNull
+    private Integer authModuleOrder = 0;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "authModule")
     private List<JPAAuthModuleItem> items = new ArrayList<>();
 
@@ -57,6 +69,26 @@ public class JPAAuthModule extends AbstractProvidedKeyEntity implements AuthModu
     @Override
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    @Override
+    public AuthModuleState getState() {
+        return authModuleState;
+    }
+
+    @Override
+    public void setState(final AuthModuleState state) {
+        this.authModuleState = state;
+    }
+
+    @Override
+    public int getOrder() {
+        return Optional.ofNullable(authModuleOrder).orElse(0);
+    }
+
+    @Override
+    public void setOrder(final int order) {
+        this.authModuleOrder = order;
     }
 
     @Override

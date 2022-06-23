@@ -115,13 +115,9 @@ public class WAServiceRegistryTest extends AbstractTest {
         waClientApp.setAccessPolicy(accessPolicy);
 
         if (withAttrReleasePolicy) {
-            DefaultAttrReleasePolicyConf.PrincipalAttrRepoConf principalAttrRepoConf =
-                    new DefaultAttrReleasePolicyConf.PrincipalAttrRepoConf();
-            principalAttrRepoConf.getAttrRepos().add("TestAttrRepo");
-
             DefaultAttrReleasePolicyConf attrReleasePolicyConf = new DefaultAttrReleasePolicyConf();
             attrReleasePolicyConf.getAllowedAttrs().add("cn");
-            attrReleasePolicyConf.setPrincipalAttrRepoConf(principalAttrRepoConf);
+            attrReleasePolicyConf.getPrincipalAttrRepoConf().getAttrRepos().add("TestAttrRepo");
 
             AttrReleasePolicyTO attrReleasePolicy = new AttrReleasePolicyTO();
             attrReleasePolicy.setConf(attrReleasePolicyConf);

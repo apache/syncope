@@ -57,7 +57,7 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
             attributeReleasePolicy.setPrincipalIdAttribute(conf.getPrincipalIdAttr());
         }
 
-        if (conf.getPrincipalAttrRepoConf() != null) {
+        if (conf.getPrincipalAttrRepoConf() != null && !conf.getPrincipalAttrRepoConf().getAttrRepos().isEmpty()) {
             DefaultAttrReleasePolicyConf.PrincipalAttrRepoConf parc = conf.getPrincipalAttrRepoConf();
 
             AbstractPrincipalAttributesRepository par = parc.getExpiration() > 0

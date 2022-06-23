@@ -110,6 +110,8 @@ public class AuthModuleDirectoryPanel
                                 rowModel.getObject().getConf().getClass().getSimpleName(), "AuthModuleConf")));
             }
         });
+        columns.add(new PropertyColumn<>(new ResourceModel("state"), "state", "state"));
+        columns.add(new PropertyColumn<>(new ResourceModel("order"), "order", "order"));
         return columns;
     }
 

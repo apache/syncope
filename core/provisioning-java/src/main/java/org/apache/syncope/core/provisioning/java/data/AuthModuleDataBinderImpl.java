@@ -98,6 +98,8 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
     @Override
     public AuthModule update(final AuthModule authModule, final AuthModuleTO authModuleTO) {
         authModule.setDescription(authModuleTO.getDescription());
+        authModule.setState(authModuleTO.getState());
+        authModule.setOrder(authModuleTO.getOrder());
         authModule.setConf(authModuleTO.getConf());
 
         authModule.getItems().clear();
@@ -129,6 +131,8 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
 
         authModuleTO.setKey(authModule.getKey());
         authModuleTO.setDescription(authModule.getDescription());
+        authModuleTO.setState(authModule.getState());
+        authModuleTO.setOrder(authModule.getOrder());
         authModuleTO.setConf(authModule.getConf());
 
         populateItems(authModule, authModuleTO);

@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.wa.bootstrap;
 
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -38,22 +35,19 @@ import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
-import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apereo.cas.configuration.CasCoreConfigurationUtils;
-import org.apereo.cas.configuration.model.core.authentication.AuthenticationProperties;
+import org.apereo.cas.configuration.model.core.authentication.AuthenticationHandlerStates;
 import org.apereo.cas.configuration.model.support.generic.AcceptAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jaas.JaasAuthenticationProperties;
-import org.apereo.cas.configuration.model.support.jdbc.JdbcAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jdbc.authn.QueryJdbcAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.ldap.AbstractLdapAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.ldap.LdapAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.DuoSecurityMultifactorAuthenticationProperties;
-import org.apereo.cas.configuration.model.support.mfa.MultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.simple.CasSimpleMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
-import org.apereo.cas.configuration.model.support.pac4j.Pac4jDelegatedAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGenericOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.saml.Pac4jSamlClientProperties;
@@ -76,111 +70,68 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     public Map<String, Object> map(final StaticAuthModuleConf conf) {
         AcceptAuthenticationProperties props = new AcceptAuthenticationProperties();
         props.setName(authModuleTO.getKey());
+        props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
+        props.setOrder(authModuleTO.getOrder());
         String users = conf.getUsers().entrySet().stream().
                 map(entry -> entry.getKey() + "::" + entry.getValue()).
                 collect(Collectors.joining(","));
         props.setUsers(users);
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().setAccept(props);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.addFilter(AuthenticationProperties.class.getSimpleName(),
-                SimpleBeanPropertyFilter.filterOutAllExcept(
-                        CasCoreConfigurationUtils.getPropertyName(
-                                AuthenticationProperties.class,
-                                AuthenticationProperties::getAccept)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.accept.", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
     public Map<String, Object> map(final LDAPAuthModuleConf conf) {
         LdapAuthenticationProperties props = new LdapAuthenticationProperties();
         props.setName(authModuleTO.getKey());
-        props.setLdapUrl(conf.getLdapUrl());
-        props.setBaseDn(conf.getBaseDn());
-        props.setSearchFilter(conf.getSearchFilter());
-        props.setBindDn(conf.getBindDn());
-        props.setBindCredential(conf.getBindCredential());
+        props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
+        props.setOrder(authModuleTO.getOrder());
         if (StringUtils.isNotBlank(conf.getBindDn()) && StringUtils.isNotBlank(conf.getBindCredential())) {
             props.setType(AbstractLdapAuthenticationProperties.AuthenticationTypes.AUTHENTICATED);
         }
         props.setPrincipalAttributeId(conf.getUserIdAttribute());
-        props.setSubtreeSearch(conf.isSubtreeSearch());
         props.setPrincipalAttributeList(conf.getPrincipalAttributeList());
+        fill(props, conf);
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getLdap().add(props);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.addFilter(
-                AuthenticationProperties.class.getSimpleName(),
-                SimpleBeanPropertyFilter.filterOutAllExcept(
-                        CasCoreConfigurationUtils.getPropertyName(
-                                AuthenticationProperties.class,
-                                AuthenticationProperties::getLdap)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.ldap[].", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
     public Map<String, Object> map(final JDBCAuthModuleConf conf) {
         QueryJdbcAuthenticationProperties props = new QueryJdbcAuthenticationProperties();
         props.setName(authModuleTO.getKey());
+        props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
+        props.setOrder(authModuleTO.getOrder());
         props.setSql(conf.getSql());
         props.setFieldDisabled(conf.getFieldDisabled());
         props.setFieldExpired(conf.getFieldExpired());
         props.setFieldPassword(conf.getFieldPassword());
-        props.setDialect(conf.getDialect());
-        props.setDriverClass(conf.getDriverClass());
-        props.setPassword(conf.getPassword());
-        props.setUrl(conf.getUrl());
-        props.setUser(conf.getUser());
         props.setPrincipalAttributeList(conf.getPrincipalAttributeList());
+        fill(props, conf);
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getJdbc().getQuery().add(props);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.
-                addFilter(AuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        AuthenticationProperties.class,
-                                        AuthenticationProperties::getJdbc))).
-                addFilter(MultifactorAuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        JdbcAuthenticationProperties.class,
-                                        JdbcAuthenticationProperties::getQuery)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.jdbc.query[].", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
     public Map<String, Object> map(final JaasAuthModuleConf conf) {
         JaasAuthenticationProperties props = new JaasAuthenticationProperties();
         props.setName(authModuleTO.getKey());
+        props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
+        props.setOrder(authModuleTO.getOrder());
         props.setLoginConfigType(conf.getLoginConfigType());
         props.setKerberosKdcSystemProperty(conf.getKerberosKdcSystemProperty());
         props.setKerberosRealmSystemProperty(conf.getKerberosRealmSystemProperty());
         props.setLoginConfigType(conf.getLoginConfigurationFile());
         props.setRealm(conf.getRealm());
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getJaas().add(props);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.addFilter(AuthenticationProperties.class.getSimpleName(),
-                SimpleBeanPropertyFilter.filterOutAllExcept(
-                        CasCoreConfigurationUtils.getPropertyName(
-                                AuthenticationProperties.class,
-                                AuthenticationProperties::getJaas)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.jaas[].", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
     public Map<String, Object> map(final OIDCAuthModuleConf conf) {
         Pac4jGenericOidcClientProperties props = new Pac4jGenericOidcClientProperties();
         props.setId(conf.getId());
+        props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
         props.setCustomParams(conf.getCustomParams());
         props.setDiscoveryUri(conf.getDiscoveryUri());
         props.setMaxClockSkew(conf.getMaxClockSkew());
@@ -194,28 +145,14 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
         client.setGeneric(props);
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getPac4j().getOidc().add(client);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.
-                addFilter(AuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        AuthenticationProperties.class,
-                                        AuthenticationProperties::getPac4j))).
-                addFilter(Pac4jDelegatedAuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        Pac4jDelegatedAuthenticationProperties.class,
-                                        Pac4jDelegatedAuthenticationProperties::getOidc)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.pac4j.oidc[].generic.", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
     public Map<String, Object> map(final SAML2IdPAuthModuleConf conf) {
         Pac4jSamlClientProperties props = new Pac4jSamlClientProperties();
         props.setClientName(authModuleTO.getKey());
+        props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
         props.setAcceptedSkew(conf.getAcceptedSkew());
         props.setAssertionConsumerServiceIndex(conf.getAssertionConsumerServiceIndex());
         props.setAttributeConsumingServiceIndex(conf.getAttributeConsumingServiceIndex());
@@ -239,47 +176,25 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
                 ? TriStateBoolean.UNDEFINED
                 : TriStateBoolean.valueOf(conf.getNameIdPolicyAllowCreate().toUpperCase()));
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getPac4j().getSaml().add(props);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.
-                addFilter(AuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        AuthenticationProperties.class,
-                                        AuthenticationProperties::getPac4j))).
-                addFilter(Pac4jDelegatedAuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        Pac4jDelegatedAuthenticationProperties.class,
-                                        Pac4jDelegatedAuthenticationProperties::getSaml)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.pac4j.saml[].", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
     public Map<String, Object> map(final SyncopeAuthModuleConf conf) {
         SyncopeAuthenticationProperties props = new SyncopeAuthenticationProperties();
         props.setName(authModuleTO.getKey());
+        props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
         props.setDomain(conf.getDomain());
         props.setUrl(StringUtils.substringBefore(syncopeClientAddress, "/rest"));
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().setSyncope(props);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.addFilter(AuthenticationProperties.class.getSimpleName(),
-                SimpleBeanPropertyFilter.filterOutAllExcept(
-                        CasCoreConfigurationUtils.getPropertyName(
-                                AuthenticationProperties.class,
-                                AuthenticationProperties::getSyncope)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.syncope.", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
     public Map<String, Object> map(final GoogleMfaAuthModuleConf conf) {
         GoogleAuthenticatorMultifactorProperties props = new GoogleAuthenticatorMultifactorProperties();
         props.setName(authModuleTO.getKey());
+        props.setOrder(authModuleTO.getOrder());
         props.getCore().setIssuer(conf.getIssuer());
         props.getCore().setCodeDigits(conf.getCodeDigits());
         props.getCore().setLabel(conf.getLabel());
@@ -289,30 +204,11 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         if (conf.getLdap() != null) {
             LdapGoogleAuthenticatorMultifactorProperties ldapProps = new LdapGoogleAuthenticatorMultifactorProperties();
             ldapProps.setAccountAttributeName(conf.getLdap().getAccountAttributeName());
-            ldapProps.setBaseDn(conf.getLdap().getBaseDn());
-            ldapProps.setBindCredential(conf.getLdap().getBindCredential());
-            ldapProps.setBindDn(conf.getLdap().getBindDn());
-            ldapProps.setSearchFilter(conf.getLdap().getSearchFilter());
-            ldapProps.setLdapUrl(conf.getLdap().getUrl());
+            fill(ldapProps, conf.getLdap());
             props.setLdap(ldapProps);
         }
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getMfa().setGauth(props);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.addFilter(
-                AuthenticationProperties.class.getSimpleName(),
-                SimpleBeanPropertyFilter.filterOutAllExcept(
-                        CasCoreConfigurationUtils.getPropertyName(
-                                AuthenticationProperties.class,
-                                AuthenticationProperties::getMfa))).
-                addFilter(MultifactorAuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        MultifactorAuthenticationProperties.class,
-                                        MultifactorAuthenticationProperties::getGauth)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.mfa.gauth.", CasCoreConfigurationUtils.asMap(props));
     }
 
     @SuppressWarnings("deprecation")
@@ -320,61 +216,33 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     public Map<String, Object> map(final DuoMfaAuthModuleConf conf) {
         DuoSecurityMultifactorAuthenticationProperties props = new DuoSecurityMultifactorAuthenticationProperties();
         props.setName(authModuleTO.getKey());
+        props.setOrder(authModuleTO.getOrder());
         props.setDuoApiHost(conf.getApiHost());
         props.setDuoApplicationKey(conf.getApplicationKey());
         props.setDuoIntegrationKey(conf.getIntegrationKey());
         props.setDuoSecretKey(conf.getSecretKey());
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getMfa().setDuo(List.of(props));
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.
-                addFilter(AuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        AuthenticationProperties.class,
-                                        AuthenticationProperties::getMfa))).
-                addFilter(MultifactorAuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        MultifactorAuthenticationProperties.class,
-                                        MultifactorAuthenticationProperties::getDuo)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.mfa.duo.", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
     public Map<String, Object> map(final U2FAuthModuleConf conf) {
         U2FMultifactorAuthenticationProperties props = new U2FMultifactorAuthenticationProperties();
         props.setName(authModuleTO.getKey());
+        props.setOrder(authModuleTO.getOrder());
         props.getCore().setExpireDevices(conf.getExpireDevices());
         props.getCore().setExpireDevicesTimeUnit(TimeUnit.valueOf(conf.getExpireDevicesTimeUnit()));
         props.getCore().setExpireRegistrations(conf.getExpireRegistrations());
         props.getCore().setExpireRegistrationsTimeUnit(TimeUnit.valueOf(conf.getExpireRegistrationsTimeUnit()));
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getMfa().setU2f(props);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.
-                addFilter(AuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        AuthenticationProperties.class,
-                                        AuthenticationProperties::getMfa))).
-                addFilter(MultifactorAuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        MultifactorAuthenticationProperties.class,
-                                        MultifactorAuthenticationProperties::getU2f)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.mfa.u2f.", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
     public Map<String, Object> map(final SimpleMfaAuthModuleConf conf) {
         CasSimpleMultifactorAuthenticationProperties props = new CasSimpleMultifactorAuthenticationProperties();
-
         props.setName(authModuleTO.getKey());
+        props.setOrder(authModuleTO.getOrder());
         props.setTokenLength(conf.getTokenLength());
         props.setTimeToKillInSeconds(conf.getTimeToKillInSeconds());
         props.getMail().setAttributeName(conf.getEmailAttribute());
@@ -390,21 +258,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
                 throw new IllegalArgumentException(e);
             }
         }
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getMfa().setSimple(props);
 
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.
-                addFilter(AuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        AuthenticationProperties.class,
-                                        AuthenticationProperties::getMfa))).
-                addFilter(MultifactorAuthenticationProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        MultifactorAuthenticationProperties.class,
-                                        MultifactorAuthenticationProperties::getSimple)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.mfa.simple.", CasCoreConfigurationUtils.asMap(props));
     }
 }

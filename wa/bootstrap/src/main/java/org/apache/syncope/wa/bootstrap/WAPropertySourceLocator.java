@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.wa.bootstrap;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
@@ -44,6 +47,26 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
         this.waRestClient = waRestClient;
     }
 
+    protected Map<String, Object> index(final Map<String, Object> map, final Map<String, Integer> prefixes) {
+        Map<String, Object> indexed = map;
+
+        if (!map.isEmpty()) {
+            String prefix = map.keySet().iterator().next();
+            if (prefix.contains("[]")) {
+                prefix = StringUtils.substringBefore(prefix, "[]");
+                Integer index = prefixes.getOrDefault(prefix, 0);
+
+                indexed = map.entrySet().stream().
+                        map(e -> Pair.of(e.getKey().replace("[]", "[" + index + "]"), e.getValue())).
+                        collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+
+                prefixes.put(prefix, index + 1);
+            }
+        }
+
+        return indexed;
+    }
+
     @Override
     public PropertySource<?> locate(final Environment environment) {
         SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
@@ -54,19 +77,22 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
 
         LOG.info("Bootstrapping WA configuration");
         Map<String, Object> properties = new TreeMap<>();
+        Map<String, Integer> prefixes = new HashMap<>();
 
         syncopeClient.getService(AuthModuleService.class).list().forEach(authModuleTO -> {
             LOG.debug("Mapping auth module {} ", authModuleTO.getKey());
 
-            properties.putAll(authModuleTO.getConf().map(
-                    new AuthModulePropertySourceMapper(syncopeClient.getAddress(), authModuleTO)));
+            Map<String, Object> map = authModuleTO.getConf().map(
+                    new AuthModulePropertySourceMapper(syncopeClient.getAddress(), authModuleTO));
+            properties.putAll(index(map, prefixes));
         });
 
         syncopeClient.getService(AttrRepoService.class).list().forEach(attrRepoTO -> {
             LOG.debug("Mapping attr repo {} ", attrRepoTO.getKey());
 
-            properties.putAll(attrRepoTO.getConf().map(
-                    new AttrRepoPropertySourceMapper(syncopeClient.getAddress(), attrRepoTO)));
+            Map<String, Object> map = attrRepoTO.getConf().map(
+                    new AttrRepoPropertySourceMapper(syncopeClient.getAddress(), attrRepoTO));
+            properties.putAll(index(map, prefixes));
         });
 
         syncopeClient.getService(WAConfigService.class).list().forEach(attr -> properties.put(

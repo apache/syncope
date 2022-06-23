@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.wa.bootstrap;
 
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
@@ -28,10 +26,8 @@ import org.apache.syncope.common.lib.attr.LDAPAttrRepoConf;
 import org.apache.syncope.common.lib.attr.StubAttrRepoConf;
 import org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
-import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.CasCoreConfigurationUtils;
 import org.apereo.cas.configuration.model.core.authentication.AttributeRepositoryStates;
-import org.apereo.cas.configuration.model.core.authentication.PrincipalAttributesProperties;
 import org.apereo.cas.configuration.model.core.authentication.StubPrincipalAttributesProperties;
 import org.apereo.cas.configuration.model.support.jdbc.JdbcPrincipalAttributesProperties;
 import org.apereo.cas.configuration.model.support.ldap.LdapPrincipalAttributesProperties;
@@ -56,17 +52,7 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
         props.setOrder(attrRepoTO.getOrder());
         props.setAttributes(conf.getAttributes());
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getAttributeRepository().setStub(props);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.addFilter(
-                PrincipalAttributesProperties.class.getSimpleName(),
-                SimpleBeanPropertyFilter.filterOutAllExcept(
-                        CasCoreConfigurationUtils.getPropertyName(
-                                PrincipalAttributesProperties.class,
-                                PrincipalAttributesProperties::getStub)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.attribute-repository.stub.", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
@@ -75,27 +61,12 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
         props.setId(attrRepoTO.getKey());
         props.setState(AttributeRepositoryStates.valueOf(attrRepoTO.getState().name()));
         props.setOrder(attrRepoTO.getOrder());
-        props.setLdapUrl(conf.getLdapUrl());
-        props.setBaseDn(conf.getBaseDn());
-        props.setSearchFilter(conf.getSearchFilter());
-        props.setBindDn(conf.getBindDn());
-        props.setBindCredential(conf.getBindCredential());
-        props.setSubtreeSearch(conf.isSubtreeSearch());
         props.setAttributes(conf.getAttributes());
         props.setUseAllQueryAttributes(conf.isUseAllQueryAttributes());
         props.setQueryAttributes(conf.getQueryAttributes());
+        fill(props, conf);
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getAttributeRepository().getLdap().add(props);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.addFilter(
-                PrincipalAttributesProperties.class.getSimpleName(),
-                SimpleBeanPropertyFilter.filterOutAllExcept(
-                        CasCoreConfigurationUtils.getPropertyName(
-                                PrincipalAttributesProperties.class,
-                                PrincipalAttributesProperties::getLdap)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.attribute-repository.ldap[].", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
@@ -105,11 +76,6 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
         props.setState(AttributeRepositoryStates.valueOf(attrRepoTO.getState().name()));
         props.setOrder(attrRepoTO.getOrder());
         props.setSql(conf.getSql());
-        props.setDialect(conf.getDialect());
-        props.setDriverClass(conf.getDriverClass());
-        props.setPassword(conf.getPassword());
-        props.setUrl(conf.getUrl());
-        props.setUser(conf.getUser());
         props.setSingleRow(conf.isSingleRow());
         props.setRequireAllAttributes(conf.isRequireAllAttributes());
         props.setCaseCanonicalization(conf.getCaseCanonicalization().name());
@@ -119,18 +85,9 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
         props.setAttributes(conf.getAttributes());
         props.setCaseInsensitiveQueryAttributes(conf.getCaseInsensitiveQueryAttributes());
         props.setQueryAttributes(conf.getQueryAttributes());
+        fill(props, conf);
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getAttributeRepository().getJdbc().add(props);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.
-                addFilter(PrincipalAttributesProperties.class.getSimpleName(),
-                        SimpleBeanPropertyFilter.filterOutAllExcept(
-                                CasCoreConfigurationUtils.getPropertyName(
-                                        PrincipalAttributesProperties.class,
-                                        PrincipalAttributesProperties::getJdbc)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.attribute-repository.jdbc[].", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
@@ -146,15 +103,6 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
         props.setBasicAuthPassword(conf.getBasicAuthPassword());
         props.setHeaders(props.getHeaders());
 
-        CasConfigurationProperties casProperties = new CasConfigurationProperties();
-        casProperties.getAuthn().getAttributeRepository().setSyncope(props);
-
-        SimpleFilterProvider filterProvider = getParentCasFilterProvider();
-        filterProvider.addFilter(PrincipalAttributesProperties.class.getSimpleName(),
-                SimpleBeanPropertyFilter.filterOutAllExcept(
-                        CasCoreConfigurationUtils.getPropertyName(
-                                PrincipalAttributesProperties.class,
-                                PrincipalAttributesProperties::getSyncope)));
-        return filterCasProperties(casProperties, filterProvider);
+        return prefix("cas.authn.attribute-repository.syncope.", CasCoreConfigurationUtils.asMap(props));
     }
 }

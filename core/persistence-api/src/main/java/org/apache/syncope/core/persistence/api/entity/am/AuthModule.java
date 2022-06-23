@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.entity.am;
 
 import java.util.List;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
 public interface AuthModule extends ProvidedKeyEntity {
@@ -27,6 +28,14 @@ public interface AuthModule extends ProvidedKeyEntity {
     String getDescription();
 
     void setDescription(String description);
+
+    AuthModuleState getState();
+
+    void setState(AuthModuleState state);
+
+    int getOrder();
+
+    void setOrder(int order);
 
     AuthModuleConf getConf();
 

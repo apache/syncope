@@ -117,7 +117,7 @@ public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
 
     private String principalIdAttr;
 
-    private PrincipalAttrRepoConf principalAttrRepoConf;
+    private final PrincipalAttrRepoConf principalAttrRepoConf = new PrincipalAttrRepoConf();
 
     @JacksonXmlElementWrapper(localName = "allowedAttrs")
     @JacksonXmlProperty(localName = "allowedAttr")
@@ -147,9 +147,5 @@ public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
 
     public PrincipalAttrRepoConf getPrincipalAttrRepoConf() {
         return principalAttrRepoConf;
-    }
-
-    public void setPrincipalAttrRepoConf(final PrincipalAttrRepoConf principalAttrRepoConf) {
-        this.principalAttrRepoConf = principalAttrRepoConf;
     }
 }

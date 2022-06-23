@@ -24,6 +24,7 @@ import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.types.AuthModuleState;
 
 public class AuthModuleTO implements EntityTO {
 
@@ -32,6 +33,10 @@ public class AuthModuleTO implements EntityTO {
     private String key;
 
     private String description;
+
+    private AuthModuleState state = AuthModuleState.ACTIVE;
+
+    private int order = 0;
 
     private final List<ItemTO> items = new ArrayList<>();
 
@@ -54,6 +59,22 @@ public class AuthModuleTO implements EntityTO {
 
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    public AuthModuleState getState() {
+        return state;
+    }
+
+    public void setState(final AuthModuleState state) {
+        this.state = state;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(final int order) {
+        this.order = order;
     }
 
     public List<ItemTO> getItems() {
@@ -83,6 +104,8 @@ public class AuthModuleTO implements EntityTO {
         return new EqualsBuilder().
                 append(key, other.key).
                 append(description, other.description).
+                append(state, other.state).
+                append(order, other.order).
                 append(items, other.items).
                 append(conf, other.conf).
                 build();

@@ -28,7 +28,7 @@ import org.apache.wicket.model.util.ListModel;
 
 public class AuthModuleMappingPanel extends AbstractMappingPanel {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -8940651851569691064L;
 
     public AuthModuleMappingPanel(final String id, final AuthModuleTO authModule) {
         super(id,

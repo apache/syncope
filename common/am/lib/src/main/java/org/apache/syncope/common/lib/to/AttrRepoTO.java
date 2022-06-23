@@ -34,9 +34,9 @@ public class AttrRepoTO implements EntityTO {
 
     private String description;
 
-    private AttrRepoState state;
+    private AttrRepoState state = AttrRepoState.ACTIVE;
 
-    private int order;
+    private int order = 0;
 
     private final List<ItemTO> items = new ArrayList<>();
 
@@ -104,6 +104,8 @@ public class AttrRepoTO implements EntityTO {
         return new EqualsBuilder().
                 append(key, other.key).
                 append(description, other.description).
+                append(state, other.state).
+                append(order, other.order).
                 append(items, other.items).
                 append(conf, other.conf).
                 build();
@@ -114,6 +116,8 @@ public class AttrRepoTO implements EntityTO {
         return new HashCodeBuilder().
                 append(key).
                 append(description).
+                append(state).
+                append(order).
                 append(items).
                 append(conf).
                 build();
