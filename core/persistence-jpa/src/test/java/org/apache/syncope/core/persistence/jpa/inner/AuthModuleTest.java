@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
+import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModuleItem;
@@ -434,6 +435,7 @@ public class AuthModuleTest extends AbstractTest {
         AuthModule module = entityFactory.newEntity(AuthModule.class);
         module.setKey(key);
         module.setDescription("An authentication module");
+        module.setState(AuthModuleState.ACTIVE);
         module.setConf(conf);
 
         AuthModuleItem keyMapping = entityFactory.newEntity(AuthModuleItem.class);
