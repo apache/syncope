@@ -84,6 +84,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         clientApp.setSignResponses(true);
         clientApp.setRequiredNameIdFormat(SAML2SPNameId.PERSISTENT);
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
+        clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
 
         CLIENT_APP_SERVICE.update(ClientAppType.SAML2SP, clientApp);
         CLIENT_APP_SERVICE.pushToWA();
@@ -237,6 +238,10 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
         // 2c. WA attribute consent screen
         if (isOk) {
+            // check attribute repository
+            assertTrue(responseBody.contains("identifier"));
+            assertTrue(responseBody.contains("[value1]"));
+
             String execution = extractWAExecution(responseBody);
 
             List<NameValuePair> form = new ArrayList<>();

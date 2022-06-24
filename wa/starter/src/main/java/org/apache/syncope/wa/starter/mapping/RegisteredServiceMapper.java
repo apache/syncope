@@ -21,6 +21,8 @@ package org.apache.syncope.wa.starter.mapping;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.services.RegisteredService;
@@ -28,7 +30,6 @@ import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
-import org.apereo.cas.services.ReturnMappedAttributeReleasePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -96,21 +97,23 @@ public class RegisteredServiceMapper {
             AccessMapper accessPolicyConfMapper = accessPolicyConfMappers.get(
                     clientApp.getAccessPolicy().getConf().getClass().getName());
             accessStrategy = Optional.ofNullable(accessPolicyConfMapper).
-                    map(mapper -> mapper.build(clientApp.getAccessPolicy())).orElse(null);
+                    map(mapper -> mapper.build(clientApp.getAccessPolicy())).
+                    orElse(null);
         }
 
-        RegisteredServiceAttributeReleasePolicy attributeReleasePolicy = null;
-        if (clientApp.getAttrReleasePolicy() == null) {
-            if (!clientApp.getReleaseAttrs().isEmpty()) {
-                attributeReleasePolicy = new ReturnMappedAttributeReleasePolicy(clientApp.getReleaseAttrs());
-            }
-        } else {
-            AttrReleaseMapper attrReleasePolicyConfMapper = attrReleasePolicyConfMappers.get(
-                    clientApp.getAttrReleasePolicy().getConf().getClass().getName());
-            attributeReleasePolicy = Optional.ofNullable(attrReleasePolicyConfMapper).
-                    map(mapper -> mapper.build(clientApp.getAttrReleasePolicy())).orElse(null);
-        }
+        AttrReleasePolicyTO attrReleasePolicyTO = Optional.ofNullable(clientApp.getAttrReleasePolicy()).
+                orElseGet(() -> {
+                    AttrReleasePolicyTO arpTO = new AttrReleasePolicyTO();
+                    arpTO.setConf(new DefaultAttrReleasePolicyConf());
+                    return arpTO;
+                });
+        AttrReleaseMapper attrReleasePolicyConfMapper = attrReleasePolicyConfMappers.get(
+                attrReleasePolicyTO.getConf().getClass().getName());
+        RegisteredServiceAttributeReleasePolicy attributeReleasePolicy =
+                Optional.ofNullable(attrReleasePolicyConfMapper).
+                        map(mapper -> mapper.build(attrReleasePolicyTO, clientApp.getReleaseAttrs())).
+                        orElse(null);
 
-        return clientAppMapper.map(clientApp, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy);
+        return clientAppMapper.map(ctx, clientApp, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy);
     }
 }

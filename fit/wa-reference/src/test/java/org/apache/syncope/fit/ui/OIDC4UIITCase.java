@@ -81,10 +81,11 @@ public class OIDC4UIITCase extends AbstractUIITCase {
         clientApp.setSubjectType(OIDCSubjectType.PUBLIC);
         clientApp.getRedirectUris().clear();
         clientApp.getRedirectUris().add(baseAddress + OIDCC4UIConstants.URL_CONTEXT + "/code-consumer");
-        clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setSignIdToken(true);
         clientApp.setJwtAccessToken(true);
         clientApp.setLogoutUri(baseAddress + OIDCC4UIConstants.URL_CONTEXT + "/logout");
+        clientApp.setAuthPolicy(getAuthPolicy().getKey());
+        clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
         CLIENT_APP_SERVICE.pushToWA();
@@ -200,6 +201,11 @@ public class OIDC4UIITCase extends AbstractUIITCase {
         // 2b. WA attribute consent screen
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             responseBody = EntityUtils.toString(response.getEntity());
+
+            // check attribute repository
+            assertTrue(responseBody.contains("identifier"));
+            assertTrue(responseBody.contains("[value1]"));
+
             String execution = extractWAExecution(responseBody);
 
             List<NameValuePair> form = new ArrayList<>();

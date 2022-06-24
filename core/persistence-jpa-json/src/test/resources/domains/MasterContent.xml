@@ -61,7 +61,7 @@ under the License.
                      jsonConf='{"_class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"AllowedAttrReleasePolicy","allowedAttributes":["cn","givenName","uid"]}'/>
   <AttrReleasePolicy id="219935c7-deb3-40b3-8a9a-683037e523a2" name="DenyAttrReleasePolicy"
                      jsonConf='{"_class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"DenyAttrReleasePolicyConf"}'/>
-  
+      
   <!-- Authentication modules -->
   <AuthModule id="DefaultLDAPAuthModule" authModuleState="ACTIVE"
               description="LDAP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.LDAPAuthModuleConf","userIdAttribute":"cn","bindDn": "uid=admin,ou=system", "bindCredential":"secret","ldapUrl":"ldap://localhost:1389","searchFilter":"cn={user}","baseDn":"ou=People,o=isp","subtreeSearch":true,"principalAttributeList":["sn","givenName","mail","cn"]}'/>
@@ -114,7 +114,7 @@ under the License.
   <AttrRepo id="DefaultStubAttrRepo" attrRepoState="ACTIVE"
             description="Stub attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.StubAttrRepoConf","attributes":{"attr1":"value1"}}'/>
   <AttrRepo id="DefaultSyncopeAttrRepo" attrRepoState="ACTIVE"
-            description="Syncope attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf","domain":"Master","searchFilter":null,"basicAuthUsername":null,"basicAuthPassword":null,"headers":{}}'/>
+            description="Syncope attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf","domain":"Master","searchFilter":"username=={user}","basicAuthUsername":"admin","basicAuthPassword":"password","headers":{}}'/>
 
   <AttrRepoItem id="d2d9e7be-d82b-4698-b0fb-67d480413049" extAttrName="identifier" intAttrName="attr1"
                 password="0" purpose="NONE" mandatoryCondition="false" connObjectKey="0" attrRepo_id="DefaultStubAttrRepo"/>
