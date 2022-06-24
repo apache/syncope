@@ -25,7 +25,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -61,7 +63,39 @@ public abstract class AbstractUIITCase extends AbstractITCase {
                         fail("Could not create Test Auth Policy");
                     }
 
-                    return POLICY_SERVICE.read(PolicyType.AUTH, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                    return POLICY_SERVICE.read(
+                            PolicyType.AUTH,
+                            response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                });
+    }
+
+    protected static AttrReleasePolicyTO getAttrReleasePolicy() {
+        String stubAttrRepo = "DefaultStubAttrRepo";
+        String description = "UI attr release policy";
+
+        return POLICY_SERVICE.list(PolicyType.ATTR_RELEASE).stream().
+                map(AttrReleasePolicyTO.class::cast).
+                filter(policy -> description.equals(policy.getName())
+                && policy.getConf() instanceof DefaultAttrReleasePolicyConf
+                && ((DefaultAttrReleasePolicyConf) policy.getConf()).getPrincipalAttrRepoConf().
+                        getAttrRepos().contains(stubAttrRepo)).
+                findFirst().
+                orElseGet(() -> {
+                    DefaultAttrReleasePolicyConf policyConf = new DefaultAttrReleasePolicyConf();
+                    policyConf.getPrincipalAttrRepoConf().getAttrRepos().add(stubAttrRepo);
+
+                    AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
+                    policy.setName(description);
+                    policy.setConf(policyConf);
+
+                    Response response = POLICY_SERVICE.create(PolicyType.ATTR_RELEASE, policy);
+                    if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+                        fail("Could not create Test Attr Release Policy");
+                    }
+
+                    return POLICY_SERVICE.read(
+                            PolicyType.ATTR_RELEASE,
+                            response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 });
     }
 

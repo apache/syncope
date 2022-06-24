@@ -51,6 +51,7 @@ public class SyncopeXmlMapper extends XmlMapper {
         findAndRegisterModules();
 
         configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        configure(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, false);
 
         configOverride(List.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
         configOverride(Set.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));

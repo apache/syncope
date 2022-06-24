@@ -41,7 +41,9 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
+import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
+import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -66,8 +68,7 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
+import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
@@ -88,6 +89,7 @@ import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ApplicationDataBinder;
+import org.apache.syncope.core.provisioning.api.data.AttrRepoDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
@@ -127,6 +129,7 @@ import org.apache.syncope.core.provisioning.java.data.AnyObjectDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyTypeClassDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyTypeDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.ApplicationDataBinderImpl;
+import org.apache.syncope.core.provisioning.java.data.AttrRepoDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AuditDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AuthModuleDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AuthProfileDataBinderImpl;
@@ -901,6 +904,12 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
+    public AttrRepoDataBinder attrRepoDataBinder(final EntityFactory entityFactory) {
+        return new AttrRepoDataBinderImpl(entityFactory);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public AuthProfileDataBinder authProfileDataBinder(final EntityFactory entityFactory) {
         return new AuthProfileDataBinderImpl(entityFactory);
     }
@@ -1259,9 +1268,10 @@ public class ProvisioningContext {
             final ClientAppDataBinder clientAppDataBinder,
             final PolicyDataBinder policyDataBinder,
             final AuthModuleDataBinder authModuleDataBinder,
-            final AuthModuleDAO authModuleDAO) {
+            final AuthModuleDAO authModuleDAO,
+            final AttrRepoDAO attrRepoDAO) {
 
         return new WAClientAppDataBinderImpl(
-                clientAppDataBinder, policyDataBinder, authModuleDataBinder, authModuleDAO);
+                clientAppDataBinder, policyDataBinder, authModuleDataBinder, authModuleDAO, attrRepoDAO);
     }
 }

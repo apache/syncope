@@ -50,6 +50,18 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.SRARoute;
 import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
+import org.apache.syncope.core.persistence.api.entity.am.AttrRepoItem;
+import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
+import org.apache.syncope.core.persistence.api.entity.am.AuthModuleItem;
+import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
+import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2SPEntity;
+import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
@@ -57,16 +69,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrUnique
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPEntity;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPEntity;
-import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
@@ -110,6 +112,18 @@ import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAAttrRepo;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAAttrRepoItem;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthModule;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthModuleItem;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthProfile;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPACASSPClientApp;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAOIDCJWKS;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAOIDCRPClientApp;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2IdPEntity;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2SPClientApp;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2SPEntity;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAWAConfigEntry;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
@@ -117,16 +131,6 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUni
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModule;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModuleItem;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthProfile;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPACASSPClientApp;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCJWKS;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCRPClientApp;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2IdPEntity;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPClientApp;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPEntity;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAWAConfigEntry;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
@@ -330,6 +334,10 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAAuthModule();
         } else if (reference.equals(AuthModuleItem.class)) {
             result = (E) new JPAAuthModuleItem();
+        } else if (reference.equals(AttrRepo.class)) {
+            result = (E) new JPAAttrRepo();
+        } else if (reference.equals(AttrRepoItem.class)) {
+            result = (E) new JPAAttrRepoItem();
         } else if (reference.equals(AuthPolicy.class)) {
             result = (E) new JPAAuthPolicy();
         } else if (reference.equals(AccessPolicy.class)) {

@@ -20,12 +20,12 @@ package org.apache.syncope.common.lib.auth;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import org.apache.syncope.common.lib.AbstractLDAPConf;
 
-public class LDAPAuthModuleConf implements AuthModuleConf {
+public class LDAPAuthModuleConf extends AbstractLDAPConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -471527731042579422L;
-
-    protected String searchFilter;
 
     /**
      * The attribute value that should be used
@@ -35,48 +35,9 @@ public class LDAPAuthModuleConf implements AuthModuleConf {
     private String userIdAttribute;
 
     /**
-     * Whether subtree searching is allowed.
-     */
-    private boolean subtreeSearch = true;
-
-    private String ldapUrl;
-
-    /**
-     * The bind DN to use when connecting to LDAP.
-     * LDAP connection configuration injected into the LDAP connection pool
-     * can be initialized with the following parameters:
-     * <ul>
-     * <li>{@code bindDn/bindCredential} provided - Use the provided credentials
-     * to bind when initializing connections.</li>
-     * <li>{@code bindDn/bindCredential} set to {@code *} - Use a fast-bind
-     * strategy to initialize the pool.</li>
-     * <li>{@code bindDn/bindCredential} set to blank - Skip connection
-     * initializing; perform operations anonymously.</li>
-     * <li>SASL mechanism provided - Use the given SASL mechanism
-     * to bind when initializing connections. </li>
-     * </ul>
-     */
-    private String bindDn;
-
-    /**
-     * The bind credential to use when connecting to LDAP.
-     */
-    private String bindCredential;
-
-    private String baseDn;
-
-    /**
      * List of attribute names to fetch as user attributes.
      */
     private final List<String> principalAttributeList = new ArrayList<>();
-
-    public String getSearchFilter() {
-        return searchFilter;
-    }
-
-    public void setSearchFilter(final String searchFilter) {
-        this.searchFilter = searchFilter;
-    }
 
     public String getUserIdAttribute() {
         return userIdAttribute;
@@ -86,47 +47,12 @@ public class LDAPAuthModuleConf implements AuthModuleConf {
         this.userIdAttribute = userIdAttribute;
     }
 
-    public boolean isSubtreeSearch() {
-        return subtreeSearch;
-    }
-
-    public void setSubtreeSearch(final boolean subtreeSearch) {
-        this.subtreeSearch = subtreeSearch;
-    }
-
-    public String getLdapUrl() {
-        return ldapUrl;
-    }
-
-    public void setLdapUrl(final String ldapUrl) {
-        this.ldapUrl = ldapUrl;
-    }
-
-    public String getBindDn() {
-        return bindDn;
-    }
-
-    public void setBindDn(final String bindDn) {
-        this.bindDn = bindDn;
-    }
-
-    public String getBindCredential() {
-        return bindCredential;
-    }
-
-    public void setBindCredential(final String bindCredential) {
-        this.bindCredential = bindCredential;
-    }
-
-    public String getBaseDn() {
-        return baseDn;
-    }
-
-    public void setBaseDn(final String baseDn) {
-        this.baseDn = baseDn;
-    }
-
     public List<String> getPrincipalAttributeList() {
         return principalAttributeList;
+    }
+
+    @Override
+    public Map<String, Object> map(final Mapper mapper) {
+        return mapper.map(this);
     }
 }

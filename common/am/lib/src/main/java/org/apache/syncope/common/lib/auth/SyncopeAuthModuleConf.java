@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.auth;
 
+import java.util.Map;
 import org.apache.syncope.common.lib.SyncopeConstants;
 
 public class SyncopeAuthModuleConf implements AuthModuleConf {
@@ -32,5 +33,10 @@ public class SyncopeAuthModuleConf implements AuthModuleConf {
 
     public void setDomain(final String domain) {
         this.domain = domain;
+    }
+
+    @Override
+    public Map<String, Object> map(final Mapper mapper) {
+        return mapper.map(this);
     }
 }

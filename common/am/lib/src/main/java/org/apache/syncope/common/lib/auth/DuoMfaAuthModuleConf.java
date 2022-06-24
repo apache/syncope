@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.lib.auth;
 
+import java.util.Map;
+
 public class DuoMfaAuthModuleConf implements MFAAuthModuleConf {
 
     private static final long serialVersionUID = -2883257599439312426L;
@@ -65,5 +67,10 @@ public class DuoMfaAuthModuleConf implements MFAAuthModuleConf {
 
     public void setApiHost(final String apiHost) {
         this.apiHost = apiHost;
+    }
+
+    @Override
+    public Map<String, Object> map(final Mapper mapper) {
+        return mapper.map(this);
     }
 }

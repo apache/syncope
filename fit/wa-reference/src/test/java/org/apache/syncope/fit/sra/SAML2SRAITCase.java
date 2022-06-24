@@ -60,7 +60,6 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
         assumeTrue(SAML2SRAITCase.class.equals(MethodHandles.lookup().lookupClass()));
 
         doStartSRA("saml2");
-//        sraRouteService.pushToSRA();
     }
 
     @BeforeAll

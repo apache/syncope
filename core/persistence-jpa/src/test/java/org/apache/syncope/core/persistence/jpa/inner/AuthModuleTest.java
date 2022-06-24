@@ -39,9 +39,10 @@ import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
+import org.apache.syncope.common.lib.types.AuthModuleState;
+import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
+import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
+import org.apache.syncope.core.persistence.api.entity.am.AuthModuleItem;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -434,6 +435,7 @@ public class AuthModuleTest extends AbstractTest {
         AuthModule module = entityFactory.newEntity(AuthModule.class);
         module.setKey(key);
         module.setDescription("An authentication module");
+        module.setState(AuthModuleState.ACTIVE);
         module.setConf(conf);
 
         AuthModuleItem keyMapping = entityFactory.newEntity(AuthModuleItem.class);

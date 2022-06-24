@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -45,6 +46,7 @@ import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
@@ -63,6 +65,17 @@ public class AuthModuleITCase extends AbstractITCase {
         OIDC;
 
     };
+
+    private static AuthModuleTO createAuthModule(final AuthModuleTO authModule) {
+        Response response = AUTH_MODULE_SERVICE.create(authModule);
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
+        return getObject(response.getLocation(), AuthModuleService.class, authModule.getClass());
+    }
 
     private static AuthModuleTO buildAuthModuleTO(final AuthModuleSupportedType type) {
         AuthModuleTO authModuleTO = new AuthModuleTO();
@@ -153,12 +166,12 @@ public class AuthModuleITCase extends AbstractITCase {
         ItemTO keyMapping = new ItemTO();
         keyMapping.setIntAttrName("uid");
         keyMapping.setExtAttrName("username");
-        authModuleTO.add(keyMapping);
+        authModuleTO.getItems().add(keyMapping);
 
         ItemTO fullnameMapping = new ItemTO();
         fullnameMapping.setIntAttrName("cn");
         fullnameMapping.setExtAttrName("fullname");
-        authModuleTO.add(fullnameMapping);
+        authModuleTO.getItems().add(fullnameMapping);
 
         return authModuleTO;
     }

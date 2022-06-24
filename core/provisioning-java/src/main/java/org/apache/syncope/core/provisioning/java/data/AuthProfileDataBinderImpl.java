@@ -20,7 +20,7 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
+import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 
 public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {

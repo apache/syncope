@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
-import org.apache.syncope.core.persistence.api.dao.auth.SAML2IdPEntityDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPEntity;
+import org.apache.syncope.core.persistence.api.dao.SAML2IdPEntityDAO;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

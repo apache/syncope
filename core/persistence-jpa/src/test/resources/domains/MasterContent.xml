@@ -63,27 +63,27 @@ under the License.
                      jsonConf='{"_class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"DenyAttrReleasePolicyConf"}'/>
 
   <!-- Authentication modules -->
-  <AuthModule id="DefaultLDAPAuthModule"
+  <AuthModule id="DefaultLDAPAuthModule" authModuleState="ACTIVE"
               description="LDAP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.LDAPAuthModuleConf","userIdAttribute":"cn","bindDn": "uid=admin,ou=system", "bindCredential":"secret","ldapUrl":"ldap://localhost:1389","searchFilter":"cn={user}","baseDn":"ou=People,o=isp","subtreeSearch":true,"principalAttributeList":["sn","givenName","mail","cn"]}'/>
-  <AuthModule id="DefaultJDBCAuthModule"
+  <AuthModule id="DefaultJDBCAuthModule" authModuleState="ACTIVE"
               description="JDBC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JDBCAuthModuleConf","sql":"SELECT * FROM users_table WHERE name=?", "fieldPassword": "password"}'/>
-  <AuthModule id="DefaultGoogleMfaAuthModule"
+  <AuthModule id="DefaultGoogleMfaAuthModule" authModuleState="ACTIVE"
               description="Google Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf","codeDigits":6,"issuer":"SyncopeTest", "label":"SyncopeTest", "timeStepSize":30, "windowSize":3}'/>
-  <AuthModule id="DefaultSimpleMfaAuthModule"
+  <AuthModule id="DefaultSimpleMfaAuthModule" authModuleState="ACTIVE"
               description="Simple Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf","tokenLength":6, "timeToKillInSeconds":30}'/>
-  <AuthModule id="DefaultDuoMfaAuthModule"
+  <AuthModule id="DefaultDuoMfaAuthModule" authModuleState="ACTIVE"
               description="Duo Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf","integrationKey":"DIOXVRZD2UMZ8XXMNFQ5","secretKey":"Q2IU2i8BFNd6VYflZT8Evl6lF7oPlj3PM15BmRU7", "applicationKey":"u1IHBaREMB7Cb5S4QMISAgHycpj8lPBkDGfWt23I", "apiHost":"theapi.duosecurity.com"}'/>
-  <AuthModule id="DefaultOIDCAuthModule"
+  <AuthModule id="DefaultOIDCAuthModule" authModuleState="ACTIVE"
               description="OIDC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","discoveryUri":"https://localhost:9443/syncope-wa/oidc/.well-known/openid-configuration", "id":"client-id", "secret": "client-secret" }'/>
-  <AuthModule id="DefaultSAML2IdPAuthModule"
+  <AuthModule id="DefaultSAML2IdPAuthModule" authModuleState="ACTIVE"
               description="SAML2 IdP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","keystorePassword":"p@$$word","privateKeyPassword":"p@$$word","identityProviderMetadataPath":"https://localhost:9443/syncope-wa/idp/metadata", "serviceProviderEntityId":"syncope:apache:org"}'/>
-  <AuthModule id="DefaultJaasAuthModule"
+  <AuthModule id="DefaultJaasAuthModule" authModuleState="ACTIVE"
               description="Jaas auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JaasAuthModuleConf","realm":"SYNCOPE","kerberosRealmSystemProperty":"sample-value", "loginConfigType": "JavaLoginConfig", "loginConfigurationFile": "file:/etc/jaas/login.conf"}'/>
-  <AuthModule id="DefaultStaticAuthModule"
+  <AuthModule id="DefaultStaticAuthModule" authModuleState="ACTIVE"
               description="Static auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.StaticAuthModuleConf","users":{"syncope1": "$cynop3"}}'/>
-  <AuthModule id="DefaultSyncopeAuthModule"
+  <AuthModule id="DefaultSyncopeAuthModule" authModuleState="ACTIVE"
               description="Syncope auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf","domain":"Master"}'/>
-  <AuthModule id="DefaultU2FAuthModule"
+  <AuthModule id="DefaultU2FAuthModule" authModuleState="ACTIVE"
               description="U2F auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.U2FAuthModuleConf","expireDevices":40}'/>
 
   <AuthModuleItem id="26678936-af09-48b8-a789-36af0918b87d" extAttrName="family_name" intAttrName="syncopeUserAttr_surname"
@@ -105,6 +105,19 @@ under the License.
                   password="0" purpose="NONE" mandatoryCondition="false" connObjectKey="0" authModule_id="DefaultLDAPAuthModule"/>
   <AuthModuleItem id="a1933059-e64f-409f-a86c-5b54da21787e" extAttrName="cn" intAttrName="cn"
                   password="0" purpose="NONE" mandatoryCondition="false" connObjectKey="0" authModule_id="DefaultLDAPAuthModule"/>
+
+  <!-- Attribute repositories -->
+  <AttrRepo id="DefaultLDAPAttrRepo" attrRepoState="ACTIVE"
+            description="LDAP attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.LDAPAttrRepoConf","searchFilter":"cn={user}","subtreeSearch":true,"ldapUrl":"ldap://localhost:1389","bindDn":"uid=admin,ou=system","bindCredential":"secret","baseDn":"ou=People,o=isp","attributes":{},"useAllQueryAttributes":true,"queryAttributes":{}}'/>
+  <AttrRepo id="DefaultJDBCAttrRepo" attrRepoState="ACTIVE"
+            description="JDBC attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.JDBCAttrRepoConf","sql":"SELECT * FROM table WHERE name=?","dialect":"org.hibernate.dialect.H2Dialect","driverClass":"org.h2.Driver","url":"jdbc:h2:mem:syncopedb;DB_CLOSE_DELAY=-1","user":"username","password":"password","singleRow":true,"requireAllAttributes":true,"caseCanonicalization":"NONE","queryType":"AND","columnMappings":{},"username":[],"attributes":{},"caseInsensitiveQueryAttributes":[],"queryAttributes":{}}'/>
+  <AttrRepo id="DefaultStubAttrRepo" attrRepoState="ACTIVE"
+            description="Stub attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.StubAttrRepoConf","attributes":{"attr1":"value1"}}'/>
+  <AttrRepo id="DefaultSyncopeAttrRepo" attrRepoState="ACTIVE"
+            description="Syncope attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf","domain":"Master","searchFilter":"username=={user}","basicAuthUsername":"admin","basicAuthPassword":"password","headers":{}}'/>
+
+  <AttrRepoItem id="d2d9e7be-d82b-4698-b0fb-67d480413049" extAttrName="identifier" intAttrName="attr1"
+                password="0" purpose="NONE" mandatoryCondition="false" connObjectKey="0" attrRepo_id="DefaultStubAttrRepo"/>
 
   <RelationshipType id="inclusion" description="Models the act that an object is included in another"/>
   <RelationshipType id="neighborhood" description="Models the act that an object is near another"/>

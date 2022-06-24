@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.to.AuthModuleTO;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
+import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 
 public interface AuthModuleDataBinder {
 
@@ -28,5 +28,4 @@ public interface AuthModuleDataBinder {
     AuthModule update(AuthModule authModule, AuthModuleTO authModuleTO);
 
     AuthModuleTO getAuthModuleTO(AuthModule authModule);
-
 }

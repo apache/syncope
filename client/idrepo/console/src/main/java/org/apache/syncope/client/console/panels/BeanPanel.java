@@ -21,14 +21,18 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
 import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
 import org.apache.syncope.client.console.panels.search.SearchClause;
@@ -52,6 +56,8 @@ import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.wicket.core.util.lang.PropertyResolver;
+import org.apache.wicket.core.util.lang.PropertyResolverConverter;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -247,6 +253,25 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
         } else if (type.isEnum()) {
             result = new AjaxDropDownChoicePanel(id, fieldName, model).setChoices(List.of(type.getEnumConstants()));
+        } else if (Duration.class.equals(type)) {
+            result = new AjaxTextFieldPanel(id, fieldName, new IModel<>() {
+
+                private static final long serialVersionUID = 807008909842554829L;
+
+                @Override
+                public String getObject() {
+                    return Optional.ofNullable(PropertyResolver.getValue(fieldName, bean)).
+                            map(Object::toString).orElse(null);
+                }
+
+                @Override
+                public void setObject(final String object) {
+                    PropertyResolverConverter prc = new PropertyResolverConverter(
+                            SyncopeWebApplication.get().getConverterLocator(),
+                            SyncopeConsoleSession.get().getLocale());
+                    PropertyResolver.setValue(fieldName, bean, Duration.parse(object), prc);
+                }
+            });
         } else {
             // treat as String if nothing matched above
             result = new AjaxTextFieldPanel(id, fieldName, model);

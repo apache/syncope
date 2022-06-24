@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.lib.auth;
 
+import java.util.Map;
+
 public class SimpleMfaAuthModuleConf implements MFAAuthModuleConf {
 
     private static final long serialVersionUID = -7663257599139312426L;
@@ -95,5 +97,10 @@ public class SimpleMfaAuthModuleConf implements MFAAuthModuleConf {
 
     public void setTokenLength(final int tokenLength) {
         this.tokenLength = tokenLength;
+    }
+
+    @Override
+    public Map<String, Object> map(final Mapper mapper) {
+        return mapper.map(this);
     }
 }

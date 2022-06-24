@@ -23,8 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.UUID;
-import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
+import org.apache.syncope.core.persistence.api.dao.CASSPDAO;
+import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.junit.jupiter.api.Test;
@@ -61,10 +61,9 @@ public class CASSPTest extends AbstractClientAppTest {
         int afterCount = casspDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);
 
-
         rp = casspDAO.findByName("CAS");
         assertNotNull(rp);
-        
+
         rp = casspDAO.findByClientAppId(rp.getClientAppId());
         assertNotNull(rp);
 

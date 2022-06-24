@@ -44,6 +44,7 @@ import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.services.AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria;
 import org.apereo.cas.services.ChainingAttributeReleasePolicy;
+import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
 import org.apereo.cas.services.OidcRegisteredService;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
@@ -117,6 +118,8 @@ public class WAServiceRegistryTest extends AbstractTest {
         if (withAttrReleasePolicy) {
             DefaultAttrReleasePolicyConf attrReleasePolicyConf = new DefaultAttrReleasePolicyConf();
             attrReleasePolicyConf.getAllowedAttrs().add("cn");
+            attrReleasePolicyConf.getPrincipalAttrRepoConf().getAttrRepos().add("TestAttrRepo");
+
             AttrReleasePolicyTO attrReleasePolicy = new AttrReleasePolicyTO();
             attrReleasePolicy.setConf(attrReleasePolicyConf);
             waClientApp.setAttrReleasePolicy(attrReleasePolicy);
@@ -200,6 +203,6 @@ public class WAServiceRegistryTest extends AbstractTest {
         assertEquals(5, load.size());
 
         found = servicesManager.findServiceBy(clientAppId);
-        assertTrue(found.getAttributeReleasePolicy() instanceof ReturnAllowedAttributeReleasePolicy);
+        assertTrue(found.getAttributeReleasePolicy() instanceof DenyAllAttributeReleasePolicy);
     }
 }

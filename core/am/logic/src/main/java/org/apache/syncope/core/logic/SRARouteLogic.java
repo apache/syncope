@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -26,7 +25,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -118,19 +116,19 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.SRA_ROUTE_PUSH + "')")
     public void pushToSRA() {
+        HttpClient client = HttpClient.newHttpClient();
         try {
-            NetworkService sra = serviceOps.get(NetworkService.Type.SRA);
-            HttpClient.newBuilder().build().send(
+            serviceOps.list(NetworkService.Type.SRA).forEach(sra -> client.sendAsync(
                     HttpRequest.newBuilder(URI.create(
                             StringUtils.appendIfMissing(sra.getAddress(), "/") + "actuator/gateway/refresh")).
                             header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
                                     securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey())).
                             POST(HttpRequest.BodyPublishers.noBody()).build(),
-                    HttpResponse.BodyHandlers.discarding());
+                    HttpResponse.BodyHandlers.discarding()).
+                    thenAcceptAsync(response -> LOG.info(
+                    "Pushed to SRA instance {} with HTTP status: {}", sra.getAddress(), response.statusCode())));
         } catch (KeymasterException e) {
-            throw new NotFoundException("Could not find any SRA instance", e);
-        } catch (IOException | InterruptedException e) {
-            throw new InternalServerErrorException("Errors while communicating with SRA instance", e);
+            throw new NotFoundException("Could not find any WA instance", e);
         }
     }
 

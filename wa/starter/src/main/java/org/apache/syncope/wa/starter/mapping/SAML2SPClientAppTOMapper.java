@@ -29,12 +29,14 @@ import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.util.model.TriStateBoolean;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @ClientAppMapFor(clientAppClass = SAML2SPClientAppTO.class)
 public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
 
     @Override
     public RegisteredService map(
+            final ConfigurableApplicationContext ctx,
             final WAClientApp clientApp,
             final RegisteredServiceAuthenticationPolicy authPolicy,
             final RegisteredServiceMultifactorPolicy mfaPolicy,

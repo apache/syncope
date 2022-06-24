@@ -20,11 +20,11 @@ package org.apache.syncope.common.lib.to;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.types.AuthModuleState;
 
 public class AuthModuleTO implements EntityTO {
 
@@ -34,9 +34,13 @@ public class AuthModuleTO implements EntityTO {
 
     private String description;
 
-    private AuthModuleConf conf;
+    private AuthModuleState state = AuthModuleState.ACTIVE;
+
+    private int order = 0;
 
     private final List<ItemTO> items = new ArrayList<>();
+
+    private AuthModuleConf conf;
 
     @Override
     public String getKey() {
@@ -57,24 +61,32 @@ public class AuthModuleTO implements EntityTO {
         this.description = description;
     }
 
-    public AuthModuleConf getConf() {
-        return conf;
+    public AuthModuleState getState() {
+        return state;
     }
 
-    public void setConf(final AuthModuleConf conf) {
-        this.conf = conf;
+    public void setState(final AuthModuleState state) {
+        this.state = state;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(final int order) {
+        this.order = order;
     }
 
     public List<ItemTO> getItems() {
         return items;
     }
 
-    public boolean add(final ItemTO item) {
-        return Optional.ofNullable(item).filter(itemTO -> items.contains(itemTO) || items.add(itemTO)).isPresent();
+    public AuthModuleConf getConf() {
+        return conf;
     }
 
-    public boolean remove(final ItemTO item) {
-        return this.items.remove(item);
+    public void setConf(final AuthModuleConf conf) {
+        this.conf = conf;
     }
 
     @Override
@@ -92,6 +104,8 @@ public class AuthModuleTO implements EntityTO {
         return new EqualsBuilder().
                 append(key, other.key).
                 append(description, other.description).
+                append(state, other.state).
+                append(order, other.order).
                 append(items, other.items).
                 append(conf, other.conf).
                 build();

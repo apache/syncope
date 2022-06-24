@@ -52,6 +52,12 @@ under the License.
       <version>${project.version}</version>
     </dependency>
 
+    <!-- required by JDBC attribute repository -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+    </dependency>
+
     <!-- TEST -->
     <dependency>
       <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>

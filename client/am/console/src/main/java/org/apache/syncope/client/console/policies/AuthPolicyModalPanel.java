@@ -40,7 +40,7 @@ import org.apache.wicket.model.PropertyModel;
 
 public class AuthPolicyModalPanel extends AbstractModalPanel<AuthPolicyTO> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -7210166323800567306L;
 
     private final IModel<List<String>> allAuthModules = new LoadableDetachableModel<>() {
 

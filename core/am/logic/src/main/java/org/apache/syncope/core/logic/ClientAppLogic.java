@@ -41,16 +41,16 @@ import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.persistence.api.dao.CASSPDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtils;
-import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.api.dao.OIDCRPDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPDAO;
+import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.ClientAppUtils;
+import org.apache.syncope.core.persistence.api.entity.am.ClientAppUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -264,15 +264,15 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
         try {
             NetworkService wa = serviceOps.get(NetworkService.Type.WA);
             String basicAuthHeader = DefaultBasicAuthSupplier.getBasicAuthHeader(
-                securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey());
+                    securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey());
             URI endpoint = URI.create(StringUtils.appendIfMissing(wa.getAddress(), "/")
-                                      + "actuator/registeredServices");
+                    + "actuator/registeredServices");
             HttpClient.newBuilder().build().send(
-                HttpRequest.newBuilder(endpoint).
-                    header(HttpHeaders.AUTHORIZATION, basicAuthHeader).
-                    header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON).
-                    GET().build(),
-                HttpResponse.BodyHandlers.discarding());
+                    HttpRequest.newBuilder(endpoint).
+                            header(HttpHeaders.AUTHORIZATION, basicAuthHeader).
+                            header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON).
+                            GET().build(),
+                    HttpResponse.BodyHandlers.discarding());
         } catch (KeymasterException e) {
             throw new NotFoundException("Could not find any WA instance", e);
         } catch (IOException | InterruptedException e) {

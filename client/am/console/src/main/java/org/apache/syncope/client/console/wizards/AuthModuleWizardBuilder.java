@@ -30,11 +30,13 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
+import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -114,6 +116,19 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
                     Constants.DESCRIPTION_FIELD_NAME, getString(Constants.DESCRIPTION_FIELD_NAME),
                     new PropertyModel<>(authModule, Constants.DESCRIPTION_FIELD_NAME));
             add(description);
+
+            AjaxDropDownChoicePanel<AuthModuleState> state = new AjaxDropDownChoicePanel<>(
+                    "state", getString("state"), new PropertyModel<>(authModule, "state"));
+            state.setChoices(List.of(AuthModuleState.values()));
+            state.addRequiredLabel();
+            state.setNullValid(false);
+            add(state);
+
+            add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                    "order",
+                    "order",
+                    Integer.class,
+                    new PropertyModel<>(authModule, "order")).addRequiredLabel());
 
             AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>("conf", getString("type"), isNew
                     ? Model.of()

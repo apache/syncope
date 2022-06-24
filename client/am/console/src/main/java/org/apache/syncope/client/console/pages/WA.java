@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.console.authprofiles.AuthProfileDirectoryPanel;
 import org.apache.syncope.client.console.clientapps.ClientApps;
 import org.apache.syncope.client.console.panels.AMSessionPanel;
+import org.apache.syncope.client.console.panels.AttrRepoDirectoryPanel;
 import org.apache.syncope.client.console.panels.AuthModuleDirectoryPanel;
 import org.apache.syncope.client.console.panels.OIDC;
 import org.apache.syncope.client.console.panels.SAML2;
@@ -150,6 +151,18 @@ public class WA extends BasePage {
                 @Override
                 public Panel getPanel(final String panelId) {
                     return new AuthModuleDirectoryPanel(panelId, getPageReference());
+                }
+            });
+        }
+
+        if (SyncopeConsoleSession.get().owns(AMEntitlement.ATTR_REPO_LIST)) {
+            tabs.add(new AbstractTab(new ResourceModel("attrRepos")) {
+
+                private static final long serialVersionUID = 5211692813425391144L;
+
+                @Override
+                public Panel getPanel(final String panelId) {
+                    return new AttrRepoDirectoryPanel(panelId, getPageReference());
                 }
             });
         }

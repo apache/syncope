@@ -20,9 +20,9 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Optional;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
+import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
+import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
 import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
 
 public class WAConfigDataBinderImpl implements WAConfigDataBinder {

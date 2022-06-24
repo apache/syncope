@@ -33,8 +33,12 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
+import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
+import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
+import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
+import org.apache.syncope.core.persistence.api.dao.CASSPDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -45,6 +49,8 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCRPDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -56,24 +62,19 @@ import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2IdPEntityDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPEntityDAO;
 import org.apache.syncope.core.persistence.api.dao.SRARouteDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.OIDCJWKSDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.SAML2IdPEntityDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPEntityDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
+import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.ClientAppUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.am.ClientAppUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
@@ -87,8 +88,12 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyTypeClassDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyTypeDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAApplicationDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAAttrRepoDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAuditConfDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAAuthModuleDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAAuthProfileDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPABatchDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPACASSPDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAConnInstanceDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPADelegationDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPADerSchemaDAO;
@@ -99,6 +104,8 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAGroupDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAImplementationDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAMailTemplateDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPANotificationDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCJWKSDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCRPDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainSchemaDAO;
@@ -110,24 +117,19 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAReportDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAReportExecDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAReportTemplateDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPARoleDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPASAML2IdPEntityDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPASAML2SPDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPASAML2SPEntityDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPASRARouteDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPASecurityQuestionDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPATaskDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPATaskExecDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAUserDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAVirSchemaDAO;
-import org.apache.syncope.core.persistence.jpa.dao.auth.JPAAuthModuleDAO;
-import org.apache.syncope.core.persistence.jpa.dao.auth.JPAAuthProfileDAO;
-import org.apache.syncope.core.persistence.jpa.dao.auth.JPACASSPDAO;
-import org.apache.syncope.core.persistence.jpa.dao.auth.JPAOIDCJWKSDAO;
-import org.apache.syncope.core.persistence.jpa.dao.auth.JPAOIDCRPDAO;
-import org.apache.syncope.core.persistence.jpa.dao.auth.JPASAML2IdPEntityDAO;
-import org.apache.syncope.core.persistence.jpa.dao.auth.JPASAML2SPDAO;
-import org.apache.syncope.core.persistence.jpa.dao.auth.JPASAML2SPEntityDAO;
-import org.apache.syncope.core.persistence.jpa.dao.auth.JPAWAConfigDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAWAConfigDAO;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.JPAEntityFactory;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAClientAppUtilsFactory;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAClientAppUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPolicyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
@@ -393,6 +395,12 @@ public class PersistenceContext {
     @Bean
     public AuthModuleDAO authModuleDAO(final PolicyDAO policyDAO) {
         return new JPAAuthModuleDAO(policyDAO);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AttrRepoDAO attrRepoDAO() {
+        return new JPAAttrRepoDAO();
     }
 
     @ConditionalOnMissingBean

@@ -25,8 +25,8 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import java.util.UUID;
-import org.apache.syncope.core.persistence.api.dao.auth.OIDCJWKSDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
+import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +43,9 @@ public class OIDCJWKSTest extends AbstractTest {
         OIDCJWKS jwks = entityFactory.newEntity(OIDCJWKS.class);
 
         RSAKey jwk = new RSAKeyGenerator(2048)
-            .keyUse(KeyUse.SIGNATURE)
-            .keyID(UUID.randomUUID().toString())
-            .generate();
+                .keyUse(KeyUse.SIGNATURE)
+                .keyID(UUID.randomUUID().toString())
+                .generate();
 
         String json = new JWKSet(jwk).toString();
         jwks.setJson(json);
