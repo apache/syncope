@@ -263,7 +263,7 @@ public class AuditITCase extends AbstractITCase {
         AuditConfTO audit = new AuditConfTO();
         audit.setKey(auditLoggerName.toAuditKey());
         audit.setActive(true);
-        AUDIT_SERVICE.create(audit);
+        AUDIT_SERVICE.set(audit);
 
         audits = AUDIT_SERVICE.list();
         assertTrue(audits.stream().anyMatch(a -> a.getKey().equals(auditLoggerName.toAuditKey())));
@@ -512,16 +512,16 @@ public class AuditITCase extends AbstractITCase {
             AuditConfTO audit = new AuditConfTO();
             audit.setKey(createSuccess.toAuditKey());
             audit.setActive(true);
-            AUDIT_SERVICE.create(audit);
+            AUDIT_SERVICE.set(audit);
 
             audit.setKey(createFailure.toAuditKey());
-            AUDIT_SERVICE.create(audit);
+            AUDIT_SERVICE.set(audit);
 
             audit.setKey(updateSuccess.toAuditKey());
-            AUDIT_SERVICE.create(audit);
+            AUDIT_SERVICE.set(audit);
 
             audit.setKey(updateFailure.toAuditKey());
-            AUDIT_SERVICE.create(audit);
+            AUDIT_SERVICE.set(audit);
 
             // 2. push on resource
             PushTaskTO pushTask = new PushTaskTO();
