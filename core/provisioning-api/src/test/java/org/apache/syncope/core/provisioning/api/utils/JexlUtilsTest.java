@@ -73,11 +73,10 @@ public class JexlUtilsTest extends AbstractTest {
 
     @Test
     public void evaluate() {
-        String result = StringUtils.EMPTY;
-        assertEquals(result, JexlUtils.evaluate(expression, context));
+        assertEquals(StringUtils.EMPTY, JexlUtils.evaluate(expression, context));
 
         expression = "6 * 12 + 5 / 2.6";
-        result = "73.92307692307692";
+        double result = 73.92307692307692;
         assertEquals(result, JexlUtils.evaluate(expression, context));
     }
 

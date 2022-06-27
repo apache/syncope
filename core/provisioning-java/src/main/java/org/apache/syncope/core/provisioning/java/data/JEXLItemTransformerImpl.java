@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.jexl3.JexlContext;
@@ -29,7 +30,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
@@ -41,6 +42,9 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
 
     @Autowired
     private DerAttrHandler derAttrHandler;
+
+    @Autowired
+    private AnyUtilsFactory anyUtilsFactory;
 
     private String propagationJEXL;
 
@@ -56,40 +60,66 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
         this.pullJEXL = pullJEXL;
     }
 
+    protected void beforePropagation(final PlainAttrValue value, final Any<?> any, final AttrSchemaType schemaType) {
+        JexlContext jexlContext = new MapContext();
+        if (any != null) {
+            JexlUtils.addFieldsToContext(any, jexlContext);
+            JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
+            JexlUtils.addDerAttrsToContext(any, derAttrHandler, jexlContext);
+        }
+        jexlContext.set("value", value.getValue());
+
+        Object transformed = JexlUtils.evaluate(propagationJEXL, jexlContext);
+
+        switch (schemaType) {
+            case Binary:
+            case Encrypted:
+                value.setBinaryValue((byte[]) transformed);
+                break;
+
+            case Boolean:
+                value.setBooleanValue((Boolean) transformed);
+                break;
+
+            case Date:
+                value.setDateValue((OffsetDateTime) transformed);
+                break;
+
+            case Double:
+                value.setDoubleValue((Double) transformed);
+                break;
+
+            case Long:
+                value.setLongValue((Long) transformed);
+                break;
+
+            case Enum:
+            case String:
+            default:
+                value.setStringValue(transformed.toString());
+        }
+    }
+
     @Override
     public Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
             final Item item,
-            final Entity entity,
+            final Any<?> any,
             final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {
 
-        if (StringUtils.isNotBlank(propagationJEXL) && values != null) {
-            values.forEach(value -> {
-                Object originalValue = value.getValue();
-                if (originalValue != null) {
-                    JexlContext jexlContext = new MapContext();
-                    if (entity != null) {
-                        JexlUtils.addFieldsToContext(entity, jexlContext);
-                        if (entity instanceof Any) {
-                            JexlUtils.addPlainAttrsToContext(((Any<?>) entity).getPlainAttrs(), jexlContext);
-                            JexlUtils.addDerAttrsToContext(((Any<?>) entity), derAttrHandler, jexlContext);
-                        }
-                    }
-                    jexlContext.set("value", originalValue);
-
-                    value.setBinaryValue(null);
-                    value.setBooleanValue(null);
-                    value.setDateValue(null);
-                    value.setDoubleValue(null);
-                    value.setLongValue(null);
-                    value.setStringValue(JexlUtils.evaluate(propagationJEXL, jexlContext));
-                }
-            });
-
-            return Pair.of(AttrSchemaType.String, values);
+        if (StringUtils.isBlank(propagationJEXL)) {
+            return JEXLItemTransformer.super.beforePropagation(item, any, schemaType, values);
         }
 
-        return JEXLItemTransformer.super.beforePropagation(item, entity, schemaType, values);
+        if (values.isEmpty()) {
+            PlainAttrValue value = anyUtilsFactory.getInstance(any).newPlainAttrValue();
+            beforePropagation(value, any, schemaType);
+            values.add(value);
+        } else {
+            values.forEach(value -> beforePropagation(value, any, schemaType));
+        }
+
+        return Pair.of(schemaType, values);
     }
 
     @Override
