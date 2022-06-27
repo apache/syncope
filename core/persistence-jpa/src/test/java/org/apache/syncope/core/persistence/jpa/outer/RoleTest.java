@@ -120,7 +120,7 @@ public class RoleTest extends AbstractTest {
         role.add(realmDAO.getRoot());
         role.add(realmDAO.findByFullPath("/even/two"));
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
-        role.getEntitlements().add(IdRepoEntitlement.AUDIT_UPDATE);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
 
         DynRoleMembership dynMembership = entityFactory.newEntity(DynRoleMembership.class);
         dynMembership.setFIQLCond("cool==true");
@@ -184,7 +184,7 @@ public class RoleTest extends AbstractTest {
         role.add(realmDAO.getRoot());
         role.add(realmDAO.findByFullPath("/even/two"));
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
-        role.getEntitlements().add(IdRepoEntitlement.AUDIT_UPDATE);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
 
         role = roleDAO.save(role);
         assertNotNull(role);

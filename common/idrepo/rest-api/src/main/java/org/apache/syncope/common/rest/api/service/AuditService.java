@@ -76,19 +76,7 @@ public interface AuditService extends JAXRSService {
     AuditConfTO read(@NotNull @PathParam("key") String key);
 
     /**
-     * Creates a new audit.
-     *
-     * @param auditTO audit to be created
-     */
-    @ApiResponses(
-            @ApiResponse(responseCode = "201", description = "Audit successfully created"))
-    @POST
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void create(@NotNull AuditConfTO auditTO);
-
-    /**
-     * Updates the audit matching the provided key.
+     * Set an audit setting.
      *
      * @param auditTO audit to be stored
      */
@@ -100,7 +88,7 @@ public interface AuditService extends JAXRSService {
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void update(@NotNull AuditConfTO auditTO);
+    void set(@NotNull AuditConfTO auditTO);
 
     /**
      * Deletes the audit matching the provided key.
