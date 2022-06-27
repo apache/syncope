@@ -72,7 +72,6 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
         jexlContext.set("value", value.getValue());
 
         Object tValue = JexlUtils.evaluate(propagationJEXL, jexlContext);
-        AttrSchemaType tType = schemaType;
 
         value.setBinaryValue(null);
         value.setBooleanValue(null);
