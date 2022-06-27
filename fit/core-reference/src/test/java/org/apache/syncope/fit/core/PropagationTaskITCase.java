@@ -473,7 +473,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
             provision.getVirSchemas().clear();
 
-            // Date -> long (JEXL expression) -> string (as all JEXL in Syncope)
+            // Date -> long (JEXL expression) -> string
             ItemTO loginDateForJexlAsLong = new ItemTO();
             loginDateForJexlAsLong.setPurpose(MappingPurpose.PROPAGATION);
             loginDateForJexlAsLong.setIntAttrName("loginDate");
@@ -536,7 +536,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             Attribute employeeNumber = AttributeUtil.find("employeeNumber", propagationAttrs);
             assertNotNull(employeeNumber);
-            assertEquals(String.valueOf(loginDate.toInstant().toEpochMilli()), employeeNumber.getValue().get(0));
+            assertEquals(loginDate.toInstant().toEpochMilli(), employeeNumber.getValue().get(0));
 
             Attribute street = AttributeUtil.find("street", propagationAttrs);
             assertNotNull(street);
