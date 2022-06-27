@@ -113,22 +113,14 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
                 orElseThrow(() -> new NotFoundException("Audit " + key));
     }
 
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_CREATE + "')")
-    public void create(final AuditConfTO auditTO) {
-        AuditConf audit = entityFactory.newEntity(AuditConf.class);
-        audit.setKey(auditTO.getKey());
-        audit.setActive(auditTO.isActive());
-        audit = auditConfDAO.save(audit);
-
-        if (audit.isActive()) {
-            setLevel(audit.getKey(), Level.DEBUG);
-        }
-    }
-
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_UPDATE + "')")
-    public void update(final AuditConfTO auditTO) {
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_SET + "')")
+    public void set(final AuditConfTO auditTO) {
         AuditConf audit = Optional.ofNullable(auditConfDAO.find(auditTO.getKey())).
-                orElseThrow(() -> new NotFoundException("Audit " + auditTO.getKey()));
+                orElseGet(() -> {
+                    AuditConf a = entityFactory.newEntity(AuditConf.class);
+                    a.setKey(auditTO.getKey());
+                    return a;
+                });
         audit.setActive(auditTO.isActive());
         audit = auditConfDAO.save(audit);
 
@@ -289,7 +281,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
     @PreAuthorize("isAuthenticated()")
     public void create(final AuditEntry auditEntry) {
         boolean authorized =
-                AuthContextUtils.getAuthorizations().containsKey(IdRepoEntitlement.AUDIT_CREATE)
+                AuthContextUtils.getAuthorizations().containsKey(IdRepoEntitlement.AUDIT_SET)
                 || AuthContextUtils.getAuthorizations().containsKey(IdRepoEntitlement.ANONYMOUS)
                 && AuditElements.EventCategoryType.WA == auditEntry.getLogger().getType();
         if (authorized) {

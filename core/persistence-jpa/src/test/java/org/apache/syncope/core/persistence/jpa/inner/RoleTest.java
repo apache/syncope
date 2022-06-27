@@ -68,7 +68,7 @@ public class RoleTest extends AbstractTest {
         role.add(realmDAO.getRoot());
         role.add(realmDAO.findByFullPath("/even/two"));
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
-        role.getEntitlements().add(IdRepoEntitlement.AUDIT_UPDATE);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
 
         Role actual = roleDAO.save(role);
         assertNotNull(actual);

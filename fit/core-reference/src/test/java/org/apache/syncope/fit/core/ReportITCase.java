@@ -303,7 +303,7 @@ public class ReportITCase extends AbstractITCase {
         try {
             AuditConfTO audit = new AuditConfTO();
             audit.setKey(auditLoggerName.toAuditKey());
-            AUDIT_SERVICE.create(audit);
+            AUDIT_SERVICE.set(audit);
 
             ImplementationTO auditReportlet = new ImplementationTO();
             auditReportlet.setKey("UserReportletConf" + getUUIDString());

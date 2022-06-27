@@ -69,14 +69,14 @@ public class AuditRestClient extends BaseRestClient {
         AuditConfTO audit = new AuditConfTO();
         audit.setKey(auditLoggerName.toAuditKey());
         audit.setActive(true);
-        getService(AuditService.class).update(audit);
+        getService(AuditService.class).set(audit);
     }
 
     public static void disableAudit(final AuditLoggerName auditLoggerName) {
         AuditConfTO audit = new AuditConfTO();
         audit.setKey(auditLoggerName.toAuditKey());
         audit.setActive(false);
-        getService(AuditService.class).update(audit);
+        getService(AuditService.class).set(audit);
     }
 
     public static List<EventCategory> listEvents() {
