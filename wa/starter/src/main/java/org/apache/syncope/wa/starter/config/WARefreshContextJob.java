@@ -42,9 +42,6 @@ public class WARefreshContextJob implements Job {
     @Autowired
     private SamlIdPMetadataGenerator metadataGenerator;
 
-    public WARefreshContextJob() {
-    }
-
     @Override
     public void execute(final JobExecutionContext jobExecutionContext) throws JobExecutionException {
         try {

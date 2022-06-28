@@ -246,7 +246,7 @@ public class DefaultMappingManager implements MappingManager {
             JexlUtils.addFieldsToContext(any, jexlContext);
             JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
             JexlUtils.addDerAttrsToContext(any, derAttrHandler, jexlContext);
-            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
+            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext).toString();
         }
 
         return getName(evalConnObjectLink, connObjectKey);
@@ -274,7 +274,7 @@ public class DefaultMappingManager implements MappingManager {
         if (StringUtils.isNotBlank(connObjectLink)) {
             JexlContext jexlContext = new MapContext();
             JexlUtils.addFieldsToContext(realm, jexlContext);
-            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
+            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext).toString();
         }
 
         return getName(evalConnObjectLink, connObjectKey);
@@ -849,17 +849,18 @@ public class DefaultMappingManager implements MappingManager {
 
         LOG.debug("Internal values: {}", values);
 
-        Pair<AttrSchemaType, List<PlainAttrValue>> trans = Pair.of(schemaType, values);
+        Pair<AttrSchemaType, List<PlainAttrValue>> transformed = Pair.of(schemaType, values);
         if (transform) {
             for (ItemTransformer transformer : MappingUtils.getItemTransformers(mapItem)) {
-                trans = transformer.beforePropagation(mapItem, any, trans.getLeft(), trans.getRight());
+                transformed = transformer.beforePropagation(
+                        mapItem, any, transformed.getLeft(), transformed.getRight());
             }
             LOG.debug("Transformed values: {}", values);
         } else {
             LOG.debug("No transformation occurred");
         }
 
-        return trans;
+        return transformed;
     }
 
     protected String getGroupOwnerValue(final Provision provision, final Any<?> any) {

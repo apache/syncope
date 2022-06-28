@@ -47,7 +47,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
             JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
             JexlUtils.addFieldsToContext(any, jexlContext);
 
-            result.put(schema, JexlUtils.evaluate(schema.getExpression(), jexlContext));
+            result.put(schema, JexlUtils.evaluate(schema.getExpression(), jexlContext).toString());
         });
 
         return result;
@@ -100,7 +100,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
             JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(membership), jexlContext);
             JexlUtils.addFieldsToContext(any, jexlContext);
 
-            result.put(schema, JexlUtils.evaluate(schema.getExpression(), jexlContext));
+            result.put(schema, JexlUtils.evaluate(schema.getExpression(), jexlContext).toString());
         });
 
         return result;

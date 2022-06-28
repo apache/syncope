@@ -50,7 +50,7 @@ public class TemplateUtils {
 
         if (template.getValues() != null && !template.getValues().isEmpty()) {
             template.getValues().forEach(value -> {
-                String evaluated = JexlUtils.evaluate(value, jexlContext);
+                String evaluated = JexlUtils.evaluate(value, jexlContext).toString();
                 if (StringUtils.isNotBlank(evaluated)) {
                     result.getValues().add(evaluated);
                 }
@@ -68,7 +68,7 @@ public class TemplateUtils {
         JexlUtils.addAttrsToContext(realmMember.getVirAttrs(), jexlContext);
 
         if (template.getRealm() != null) {
-            String evaluated = JexlUtils.evaluate(template.getRealm(), jexlContext);
+            String evaluated = JexlUtils.evaluate(template.getRealm(), jexlContext).toString();
             if (StringUtils.isNotBlank(evaluated)) {
                 realmMember.setRealm(evaluated);
             }
@@ -156,7 +156,7 @@ public class TemplateUtils {
             fillMemberships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
         } else if (template instanceof UserTO) {
             if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
-                String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), jexlContext);
+                String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), jexlContext).toString();
                 if (StringUtils.isNotBlank(evaluated)) {
                     if (realmMember instanceof UserTO) {
                         ((UserTO) realmMember).setUsername(evaluated);
@@ -167,7 +167,7 @@ public class TemplateUtils {
             }
 
             if (StringUtils.isNotBlank(((UserTO) template).getPassword())) {
-                String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), jexlContext);
+                String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), jexlContext).toString();
                 if (StringUtils.isNotBlank(evaluated)) {
                     if (realmMember instanceof UserTO) {
                         ((UserTO) realmMember).setPassword(evaluated);
@@ -186,7 +186,7 @@ public class TemplateUtils {
             }
         } else if (template instanceof GroupTO) {
             if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
-                String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), jexlContext);
+                String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), jexlContext).toString();
                 if (StringUtils.isNotBlank(evaluated)) {
                     if (realmMember instanceof GroupTO) {
                         ((GroupTO) realmMember).setName(evaluated);

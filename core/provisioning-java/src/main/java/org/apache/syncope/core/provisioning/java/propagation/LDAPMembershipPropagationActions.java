@@ -146,7 +146,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
         JexlUtils.addPlainAttrsToContext(group.getPlainAttrs(), jexlContext);
         JexlUtils.addDerAttrsToContext(group, derAttrHandler, jexlContext);
 
-        return JexlUtils.evaluate(connObjectLinkTemplate, jexlContext);
+        return JexlUtils.evaluate(connObjectLinkTemplate, jexlContext).toString();
     }
 
     private void buildManagedGroupConnObjectLinks(final ExternalResource externalResource,

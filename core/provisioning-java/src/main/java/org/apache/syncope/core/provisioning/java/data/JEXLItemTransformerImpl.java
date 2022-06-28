@@ -18,18 +18,19 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
@@ -41,6 +42,9 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
 
     @Autowired
     private DerAttrHandler derAttrHandler;
+
+    @Autowired
+    private AnyUtilsFactory anyUtilsFactory;
 
     private String propagationJEXL;
 
@@ -56,40 +60,76 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
         this.pullJEXL = pullJEXL;
     }
 
+    protected AttrSchemaType beforePropagation(final PlainAttrValue value, final Any<?> any) {
+        JexlContext jexlContext = new MapContext();
+        if (any != null) {
+            JexlUtils.addFieldsToContext(any, jexlContext);
+            JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
+            JexlUtils.addDerAttrsToContext(any, derAttrHandler, jexlContext);
+        }
+        jexlContext.set("value", value.getValue());
+
+        Object tValue = JexlUtils.evaluate(propagationJEXL, jexlContext);
+
+        value.setBinaryValue(null);
+        value.setBooleanValue(null);
+        value.setDateValue(null);
+        value.setDoubleValue(null);
+        value.setLongValue(null);
+        value.setStringValue(null);
+
+        if (tValue instanceof byte[]) {
+            value.setBinaryValue((byte[]) tValue);
+            return AttrSchemaType.Binary;
+        }
+
+        if (tValue instanceof Boolean) {
+            value.setBooleanValue((Boolean) tValue);
+            return AttrSchemaType.Boolean;
+        }
+
+        if (tValue instanceof OffsetDateTime) {
+            value.setDateValue((OffsetDateTime) tValue);
+            return AttrSchemaType.Date;
+        }
+
+        if (tValue instanceof Double) {
+            value.setDoubleValue((Double) tValue);
+            return AttrSchemaType.Double;
+        }
+
+        if (tValue instanceof Long) {
+            value.setLongValue((Long) tValue);
+            return AttrSchemaType.Long;
+        }
+
+        if (tValue != null) {
+            value.setStringValue(tValue.toString());
+        }
+        return AttrSchemaType.String;
+    }
+
     @Override
     public Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
             final Item item,
-            final Entity entity,
+            final Any<?> any,
             final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {
 
-        if (StringUtils.isNotBlank(propagationJEXL) && values != null) {
-            values.forEach(value -> {
-                Object originalValue = value.getValue();
-                if (originalValue != null) {
-                    JexlContext jexlContext = new MapContext();
-                    if (entity != null) {
-                        JexlUtils.addFieldsToContext(entity, jexlContext);
-                        if (entity instanceof Any) {
-                            JexlUtils.addPlainAttrsToContext(((Any<?>) entity).getPlainAttrs(), jexlContext);
-                            JexlUtils.addDerAttrsToContext(((Any<?>) entity), derAttrHandler, jexlContext);
-                        }
-                    }
-                    jexlContext.set("value", originalValue);
-
-                    value.setBinaryValue(null);
-                    value.setBooleanValue(null);
-                    value.setDateValue(null);
-                    value.setDoubleValue(null);
-                    value.setLongValue(null);
-                    value.setStringValue(JexlUtils.evaluate(propagationJEXL, jexlContext));
-                }
-            });
-
-            return Pair.of(AttrSchemaType.String, values);
+        if (StringUtils.isBlank(propagationJEXL)) {
+            return JEXLItemTransformer.super.beforePropagation(item, any, schemaType, values);
         }
 
-        return JEXLItemTransformer.super.beforePropagation(item, entity, schemaType, values);
+        AtomicReference<AttrSchemaType> tType = new AtomicReference<>();
+        if (values.isEmpty()) {
+            PlainAttrValue value = anyUtilsFactory.getInstance(any).newPlainAttrValue();
+            tType.set(beforePropagation(value, any));
+            values.add(value);
+        } else {
+            values.forEach(value -> tType.set(beforePropagation(value, any)));
+        }
+
+        return Pair.of(tType.get(), values);
     }
 
     @Override
@@ -103,13 +143,11 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
             values.forEach(value -> {
                 JexlContext jexlContext = new MapContext();
                 jexlContext.set("value", value);
+                JexlUtils.addFieldsToContext(entityTO, jexlContext);
                 if (entityTO instanceof AnyTO) {
-                    JexlUtils.addFieldsToContext((AnyTO) entityTO, jexlContext);
                     JexlUtils.addAttrsToContext(((AnyTO) entityTO).getPlainAttrs(), jexlContext);
                     JexlUtils.addAttrsToContext(((AnyTO) entityTO).getDerAttrs(), jexlContext);
                     JexlUtils.addAttrsToContext(((AnyTO) entityTO).getVirAttrs(), jexlContext);
-                } else if (entityTO instanceof RealmTO) {
-                    JexlUtils.addFieldsToContext((RealmTO) entityTO, jexlContext);
                 }
 
                 newValues.add(JexlUtils.evaluate(pullJEXL, jexlContext));
