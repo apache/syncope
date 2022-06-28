@@ -60,14 +60,47 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
         this.pullJEXL = pullJEXL;
     }
 
-    protected AttrSchemaType beforePropagation(final PlainAttrValue value, final Any<?> any) {
+    protected AttrSchemaType beforePropagation(
+            final Any<?> any,
+            final AttrSchemaType schemaType,
+            final PlainAttrValue value) {
+
         JexlContext jexlContext = new MapContext();
         if (any != null) {
             JexlUtils.addFieldsToContext(any, jexlContext);
             JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
             JexlUtils.addDerAttrsToContext(any, derAttrHandler, jexlContext);
         }
-        jexlContext.set("value", value.getValue());
+
+        Object oValue;
+        switch (schemaType) {
+            case Binary:
+            case Encrypted:
+                oValue = value.getBinaryValue();
+                break;
+
+            case Boolean:
+                oValue = value.getBooleanValue();
+                break;
+
+            case Date:
+                oValue = value.getDateValue();
+                break;
+
+            case Double:
+                oValue = value.getDoubleValue();
+                break;
+
+            case Long:
+                oValue = value.getLongValue();
+                break;
+
+            case Enum:
+            case String:
+            default:
+                oValue = value.getStringValue();
+        }
+        jexlContext.set("value", oValue);
 
         Object tValue = JexlUtils.evaluate(propagationJEXL, jexlContext);
 
@@ -123,10 +156,10 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
         AtomicReference<AttrSchemaType> tType = new AtomicReference<>();
         if (values.isEmpty()) {
             PlainAttrValue value = anyUtilsFactory.getInstance(any).newPlainAttrValue();
-            tType.set(beforePropagation(value, any));
+            tType.set(beforePropagation(any, schemaType, value));
             values.add(value);
         } else {
-            values.forEach(value -> tType.set(beforePropagation(value, any)));
+            values.forEach(value -> tType.set(beforePropagation(any, schemaType, value)));
         }
 
         return Pair.of(tType.get(), values);
