@@ -60,9 +60,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
         this.pullJEXL = pullJEXL;
     }
 
-    protected AttrSchemaType beforePropagation(
-            final PlainAttrValue value, final Any<?> any, final AttrSchemaType schemaType) {
-
+    protected AttrSchemaType beforePropagation(final PlainAttrValue value, final Any<?> any) {
         JexlContext jexlContext = new MapContext();
         if (any != null) {
             JexlUtils.addFieldsToContext(any, jexlContext);
@@ -125,10 +123,10 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
         AtomicReference<AttrSchemaType> tType = new AtomicReference<>();
         if (values.isEmpty()) {
             PlainAttrValue value = anyUtilsFactory.getInstance(any).newPlainAttrValue();
-            tType.set(beforePropagation(value, any, schemaType));
+            tType.set(beforePropagation(value, any));
             values.add(value);
         } else {
-            values.forEach(value -> tType.set(beforePropagation(value, any, schemaType)));
+            values.forEach(value -> tType.set(beforePropagation(value, any)));
         }
 
         return Pair.of(tType.get(), values);
