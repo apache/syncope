@@ -405,7 +405,7 @@ under the License.
     <connid.okta.version>2.1.1</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
 
-    <cxf.version>3.5.2</cxf.version>
+    <cxf.version>3.5.3</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
     <nimbus-jose-jwt.version>9.23</nimbus-jose-jwt.version>
 
@@ -430,7 +430,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.2.3</elasticsearch.version>
+    <elasticsearch.version>8.3.0</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
