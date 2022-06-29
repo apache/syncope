@@ -213,6 +213,15 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
     }
 
     @Override
+    public void setAttribute(final String name, final Object o) {
+        try {
+            super.setAttribute(name, o);
+        } catch (Exception e) {
+            LOG.debug("While delegating to wrapped request", e);
+        }
+    }
+
+    @Override
     public String getCharacterEncoding() {
         try {
             return super.getCharacterEncoding();
