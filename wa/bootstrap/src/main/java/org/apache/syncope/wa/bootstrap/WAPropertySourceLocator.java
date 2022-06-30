@@ -43,8 +43,18 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
 
     protected final WARestClient waRestClient;
 
-    public WAPropertySourceLocator(final WARestClient waRestClient) {
+    protected final AuthModulePropertySourceMapper authModulePropertySourceMapper;
+
+    protected final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper;
+
+    public WAPropertySourceLocator(
+            final WARestClient waRestClient,
+            final AuthModulePropertySourceMapper authModulePropertySourceMapper,
+            final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper) {
+
         this.waRestClient = waRestClient;
+        this.authModulePropertySourceMapper = authModulePropertySourceMapper;
+        this.attrRepoPropertySourceMapper = attrRepoPropertySourceMapper;
     }
 
     protected Map<String, Object> index(final Map<String, Object> map, final Map<String, Integer> prefixes) {
@@ -82,16 +92,14 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
         syncopeClient.getService(AuthModuleService.class).list().forEach(authModuleTO -> {
             LOG.debug("Mapping auth module {} ", authModuleTO.getKey());
 
-            Map<String, Object> map = authModuleTO.getConf().map(
-                    new AuthModulePropertySourceMapper(syncopeClient.getAddress(), authModuleTO));
+            Map<String, Object> map = authModuleTO.getConf().map(authModuleTO, authModulePropertySourceMapper);
             properties.putAll(index(map, prefixes));
         });
 
         syncopeClient.getService(AttrRepoService.class).list().forEach(attrRepoTO -> {
             LOG.debug("Mapping attr repo {} ", attrRepoTO.getKey());
 
-            Map<String, Object> map = attrRepoTO.getConf().map(
-                    new AttrRepoPropertySourceMapper(syncopeClient.getAddress(), attrRepoTO));
+            Map<String, Object> map = attrRepoTO.getConf().map(attrRepoTO, attrRepoPropertySourceMapper);
             properties.putAll(index(map, prefixes));
         });
 

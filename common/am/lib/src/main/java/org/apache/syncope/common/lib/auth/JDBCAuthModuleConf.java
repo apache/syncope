@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.AbstractJDBCConf;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
 
 public class JDBCAuthModuleConf extends AbstractJDBCConf implements AuthModuleConf {
 
@@ -76,7 +77,7 @@ public class JDBCAuthModuleConf extends AbstractJDBCConf implements AuthModuleCo
     }
 
     @Override
-    public Map<String, Object> map(final Mapper mapper) {
-        return mapper.map(this);
+    public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
+        return mapper.map(authModule, this);
     }
 }

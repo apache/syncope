@@ -21,34 +21,35 @@ package org.apache.syncope.common.lib.auth;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.Map;
 import org.apache.syncope.common.lib.BaseBean;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 public interface AuthModuleConf extends BaseBean {
 
     interface Mapper {
 
-        Map<String, Object> map(StaticAuthModuleConf conf);
+        Map<String, Object> map(AuthModuleTO authModule, StaticAuthModuleConf conf);
 
-        Map<String, Object> map(LDAPAuthModuleConf conf);
+        Map<String, Object> map(AuthModuleTO authModule, LDAPAuthModuleConf conf);
 
-        Map<String, Object> map(JDBCAuthModuleConf conf);
+        Map<String, Object> map(AuthModuleTO authModule, JDBCAuthModuleConf conf);
 
-        Map<String, Object> map(JaasAuthModuleConf conf);
+        Map<String, Object> map(AuthModuleTO authModule, JaasAuthModuleConf conf);
 
-        Map<String, Object> map(OIDCAuthModuleConf conf);
+        Map<String, Object> map(AuthModuleTO authModule, OIDCAuthModuleConf conf);
 
-        Map<String, Object> map(SAML2IdPAuthModuleConf conf);
+        Map<String, Object> map(AuthModuleTO authModule, SAML2IdPAuthModuleConf conf);
 
-        Map<String, Object> map(SyncopeAuthModuleConf conf);
+        Map<String, Object> map(AuthModuleTO authModule, SyncopeAuthModuleConf conf);
 
-        Map<String, Object> map(GoogleMfaAuthModuleConf conf);
+        Map<String, Object> map(AuthModuleTO authModule, GoogleMfaAuthModuleConf conf);
 
-        Map<String, Object> map(DuoMfaAuthModuleConf conf);
+        Map<String, Object> map(AuthModuleTO authModule, DuoMfaAuthModuleConf conf);
 
-        Map<String, Object> map(U2FAuthModuleConf conf);
+        Map<String, Object> map(AuthModuleTO authModule, U2FAuthModuleConf conf);
 
-        Map<String, Object> map(SimpleMfaAuthModuleConf conf);
+        Map<String, Object> map(AuthModuleTO authModule, SimpleMfaAuthModuleConf conf);
     }
 
-    Map<String, Object> map(Mapper mapper);
+    Map<String, Object> map(AuthModuleTO authModule, Mapper mapper);
 }

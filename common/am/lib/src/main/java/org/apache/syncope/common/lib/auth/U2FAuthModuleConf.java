@@ -19,6 +19,7 @@
 package org.apache.syncope.common.lib.auth;
 
 import java.util.Map;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
 
 public class U2FAuthModuleConf implements MFAAuthModuleConf {
 
@@ -70,7 +71,7 @@ public class U2FAuthModuleConf implements MFAAuthModuleConf {
     }
 
     @Override
-    public Map<String, Object> map(final Mapper mapper) {
-        return mapper.map(this);
+    public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
+        return mapper.map(authModule, this);
     }
 }
