@@ -44,7 +44,7 @@ under the License.
                   body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"special":1,"specialChars":["@","!"],"digit":1,"lowercase":1,"uppercase":1,"wordsNotPermitted":["notpermitted1","notpermitted2"]}'/>
   <PasswordPolicyRule policy_id="55e5de0b-c79c-4e66-adda-251b6fb8579a" implementation_id="DefaultPasswordRuleConf3"/>
   <PropagationPolicy id="89d322db-9878-420c-b49c-67be13df9a12" name="sample propagation policy"
-                     maxAttempts="5" backOffStrategy="FIXED" backOffParams="10000"/>
+                     prefetch="1" maxAttempts="5" backOffStrategy="FIXED" backOffParams="10000"/>
 
   <!-- Authentication policies -->
   <AuthPolicy id="659b9906-4b6e-4bc0-aca0-6809dff346d4" name="MyDefaultAuthPolicyConf"

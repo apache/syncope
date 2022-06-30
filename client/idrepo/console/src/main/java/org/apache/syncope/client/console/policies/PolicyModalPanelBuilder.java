@@ -178,6 +178,12 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                     break;
 
                 case PROPAGATION:
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field",
+                            "prefetch",
+                            new PropertyModel<>(policyTO, "prefetch"),
+                            false));
+
                     fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
                             "field",
                             "maxAttempts",

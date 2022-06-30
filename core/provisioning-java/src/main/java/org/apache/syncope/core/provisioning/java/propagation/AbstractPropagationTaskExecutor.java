@@ -705,6 +705,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final List<PropagationActions> actions,
             final boolean latest) {
 
+        if (task.getResource().getPropagationPolicy() != null
+                && !task.getResource().getPropagationPolicy().isPrefetch()) {
+
+            LOG.debug("Skipping because of configured PropagationPolicy");
+            return null;
+        }
+
         String connObjectKeyValue = latest || task.getOldConnObjectKey() == null
                 ? task.getConnObjectKey()
                 : task.getOldConnObjectKey();
@@ -731,6 +738,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final OrgUnit orgUnit,
             final List<PropagationActions> actions,
             final boolean latest) {
+
+        if (task.getResource().getPropagationPolicy() != null
+                && !task.getResource().getPropagationPolicy().isPrefetch()) {
+
+            LOG.debug("Skipping because of configured PropagationPolicy");
+            return null;
+        }
 
         String connObjectKey = latest || task.getOldConnObjectKey() == null
                 ? task.getConnObjectKey()

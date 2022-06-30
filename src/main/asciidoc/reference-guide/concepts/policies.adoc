@@ -324,10 +324,12 @@ https://apereo.github.io/cas/6.5.x/authentication/Configuring-Authentication-Pol
 ==== Propagation
 
 Propagation policies are evaluated during the execution of <<tasks-propagation,propagation tasks>> and are meant to
-retry the configured operations in case of propagation failures.
+tweak the propagation process by setting the pre-fetch option or letting Syncope to retry the configured operations in
+case of failures.
 
 When defining a propagation policy, the following information must be provided:
 
+* pre-fetch - the default behavior to attempt to read upfront the object being propagated can be disabled
 * max number of attempts
 * back-off strategy
 ** `FIXED` - pauses for a fixed period of time before continuing

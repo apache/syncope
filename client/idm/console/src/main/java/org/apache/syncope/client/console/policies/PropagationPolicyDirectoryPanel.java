@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.policies;
 
 import java.util.List;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -46,6 +47,7 @@ public class PropagationPolicyDirectoryPanel extends PolicyDirectoryPanel<Propag
 
     @Override
     protected void addCustomColumnFields(final List<IColumn<PropagationPolicyTO, String>> columns) {
+        columns.add(new BooleanPropertyColumn<>(new StringResourceModel("prefetch", this), "prefetch", "prefetch"));
         columns.add(new PropertyColumn<>(new StringResourceModel("maxAttempts", this), "maxAttempts", "maxAttempts"));
     }
 }
