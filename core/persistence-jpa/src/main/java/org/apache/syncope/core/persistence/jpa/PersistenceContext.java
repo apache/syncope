@@ -45,6 +45,7 @@ import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
@@ -100,6 +101,7 @@ import org.apache.syncope.core.persistence.jpa.dao.JPADerSchemaDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPADynRealmDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAEntityCacheDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAExternalResourceDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAFIQLQueryDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAGroupDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAImplementationDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAMailTemplateDAO;
@@ -435,6 +437,12 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
+    public FIQLQueryDAO fiqlQueryDAO() {
+        return new JPAFIQLQueryDAO();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public DerSchemaDAO derSchemaDAO(final @Lazy ExternalResourceDAO resourceDAO) {
         return new JPADerSchemaDAO(resourceDAO);
     }
@@ -674,7 +682,8 @@ public class PersistenceContext {
             final AccessTokenDAO accessTokenDAO,
             final RealmDAO realmDAO,
             final @Lazy GroupDAO groupDAO,
-            final DelegationDAO delegationDAO) {
+            final DelegationDAO delegationDAO,
+            final FIQLQueryDAO fiqlQueryDAO) {
 
         return new JPAUserDAO(
                 anyUtilsFactory,
@@ -686,6 +695,7 @@ public class PersistenceContext {
                 realmDAO,
                 groupDAO,
                 delegationDAO,
+                fiqlQueryDAO,
                 securityProperties);
     }
 

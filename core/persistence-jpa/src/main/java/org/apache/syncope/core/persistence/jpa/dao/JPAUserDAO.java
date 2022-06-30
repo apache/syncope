@@ -41,15 +41,14 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -90,6 +89,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     protected final DelegationDAO delegationDAO;
 
+    protected final FIQLQueryDAO fiqlQueryDAO;
+
     protected final SecurityProperties securityProperties;
 
     public JPAUserDAO(
@@ -102,6 +103,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             final RealmDAO realmDAO,
             final GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
+            final FIQLQueryDAO fiqlQueryDAO,
             final SecurityProperties securityProperties) {
 
         super(anyUtilsFactory, plainSchemaDAO, derSchemaDAO, dynRealmDAO);
@@ -110,6 +112,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         this.realmDAO = realmDAO;
         this.groupDAO = groupDAO;
         this.delegationDAO = delegationDAO;
+        this.fiqlQueryDAO = fiqlQueryDAO;
         this.securityProperties = securityProperties;
     }
 
@@ -482,17 +485,12 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         groupDAO.removeDynMemberships(user);
         dynRealmDAO.removeDynMemberships(user.getKey());
 
-        Set<String> delegations = delegationDAO.findByDelegating(user).stream().
-                map(Delegation::getKey).collect(Collectors.toSet());
-        delegations.forEach(delegationDAO::delete);
-        delegations = delegationDAO.findByDelegated(user).stream().
-                map(Delegation::getKey).collect(Collectors.toSet());
-        delegations.forEach(delegationDAO::delete);
+        delegationDAO.findByDelegating(user).forEach(delegationDAO::delete);
+        delegationDAO.findByDelegated(user).forEach(delegationDAO::delete);
 
-        AccessToken accessToken = accessTokenDAO.findByOwner(user.getUsername());
-        if (accessToken != null) {
-            accessTokenDAO.delete(accessToken);
-        }
+        fiqlQueryDAO.findByOwner(user).forEach(fiqlQueryDAO::delete);
+
+        Optional.ofNullable(accessTokenDAO.findByOwner(user.getUsername())).ifPresent(accessTokenDAO::delete);
 
         entityManager().remove(user);
     }

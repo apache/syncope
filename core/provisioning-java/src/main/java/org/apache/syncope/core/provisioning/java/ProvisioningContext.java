@@ -97,6 +97,7 @@ import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.data.DelegationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.DynRealmDataBinder;
+import org.apache.syncope.core.provisioning.api.data.FIQLQueryDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ImplementationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.NotificationDataBinder;
@@ -137,6 +138,7 @@ import org.apache.syncope.core.provisioning.java.data.ClientAppDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.ConnInstanceDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.DelegationDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.DynRealmDataBinderImpl;
+import org.apache.syncope.core.provisioning.java.data.FIQLQueryDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.GroupDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.ImplementationDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.NotificationDataBinderImpl;
@@ -943,6 +945,16 @@ public class ProvisioningContext {
             final EntityFactory entityFactory) {
 
         return new DelegationDataBinderImpl(userDAO, roleDAO, entityFactory);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public FIQLQueryDataBinder fiqlQueryDataBinder(
+            final SearchCondVisitor searchCondVisitor,
+            final UserDAO userDAO,
+            final EntityFactory entityFactory) {
+
+        return new FIQLQueryDataBinderImpl(searchCondVisitor, userDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean

@@ -16,33 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.List;
-import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.Delegation;
-import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface DelegationDAO extends DAO<Delegation> {
+public interface FIQLQuery extends Entity {
 
-    Delegation find(String key);
+    String getName();
 
-    Optional<String> findValidFor(String delegating, String delegated);
+    void setName(String name);
 
-    List<String> findValidDelegating(String delegated);
+    User getOwner();
 
-    List<Delegation> findByDelegating(User user);
+    void setOwner(User owner);
 
-    List<Delegation> findByDelegated(User user);
+    String getFIQL();
 
-    List<Delegation> findByRole(Role role);
-
-    List<Delegation> findAll();
-
-    Delegation save(Delegation delegation);
-
-    void delete(Delegation delegation);
-
-    void delete(String key);
+    void setFIQL(String fiql);
 }

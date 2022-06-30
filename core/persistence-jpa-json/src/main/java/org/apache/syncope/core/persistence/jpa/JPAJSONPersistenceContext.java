@@ -25,6 +25,7 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
@@ -130,6 +131,7 @@ public abstract class JPAJSONPersistenceContext {
             final @Lazy RealmDAO realmDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy DelegationDAO delegationDAO,
+            final @Lazy FIQLQueryDAO fiqlQueryDAO,
             final @Lazy JPAJSONAnyDAO anyDAO) {
 
         return new JPAJSONUserDAO(
@@ -142,6 +144,7 @@ public abstract class JPAJSONPersistenceContext {
                 realmDAO,
                 groupDAO,
                 delegationDAO,
+                fiqlQueryDAO,
                 securityProperties,
                 anyDAO);
     }

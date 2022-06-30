@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
@@ -70,6 +71,7 @@ import org.apache.syncope.core.provisioning.api.data.ApplicationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.api.data.DelegationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.DynRealmDataBinder;
+import org.apache.syncope.core.provisioning.api.data.FIQLQueryDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ImplementationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.NotificationDataBinder;
@@ -229,6 +231,16 @@ public class IdRepoLogicContext {
                 entityFactory,
                 binder,
                 auditManager);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public FIQLQueryLogic fiqlQueryLogic(
+            final FIQLQueryDataBinder binder,
+            final UserDAO userDAO,
+            final FIQLQueryDAO fiqlQueryDAO) {
+
+        return new FIQLQueryLogic(binder, fiqlQueryDAO, userDAO);
     }
 
     @ConditionalOnMissingBean
