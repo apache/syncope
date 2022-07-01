@@ -21,20 +21,21 @@ package org.apache.syncope.common.lib.attr;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.Map;
 import org.apache.syncope.common.lib.BaseBean;
+import org.apache.syncope.common.lib.to.AttrRepoTO;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 public interface AttrRepoConf extends BaseBean {
 
     interface Mapper {
 
-        Map<String, Object> map(StubAttrRepoConf conf);
+        Map<String, Object> map(AttrRepoTO attrRepo, StubAttrRepoConf conf);
 
-        Map<String, Object> map(LDAPAttrRepoConf conf);
+        Map<String, Object> map(AttrRepoTO attrRepo, LDAPAttrRepoConf conf);
 
-        Map<String, Object> map(JDBCAttrRepoConf conf);
+        Map<String, Object> map(AttrRepoTO attrRepo, JDBCAttrRepoConf conf);
 
-        Map<String, Object> map(SyncopeAttrRepoConf conf);
+        Map<String, Object> map(AttrRepoTO attrRepo, SyncopeAttrRepoConf conf);
     }
 
-    Map<String, Object> map(Mapper mapper);
+    Map<String, Object> map(AttrRepoTO attrRepo, Mapper mapper);
 }

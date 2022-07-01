@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.auth;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
 
 public class OIDCAuthModuleConf implements AuthModuleConf {
 
@@ -168,7 +169,7 @@ public class OIDCAuthModuleConf implements AuthModuleConf {
     }
 
     @Override
-    public Map<String, Object> map(final Mapper mapper) {
-        return mapper.map(this);
+    public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
+        return mapper.map(authModule, this);
     }
 }

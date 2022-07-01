@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.attr;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.AttrRepoTO;
 
 public class SyncopeAttrRepoConf implements AttrRepoConf {
 
@@ -88,7 +89,7 @@ public class SyncopeAttrRepoConf implements AttrRepoConf {
     }
 
     @Override
-    public Map<String, Object> map(final Mapper mapper) {
-        return mapper.map(this);
+    public Map<String, Object> map(final AttrRepoTO attrRepo, final Mapper mapper) {
+        return mapper.map(attrRepo, this);
     }
 }

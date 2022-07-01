@@ -20,6 +20,7 @@ package org.apache.syncope.wa.bootstrap;
 
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
 import org.apache.syncope.common.lib.attr.JDBCAttrRepoConf;
 import org.apache.syncope.common.lib.attr.LDAPAttrRepoConf;
@@ -35,17 +36,14 @@ import org.apereo.cas.configuration.model.support.syncope.SyncopePrincipalAttrib
 
 public class AttrRepoPropertySourceMapper extends PropertySourceMapper implements AttrRepoConf.Mapper {
 
-    protected final String syncopeClientAddress;
+    protected final WARestClient waRestClient;
 
-    protected final AttrRepoTO attrRepoTO;
-
-    public AttrRepoPropertySourceMapper(final String syncopeClientAddress, final AttrRepoTO attrRepoTO) {
-        this.syncopeClientAddress = syncopeClientAddress;
-        this.attrRepoTO = attrRepoTO;
+    public AttrRepoPropertySourceMapper(final WARestClient waRestClient) {
+        this.waRestClient = waRestClient;
     }
 
     @Override
-    public Map<String, Object> map(final StubAttrRepoConf conf) {
+    public Map<String, Object> map(final AttrRepoTO attrRepoTO, final StubAttrRepoConf conf) {
         StubPrincipalAttributesProperties props = new StubPrincipalAttributesProperties();
         props.setId(attrRepoTO.getKey());
         props.setState(AttributeRepositoryStates.valueOf(attrRepoTO.getState().name()));
@@ -56,7 +54,7 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
     }
 
     @Override
-    public Map<String, Object> map(final LDAPAttrRepoConf conf) {
+    public Map<String, Object> map(final AttrRepoTO attrRepoTO, final LDAPAttrRepoConf conf) {
         LdapPrincipalAttributesProperties props = new LdapPrincipalAttributesProperties();
         props.setId(attrRepoTO.getKey());
         props.setState(AttributeRepositoryStates.valueOf(attrRepoTO.getState().name()));
@@ -70,7 +68,7 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
     }
 
     @Override
-    public Map<String, Object> map(final JDBCAttrRepoConf conf) {
+    public Map<String, Object> map(final AttrRepoTO attrRepoTO, final JDBCAttrRepoConf conf) {
         JdbcPrincipalAttributesProperties props = new JdbcPrincipalAttributesProperties();
         props.setId(attrRepoTO.getKey());
         props.setState(AttributeRepositoryStates.valueOf(attrRepoTO.getState().name()));
@@ -91,13 +89,19 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
     }
 
     @Override
-    public Map<String, Object> map(final SyncopeAttrRepoConf conf) {
+    public Map<String, Object> map(final AttrRepoTO attrRepoTO, final SyncopeAttrRepoConf conf) {
+        SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
+        if (syncopeClient == null) {
+            LOG.warn("Application context is not ready to bootstrap WA configuration");
+            return Map.of();
+        }
+
         SyncopePrincipalAttributesProperties props = new SyncopePrincipalAttributesProperties();
         props.setId(attrRepoTO.getKey());
         props.setState(AttributeRepositoryStates.valueOf(attrRepoTO.getState().name()));
         props.setOrder(attrRepoTO.getOrder());
         props.setDomain(conf.getDomain());
-        props.setUrl(StringUtils.substringBefore(syncopeClientAddress, "/rest"));
+        props.setUrl(StringUtils.substringBefore(syncopeClient.getAddress(), "/rest"));
         props.setSearchFilter(conf.getSearchFilter());
         props.setBasicAuthUsername(conf.getBasicAuthUsername());
         props.setBasicAuthPassword(conf.getBasicAuthPassword());

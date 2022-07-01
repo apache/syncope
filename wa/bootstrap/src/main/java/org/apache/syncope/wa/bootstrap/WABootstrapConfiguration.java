@@ -19,6 +19,7 @@
 package org.apache.syncope.wa.bootstrap;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.bootstrap.config.PropertySourceLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,9 +51,26 @@ public class WABootstrapConfiguration {
     @Configuration(proxyBeanMethods = false)
     public static class PropertySourceConfiguration {
 
+        @ConditionalOnMissingBean
         @Bean
-        public PropertySourceLocator configPropertySourceLocator(final WARestClient waRestClient) {
-            return new WAPropertySourceLocator(waRestClient);
+        public AuthModulePropertySourceMapper authModulePropertySourceMapper(final WARestClient waRestClient) {
+            return new AuthModulePropertySourceMapper(waRestClient);
+        }
+
+        @ConditionalOnMissingBean
+        @Bean
+        public AttrRepoPropertySourceMapper attrRepoPropertySourceMapper(final WARestClient waRestClient) {
+            return new AttrRepoPropertySourceMapper(waRestClient);
+        }
+
+        @Bean
+        public PropertySourceLocator configPropertySourceLocator(
+                final WARestClient waRestClient,
+                final AuthModulePropertySourceMapper authModulePropertySourceMapper,
+                final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper) {
+
+            return new WAPropertySourceLocator(
+                    waRestClient, authModulePropertySourceMapper, attrRepoPropertySourceMapper);
         }
     }
 }

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
 import org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
@@ -57,17 +58,14 @@ import org.apereo.cas.util.model.TriStateBoolean;
 
 public class AuthModulePropertySourceMapper extends PropertySourceMapper implements AuthModuleConf.Mapper {
 
-    protected final String syncopeClientAddress;
+    protected final WARestClient waRestClient;
 
-    protected final AuthModuleTO authModuleTO;
-
-    public AuthModulePropertySourceMapper(final String syncopeClientAddress, final AuthModuleTO attrRepoTO) {
-        this.syncopeClientAddress = syncopeClientAddress;
-        this.authModuleTO = attrRepoTO;
+    public AuthModulePropertySourceMapper(final WARestClient waRestClient) {
+        this.waRestClient = waRestClient;
     }
 
     @Override
-    public Map<String, Object> map(final StaticAuthModuleConf conf) {
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final StaticAuthModuleConf conf) {
         AcceptAuthenticationProperties props = new AcceptAuthenticationProperties();
         props.setName(authModuleTO.getKey());
         props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
@@ -81,7 +79,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     }
 
     @Override
-    public Map<String, Object> map(final LDAPAuthModuleConf conf) {
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final LDAPAuthModuleConf conf) {
         LdapAuthenticationProperties props = new LdapAuthenticationProperties();
         props.setName(authModuleTO.getKey());
         props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
@@ -97,7 +95,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     }
 
     @Override
-    public Map<String, Object> map(final JDBCAuthModuleConf conf) {
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final JDBCAuthModuleConf conf) {
         QueryJdbcAuthenticationProperties props = new QueryJdbcAuthenticationProperties();
         props.setName(authModuleTO.getKey());
         props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
@@ -113,7 +111,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     }
 
     @Override
-    public Map<String, Object> map(final JaasAuthModuleConf conf) {
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final JaasAuthModuleConf conf) {
         JaasAuthenticationProperties props = new JaasAuthenticationProperties();
         props.setName(authModuleTO.getKey());
         props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
@@ -128,7 +126,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     }
 
     @Override
-    public Map<String, Object> map(final OIDCAuthModuleConf conf) {
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final OIDCAuthModuleConf conf) {
         Pac4jGenericOidcClientProperties props = new Pac4jGenericOidcClientProperties();
         props.setId(conf.getId());
         props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
@@ -149,7 +147,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     }
 
     @Override
-    public Map<String, Object> map(final SAML2IdPAuthModuleConf conf) {
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final SAML2IdPAuthModuleConf conf) {
         Pac4jSamlClientProperties props = new Pac4jSamlClientProperties();
         props.setClientName(authModuleTO.getKey());
         props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
@@ -180,18 +178,24 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     }
 
     @Override
-    public Map<String, Object> map(final SyncopeAuthModuleConf conf) {
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final SyncopeAuthModuleConf conf) {
+        SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
+        if (syncopeClient == null) {
+            LOG.warn("Application context is not ready to bootstrap WA configuration");
+            return Map.of();
+        }
+
         SyncopeAuthenticationProperties props = new SyncopeAuthenticationProperties();
         props.setName(authModuleTO.getKey());
         props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
         props.setDomain(conf.getDomain());
-        props.setUrl(StringUtils.substringBefore(syncopeClientAddress, "/rest"));
+        props.setUrl(StringUtils.substringBefore(syncopeClient.getAddress(), "/rest"));
 
         return prefix("cas.authn.syncope.", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
-    public Map<String, Object> map(final GoogleMfaAuthModuleConf conf) {
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final GoogleMfaAuthModuleConf conf) {
         GoogleAuthenticatorMultifactorProperties props = new GoogleAuthenticatorMultifactorProperties();
         props.setName(authModuleTO.getKey());
         props.setOrder(authModuleTO.getOrder());
@@ -213,7 +217,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
 
     @SuppressWarnings("deprecation")
     @Override
-    public Map<String, Object> map(final DuoMfaAuthModuleConf conf) {
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final DuoMfaAuthModuleConf conf) {
         DuoSecurityMultifactorAuthenticationProperties props = new DuoSecurityMultifactorAuthenticationProperties();
         props.setName(authModuleTO.getKey());
         props.setOrder(authModuleTO.getOrder());
@@ -226,7 +230,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     }
 
     @Override
-    public Map<String, Object> map(final U2FAuthModuleConf conf) {
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final U2FAuthModuleConf conf) {
         U2FMultifactorAuthenticationProperties props = new U2FMultifactorAuthenticationProperties();
         props.setName(authModuleTO.getKey());
         props.setOrder(authModuleTO.getOrder());
@@ -239,7 +243,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     }
 
     @Override
-    public Map<String, Object> map(final SimpleMfaAuthModuleConf conf) {
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final SimpleMfaAuthModuleConf conf) {
         CasSimpleMultifactorAuthenticationProperties props = new CasSimpleMultifactorAuthenticationProperties();
         props.setName(authModuleTO.getKey());
         props.setOrder(authModuleTO.getOrder());

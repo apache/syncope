@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.auth;
 
 import java.util.Map;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
 
 public class SyncopeAuthModuleConf implements AuthModuleConf {
 
@@ -36,7 +37,7 @@ public class SyncopeAuthModuleConf implements AuthModuleConf {
     }
 
     @Override
-    public Map<String, Object> map(final Mapper mapper) {
-        return mapper.map(this);
+    public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
+        return mapper.map(authModule, this);
     }
 }

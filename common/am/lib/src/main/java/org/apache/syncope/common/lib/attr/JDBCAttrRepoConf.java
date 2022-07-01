@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.AbstractJDBCConf;
+import org.apache.syncope.common.lib.to.AttrRepoTO;
 
 public class JDBCAttrRepoConf extends AbstractJDBCConf implements AttrRepoConf {
 
@@ -151,7 +152,7 @@ public class JDBCAttrRepoConf extends AbstractJDBCConf implements AttrRepoConf {
     }
 
     @Override
-    public Map<String, Object> map(final Mapper mapper) {
-        return mapper.map(this);
+    public Map<String, Object> map(final AttrRepoTO attrRepo, final Mapper mapper) {
+        return mapper.map(attrRepo, this);
     }
 }

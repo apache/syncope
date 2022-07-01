@@ -1420,6 +1420,11 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-person-directory-core</artifactId>
+        <version>${cas.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-themes</artifactId>
         <version>${cas.version}</version>
       </dependency>

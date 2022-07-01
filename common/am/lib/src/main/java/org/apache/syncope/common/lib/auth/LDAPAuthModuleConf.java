@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.AbstractLDAPConf;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
 
 public class LDAPAuthModuleConf extends AbstractLDAPConf implements AuthModuleConf {
 
@@ -52,7 +53,7 @@ public class LDAPAuthModuleConf extends AbstractLDAPConf implements AuthModuleCo
     }
 
     @Override
-    public Map<String, Object> map(final Mapper mapper) {
-        return mapper.map(this);
+    public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
+        return mapper.map(authModule, this);
     }
 }
