@@ -77,7 +77,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ACCESS).stream().
-                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
@@ -88,7 +88,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ATTR_RELEASE).stream().
-                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
@@ -99,7 +99,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.AUTH).stream().
-                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };
 
@@ -189,6 +189,8 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     fields.add(clientId.setRequired(true));
                     name.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
+                        private static final long serialVersionUID = -6139318907146065915L;
+
                         @Override
                         protected void onUpdate(final AjaxRequestTarget target) {
                             if (StringUtils.isBlank(clientId.getModelObject())) {
@@ -206,7 +208,9 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     fields.add(new AjaxCheckBoxPanel(
                             "field", "signIdToken", new PropertyModel<>(clientAppTO, "signIdToken")));
                     fields.add(new AjaxCheckBoxPanel(
-                        "field", "jwtAccessToken", new PropertyModel<>(clientAppTO, "jwtAccessToken")));
+                            "field", "jwtAccessToken", new PropertyModel<>(clientAppTO, "jwtAccessToken")));
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field", "bypassApprovalPrompt", new PropertyModel<>(clientAppTO, "bypassApprovalPrompt")));
 
                     AjaxDropDownChoicePanel<OIDCSubjectType> subjectType = new AjaxDropDownChoicePanel<>(
                             "field", "subjectType", new PropertyModel<>(clientAppTO, "subjectType"), false);

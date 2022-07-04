@@ -96,6 +96,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
                     app.setClientAppId(clientAppId);
                     app.setClientId(clientId);
                     app.setClientSecret(clientSecret);
+                    app.setBypassApprovalPrompt(false);
 
                     Response response = CLIENT_APP_SERVICE.create(ClientAppType.OIDCRP, app);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {

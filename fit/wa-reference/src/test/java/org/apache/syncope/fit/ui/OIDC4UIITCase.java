@@ -66,6 +66,7 @@ public class OIDC4UIITCase extends AbstractUIITCase {
                     app.setClientAppId(appId);
                     app.setClientId(appName);
                     app.setClientSecret(appName);
+                    app.setBypassApprovalPrompt(false);
 
                     Response response = CLIENT_APP_SERVICE.create(ClientAppType.OIDCRP, app);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
