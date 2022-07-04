@@ -140,7 +140,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
                 clientAppTO.getEncryptionBlackListedAlgorithms());
     }
 
-    protected static void copyToTO(final ClientApp clientApp, final ClientAppTO clientAppTO) {
+    protected void copyToTO(final ClientApp clientApp, final ClientAppTO clientAppTO) {
         clientAppTO.setName(clientApp.getName());
         clientAppTO.setKey(clientApp.getKey());
         clientAppTO.setDescription(clientApp.getDescription());
@@ -160,7 +160,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.getProperties().addAll(clientApp.getProperties());
     }
 
-    protected static SAML2SPClientAppTO getSAMLClientAppTO(final SAML2SPClientApp clientApp) {
+    protected SAML2SPClientAppTO getSAMLClientAppTO(final SAML2SPClientApp clientApp) {
         SAML2SPClientAppTO clientAppTO = new SAML2SPClientAppTO();
         copyToTO(clientApp, clientAppTO);
 
@@ -208,6 +208,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setClientId(clientAppTO.getClientId());
         clientApp.setSignIdToken(clientAppTO.isSignIdToken());
         clientApp.setJwtAccessToken(clientAppTO.isJwtAccessToken());
+        clientApp.setBypassApprovalPrompt(clientAppTO.isBypassApprovalPrompt());
         clientApp.setSubjectType(clientAppTO.getSubjectType());
         clientApp.getRedirectUris().clear();
         clientApp.getRedirectUris().addAll(clientAppTO.getRedirectUris());
@@ -215,11 +216,10 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.getSupportedGrantTypes().addAll(clientAppTO.getSupportedGrantTypes());
         clientApp.getSupportedResponseTypes().clear();
         clientApp.getSupportedResponseTypes().addAll(clientAppTO.getSupportedResponseTypes());
-
         clientApp.setLogoutUri(clientAppTO.getLogoutUri());
     }
 
-    protected static OIDCRPClientAppTO getOIDCClientAppTO(final OIDCRPClientApp clientApp) {
+    protected OIDCRPClientAppTO getOIDCClientAppTO(final OIDCRPClientApp clientApp) {
         OIDCRPClientAppTO clientAppTO = new OIDCRPClientAppTO();
         copyToTO(clientApp, clientAppTO);
 
@@ -232,6 +232,8 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.getSupportedResponseTypes().addAll(clientApp.getSupportedResponseTypes());
         clientAppTO.setLogoutUri(clientApp.getLogoutUri());
         clientAppTO.setJwtAccessToken(clientApp.isJwtAccessToken());
+        clientAppTO.setBypassApprovalPrompt(clientApp.isBypassApprovalPrompt());
+
         return clientAppTO;
     }
 
@@ -241,7 +243,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setServiceId(clientAppTO.getServiceId());
     }
 
-    protected static CASSPClientAppTO getCASClientAppTO(final CASSPClientApp clientApp) {
+    protected CASSPClientAppTO getCASClientAppTO(final CASSPClientApp clientApp) {
         CASSPClientAppTO clientAppTO = new CASSPClientAppTO();
         copyToTO(clientApp, clientAppTO);
         clientAppTO.setServiceId(clientApp.getServiceId());

@@ -47,6 +47,10 @@ public interface OIDCRPClientApp extends ClientApp {
 
     void setJwtAccessToken(boolean jwtAccessToken);
 
+    boolean isBypassApprovalPrompt();
+
+    void setBypassApprovalPrompt(boolean bypassApprovalPrompt);
+
     OIDCSubjectType getSubjectType();
 
     void setSubjectType(OIDCSubjectType subjectType);

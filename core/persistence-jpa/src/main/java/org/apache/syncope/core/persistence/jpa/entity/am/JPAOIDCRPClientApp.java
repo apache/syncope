@@ -51,6 +51,8 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     private boolean jwtAccessToken;
 
+    private boolean bypassApprovalPrompt = true;
+
     @Enumerated(EnumType.STRING)
     private OIDCSubjectType subjectType;
 
@@ -122,6 +124,16 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Override
     public void setJwtAccessToken(final boolean jwtAccessToken) {
         this.jwtAccessToken = jwtAccessToken;
+    }
+
+    @Override
+    public boolean isBypassApprovalPrompt() {
+        return bypassApprovalPrompt;
+    }
+
+    @Override
+    public void setBypassApprovalPrompt(final boolean bypassApprovalPrompt) {
+        this.bypassApprovalPrompt = bypassApprovalPrompt;
     }
 
     @Override

@@ -53,6 +53,8 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private String logoutUri;
 
+    private boolean bypassApprovalPrompt = true;
+
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.client.OIDCRPTO")
@@ -127,6 +129,14 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.jwtAccessToken = jwtAccessToken;
     }
 
+    public boolean isBypassApprovalPrompt() {
+        return bypassApprovalPrompt;
+    }
+
+    public void setBypassApprovalPrompt(final boolean bypassApprovalPrompt) {
+        this.bypassApprovalPrompt = bypassApprovalPrompt;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (obj == null) {
@@ -150,6 +160,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(this.supportedResponseTypes, rhs.supportedResponseTypes)
                 .append(this.logoutUri, rhs.logoutUri)
                 .append(this.jwtAccessToken, rhs.jwtAccessToken)
+                .append(this.bypassApprovalPrompt, rhs.bypassApprovalPrompt)
                 .isEquals();
     }
 
@@ -166,6 +177,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(supportedResponseTypes)
                 .append(logoutUri)
                 .append(jwtAccessToken)
+                .append(bypassApprovalPrompt)
                 .toHashCode();
     }
 }
