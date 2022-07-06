@@ -21,12 +21,14 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.core.persistence.api.dao.SAML2SPDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2SPClientApp;
 import org.springframework.transaction.annotation.Transactional;
 
-public class JPASAML2SPDAO extends AbstractDAO<SAML2SPClientApp> implements SAML2SPDAO {
+public class JPASAML2SPClientAppDAO extends AbstractClientAppDAO<SAML2SPClientApp> implements SAML2SPClientAppDAO {
 
     @Override
     public SAML2SPClientApp find(final String key) {
@@ -62,6 +64,16 @@ public class JPASAML2SPDAO extends AbstractDAO<SAML2SPClientApp> implements SAML
     @Override
     public SAML2SPClientApp findByEntityId(final String entityId) {
         return find("entityId", entityId);
+    }
+
+    @Override
+    public List<SAML2SPClientApp> findByPolicy(final Policy policy) {
+        return findByPolicy(policy, SAML2SPClientApp.class, JPASAML2SPClientApp.class);
+    }
+
+    @Override
+    public List<SAML2SPClientApp> findByRealm(final Realm realm) {
+        return findByRealm(realm, SAML2SPClientApp.class, JPASAML2SPClientApp.class);
     }
 
     @Transactional(readOnly = true)

@@ -19,25 +19,21 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
 
-public interface SAML2SPDAO extends DAO<SAML2SPClientApp> {
+public interface CASSPClientAppDAO extends ClientAppDAO<CASSPClientApp> {
 
-    SAML2SPClientApp find(String key);
+    CASSPClientApp find(String key);
 
-    SAML2SPClientApp findByClientAppId(Long clientAppId);
+    CASSPClientApp findByClientAppId(Long clientAppId);
 
-    SAML2SPClientApp findByName(String name);
+    CASSPClientApp findByName(String name);
 
-    SAML2SPClientApp findByEntityId(String clientId);
+    List<CASSPClientApp> findAll();
 
-    List<SAML2SPClientApp> findAll();
-
-    SAML2SPClientApp save(SAML2SPClientApp clientApp);
+    CASSPClientApp save(CASSPClientApp clientApp);
 
     void delete(String key);
 
-    void deleteByEntityId(String entityId);
-
-    void delete(SAML2SPClientApp clientApp);
+    void delete(CASSPClientApp clientApp);
 }

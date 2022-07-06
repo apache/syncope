@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.Attr;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class", "key", "description" })
-@Schema(subTypes = { OIDCRPClientAppTO.class, SAML2SPClientAppTO.class, CASSPClientAppTO.class }, 
+@Schema(subTypes = { OIDCRPClientAppTO.class, SAML2SPClientAppTO.class, CASSPClientAppTO.class },
         discriminatorProperty = "_class")
 public abstract class ClientAppTO implements NamedEntityTO {
 
@@ -44,6 +44,8 @@ public abstract class ClientAppTO implements NamedEntityTO {
     private String discriminator;
 
     private String key;
+
+    private String realm;
 
     private String name;
 
@@ -111,6 +113,14 @@ public abstract class ClientAppTO implements NamedEntityTO {
         this.key = key;
     }
 
+    public String getRealm() {
+        return realm;
+    }
+
+    public void setRealm(final String realm) {
+        this.realm = realm;
+    }
+
     @Override
     public String getName() {
         return name;
@@ -148,6 +158,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
         return new HashCodeBuilder()
                 .appendSuper(super.hashCode())
                 .append(key)
+                .append(realm)
                 .append(clientAppId)
                 .append(name)
                 .append(description)
@@ -174,6 +185,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
         return new EqualsBuilder()
                 .appendSuper(super.equals(obj))
                 .append(this.key, rhs.key)
+                .append(this.realm, rhs.realm)
                 .append(this.clientAppId, rhs.clientAppId)
                 .append(this.name, rhs.name)
                 .append(this.description, rhs.description)

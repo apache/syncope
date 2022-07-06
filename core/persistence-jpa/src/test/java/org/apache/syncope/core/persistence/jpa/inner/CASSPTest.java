@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.UUID;
-import org.apache.syncope.core.persistence.api.dao.CASSPDAO;
+import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
 import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
@@ -35,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CASSPTest extends AbstractClientAppTest {
 
     @Autowired
-    private CASSPDAO casspDAO;
+    private CASSPClientAppDAO casspDAO;
 
     @Test
     public void find() {

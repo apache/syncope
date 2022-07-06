@@ -54,7 +54,7 @@ public class ConnectorDetailsPanel extends WizardStep {
 
         boolean isSearchEnabled = RealmsUtils.isSearchEnabled();
 
-        final AutoCompleteSettings settings = new AutoCompleteSettings();
+        AutoCompleteSettings settings = new AutoCompleteSettings();
         settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
         settings.setShowListOnEmptyInput(!isSearchEnabled);
 
@@ -73,10 +73,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                         map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
             }
         };
-
-        realm.setOutputMarkupId(true);
-        realm.addRequiredLabel();
-        add(realm);
+        add(realm.addRequiredLabel().setOutputMarkupId(true));
 
         AjaxTextFieldPanel displayName = new AjaxTextFieldPanel(
                 "displayName", "displayName", new PropertyModel<>(connInstanceTO, "displayName"), false);

@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 
-public interface OIDCRPDAO extends DAO<OIDCRPClientApp> {
+public interface OIDCRPClientAppDAO extends ClientAppDAO<OIDCRPClientApp> {
 
     OIDCRPClientApp find(String key);
 

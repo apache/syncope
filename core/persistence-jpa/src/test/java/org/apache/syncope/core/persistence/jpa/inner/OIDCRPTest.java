@@ -26,7 +26,7 @@ import java.util.UUID;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
-import org.apache.syncope.core.persistence.api.dao.OIDCRPDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
@@ -38,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OIDCRPTest extends AbstractClientAppTest {
 
     @Autowired
-    private OIDCRPDAO oidcrpDAO;
+    private OIDCRPClientAppDAO oidcrpDAO;
 
     @Test
     public void find() {

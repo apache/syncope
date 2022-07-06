@@ -56,26 +56,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implements ExternalResourceDAO {
 
-    protected static StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
-        StringBuilder query = new StringBuilder("SELECT e FROM ").
-                append(JPAExternalResource.class.getSimpleName()).
-                append(" e WHERE e.");
-
-        if (AccountPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("accountPolicy");
-        } else if (PasswordPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("passwordPolicy");
-        } else if (PropagationPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("propagationPolicy");
-        } else if (PullPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("pullPolicy");
-        } else if (PushPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("pushPolicy");
-        }
-
-        return query;
-    }
-
     protected final TaskDAO taskDAO;
 
     protected final AnyObjectDAO anyObjectDAO;
@@ -170,6 +150,26 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         query.setParameter("propagationActions", propagationActions);
 
         return query.getResultList();
+    }
+
+    protected StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
+        StringBuilder query = new StringBuilder("SELECT e FROM ").
+                append(JPAExternalResource.class.getSimpleName()).
+                append(" e WHERE e.");
+
+        if (AccountPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("accountPolicy");
+        } else if (PasswordPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("passwordPolicy");
+        } else if (PropagationPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("propagationPolicy");
+        } else if (PullPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("pullPolicy");
+        } else if (PushPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("pushPolicy");
+        }
+
+        return query;
     }
 
     @Override

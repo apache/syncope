@@ -38,7 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
-import org.apache.syncope.core.persistence.api.dao.CASSPDAO;
+import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -50,7 +50,7 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
-import org.apache.syncope.core.persistence.api.dao.OIDCRPDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -63,7 +63,7 @@ import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPEntityDAO;
-import org.apache.syncope.core.persistence.api.dao.SAML2SPDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2SPEntityDAO;
 import org.apache.syncope.core.persistence.api.dao.SRARouteDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
@@ -93,7 +93,7 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAAuditConfDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAuthModuleDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAuthProfileDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPABatchDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPACASSPDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPACASSPClientAppDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAConnInstanceDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPADelegationDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPADerSchemaDAO;
@@ -105,7 +105,7 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAImplementationDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAMailTemplateDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPANotificationDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCJWKSDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCRPDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainSchemaDAO;
@@ -118,7 +118,7 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAReportExecDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAReportTemplateDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPARoleDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPASAML2IdPEntityDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPASAML2SPDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPASAML2SPClientAppDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPASAML2SPEntityDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPASRARouteDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPASecurityQuestionDAO;
@@ -417,8 +417,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public CASSPDAO casSPDAO() {
-        return new JPACASSPDAO();
+    public CASSPClientAppDAO casSPClientAppDAO() {
+        return new JPACASSPClientAppDAO();
     }
 
     @ConditionalOnMissingBean
@@ -515,8 +515,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public OIDCRPDAO oidcRPDAO() {
-        return new JPAOIDCRPDAO();
+    public OIDCRPClientAppDAO oidcRPClientAppDAO() {
+        return new JPAOIDCRPClientAppDAO();
     }
 
     @ConditionalOnMissingBean
@@ -545,15 +545,23 @@ public class PersistenceContext {
     @Bean
     public PolicyDAO policyDAO(
             final @Lazy RealmDAO realmDAO,
-            final @Lazy ExternalResourceDAO resourceDAO) {
+            final @Lazy ExternalResourceDAO resourceDAO,
+            final @Lazy CASSPClientAppDAO casSPClientAppDAO,
+            final @Lazy OIDCRPClientAppDAO oidcRPClientAppDAO,
+            final @Lazy SAML2SPClientAppDAO saml2SPClientAppDAO) {
 
-        return new JPAPolicyDAO(realmDAO, resourceDAO);
+        return new JPAPolicyDAO(realmDAO, resourceDAO, casSPClientAppDAO, oidcRPClientAppDAO, saml2SPClientAppDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public RealmDAO realmDAO(final @Lazy RoleDAO roleDAO) {
-        return new JPARealmDAO(roleDAO);
+    public RealmDAO realmDAO(
+            final @Lazy RoleDAO roleDAO,
+            final @Lazy CASSPClientAppDAO casSPClientAppDAO,
+            final @Lazy OIDCRPClientAppDAO oidcRPClientAppDAO,
+            final SAML2SPClientAppDAO saml2SPClientAppDAO) {
+
+        return new JPARealmDAO(roleDAO, casSPClientAppDAO, oidcRPClientAppDAO, saml2SPClientAppDAO);
     }
 
     @ConditionalOnMissingBean
@@ -614,8 +622,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SAML2SPDAO saml2SPDAO() {
-        return new JPASAML2SPDAO();
+    public SAML2SPClientAppDAO saml2SPClientAppDAO() {
+        return new JPASAML2SPClientAppDAO();
     }
 
     @ConditionalOnMissingBean

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Optional;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.CASSPClientAppTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
@@ -25,7 +26,9 @@ import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
@@ -40,10 +43,17 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
     protected final PolicyDAO policyDAO;
 
+    protected final RealmDAO realmDAO;
+
     protected final EntityFactory entityFactory;
 
-    public ClientAppDataBinderImpl(final PolicyDAO policyDAO, final EntityFactory entityFactory) {
+    public ClientAppDataBinderImpl(
+            final PolicyDAO policyDAO,
+            final RealmDAO realmDAO,
+            final EntityFactory entityFactory) {
+
         this.policyDAO = policyDAO;
+        this.realmDAO = realmDAO;
         this.entityFactory = entityFactory;
     }
 
@@ -141,21 +151,19 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     }
 
     protected void copyToTO(final ClientApp clientApp, final ClientAppTO clientAppTO) {
-        clientAppTO.setName(clientApp.getName());
         clientAppTO.setKey(clientApp.getKey());
+        clientAppTO.setRealm(Optional.ofNullable(clientApp.getRealm()).map(Realm::getFullPath).orElse(null));
+        clientAppTO.setName(clientApp.getName());
         clientAppTO.setDescription(clientApp.getDescription());
         clientAppTO.setClientAppId(clientApp.getClientAppId());
         clientAppTO.setTheme(clientApp.getTheme());
 
-        if (clientApp.getAuthPolicy() != null) {
-            clientAppTO.setAuthPolicy(clientApp.getAuthPolicy().getKey());
-        }
-        if (clientApp.getAccessPolicy() != null) {
-            clientAppTO.setAccessPolicy(clientApp.getAccessPolicy().getKey());
-        }
-        if (clientApp.getAttrReleasePolicy() != null) {
-            clientAppTO.setAttrReleasePolicy(clientApp.getAttrReleasePolicy().getKey());
-        }
+        clientAppTO.setAuthPolicy(
+                Optional.ofNullable(clientApp.getAuthPolicy()).map(AuthPolicy::getKey).orElse(null));
+        clientAppTO.setAccessPolicy(
+                Optional.ofNullable(clientApp.getAccessPolicy()).map(AccessPolicy::getKey).orElse(null));
+        clientAppTO.setAttrReleasePolicy(
+                Optional.ofNullable(clientApp.getAttrReleasePolicy()).map(AttrReleasePolicy::getKey).orElse(null));
 
         clientAppTO.getProperties().addAll(clientApp.getProperties());
     }
@@ -251,6 +259,12 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     }
 
     protected void copyToEntity(final ClientApp clientApp, final ClientAppTO clientAppTO) {
+        if (clientAppTO.getRealm() == null) {
+            clientApp.setRealm(null);
+        } else {
+            clientApp.setRealm((realmDAO.findByFullPath(clientAppTO.getRealm())));
+        }
+
         clientApp.setName(clientAppTO.getName());
         clientApp.setClientAppId(clientAppTO.getClientAppId());
         clientApp.setDescription(clientAppTO.getDescription());

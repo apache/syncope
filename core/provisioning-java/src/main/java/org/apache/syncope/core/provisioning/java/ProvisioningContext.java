@@ -918,9 +918,10 @@ public class ProvisioningContext {
     @Bean
     public ClientAppDataBinder clientAppDataBinder(
             final PolicyDAO policyDAO,
+            final RealmDAO realmDAO,
             final EntityFactory entityFactory) {
 
-        return new ClientAppDataBinderImpl(policyDAO, entityFactory);
+        return new ClientAppDataBinderImpl(policyDAO, realmDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean

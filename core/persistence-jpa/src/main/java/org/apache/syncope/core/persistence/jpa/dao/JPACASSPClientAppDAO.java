@@ -21,12 +21,14 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.core.persistence.api.dao.CASSPDAO;
+import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
+import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPACASSPClientApp;
 import org.springframework.transaction.annotation.Transactional;
 
-public class JPACASSPDAO extends AbstractDAO<CASSPClientApp> implements CASSPDAO {
+public class JPACASSPClientAppDAO extends AbstractClientAppDAO<CASSPClientApp> implements CASSPClientAppDAO {
 
     @Override
     public CASSPClientApp find(final String key) {
@@ -57,6 +59,16 @@ public class JPACASSPDAO extends AbstractDAO<CASSPClientApp> implements CASSPDAO
     @Override
     public CASSPClientApp findByName(final String name) {
         return find("name", name);
+    }
+
+    @Override
+    public List<CASSPClientApp> findByPolicy(final Policy policy) {
+        return findByPolicy(policy, CASSPClientApp.class, JPACASSPClientApp.class);
+    }
+
+    @Override
+    public List<CASSPClientApp> findByRealm(final Realm realm) {
+        return findByRealm(realm, CASSPClientApp.class, JPACASSPClientApp.class);
     }
 
     @Transactional(readOnly = true)

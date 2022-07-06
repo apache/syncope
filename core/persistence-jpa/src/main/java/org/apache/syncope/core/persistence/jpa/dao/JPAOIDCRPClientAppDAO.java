@@ -21,12 +21,14 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.core.persistence.api.dao.OIDCRPDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
+import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAOIDCRPClientApp;
 import org.springframework.transaction.annotation.Transactional;
 
-public class JPAOIDCRPDAO extends AbstractDAO<OIDCRPClientApp> implements OIDCRPDAO {
+public class JPAOIDCRPClientAppDAO extends AbstractClientAppDAO<OIDCRPClientApp> implements OIDCRPClientAppDAO {
 
     @Override
     public OIDCRPClientApp find(final String key) {
@@ -62,6 +64,16 @@ public class JPAOIDCRPDAO extends AbstractDAO<OIDCRPClientApp> implements OIDCRP
     @Override
     public OIDCRPClientApp findByClientId(final String clientId) {
         return find("clientId", clientId);
+    }
+
+    @Override
+    public List<OIDCRPClientApp> findByPolicy(final Policy policy) {
+        return findByPolicy(policy, OIDCRPClientApp.class, JPAOIDCRPClientApp.class);
+    }
+
+    @Override
+    public List<OIDCRPClientApp> findByRealm(final Realm realm) {
+        return findByRealm(realm, OIDCRPClientApp.class, JPAOIDCRPClientApp.class);
     }
 
     @Transactional(readOnly = true)

@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.clientapps;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,10 +28,13 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.ClientAppRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
+import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -44,8 +48,10 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
@@ -56,6 +62,7 @@ import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.markup.html.form.AbstractSingleSelectChoice;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -122,7 +129,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
     private class Profile extends AbstractModalPanel<T> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 7647959917047450318L;
 
         private final T clientAppTO;
 
@@ -133,6 +140,27 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
             this.clientAppTO = clientAppTO;
 
             List<Component> fields = new ArrayList<>();
+
+            boolean isSearchEnabled = RealmsUtils.isSearchEnabled();
+            AutoCompleteSettings settings = new AutoCompleteSettings();
+            settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
+            settings.setShowListOnEmptyInput(!isSearchEnabled);
+            AjaxSearchFieldPanel realm = new AjaxSearchFieldPanel(
+                    "field", "realm", new PropertyModel<>(clientAppTO, "realm"), settings) {
+
+                private static final long serialVersionUID = -6390474600233486704L;
+
+                @Override
+                protected Iterator<String> getChoices(final String input) {
+                    return (isSearchEnabled
+                            ? RealmRestClient.search(RealmsUtils.buildQuery(input)).getResult()
+                            : RealmRestClient.list(SyncopeConstants.ROOT_REALM)).
+                            stream().filter(realm -> SyncopeConsoleSession.get().getAuthRealms().stream().
+                            anyMatch(authRealm -> realm.getFullPath().startsWith(authRealm))).
+                            map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
+                }
+            };
+            fields.add(realm.setOutputMarkupId(true));
 
             AjaxTextFieldPanel name = new AjaxTextFieldPanel(
                     "field", Constants.NAME_FIELD_NAME,
