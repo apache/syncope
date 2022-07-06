@@ -181,8 +181,7 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
 
             this.authModuleConfClass = authModuleConfClass;
 
-            PropertyModel<GoogleMfaAuthModuleConf.LDAP> beanPanelModel =
-                    new PropertyModel<>(authModule.getConf(), "ldap");
+            PropertyModel<GoogleMfaAuthModuleConf.LDAP> beanPanelModel = new PropertyModel<>(authModule, "conf.ldap");
 
             AjaxCheckBoxPanel enable = new AjaxCheckBoxPanel("enable", "enableLDAP", new IModel<Boolean>() {
 

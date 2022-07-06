@@ -104,10 +104,14 @@ import org.springframework.context.annotation.ScopedProxyMode;
 @Configuration(proxyBeanMethods = false)
 public class WAContext {
 
+    public static final String CUSTOM_GOOGLE_AUTHENTICATOR_ACCOUNT_REGISTRY =
+            "customGoogleAuthenticatorAccountRegistry";
+
     private static String version(final ConfigurableApplicationContext ctx) {
         return ctx.getEnvironment().getProperty("version");
     }
 
+    @ConditionalOnMissingBean
     @Bean
     public OpenAPI casSwaggerOpenApi(final ConfigurableApplicationContext ctx) {
         return new OpenAPI().
@@ -244,7 +248,7 @@ public class WAContext {
         return plan -> plan.registerAuditTrailManager(new WAAuditTrailManager(restClient));
     }
 
-    @ConditionalOnMissingBean(name = "syncopeWaEventRepositoryFilter")
+    @ConditionalOnMissingBean(name = "syncopeWAEventRepositoryFilter")
     @Bean
     public CasEventRepositoryFilter syncopeWAEventRepositoryFilter() {
         return CasEventRepositoryFilter.noOp();
@@ -273,6 +277,7 @@ public class WAContext {
                 restClient, casProperties.getAuthn().getMfa().getGauth().getCore().getTimeStepSize());
     }
 
+    @ConditionalOnMissingBean(name = CUSTOM_GOOGLE_AUTHENTICATOR_ACCOUNT_REGISTRY)
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
     @Bean
     public OneTimeTokenCredentialRepository googleAuthenticatorAccountRegistry(
