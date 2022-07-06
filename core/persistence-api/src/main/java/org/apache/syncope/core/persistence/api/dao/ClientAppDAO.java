@@ -23,7 +23,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 
-public interface ClientAppDAO<C extends ClientApp> {
+public interface ClientAppDAO<C extends ClientApp> extends DAO<C> {
 
     List<C> findByPolicy(Policy policy);
 

@@ -559,7 +559,7 @@ public class PersistenceContext {
             final @Lazy RoleDAO roleDAO,
             final @Lazy CASSPClientAppDAO casSPClientAppDAO,
             final @Lazy OIDCRPClientAppDAO oidcRPClientAppDAO,
-            final SAML2SPClientAppDAO saml2SPClientAppDAO) {
+            final @Lazy SAML2SPClientAppDAO saml2SPClientAppDAO) {
 
         return new JPARealmDAO(roleDAO, casSPClientAppDAO, oidcRPClientAppDAO, saml2SPClientAppDAO);
     }

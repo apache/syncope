@@ -68,7 +68,7 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "assertionAudience")
-    @CollectionTable(name = "SAML2SPClientApp_AssertionAudiences",
+    @CollectionTable(name = "SAML2SPClientApp_AssAud",
             joinColumns =
             @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
     private Set<String> assertionAudiences = new HashSet<>();
@@ -77,43 +77,43 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
     private String serviceProviderNameIdQualifier;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "signingSignatureAlgorithm")
-    @CollectionTable(name = "SAML2SPClientApp_SigningSignatureAlgs",
+    @Column(name = "sigAlg")
+    @CollectionTable(name = "SAML2SPClientApp_SigAlgs",
             joinColumns =
             @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
     private List<XmlSecAlgorithm> signingSignatureAlgorithms = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "signingSignatureReferenceDigestMethod")
-    @CollectionTable(name = "SAML2SPClientApp_SigningSignatureRefDigestAlgs",
+    @Column(name = "sigRefDigestMethod")
+    @CollectionTable(name = "SAML2SPClientApp_SigRefDigAlgs",
             joinColumns =
             @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
     private List<XmlSecAlgorithm> signingSignatureReferenceDigestMethods = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "encryptionDataAlgorithm")
-    @CollectionTable(name = "SAML2SPClientApp_EncryptionDataAlgs",
+    @Column(name = "encDataAlg")
+    @CollectionTable(name = "SAML2SPClientApp_EncDataAlgs",
             joinColumns =
             @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
     private List<XmlSecAlgorithm> encryptionDataAlgorithms = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "encryptionKeyAlgorithm")
-    @CollectionTable(name = "SAML2SPClientApp_EncryptionKeyAlgs",
+    @Column(name = "encKeyAlg")
+    @CollectionTable(name = "SAML2SPClientApp_EncKeyAlgs",
             joinColumns =
             @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
     private List<XmlSecAlgorithm> encryptionKeyAlgorithms = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "signingSignatureBlackListedAlgorithm")
-    @CollectionTable(name = "SAML2SPClientApp_BlacklistedSigningAlgs",
+    @Column(name = "sigBlAlg")
+    @CollectionTable(name = "SAML2SPClientApp_BlSigAlgs",
             joinColumns =
             @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
     private List<XmlSecAlgorithm> signingSignatureBlackListedAlgorithms = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "encryptionBlackListedAlgorithm")
-    @CollectionTable(name = "SAML2SPClientApp_BlacklistedEncryptionAlgs",
+    @Column(name = "encBlAlg")
+    @CollectionTable(name = "SAML2SPClientApp_BlEncAlgs",
             joinColumns =
             @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
     private List<XmlSecAlgorithm> encryptionBlackListedAlgorithms = new ArrayList<>();

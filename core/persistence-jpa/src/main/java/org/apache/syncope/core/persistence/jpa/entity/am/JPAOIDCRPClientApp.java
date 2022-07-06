@@ -66,7 +66,7 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @Column(name = "supportedGrantType")
-    @CollectionTable(name = "OIDCRPClientApp_SupportedGrantTypes",
+    @CollectionTable(name = "OIDCRPClientApp_SuppGrantTypes",
             joinColumns =
             @JoinColumn(name = "client_id", referencedColumnName = "id"))
     private Set<OIDCGrantType> supportedGrantTypes = new HashSet<>();
@@ -74,7 +74,7 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @Column(name = "supportedResponseType")
-    @CollectionTable(name = "OIDCRPClientApp_SupportedResponseTypes",
+    @CollectionTable(name = "OIDCRPClientApp_SuppResTypes",
             joinColumns =
             @JoinColumn(name = "client_id", referencedColumnName = "id"))
     private Set<OIDCResponseType> supportedResponseTypes = new HashSet<>();
