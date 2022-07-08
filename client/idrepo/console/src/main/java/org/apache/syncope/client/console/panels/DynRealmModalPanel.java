@@ -89,33 +89,33 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
             protected void populateItem(final ListItem<AnyTypeTO> item) {
                 final String key = item.getModelObject().getKey();
                 item.add(new Accordion("dynMembershipCond", List.of(
-                    new AbstractTab(Model.of(key + " Dynamic Condition")) {
+                        new AbstractTab(Model.of(key + " Dynamic Condition")) {
 
-                        private static final long serialVersionUID = 1037272333056449378L;
+                    private static final long serialVersionUID = 1037272333056449378L;
 
-                        @Override
-                        public Panel getPanel(final String panelId) {
-                            switch (item.getModelObject().getKind()) {
-                                case USER:
-                                    return new UserSearchPanel.Builder(
-                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key)).
+                    @Override
+                    public Panel getPanel(final String panelId) {
+                        switch (item.getModelObject().getKind()) {
+                            case USER:
+                                return new UserSearchPanel.Builder(
+                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key), pageRef).
                                         required(false).build(panelId);
 
-                                case GROUP:
-                                    return new GroupSearchPanel.Builder(
-                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key)).
+                            case GROUP:
+                                return new GroupSearchPanel.Builder(
+                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key), pageRef).
                                         required(false).build(panelId);
 
-                                case ANY_OBJECT:
-                                default:
-                                    return new AnyObjectSearchPanel.Builder(
+                            case ANY_OBJECT:
+                            default:
+                                return new AnyObjectSearchPanel.Builder(
                                         key,
-                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key)).
+                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key), pageRef).
                                         required(false).build(panelId);
-                            }
                         }
-                    }), Model.of(StringUtils.isBlank(dynRealmWrapper.getDynMembershipConds().get(key)) ? -1 : 0)).
-                    setOutputMarkupId(true));
+                    }
+                }), Model.of(StringUtils.isBlank(dynRealmWrapper.getDynMembershipConds().get(key)) ? -1 : 0)).
+                        setOutputMarkupId(true));
             }
         });
     }

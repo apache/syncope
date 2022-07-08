@@ -18,24 +18,8 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
-    <wicket:enclosure child="field-label">
-      <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
-      <span wicket:id="externalAction"/>
-    </wicket:enclosure>
-    <span wicket:id="container" class="clause">
-      <div wicket:id="operatorContainer" class="field operator"><span wicket:id="operator"/></div>
-      <span wicket:id="type" class="field type"/>
-      <span wicket:id="property" class="field property"/>
-      <span wicket:id="comparator" class="field comparator"/>
-      <span wicket:id="value" class="field value"/>
-    </span>
-
-    <wicket:fragment wicket:id="searchButtonFragment">
-      <a href="#" wicket:id="search"><li class="fas fa-search"></li></a>
-    </wicket:fragment>
-
-    <wicket:fragment wicket:id="operatorFragment">
-      <span wicket:id="operator"/>
-    </wicket:fragment>
+    <div id="startAtContainer">
+      <span wicket:id="fiqlQueryDirectoryPanel"/>
+    </div>
   </wicket:extend>
 </html>

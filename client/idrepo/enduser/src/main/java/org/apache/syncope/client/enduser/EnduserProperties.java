@@ -28,8 +28,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("enduser")
 public class EnduserProperties extends CommonUIProperties {
 
-    private String adminUser;
-
     private Class<? extends Sidebar> sidebar = Sidebar.class;
 
     private String customFormLayout = "classpath:/customFormLayout.json";
@@ -37,14 +35,6 @@ public class EnduserProperties extends CommonUIProperties {
     private boolean captcha;
 
     private final Map<String, Class<? extends BasePage>> page = new HashMap<>();
-
-    public String getAdminUser() {
-        return adminUser;
-    }
-
-    public void setAdminUser(final String adminUser) {
-        this.adminUser = adminUser;
-    }
 
     public Class<? extends Sidebar> getSidebar() {
         return sidebar;

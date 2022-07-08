@@ -34,22 +34,24 @@ public class DelegationSelectionPanel extends Panel {
         super(id);
 
         IndicatingOnConfirmAjaxLink<String> link =
-            new IndicatingOnConfirmAjaxLink<>("link", "confirmDelegation", true) {
+                new IndicatingOnConfirmAjaxLink<>("link", "confirmDelegation", true) {
 
-                @Override
-                public void onClick(final AjaxRequestTarget target) {
-                    SyncopeConsoleSession.get().setDelegatedBy(delegating);
-                    setResponsePage(Dashboard.class);
-                }
+            private static final long serialVersionUID = 6611857585742411796L;
 
-                @Override
-                protected void onComponentTag(final ComponentTag tag) {
-                    super.onComponentTag(tag);
-                    if (delegating.equals(SyncopeConsoleSession.get().getDelegatedBy())) {
-                        tag.append("class", "disabled", " ");
-                    }
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                SyncopeConsoleSession.get().setDelegatedBy(delegating);
+                setResponsePage(Dashboard.class);
+            }
+
+            @Override
+            protected void onComponentTag(final ComponentTag tag) {
+                super.onComponentTag(tag);
+                if (delegating.equals(SyncopeConsoleSession.get().getDelegatedBy())) {
+                    tag.append("class", "disabled", " ");
                 }
-            };
+            }
+        };
         add(link);
         link.setOutputMarkupId(true);
         link.add(new Label("label", delegating));

@@ -65,8 +65,7 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
 
         view = new InnerView("view", name, model);
 
-        List<INNER> obj = model.getObject();
-        if (CollectionUtils.isEmpty(obj)) {
+        if (CollectionUtils.isEmpty(model.getObject())) {
             form.addOrReplace(getNoDataFragment(model, name));
         } else {
             form.addOrReplace(getDataFragment());

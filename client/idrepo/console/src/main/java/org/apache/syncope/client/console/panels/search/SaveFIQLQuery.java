@@ -16,56 +16,59 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.panels.search;
 
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
-import javax.ws.rs.core.MediaType;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
+import org.apache.syncope.client.console.panels.TogglePanel;
+import org.apache.syncope.client.console.rest.FIQLQueryRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.syncope.common.lib.to.FIQLQueryTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.Model;
 
-public class NewBpmnProcess extends TogglePanel<Serializable> {
+public class SaveFIQLQuery extends TogglePanel<Serializable> {
 
-    private static final long serialVersionUID = -4886361549305302161L;
+    private static final long serialVersionUID = -1519998802447270269L;
 
-    public NewBpmnProcess(final String id, final WebMarkupContainer container, final PageReference pageRef) {
+    private String fiql;
+
+    private TextField<String> name;
+
+    public SaveFIQLQuery(final String id, final PageReference pageRef) {
         super(id, pageRef);
 
         Form<?> form = new Form<>("form");
         addInnerObject(form);
 
-        TextField<String> key = new TextField<>("key", new Model<>());
-        key.setRequired(true);
-        form.add(key);
+        name = new TextField<>("name", new Model<>());
+        form.add(name);
 
         form.add(new AjaxSubmitLink("submit", form) {
 
-            private static final long serialVersionUID = 4947613489823025052L;
+            private static final long serialVersionUID = -5697330186048290602L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
                 try {
-                    BpmnProcessRestClient.setDefinition(MediaType.APPLICATION_XML_TYPE, key.getModelObject(),
-                            IOUtils.toString(
-                                    NewBpmnProcess.class.getResourceAsStream("empty.bpmn20.xml"),
-                                    StandardCharsets.UTF_8).replaceAll("%KEY%", key.getModelObject()));
+                    FIQLQueryTO query = new FIQLQueryTO();
+                    query.setName(name.getModelObject());
+                    query.setFiql(fiql);
 
-                    key.getModel().setObject(null);
+                    FIQLQueryRestClient.create(query);
+
+                    name.getModel().setObject(null);
+                    name.setRequired(false);
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
-                    target.add(container);
                 } catch (Exception e) {
-                    LOG.error("While creating new BPMN process", e);
+                    LOG.error("While creating new FIQL query", e);
                     SyncopeConsoleSession.get().onException(e);
                 }
                 ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -76,5 +79,18 @@ public class NewBpmnProcess extends TogglePanel<Serializable> {
                 ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         });
+    }
+
+    public void setFiql(final String fiql) {
+        this.fiql = fiql;
+        this.name.setRequired(true);
+    }
+
+    @Override
+    public void toggle(final AjaxRequestTarget target, final boolean toggle) {
+        if (toggle) {
+            setHeader(target, getString("newFIQLQuery"));
+        }
+        super.toggle(target, toggle);
     }
 }

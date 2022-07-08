@@ -72,7 +72,8 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep {
 
         userSearchFragment = new Fragment("search", "userSearchFragment", this);
         userSearchPanel = UserSearchPanel.class.cast(new UserSearchPanel.Builder(
-                new ListModel<>(new ArrayList<>())).required(false).enableSearch(MergeLinkedAccountsSearchPanel.this).
+                new ListModel<>(new ArrayList<>()), pageRef).
+                required(false).enableSearch(MergeLinkedAccountsSearchPanel.this).
                 build("usersearch"));
         userSearchFragment.add(userSearchPanel);
 
@@ -88,17 +89,17 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep {
     @Override
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
-            final AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
-            final String fiql = "username!~" + this.wizardModel.getBaseUser().getUsername() + ';'
+            AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
+            String fiql = "username!~" + wizardModel.getBaseUser().getUsername() + ';'
                     + SearchUtils.buildFIQL(userSearchPanel.getModel().getObject(),
                             SyncopeClient.getUserSearchConditionBuilder());
             userDirectoryPanel.search(fiql, target);
         } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
-            AnySelectionDirectoryPanel.ItemSelection payload =
+            AnySelectionDirectoryPanel.ItemSelection<?> payload =
                     (AnySelectionDirectoryPanel.ItemSelection) event.getPayload();
 
-            final AnyTO sel = payload.getSelection();
-            this.wizardModel.setMergingUser(new UserRestClient().read(sel.getKey()));
+            AnyTO sel = payload.getSelection();
+            wizardModel.setMergingUser(new UserRestClient().read(sel.getKey()));
 
             String tableId = ((Component) event.getSource()).
                     get("container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable").

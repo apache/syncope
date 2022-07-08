@@ -96,7 +96,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
     public TogglePanel(final String id, final String markupId, final PageReference pageRef) {
         super(id, true);
         this.activeId = markupId;
-        final String containerID = StringUtils.isBlank(markupId) ? id : markupId;
+        String containerID = StringUtils.isBlank(markupId) ? id : markupId;
 
         setRenderBodyOnly(true);
         setOutputMarkupId(true);
@@ -149,8 +149,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
     }
 
     protected void setHeader(final AjaxRequestTarget target, final String header) {
-        this.header.setDefaultModelObject(Optional.ofNullable(header).map(s -> s.length() >= 40
-                ? (s.substring(0, 30) + " ... ") : s).orElse(StringUtils.EMPTY));
+        this.header.setDefaultModelObject(Optional.ofNullable(header).
+                map(s -> StringUtils.abbreviate(s, HEADER_FIRST_ABBREVIATION)).orElse(StringUtils.EMPTY));
         target.add(this.header);
     }
 
@@ -191,7 +191,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
         return key;
     }
 
-    private void updateLabelKeyValue(final Serializable modelObject) {
+    protected void updateLabelKeyValue(final Serializable modelObject) {
         header.add(new AttributeModifier(LABEL_DATA_VALUE, getTargetKey(modelObject)));
     }
 

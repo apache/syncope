@@ -62,9 +62,8 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
     protected Serializable onApplyInternal(final ReportletWrapper modelObject) {
         if (modelObject.getImplementationEngine() == ImplementationEngine.JAVA) {
             BeanWrapper confWrapper = PropertyAccessorFactory.forBeanPropertyAccess(modelObject.getConf());
-            modelObject.getSCondWrapper().forEach((fieldName, pair) -> {
-                confWrapper.setPropertyValue(fieldName, SearchUtils.buildFIQL(pair.getRight(), pair.getLeft()));
-            });
+            modelObject.getSCondWrapper().forEach((fieldName, pair) -> confWrapper.setPropertyValue(
+                    fieldName, SearchUtils.buildFIQL(pair.getRight(), pair.getLeft())));
             ImplementationTO reportlet = ImplementationRestClient.read(
                     IdRepoImplementationType.REPORTLET, modelObject.getImplementationKey());
             try {
@@ -127,7 +126,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
         }
     }
 
-    public static class Configuration extends WizardStep {
+    public class Configuration extends WizardStep {
 
         private static final long serialVersionUID = -785981096328637758L;
 
@@ -141,7 +140,8 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
                     return reportlet.getConf();
                 }
             };
-            add(new BeanPanel<>("bean", bean, reportlet.getSCondWrapper(), Constants.NAME_FIELD_NAME, "reportlet").
+            add(new BeanPanel<>(
+                    "bean", bean, reportlet.getSCondWrapper(), pageRef, Constants.NAME_FIELD_NAME, "reportlet").
                     setRenderBodyOnly(true));
         }
     }

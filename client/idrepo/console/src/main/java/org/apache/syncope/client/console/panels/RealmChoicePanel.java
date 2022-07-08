@@ -28,9 +28,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
@@ -160,7 +162,12 @@ public class RealmChoicePanel extends Panel {
                         placeholder.setFullPath(rootRealm);
                         return placeholder;
                     });
-        }).orElseGet(RealmTO::new);
+        }).orElseGet(() -> {
+            RealmTO root = new RealmTO();
+            root.setName(SyncopeConstants.ROOT_REALM);
+            root.setFullPath(SyncopeConstants.ROOT_REALM);
+            return root;
+        });
 
         model = Model.of(realm);
         searchQuery = realm.getName();
@@ -202,7 +209,7 @@ public class RealmChoicePanel extends Panel {
         if (SyncopeConstants.ROOT_REALM.equals(realm.getFullPath())) {
             breadcrumb.setList(List.of(realm.getFullPath()));
         } else {
-            List<String> bcitems = new ArrayList<>();
+            Set<String> bcitems = new HashSet<>();
             bcitems.add(SyncopeConstants.ROOT_REALM);
 
             String[] split = realm.getFullPath().split("/");
@@ -214,7 +221,7 @@ public class RealmChoicePanel extends Panel {
                 bcitems.add(bcitem.toString());
             }
 
-            breadcrumb.setList(bcitems);
+            breadcrumb.setList(bcitems.stream().sorted().collect(Collectors.toList()));
         }
     }
 

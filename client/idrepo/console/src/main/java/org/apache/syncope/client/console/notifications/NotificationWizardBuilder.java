@@ -183,7 +183,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
         }
     }
 
-    public static class About extends Panel {
+    public class About extends Panel {
 
         private static final long serialVersionUID = -9149543787708482882L;
 
@@ -252,15 +252,15 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
             switch (type) {
                 case "USER":
-                    clause = new UserSearchPanel.Builder(clauseModel);
+                    clause = new UserSearchPanel.Builder(clauseModel, pageRef);
                     break;
 
                 case "GROUP":
-                    clause = new GroupSearchPanel.Builder(clauseModel);
+                    clause = new GroupSearchPanel.Builder(clauseModel, pageRef);
                     break;
 
                 default:
-                    clause = new AnyObjectSearchPanel.Builder(type, clauseModel);
+                    clause = new AnyObjectSearchPanel.Builder(type, clauseModel, pageRef);
             }
 
             return clause;
@@ -321,7 +321,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
         }
     }
 
-    public static class Recipients extends WizardStep {
+    public class Recipients extends WizardStep {
 
         private static final long serialVersionUID = -7709805590497687958L;
 
@@ -363,7 +363,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
                     build("staticRecipients", "staticRecipients", staticRecipientsFieldPanel).hideLabel());
 
             add(new UserSearchPanel.Builder(
-                    new PropertyModel<>(modelObject, "recipientClauses")).
+                    new PropertyModel<>(modelObject, "recipientClauses"), pageRef).
                     required(false).build("recipients"));
 
             AjaxDropDownChoicePanel<String> recipientsProvider = new AjaxDropDownChoicePanel<>(

@@ -20,11 +20,13 @@ package org.apache.syncope.client.console.panels.search;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
 
 import java.util.List;
 import org.apache.syncope.client.console.AbstractAdminTest;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.Component;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.Test;
@@ -39,7 +41,8 @@ public class UserSearchPanelTest extends AbstractAdminTest {
         clause.setProperty("username");
 
         TESTER.startComponentInPage(new UserSearchPanel.Builder(
-                new ListModel<>(List.of(clause))).required(true).enableSearch().build("content"));
+                new ListModel<>(List.of(clause)), mock(PageReference.class)).
+                required(true).enableSearch().build("content"));
 
         FormTester formTester = TESTER.newFormTester(
                 "content:searchFormContainer:search:multiValueContainer:innerForm");

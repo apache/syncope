@@ -25,10 +25,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
@@ -40,8 +43,8 @@ public class GroupSearchPanel extends AbstractSearchPanel {
 
         private static final long serialVersionUID = 6308997285778809578L;
 
-        public Builder(final IModel<List<SearchClause>> model) {
-            super(model);
+        public Builder(final IModel<List<SearchClause>> model, final PageReference pageRef) {
+            super(model, pageRef);
         }
 
         @Override
@@ -52,6 +55,11 @@ public class GroupSearchPanel extends AbstractSearchPanel {
 
     protected GroupSearchPanel(final String id, final GroupSearchPanel.Builder builder) {
         super(id, AnyTypeKind.GROUP, builder);
+    }
+
+    @Override
+    public AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder() {
+        return SyncopeClient.getGroupSearchConditionBuilder();
     }
 
     @Override

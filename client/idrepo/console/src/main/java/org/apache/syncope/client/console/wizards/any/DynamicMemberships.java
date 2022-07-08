@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -43,7 +44,7 @@ public class DynamicMemberships extends WizardStep {
 
     private static final long serialVersionUID = 855618618337931784L;
 
-    public DynamicMemberships(final GroupWrapper groupWrapper) {
+    public DynamicMemberships(final GroupWrapper groupWrapper, final PageReference pageRef) {
         super();
 
         final LoadableDetachableModel<List<AnyTypeTO>> types = new LoadableDetachableModel<>() {
@@ -68,7 +69,7 @@ public class DynamicMemberships extends WizardStep {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new UserSearchPanel.Builder(new PropertyModel<>(groupWrapper, "uDynClauses")).
+                return new UserSearchPanel.Builder(new PropertyModel<>(groupWrapper, "uDynClauses"), pageRef).
                         required(true).build(panelId);
             }
         }), Model.of(StringUtils.isBlank(groupWrapper.getUDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
@@ -93,7 +94,7 @@ public class DynamicMemberships extends WizardStep {
                         @Override
                         public Panel getPanel(final String panelId) {
                             return new AnyObjectSearchPanel.Builder(
-                                key, new MapOfListModel<>(groupWrapper, "aDynClauses", key)).
+                                key, new MapOfListModel<>(groupWrapper, "aDynClauses", key), pageRef).
                                 required(false).build(panelId);
                         }
                     }), Model.of(StringUtils.isBlank(groupWrapper.getADynMembershipConds().get(key)) ? -1 : 0)).

@@ -24,6 +24,8 @@ import org.apache.syncope.common.lib.SyncopeProperties;
 
 public abstract class CommonUIProperties extends SyncopeProperties {
 
+    private String adminUser = "admin";
+
     private boolean xForward = true;
 
     private String xForwardProtocolHeader = "X-Forwarded-Proto";
@@ -39,6 +41,14 @@ public abstract class CommonUIProperties extends SyncopeProperties {
     private long maxWaitTimeOnApplyChanges = 30L;
 
     private final Map<String, String> securityHeaders = new HashMap<>();
+
+    public String getAdminUser() {
+        return adminUser;
+    }
+
+    public void setAdminUser(final String adminUser) {
+        this.adminUser = adminUser;
+    }
 
     public boolean isxForward() {
         return xForward;

@@ -57,7 +57,6 @@ import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
@@ -291,12 +290,14 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         return groupInfo.getLeft().getObject();
 
                     case ROLE_MEMBERSHIP:
-                        return roleNames.getObject().stream().
-                                sorted().collect(Collectors.toList());
+                        return Optional.ofNullable(roleNames).
+                                map(r -> r.getObject().stream().sorted().collect(Collectors.toList())).
+                                orElse(List.of());
 
                     case PRIVILEGE:
-                        return privilegeNames.getObject().stream().
-                                sorted().collect(Collectors.toList());
+                        return Optional.ofNullable(privilegeNames).
+                                map(p -> p.getObject().stream().sorted().collect(Collectors.toList())).
+                                orElse(List.of());
 
                     case AUX_CLASS:
                         return auxClassNames.getObject().stream().
@@ -369,11 +370,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     public FieldPanel<SearchClause> setNewModel(final IModel<SearchClause> model) {
         clause = model;
         return super.setNewModel(model);
-    }
-
-    @Override
-    public final MarkupContainer add(final Component... childs) {
-        return super.add(childs);
     }
 
     @Override

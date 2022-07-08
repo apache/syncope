@@ -97,11 +97,13 @@ public class DelegationDirectoryPanel extends
 
         columns.add(new AbstractColumn<>(new ResourceModel("delegating"), "delegating") {
 
+            private static final long serialVersionUID = -7835464045129401360L;
+
             @Override
             public void populateItem(
-                final Item<ICellPopulator<DelegationTO>> cellItem,
-                final String componentId,
-                final IModel<DelegationTO> rowModel) {
+                    final Item<ICellPopulator<DelegationTO>> cellItem,
+                    final String componentId,
+                    final IModel<DelegationTO> rowModel) {
 
                 String delegating = rowModel.getObject().getDelegating();
                 if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.USER_READ)) {
@@ -116,11 +118,13 @@ public class DelegationDirectoryPanel extends
 
         columns.add(new AbstractColumn<>(new ResourceModel("delegated"), "delegated") {
 
+            private static final long serialVersionUID = -7835464045129401360L;
+
             @Override
             public void populateItem(
-                final Item<ICellPopulator<DelegationTO>> cellItem,
-                final String componentId,
-                final IModel<DelegationTO> rowModel) {
+                    final Item<ICellPopulator<DelegationTO>> cellItem,
+                    final String componentId,
+                    final IModel<DelegationTO> rowModel) {
 
                 String delegated = rowModel.getObject().getDelegated();
                 if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.USER_READ)) {
@@ -153,7 +157,7 @@ public class DelegationDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final DelegationTO ignore) {
                 send(DelegationDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, StringUtils.EMPTY);
         panel.add(new ActionLink<>() {

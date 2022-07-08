@@ -23,7 +23,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.panels.ConnObjects;
@@ -684,7 +683,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             if (result != null && result instanceof ConnInstanceTO && target.isPresent()) {
                 // update Toggle Panel header
                 ConnInstanceTO conn = ConnInstanceTO.class.cast(result);
-                setHeader(target.get(), StringUtils.abbreviate(conn.getDisplayName(), HEADER_FIRST_ABBREVIATION));
+                setHeader(target.get(), conn.getDisplayName());
             }
         }
     }

@@ -23,8 +23,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
@@ -36,8 +39,8 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
 
         private static final long serialVersionUID = 6308997285778809578L;
 
-        public Builder(final IModel<List<SearchClause>> model) {
-            super(AnyTypeKind.USER.name(), model);
+        public Builder(final IModel<List<SearchClause>> model, final PageReference pageRef) {
+            super(AnyTypeKind.USER.name(), model, pageRef);
         }
 
         @Override
@@ -48,6 +51,11 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
 
     protected UserSearchPanel(final String id, final Builder builder) {
         super(id, AnyTypeKind.USER, builder);
+    }
+
+    @Override
+    public AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder() {
+        return SyncopeClient.getUserSearchConditionBuilder();
     }
 
     @Override

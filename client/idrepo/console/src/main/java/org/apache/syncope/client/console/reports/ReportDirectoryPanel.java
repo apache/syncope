@@ -275,7 +275,7 @@ public abstract class ReportDirectoryPanel
 
     @Override
     protected String paginatorRowsKey() {
-        return IdRepoConstants.PREF_REPORT_TASKS_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_REPORT_PAGINATOR_ROWS;
     }
 
     protected abstract void viewReport(ReportTO reportTO, AjaxRequestTarget target);

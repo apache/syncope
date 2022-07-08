@@ -23,7 +23,7 @@ import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class FIQLQueryTO implements EntityTO {
+public class FIQLQueryTO implements NamedEntityTO {
 
     private static final long serialVersionUID = -4467481248062334069L;
 
@@ -45,10 +45,12 @@ public class FIQLQueryTO implements EntityTO {
         this.key = key;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(final String name) {
         this.name = name;
     }
