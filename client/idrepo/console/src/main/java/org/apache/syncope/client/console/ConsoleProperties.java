@@ -71,10 +71,12 @@ public class ConsoleProperties extends CommonUIProperties {
 
     private final Topology topology = new Topology();
 
+    @Override
     public String getAdminUser() {
         return adminUser;
     }
 
+    @Override
     public void setAdminUser(final String adminUser) {
         this.adminUser = adminUser;
     }

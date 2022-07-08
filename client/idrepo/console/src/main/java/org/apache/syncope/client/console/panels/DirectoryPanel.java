@@ -66,7 +66,7 @@ public abstract class DirectoryPanel<
     /**
      * Number of rows per page.
      */
-    protected int rows;
+    protected Integer rows;
 
     /**
      * Container used to refresh table.
