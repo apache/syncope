@@ -65,7 +65,7 @@ public final class SearchUtils implements Serializable {
         }
     };
 
-    private static Pattern getTypeConditionPattern(final String type) {
+    public static Pattern getTypeConditionPattern(final String type) {
         return Pattern.compile(String.format(";\\$type==%s|\\$type==%s;", type, type));
     }
 

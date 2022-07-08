@@ -23,18 +23,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -74,10 +80,6 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected final String type;
 
-    protected final boolean required;
-
-    protected final boolean enableSearch;
-
     protected final GroupRestClient groupRestClient = new GroupRestClient();
 
     public abstract static class Builder<T extends AbstractSearchPanel> implements Serializable {
@@ -85,6 +87,8 @@ public abstract class AbstractSearchPanel extends Panel {
         private static final long serialVersionUID = 6308997285778809578L;
 
         protected final IModel<List<SearchClause>> model;
+
+        protected PageReference pageRef;
 
         protected boolean required = true;
 
@@ -98,8 +102,9 @@ public abstract class AbstractSearchPanel extends Panel {
 
         protected IEventSink resultContainer;
 
-        public Builder(final IModel<List<SearchClause>> model) {
+        public Builder(final IModel<List<SearchClause>> model, final PageReference pageRef) {
             this.model = model;
+            this.pageRef = pageRef;
         }
 
         public Builder<T> enableSearch(final IEventSink resultContainer) {
@@ -133,13 +138,12 @@ public abstract class AbstractSearchPanel extends Panel {
             final String id, final AnyTypeKind kind, final String type, final Builder<?> builder) {
 
         super(id);
+
         populate();
 
         this.model = builder.model;
         this.typeKind = kind;
         this.type = type;
-        this.required = builder.required;
-        this.enableSearch = builder.enableSearch;
 
         setOutputMarkupId(true);
 
@@ -161,16 +165,15 @@ public abstract class AbstractSearchPanel extends Panel {
                 : Pair.of(groupNames, Model.of(0));
         SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
                 Model.of(new SearchClause()),
-                required,
+                builder.required,
                 types,
                 builder.customizer,
                 anames, dnames, groupInfo, roleNames, privilegeNames, auxClassNames, resourceNames);
-
-        if (enableSearch) {
+        if (builder.enableSearch) {
             searchClausePanel.enableSearch(builder.resultContainer);
         }
 
-        MultiFieldPanel.Builder<SearchClause> searchView = new MultiFieldPanel.Builder<>(model) {
+        searchFormContainer.add(new MultiFieldPanel.Builder<>(model) {
 
             private static final long serialVersionUID = 1343431509987473047L;
 
@@ -178,9 +181,53 @@ public abstract class AbstractSearchPanel extends Panel {
             protected SearchClause newModelObject() {
                 return new SearchClause();
             }
-        };
+        }.build("search", "search", searchClausePanel).hideLabel().setOutputMarkupId(true));
 
-        searchFormContainer.add(searchView.build("search", "search", searchClausePanel).hideLabel());
+        FIQLQueries fiqlQueries = new FIQLQueries("fiqlQueries", this, getFIQLQueryTarget(), builder.pageRef);
+        add(fiqlQueries);
+
+        SaveFIQLQuery saveFIQLQuery = new SaveFIQLQuery("saveFIQLQuery", getFIQLQueryTarget(), builder.pageRef);
+        add(saveFIQLQuery);
+
+        ActionsPanel<Serializable> fiqlQueryActionsPanel = new ActionsPanel<>("fiqlQueryActionsPanel", null);
+        fiqlQueryActionsPanel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = 2041211756396714619L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                saveFIQLQuery.setFiql(
+                        SearchUtils.buildFIQL(AbstractSearchPanel.this.getModel().getObject(),
+                                getSearchConditionBuilder()).
+                                replaceAll(SearchUtils.getTypeConditionPattern(type).pattern(), ""));
+                saveFIQLQuery.toggle(target, true);
+            }
+        }, ActionLink.ActionType.EXPORT, StringUtils.EMPTY).hideLabel();
+        fiqlQueryActionsPanel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                fiqlQueries.toggle(target, true);
+            }
+        }, ActionLink.ActionType.SELECT, StringUtils.EMPTY).hideLabel();
+        fiqlQueryActionsPanel.setVisible(
+                builder.enableSearch
+                && !model.getObject().isEmpty()
+                && !SyncopeConsoleSession.get().getSelfTO().getUsername().
+                        equals(SyncopeWebApplication.get().getAdminUser()));
+        add(fiqlQueryActionsPanel.setOutputMarkupPlaceholderTag(true));
+    }
+
+    protected abstract AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder();
+
+    protected abstract String getFIQLQueryTarget();
+
+    protected void updateFIQL(final AjaxRequestTarget target, final String fiql) {
+        model.setObject(SearchUtils.getSearchClauses(
+                fiql.replaceAll(SearchUtils.getTypeConditionPattern(type).pattern(), "")));
+        target.add(searchFormContainer);
     }
 
     protected void populate() {

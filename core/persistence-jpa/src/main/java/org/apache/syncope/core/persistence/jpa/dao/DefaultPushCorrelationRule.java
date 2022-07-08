@@ -104,7 +104,7 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
     }
 
     @Override
-    public String getFiql(final ConnectorObject connectorObject, final Provision provision) {
+    public String getFIQL(final ConnectorObject connectorObject, final Provision provision) {
         List<CompleteCondition> conditions = new ArrayList<>();
 
         provision.getMapping().getItems().stream().filter(

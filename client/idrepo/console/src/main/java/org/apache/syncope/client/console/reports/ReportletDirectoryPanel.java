@@ -97,7 +97,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected List<IColumn<ReportletWrapper, String>> getColumns() {
-        final List<IColumn<ReportletWrapper, String>> columns = new ArrayList<>();
+        List<IColumn<ReportletWrapper, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("reportlet", this), "implementationKey", "implementationKey"));
@@ -126,7 +126,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
     @Override
     public ActionsPanel<ReportletWrapper> getActions(final IModel<ReportletWrapper> model) {
-        final ActionsPanel<ReportletWrapper> panel = super.getActions(model);
+        ActionsPanel<ReportletWrapper> panel = super.getActions(model);
 
         panel.add(new ActionLink<>() {
 
@@ -151,7 +151,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
                 final ReportletConf reportlet = model.getObject().getConf();
                 try {
-                    final ReportTO actual = ReportRestClient.read(report);
+                    ReportTO actual = ReportRestClient.read(report);
                     actual.getReportlets().remove(model.getObject().getImplementationKey());
                     ReportRestClient.update(actual);
 
@@ -198,7 +198,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected String paginatorRowsKey() {
-        return IdRepoConstants.PREF_REPORTLET_TASKS_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_REPORTLET_PAGINATOR_ROWS;
     }
 
     protected class ReportDataProvider extends DirectoryDataProvider<ReportletWrapper> {
@@ -237,7 +237,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<ReportletWrapper> iterator(final long first, final long count) {
-            final ReportTO actual = ReportRestClient.read(report);
+            ReportTO actual = ReportRestClient.read(report);
 
             List<ReportletWrapper> reportlets = getReportletWrappers(actual);
 

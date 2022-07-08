@@ -59,7 +59,7 @@ public interface PushCorrelationRule {
      * @param provision resource provision
      * @return fiql
      */
-    default String getFiql(ConnectorObject connectorObject, Provision provision) {
+    default String getFIQL(ConnectorObject connectorObject, Provision provision) {
         return DEFAULT_FIQL_BUILDER.apply(connectorObject, provision);
     }
 }

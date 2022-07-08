@@ -171,7 +171,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
         }
     }
 
-    public static class Configuration extends WizardStep {
+    public class Configuration extends WizardStep {
 
         private static final long serialVersionUID = -785981096328637758L;
 
@@ -185,7 +185,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
                     return rule.getConf();
                 }
             };
-            add(new BeanPanel<>("bean", bean).setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", bean, pageRef).setRenderBodyOnly(true));
         }
     }
 }

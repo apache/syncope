@@ -56,6 +56,7 @@ import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.core.util.lang.PropertyResolverConverter;
 import org.apache.wicket.markup.html.basic.Label;
@@ -84,14 +85,15 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
     private final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper;
 
-    public BeanPanel(final String id, final IModel<T> bean, final String... excluded) {
-        this(id, bean, null, excluded);
+    public BeanPanel(final String id, final IModel<T> bean, final PageReference pageRef, final String... excluded) {
+        this(id, bean, null, pageRef, excluded);
     }
 
     public BeanPanel(
             final String id,
             final IModel<T> bean,
             final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper,
+            final PageReference pageRef,
             final String... excluded) {
 
         super(id, bean);
@@ -153,32 +155,30 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     switch (scondAnnot.type()) {
                         case "USER":
                             panel = new UserSearchPanel.Builder(
-                                    new ListModel<>(clauses)).required(false).build("value");
+                                    new ListModel<>(clauses), pageRef).required(false).build("value");
                             builder = SyncopeClient.getUserSearchConditionBuilder();
                             break;
 
                         case "GROUP":
                             panel = new GroupSearchPanel.Builder(
-                                    new ListModel<>(clauses)).required(false).build("value");
+                                    new ListModel<>(clauses), pageRef).required(false).build("value");
                             builder = SyncopeClient.getGroupSearchConditionBuilder();
                             break;
 
                         default:
                             panel = new AnyObjectSearchPanel.Builder(
                                     scondAnnot.type(),
-                                    new ListModel<>(clauses)).required(false).build("value");
-                            builder = SyncopeClient.getAnyObjectSearchConditionBuilder(null);
+                                    new ListModel<>(clauses), pageRef).required(false).build("value");
+                            builder = SyncopeClient.getAnyObjectSearchConditionBuilder(scondAnnot.type());
                     }
 
                     if (BeanPanel.this.sCondWrapper != null) {
                         BeanPanel.this.sCondWrapper.put(fieldName, Pair.of(builder, clauses));
                     }
                 } else if (List.class.equals(field.getType())) {
-                    Class<?> listItemType = String.class;
-                    if (field.getGenericType() instanceof ParameterizedType) {
-                        listItemType = (Class<?>) ((ParameterizedType) field.getGenericType()).
-                                getActualTypeArguments()[0];
-                    }
+                    Class<?> listItemType = field.getGenericType() instanceof ParameterizedType
+                            ? (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]
+                            : String.class;
 
                     if (listItemType.equals(String.class) && schemaAnnot != null) {
                         List<SchemaTO> choices = new ArrayList<>();

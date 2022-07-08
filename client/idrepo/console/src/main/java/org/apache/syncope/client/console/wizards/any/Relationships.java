@@ -351,7 +351,8 @@ public class Relationships extends WizardStep implements ICondition {
         protected void setupFragment(final AnyTypeTO anyType) {
             anyObjectSearchPanel = new AnyObjectSearchPanel.Builder(
                     anyType.getKey(),
-                    new ListModel<>(new ArrayList<>())).
+                    new ListModel<>(new ArrayList<>()),
+                    pageRef).
                     enableSearch(Specification.this).
                     build("searchPanel");
             fragment.addOrReplace(anyObjectSearchPanel.setRenderBodyOnly(true));

@@ -35,6 +35,7 @@ import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.FIQLQuery;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -328,6 +329,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPABatch();
         } else if (reference.equals(Delegation.class)) {
             result = (E) new JPADelegation();
+        } else if (reference.equals(FIQLQuery.class)) {
+            result = (E) new JPAFIQLQuery();
         } else if (reference.equals(SRARoute.class)) {
             result = (E) new JPASRARoute();
         } else if (reference.equals(AuthModule.class)) {

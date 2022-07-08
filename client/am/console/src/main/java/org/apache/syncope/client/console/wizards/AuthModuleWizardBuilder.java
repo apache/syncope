@@ -160,16 +160,17 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
         }
     }
 
-    protected static class Configuration extends WizardStep {
+    protected class Configuration extends WizardStep {
 
         private static final long serialVersionUID = -785981096328637758L;
 
         Configuration(final AuthModuleTO authModule) {
-            add(new BeanPanel<>("bean", new PropertyModel<>(authModule, "conf"), "ldap").setRenderBodyOnly(true));
+            add(new BeanPanel<>(
+                    "bean", new PropertyModel<>(authModule, "conf"), pageRef, "ldap").setRenderBodyOnly(true));
         }
     }
 
-    protected static class GoogleMfaAuthModuleConfLDAP extends WizardStep implements WizardModel.ICondition {
+    protected class GoogleMfaAuthModuleConfLDAP extends WizardStep implements WizardModel.ICondition {
 
         private static final long serialVersionUID = 5328049907748683944L;
 
@@ -213,7 +214,7 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
             });
             add(enable);
 
-            add(new BeanPanel<>("bean", beanPanelModel).setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", beanPanelModel, pageRef).setRenderBodyOnly(true));
             setOutputMarkupId(true);
         }
 

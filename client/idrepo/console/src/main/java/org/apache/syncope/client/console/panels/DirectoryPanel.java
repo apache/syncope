@@ -66,7 +66,7 @@ public abstract class DirectoryPanel<
     /**
      * Number of rows per page.
      */
-    protected int rows;
+    protected Integer rows;
 
     /**
      * Container used to refresh table.
@@ -274,8 +274,8 @@ public abstract class DirectoryPanel<
     protected void updateResultTable(final boolean create, final int rows) {
         dataProvider = dataProvider();
 
-        final int currentPage = Optional.ofNullable(resultTable)
-                .map(table -> (create ? (int) table.getPageCount() - 1 : (int) table.getCurrentPage())).orElse(0);
+        int currentPage = Optional.ofNullable(resultTable).
+                map(table -> (create ? (int) table.getPageCount() - 1 : (int) table.getCurrentPage())).orElse(0);
 
         // take care of restClient handle: maybe not useful to keep into
         AjaxDataTablePanel.Builder<T, String> resultTableBuilder = new AjaxDataTablePanel.Builder<>(
@@ -326,7 +326,7 @@ public abstract class DirectoryPanel<
     @Override
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof EventDataWrapper) {
-            final EventDataWrapper data = (EventDataWrapper) event.getPayload();
+            EventDataWrapper data = (EventDataWrapper) event.getPayload();
 
             if (data.getRows() < 1) {
                 updateResultTable(data.isCreate());
@@ -343,7 +343,7 @@ public abstract class DirectoryPanel<
 
     @Override
     protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
-        final EventDataWrapper data = new EventDataWrapper();
+        EventDataWrapper data = new EventDataWrapper();
         data.setTarget(target);
         data.setRows(rows);
         send(getParent(), Broadcast.BREADTH, data);

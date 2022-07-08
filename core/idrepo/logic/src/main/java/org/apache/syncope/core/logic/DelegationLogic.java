@@ -127,7 +127,6 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
         Delegation delegation = delegationDAO.find(key);
         if (delegation == null) {
             LOG.error("Could not find delegation '" + key + "'");
-
             throw new NotFoundException(key);
         }
 

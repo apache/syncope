@@ -42,5 +42,7 @@ public interface DelegationDAO extends DAO<Delegation> {
 
     Delegation save(Delegation delegation);
 
+    void delete(Delegation delegation);
+
     void delete(String key);
 }

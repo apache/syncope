@@ -119,7 +119,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         }
 
-        setHeader(target, StringUtils.abbreviate(header, HEADER_FIRST_ABBREVIATION));
+        setHeader(target, header);
     }
 
     public void toggleWithContent(

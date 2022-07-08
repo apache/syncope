@@ -261,6 +261,10 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return props.getDefaultAnyPanelClass();
     }
 
+    public String getAdminUser() {
+        return props.getAdminUser();
+    }
+
     public String getAnonymousUser() {
         return props.getAnonymousUser();
     }

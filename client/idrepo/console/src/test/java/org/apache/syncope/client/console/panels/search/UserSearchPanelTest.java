@@ -20,11 +20,15 @@ package org.apache.syncope.client.console.panels.search;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import org.apache.syncope.client.console.AbstractAdminTest;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.Component;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.Test;
@@ -33,13 +37,18 @@ public class UserSearchPanelTest extends AbstractAdminTest {
 
     @Test
     public void test() {
+        BasePage page = new BasePage();
+        PageReference pageRef = mock(PageReference.class);
+        when(pageRef.getPage()).thenReturn(page);
+
         SearchClause clause = new SearchClause();
         clause.setComparator(SearchClause.Comparator.EQUALS);
         clause.setType(SearchClause.Type.ATTRIBUTE);
         clause.setProperty("username");
 
         TESTER.startComponentInPage(new UserSearchPanel.Builder(
-                new ListModel<>(List.of(clause))).required(true).enableSearch().build("content"));
+                new ListModel<>(List.of(clause)), pageRef).
+                required(true).enableSearch().build("content"));
 
         FormTester formTester = TESTER.newFormTester(
                 "content:searchFormContainer:search:multiValueContainer:innerForm");
