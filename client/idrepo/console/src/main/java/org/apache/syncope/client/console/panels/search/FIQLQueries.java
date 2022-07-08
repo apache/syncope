@@ -27,10 +27,15 @@ public class FIQLQueries extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -6210866598876608258L;
 
-    public FIQLQueries(final String id, final AbstractSearchPanel searchPanel, final PageReference pageRef) {
+    public FIQLQueries(
+            final String id,
+            final AbstractSearchPanel searchPanel,
+            final String target,
+            final PageReference pageRef) {
+
         super(id, pageRef);
 
-        addInnerObject(new FIQLQueryDirectoryPanel("fiqlQueryDirectoryPanel", searchPanel, this, pageRef));
+        addInnerObject(new FIQLQueryDirectoryPanel("fiqlQueryDirectoryPanel", searchPanel, target, this, pageRef));
     }
 
     @Override

@@ -54,15 +54,19 @@ public class FIQLQueryDirectoryPanel extends DirectoryPanel<
 
     private final AbstractSearchPanel searchPanel;
 
+    private final String target;
+
     private final FIQLQueries parent;
 
     public FIQLQueryDirectoryPanel(
             final String id,
             final AbstractSearchPanel searchPanel,
+            final String target,
             final FIQLQueries parent,
             final PageReference pageRef) {
 
         super(id, pageRef, false);
+        this.target = target;
         this.searchPanel = searchPanel;
         this.parent = parent;
 
@@ -154,14 +158,14 @@ public class FIQLQueryDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<FIQLQueryTO> iterator(final long first, final long count) {
-            List<FIQLQueryTO> list = FIQLQueryRestClient.list();
+            List<FIQLQueryTO> list = FIQLQueryRestClient.list(target);
             list.sort(comparator);
             return list.subList((int) first, (int) (first + count)).iterator();
         }
 
         @Override
         public long size() {
-            return FIQLQueryRestClient.list().size();
+            return FIQLQueryRestClient.list(target).size();
         }
 
         @Override

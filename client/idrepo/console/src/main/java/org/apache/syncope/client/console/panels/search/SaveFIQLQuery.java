@@ -40,7 +40,7 @@ public class SaveFIQLQuery extends TogglePanel<Serializable> {
 
     private TextField<String> name;
 
-    public SaveFIQLQuery(final String id, final PageReference pageRef) {
+    public SaveFIQLQuery(final String id, final String target, final PageReference pageRef) {
         super(id, pageRef);
 
         Form<?> form = new Form<>("form");
@@ -54,10 +54,11 @@ public class SaveFIQLQuery extends TogglePanel<Serializable> {
             private static final long serialVersionUID = -5697330186048290602L;
 
             @Override
-            protected void onSubmit(final AjaxRequestTarget target) {
+            protected void onSubmit(final AjaxRequestTarget art) {
                 try {
                     FIQLQueryTO query = new FIQLQueryTO();
                     query.setName(name.getModelObject());
+                    query.setTarget(target);
                     query.setFiql(fiql);
 
                     FIQLQueryRestClient.create(query);
@@ -66,12 +67,12 @@ public class SaveFIQLQuery extends TogglePanel<Serializable> {
                     name.setRequired(false);
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                    toggle(target, false);
+                    toggle(art, false);
                 } catch (Exception e) {
                     LOG.error("While creating new FIQL query", e);
                     SyncopeConsoleSession.get().onException(e);
                 }
-                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(art);
             }
 
             @Override

@@ -58,8 +58,13 @@ public class GroupSearchPanel extends AbstractSearchPanel {
     }
 
     @Override
-    public AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder() {
+    protected AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder() {
         return SyncopeClient.getGroupSearchConditionBuilder();
+    }
+
+    @Override
+    protected String getFIQLQueryTarget() {
+        return AnyTypeKind.GROUP.name();
     }
 
     @Override

@@ -81,8 +81,13 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
     }
 
     @Override
-    public AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder() {
+    protected AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder() {
         return SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder();
+    }
+
+    @Override
+    protected String getFIQLQueryTarget() {
+        return "CONN_OBJ";
     }
 
     @Override

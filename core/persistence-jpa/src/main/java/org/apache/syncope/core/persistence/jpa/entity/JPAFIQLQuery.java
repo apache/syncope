@@ -43,6 +43,9 @@ public class JPAFIQLQuery extends AbstractGeneratedKeyEntity implements FIQLQuer
     private String name;
 
     @NotNull
+    private String target;
+
+    @NotNull
     private String fiql;
 
     @Override
@@ -64,6 +67,16 @@ public class JPAFIQLQuery extends AbstractGeneratedKeyEntity implements FIQLQuer
     @Override
     public void setName(final String name) {
         this.name = name;
+    }
+
+    @Override
+    public String getTarget() {
+        return target;
+    }
+
+    @Override
+    public void setTarget(final String target) {
+        this.target = target;
     }
 
     @Override

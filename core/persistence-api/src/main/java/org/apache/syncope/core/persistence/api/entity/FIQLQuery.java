@@ -30,6 +30,10 @@ public interface FIQLQuery extends Entity {
 
     void setOwner(User owner);
 
+    String getTarget();
+
+    void setTarget(String target);
+
     String getFIQL();
 
     void setFIQL(String fiql);

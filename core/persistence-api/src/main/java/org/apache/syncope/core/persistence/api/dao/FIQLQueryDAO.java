@@ -26,7 +26,7 @@ public interface FIQLQueryDAO extends DAO<FIQLQuery> {
 
     FIQLQuery find(String key);
 
-    List<FIQLQuery> findByOwner(User user);
+    List<FIQLQuery> findByOwner(User user, String target);
 
     List<FIQLQuery> findAll();
 

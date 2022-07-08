@@ -183,10 +183,10 @@ public abstract class AbstractSearchPanel extends Panel {
             }
         }.build("search", "search", searchClausePanel).hideLabel().setOutputMarkupId(true));
 
-        FIQLQueries fiqlQueries = new FIQLQueries("fiqlQueries", this, builder.pageRef);
+        FIQLQueries fiqlQueries = new FIQLQueries("fiqlQueries", this, getFIQLQueryTarget(), builder.pageRef);
         add(fiqlQueries);
 
-        SaveFIQLQuery saveFIQLQuery = new SaveFIQLQuery("saveFIQLQuery", builder.pageRef);
+        SaveFIQLQuery saveFIQLQuery = new SaveFIQLQuery("saveFIQLQuery", getFIQLQueryTarget(), builder.pageRef);
         add(saveFIQLQuery);
 
         ActionsPanel<Serializable> fiqlQueryActionsPanel = new ActionsPanel<>("fiqlQueryActionsPanel", null);
@@ -198,7 +198,8 @@ public abstract class AbstractSearchPanel extends Panel {
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 saveFIQLQuery.setFiql(
                         SearchUtils.buildFIQL(AbstractSearchPanel.this.getModel().getObject(),
-                                getSearchConditionBuilder()));
+                                getSearchConditionBuilder()).
+                                replaceAll(SearchUtils.getTypeConditionPattern(type).pattern(), ""));
                 saveFIQLQuery.toggle(target, true);
             }
         }, ActionLink.ActionType.EXPORT, StringUtils.EMPTY).hideLabel();
@@ -219,10 +220,13 @@ public abstract class AbstractSearchPanel extends Panel {
         add(fiqlQueryActionsPanel.setOutputMarkupPlaceholderTag(true));
     }
 
-    public abstract AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder();
+    protected abstract AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder();
+
+    protected abstract String getFIQLQueryTarget();
 
     protected void updateFIQL(final AjaxRequestTarget target, final String fiql) {
-        model.setObject(SearchUtils.getSearchClauses(fiql));
+        model.setObject(SearchUtils.getSearchClauses(
+                fiql.replaceAll(SearchUtils.getTypeConditionPattern(type).pattern(), "")));
         target.add(searchFormContainer);
     }
 

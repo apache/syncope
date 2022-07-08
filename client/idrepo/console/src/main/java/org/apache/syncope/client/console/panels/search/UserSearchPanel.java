@@ -54,8 +54,13 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
     }
 
     @Override
-    public AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder() {
+    protected AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder() {
         return SyncopeClient.getUserSearchConditionBuilder();
+    }
+
+    @Override
+    protected String getFIQLQueryTarget() {
+        return AnyTypeKind.USER.name();
     }
 
     @Override

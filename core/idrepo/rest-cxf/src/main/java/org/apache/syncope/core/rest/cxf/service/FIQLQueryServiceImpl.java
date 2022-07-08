@@ -37,8 +37,8 @@ public class FIQLQueryServiceImpl extends AbstractService implements FIQLQuerySe
     }
 
     @Override
-    public List<FIQLQueryTO> list() {
-        return logic.list();
+    public List<FIQLQueryTO> list(final String target) {
+        return logic.list(target);
     }
 
     @Override

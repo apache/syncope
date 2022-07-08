@@ -488,7 +488,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         delegationDAO.findByDelegating(user).forEach(delegationDAO::delete);
         delegationDAO.findByDelegated(user).forEach(delegationDAO::delete);
 
-        fiqlQueryDAO.findByOwner(user).forEach(fiqlQueryDAO::delete);
+        fiqlQueryDAO.findByOwner(user, null).forEach(fiqlQueryDAO::delete);
 
         Optional.ofNullable(accessTokenDAO.findByOwner(user.getUsername())).ifPresent(accessTokenDAO::delete);
 

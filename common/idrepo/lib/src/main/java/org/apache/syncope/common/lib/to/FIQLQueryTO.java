@@ -31,6 +31,8 @@ public class FIQLQueryTO implements NamedEntityTO {
 
     private String name;
 
+    private String target;
+
     private String fiql;
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
@@ -55,6 +57,14 @@ public class FIQLQueryTO implements NamedEntityTO {
         this.name = name;
     }
 
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(final String target) {
+        this.target = target;
+    }
+
     public String getFiql() {
         return fiql;
     }
@@ -69,6 +79,7 @@ public class FIQLQueryTO implements NamedEntityTO {
                 appendSuper(super.hashCode()).
                 append(key).
                 append(name).
+                append(target).
                 append(fiql).
                 build();
     }
@@ -89,6 +100,7 @@ public class FIQLQueryTO implements NamedEntityTO {
                 appendSuper(super.equals(obj)).
                 append(key, other.key).
                 append(name, other.name).
+                append(target, other.target).
                 append(fiql, other.fiql).
                 build();
     }

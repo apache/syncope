@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.entity.FIQLQuery;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -33,10 +34,19 @@ public class JPAFIQLQueryDAO extends AbstractDAO<FIQLQuery> implements FIQLQuery
     }
 
     @Override
-    public List<FIQLQuery> findByOwner(final User user) {
-        TypedQuery<FIQLQuery> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAFIQLQuery.class.getSimpleName() + " e WHERE e.owner=:user", FIQLQuery.class);
+    public List<FIQLQuery> findByOwner(final User user, final String target) {
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(JPAFIQLQuery.class.getSimpleName()).append(" e WHERE e.owner=:user");
+        if (StringUtils.isNotBlank(target)) {
+            queryString.append(" AND e.target=:target");
+        }
+
+        TypedQuery<FIQLQuery> query = entityManager().createQuery(queryString.toString(), FIQLQuery.class);
         query.setParameter("user", user);
+        if (StringUtils.isNotBlank(target)) {
+            query.setParameter("target", target);
+        }
+
         return query.getResultList();
     }
 

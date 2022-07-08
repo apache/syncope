@@ -28,6 +28,7 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.FIQLQueryTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.FIQLQueryService;
@@ -41,11 +42,12 @@ public class FIQLQueryITCase extends AbstractITCase {
         FIQLQueryService fiqlQueryService =
                 CLIENT_FACTORY.create("bellini", "password").getService(FIQLQueryService.class);
 
-        int before = fiqlQueryService.list().size();
+        int before = fiqlQueryService.list(AnyTypeKind.USER.name()).size();
 
         FIQLQueryTO query = new FIQLQueryTO();
         query.setFiql("INVALID");
         query.setName("fancy name");
+        query.setTarget(AnyTypeKind.USER.name());
 
         try {
             fiqlQueryService.create(query);
@@ -64,7 +66,7 @@ public class FIQLQueryITCase extends AbstractITCase {
         assertEquals("username=~*one*", query.getFiql());
         assertEquals("fancy name", query.getName());
 
-        List<FIQLQueryTO> queries = fiqlQueryService.list();
+        List<FIQLQueryTO> queries = fiqlQueryService.list(AnyTypeKind.USER.name());
         assertEquals(before + 1, queries.size());
         assertTrue(queries.stream().anyMatch(q -> key.equals(q.getKey())));
 
@@ -78,7 +80,7 @@ public class FIQLQueryITCase extends AbstractITCase {
 
         fiqlQueryService.delete(key);
 
-        queries = fiqlQueryService.list();
+        queries = fiqlQueryService.list(AnyTypeKind.USER.name());
         assertEquals(before, queries.size());
         assertFalse(queries.contains(query));
     }

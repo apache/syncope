@@ -69,8 +69,13 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
     }
 
     @Override
-    public AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder() {
+    protected AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder() {
         return SyncopeClient.getAnyObjectSearchConditionBuilder(type);
+    }
+
+    @Override
+    protected String getFIQLQueryTarget() {
+        return type;
     }
 
     @Override

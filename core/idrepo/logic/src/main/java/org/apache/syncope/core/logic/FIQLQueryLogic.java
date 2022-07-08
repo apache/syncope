@@ -75,8 +75,8 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public List<FIQLQueryTO> list() {
-        return fiqlQueryDAO.findByOwner(userDAO.findByUsername(AuthContextUtils.getUsername())).stream().
+    public List<FIQLQueryTO> list(final String target) {
+        return fiqlQueryDAO.findByOwner(userDAO.findByUsername(AuthContextUtils.getUsername()), target).stream().
                 map(binder::getFIQLQueryTO).collect(Collectors.toList());
     }
 

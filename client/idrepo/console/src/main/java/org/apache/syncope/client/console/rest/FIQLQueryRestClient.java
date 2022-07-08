@@ -42,7 +42,7 @@ public class FIQLQueryRestClient extends BaseRestClient {
         getService(FIQLQueryService.class).create(roleTO);
     }
 
-    public static List<FIQLQueryTO> list() {
-        return getService(FIQLQueryService.class).list();
+    public static List<FIQLQueryTO> list(final String target) {
+        return getService(FIQLQueryService.class).list(target);
     }
 }

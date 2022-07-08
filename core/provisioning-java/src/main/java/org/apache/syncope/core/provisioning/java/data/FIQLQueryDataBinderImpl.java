@@ -64,6 +64,7 @@ public class FIQLQueryDataBinderImpl implements FIQLQueryDataBinder {
     @Override
     public FIQLQuery update(final FIQLQuery fiqlQuery, final FIQLQueryTO fiqlQueryTO) {
         fiqlQuery.setName(fiqlQueryTO.getName());
+        fiqlQuery.setTarget(fiqlQueryTO.getTarget());
 
         SearchCond cond = SearchCondConverter.convert(searchCondVisitor, fiqlQueryTO.getFiql());
         if (!cond.isValid()) {
@@ -82,6 +83,7 @@ public class FIQLQueryDataBinderImpl implements FIQLQueryDataBinder {
 
         fiqlQueryTO.setKey(fiqlQuery.getKey());
         fiqlQueryTO.setName(fiqlQuery.getName());
+        fiqlQueryTO.setTarget(fiqlQuery.getTarget());
         fiqlQueryTO.setFiql(fiqlQuery.getFIQL());
 
         return fiqlQueryTO;

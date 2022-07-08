@@ -37,6 +37,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -54,13 +55,14 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 public interface FIQLQueryService extends JAXRSService {
 
     /**
-     * Returns a list of all FIQL queries.
+     * Returns a list of all FIQL queries for the calling user, matching the given target if provided.
      *
-     * @return list of all FIQL queries.
+     * @param target FIQL query target
+     * @return list of all FIQL queries for the calling user, matching the given target if provided
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<FIQLQueryTO> list();
+    List<FIQLQueryTO> list(@QueryParam("target") String target);
 
     /**
      * Returns FIQL querywith matching key.
