@@ -18,45 +18,50 @@
  */
 package org.apache.syncope.client.console.policies;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.function.Function;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AMConstants;
 import org.apache.syncope.client.console.panels.AttrListDirectoryPanel;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.model.IModel;
+import org.danekja.java.util.function.serializable.SerializableFunction;
 
 public class AccessPolicyAttrsDirectoryPanel extends AttrListDirectoryPanel {
-
-    public interface AttrsAccessor extends Function<AccessPolicyConf, List<Attr>>, Serializable {
-    }
 
     private static final long serialVersionUID = 33604877627114L;
 
     private final BaseModal<AccessPolicyTO> wizardModal;
 
-    private final IModel<AccessPolicyTO> model;
+    private final IModel<AccessPolicyTO> accessPolicyModel;
 
-    private final AttrsAccessor attrsAccessor;
+    private final SerializableFunction<AccessPolicyConf, List<Attr>> attrsAccessor;
 
     public AccessPolicyAttrsDirectoryPanel(
             final String id,
             final BaseModal<AccessPolicyTO> wizardModal,
             final IModel<AccessPolicyTO> model,
-            final AttrsAccessor attrsAccessor,
+            final SerializableFunction<AccessPolicyConf, List<Attr>> attrsAccessor,
             final PageReference pageRef) {
 
         super(id, pageRef, false);
 
         this.wizardModal = wizardModal;
-        this.model = model;
+        this.accessPolicyModel = model;
         this.attrsAccessor = attrsAccessor;
 
         setOutputMarkupId(true);
@@ -68,6 +73,33 @@ public class AccessPolicyAttrsDirectoryPanel extends AttrListDirectoryPanel {
                 new AccessPolicyAttrsWizardBuilder(model.getObject(), attrsAccessor, new Attr(), pageRef), true);
 
         initResultTable();
+    }
+
+    @Override
+    protected ActionsPanel<Attr> getActions(final IModel<Attr> model) {
+        ActionsPanel<Attr> panel = super.getActions(model);
+
+        panel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final Attr ignore) {
+                try {
+                    attrsAccessor.apply(accessPolicyModel.getObject().getConf()).remove(model.getObject());
+                    PolicyRestClient.update(PolicyType.ACCESS, accessPolicyModel.getObject());
+
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While updating {}", accessPolicyModel.getObject().getKey(), e);
+                    SyncopeConsoleSession.get().onException(e);
+                }
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.POLICY_UPDATE, true);
+
+        return panel;
     }
 
     @Override
@@ -103,7 +135,7 @@ public class AccessPolicyAttrsDirectoryPanel extends AttrListDirectoryPanel {
 
         @Override
         protected List<Attr> list() {
-            return attrsAccessor.apply(model.getObject().getConf());
+            return attrsAccessor.apply(accessPolicyModel.getObject().getConf());
         }
     }
 }
