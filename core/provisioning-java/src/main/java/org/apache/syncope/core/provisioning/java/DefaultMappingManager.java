@@ -245,7 +245,7 @@ public class DefaultMappingManager implements MappingManager {
     protected Name evaluateNAME(final Any<?> any, final ProvisionTO provision, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
             // LOG error but avoid to throw exception: leave it to the external resource
-            LOG.warn("Missing ConnObjectKey value for {}: ", provision);
+            LOG.warn("Missing ConnObjectKey value for {}: ", any.getType().getKey());
         }
 
         // Evaluate connObjectKey expression
@@ -277,7 +277,7 @@ public class DefaultMappingManager implements MappingManager {
     protected Name evaluateNAME(final Realm realm, final OrgUnitTO orgUnit, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
             // LOG error but avoid to throw exception: leave it to the external resource
-            LOG.warn("Missing ConnObjectKey value for {}: ", orgUnit);
+            LOG.warn("Missing ConnObjectKey value for Realms");
         }
 
         // Evaluate connObjectKey expression
@@ -634,7 +634,7 @@ public class DefaultMappingManager implements MappingManager {
             final AccountGetter usernameAccountGetter,
             final PlainAttrGetter plainAttrGetter) {
 
-        LOG.debug("Get internal values for {} as '{}' on {}", any, mapItem.getIntAttrName(), provision);
+        LOG.debug("Get internal values for {} as '{}' on {}", any, mapItem.getIntAttrName(), resource);
 
         List<Any<?>> references = new ArrayList<>();
         Membership<?> membership = null;
@@ -915,7 +915,7 @@ public class DefaultMappingManager implements MappingManager {
 
         Optional<ItemTO> connObjectKeyItem = provision.getMapping().getConnObjectKeyItem();
         if (connObjectKeyItem.isEmpty()) {
-            LOG.error("Unable to locate conn object key item for " + provision.getMapping());
+            LOG.error("Unable to locate conn object key item for {}", any.getType().getKey());
             return Optional.empty();
         }
         ItemTO mapItem = connObjectKeyItem.get();
@@ -944,7 +944,7 @@ public class DefaultMappingManager implements MappingManager {
     public Optional<String> getConnObjectKeyValue(final Realm realm, final OrgUnitTO orgUnit) {
         Optional<ItemTO> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
         if (connObjectKeyItem.isEmpty()) {
-            LOG.error("Unable to locate conn object key item for " + orgUnit);
+            LOG.error("Unable to locate conn object key item for Realms");
             return Optional.empty();
         }
         return Optional.ofNullable(getIntValue(realm, connObjectKeyItem.get()));

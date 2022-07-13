@@ -518,7 +518,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         if (triple.getRight().getMapping().getConnObjectKeyItem().isEmpty()) {
             throw new NotFoundException(
-                    "ConnObjectKey cannot be determined for mapping " + triple.getRight().getMapping());
+                    "ConnObjectKey cannot be determined for mapping " + anyTypeKey);
         }
 
         Any<?> any = getAny(triple.getRight(), triple.getLeft().getKind(), anyKey);

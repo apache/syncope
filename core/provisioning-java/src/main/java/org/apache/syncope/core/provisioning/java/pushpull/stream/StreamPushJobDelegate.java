@@ -144,7 +144,6 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
 
         try {
             ExternalResource resource = externalResource(anyType, columns, propagationActions);
-            ProvisionTO provision = resource.getProvisions().get(0);
 
             PushTask pushTask = entityFactory.newEntity(PushTask.class);
             pushTask.setResource(resource);

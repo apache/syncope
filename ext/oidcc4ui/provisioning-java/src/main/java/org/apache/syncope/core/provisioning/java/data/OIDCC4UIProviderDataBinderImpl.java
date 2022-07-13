@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OIDCC4UIProviderDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(OIDCC4UIProviderDataBinder.class);
 
     protected final AnyTypeDAO anyTypeDAO;
 
@@ -77,7 +77,7 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
         return update(entityFactory.newEntity(OIDCC4UIProvider.class), opTO);
     }
 
-    private void populateItems(final OIDCC4UIProviderTO opTO, final OIDCC4UIProvider op) {
+    protected void populateItems(final OIDCC4UIProviderTO opTO, final OIDCC4UIProvider op) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
         SyncopeClientException invalidMapping =
                 SyncopeClientException.build(ClientExceptionType.InvalidMapping);
@@ -208,7 +208,7 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
         return oidcOPDAO.save(op);
     }
 
-    private static void populateItems(final OIDCC4UIProvider op, final OIDCC4UIProviderTO opTO) {
+    protected static void populateItems(final OIDCC4UIProvider op, final OIDCC4UIProviderTO opTO) {
         op.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setIntAttrName(item.getIntAttrName());

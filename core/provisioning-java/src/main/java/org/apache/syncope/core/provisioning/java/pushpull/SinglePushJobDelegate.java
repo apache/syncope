@@ -51,7 +51,6 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
 
     protected List<PushActions> before(
             final ExternalResource resource,
-            final ProvisionTO provision,
             final Connector connector,
             final PushTaskTO pushTaskTO,
             final String executor) throws JobExecutionException {
@@ -105,7 +104,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             final String executor) throws JobExecutionException {
 
         try {
-            List<PushActions> actions = before(resource, provision, connector, pushTaskTO, executor);
+            List<PushActions> actions = before(resource, connector, pushTaskTO, executor);
 
             AnyType anyType = anyTypeDAO.find(provision.getAnyType());
 
@@ -149,7 +148,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             final String executor) throws JobExecutionException {
 
         try {
-            List<PushActions> actions = before(resource, provision, connector, pushTaskTO, executor);
+            List<PushActions> actions = before(resource, connector, pushTaskTO, executor);
 
             UserPushResultHandler handler = buildUserHandler();
             handler.setProfile(profile);

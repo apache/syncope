@@ -53,14 +53,13 @@ under the License.
               jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
 
   <!-- Access policies -->
-  <AccessPolicy id="419935c7-deb3-40b3-8a9a-683037e523a2" name="MyDefaultAccessPolicyConf"
-                jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf","name":"MyDefaultAccessPolicyConf","enabled":true,"ssoEnabled":true}'/>
+  <AccessPolicy aporder="0" ssoEnabled="1" name="MyDefaultAccessPolicyConf" caseInsensitive="1" id="419935c7-deb3-40b3-8a9a-683037e523a2" enabled="1" requireAllAttributes="1"/>
 
   <!-- Attr Release Policies -->
-  <AttrReleasePolicy id="319935c7-deb3-40b3-8a9a-683037e523a2" name="AllowedAttrReleasePolicy"
-                     jsonConf='{"_class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"AllowedAttrReleasePolicy","allowedAttributes":["cn","givenName","uid"]}'/>
-  <AttrReleasePolicy id="219935c7-deb3-40b3-8a9a-683037e523a2" name="DenyAttrReleasePolicy"
-                     jsonConf='{"_class":"org.apache.syncope.common.lib.policy.AllowedAttrReleasePolicyConf","name":"DenyAttrReleasePolicyConf"}'/>
+  <AttrReleasePolicy arporder="0" name="DenyAttrReleasePolicy" id="219935c7-deb3-40b3-8a9a-683037e523a2"
+                     jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf","allowedAttrs":[],"excludedAttrs":[],"includeOnlyAttrs":[],"principalIdAttr":null,"principalAttrRepoConf":{"mergingStrategy":"MULTIVALUED","ignoreResolvedAttributes":false,"expiration":0,"timeUnit":"HOURS","attrRepos":[]}}'/>
+  <AttrReleasePolicy arporder="0" name="AllowedAttrReleasePolicy" id="319935c7-deb3-40b3-8a9a-683037e523a2"
+                     jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf","allowedAttrs":["cn","givenName","uid"],"excludedAttrs":[],"includeOnlyAttrs":[],"principalIdAttr":null,"principalAttrRepoConf":{"mergingStrategy":"MULTIVALUED","ignoreResolvedAttributes":false,"expiration":0,"timeUnit":"HOURS","attrRepos":[]}}'/>
       
   <!-- Authentication modules -->
   <AuthModule id="DefaultLDAPAuthModule" authModuleState="ACTIVE"

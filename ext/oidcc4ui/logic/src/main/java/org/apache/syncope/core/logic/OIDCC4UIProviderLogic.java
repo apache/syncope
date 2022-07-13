@@ -69,7 +69,7 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
             opTO.setConnObjectKeyItem(connObjectKeyItem);
         }
 
-        OIDCC4UIProvider provider = opDAO.save(binder.create(opTO));
+        OIDCC4UIProvider provider = binder.create(opTO);
 
         return provider.getKey();
     }
@@ -106,7 +106,7 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
         }
         String opName = op.getName();
 
-        opDAO.save(binder.update(op, opTO));
+        binder.update(op, opTO);
         oidcClientClientCache.removeAll(opName);
     }
 
