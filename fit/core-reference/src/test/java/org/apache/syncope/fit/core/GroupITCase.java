@@ -1053,7 +1053,7 @@ public class GroupITCase extends AbstractITCase {
 
             MappingTO mapping = newLDAP.getProvision(AnyTypeKind.GROUP.name()).get().getMapping();
 
-            ItemTO connObjectKey = mapping.getConnObjectKeyItem();
+            ItemTO connObjectKey = mapping.getConnObjectKeyItem().get();
             connObjectKey.setIntAttrName("displayProperty");
             connObjectKey.setPurpose(MappingPurpose.PROPAGATION);
             mapping.setConnObjectKeyItem(connObjectKey);

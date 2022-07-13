@@ -19,26 +19,26 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 
 public class DefaultProvisionSorter implements ProvisionSorter {
 
     @Override
-    public int compare(final Provision provision1, final Provision provision2) {
-        if (provision1.getAnyType().getKind() == AnyTypeKind.USER) {
+    public int compare(final ProvisionTO provision1, final ProvisionTO provision2) {
+        if (AnyTypeKind.USER.name().equals(provision1.getAnyType())) {
             return -1;
         }
-        if (provision2.getAnyType().getKind() == AnyTypeKind.USER) {
+        if (AnyTypeKind.USER.name().equals(provision2.getAnyType())) {
             return 1;
         }
-        if (provision1.getAnyType().getKind() == AnyTypeKind.GROUP) {
+        if (AnyTypeKind.GROUP.name().equals(provision1.getAnyType())) {
             return -1;
         }
-        if (provision2.getAnyType().getKind() == AnyTypeKind.GROUP) {
+        if (AnyTypeKind.GROUP.name().equals(provision2.getAnyType())) {
             return 1;
         }
-        return ObjectUtils.compare(provision1.getAnyType().getKey(), provision2.getAnyType().getKey());
+        return ObjectUtils.compare(provision1.getAnyType(), provision2.getAnyType());
     }
 }

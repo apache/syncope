@@ -62,6 +62,7 @@ public class JPASAML2SP4UIIdPDAO extends AbstractDAO<SAML2SP4UIIdP> implements S
 
     @Override
     public SAML2SP4UIIdP save(final SAML2SP4UIIdP idp) {
+        ((JPASAML2SP4UIIdP) idp).list2json();
         return entityManager().merge(idp);
     }
 

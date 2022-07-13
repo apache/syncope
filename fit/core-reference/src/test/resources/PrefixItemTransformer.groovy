@@ -22,10 +22,10 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair
 import org.apache.syncope.common.lib.to.EntityTO
+import org.apache.syncope.common.lib.to.ItemTO
 import org.apache.syncope.common.lib.types.AttrSchemaType
 import org.apache.syncope.core.persistence.api.entity.Any
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue
-import org.apache.syncope.core.persistence.api.entity.resource.Item
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 @CompileStatic
@@ -35,7 +35,7 @@ class PrefixItemTransformer implements ItemTransformer {
 
   @Override
   Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
-    Item item,
+    ItemTO item,
     Any<?> any,
     AttrSchemaType schemaType,
     List<PlainAttrValue> values) {
@@ -52,7 +52,7 @@ class PrefixItemTransformer implements ItemTransformer {
 
   @Override
   List<Object> beforePull(
-    Item item,
+    ItemTO item,
     EntityTO entityTO,
     List<Object> values) {
 

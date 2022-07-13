@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -33,7 +34,6 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 
 public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass> implements AnyTypeClassDAO {
@@ -125,11 +125,10 @@ public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass> implements Any
             }
         }
 
-        for (Provision provision : resourceDAO.findProvisionsByAuxClass(anyTypeClass)) {
-            provision.getAuxClasses().remove(anyTypeClass);
+        for (ProvisionTO provision : resourceDAO.findProvisionsByAuxClass(anyTypeClass)) {
+            provision.getAuxClasses().remove(anyTypeClass.getKey());
         }
 
         entityManager().remove(anyTypeClass);
     }
-
 }

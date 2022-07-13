@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -36,20 +37,21 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.OrgUnitTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.identityconnectors.common.security.GuardedByteArray;
@@ -57,6 +59,7 @@ import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.common.security.SecurityUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.SyncToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +70,14 @@ public class ConnObjectUtils {
     protected static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtils.class);
 
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
+    public static SyncToken toSyncToken(final String syncToken) {
+        return Optional.ofNullable(syncToken).map(st -> POJOHelper.deserialize(st, SyncToken.class)).orElse(null);
+    }
+
+    public static String toString(final SyncToken syncToken) {
+        return Optional.ofNullable(syncToken).map(POJOHelper::serialize).orElse(null);
+    }
 
     /**
      * Extract password value from passed value (if instance of GuardedString or GuardedByteArray).
@@ -162,6 +173,7 @@ public class ConnObjectUtils {
      *
      * @param obj connector object
      * @param pullTask pull task
+     * @param anyTypeKind any type kind
      * @param provision provision information
      * @param generatePasswordIfPossible whether password value shall be generated, in case not found from
      * connector object and allowed by resource configuration
@@ -172,17 +184,18 @@ public class ConnObjectUtils {
     public <C extends AnyCR> C getAnyCR(
             final ConnectorObject obj,
             final PullTask pullTask,
-            final Provision provision,
+            final AnyTypeKind anyTypeKind,
+            final ProvisionTO provision,
             final boolean generatePasswordIfPossible) {
 
-        AnyTO anyTO = getAnyTOFromConnObject(obj, pullTask, provision);
-        C anyCR = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).newAnyCR();
+        AnyTO anyTO = getAnyTOFromConnObject(obj, pullTask, anyTypeKind, provision);
+        C anyCR = anyUtilsFactory.getInstance(anyTypeKind).newAnyCR();
         EntityTOUtils.toAnyCR(anyTO, anyCR);
 
         // (for users) if password was not set above, generate if resource is configured for that
         if (anyCR instanceof UserCR
                 && StringUtils.isBlank(((UserCR) anyCR).getPassword())
-                && generatePasswordIfPossible && provision.getResource().isRandomPwdIfNotProvided()) {
+                && generatePasswordIfPossible && pullTask.getResource().isRandomPwdIfNotProvided()) {
 
             UserCR userCR = (UserCR) anyCR;
             List<PasswordPolicy> passwordPolicies = new ArrayList<>();
@@ -195,9 +208,9 @@ public class ConnObjectUtils {
             }
 
             userCR.getResources().stream().
-                    map(resource -> resourceDAO.find(resource)).
-                    filter(resource -> resource != null && resource.getPasswordPolicy() != null).
-                    forEach(resource -> passwordPolicies.add(resource.getPasswordPolicy()));
+                    map(resourceDAO::find).
+                    filter(r -> r != null && r.getPasswordPolicy() != null).
+                    forEach(r -> passwordPolicies.add(r.getPasswordPolicy()));
 
             userCR.setPassword(passwordGenerator.generate(passwordPolicies));
         }
@@ -205,11 +218,12 @@ public class ConnObjectUtils {
         return anyCR;
     }
 
-    public RealmTO getRealmTO(final ConnectorObject obj, final OrgUnit orgUnit) {
+    public RealmTO getRealmTO(final ConnectorObject obj, final OrgUnitTO orgUnit) {
         RealmTO realmTO = new RealmTO();
 
-        MappingUtils.getPullItems(orgUnit.getItems().stream()).forEach(item
-                -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), realmTO));
+        MappingUtils.getPullItems(orgUnit.getItems().stream()).
+                forEach(item -> mappingManager.setIntValues(
+                item, obj.getAttributeByName(item.getExtAttrName()), realmTO));
 
         return realmTO;
     }
@@ -221,6 +235,7 @@ public class ConnObjectUtils {
      * @param obj connector object
      * @param original any object to get diff from
      * @param pullTask pull task
+     * @param anyTypeKind any type kind
      * @param provision provision information
      * @param <U> any object
      * @return modifications for the any object to be updated
@@ -232,14 +247,15 @@ public class ConnObjectUtils {
             final ConnectorObject obj,
             final AnyTO original,
             final PullTask pullTask,
-            final Provision provision) {
+            final AnyTypeKind anyTypeKind,
+            final ProvisionTO provision) {
 
-        AnyTO updated = getAnyTOFromConnObject(obj, pullTask, provision);
+        AnyTO updated = getAnyTOFromConnObject(obj, pullTask, anyTypeKind, provision);
         updated.setKey(key);
 
-        U anyUR = null;
-        switch (provision.getAnyType().getKind()) {
-            case USER:
+        U anyUR;
+        switch (provision.getAnyType()) {
+            case "USER":
                 UserTO originalUser = (UserTO) original;
                 UserTO updatedUser = (UserTO) updated;
 
@@ -265,7 +281,7 @@ public class ConnObjectUtils {
                 anyUR = (U) AnyOperations.diff(updatedUser, originalUser, true);
                 break;
 
-            case GROUP:
+            case "GROUP":
                 GroupTO originalGroup = (GroupTO) original;
                 GroupTO updatedGroup = (GroupTO) updated;
 
@@ -281,7 +297,7 @@ public class ConnObjectUtils {
                 anyUR = (U) AnyOperations.diff(updatedGroup, originalGroup, true);
                 break;
 
-            case ANY_OBJECT:
+            default:
                 AnyObjectTO originalAnyObject = (AnyObjectTO) original;
                 AnyObjectTO updatedAnyObject = (AnyObjectTO) updated;
 
@@ -290,9 +306,6 @@ public class ConnObjectUtils {
                 }
 
                 anyUR = (U) AnyOperations.diff(updatedAnyObject, originalAnyObject, true);
-                break;
-
-            default:
         }
 
         if (anyUR != null) {
@@ -306,12 +319,14 @@ public class ConnObjectUtils {
     }
 
     protected <T extends AnyTO> T getAnyTOFromConnObject(
-            final ConnectorObject obj, final PullTask pullTask, final Provision provision) {
+            final ConnectorObject obj,
+            final PullTask pullTask,
+            final AnyTypeKind anyTypeKind,
+            final ProvisionTO provision) {
 
-        T anyTO = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).newAnyTO();
-        anyTO.setType(provision.getAnyType().getKey());
-        anyTO.getAuxClasses().addAll(provision.getAuxClasses().stream().
-                map(AnyTypeClass::getKey).collect(Collectors.toList()));
+        T anyTO = anyUtilsFactory.getInstance(anyTypeKind).newAnyTO();
+        anyTO.setType(provision.getAnyType());
+        anyTO.getAuxClasses().addAll(provision.getAuxClasses());
 
         // 1. fill with data from connector object
         anyTO.setRealm(pullTask.getDestinationRealm().getFullPath());

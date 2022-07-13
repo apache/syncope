@@ -18,23 +18,27 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.am;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.Lob;
-import javax.persistence.OneToMany;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
-import org.apache.syncope.core.persistence.api.entity.am.AuthModuleItem;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
@@ -55,8 +59,11 @@ public class JPAAuthModule extends AbstractProvidedKeyEntity implements AuthModu
     @NotNull
     private Integer authModuleOrder = 0;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "authModule")
-    private List<JPAAuthModuleItem> items = new ArrayList<>();
+    @Lob
+    private String items;
+
+    @Transient
+    private final List<ItemTO> itemList = new ArrayList<>();
 
     @Lob
     private String jsonConf;
@@ -92,14 +99,8 @@ public class JPAAuthModule extends AbstractProvidedKeyEntity implements AuthModu
     }
 
     @Override
-    public List<? extends AuthModuleItem> getItems() {
-        return items;
-    }
-
-    @Override
-    public boolean add(final AuthModuleItem item) {
-        checkType(item, JPAAuthModuleItem.class);
-        return items.contains((JPAAuthModuleItem) item) || items.add((JPAAuthModuleItem) item);
+    public List<ItemTO> getItems() {
+        return itemList;
     }
 
     @Override
@@ -116,4 +117,33 @@ public class JPAAuthModule extends AbstractProvidedKeyEntity implements AuthModu
     public void setConf(final AuthModuleConf conf) {
         jsonConf = POJOHelper.serialize(conf);
     }
+
+    protected void json2list(final boolean clearFirst) {
+        if (clearFirst) {
+            getItems().clear();
+        }
+        if (items != null) {
+            getItems().addAll(
+                    POJOHelper.deserialize(items, new TypeReference<List<ItemTO>>() {
+                    }));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2list(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void postSave() {
+        json2list(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void list2json() {
+        items = POJOHelper.serialize(getItems());
+    }
+
 }

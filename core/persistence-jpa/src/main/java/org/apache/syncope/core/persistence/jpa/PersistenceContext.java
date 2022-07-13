@@ -611,7 +611,8 @@ public class PersistenceContext {
             final GroupDAO groupDAO,
             final PolicyDAO policyDAO,
             final VirSchemaDAO virSchemaDAO,
-            final RealmDAO realmDAO) {
+            final RealmDAO realmDAO,
+            final EntityCacheDAO entityCacheDAO) {
 
         return new JPAExternalResourceDAO(taskDAO, anyObjectDAO, userDAO, groupDAO, policyDAO, virSchemaDAO, realmDAO);
     }

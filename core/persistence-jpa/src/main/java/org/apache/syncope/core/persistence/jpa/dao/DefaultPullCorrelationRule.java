@@ -26,13 +26,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 
@@ -52,17 +52,17 @@ public class DefaultPullCorrelationRule implements PullCorrelationRule {
     }
 
     @Override
-    public SearchCond getSearchCond(final SyncDelta syncDelta, final Provision provision) {
-        Map<String, Item> mappingItems = provision.getMapping().getItems().stream().
-                collect(Collectors.toMap(Item::getIntAttrName, Function.identity()));
+    public SearchCond getSearchCond(final SyncDelta syncDelta, final ProvisionTO provision) {
+        Map<String, ItemTO> mappingItems = provision.getMapping().getItems().stream().
+                collect(Collectors.toMap(ItemTO::getIntAttrName, Function.identity()));
 
         // search for anys by attribute(s) specified in the policy
         List<SearchCond> searchConds = new ArrayList<>();
 
         conf.getSchemas().forEach(schema -> {
-            Item item = mappingItems.get(schema);
-            Attribute attr = Optional.ofNullable(item)
-                .map(item1 -> syncDelta.getObject().getAttributeByName(item1.getExtAttrName())).orElse(null);
+            ItemTO item = mappingItems.get(schema);
+            Attribute attr = Optional.ofNullable(item).
+                    map(item1 -> syncDelta.getObject().getAttributeByName(item1.getExtAttrName())).orElse(null);
             if (attr == null) {
                 throw new IllegalArgumentException(
                         "Connector object does not contains the attributes to perform the search: " + schema);

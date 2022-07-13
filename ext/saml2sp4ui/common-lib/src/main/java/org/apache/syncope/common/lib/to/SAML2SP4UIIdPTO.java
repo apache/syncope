@@ -22,11 +22,11 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.ws.rs.PathParam;
+import org.apache.syncope.common.lib.types.ItemContainer;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 
-public class SAML2SP4UIIdPTO implements EntityTO, ItemContainerTO {
+public class SAML2SP4UIIdPTO extends ItemContainer implements EntityTO {
 
     private static final long serialVersionUID = 4426527052873779881L;
 
@@ -49,8 +49,6 @@ public class SAML2SP4UIIdPTO implements EntityTO, ItemContainerTO {
     private boolean logoutSupported;
 
     private UserTO userTemplate;
-
-    private final List<ItemTO> items = new ArrayList<>();
 
     private final List<String> actions = new ArrayList<>();
 
@@ -137,36 +135,6 @@ public class SAML2SP4UIIdPTO implements EntityTO, ItemContainerTO {
 
     public void setUserTemplate(final UserTO userTemplate) {
         this.userTemplate = userTemplate;
-    }
-
-    @Override
-    public ItemTO getConnObjectKeyItem() {
-        return getItems().stream().filter(ItemTO::isConnObjectKey).findFirst().orElse(null);
-    }
-
-    protected boolean addConnObjectKeyItem(final ItemTO connObjectItem) {
-        connObjectItem.setMandatoryCondition("true");
-        connObjectItem.setConnObjectKey(true);
-
-        return this.add(connObjectItem);
-    }
-
-    @Override
-    public boolean setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
-        return Optional.ofNullable(connObjectKeyItem).
-                map(this::addConnObjectKeyItem).orElseGet(() -> items.remove(getConnObjectKeyItem()));
-    }
-
-    @JacksonXmlElementWrapper(localName = "items")
-    @JacksonXmlProperty(localName = "item")
-    @Override
-    public List<ItemTO> getItems() {
-        return items;
-    }
-
-    @Override
-    public boolean add(final ItemTO item) {
-        return Optional.ofNullable(item).filter(itemTO -> items.contains(itemTO) || items.add(itemTO)).isPresent();
     }
 
     @JacksonXmlElementWrapper(localName = "actions")

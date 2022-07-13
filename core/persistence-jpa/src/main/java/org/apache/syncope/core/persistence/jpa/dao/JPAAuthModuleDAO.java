@@ -52,6 +52,7 @@ public class JPAAuthModuleDAO extends AbstractDAO<AuthModule> implements AuthMod
 
     @Override
     public AuthModule save(final AuthModule authModule) {
+        ((JPAAuthModule) authModule).list2json();
         return entityManager().merge(authModule);
     }
 

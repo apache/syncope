@@ -26,7 +26,6 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
-import org.apache.syncope.core.persistence.api.entity.am.AttrRepoItem;
 import org.apache.syncope.core.provisioning.api.data.AttrRepoDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.slf4j.Logger;
@@ -67,7 +66,7 @@ public class AttrRepoDataBinderImpl implements AttrRepoDataBinder {
                     scce.addException(invalidMandatoryCondition);
                 }
 
-                AttrRepoItem item = entityFactory.newEntity(AttrRepoItem.class);
+                ItemTO item = new ItemTO();
                 item.setIntAttrName(itemTO.getIntAttrName());
                 item.setExtAttrName(itemTO.getExtAttrName());
                 item.setMandatoryCondition(itemTO.getMandatoryCondition());
@@ -75,8 +74,7 @@ public class AttrRepoDataBinderImpl implements AttrRepoDataBinder {
                 item.setPassword(itemTO.isPassword());
                 item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
                 item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
-                item.setAttrRepo(attrRepo);
-                attrRepo.add(item);
+                attrRepo.getItems().add(item);
             }
         });
 
@@ -111,7 +109,6 @@ public class AttrRepoDataBinderImpl implements AttrRepoDataBinder {
     protected void populateItems(final AttrRepo attrRepo, final AttrRepoTO attrRepoTO) {
         attrRepo.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
-            itemTO.setKey(item.getKey());
             itemTO.setIntAttrName(item.getIntAttrName());
             itemTO.setExtAttrName(item.getExtAttrName());
             itemTO.setMandatoryCondition(item.getMandatoryCondition());

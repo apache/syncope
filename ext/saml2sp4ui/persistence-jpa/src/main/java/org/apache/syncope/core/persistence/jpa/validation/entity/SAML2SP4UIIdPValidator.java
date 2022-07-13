@@ -19,11 +19,9 @@
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 public class SAML2SP4UIIdPValidator extends AbstractValidator<SAML2SP4UIIdPCheck, SAML2SP4UIIdP> {
 
@@ -49,7 +47,7 @@ public class SAML2SP4UIIdPValidator extends AbstractValidator<SAML2SP4UIIdPCheck
             return false;
         }
 
-        long connObjectKeys = saml2IdP.getItems().stream().filter(Item::isConnObjectKey).count();
+        long connObjectKeys = saml2IdP.getItems().stream().filter(ItemTO::isConnObjectKey).count();
         if (!saml2IdP.getItems().isEmpty() && connObjectKeys != 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "Single ConnObjectKey mapping is required")).
@@ -58,36 +56,15 @@ public class SAML2SP4UIIdPValidator extends AbstractValidator<SAML2SP4UIIdPCheck
             return false;
         }
 
-        final boolean[] isValid = new boolean[] { true };
+        boolean[] isValid = new boolean[] { true };
 
-        long passwords = saml2IdP.getItems().stream().filter(Item::isPassword).count();
+        long passwords = saml2IdP.getItems().stream().filter(ItemTO::isPassword).count();
         if (passwords > 0) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "No password mapping is allowed")).
                     addPropertyNode("password.size").addConstraintViolation();
             isValid[0] = false;
         }
-
-        saml2IdP.getItems().forEach(item -> item.getTransformers().stream().
-                filter(transformer -> transformer.getEngine() == ImplementationEngine.JAVA).
-                forEach(transformer -> {
-                    Class<?> actionsClass = null;
-                    boolean isAssignable = false;
-                    try {
-                        actionsClass = Class.forName(transformer.getBody());
-                        isAssignable = ItemTransformer.class.isAssignableFrom(actionsClass);
-                    } catch (Exception e) {
-                        LOG.error("Invalid ItemTransformer specified: {}", transformer.getBody(), e);
-                    }
-
-                    if (actionsClass == null || !isAssignable) {
-                        context.buildConstraintViolationWithTemplate(
-                                getTemplate(EntityViolationType.InvalidMapping,
-                                        "Invalid item trasformer class name")).
-                                addPropertyNode("itemTransformers").addConstraintViolation();
-                        isValid[0] = false;
-                    }
-                }));
 
         return isValid[0];
     }

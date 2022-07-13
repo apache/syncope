@@ -59,9 +59,8 @@ public class ReconciliationLogicTest extends AbstractTest {
         CSVPullSpec spec = new CSVPullSpec.Builder(AnyTypeKind.USER.name(), "username").build();
         InputStream csv = getClass().getResourceAsStream("/test1.csv");
 
-        List<ProvisioningReport> results = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
-            return reconciliationLogic.pull(spec, csv);
-        });
+        List<ProvisioningReport> results =
+                AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> reconciliationLogic.pull(spec, csv));
         assertEquals(2, results.size());
 
         assertEquals(AnyTypeKind.USER.name(), results.get(0).getAnyType());

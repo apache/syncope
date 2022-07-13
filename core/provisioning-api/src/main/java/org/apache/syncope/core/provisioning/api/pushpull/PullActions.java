@@ -23,10 +23,10 @@ import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
+import org.apache.syncope.common.lib.to.OrgUnitTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
@@ -44,7 +44,7 @@ public interface PullActions extends ProvisioningActions {
      * @param orgUnit Realm provisioning information
      * @return additional attributes to include in the result from the underlying connector
      */
-    default Set<String> moreAttrsToGet(ProvisioningProfile<?, ?> profile, OrgUnit orgUnit) {
+    default Set<String> moreAttrsToGet(ProvisioningProfile<?, ?> profile, OrgUnitTO orgUnit) {
         return Set.of();
     }
 
@@ -55,7 +55,7 @@ public interface PullActions extends ProvisioningActions {
      * @param provision Any provisioning information
      * @return additional attributes to include in the result from the underlying connector
      */
-    default Set<String> moreAttrsToGet(ProvisioningProfile<?, ?> profile, Provision provision) {
+    default Set<String> moreAttrsToGet(ProvisioningProfile<?, ?> profile, ProvisionTO provision) {
         return Set.of();
     }
 
@@ -262,7 +262,7 @@ public interface PullActions extends ProvisioningActions {
      * Action to be executed after each local entity pull.
      *
      * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information (may be modified by beforeProvision / beforeUpdate /
+     * @param delta retrieved pull information (may be modified by beforeProvisionTO / beforeUpdate /
      * beforeDelete)
      * @param entity entity
      * @param result global pull results at the current pull step
@@ -281,7 +281,7 @@ public interface PullActions extends ProvisioningActions {
      * Action to be executed in case an exception is thrown during pull.
      *
      * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information (may be modified by beforeProvision / beforeUpdate /
+     * @param delta retrieved pull information (may be modified by beforeProvisionTO / beforeUpdate /
      * beforeDelete)
      * @param e the exception thrown
      * @return an instance of the given exception type is that is to be thrown; {@code NULL} otherwise

@@ -20,17 +20,17 @@ package org.apache.syncope.fit.core.reference;
 
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 public class DateToLongItemTransformer implements ItemTransformer {
 
     @Override
     public Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
-            final Item item,
+            final ItemTO item,
             final Any<?> any,
             final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {

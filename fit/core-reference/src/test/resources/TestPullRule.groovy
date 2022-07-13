@@ -18,10 +18,10 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import org.apache.syncope.common.lib.to.ProvisionTO
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision
 import org.identityconnectors.framework.common.objects.SyncDelta
 
 /**
@@ -31,7 +31,7 @@ import org.identityconnectors.framework.common.objects.SyncDelta
 class TestPullRule implements PullCorrelationRule {
 
   @Override
-  SearchCond getSearchCond(final SyncDelta syncDelta, final Provision provision) {
+  SearchCond getSearchCond(final SyncDelta syncDelta, final ProvisionTO provision) {
     AttrCond cond = new AttrCond();
     cond.setSchema("email");
     cond.setType(AttrCond.Type.EQ);

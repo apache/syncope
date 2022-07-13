@@ -46,8 +46,8 @@ import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -205,7 +205,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 if (anyType == null) {
                     LOG.debug("Invalid AnyType {} specified, ignoring...", type);
                 } else {
-                    AnyTemplatePullTask anyTemplate = pullTask.getTemplate(anyType).orElse(null);
+                    AnyTemplatePullTask anyTemplate = pullTask.getTemplate(anyType.getKey()).orElse(null);
                     if (anyTemplate == null) {
                         anyTemplate = entityFactory.newEntity(AnyTemplatePullTask.class);
                         anyTemplate.setAnyType(anyType);

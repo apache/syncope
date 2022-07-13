@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.core.reference;
 
 import java.util.Optional;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
@@ -27,7 +28,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ public class LinkedAccountSamplePullCorrelationRule implements PullCorrelationRu
     private UserDAO userDAO;
 
     @Override
-    public SearchCond getSearchCond(final SyncDelta syncDelta, final Provision provision) {
+    public SearchCond getSearchCond(final SyncDelta syncDelta, final ProvisionTO provision) {
         AttrCond cond = new AttrCond();
 
         Attribute email = syncDelta.getObject().getAttributeByName("email");
@@ -60,7 +60,7 @@ public class LinkedAccountSamplePullCorrelationRule implements PullCorrelationRu
 
     @Transactional(readOnly = true)
     @Override
-    public PullMatch matching(final Any<?> any, final SyncDelta syncDelta, final Provision provision) {
+    public PullMatch matching(final Any<?> any, final SyncDelta syncDelta, final ProvisionTO provision) {
         // if match with internal user vivaldi was found but firstName is different, update linked account
         // instead of updating user
         Attribute firstName = syncDelta.getObject().getAttributeByName("firstName");
@@ -76,7 +76,7 @@ public class LinkedAccountSamplePullCorrelationRule implements PullCorrelationRu
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<PullMatch> unmatching(final SyncDelta syncDelta, final Provision provision) {
+    public Optional<PullMatch> unmatching(final SyncDelta syncDelta, final ProvisionTO provision) {
         // if no match with internal user was found, link account to vivaldi instead of creating new user
         return Optional.of(new PullMatch(MatchType.LINKED_ACCOUNT, userDAO.find(VIVALDI_KEY)));
     }

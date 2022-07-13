@@ -190,7 +190,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 break;
 
             case IdRepoImplementationType.ITEM_TRANSFORMER:
-                inUse = !resourceDAO.findByTransformer(implementation).isEmpty();
+                inUse = resourceDAO.anyItemHaving(implementation);
                 break;
 
             case IdRepoImplementationType.TASKJOB_DELEGATE:

@@ -37,7 +37,6 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.PullMode;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
@@ -129,9 +128,9 @@ public class JPAPullTask extends AbstractProvisioningTask implements PullTask {
     }
 
     @Override
-    public Optional<? extends AnyTemplatePullTask> getTemplate(final AnyType anyType) {
+    public Optional<? extends AnyTemplatePullTask> getTemplate(final String anyType) {
         return templates.stream().
-                filter(template -> anyType != null && anyType.equals(template.getAnyType())).
+                filter(template -> anyType != null && anyType.equals(template.getAnyType().getKey())).
                 findFirst();
     }
 

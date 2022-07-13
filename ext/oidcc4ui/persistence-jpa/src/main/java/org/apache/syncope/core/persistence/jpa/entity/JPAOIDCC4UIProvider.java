@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,18 +29,24 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
-import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIUserTemplate;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.jpa.validation.entity.OIDCC4UIProviderCheck;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAOIDCC4UIProvider.TABLE)
@@ -84,8 +91,11 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "op")
     private JPAOIDCC4UIUserTemplate userTemplate;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "op")
-    private List<JPAOIDCC4UIProviderItem> items = new ArrayList<>();
+    @Lob
+    private String items;
+
+    @Transient
+    private final List<ItemTO> itemList = new ArrayList<>();
 
     @NotNull
     private Boolean createUnmatching = false;
@@ -246,25 +256,19 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
     }
 
     @Override
-    public boolean add(final OIDCC4UIProviderItem item) {
-        checkType(item, JPAOIDCC4UIProviderItem.class);
-        return items.contains((JPAOIDCC4UIProviderItem) item) || items.add((JPAOIDCC4UIProviderItem) item);
+    public List<ItemTO> getItems() {
+        return itemList;
     }
 
     @Override
-    public List<? extends OIDCC4UIProviderItem> getItems() {
-        return items;
+    public Optional<ItemTO> getConnObjectKeyItem() {
+        return getItems().stream().filter(ItemTO::isConnObjectKey).findFirst();
     }
 
     @Override
-    public Optional<? extends OIDCC4UIProviderItem> getConnObjectKeyItem() {
-        return getItems().stream().filter(Item::isConnObjectKey).findFirst();
-    }
-
-    @Override
-    public void setConnObjectKeyItem(final OIDCC4UIProviderItem item) {
+    public void setConnObjectKeyItem(final ItemTO item) {
         item.setConnObjectKey(true);
-        this.add(item);
+        getItems().add(item);
     }
 
     @Override
@@ -277,5 +281,33 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
     @Override
     public List<? extends Implementation> getActions() {
         return actions;
+    }
+
+    protected void json2list(final boolean clearFirst) {
+        if (clearFirst) {
+            getItems().clear();
+        }
+        if (items != null) {
+            getItems().addAll(
+                    POJOHelper.deserialize(items, new TypeReference<List<ItemTO>>() {
+                    }));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2list(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void postSave() {
+        json2list(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void list2json() {
+        items = POJOHelper.serialize(getItems());
     }
 }

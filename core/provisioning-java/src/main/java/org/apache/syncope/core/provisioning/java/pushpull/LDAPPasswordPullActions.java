@@ -24,12 +24,12 @@ import java.util.Set;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
@@ -56,8 +56,8 @@ public class LDAPPasswordPullActions implements PullActions {
     protected UserDAO userDAO;
 
     @Override
-    public Set<String> moreAttrsToGet(final ProvisioningProfile<?, ?> profile, final Provision provision) {
-        if (AnyTypeKind.USER == provision.getAnyType().getKind()) {
+    public Set<String> moreAttrsToGet(final ProvisioningProfile<?, ?> profile, final ProvisionTO provision) {
+        if (AnyTypeKind.USER.name().equals(provision.getAnyType())) {
             return Set.of(OperationalAttributes.PASSWORD_NAME);
         }
         return PullActions.super.moreAttrsToGet(profile, provision);

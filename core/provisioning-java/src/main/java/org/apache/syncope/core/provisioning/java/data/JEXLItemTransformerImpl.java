@@ -28,11 +28,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
@@ -144,7 +144,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
 
     @Override
     public Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
-            final Item item,
+            final ItemTO item,
             final Any<?> any,
             final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {
@@ -167,7 +167,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
 
     @Override
     public List<Object> beforePull(
-            final Item item,
+            final ItemTO item,
             final EntityTO entityTO,
             final List<Object> values) {
 

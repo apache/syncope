@@ -26,6 +26,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -35,9 +37,6 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -177,7 +176,7 @@ public class DefaultRealmPushResultHandler
             final String connObjectKey,
             final String connObjectKeyValue,
             final boolean ignoreCaseMatch,
-            final Stream<? extends Item> mapItems) {
+            final Stream<ItemTO> mapItems) {
 
         ConnectorObject obj = null;
         try {
@@ -210,14 +209,14 @@ public class DefaultRealmPushResultHandler
         Result resultStatus = null;
 
         // Try to read remote object BEFORE any actual operation
-        OrgUnit orgUnit = profile.getTask().getResource().getOrgUnit();
-        Optional<? extends OrgUnitItem> connObjectKey = orgUnit.getConnObjectKeyItem();
+        OrgUnitTO orgUnit = profile.getTask().getResource().getOrgUnit();
+        Optional<ItemTO> connObjectKey = orgUnit.getConnObjectKeyItem();
         Optional<String> connObjecKeyValue = mappingManager.getConnObjectKeyValue(realm, orgUnit);
 
         ConnectorObject beforeObj = null;
         if (connObjectKey.isPresent() && connObjecKeyValue.isPresent()) {
             beforeObj = getRemoteObject(
-                    orgUnit.getObjectClass(),
+                    new ObjectClass(orgUnit.getObjectClass()),
                     connObjectKey.get().getExtAttrName(),
                     connObjecKeyValue.get(),
                     orgUnit.isIgnoreCaseMatch(),
@@ -399,7 +398,7 @@ public class DefaultRealmPushResultHandler
                     resultStatus = AuditElements.Result.SUCCESS;
                     if (connObjectKey.isPresent() && connObjecKeyValue.isPresent()) {
                         output = getRemoteObject(
-                                orgUnit.getObjectClass(),
+                                new ObjectClass(orgUnit.getObjectClass()),
                                 connObjectKey.get().getExtAttrName(),
                                 connObjecKeyValue.get(),
                                 orgUnit.isIgnoreCaseMatch(),

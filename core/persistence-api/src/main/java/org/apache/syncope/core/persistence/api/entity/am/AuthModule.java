@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.entity.am;
 
 import java.util.List;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
@@ -41,7 +42,5 @@ public interface AuthModule extends ProvidedKeyEntity {
 
     void setConf(AuthModuleConf conf);
 
-    List<? extends AuthModuleItem> getItems();
-
-    boolean add(AuthModuleItem item);
+    List<ItemTO> getItems();
 }

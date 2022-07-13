@@ -16,18 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.resource;
+package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.syncope.common.lib.to.OrgUnitTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.TraceLevel;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
@@ -107,17 +105,13 @@ public interface ExternalResource extends ProvidedKeyEntity {
 
     void setRandomPwdIfNotProvided(boolean condition);
 
-    boolean add(Provision provision);
+    Optional<ProvisionTO> getProvision(String anyType);
 
-    Optional<? extends Provision> getProvision(String anyType);
+    Optional<ProvisionTO> getProvision(ObjectClass objectClass);
 
-    Optional<? extends Provision> getProvision(AnyType anyType);
+    List<ProvisionTO> getProvisions();
 
-    Optional<? extends Provision> getProvision(ObjectClass objectClass);
+    OrgUnitTO getOrgUnit();
 
-    List<? extends Provision> getProvisions();
-
-    OrgUnit getOrgUnit();
-
-    void setOrgUnit(OrgUnit orgUnit);
+    void setOrgUnit(OrgUnitTO orgUnit);
 }

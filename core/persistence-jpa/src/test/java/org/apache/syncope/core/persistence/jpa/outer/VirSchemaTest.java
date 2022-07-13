@@ -23,12 +23,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,15 +48,17 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void deal() {
-        Provision provision = resourceDAO.find("ws-target-resource-1").getProvision(anyTypeDAO.findUser()).get();
-        assertNotNull(provision);
-        assertTrue(virSchemaDAO.findByProvision(provision).isEmpty());
+        ExternalResource resource = resourceDAO.find("ws-target-resource-1");
+        assertNotNull(resource);
+        assertTrue(virSchemaDAO.find(resource).isEmpty());
+        assertTrue(virSchemaDAO.find(resource.getKey(), anyTypeDAO.findUser().getKey()).isEmpty());
 
         VirSchema virSchema = entityFactory.newEntity(VirSchema.class);
         virSchema.setKey("vSchema");
         virSchema.setReadonly(true);
         virSchema.setExtAttrName("EXT_ATTR");
-        virSchema.setProvision(provision);
+        virSchema.setResource(resource);
+        virSchema.setAnyType(anyTypeDAO.findUser());
 
         virSchemaDAO.save(virSchema);
         entityManager().flush();
@@ -66,12 +68,13 @@ public class VirSchemaTest extends AbstractTest {
         assertTrue(virSchema.isReadonly());
         assertEquals("EXT_ATTR", virSchema.getExtAttrName());
 
-        provision = resourceDAO.find("ws-target-resource-1").getProvision(anyTypeDAO.findUser()).get();
-        assertNotNull(provision);
-        assertFalse(virSchemaDAO.findByProvision(provision).isEmpty());
-        assertTrue(virSchemaDAO.findByProvision(provision).contains(virSchema));
+        assertFalse(virSchemaDAO.find(resource).isEmpty());
+        assertTrue(virSchemaDAO.find(resource).contains(virSchema.getKey()));
 
-        MappingItem item = virSchema.asLinkingMappingItem();
+        assertFalse(virSchemaDAO.find(resource.getKey(), anyTypeDAO.findUser().getKey()).isEmpty());
+        assertTrue(virSchemaDAO.find(resource.getKey(), anyTypeDAO.findUser().getKey()).contains(virSchema));
+
+        ItemTO item = virSchema.asLinkingMappingItem();
         assertNotNull(item);
         assertEquals(virSchema.getKey(), item.getIntAttrName());
     }

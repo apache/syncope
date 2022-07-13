@@ -158,7 +158,7 @@ public class LinkedAccountDetailsPanel extends WizardStep {
         AtomicReference<String> resourceRemoteKey = new AtomicReference<>(ConnIdSpecialName.NAME);
         try {
             resourceRemoteKey.set(ResourceRestClient.read(resource).getProvision(AnyTypeKind.USER.name()).get().
-                    getMapping().getConnObjectKeyItem().getExtAttrName());
+                    getMapping().getConnObjectKeyItem().get().getExtAttrName());
         } catch (Exception ex) {
             LOG.error("While reading mapping for resource {}", resource, ex);
         }

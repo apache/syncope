@@ -24,7 +24,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 

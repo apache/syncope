@@ -909,11 +909,9 @@ public class UserIssuesITCase extends AbstractITCase {
 
         MappingTO ws1NewUMapping = ws1.getProvision(AnyTypeKind.USER.name()).get().getMapping();
         // change purpose from NONE to BOTH
-        for (ItemTO itemTO : ws1NewUMapping.getItems()) {
-            if ("firstname".equals(itemTO.getIntAttrName())) {
-                itemTO.setPurpose(MappingPurpose.BOTH);
-            }
-        }
+        ws1NewUMapping.getItems().stream().
+                filter(itemTO -> "firstname".equals(itemTO.getIntAttrName())).
+                forEach(itemTO -> itemTO.setPurpose(MappingPurpose.BOTH));
 
         ws1.getProvision(AnyTypeKind.USER.name()).get().setMapping(ws1NewUMapping);
 

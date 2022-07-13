@@ -20,16 +20,15 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class ProvisionTO implements EntityTO {
+public class ProvisionTO implements Serializable {
 
     private static final long serialVersionUID = 8298910216218007927L;
-
-    private String key;
 
     private String anyType;
 
@@ -46,16 +45,6 @@ public class ProvisionTO implements EntityTO {
     private MappingTO mapping;
 
     private final List<String> virSchemas = new ArrayList<>();
-
-    @Override
-    public String getKey() {
-        return key;
-    }
-
-    @Override
-    public void setKey(final String key) {
-        this.key = key;
-    }
 
     public String getAnyType() {
         return anyType;
@@ -131,7 +120,6 @@ public class ProvisionTO implements EntityTO {
         ProvisionTO other = (ProvisionTO) obj;
         return new EqualsBuilder().
                 append(ignoreCaseMatch, other.ignoreCaseMatch).
-                append(key, other.key).
                 append(anyType, other.anyType).
                 append(objectClass, other.objectClass).
                 append(auxClasses, other.auxClasses).
@@ -145,7 +133,6 @@ public class ProvisionTO implements EntityTO {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-                append(key).
                 append(anyType).
                 append(objectClass).
                 append(auxClasses).

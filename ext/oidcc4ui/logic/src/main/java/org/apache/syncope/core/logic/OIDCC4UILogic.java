@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.oidc.OIDCRequest;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -46,7 +47,6 @@ import org.apache.syncope.core.logic.oidc.OIDCUserManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
-import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -161,7 +161,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
         // 3a. find matching user (if any) and return the received attributes
         String keyValue = idToken.getSubject();
-        for (OIDCC4UIProviderItem item : op.getItems()) {
+        for (ItemTO item : op.getItems()) {
             Attr attrTO = new Attr();
             attrTO.setSchema(item.getExtAttrName());
 

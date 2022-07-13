@@ -33,6 +33,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.AbstractPatchItem;
 import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.OrgUnitTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -40,12 +43,9 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
@@ -356,12 +356,12 @@ public class DefaultPropagationManager implements PropagationManager {
             final Any<?> any,
             final ExternalResource resource,
             final ResourceOperation operation,
-            final Provision provision,
-            final Stream<? extends Item> mappingItems,
+            final ProvisionTO provision,
+            final Stream<ItemTO> mappingItems,
             final Pair<String, Set<Attribute>> preparedAttrs) {
 
         PropagationTaskInfo task = new PropagationTaskInfo(resource);
-        task.setObjectClassName(provision.getObjectClass().getObjectClassValue());
+        task.setObjectClassName(provision.getObjectClass());
         task.setAnyTypeKind(any.getType().getKind());
         task.setAnyType(any.getType().getKey());
         task.setEntityKey(any.getKey());
@@ -440,21 +440,20 @@ public class DefaultPropagationManager implements PropagationManager {
                     LOG.warn("Ignoring read-only {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
                 } else if (anyUtilsFactory.getInstance(any).dao().
                         findAllowedSchemas(any, VirSchema.class).contains(schema)
-                        && virtualResources.contains(schema.getProvision().getResource().getKey())) {
+                        && virtualResources.contains(schema.getResource().getKey())) {
 
-                    Set<Attribute> values = vAttrMap.get(schema.getProvision().getResource().getKey());
+                    Set<Attribute> values = vAttrMap.get(schema.getResource().getKey());
                     if (values == null) {
                         values = new HashSet<>();
-                        vAttrMap.put(schema.getProvision().getResource().getKey(), values);
+                        vAttrMap.put(schema.getResource().getKey(), values);
                     }
                     values.add(AttributeBuilder.build(schema.getExtAttrName(), vAttr.getValues()));
 
-                    if (!propByRes.contains(ResourceOperation.CREATE, schema.getProvision().getResource().getKey())) {
-                        propByRes.add(ResourceOperation.UPDATE, schema.getProvision().getResource().getKey());
+                    if (!propByRes.contains(ResourceOperation.CREATE, schema.getResource().getKey())) {
+                        propByRes.add(ResourceOperation.UPDATE, schema.getResource().getKey());
                     }
                 } else {
-                    LOG.warn("{} not owned by or {} not allowed for {}",
-                            schema.getProvision().getResource(), schema, any);
+                    LOG.warn("{} not owned by or {} not allowed for {}", schema.getResource(), schema, any);
                 }
             });
         }
@@ -464,9 +463,9 @@ public class DefaultPropagationManager implements PropagationManager {
 
         propByRes.asMap().forEach((resourceKey, operation) -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
-            Provision provision = Optional.ofNullable(resource).
-                    flatMap(externalResource -> externalResource.getProvision(any.getType())).orElse(null);
-            Stream<? extends Item> mappingItems = provision == null
+            ProvisionTO provision = Optional.ofNullable(resource).
+                    flatMap(externalResource -> externalResource.getProvision(any.getType().getKey())).orElse(null);
+            Stream<ItemTO> mappingItems = provision == null
                     ? Stream.empty()
                     : MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
 
@@ -480,7 +479,7 @@ public class DefaultPropagationManager implements PropagationManager {
                         any.getType(), resource);
             } else {
                 Pair<String, Set<Attribute>> preparedAttrs =
-                        mappingManager.prepareAttrsFromAny(any, password, changePwd, enable, provision);
+                        mappingManager.prepareAttrsFromAny(any, password, changePwd, enable, resource, provision);
                 if (vAttrMap.containsKey(resourceKey)) {
                     preparedAttrs.getRight().addAll(vAttrMap.get(resourceKey));
                 }
@@ -509,10 +508,10 @@ public class DefaultPropagationManager implements PropagationManager {
                             user, resourceDAO.find(accountInfo.getLeft()), accountInfo.getRight());
                 }
 
-                Provision provision = account == null || account.getResource() == null
+                ProvisionTO provision = account == null || account.getResource() == null
                         ? null
                         : account.getResource().getProvision(AnyTypeKind.USER.name()).orElse(null);
-                Stream<? extends Item> mappingItems = provision == null
+                Stream<ItemTO> mappingItems = provision == null
                         ? Stream.empty()
                         : MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
 
@@ -569,7 +568,7 @@ public class DefaultPropagationManager implements PropagationManager {
 
         propByRes.asMap().forEach((resourceKey, operation) -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
-            OrgUnit orgUnit = Optional.ofNullable(resource).map(ExternalResource::getOrgUnit).orElse(null);
+            OrgUnitTO orgUnit = Optional.ofNullable(resource).map(ExternalResource::getOrgUnit).orElse(null);
 
             if (resource == null) {
                 LOG.error("Invalid resource name specified: {}, ignoring...", resourceKey);
@@ -580,7 +579,7 @@ public class DefaultPropagationManager implements PropagationManager {
                         realm.getFullPath(), resource);
             } else {
                 PropagationTaskInfo task = new PropagationTaskInfo(resource);
-                task.setObjectClassName(orgUnit.getObjectClass().getObjectClassValue());
+                task.setObjectClassName(orgUnit.getObjectClass());
                 task.setEntityKey(realm.getKey());
                 task.setOperation(operation);
                 task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));

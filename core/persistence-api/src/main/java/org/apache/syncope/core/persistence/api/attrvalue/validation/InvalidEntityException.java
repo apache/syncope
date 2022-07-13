@@ -21,9 +21,11 @@ package org.apache.syncope.core.persistence.api.attrvalue.validation;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 
 /**
@@ -53,7 +55,7 @@ public class InvalidEntityException extends ValidationException {
 
         this.entityClassSimpleName = entityClass.getSimpleName();
 
-        entityViolationType.setMessage(message.trim());
+        entityViolationType.setMessage(Optional.ofNullable(message).map(String::trim).orElse(StringUtils.EMPTY));
 
         this.violations.put(entityClass, EnumSet.noneOf(EntityViolationType.class));
         this.violations.get(entityClass).add(entityViolationType);

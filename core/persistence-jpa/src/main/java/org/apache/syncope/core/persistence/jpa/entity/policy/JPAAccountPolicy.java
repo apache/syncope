@@ -31,11 +31,11 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 
 @Entity
 @Table(name = JPAAccountPolicy.TABLE)

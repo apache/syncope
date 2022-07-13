@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.identityconnectors.framework.common.objects.ConnectorObject;

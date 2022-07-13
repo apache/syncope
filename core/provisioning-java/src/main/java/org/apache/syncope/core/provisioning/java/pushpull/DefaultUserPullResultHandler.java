@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -48,7 +49,6 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -144,7 +144,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     protected void handleLinkedAccounts(
             final SyncDelta delta,
             final List<PullMatch> matches,
-            final Provision provision) throws JobExecutionException {
+            final ProvisionTO provision) throws JobExecutionException {
 
         for (PullMatch match : matches) {
             User user = (User) match.getAny();
@@ -154,7 +154,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             }
 
             Optional<? extends LinkedAccount> found =
-                    user.getLinkedAccount(provision.getResource().getKey(), delta.getUid().getUidValue());
+                    user.getLinkedAccount(profile.getTask().getResource().getKey(), delta.getUid().getUidValue());
             if (found.isPresent()) {
                 LinkedAccount account = found.get();
 
@@ -190,7 +190,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
                     LinkedAccountTO accountTO = new LinkedAccountTO();
                     accountTO.setConnObjectKeyValue(delta.getUid().getUidValue());
-                    accountTO.setResource(provision.getResource().getKey());
+                    accountTO.setResource(profile.getTask().getResource().getKey());
 
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
@@ -207,8 +207,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         // do nothing
                     }
                 } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
-                    end(
-                            AnyTypeKind.USER,
+                    end(AnyTypeKind.USER.name(),
                             ResourceOperation.DELETE.name().toLowerCase(),
                             AuditElements.Result.SUCCESS,
                             null,
@@ -227,7 +226,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
-            end(AnyTypeKind.USER,
+            end(AnyTypeKind.USER.name(),
                     MatchingRule.toEventName(MatchingRule.UPDATE), Result.SUCCESS, null, null, delta);
             return Optional.empty();
         }
@@ -294,7 +293,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 resultStatus = Result.FAILURE;
             }
 
-            end(AnyTypeKind.USER, MatchingRule.toEventName(matchingRule), resultStatus, before, output, delta);
+            end(AnyTypeKind.USER.name(), MatchingRule.toEventName(matchingRule), resultStatus, before, output, delta);
         }
 
         return Optional.of(report);
@@ -305,12 +304,12 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             final SyncDelta delta,
             final User user,
             final LinkedAccountTO accountTO,
-            final Provision provision)
+            final ProvisionTO provision)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
-            end(AnyTypeKind.USER, UnmatchingRule.toEventName(rule), Result.SUCCESS, null, null, delta);
+            end(AnyTypeKind.USER.name(), UnmatchingRule.toEventName(rule), Result.SUCCESS, null, null, delta);
             return Optional.empty();
         }
 
@@ -325,11 +324,11 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         if (profile.isDryRun()) {
             report.setKey(null);
-            end(AnyTypeKind.USER, UnmatchingRule.toEventName(rule), Result.SUCCESS, null, null, delta);
+            end(AnyTypeKind.USER.name(), UnmatchingRule.toEventName(rule), Result.SUCCESS, null, null, delta);
         } else {
             UserTO owner = userDataBinder.getUserTO(user, false);
             UserCR connObject = connObjectUtils.getAnyCR(
-                    delta.getObject(), profile.getTask(), provision, false);
+                    delta.getObject(), profile.getTask(), AnyTypeKind.USER, provision, false);
 
             if (connObject.getUsername().equals(owner.getUsername())) {
                 accountTO.setUsername(null);
@@ -412,7 +411,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 }
             }
 
-            end(AnyTypeKind.USER, UnmatchingRule.toEventName(rule), resultStatus, null, output, delta);
+            end(AnyTypeKind.USER.name(), UnmatchingRule.toEventName(rule), resultStatus, null, output, delta);
         }
 
         return Optional.of(report);
@@ -421,12 +420,13 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     protected Optional<ProvisioningReport> update(
             final SyncDelta delta,
             final LinkedAccount account,
-            final Provision provision)
+            final ProvisionTO provision)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
-            end(AnyTypeKind.USER, MatchingRule.toEventName(MatchingRule.UPDATE), Result.SUCCESS, null, null, delta);
+            end(AnyTypeKind.USER.name(),
+                    MatchingRule.toEventName(MatchingRule.UPDATE), Result.SUCCESS, null, null, delta);
             return Optional.empty();
         }
 
@@ -445,7 +445,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
             UserTO owner = userDataBinder.getUserTO(account.getOwner(), false);
             UserCR connObject = connObjectUtils.getAnyCR(
-                    delta.getObject(), profile.getTask(), provision, false);
+                    delta.getObject(), profile.getTask(), AnyTypeKind.USER, provision, false);
 
             LinkedAccountTO update = userDataBinder.getLinkedAccountTO(account);
 
@@ -530,7 +530,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 }
             }
 
-            end(AnyTypeKind.USER, MatchingRule.toEventName(MatchingRule.UPDATE), resultStatus, before, output, delta);
+            end(AnyTypeKind.USER.name(),
+                    MatchingRule.toEventName(MatchingRule.UPDATE), resultStatus, before, output, delta);
         }
 
         return Optional.of(report);
@@ -539,12 +540,13 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     protected Optional<ProvisioningReport> delete(
             final SyncDelta delta,
             final LinkedAccount account,
-            final Provision provision)
+            final ProvisionTO provision)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
-            end(AnyTypeKind.USER, ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
+            end(AnyTypeKind.USER.name(),
+                    ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
             return Optional.empty();
         }
 
@@ -604,7 +606,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     }
                 }
 
-                end(AnyTypeKind.USER,
+                end(AnyTypeKind.USER.name(),
                         ResourceOperation.DELETE.name().toLowerCase(), resultStatus, before, output, delta);
             }
         } catch (Exception e) {
@@ -636,7 +638,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             report.setKey(account.getKey());
         }
 
-        end(AnyTypeKind.USER,
+        end(AnyTypeKind.USER.name(),
                 matching
                         ? MatchingRule.toEventName(MatchingRule.IGNORE)
                         : UnmatchingRule.toEventName(UnmatchingRule.IGNORE),

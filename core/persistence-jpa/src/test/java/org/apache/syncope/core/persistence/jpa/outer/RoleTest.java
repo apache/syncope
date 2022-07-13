@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -143,9 +142,7 @@ public class RoleTest extends AbstractTest {
         // 3. verify that expected users have the created role dynamically assigned
         List<String> members = roleDAO.findDynMembers(actual);
         assertEquals(2, members.size());
-        assertEquals(
-                Set.of("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey),
-                new HashSet<>(members));
+        assertEquals(Set.of("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey), new HashSet<>(members));
 
         user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
         assertNotNull(user);
@@ -227,7 +224,7 @@ public class RoleTest extends AbstractTest {
 
         delegation = delegationDAO.find(delegation.getKey());
 
-        assertEquals(Collections.singletonList(delegation), delegationDAO.findByRole(reviewer));
+        assertEquals(List.of(delegation), delegationDAO.findByRole(reviewer));
 
         roleDAO.delete(reviewer.getKey());
 

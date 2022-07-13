@@ -18,17 +18,17 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 
 @PullCorrelationRuleConfClass(DummyPullCorrelationRuleConf.class)
 public class DummyPullCorrelationRule implements PullCorrelationRule {
 
     @Override
-    public SearchCond getSearchCond(final SyncDelta syncDelta, final Provision provision) {
+    public SearchCond getSearchCond(final SyncDelta syncDelta, final ProvisionTO provision) {
         return new SearchCond();
     }
 }

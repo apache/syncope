@@ -24,7 +24,6 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.jpa.entity.resource.AbstractAnyTemplate;
 
 @Entity
 @Table(name = JPAAnyTemplateRealm.TABLE, uniqueConstraints =
@@ -48,5 +47,4 @@ public class JPAAnyTemplateRealm extends AbstractAnyTemplate implements AnyTempl
         checkType(realm, JPARealm.class);
         this.realm = (JPARealm) realm;
     }
-
 }

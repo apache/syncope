@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.api.entity.task;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.PullMode;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
@@ -41,7 +40,7 @@ public interface PullTask extends ProvisioningTask {
 
     boolean add(AnyTemplatePullTask template);
 
-    Optional<? extends AnyTemplatePullTask> getTemplate(AnyType anyType);
+    Optional<? extends AnyTemplatePullTask> getTemplate(String anyType);
 
     List<? extends AnyTemplatePullTask> getTemplates();
 

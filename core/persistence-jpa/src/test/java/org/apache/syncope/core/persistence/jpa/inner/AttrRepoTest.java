@@ -32,10 +32,10 @@ import org.apache.syncope.common.lib.attr.JDBCAttrRepoConf;
 import org.apache.syncope.common.lib.attr.LDAPAttrRepoConf;
 import org.apache.syncope.common.lib.attr.StubAttrRepoConf;
 import org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.AttrRepoState;
 import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
-import org.apache.syncope.core.persistence.api.entity.am.AttrRepoItem;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -219,19 +219,19 @@ public class AttrRepoTest extends AbstractTest {
         attrRepo.setState(AttrRepoState.ACTIVE);
         attrRepo.setConf(conf);
 
-        AttrRepoItem keyMapping = entityFactory.newEntity(AttrRepoItem.class);
+        ItemTO keyMapping = new ItemTO();
         keyMapping.setIntAttrName("uid");
         keyMapping.setExtAttrName("username");
-        keyMapping.setAttrRepo(attrRepo);
-        attrRepo.add(keyMapping);
+        attrRepo.getItems().add(keyMapping);
 
-        AttrRepoItem fullnameMapping = entityFactory.newEntity(AttrRepoItem.class);
+        ItemTO fullnameMapping = new ItemTO();
         fullnameMapping.setIntAttrName("cn");
         fullnameMapping.setExtAttrName("fullname");
-        fullnameMapping.setAttrRepo(attrRepo);
-        attrRepo.add(fullnameMapping);
+        attrRepo.getItems().add(fullnameMapping);
 
         attrRepo = attrRepoDAO.save(attrRepo);
+        entityManager().flush();
+
         assertNotNull(attrRepo);
         assertNotNull(attrRepo.getKey());
         assertEquals(attrRepo, attrRepoDAO.find(attrRepo.getKey()));

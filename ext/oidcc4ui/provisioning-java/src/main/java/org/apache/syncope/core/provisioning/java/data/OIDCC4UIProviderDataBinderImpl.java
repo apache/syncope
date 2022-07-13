@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIEntityFactory;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
-import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIUserTemplate;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
@@ -114,7 +113,7 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
                         scce.addException(invalidMandatoryCondition);
                     }
 
-                    OIDCC4UIProviderItem item = entityFactory.newEntity(OIDCC4UIProviderItem.class);
+                    ItemTO item = new ItemTO();
                     item.setIntAttrName(itemTO.getIntAttrName());
                     item.setExtAttrName(itemTO.getExtAttrName());
                     item.setMandatoryCondition(itemTO.getMandatoryCondition());
@@ -122,8 +121,21 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
                     item.setPassword(itemTO.isPassword());
                     item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
                     item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
-                    item.setOP(op);
                     item.setPurpose(MappingPurpose.NONE);
+
+                    itemTO.getTransformers().forEach(transformerKey -> {
+                        Implementation transformer = implementationDAO.find(transformerKey);
+                        if (transformer == null) {
+                            LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                                    transformerKey);
+                        } else {
+                            item.getTransformers().add(transformer.getKey());
+                        }
+                        // remove all implementations not contained in the TO
+                        item.getTransformers().
+                                removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
+                    });
+
                     if (item.isConnObjectKey()) {
                         if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
                             invalidMapping.getElements().
@@ -136,7 +148,7 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
 
                         op.setConnObjectKeyItem(item);
                     } else {
-                        op.add(item);
+                        op.getItems().add(item);
                     }
                 }
             }
@@ -199,7 +211,6 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
     private static void populateItems(final OIDCC4UIProvider op, final OIDCC4UIProviderTO opTO) {
         op.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
-            itemTO.setKey(item.getKey());
             itemTO.setIntAttrName(item.getIntAttrName());
             itemTO.setExtAttrName(item.getExtAttrName());
             itemTO.setMandatoryCondition(item.getMandatoryCondition());
@@ -207,6 +218,7 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
             itemTO.setPassword(item.isPassword());
             itemTO.setPropagationJEXLTransformer(item.getPropagationJEXLTransformer());
             itemTO.setPullJEXLTransformer(item.getPullJEXLTransformer());
+            itemTO.getTransformers().addAll(item.getTransformers());
             itemTO.setPurpose(MappingPurpose.NONE);
 
             if (itemTO.isConnObjectKey()) {
@@ -242,8 +254,7 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
 
         populateItems(op, opTO);
 
-        opTO.getActions().addAll(
-                op.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
+        opTO.getActions().addAll(op.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
 
         return opTO;
     }

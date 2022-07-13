@@ -43,6 +43,7 @@ public class JPAAttrRepoDAO extends AbstractDAO<AttrRepo> implements AttrRepoDAO
 
     @Override
     public AttrRepo save(final AttrRepo attrRepo) {
+        ((JPAAttrRepo) attrRepo).list2json();
         return entityManager().merge(attrRepo);
     }
 

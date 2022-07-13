@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.common.lib.to.ItemTO;
 
 public interface OIDCC4UIProvider extends Entity {
 
@@ -79,13 +80,11 @@ public interface OIDCC4UIProvider extends Entity {
 
     void setUserTemplate(OIDCC4UIUserTemplate userTemplate);
 
-    List<? extends OIDCC4UIProviderItem> getItems();
+    Optional<ItemTO> getConnObjectKeyItem();
 
-    Optional<? extends OIDCC4UIProviderItem> getConnObjectKeyItem();
+    void setConnObjectKeyItem(ItemTO item);
 
-    void setConnObjectKeyItem(OIDCC4UIProviderItem item);
-
-    boolean add(OIDCC4UIProviderItem item);
+    List<ItemTO> getItems();
 
     boolean add(Implementation action);
 

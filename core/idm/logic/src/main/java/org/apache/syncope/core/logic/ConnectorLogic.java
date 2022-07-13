@@ -40,7 +40,7 @@ import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;

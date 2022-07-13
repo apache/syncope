@@ -237,7 +237,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
                         collect(Collectors.toList());
             } else {
                 provisions = this.resourceTO.getProvisions().stream().
-                        filter(object -> !resourceProvision.getKey().equals(object.getKey())).
+                        filter(object -> !resourceProvision.getKey().equals(object.getObjectClass())).
                         collect(Collectors.toList());
             }
 

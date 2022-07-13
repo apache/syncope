@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -39,7 +40,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
@@ -83,14 +83,14 @@ public class DefaultRealmPullResultHandler
     @Override
     public boolean handle(final SyncDelta delta) {
         try {
-            OrgUnit orgUnit = profile.getTask().getResource().getOrgUnit();
+            OrgUnitTO orgUnit = profile.getTask().getResource().getOrgUnit();
             if (orgUnit == null) {
                 throw new JobExecutionException("No orgUnit found on " + profile.getTask().getResource() + " for "
                         + delta.getObject().getObjectClass());
             }
 
             doHandle(delta, orgUnit);
-            executor.reportHandled(delta.getObjectClass(), delta.getObject().getName());
+            executor.reportHandled(delta.getObjectClass().getObjectClassValue(), delta.getObject().getName());
 
             LOG.debug("Successfully handled {}", delta);
 
@@ -104,7 +104,7 @@ public class DefaultRealmPullResultHandler
                 this.latestResult = null;
             }
             if (shouldContinue) {
-                executor.setLatestSyncToken(delta.getObjectClass(), delta.getToken());
+                executor.setLatestSyncToken(delta.getObjectClass().getObjectClassValue(), delta.getToken());
             }
             return shouldContinue;
         } catch (IgnoreProvisionException e) {
@@ -118,8 +118,8 @@ public class DefaultRealmPullResultHandler
 
             LOG.warn("Ignoring during pull", e);
 
-            executor.setLatestSyncToken(delta.getObjectClass(), delta.getToken());
-            executor.reportHandled(delta.getObjectClass(), delta.getObject().getName());
+            executor.setLatestSyncToken(delta.getObjectClass().getObjectClassValue(), delta.getToken());
+            executor.reportHandled(delta.getObjectClass().getObjectClassValue(), delta.getObject().getName());
 
             return true;
         } catch (JobExecutionException e) {
@@ -129,7 +129,9 @@ public class DefaultRealmPullResultHandler
         }
     }
 
-    private List<ProvisioningReport> assign(final SyncDelta delta, final OrgUnit orgUnit) throws JobExecutionException {
+    private List<ProvisioningReport> assign(final SyncDelta delta, final OrgUnitTO orgUnit)
+            throws JobExecutionException {
+
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
             finalize(UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), Result.SUCCESS, null, null, delta);
@@ -166,7 +168,7 @@ public class DefaultRealmPullResultHandler
         return List.of(result);
     }
 
-    private List<ProvisioningReport> provision(final SyncDelta delta, final OrgUnit orgUnit)
+    private List<ProvisioningReport> provision(final SyncDelta delta, final OrgUnitTO orgUnit)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformCreate()) {
@@ -630,7 +632,7 @@ public class DefaultRealmPullResultHandler
         return result;
     }
 
-    private void doHandle(final SyncDelta delta, final OrgUnit orgUnit) throws JobExecutionException {
+    private void doHandle(final SyncDelta delta, final OrgUnitTO orgUnit) throws JobExecutionException {
         LOG.debug("Process {} for {} as {}",
                 delta.getDeltaType(), delta.getUid().getUidValue(), delta.getObject().getObjectClass());
 

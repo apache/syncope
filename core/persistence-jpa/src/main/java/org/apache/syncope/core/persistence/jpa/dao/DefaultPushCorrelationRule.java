@@ -28,11 +28,12 @@ import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.search.ConnObjectTOFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRuleConfClass;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.provisioning.api.AccountGetter;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
@@ -69,13 +70,14 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
     }
 
     @Override
-    public Filter getFilter(final Any<?> any, final Provision provision) {
+    public Filter getFilter(final Any<?> any, final ExternalResource resource, final ProvisionTO provision) {
         List<Filter> filters = new ArrayList<>();
 
         provision.getMapping().getItems().stream().filter(
                 item -> conf.getSchemas().contains(item.getIntAttrName()) && item.getPurpose() != MappingPurpose.NONE).
                 forEach(item -> {
                     Pair<String, Attribute> attr = mappingManager.prepareAttr(
+                            resource,
                             provision,
                             item,
                             any,
@@ -104,7 +106,7 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
     }
 
     @Override
-    public String getFIQL(final ConnectorObject connectorObject, final Provision provision) {
+    public String getFIQL(final ConnectorObject connectorObject, final ProvisionTO provision) {
         List<CompleteCondition> conditions = new ArrayList<>();
 
         provision.getMapping().getItems().stream().filter(

@@ -25,11 +25,11 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 

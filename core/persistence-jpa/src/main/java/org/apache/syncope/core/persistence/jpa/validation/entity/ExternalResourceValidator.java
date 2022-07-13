@@ -19,24 +19,37 @@
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.validation.ConstraintValidatorContext;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.common.lib.types.ItemContainer;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public class ExternalResourceValidator extends AbstractValidator<ExternalResourceCheck, ExternalResource> {
 
-    private static boolean isValid(final List<? extends Item> items, final ConstraintValidatorContext context) {
-        long connObjectKeys = items.stream().filter(Item::isConnObjectKey).count();
-        if (connObjectKeys != 1) {
+    private static boolean areItemsValid(
+            final ItemContainer itemContainer,
+            final ConstraintValidatorContext context) {
+
+        if (itemContainer.getItems().stream().
+                anyMatch(item -> item.getIntAttrName() == null
+                || item.getExtAttrName() == null
+                || item.getPurpose() == null)) {
+
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidMapping,
+                            "intAttrName, extAttrName and purpose must be specified for each item")).
+                    addPropertyNode("items").addConstraintViolation();
+            return false;
+        }
+
+        if (itemContainer.getConnObjectKeyItem().isEmpty()) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "Single ConnObjectKey mapping is required")).
                     addPropertyNode("connObjectKey.size").addConstraintViolation();
@@ -46,22 +59,22 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         return true;
     }
 
-    private static boolean isValid(final OrgUnit orgUnit, final ConstraintValidatorContext context) {
+    private static boolean isValid(final OrgUnitTO orgUnit, final ConstraintValidatorContext context) {
         if (orgUnit == null) {
             return true;
         }
 
-        return isValid(orgUnit.getItems(), context);
+        return areItemsValid(orgUnit, context);
     }
 
-    private static boolean isValid(final Mapping mapping, final ConstraintValidatorContext context) {
+    private static boolean isValid(final MappingTO mapping, final ConstraintValidatorContext context) {
         if (mapping == null) {
             return true;
         }
 
         boolean isValid = true;
 
-        long passwords = mapping.getItems().stream().filter(MappingItem::isPassword).count();
+        long passwords = mapping.getItems().stream().filter(ItemTO::isPassword).count();
         if (passwords > 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "One password mapping is allowed at most")).
@@ -69,7 +82,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             isValid = false;
         }
 
-        return isValid && isValid(mapping.getItems(), context);
+        return isValid && areItemsValid(mapping, context);
     }
 
     @Override
@@ -83,12 +96,12 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             return false;
         }
 
-        final Set<AnyType> anyTypes = new HashSet<>();
-        final Set<String> objectClasses = new HashSet<>();
+        Set<String> anyTypes = new HashSet<>();
+        Set<String> objectClasses = new HashSet<>();
         boolean validMappings = resource.getProvisions().stream().allMatch(provision -> {
             anyTypes.add(provision.getAnyType());
             if (provision.getObjectClass() != null) {
-                objectClasses.add(provision.getObjectClass().getObjectClassValue());
+                objectClasses.add(provision.getObjectClass());
             }
             return isValid(provision.getMapping(), context);
         });

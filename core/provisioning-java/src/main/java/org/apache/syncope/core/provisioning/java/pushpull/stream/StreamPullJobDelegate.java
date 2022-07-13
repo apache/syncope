@@ -23,6 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -34,16 +37,12 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
@@ -98,18 +97,17 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
         return pullPolicy;
     }
 
-    private Provision provision(
+    private ProvisionTO provision(
             final AnyType anyType,
             final String keyColumn,
             final List<String> columns) throws JobExecutionException {
 
-        Provision provision = entityFactory.newEntity(Provision.class);
-        provision.setAnyType(anyType);
-        provision.setObjectClass(new ObjectClass(anyType.getKey()));
+        ProvisionTO provision = new ProvisionTO();
+        provision.setAnyType(anyType.getKey());
+        provision.setObjectClass(anyType.getKey());
 
-        Mapping mapping = entityFactory.newEntity(Mapping.class);
+        MappingTO mapping = new MappingTO();
         provision.setMapping(mapping);
-        mapping.setProvision(provision);
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
         if (anyUtils.getField(keyColumn) == null) {
@@ -119,7 +117,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             }
         }
 
-        MappingItem connObjectKeyItem = entityFactory.newEntity(MappingItem.class);
+        ItemTO connObjectKeyItem = new ItemTO();
         connObjectKeyItem.setExtAttrName(keyColumn);
         connObjectKeyItem.setIntAttrName(keyColumn);
         connObjectKeyItem.setPurpose(MappingPurpose.PULL);
@@ -129,7 +127,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                 filter(column -> anyUtils.getField(column) != null
                 || plainSchemaDAO.find(column) != null || virSchemaDAO.find(column) != null).
                 map(column -> {
-                    MappingItem item = entityFactory.newEntity(MappingItem.class);
+                    ItemTO item = new ItemTO();
                     item.setExtAttrName(column);
                     item.setIntAttrName(column);
                     item.setPurpose(MappingPurpose.PULL);
@@ -147,12 +145,11 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             final ConflictResolutionAction conflictResolutionAction,
             final String pullCorrelationRule) throws JobExecutionException {
 
-        Provision provision = provision(anyType, keyColumn, columns);
+        ProvisionTO provision = provision(anyType, keyColumn, columns);
 
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("StreamPull_" + SecureRandomUtils.generateRandomUUID().toString());
-        resource.add(provision);
-        provision.setResource(resource);
+        resource.getProvisions().add(provision);
 
         resource.setPullPolicy(pullPolicy(anyType, conflictResolutionAction, pullCorrelationRule));
 
@@ -188,7 +185,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
         try {
             ExternalResource resource =
                     externalResource(anyType, keyColumn, columns, conflictResolutionAction, pullCorrelationRule);
-            Provision provision = resource.getProvisions().get(0);
+            ProvisionTO provision = resource.getProvisions().get(0);
 
             PullTask pullTask = entityFactory.newEntity(PullTask.class);
             pullTask.setResource(resource);
@@ -233,12 +230,13 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             Set<String> moreAttrsToGet = new HashSet<>();
             actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
 
-            Stream<? extends Item> mapItems = Stream.concat(
+            Stream<ItemTO> mapItems = Stream.concat(
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
-                    virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
+                    virSchemaDAO.find(resource.getKey(), anyType.getKey()).stream().
+                            map(VirSchema::asLinkingMappingItem));
 
             connector.fullReconciliation(
-                    provision.getObjectClass(),
+                    new ObjectClass(provision.getObjectClass()),
                     handler,
                     MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new)));
 

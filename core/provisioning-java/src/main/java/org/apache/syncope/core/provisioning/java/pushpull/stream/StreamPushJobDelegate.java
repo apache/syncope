@@ -20,6 +20,9 @@ package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -28,11 +31,8 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
@@ -46,7 +46,6 @@ import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
-import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -79,22 +78,21 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             final List<String> columns,
             final List<String> propagationActions) throws JobExecutionException {
 
-        Provision provision = entityFactory.newEntity(Provision.class);
-        provision.setAnyType(anyType);
-        provision.setObjectClass(new ObjectClass(anyType.getKey()));
+        ProvisionTO provision = new ProvisionTO();
+        provision.setAnyType(anyType.getKey());
+        provision.setObjectClass(anyType.getKey());
 
-        Mapping mapping = entityFactory.newEntity(Mapping.class);
+        MappingTO mapping = new MappingTO();
         provision.setMapping(mapping);
-        mapping.setProvision(provision);
 
-        MappingItem connObjectKeyItem = entityFactory.newEntity(MappingItem.class);
+        ItemTO connObjectKeyItem = new ItemTO();
         connObjectKeyItem.setExtAttrName("key");
         connObjectKeyItem.setIntAttrName("key");
         connObjectKeyItem.setPurpose(MappingPurpose.NONE);
         mapping.setConnObjectKeyItem(connObjectKeyItem);
 
         columns.stream().map(column -> {
-            MappingItem item = entityFactory.newEntity(MappingItem.class);
+            ItemTO item = new ItemTO();
             item.setExtAttrName(column);
             item.setIntAttrName(column);
             item.setPurpose(MappingPurpose.PROPAGATION);
@@ -104,8 +102,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
 
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("StreamPush_" + SecureRandomUtils.generateRandomUUID().toString());
-        resource.add(provision);
-        provision.setResource(resource);
+        resource.getProvisions().add(provision);
 
         propagationActions.forEach(key -> {
             Implementation impl = implementationDAO.find(key);
@@ -147,7 +144,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
 
         try {
             ExternalResource resource = externalResource(anyType, columns, propagationActions);
-            Provision provision = resource.getProvisions().get(0);
+            ProvisionTO provision = resource.getProvisions().get(0);
 
             PushTask pushTask = entityFactory.newEntity(PushTask.class);
             pushTask.setResource(resource);
@@ -168,7 +165,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             }
 
             SyncopePushResultHandler handler;
-            switch (provision.getAnyType().getKind()) {
+            switch (anyType.getKind()) {
                 case USER:
                     handler = buildUserHandler();
                     break;
@@ -183,7 +180,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             }
             handler.setProfile(profile);
 
-            doHandle(anys, handler, provision.getResource());
+            doHandle(anys, handler, resource);
 
             for (PushActions action : pushActions) {
                 action.afterAll(profile);

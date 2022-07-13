@@ -43,9 +43,8 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ConnInstanceCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 

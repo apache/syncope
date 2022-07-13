@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -37,9 +38,8 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
@@ -88,7 +88,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
     public void prepareAttrsForUser() {
         User bellini = userDAO.findByUsername("bellini");
         ExternalResource ldap = resourceDAO.find("resource-ldap");
-        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
+        ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
 
         assertNotEquals(CipherAlgorithm.AES, bellini.getCipherAlgorithm());
 
@@ -98,6 +98,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
                 "Password123",
                 true,
                 Boolean.TRUE,
+                ldap,
                 provision);
         assertEquals("bellini", attrs.getLeft());
         assertEquals(
@@ -111,6 +112,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
                 "Password123",
                 false,
                 Boolean.TRUE,
+                ldap,
                 provision);
         assertNull(AttributeUtil.getPasswordValue(attrs.getRight()));
 
@@ -125,6 +127,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
                 null,
                 true,
                 Boolean.TRUE,
+                ldap,
                 provision);
         assertNotEquals(encPassword, SecurityUtil.decrypt(AttributeUtil.getPasswordValue(attrs.getRight())));
 
@@ -138,6 +141,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
                 null,
                 true,
                 Boolean.TRUE,
+                ldap,
                 provision);
         assertNull(AttributeUtil.getPasswordValue(attrs.getRight()));
 
@@ -154,6 +158,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
                 null,
                 true,
                 Boolean.TRUE,
+                ldap,
                 provision);
         assertEquals("newPassword123", SecurityUtil.decrypt(AttributeUtil.getPasswordValue(attrs.getRight())));
     }
@@ -162,7 +167,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
     public void prepareAttrsForLinkedAccount() {
         User vivaldi = userDAO.findByUsername("vivaldi");
         ExternalResource ldap = resourceDAO.find("resource-ldap");
-        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
+        ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
 
         LinkedAccount account = entityFactory.newEntity(LinkedAccount.class);
         account.setConnObjectKeyValue("admin");
@@ -272,7 +277,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
 
         // 3. check propagation attrs
         ExternalResource csv = resourceDAO.find("resource-csv");
-        Provision provision = csv.getProvision(AnyTypeKind.USER.name()).get();
+        ProvisionTO provision = csv.getProvision(AnyTypeKind.USER.name()).get();
         assertNotNull(provision);
 
         Pair<String, Set<Attribute>> attrs = mappingManager.prepareAttrsFromAny(
@@ -280,6 +285,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
                 null,
                 false,
                 Boolean.TRUE,
+                csv,
                 provision);
         assertTrue(attrs.getRight().stream().anyMatch(
                 attr -> "theirgroup".equals(attr.getName()) && List.of("sx-dx").equals(attr.getValue())));

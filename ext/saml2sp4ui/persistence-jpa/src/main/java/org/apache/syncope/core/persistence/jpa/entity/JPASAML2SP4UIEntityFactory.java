@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIEntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIUserTemplate;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
@@ -34,8 +33,6 @@ public class JPASAML2SP4UIEntityFactory implements SAML2SP4UIEntityFactory {
 
         if (reference.equals(SAML2SP4UIIdP.class)) {
             result = (E) new JPASAML2SP4UIIdP();
-        } else if (reference.equals(SAML2SP4UIIdPItem.class)) {
-            result = (E) new JPASAML2SP4UIIdPItem();
         } else if (reference.equals(SAML2SP4UIUserTemplate.class)) {
             result = (E) new JPASAML2SP4UIUserTemplate();
         } else {

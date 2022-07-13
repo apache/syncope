@@ -21,15 +21,20 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.OrgUnitTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -43,16 +48,14 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
@@ -64,6 +67,7 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
@@ -94,6 +98,8 @@ public class InboundMatcher {
 
     protected final VirSchemaDAO virSchemaDAO;
 
+    protected final ImplementationDAO implementationDAO;
+
     protected final VirAttrHandler virAttrHandler;
 
     protected final IntAttrNameParser intAttrNameParser;
@@ -107,6 +113,7 @@ public class InboundMatcher {
             final AnySearchDAO anySearchDAO,
             final RealmDAO realmDAO,
             final VirSchemaDAO virSchemaDAO,
+            final ImplementationDAO implementationDAO,
             final VirAttrHandler virAttrHandler,
             final IntAttrNameParser intAttrNameParser,
             final AnyUtilsFactory anyUtilsFactory) {
@@ -117,9 +124,17 @@ public class InboundMatcher {
         this.anySearchDAO = anySearchDAO;
         this.realmDAO = realmDAO;
         this.virSchemaDAO = virSchemaDAO;
+        this.implementationDAO = implementationDAO;
         this.virAttrHandler = virAttrHandler;
         this.intAttrNameParser = intAttrNameParser;
         this.anyUtilsFactory = anyUtilsFactory;
+    }
+
+    protected List<Implementation> getTransformers(final ItemTO item) {
+        return item.getTransformers().stream().
+                map(implementationDAO::find).
+                filter(Objects::nonNull).
+                collect(Collectors.toList());
     }
 
     public Optional<PullMatch> match(
@@ -128,19 +143,20 @@ public class InboundMatcher {
             final ExternalResource resource,
             final Connector connector) {
 
-        Optional<? extends Provision> provision = resource.getProvision(anyType);
+        Optional<ProvisionTO> provision = resource.getProvision(anyType.getKey());
         if (provision.isEmpty()) {
             return Optional.empty();
         }
 
-        Stream<Item> mapItems = Stream.concat(
+        Stream<ItemTO> mapItems = Stream.concat(
                 provision.get().getMapping().getItems().stream(),
-                virSchemaDAO.findByProvision(provision.get()).stream().map(VirSchema::asLinkingMappingItem));
+                virSchemaDAO.find(resource.getKey(), anyType.getKey()).stream().map(VirSchema::asLinkingMappingItem));
 
         List<ConnectorObject> found = new ArrayList<>();
 
         Name nameAttr = new Name(nameValue);
-        connector.search(provision.get().getObjectClass(),
+        connector.search(
+                new ObjectClass(provision.get().getObjectClass()),
                 provision.get().isIgnoreCaseMatch()
                 ? FilterBuilder.equalsIgnoreCase(nameAttr)
                 : FilterBuilder.equalTo(nameAttr),
@@ -175,7 +191,9 @@ public class InboundMatcher {
                                 setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
                                 setObject(connObj).
                                 build(),
-                        provision.get());
+                        resource,
+                        provision.get(),
+                        anyType.getKind());
                 if (matches.isEmpty()) {
                     LOG.debug("No matching {} found for {}, aborting", anyType.getKind(), connObj);
                 } else {
@@ -195,27 +213,16 @@ public class InboundMatcher {
     }
 
     public List<PullMatch> matchByConnObjectKeyValue(
-            final Item connObjectKeyItem,
-            final String connObjectKeyValue,
-            final Provision provision) {
-
-        return matchByConnObjectKeyValue(
-                connObjectKeyItem,
-                connObjectKeyValue,
-                provision.getAnyType().getKind(),
-                provision.isIgnoreCaseMatch(),
-                provision.getResource());
-    }
-
-    public List<PullMatch> matchByConnObjectKeyValue(
-            final Item connObjectKeyItem,
+            final ItemTO connObjectKeyItem,
             final String connObjectKeyValue,
             final AnyTypeKind anyTypeKind,
             final boolean ignoreCaseMatch,
             final ExternalResource resource) {
 
         String finalConnObjectKeyValue = connObjectKeyValue;
-        for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem)) {
+        for (ItemTransformer transformer
+                : MappingUtils.getItemTransformers(connObjectKeyItem, getTransformers(connObjectKeyItem))) {
+
             List<Object> output = transformer.beforePull(
                     connObjectKeyItem,
                     null,
@@ -325,7 +332,7 @@ public class InboundMatcher {
 
     protected List<PullMatch> matchByCorrelationRule(
             final SyncDelta syncDelta,
-            final Provision provision,
+            final ProvisionTO provision,
             final PullCorrelationRule rule,
             final AnyTypeKind type) {
 
@@ -350,13 +357,20 @@ public class InboundMatcher {
      * Finds internal entities based on external attributes and mapping.
      *
      * @param syncDelta change operation, including external attributes
+     * @param resource external resource
      * @param provision mapping
+     * @param anyTypeKind type kind
      * @return list of matching users' / groups' / any objects' keys
      */
-    public List<PullMatch> match(final SyncDelta syncDelta, final Provision provision) {
-        Optional<? extends PullCorrelationRuleEntity> correlationRule = provision.getResource().getPullPolicy() == null
+    public List<PullMatch> match(
+            final SyncDelta syncDelta,
+            final ExternalResource resource,
+            final ProvisionTO provision,
+            final AnyTypeKind anyTypeKind) {
+
+        Optional<? extends PullCorrelationRuleEntity> correlationRule = resource.getPullPolicy() == null
                 ? Optional.empty()
-                : provision.getResource().getPullPolicy().getCorrelationRule(provision.getAnyType());
+                : resource.getPullPolicy().getCorrelationRule(provision.getAnyType());
 
         Optional<PullCorrelationRule> rule = Optional.empty();
         if (correlationRule.isPresent()) {
@@ -370,11 +384,11 @@ public class InboundMatcher {
         List<PullMatch> result = List.of();
         try {
             if (rule.isPresent()) {
-                result = matchByCorrelationRule(syncDelta, provision, rule.get(), provision.getAnyType().getKind());
+                result = matchByCorrelationRule(syncDelta, provision, rule.get(), anyTypeKind);
             } else {
                 String connObjectKeyValue = null;
 
-                Optional<? extends Item> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+                Optional<ItemTO> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
                 if (connObjectKeyItem.isPresent()) {
                     Attribute connObjectKeyAttr = syncDelta.getObject().
                             getAttributeByName(connObjectKeyItem.get().getExtAttrName());
@@ -389,11 +403,16 @@ public class InboundMatcher {
                 if (connObjectKeyValue == null) {
                     result = List.of(PullCorrelationRule.NO_MATCH);
                 } else {
-                    result = matchByConnObjectKeyValue(connObjectKeyItem.get(), connObjectKeyValue, provision);
+                    result = matchByConnObjectKeyValue(
+                            connObjectKeyItem.get(),
+                            connObjectKeyValue,
+                            anyTypeKind,
+                            provision.isIgnoreCaseMatch(),
+                            resource);
                 }
             }
         } catch (RuntimeException e) {
-            LOG.error("Could not match {} with any existing {}", syncDelta, provision.getAnyType().getKey(), e);
+            LOG.error("Could not match {} with any existing {}", syncDelta, provision.getAnyType(), e);
         }
 
         if (result.size() == 1 && result.get(0).getMatchTarget() == MatchType.ANY) {
@@ -411,10 +430,10 @@ public class InboundMatcher {
      * @return list of matching realms' keys.
      */
     @Transactional(readOnly = true)
-    public List<Realm> match(final SyncDelta syncDelta, final OrgUnit orgUnit) {
+    public List<Realm> match(final SyncDelta syncDelta, final OrgUnitTO orgUnit) {
         String connObjectKey = null;
 
-        Optional<? extends Item> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
+        Optional<ItemTO> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
         if (connObjectKeyItem.isPresent()) {
             Attribute connObjectKeyAttr = syncDelta.getObject().
                     getAttributeByName(connObjectKeyItem.get().getExtAttrName());
@@ -426,7 +445,9 @@ public class InboundMatcher {
             return List.of();
         }
 
-        for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem.get())) {
+        for (ItemTransformer transformer
+                : MappingUtils.getItemTransformers(connObjectKeyItem.get(), getTransformers(connObjectKeyItem.get()))) {
+
             List<Object> output = transformer.beforePull(
                     connObjectKeyItem.get(),
                     null,

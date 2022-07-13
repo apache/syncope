@@ -16,36 +16,52 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.to;
+package org.apache.syncope.common.lib.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.types.ItemContainer;
+import org.apache.syncope.common.lib.to.ItemTO;
 
-public class MappingTO extends ItemContainer {
+public abstract class ItemContainer implements Serializable {
 
-    private static final long serialVersionUID = 8447688036282611118L;
+    private static final long serialVersionUID = 3637981417797873343L;
 
-    private String connObjectLink;
+    private final List<ItemTO> items = new ArrayList<>();
 
-    private final List<ItemTO> linkingItems = new ArrayList<>();
-
-    public String getConnObjectLink() {
-        return connObjectLink;
+    @JsonIgnore
+    public Optional<ItemTO> getConnObjectKeyItem() {
+        return getItems().stream().filter(ItemTO::isConnObjectKey).findFirst();
     }
 
-    public void setConnObjectLink(final String connObjectLink) {
-        this.connObjectLink = connObjectLink;
+    protected boolean addConnObjectKeyItem(final ItemTO connObjectItem) {
+        connObjectItem.setMandatoryCondition("true");
+        connObjectItem.setConnObjectKey(true);
+
+        return add(connObjectItem);
     }
 
-    @JacksonXmlElementWrapper(localName = "linkingItems")
-    @JacksonXmlProperty(localName = "linkingItem")
-    public List<ItemTO> getLinkingItems() {
-        return linkingItems;
+    public boolean setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
+        return Optional.ofNullable(connObjectKeyItem).
+                map(this::addConnObjectKeyItem).
+                orElseGet(() -> getConnObjectKeyItem().map(items::remove).orElse(false));
+    }
+
+    @JacksonXmlElementWrapper(localName = "items")
+    @JacksonXmlProperty(localName = "item")
+    public List<ItemTO> getItems() {
+        return items;
+    }
+
+    public boolean add(final ItemTO item) {
+        return Optional.ofNullable(item).
+                filter(itemTO -> items.contains(itemTO) || items.add(itemTO)).isPresent();
     }
 
     @Override
@@ -59,20 +75,16 @@ public class MappingTO extends ItemContainer {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        MappingTO other = (MappingTO) obj;
+        final ItemContainer other = (ItemContainer) obj;
         return new EqualsBuilder().
-                appendSuper(super.equals(obj)).
-                append(connObjectLink, other.connObjectLink).
-                append(linkingItems, other.linkingItems).
+                append(items, other.items).
                 build();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-                appendSuper(super.hashCode()).
-                append(connObjectLink).
-                append(linkingItems).
+                append(items).
                 build();
     }
 }

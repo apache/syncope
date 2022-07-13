@@ -346,14 +346,8 @@ public class ResourceDirectoryPanel extends
                     ResourceTO resource = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
                     resource.setKey("Copy of " + resource.getKey());
                     // reset some resource objects keys
-                    if (resource.getOrgUnit() != null) {
-                        resource.getOrgUnit().setKey(null);
-                        resource.getOrgUnit().getItems().forEach(item -> item.setKey(null));
-                    }
                     resource.getProvisions().forEach(provision -> {
-                        provision.setKey(null);
                         if (provision.getMapping() != null) {
-                            provision.getMapping().getItems().forEach(item -> item.setKey(null));
                             provision.getMapping().getLinkingItems().clear();
                         }
                         provision.getVirSchemas().clear();

@@ -18,20 +18,33 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.types.MappingPurpose;
 
 public interface VirSchema extends Schema {
 
     void setReadonly(boolean readonly);
 
-    Provision getProvision();
+    ExternalResource getResource();
 
-    void setProvision(Provision provision);
+    void setResource(ExternalResource resource);
+
+    AnyType getAnyType();
+
+    void setAnyType(AnyType anyType);
 
     String getExtAttrName();
 
     void setExtAttrName(String extAttrName);
 
-    MappingItem asLinkingMappingItem();
+    default ItemTO asLinkingMappingItem() {
+        ItemTO item = new ItemTO();
+        item.setExtAttrName(getExtAttrName());
+        item.setIntAttrName(getKey());
+        item.setMandatoryCondition(getMandatoryCondition());
+        item.setPurpose(isReadonly() ? MappingPurpose.PULL : MappingPurpose.BOTH);
+        item.setConnObjectKey(false);
+        item.setPassword(false);
+        return item;
+    }
 }

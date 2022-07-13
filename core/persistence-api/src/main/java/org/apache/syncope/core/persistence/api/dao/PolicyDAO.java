@@ -19,13 +19,13 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface PolicyDAO extends DAO<Policy> {
 

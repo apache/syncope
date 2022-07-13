@@ -215,10 +215,14 @@ public class ResourceITCase extends AbstractITCase {
         assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems());
         assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).get().getMapping());
         assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems());
-        assertEquals(MappingPurpose.PULL,
-                actual.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getConnObjectKeyItem().getPurpose());
-        assertEquals(MappingPurpose.PROPAGATION,
-                actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getConnObjectKeyItem().getPurpose());
+        assertEquals(
+                MappingPurpose.PULL,
+                actual.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().
+                        getConnObjectKeyItem().get().getPurpose());
+        assertEquals(
+                MappingPurpose.PROPAGATION,
+                actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().
+                        getConnObjectKeyItem().get().getPurpose());
     }
 
     @Test
@@ -351,7 +355,6 @@ public class ResourceITCase extends AbstractITCase {
 
         // Update with an existing and already assigned mapping
         ItemTO item = new ItemTO();
-        item.setKey("cc973ed6-d031-4790-adab-fc059ac0c818");
         item.setExtAttrName("test3");
         item.setIntAttrName("fullname");
         item.setPurpose(MappingPurpose.BOTH);
@@ -484,7 +487,7 @@ public class ResourceITCase extends AbstractITCase {
 
         resourceTO = RESOURCE_SERVICE.read(resourceKey);
         assertNull(resourceTO.getOrgUnit());
-        assertEquals(Integer.valueOf(11), resourceTO.getPropagationPriority());
+        assertEquals(11, resourceTO.getPropagationPriority());
     }
 
     @Test
@@ -658,8 +661,10 @@ public class ResourceITCase extends AbstractITCase {
         assertNotNull(actual);
         assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).get().getMapping());
         assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems());
-        assertEquals(MappingPurpose.PROPAGATION,
-                actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getConnObjectKeyItem().getPurpose());
+        assertEquals(
+                MappingPurpose.PROPAGATION,
+                actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().
+                        getConnObjectKeyItem().get().getPurpose());
         actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems().stream().
                 filter(itemTO -> ("gender".equals(itemTO.getIntAttrName()))).
                 forEach(itemTO -> assertEquals(MappingPurpose.NONE, itemTO.getPurpose()));

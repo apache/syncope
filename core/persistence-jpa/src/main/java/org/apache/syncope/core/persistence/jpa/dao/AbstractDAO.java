@@ -53,9 +53,4 @@ public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
     public void detach(final E entity) {
         entityManager().detach(entity);
     }
-
-    @Override
-    public void clear() {
-        entityManager().clear();
-    }
 }

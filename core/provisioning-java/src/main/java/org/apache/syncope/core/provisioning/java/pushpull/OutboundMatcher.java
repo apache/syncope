@@ -26,17 +26,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.LinkingMappingItem;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -47,6 +47,7 @@ import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
@@ -82,10 +83,10 @@ public class OutboundMatcher {
         this.virAttrHandler = virAttrHandler;
     }
 
-    protected Optional<PushCorrelationRule> rule(final Provision provision) {
-        Optional<? extends PushCorrelationRuleEntity> correlationRule = provision.getResource().getPushPolicy() == null
+    protected Optional<PushCorrelationRule> rule(final ExternalResource resource, final ProvisionTO provision) {
+        Optional<? extends PushCorrelationRuleEntity> correlationRule = resource.getPushPolicy() == null
                 ? Optional.empty()
-                : provision.getResource().getPushPolicy().getCorrelationRule(provision.getAnyType());
+                : resource.getPushPolicy().getCorrelationRule(provision.getAnyType());
 
         Optional<PushCorrelationRule> rule = Optional.empty();
         if (correlationRule.isPresent()) {
@@ -99,8 +100,12 @@ public class OutboundMatcher {
         return rule;
     }
 
-    public String getFIQL(final ConnectorObject connectorObject, final Provision provision) {
-        return rule(provision).
+    public String getFIQL(
+            final ConnectorObject connectorObject,
+            final ExternalResource resource,
+            final ProvisionTO provision) {
+
+        return rule(resource, provision).
                 map(rule -> rule.getFIQL(connectorObject, provision)).
                 orElseGet(() -> PushCorrelationRule.DEFAULT_FIQL_BUILDER.apply(connectorObject, provision));
     }
@@ -108,11 +113,11 @@ public class OutboundMatcher {
     public List<ConnectorObject> match(
             final PropagationTask task,
             final Connector connector,
-            final Provision provision,
+            final ProvisionTO provision,
             final List<PropagationActions> actions,
             final String connObjectKeyValue) {
 
-        Optional<PushCorrelationRule> rule = rule(provision);
+        Optional<PushCorrelationRule> rule = rule(task.getResource(), provision);
 
         boolean isLinkedAccount = task.getAnyTypeKind() == AnyTypeKind.USER
                 && userDAO.linkedAccountExists(task.getEntityKey(), connObjectKeyValue);
@@ -129,7 +134,8 @@ public class OutboundMatcher {
             if (any != null && rule.isPresent()) {
                 result.addAll(matchByCorrelationRule(
                         connector,
-                        rule.get().getFilter(any, provision),
+                        rule.get().getFilter(any, task.getResource(), provision),
+                        task.getResource(),
                         provision,
                         Optional.of(moreAttrsToGet.toArray(String[]::new)),
                         Optional.empty()));
@@ -138,6 +144,7 @@ public class OutboundMatcher {
                         connector,
                         connObjectKeyItem,
                         connObjectKeyValue,
+                        task.getResource(),
                         provision,
                         Optional.of(moreAttrsToGet.toArray(String[]::new)),
                         Optional.empty())).ifPresent(result::add);
@@ -157,12 +164,13 @@ public class OutboundMatcher {
     public List<ConnectorObject> match(
             final Connector connector,
             final Any<?> any,
-            final Provision provision,
+            final ExternalResource resource,
+            final ProvisionTO provision,
             final Optional<String[]> moreAttrsToGet,
-            final LinkingMappingItem... linkingItems) {
+            final ItemTO... linkingItems) {
 
         Set<String> matgFromPropagationActions = new HashSet<>();
-        provision.getResource().getPropagationActions().forEach(impl -> {
+        resource.getPropagationActions().forEach(impl -> {
             try {
                 matgFromPropagationActions.addAll(
                         ImplementationManager.<PropagationActions>build(impl).
@@ -175,27 +183,29 @@ public class OutboundMatcher {
                 moreAttrsToGet.stream().flatMap(Stream::of),
                 matgFromPropagationActions.stream()).toArray(String[]::new));
 
-        Optional<PushCorrelationRule> rule = rule(provision);
+        Optional<PushCorrelationRule> rule = rule(resource, provision);
 
         List<ConnectorObject> result = new ArrayList<>();
         try {
             if (rule.isPresent()) {
                 result.addAll(matchByCorrelationRule(
                         connector,
-                        rule.get().getFilter(any, provision),
+                        rule.get().getFilter(any, resource, provision),
+                        resource,
                         provision,
                         effectiveMATG,
                         ArrayUtils.isEmpty(linkingItems)
                         ? Optional.empty() : Optional.of(List.of(linkingItems))));
             } else {
-                Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
-                Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, provision);
+                Optional<ItemTO> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+                Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, resource, provision);
 
                 if (connObjectKeyItem.isPresent() && connObjectKeyValue.isPresent()) {
                     matchByConnObjectKeyValue(
                             connector,
                             connObjectKeyItem.get(),
                             connObjectKeyValue.get(),
+                            resource,
                             provision,
                             effectiveMATG,
                             ArrayUtils.isEmpty(linkingItems)
@@ -217,19 +227,21 @@ public class OutboundMatcher {
     protected List<ConnectorObject> matchByCorrelationRule(
             final Connector connector,
             final Filter filter,
-            final Provision provision,
+            final ExternalResource resource,
+            final ProvisionTO provision,
             final Optional<String[]> moreAttrsToGet,
-            final Optional<Collection<LinkingMappingItem>> linkingItems) {
+            final Optional<Collection<ItemTO>> linkingItems) {
 
-        Stream<MappingItem> items = Stream.concat(
+        Stream<ItemTO> items = Stream.concat(
                 provision.getMapping().getItems().stream(),
                 linkingItems.isPresent()
                 ? linkingItems.get().stream()
-                : virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
+                : virSchemaDAO.find(resource.getKey(), provision.getAnyType()).stream().
+                        map(VirSchema::asLinkingMappingItem));
 
         List<ConnectorObject> objs = new ArrayList<>();
         try {
-            connector.search(provision.getObjectClass(), filter, new SearchResultsHandler() {
+            connector.search(new ObjectClass(provision.getObjectClass()), filter, new SearchResultsHandler() {
 
                 @Override
                 public void handleResult(final SearchResult result) {
@@ -255,22 +267,24 @@ public class OutboundMatcher {
     @Transactional(readOnly = true)
     public Optional<ConnectorObject> matchByConnObjectKeyValue(
             final Connector connector,
-            final MappingItem connObjectKeyItem,
+            final ItemTO connObjectKeyItem,
             final String connObjectKeyValue,
-            final Provision provision,
+            final ExternalResource resource,
+            final ProvisionTO provision,
             final Optional<String[]> moreAttrsToGet,
-            final Optional<Collection<LinkingMappingItem>> linkingItems) {
+            final Optional<Collection<ItemTO>> linkingItems) {
 
-        Stream<MappingItem> items = Stream.concat(
+        Stream<ItemTO> items = Stream.concat(
                 provision.getMapping().getItems().stream(),
                 linkingItems.isPresent()
                 ? linkingItems.get().stream()
-                : virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
+                : virSchemaDAO.find(resource.getKey(), provision.getAnyType()).stream().
+                        map(VirSchema::asLinkingMappingItem));
 
         ConnectorObject obj = null;
         try {
             obj = connector.getObject(
-                    provision.getObjectClass(),
+                    new ObjectClass(provision.getObjectClass()),
                     AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue),
                     provision.isIgnoreCaseMatch(),
                     MappingUtils.buildOperationOptions(items, moreAttrsToGet.orElse(null)));

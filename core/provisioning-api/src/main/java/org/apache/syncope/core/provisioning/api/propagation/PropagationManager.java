@@ -25,13 +25,13 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
@@ -147,8 +147,8 @@ public interface PropagationManager {
             Any<?> any,
             ExternalResource resource,
             ResourceOperation operation,
-            Provision provision,
-            Stream<? extends Item> mappingItems,
+            ProvisionTO provision,
+            Stream<ItemTO> mappingItems,
             Pair<String, Set<Attribute>> preparedAttrs);
 
     /**
