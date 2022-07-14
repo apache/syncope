@@ -23,7 +23,6 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.PathParam;
-
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 
 public class SAML2SP4UIIdPTO extends ItemContainer implements EntityTO {
