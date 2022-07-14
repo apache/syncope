@@ -155,12 +155,16 @@ public class GroupTest extends AbstractTest {
 
     @Test
     public void delete() {
+        Collection<Group> groups = userDAO.findAllGroups(userDAO.findByUsername("verdi"));
+        assertTrue(groups.stream().anyMatch(g -> "b1f7c12d-ec83-441f-a50e-1691daaedf3b".equals(g.getKey())));
+        int before = userDAO.findAllGroups(userDAO.findByUsername("verdi")).size();
+
         groupDAO.delete("b1f7c12d-ec83-441f-a50e-1691daaedf3b");
 
         entityManager().flush();
 
         assertNull(groupDAO.find("b1f7c12d-ec83-441f-a50e-1691daaedf3b"));
-        assertEquals(userDAO.findAllGroups(userDAO.findByUsername("verdi")).size(), 2);
+        assertEquals(before - 1, userDAO.findAllGroups(userDAO.findByUsername("verdi")).size());
         assertNull(findPlainAttr("f82fc61f-8e74-4a4b-9f9e-b8a41f38aad9", GPlainAttr.class));
         assertNull(findPlainAttrValue("49f35879-2510-4f11-a901-24152f753538", GPlainAttrValue.class));
         assertNotNull(plainSchemaDAO.find("icon"));
@@ -234,8 +238,7 @@ public class GroupTest extends AbstractTest {
         // 3. verify that expected users have the created group dynamically assigned
         List<String> members = groupDAO.findUDynMembers(actual);
         assertEquals(2, members.size());
-        assertEquals(Set.of("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey),
-                new HashSet<>(members));
+        assertEquals(Set.of("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey), new HashSet<>(members));
 
         user = userDAO.findByUsername("bellini");
         assertNotNull(user);

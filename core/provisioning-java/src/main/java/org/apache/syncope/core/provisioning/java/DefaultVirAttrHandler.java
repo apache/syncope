@@ -25,14 +25,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.LinkingMappingItem;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
@@ -102,34 +103,37 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
 
         Map<VirSchema, List<String>> result = new HashMap<>();
 
-        Map<Provision, Set<VirSchema>> toRead = new HashMap<>();
+        Map<Pair<ExternalResource, Provision>, Set<VirSchema>> toRead = new HashMap<>();
 
-        schemas.stream().filter(schema -> resources.contains(schema.getProvision().getResource())).forEach(schema -> {
+        schemas.stream().filter(schema -> resources.contains(schema.getResource())).forEach(schema -> {
             VirAttrCacheKey cacheKey = new VirAttrCacheKey(any.getType().getKey(), any.getKey(), schema.getKey());
             VirAttrCacheValue cacheValue = virAttrCache.get(cacheKey);
 
             if (cacheValue != null) {
                 LOG.debug("Found in cache: {}={}", cacheKey, cacheValue);
                 result.put(schema, cacheValue.getValues());
-            } else if (schema.getProvision().getAnyType().equals(any.getType())) {
-                Set<VirSchema> schemasToRead = toRead.get(schema.getProvision());
-                if (schemasToRead == null) {
-                    schemasToRead = new HashSet<>();
-                    toRead.put(schema.getProvision(), schemasToRead);
-                }
-                schemasToRead.add(schema);
+            } else if (schema.getAnyType().equals(any.getType())) {
+                schema.getResource().getProvision(schema.getAnyType().getKey()).ifPresent(provision -> {
+                    Set<VirSchema> schemasToRead = toRead.get(Pair.of(schema.getResource(), provision));
+                    if (schemasToRead == null) {
+                        schemasToRead = new HashSet<>();
+                        toRead.put(Pair.of(schema.getResource(), provision), schemasToRead);
+                    }
+                    schemasToRead.add(schema);
+                });
             }
         });
 
-        toRead.forEach((provision, schemasToRead) -> {
-            LOG.debug("About to read from {}: {}", provision, schemasToRead);
+        toRead.forEach((pair, schemasToRead) -> {
+            LOG.debug("About to read from {}: {}", pair, schemasToRead);
 
             outboundMatcher.match(
-                    connectorManager.getConnector(provision.getResource()),
+                    connectorManager.getConnector(pair.getLeft()),
                     any,
-                    provision,
+                    pair.getLeft(),
+                    pair.getRight(),
                     Optional.empty(),
-                    schemasToRead.stream().map(VirSchema::asLinkingMappingItem).toArray(LinkingMappingItem[]::new)).
+                    schemasToRead.stream().map(VirSchema::asLinkingMappingItem).toArray(Item[]::new)).
                     forEach(connObj -> schemasToRead.forEach(schema -> {
 
                 Attribute attr = connObj.getAttributeByName(schema.getExtAttrName());

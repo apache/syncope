@@ -29,11 +29,14 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -62,11 +65,9 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -92,6 +93,7 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
@@ -163,7 +165,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         this.connectorManager = connectorManager;
     }
 
-    protected Provision getProvision(final String anyTypeKey, final String resourceKey) {
+    protected Triple<AnyType, ExternalResource, Provision> getProvision(
+            final String anyTypeKey, final String resourceKey) {
+
         AnyType anyType = anyTypeDAO.find(anyTypeKey);
         if (anyType == null) {
             throw new NotFoundException("AnyType '" + anyTypeKey + "'");
@@ -173,22 +177,22 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceKey + "'");
         }
-        Provision provision = resource.getProvision(anyType).
+        Provision provision = resource.getProvision(anyType.getKey()).
                 orElseThrow(() -> new NotFoundException(
                 "Provision for " + anyType + " on Resource '" + resourceKey + "'"));
         if (provision.getMapping() == null) {
             throw new NotFoundException("Mapping for " + anyType + " on Resource '" + resourceKey + "'");
         }
 
-        return provision;
+        return Triple.of(anyType, resource, provision);
     }
 
-    protected ConnObjectTO getOnSyncope(
-            final MappingItem connObjectKeyItem,
+    protected ConnObject getOnSyncope(
+            final Item connObjectKeyItem,
             final String connObjectKeyValue,
             final Set<Attribute> attrs) {
 
-        ConnObjectTO connObjectTO = ConnObjectUtils.getConnObjectTO(null, attrs);
+        ConnObject connObjectTO = ConnObjectUtils.getConnObjectTO(null, attrs);
         connObjectTO.getAttrs().add(new Attr.Builder(connObjectKeyItem.getExtAttrName()).
                 value(connObjectKeyValue).build());
         connObjectTO.getAttrs().add(new Attr.Builder(Uid.NAME).
@@ -197,19 +201,20 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return connObjectTO;
     }
 
-    protected ConnObjectTO getOnSyncope(
+    protected ConnObject getOnSyncope(
             final Any<?> any,
-            final MappingItem connObjectKeyItem,
+            final Item connObjectKeyItem,
+            final ExternalResource resource,
             final Provision provision) {
 
         Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
-                any, null, false, true, provision);
+                any, null, false, true, resource, provision);
         return getOnSyncope(connObjectKeyItem, prepared.getLeft(), prepared.getRight());
     }
 
-    protected ConnObjectTO getOnSyncope(
+    protected ConnObject getOnSyncope(
             final LinkedAccount account,
-            final MappingItem connObjectKeyItem,
+            final Item connObjectKeyItem,
             final Provision provision) {
 
         Set<Attribute> attrs = mappingManager.prepareAttrsFromLinkedAccount(
@@ -217,13 +222,13 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return getOnSyncope(connObjectKeyItem, account.getConnObjectKeyValue(), attrs);
     }
 
-    protected Any<?> getAny(final Provision provision, final String anyKey) {
-        AnyDAO<Any<?>> dao = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).dao();
+    protected Any<?> getAny(final Provision provision, final AnyTypeKind anyTypeKind, final String anyKey) {
+        AnyDAO<Any<?>> dao = anyUtilsFactory.getInstance(anyTypeKind).dao();
         Any<?> any = SyncopeConstants.UUID_PATTERN.matcher(anyKey).matches()
                 ? dao.authFind(anyKey)
                 : dao.authFind(dao.findKey(anyKey));
         if (any == null) {
-            throw new NotFoundException(provision.getAnyType().getKey() + " '" + anyKey + "'");
+            throw new NotFoundException(provision.getAnyType() + " '" + anyKey + "'");
         }
         return any;
     }
@@ -235,27 +240,32 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final String anyKey,
             final Set<String> moreAttrsToGet) {
 
-        Provision provision = getProvision(anyTypeKey, resourceKey);
+        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
 
-        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
+        Item connObjectKeyItem = MappingUtils.getConnObjectKeyItem(triple.getRight()).
                 orElseThrow(() -> new NotFoundException(
-                "ConnObjectKey for " + provision.getAnyType().getKey()
-                + " on resource '" + provision.getResource().getKey() + "'"));
+                "ConnObjectKey for " + triple.getLeft().getKey()
+                + " on resource '" + triple.getMiddle().getKey() + "'"));
 
-        Any<?> any = getAny(provision, anyKey);
+        Any<?> any = getAny(triple.getRight(), triple.getLeft().getKind(), anyKey);
 
         ReconStatus status = new ReconStatus();
         status.setMatchType(MatchType.ANY);
         status.setAnyTypeKind(any.getType().getKind());
         status.setAnyKey(any.getKey());
         status.setRealm(any.getRealm().getFullPath());
-        status.setOnSyncope(getOnSyncope(any, connObjectKeyItem, provision));
+        status.setOnSyncope(getOnSyncope(any, connObjectKeyItem, triple.getMiddle(), triple.getRight()));
 
-        List<ConnectorObject> connObjs = outboundMatcher.match(connectorManager.getConnector(
-                provision.getResource()), any, provision, Optional.of(moreAttrsToGet.toArray(String[]::new)));
+        List<ConnectorObject> connObjs = outboundMatcher.match(
+                connectorManager.getConnector(triple.getMiddle()),
+                any,
+                triple.getMiddle(),
+                triple.getRight(),
+                Optional.of(moreAttrsToGet.toArray(String[]::new)));
         if (!connObjs.isEmpty()) {
             status.setOnResource(ConnObjectUtils.getConnObjectTO(
-                    outboundMatcher.getFIQL(connObjs.get(0), provision), connObjs.get(0).getAttributes()));
+                    outboundMatcher.getFIQL(connObjs.get(0), triple.getMiddle(), triple.getRight()),
+                    connObjs.get(0).getAttributes()));
 
             if (connObjs.size() > 1) {
                 LOG.warn("Expected single match, found {}", connObjs);
@@ -268,21 +278,23 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     protected SyncDeltaBuilder syncDeltaBuilder(
+            final AnyType anyType,
+            final ExternalResource resource,
             final Provision provision,
             final Filter filter,
             final Set<String> moreAttrsToGet) {
 
-        Stream<MappingItem> mapItems = Stream.concat(
+        Stream<Item> mapItems = Stream.concat(
                 provision.getMapping().getItems().stream(),
-                virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
+                virSchemaDAO.find(resource.getKey(), anyType.getKey()).stream().map(VirSchema::asLinkingMappingItem));
         OperationOptions options = MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new));
 
         SyncDeltaBuilder syncDeltaBuilder = new SyncDeltaBuilder().
                 setToken(new SyncToken("")).
                 setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
-                setObjectClass(provision.getObjectClass());
-        connectorManager.getConnector(provision.getResource()).
-                search(provision.getObjectClass(), filter, new SearchResultsHandler() {
+                setObjectClass(new ObjectClass(provision.getObjectClass()));
+        connectorManager.getConnector(resource).
+                search(syncDeltaBuilder.getObjectClass(), filter, new SearchResultsHandler() {
 
                     @Override
                     public boolean handle(final ConnectorObject connObj) {
@@ -306,39 +318,47 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final Filter filter,
             final Set<String> moreAttrsToGet) {
 
-        Provision provision = getProvision(anyTypeKey, resourceKey);
+        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
 
-        SyncDeltaBuilder syncDeltaBuilder = syncDeltaBuilder(provision, filter, moreAttrsToGet);
+        SyncDeltaBuilder syncDeltaBuilder = syncDeltaBuilder(
+                triple.getLeft(), triple.getMiddle(), triple.getRight(), filter, moreAttrsToGet);
 
         ReconStatus status = new ReconStatus();
         if (syncDeltaBuilder.getObject() != null) {
-            MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision).
+            Item connObjectKeyItem = MappingUtils.getConnObjectKeyItem(triple.getRight()).
                     orElseThrow(() -> new NotFoundException(
-                    "ConnObjectKey for " + provision.getAnyType().getKey()
-                    + " on resource '" + provision.getResource().getKey() + "'"));
+                    "ConnObjectKey for " + triple.getLeft().getKey()
+                    + " on resource '" + triple.getMiddle().getKey() + "'"));
 
-            inboundMatcher.match(syncDeltaBuilder.build(), provision).stream().findFirst().ifPresent(match -> {
-                if (match.getAny() != null) {
-                    status.setMatchType(MatchType.ANY);
-                    status.setAnyTypeKind(match.getAny().getType().getKind());
-                    status.setAnyKey(match.getAny().getKey());
-                    status.setRealm(match.getAny().getRealm().getFullPath());
-                    status.setOnSyncope(getOnSyncope(match.getAny(), connObjectKeyItem, provision));
-                } else if (match.getLinkedAccount() != null) {
-                    status.setMatchType(MatchType.LINKED_ACCOUNT);
-                    status.setAnyTypeKind(AnyTypeKind.USER);
-                    status.setAnyKey(match.getLinkedAccount().getOwner().getKey());
-                    status.setRealm(match.getLinkedAccount().getOwner().getRealm().getFullPath());
-                    status.setOnSyncope(getOnSyncope(match.getLinkedAccount(), connObjectKeyItem, provision));
-                }
-            });
+            inboundMatcher.match(
+                    syncDeltaBuilder.build(), triple.getMiddle(), triple.getRight(), triple.getLeft().getKind()).
+                    stream().findFirst().ifPresent(match -> {
+
+                        if (match.getAny() != null) {
+                            status.setMatchType(MatchType.ANY);
+                            status.setAnyTypeKind(match.getAny().getType().getKind());
+                            status.setAnyKey(match.getAny().getKey());
+                            status.setRealm(match.getAny().getRealm().getFullPath());
+                            status.setOnSyncope(getOnSyncope(
+                                    match.getAny(), connObjectKeyItem, triple.getMiddle(), triple.getRight()));
+                        } else if (match.getLinkedAccount() != null) {
+                            status.setMatchType(MatchType.LINKED_ACCOUNT);
+                            status.setAnyTypeKind(AnyTypeKind.USER);
+                            status.setAnyKey(match.getLinkedAccount().getOwner().getKey());
+                            status.setRealm(match.getLinkedAccount().getOwner().getRealm().getFullPath());
+                            status.setOnSyncope(getOnSyncope(
+                                    match.getLinkedAccount(), connObjectKeyItem, triple.getRight()));
+                        }
+                    });
 
             status.setOnResource(ConnObjectUtils.getConnObjectTO(
-                    outboundMatcher.getFIQL(syncDeltaBuilder.getObject(), provision),
+                    outboundMatcher.getFIQL(syncDeltaBuilder.getObject(), triple.getMiddle(), triple.getRight()),
                     syncDeltaBuilder.getObject().getAttributes()));
 
             if (status.getMatchType() == MatchType.ANY && StringUtils.isNotBlank(status.getAnyKey())) {
-                virAttrHandler.setValues(getAny(provision, status.getAnyKey()), syncDeltaBuilder.getObject());
+                virAttrHandler.setValues(
+                        getAny(triple.getRight(), triple.getLeft().getKind(), status.getAnyKey()),
+                        syncDeltaBuilder.getObject());
             }
         }
 
@@ -357,15 +377,16 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final String anyKey,
             final PushTaskTO pushTask) {
 
-        Provision provision = getProvision(anyTypeKey, resourceKey);
+        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
         List<ProvisioningReport> results = new ArrayList<>();
         try {
             results.addAll(singlePushExecutor().push(
-                    provision,
-                    connectorManager.getConnector(provision.getResource()),
-                    getAny(provision, anyKey),
+                    triple.getMiddle(),
+                    triple.getRight(),
+                    connectorManager.getConnector(triple.getMiddle()),
+                    getAny(triple.getRight(), triple.getLeft().getKind(), anyKey),
                     pushTask,
                     AuthContextUtils.getWho()));
             if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
@@ -390,43 +411,51 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final Set<String> moreAttrsToGet,
             final PushTaskTO pushTask) {
 
-        Provision provision = getProvision(anyTypeKey, resourceKey);
+        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
 
-        SyncDeltaBuilder syncDeltaBuilder = syncDeltaBuilder(provision, filter, moreAttrsToGet);
+        SyncDeltaBuilder syncDeltaBuilder = syncDeltaBuilder(
+                triple.getLeft(), triple.getMiddle(), triple.getRight(), filter, moreAttrsToGet);
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
         List<ProvisioningReport> results = new ArrayList<>();
 
         if (syncDeltaBuilder.getObject() != null) {
-            inboundMatcher.match(syncDeltaBuilder.build(), provision).stream().findFirst().ifPresent(match -> {
-                try {
-                    if (match.getMatchTarget() == MatchType.ANY) {
-                        results.addAll(singlePushExecutor().push(
-                                provision,
-                                connectorManager.getConnector(provision.getResource()),
-                                match.getAny(),
-                                pushTask,
-                                AuthContextUtils.getWho()));
-                        if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
-                            sce.getElements().add(results.get(0).getMessage());
+            inboundMatcher.match(
+                    syncDeltaBuilder.build(), triple.getMiddle(), triple.getRight(), triple.getLeft().getKind()).
+                    stream().findFirst().ifPresent(match -> {
+
+                        try {
+                            if (match.getMatchTarget() == MatchType.ANY) {
+                                results.addAll(singlePushExecutor().push(
+                                        triple.getMiddle(),
+                                        triple.getRight(),
+                                        connectorManager.getConnector(triple.getMiddle()),
+                                        match.getAny(),
+                                        pushTask,
+                                        AuthContextUtils.getWho()));
+                                if (!results.isEmpty()
+                                        && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
+
+                                    sce.getElements().add(results.get(0).getMessage());
+                                }
+                            } else {
+                                ProvisioningReport result = singlePushExecutor().push(
+                                        triple.getMiddle(),
+                                        triple.getRight(),
+                                        connectorManager.getConnector(triple.getMiddle()),
+                                        match.getLinkedAccount(),
+                                        pushTask,
+                                        AuthContextUtils.getWho());
+                                if (result.getStatus() == ProvisioningReport.Status.FAILURE) {
+                                    sce.getElements().add(result.getMessage());
+                                } else {
+                                    results.add(result);
+                                }
+                            }
+                        } catch (JobExecutionException e) {
+                            sce.getElements().add(e.getMessage());
                         }
-                    } else {
-                        ProvisioningReport result = singlePushExecutor().push(
-                                provision,
-                                connectorManager.getConnector(provision.getResource()),
-                                match.getLinkedAccount(),
-                                pushTask,
-                                AuthContextUtils.getWho());
-                        if (result.getStatus() == ProvisioningReport.Status.FAILURE) {
-                            sce.getElements().add(result.getMessage());
-                        } else {
-                            results.add(result);
-                        }
-                    }
-                } catch (JobExecutionException e) {
-                    sce.getElements().add(e.getMessage());
-                }
-            });
+                    });
         }
 
         if (!sce.isEmpty()) {
@@ -437,6 +466,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     protected List<ProvisioningReport> pull(
+            final ExternalResource resource,
             final Provision provision,
             final ReconFilterBuilder reconFilterBuilder,
             final Set<String> moreAttrsToGet,
@@ -454,8 +484,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                             createBean(SinglePullJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
 
             results.addAll(executor.pull(
+                    resource,
                     provision,
-                    connectorManager.getConnector(provision.getResource()),
+                    connectorManager.getConnector(resource),
                     reconFilterBuilder,
                     moreAttrsToGet,
                     pullTask,
@@ -483,24 +514,26 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final Set<String> moreAttrsToGet,
             final PullTaskTO pullTask) {
 
-        Provision provision = getProvision(anyTypeKey, resourceKey);
+        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
 
-        Any<?> any = getAny(provision, anyKey);
-
-        if (provision.getMapping().getConnObjectKeyItem().isEmpty()) {
+        if (triple.getRight().getMapping().getConnObjectKeyItem().isEmpty()) {
             throw new NotFoundException(
-                    "ConnObjectKey cannot be determined for mapping " + provision.getMapping().getKey());
+                    "ConnObjectKey cannot be determined for mapping " + anyTypeKey);
         }
 
-        String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, provision).
+        Any<?> any = getAny(triple.getRight(), triple.getLeft().getKind(), anyKey);
+
+        String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, triple.getMiddle(), triple.getRight()).
                 orElseThrow(() -> new NotFoundException(
-                "ConnObjectKey for " + provision.getAnyType().getKey()
-                + " on resource '" + provision.getResource().getKey() + "'"));
+                "ConnObjectKey for " + triple.getLeft().getKey()
+                + " on resource '" + triple.getMiddle().getKey() + "'"));
 
         return pull(
-                provision,
+                triple.getMiddle(),
+                triple.getRight(),
                 new KeyValueReconFilterBuilder(
-                        provision.getMapping().getConnObjectKeyItem().get().getExtAttrName(), connObjectKeyValue),
+                        triple.getRight().getMapping().getConnObjectKeyItem().get().getExtAttrName(),
+                        connObjectKeyValue),
                 moreAttrsToGet,
                 pullTask);
     }
@@ -514,10 +547,11 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final Set<String> moreAttrsToGet,
             final PullTaskTO pullTask) {
 
-        Provision provision = getProvision(anyTypeKey, resourceKey);
+        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
 
         return pull(
-                provision,
+                triple.getMiddle(),
+                triple.getRight(),
                 new ConstantReconFilterBuilder(filter),
                 moreAttrsToGet,
                 pullTask);

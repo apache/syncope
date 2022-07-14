@@ -22,19 +22,16 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class MappingTO implements ItemContainerTO {
+public class Mapping extends ItemContainer {
 
     private static final long serialVersionUID = 8447688036282611118L;
 
     private String connObjectLink;
 
-    private final List<ItemTO> items = new ArrayList<>();
-
-    private final List<ItemTO> linkingItems = new ArrayList<>();
+    private final List<Item> linkingItems = new ArrayList<>();
 
     public String getConnObjectLink() {
         return connObjectLink;
@@ -44,44 +41,9 @@ public class MappingTO implements ItemContainerTO {
         this.connObjectLink = connObjectLink;
     }
 
-    @Override
-    public ItemTO getConnObjectKeyItem() {
-        return getItems().stream().filter(ItemTO::isConnObjectKey).findFirst().orElse(null);
-    }
-
-    protected boolean addConnObjectKeyItem(final ItemTO connObjectItem) {
-        connObjectItem.setMandatoryCondition("true");
-        connObjectItem.setConnObjectKey(true);
-
-        return this.add(connObjectItem);
-    }
-
-    @Override
-    public boolean setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
-        return Optional.ofNullable(connObjectKeyItem)
-                .map(this::addConnObjectKeyItem).orElseGet(() -> remove(getConnObjectKeyItem()));
-    }
-
-    @JacksonXmlElementWrapper(localName = "items")
-    @JacksonXmlProperty(localName = "item")
-    @Override
-    public List<ItemTO> getItems() {
-        return items;
-    }
-
-    @Override
-    public boolean add(final ItemTO item) {
-        return Optional.ofNullable(item)
-                .filter(itemTO -> this.items.contains(itemTO) || this.items.add(itemTO)).isPresent();
-    }
-
-    public boolean remove(final ItemTO item) {
-        return this.items.remove(item);
-    }
-
     @JacksonXmlElementWrapper(localName = "linkingItems")
     @JacksonXmlProperty(localName = "linkingItem")
-    public List<ItemTO> getLinkingItems() {
+    public List<Item> getLinkingItems() {
         return linkingItems;
     }
 
@@ -96,10 +58,10 @@ public class MappingTO implements ItemContainerTO {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        MappingTO other = (MappingTO) obj;
+        Mapping other = (Mapping) obj;
         return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
                 append(connObjectLink, other.connObjectLink).
-                append(items, other.items).
                 append(linkingItems, other.linkingItems).
                 build();
     }
@@ -107,8 +69,8 @@ public class MappingTO implements ItemContainerTO {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
                 append(connObjectLink).
-                append(items).
                 append(linkingItems).
                 build();
     }

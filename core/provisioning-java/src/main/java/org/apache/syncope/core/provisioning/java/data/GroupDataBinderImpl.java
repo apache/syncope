@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -248,7 +248,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         Group group = groupDAO.save(toBeUpdated);
 
         // Save projection on Resources (before update)
-        Map<String, ConnObjectTO> beforeOnResources =
+        Map<String, ConnObject> beforeOnResources =
                 onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, false);
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();

@@ -42,7 +42,7 @@ import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.request.LinkedAccountUR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
@@ -101,7 +101,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
         assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
 
-        ConnObjectTO ldapObj = RESOURCE_SERVICE.readConnObject(
+        ConnObject ldapObj = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), connObjectKeyValue);
         assertNotNull(ldapObj);
         assertEquals(user.getPlainAttr("email").get().getValues(), ldapObj.getAttr("mail").get().getValues());
@@ -230,7 +230,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
         assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
 
-        ConnObjectTO ldapObj = RESOURCE_SERVICE.readConnObject(
+        ConnObject ldapObj = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), connObjectKeyValue);
         assertNotNull(ldapObj);
         assertEquals(user.getPlainAttr("email").get().getValues(), ldapObj.getAttr("mail").get().getValues());

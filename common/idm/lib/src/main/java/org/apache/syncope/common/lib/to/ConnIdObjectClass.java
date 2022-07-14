@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.BaseBean;
 /**
  * Metadata description of ConnId ObjectClass.
  */
-public class ConnIdObjectClassTO implements BaseBean {
+public class ConnIdObjectClass implements BaseBean {
 
     private static final long serialVersionUID = -3719658595689434648L;
 

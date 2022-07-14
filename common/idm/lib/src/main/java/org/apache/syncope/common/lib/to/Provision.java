@@ -20,36 +20,38 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class OrgUnitTO implements EntityTO, ItemContainerTO {
+public class Provision implements Serializable {
 
-    private static final long serialVersionUID = -1868877794174953177L;
+    private static final long serialVersionUID = 8298910216218007927L;
 
-    private String key;
+    private String anyType;
 
     private String objectClass;
+
+    private final List<String> auxClasses = new ArrayList<>();
 
     private String syncToken;
 
     private boolean ignoreCaseMatch;
 
-    private String connObjectLink;
+    private String uidOnCreate;
 
-    private final List<ItemTO> items = new ArrayList<>();
+    private Mapping mapping;
 
-    @Override
-    public String getKey() {
-        return key;
+    private final List<String> virSchemas = new ArrayList<>();
+
+    public String getAnyType() {
+        return anyType;
     }
 
-    @Override
-    public void setKey(final String key) {
-        this.key = key;
+    public void setAnyType(final String anyType) {
+        this.anyType = anyType;
     }
 
     public String getObjectClass() {
@@ -58,6 +60,12 @@ public class OrgUnitTO implements EntityTO, ItemContainerTO {
 
     public void setObjectClass(final String objectClass) {
         this.objectClass = objectClass;
+    }
+
+    @JacksonXmlElementWrapper(localName = "auxClasses")
+    @JacksonXmlProperty(localName = "class")
+    public List<String> getAuxClasses() {
+        return auxClasses;
     }
 
     public String getSyncToken() {
@@ -76,47 +84,26 @@ public class OrgUnitTO implements EntityTO, ItemContainerTO {
         this.ignoreCaseMatch = ignoreCaseMatch;
     }
 
-    public String getConnObjectLink() {
-        return connObjectLink;
+    public String getUidOnCreate() {
+        return uidOnCreate;
     }
 
-    public void setConnObjectLink(final String connObjectLink) {
-        this.connObjectLink = connObjectLink;
+    public void setUidOnCreate(final String uidOnCreate) {
+        this.uidOnCreate = uidOnCreate;
     }
 
-    @Override
-    public ItemTO getConnObjectKeyItem() {
-        return getItems().stream().filter(ItemTO::isConnObjectKey).findFirst().orElse(null);
+    public Mapping getMapping() {
+        return mapping;
     }
 
-    protected boolean addConnObjectKeyItem(final ItemTO connObjectItem) {
-        connObjectItem.setMandatoryCondition("true");
-        connObjectItem.setConnObjectKey(true);
-
-        return this.add(connObjectItem);
+    public void setMapping(final Mapping mapping) {
+        this.mapping = mapping;
     }
 
-    @Override
-    public boolean setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
-        return Optional.ofNullable(connObjectKeyItem)
-                .map(this::addConnObjectKeyItem).orElseGet(() -> remove(getConnObjectKeyItem()));
-    }
-
-    @JacksonXmlElementWrapper(localName = "items")
-    @JacksonXmlProperty(localName = "item")
-    @Override
-    public List<ItemTO> getItems() {
-        return items;
-    }
-
-    @Override
-    public boolean add(final ItemTO item) {
-        return Optional.ofNullable(item)
-                .filter(itemTO -> this.items.contains(itemTO) || this.items.add(itemTO)).isPresent();
-    }
-
-    public boolean remove(final ItemTO item) {
-        return this.items.remove(item);
+    @JacksonXmlElementWrapper(localName = "virSchemas")
+    @JacksonXmlProperty(localName = "virSchema")
+    public List<String> getVirSchemas() {
+        return virSchemas;
     }
 
     @Override
@@ -130,26 +117,30 @@ public class OrgUnitTO implements EntityTO, ItemContainerTO {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        OrgUnitTO other = (OrgUnitTO) obj;
+        Provision other = (Provision) obj;
         return new EqualsBuilder().
                 append(ignoreCaseMatch, other.ignoreCaseMatch).
-                append(key, other.key).
+                append(anyType, other.anyType).
                 append(objectClass, other.objectClass).
+                append(auxClasses, other.auxClasses).
                 append(syncToken, other.syncToken).
-                append(connObjectLink, other.connObjectLink).
-                append(items, other.items).
+                append(uidOnCreate, other.uidOnCreate).
+                append(mapping, other.mapping).
+                append(virSchemas, other.virSchemas).
                 build();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-                append(key).
+                append(anyType).
                 append(objectClass).
+                append(auxClasses).
                 append(syncToken).
                 append(ignoreCaseMatch).
-                append(connObjectLink).
-                append(items).
+                append(uidOnCreate).
+                append(mapping).
+                append(virSchemas).
                 build();
     }
 }

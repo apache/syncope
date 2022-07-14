@@ -18,52 +18,20 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class ProvisionTO implements EntityTO {
+public class OrgUnit extends ItemContainer {
 
-    private static final long serialVersionUID = 8298910216218007927L;
-
-    private String key;
-
-    private String anyType;
+    private static final long serialVersionUID = -1868877794174953177L;
 
     private String objectClass;
 
-    private final List<String> auxClasses = new ArrayList<>();
+    private String connObjectLink;
 
     private String syncToken;
 
     private boolean ignoreCaseMatch;
-
-    private String uidOnCreate;
-
-    private MappingTO mapping;
-
-    private final List<String> virSchemas = new ArrayList<>();
-
-    @Override
-    public String getKey() {
-        return key;
-    }
-
-    @Override
-    public void setKey(final String key) {
-        this.key = key;
-    }
-
-    public String getAnyType() {
-        return anyType;
-    }
-
-    public void setAnyType(final String anyType) {
-        this.anyType = anyType;
-    }
 
     public String getObjectClass() {
         return objectClass;
@@ -73,10 +41,12 @@ public class ProvisionTO implements EntityTO {
         this.objectClass = objectClass;
     }
 
-    @JacksonXmlElementWrapper(localName = "auxClasses")
-    @JacksonXmlProperty(localName = "class")
-    public List<String> getAuxClasses() {
-        return auxClasses;
+    public String getConnObjectLink() {
+        return connObjectLink;
+    }
+
+    public void setConnObjectLink(final String connObjectLink) {
+        this.connObjectLink = connObjectLink;
     }
 
     public String getSyncToken() {
@@ -95,28 +65,6 @@ public class ProvisionTO implements EntityTO {
         this.ignoreCaseMatch = ignoreCaseMatch;
     }
 
-    public String getUidOnCreate() {
-        return uidOnCreate;
-    }
-
-    public void setUidOnCreate(final String uidOnCreate) {
-        this.uidOnCreate = uidOnCreate;
-    }
-
-    public MappingTO getMapping() {
-        return mapping;
-    }
-
-    public void setMapping(final MappingTO mapping) {
-        this.mapping = mapping;
-    }
-
-    @JacksonXmlElementWrapper(localName = "virSchemas")
-    @JacksonXmlProperty(localName = "virSchema")
-    public List<String> getVirSchemas() {
-        return virSchemas;
-    }
-
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -128,32 +76,24 @@ public class ProvisionTO implements EntityTO {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ProvisionTO other = (ProvisionTO) obj;
+        OrgUnit other = (OrgUnit) obj;
         return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
                 append(ignoreCaseMatch, other.ignoreCaseMatch).
-                append(key, other.key).
-                append(anyType, other.anyType).
                 append(objectClass, other.objectClass).
-                append(auxClasses, other.auxClasses).
+                append(connObjectLink, other.connObjectLink).
                 append(syncToken, other.syncToken).
-                append(uidOnCreate, other.uidOnCreate).
-                append(mapping, other.mapping).
-                append(virSchemas, other.virSchemas).
                 build();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-                append(key).
-                append(anyType).
+                appendSuper(super.hashCode()).
                 append(objectClass).
-                append(auxClasses).
+                append(connObjectLink).
                 append(syncToken).
                 append(ignoreCaseMatch).
-                append(uidOnCreate).
-                append(mapping).
-                append(virSchemas).
                 build();
     }
 }

@@ -29,19 +29,21 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -55,6 +57,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
+import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.ImplementationManager;
@@ -73,6 +76,9 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
     protected GroupDAO groupDAO;
 
     @Autowired
+    protected PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
     protected VirSchemaDAO virSchemaDAO;
 
     @Autowired
@@ -81,19 +87,19 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
 
-    protected final Map<ObjectClass, SyncToken> latestSyncTokens = new HashMap<>();
+    protected final Map<String, SyncToken> latestSyncTokens = new HashMap<>();
 
-    protected final Map<ObjectClass, MutablePair<Integer, String>> handled = new HashMap<>();
+    protected final Map<String, MutablePair<Integer, String>> handled = new HashMap<>();
 
     protected ProvisioningProfile<PullTask, PullActions> profile;
 
     @Override
-    public void setLatestSyncToken(final ObjectClass objectClass, final SyncToken latestSyncToken) {
+    public void setLatestSyncToken(final String objectClass, final SyncToken latestSyncToken) {
         latestSyncTokens.put(objectClass, latestSyncToken);
     }
 
     @Override
-    public void reportHandled(final ObjectClass objectClass, final Name name) {
+    public void reportHandled(final String objectClass, final Name name) {
         MutablePair<Integer, String> pair = Optional.ofNullable(handled.get(objectClass)).orElseGet(() -> {
             MutablePair<Integer, String> p = MutablePair.of(0, null);
             handled.put(objectClass, p);
@@ -119,7 +125,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             if (!handled.isEmpty()) {
                 StringBuilder builder = new StringBuilder("Processed:\n");
                 handled.forEach((key, value) -> builder.append(' ').append(value.getLeft()).append('\t').
-                        append(key.getObjectClassValue()).
+                        append(key).
                         append(" / latest: ").append(value.getRight()).
                         append('\n'));
                 status.set(builder.toString());
@@ -233,7 +239,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
         // First realms...
         if (pullTask.getResource().getOrgUnit() != null) {
-            status.set("Pulling " + pullTask.getResource().getOrgUnit().getObjectClass().getObjectClassValue());
+            status.set("Pulling " + pullTask.getResource().getOrgUnit().getObjectClass());
 
             OrgUnit orgUnit = pullTask.getResource().getOrgUnit();
 
@@ -250,24 +256,26 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 switch (pullTask.getPullMode()) {
                     case INCREMENTAL:
                         if (!dryRun) {
-                            latestSyncTokens.put(orgUnit.getObjectClass(), orgUnit.getSyncToken());
+                            latestSyncTokens.put(
+                                    orgUnit.getObjectClass(),
+                                    ConnObjectUtils.toSyncToken(orgUnit.getSyncToken()));
                         }
 
-                        connector.sync(
-                                orgUnit.getObjectClass(),
-                                orgUnit.getSyncToken(),
+                        connector.sync(new ObjectClass(orgUnit.getObjectClass()),
+                                ConnObjectUtils.toSyncToken(orgUnit.getSyncToken()),
                                 handler,
                                 options);
 
                         if (!dryRun) {
-                            orgUnit.setSyncToken(latestSyncTokens.get(orgUnit.getObjectClass()));
-                            resourceDAO.save(orgUnit.getResource());
+                            orgUnit.setSyncToken(
+                                    ConnObjectUtils.toString(latestSyncTokens.get(orgUnit.getObjectClass())));
+                            resourceDAO.save(pullTask.getResource());
                         }
                         break;
 
                     case FILTERED_RECONCILIATION:
                         connector.filteredReconciliation(
-                                orgUnit.getObjectClass(),
+                                new ObjectClass(orgUnit.getObjectClass()),
                                 buildReconFilterBuilder(pullTask),
                                 handler,
                                 options);
@@ -275,7 +283,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
                     case FULL_RECONCILIATION:
                     default:
-                        connector.fullReconciliation(orgUnit.getObjectClass(),
+                        connector.fullReconciliation(
+                                new ObjectClass(orgUnit.getObjectClass()),
                                 handler,
                                 options);
                         break;
@@ -300,10 +309,12 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
                 collect(Collectors.toList())) {
 
-            status.set("Pulling " + provision.getObjectClass().getObjectClassValue());
+            status.set("Pulling " + provision.getObjectClass());
+
+            AnyType anyType = anyTypeDAO.find(provision.getAnyType());
 
             SyncopePullResultHandler handler;
-            switch (provision.getAnyType().getKind()) {
+            switch (anyType.getKind()) {
                 case USER:
                     handler = buildUserHandler();
                     break;
@@ -322,33 +333,37 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             try {
                 Set<String> moreAttrsToGet = new HashSet<>();
                 actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
-                Stream<? extends Item> mapItems = Stream.concat(
+                Stream<Item> mapItems = Stream.concat(
                         MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
-                        virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
+                        virSchemaDAO.find(pullTask.getResource().getKey(), anyType.getKey()).stream().
+                                map(VirSchema::asLinkingMappingItem));
                 OperationOptions options = MappingUtils.buildOperationOptions(
                         mapItems, moreAttrsToGet.toArray(String[]::new));
 
                 switch (pullTask.getPullMode()) {
                     case INCREMENTAL:
                         if (!dryRun) {
-                            latestSyncTokens.put(provision.getObjectClass(), provision.getSyncToken());
+                            latestSyncTokens.put(
+                                    provision.getObjectClass(),
+                                    ConnObjectUtils.toSyncToken(provision.getSyncToken()));
                         }
 
                         connector.sync(
-                                provision.getObjectClass(),
-                                provision.getSyncToken(),
+                                new ObjectClass(provision.getObjectClass()),
+                                ConnObjectUtils.toSyncToken(provision.getSyncToken()),
                                 handler,
                                 options);
 
                         if (!dryRun) {
-                            provision.setSyncToken(latestSyncTokens.get(provision.getObjectClass()));
-                            resourceDAO.save(provision.getResource());
+                            provision.setSyncToken(
+                                    ConnObjectUtils.toString(latestSyncTokens.get(provision.getObjectClass())));
+                            resourceDAO.save(pullTask.getResource());
                         }
                         break;
 
                     case FILTERED_RECONCILIATION:
                         connector.filteredReconciliation(
-                                provision.getObjectClass(),
+                                new ObjectClass(provision.getObjectClass()),
                                 buildReconFilterBuilder(pullTask),
                                 handler,
                                 options);
@@ -357,25 +372,24 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                     case FULL_RECONCILIATION:
                     default:
                         connector.fullReconciliation(
-                                provision.getObjectClass(),
+                                new ObjectClass(provision.getObjectClass()),
                                 handler,
                                 options);
                         break;
                 }
 
                 if (provision.getUidOnCreate() != null) {
-                    AnyUtils anyUtils = anyUtilsFactory.getInstance(provision.getAnyType().getKind());
+                    AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
                     profile.getResults().stream().
                             filter(result -> result.getUidValue() != null && result.getKey() != null
                             && result.getOperation() == ResourceOperation.CREATE
-                            && result.getAnyType().equals(provision.getAnyType().getKey())).
+                            && result.getAnyType().equals(provision.getAnyType())).
                             forEach(result -> anyUtils.addAttr(
-                            result.getKey(), provision.getUidOnCreate(), result.getUidValue()));
+                            result.getKey(), plainSchemaDAO.find(provision.getUidOnCreate()), result.getUidValue()));
                 }
             } catch (Throwable t) {
                 throw new JobExecutionException("While pulling from connector", t);
             }
-
         }
         try {
             setGroupOwners(ghandler);

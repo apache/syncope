@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import org.apache.syncope.core.logic.init.SAML2SP4UILoader;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIUserManager;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
@@ -50,7 +51,7 @@ public class SAML2SP4UILogicContext {
     @ConditionalOnMissingBean
     @Bean
     public SAML2SP4UILoader saml2SP4UILoader(final ResourcePatternResolver resourceResolver,
-                                             final SAML2SP4UIProperties props) {
+            final SAML2SP4UIProperties props) {
         return new SAML2SP4UILoader(props, resourceResolver);
     }
 
@@ -71,6 +72,7 @@ public class SAML2SP4UILogicContext {
             final SAML2SP4UIIdPDAO idpDAO,
             final InboundMatcher inboundMatcher,
             final UserDAO userDAO,
+            final ImplementationDAO implementationDAO,
             final IntAttrNameParser intAttrNameParser,
             final TemplateUtils templateUtils,
             final UserProvisioningManager provisioningManager,
@@ -80,6 +82,7 @@ public class SAML2SP4UILogicContext {
                 idpDAO,
                 inboundMatcher,
                 userDAO,
+                implementationDAO,
                 intAttrNameParser,
                 templateUtils,
                 provisioningManager,

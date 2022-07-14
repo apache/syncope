@@ -26,7 +26,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.apache.syncope.common.lib.to.ConnBundleTO;
+import org.apache.syncope.common.lib.to.ConnIdBundle;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -41,7 +41,7 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
 
     private static final long serialVersionUID = -2025535531121434050L;
 
-    private final List<ConnBundleTO> bundles;
+    private final List<ConnIdBundle> bundles;
 
     public ConnectorWizardBuilder(final ConnInstanceTO defaultItem, final PageReference pageRef) {
         super(defaultItem, pageRef);
@@ -60,7 +60,7 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
             @Override
             protected Pair<Boolean, String> check(final AjaxRequestTarget target) {
                 ConnInstanceTO connInstanceTO = ConnInstanceTO.class.cast(modelObject);
-                ConnBundleTO bundleTO = ConnectorWizardBuilder.getBundle(connInstanceTO, bundles);
+                ConnIdBundle bundleTO = ConnectorWizardBuilder.getBundle(connInstanceTO, bundles);
 
                 connInstanceTO.setConnectorName(bundleTO.getConnectorName());
                 connInstanceTO.setBundleName(bundleTO.getBundleName());
@@ -82,7 +82,7 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
     @Override
     protected Serializable onApplyInternal(final Serializable modelObject) {
         ConnInstanceTO connInstanceTO = ConnInstanceTO.class.cast(modelObject);
-        ConnBundleTO bundleTO = ConnectorWizardBuilder.getBundle(connInstanceTO, bundles);
+        ConnIdBundle bundleTO = ConnectorWizardBuilder.getBundle(connInstanceTO, bundles);
 
         connInstanceTO.setConnectorName(bundleTO.getConnectorName());
         connInstanceTO.setBundleName(bundleTO.getBundleName());
@@ -121,8 +121,8 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
                 target);
     }
 
-    protected static ConnBundleTO getBundle(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
-        List<ConnBundleTO> bundlesList;
+    protected static ConnIdBundle getBundle(final ConnInstanceTO connInstanceTO, final List<ConnIdBundle> bundles) {
+        List<ConnIdBundle> bundlesList;
         if (bundles.isEmpty()) {
             bundlesList = ConnectorRestClient.getAllBundles().stream().
                     filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).

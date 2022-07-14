@@ -69,14 +69,14 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.RemediationTO;
@@ -430,7 +430,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals(matchingUsers.getResult().get(0).getKey(), groupTO.getUserOwner());
         assertNull(groupTO.getGroupOwner());
         // SYNCOPE-1343, set value title to null on LDAP
-        ConnObjectTO userConnObject = RESOURCE_SERVICE.readConnObject(
+        ConnObject userConnObject = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), matchingUsers.getResult().get(0).getKey());
         assertNotNull(userConnObject);
         assertEquals("odd", userConnObject.getAttr("title").get().getValues().get(0));
@@ -467,7 +467,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertNull(matchingUsers.getResult().get(0).getPlainAttr("title").orElse(null));
 
         // SYNCOPE-1356 remove group membership from LDAP, pull and check in Syncope
-        ConnObjectTO groupConnObject = RESOURCE_SERVICE.readConnObject(
+        ConnObject groupConnObject = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), matchingGroups.getResult().get(0).getKey());
         assertNotNull(groupConnObject);
         Attr groupDn = groupConnObject.getAttr(Name.NAME).get();
@@ -494,7 +494,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // 0. reset sync token and set MappingItemTransformer
         ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
-        ProvisionTO provision = resource.getProvision(PRINTER).get();
+        Provision provision = resource.getProvision(PRINTER).get();
         assertNotNull(provision);
 
         ImplementationTO transformer = null;
@@ -517,7 +517,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         }
         assertNotNull(transformer);
 
-        ItemTO mappingItem = provision.getMapping().getItems().stream().
+        Item mappingItem = provision.getMapping().getItems().stream().
                 filter(object -> "location".equals(object.getIntAttrName())).findFirst().get();
         assertNotNull(mappingItem);
         mappingItem.getTransformers().clear();
@@ -544,7 +544,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 2. verify that PrefixMappingItemTransformer was applied during propagation
             // (location starts with given prefix on external resource)
-            ConnObjectTO connObjectTO = RESOURCE_SERVICE.readConnObject(
+            ConnObject connObjectTO = RESOURCE_SERVICE.readConnObject(
                     RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
             assertFalse(anyObjectTO.getPlainAttr("location").get().getValues().get(0).startsWith(prefix));
             assertTrue(connObjectTO.getAttr("LOCATION").get().getValues().get(0).startsWith(prefix));
@@ -746,7 +746,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         ldap.setKey("ldapForRemediation");
 
-        ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
+        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
         provision.getMapping().getItems().removeIf(item -> "userId".equals(item.getIntAttrName()));
         provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getIntAttrName()));
         provision.getVirSchemas().clear();
@@ -832,7 +832,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         ldap.setKey("ldapForRemediationSinglePull");
 
-        ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
+        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
         provision.getMapping().getItems().removeIf(item -> "userId".equals(item.getIntAttrName()));
         provision.getMapping().getItems().removeIf(item -> "email".equals(item.getIntAttrName()));
         provision.getVirSchemas().clear();
@@ -1224,7 +1224,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(self);
 
             // 4. Check that the LDAP resource has the old password
-            ConnObjectTO connObject =
+            ConnObject connObject =
                     RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
             assertNotNull(getLdapRemoteObject(
                     connObject.getAttr(Name.NAME).get().getValues().get(0),
@@ -1338,7 +1338,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             group = GROUP_SERVICE.read("testLDAPGroup");
             assertNotNull(group);
 
-            ConnObjectTO connObject =
+            ConnObject connObject =
                     RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
             assertNotNull(connObject);
             assertEquals("pullFromLDAP@syncope.apache.org", connObject.getAttr("mail").get().getValues().get(0));
@@ -1433,7 +1433,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals("pullFromLDAP_issue1656@syncope.apache.org",
                     pullFromLDAP4issue1656.getPlainAttr("email").get().getValues().get(0));
             // 2. Edit mail attribute directly on the resource in order to have a not valid email
-            ConnObjectTO connObject = RESOURCE_SERVICE.readConnObject(
+            ConnObject connObject = RESOURCE_SERVICE.readConnObject(
                     RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), pullFromLDAP4issue1656.getKey());
             assertNotNull(connObject);
             assertEquals("pullFromLDAP_issue1656@syncope.apache.org",

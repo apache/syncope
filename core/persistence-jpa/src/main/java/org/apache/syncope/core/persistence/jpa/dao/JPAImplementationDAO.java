@@ -69,5 +69,4 @@ public class JPAImplementationDAO extends AbstractDAO<Implementation> implements
         entityManager().remove(implementation);
         ImplementationManager.purge(key);
     }
-
 }

@@ -44,7 +44,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
@@ -132,33 +132,33 @@ public class OIDC4UIITCase extends AbstractUIITCase {
             cas.setCreateUnmatching(createUnmatching);
             cas.setSelfRegUnmatching(selfRegUnmatching);
 
-            ItemTO item = new ItemTO();
+            Item item = new Item();
             item.setIntAttrName("username");
             item.setExtAttrName("preferred_username");
             item.setConnObjectKey(true);
             cas.setConnObjectKeyItem(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("email");
             item.setExtAttrName("mail");
             cas.add(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("userId");
             item.setExtAttrName("mail");
             cas.add(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("firstname");
             item.setExtAttrName("givenName");
             cas.add(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("surname");
             item.setExtAttrName("sn");
             cas.add(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("fullname");
             item.setExtAttrName("cn");
             cas.add(item);

@@ -38,10 +38,10 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -141,22 +141,22 @@ public class MultitenancyITCase extends AbstractITCase {
         resource.setConnector(conn.getKey());
 
         try {
-            ProvisionTO provisionTO = new ProvisionTO();
+            Provision provisionTO = new Provision();
             provisionTO.setAnyType(AnyTypeKind.USER.name());
             provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provisionTO);
 
-            MappingTO mapping = new MappingTO();
+            Mapping mapping = new Mapping();
             mapping.setConnObjectLink("'uid=' + username + ',ou=people,o=isp'");
             provisionTO.setMapping(mapping);
 
-            ItemTO item = new ItemTO();
+            Item item = new Item();
             item.setIntAttrName("username");
             item.setExtAttrName("cn");
             item.setPurpose(MappingPurpose.BOTH);
             mapping.setConnObjectKeyItem(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setPassword(true);
             item.setIntAttrName("password");
             item.setExtAttrName("userPassword");
@@ -164,14 +164,14 @@ public class MultitenancyITCase extends AbstractITCase {
             item.setMandatoryCondition("true");
             mapping.add(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("key");
             item.setPurpose(MappingPurpose.BOTH);
             item.setExtAttrName("sn");
             item.setMandatoryCondition("true");
             mapping.add(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("email");
             item.setPurpose(MappingPurpose.BOTH);
             item.setExtAttrName("mail");

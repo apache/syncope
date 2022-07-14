@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.saml2.SAML2LoginResponse;
 import org.apache.syncope.common.lib.saml2.SAML2Request;
 import org.apache.syncope.common.lib.saml2.SAML2Response;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -53,7 +54,6 @@ import org.apache.syncope.core.logic.saml2.SAML2SP4UIUserManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdPItem;
 import org.apache.syncope.core.provisioning.api.RequestedAuthnContextProvider;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -332,7 +332,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
         SAML2Credentials.SAMLNameID nameID = credentials.getNameId();
 
-        SAML2SP4UIIdPItem connObjectKeyItem = idp.getConnObjectKeyItem().orElse(null);
+        Item connObjectKeyItem = idp.getConnObjectKeyItem().orElse(null);
 
         String keyValue = null;
         if (StringUtils.isNotBlank(nameID.getValue())

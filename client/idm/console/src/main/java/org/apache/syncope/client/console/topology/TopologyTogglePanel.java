@@ -45,8 +45,7 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
@@ -635,19 +634,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     ResourceTO resource = ResourceRestClient.read(node.getKey());
                     resource.setKey("Copy of " + node.getKey());
 
-                    // reset some resource objects keys
-                    if (resource.getOrgUnit() != null) {
-                        resource.getOrgUnit().setKey(null);
-                        for (ItemTO item : resource.getOrgUnit().getItems()) {
-                            item.setKey(null);
-                        }
-                    }
-                    for (ProvisionTO provision : resource.getProvisions()) {
-                        provision.setKey(null);
+                    for (Provision provision : resource.getProvisions()) {
                         if (provision.getMapping() != null) {
-                            for (ItemTO item : provision.getMapping().getItems()) {
-                                item.setKey(null);
-                            }
                             provision.getMapping().getLinkingItems().clear();
                         }
                         provision.getVirSchemas().clear();

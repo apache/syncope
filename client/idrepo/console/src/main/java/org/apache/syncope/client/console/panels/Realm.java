@@ -39,7 +39,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -162,7 +162,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             @Override
             protected Component getValueComponent(final String key, final PropagationStatus bean) {
                 if ("afterObj".equalsIgnoreCase(key)) {
-                    ConnObjectTO afterObj = bean.getAfterObj();
+                    ConnObject afterObj = bean.getAfterObj();
                     String remoteId = afterObj == null
                             || afterObj.getAttrs().isEmpty()
                             || afterObj.getAttr(ConnIdSpecialName.NAME).isEmpty()
@@ -249,7 +249,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         }
 
         @Override
-        protected final Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs() {
+        protected final Pair<ConnObject, ConnObject> getConnObjectTOs() {
             return Pair.of(bean.getBeforeObj(), bean.getAfterObj());
         }
     }

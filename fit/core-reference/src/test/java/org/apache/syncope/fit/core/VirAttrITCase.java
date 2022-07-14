@@ -39,12 +39,12 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -99,7 +99,7 @@ public class VirAttrITCase extends AbstractITCase {
     public void issueSYNCOPE260() {
         // create new virtual schema for the resource below
         ResourceTO ws2 = RESOURCE_SERVICE.read(RESOURCE_NAME_WS2);
-        ProvisionTO provision = ws2.getProvision(AnyTypeKind.USER.name()).get();
+        Provision provision = ws2.getProvision(AnyTypeKind.USER.name()).get();
         assertNotNull(provision);
 
         VirSchemaTO virSchema = new VirSchemaTO();
@@ -132,7 +132,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         UserTO userTO = result.getEntity();
 
-        ConnObjectTO connObjectTO =
+        ConnObject connObjectTO =
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertEquals("virtualvalue", connObjectTO.getAttr("COMPANYNAME").get().getValues().get(0));
         // ----------------------------------
@@ -256,10 +256,10 @@ public class VirAttrITCase extends AbstractITCase {
         ResourceTO csv = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);
 
         // change mapping of resource-csv
-        MappingTO origMapping = SerializationUtils.clone(csv.getProvisions().get(0).getMapping());
+        Mapping origMapping = SerializationUtils.clone(csv.getProvisions().get(0).getMapping());
         try {
             // remove this mapping
-            Optional<ItemTO> email = csv.getProvisions().get(0).getMapping().getItems().stream().
+            Optional<Item> email = csv.getProvisions().get(0).getMapping().getItems().stream().
                     filter(item -> "email".equals(item.getIntAttrName())).findFirst();
             if (email.isPresent()) {
                 csv.getProvisions().get(0).getMapping().getItems().remove(email.get());
@@ -270,7 +270,7 @@ public class VirAttrITCase extends AbstractITCase {
             assertNotNull(csv.getProvisions().get(0).getMapping());
 
             // create new virtual schema for the resource below
-            ProvisionTO provision = csv.getProvision(AnyTypeKind.USER.name()).get();
+            Provision provision = csv.getProvision(AnyTypeKind.USER.name()).get();
             assertNotNull(provision);
 
             VirSchemaTO virSchema = new VirSchemaTO();
@@ -481,28 +481,28 @@ public class VirAttrITCase extends AbstractITCase {
             resourceTO.setKey(resourceName);
             resourceTO.setConnector("be24b061-019d-4e3e-baf0-0a6d0a45cb9c");
 
-            ProvisionTO provisionTO = new ProvisionTO();
+            Provision provisionTO = new Provision();
             provisionTO.setAnyType(AnyTypeKind.USER.name());
             provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resourceTO.getProvisions().add(provisionTO);
 
-            MappingTO mapping = new MappingTO();
+            Mapping mapping = new Mapping();
             provisionTO.setMapping(mapping);
 
-            ItemTO item = new ItemTO();
+            Item item = new Item();
             item.setIntAttrName("fullname");
             item.setExtAttrName("ID");
             item.setPurpose(MappingPurpose.PROPAGATION);
             item.setConnObjectKey(true);
             mapping.setConnObjectKeyItem(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("username");
             item.setExtAttrName("USERNAME");
             item.setPurpose(MappingPurpose.PROPAGATION);
             mapping.getItems().add(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("groups[" + groupName + "].rvirtualdata");
             item.setExtAttrName("EMAIL");
             item.setPurpose(MappingPurpose.PROPAGATION);
@@ -613,7 +613,7 @@ public class VirAttrITCase extends AbstractITCase {
     public void issueSYNCOPE691() {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         try {
-            ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
+            Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
             assertNotNull(provision);
             provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
             provision.getVirSchemas().clear();

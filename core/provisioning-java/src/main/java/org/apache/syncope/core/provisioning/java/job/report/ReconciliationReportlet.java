@@ -33,6 +33,8 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.ReconciliationReportletConf;
 import org.apache.syncope.common.lib.report.ReconciliationReportletConf.Feature;
 import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -48,8 +50,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
@@ -61,6 +61,7 @@ import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -284,16 +285,16 @@ public class ReconciliationReportlet extends AbstractReportlet {
 
             AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
             anyUtils.getAllResources(any).forEach(resource -> {
-                Provision provision = resource.getProvision(any.getType()).orElse(null);
-                Optional<? extends MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
-                final String connObjectKeyValue = connObjectKeyItem.isPresent()
-                        ? mappingManager.getConnObjectKeyValue(any, provision).get()
+                Provision provision = resource.getProvision(any.getType().getKey()).orElse(null);
+                Optional<Item> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+                String connObjectKeyValue = connObjectKeyItem.isPresent()
+                        ? mappingManager.getConnObjectKeyValue(any, resource, provision).get()
                         : StringUtils.EMPTY;
                 if (provision != null && connObjectKeyItem.isPresent() && StringUtils.isNotBlank(connObjectKeyValue)) {
                     // 1. read from the underlying connector
                     Connector connector = connectorManager.getConnector(resource);
                     ConnectorObject connectorObject = connector.getObject(
-                            provision.getObjectClass(),
+                            new ObjectClass(provision.getObjectClass()),
                             AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue),
                             provision.isIgnoreCaseMatch(),
                             MappingUtils.buildOperationOptions(provision.getMapping().getItems().stream()));
@@ -307,7 +308,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                     } else {
                         // 3. found but misaligned?
                         Pair<String, Set<Attribute>> preparedAttrs =
-                                mappingManager.prepareAttrsFromAny(any, null, false, null, provision);
+                                mappingManager.prepareAttrsFromAny(any, null, false, null, resource, provision);
                         preparedAttrs.getRight().add(AttributeBuilder.build(
                                 Uid.NAME, preparedAttrs.getLeft()));
                         preparedAttrs.getRight().add(AttributeBuilder.build(

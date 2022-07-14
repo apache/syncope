@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIEntityFactory;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
-import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIUserTemplate;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
@@ -34,8 +33,6 @@ public class JPAOIDCC4UIEntityFactory implements OIDCC4UIEntityFactory {
 
         if (reference.equals(OIDCC4UIProvider.class)) {
             result = (E) new JPAOIDCC4UIProvider();
-        } else if (reference.equals(OIDCC4UIProviderItem.class)) {
-            result = (E) new JPAOIDCC4UIProviderItem();
         } else if (reference.equals(OIDCC4UIUserTemplate.class)) {
             result = (E) new JPAOIDCC4UIUserTemplate();
         } else {

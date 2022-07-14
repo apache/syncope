@@ -16,17 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity.resource;
+package org.apache.syncope.core.persistence.jpa.entity;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -36,30 +35,30 @@ import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.TraceLevel;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
-import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
-import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPropagationPolicy;
@@ -75,6 +74,7 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 @Entity
 @Table(name = JPAExternalResource.TABLE)
 @ExternalResourceCheck
+@Cacheable
 public class JPAExternalResource extends AbstractProvidedKeyEntity implements ExternalResource {
 
     private static final long serialVersionUID = -6937712883512073278L;
@@ -92,12 +92,6 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
      */
     @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
     private JPAConnInstance connector;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "resource")
-    private List<JPAProvision> provisions = new ArrayList<>();
-
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "resource")
-    private JPAOrgUnit orgUnit;
 
     /**
      * Priority index for propagation ordering.
@@ -145,7 +139,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     private JPAImplementation provisionSorter;
 
     /**
-     * Configuration properties that are overridden from the connector instance.
+     * Configuration properties that are override from the connector instance.
      */
     @Lob
     private String jsonConf;
@@ -153,13 +147,20 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @NotNull
     private Boolean overrideCapabilities = false;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    @Column(name = "capabilityOverride")
-    @CollectionTable(name = "ExternalResource_capOverride",
-            joinColumns =
-            @JoinColumn(name = "resource_id", referencedColumnName = "id"))
-    private Set<ConnectorCapability> capabilitiesOverride = new HashSet<>();
+    @Lob
+    private String capabilitiesOverride;
+
+    @Transient
+    private final Set<ConnectorCapability> capabilitiesOverrideSet = new HashSet<>();
+
+    @Lob
+    private String provisions;
+
+    @Transient
+    private final List<Provision> provisionList = new ArrayList<>();
+
+    @Lob
+    private String orgUnit;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = TABLE + "PropAction",
@@ -193,43 +194,30 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
-    public boolean add(final Provision provision) {
-        checkType(provision, JPAProvision.class);
-        return this.provisions.add((JPAProvision) provision);
-    }
-
-    @Override
-    public Optional<? extends Provision> getProvision(final String anyType) {
-        return getProvisions().stream().
-                filter(provision -> provision.getAnyType().getKey().equals(anyType)).findFirst();
-    }
-
-    @Override
-    public Optional<? extends Provision> getProvision(final AnyType anyType) {
+    public Optional<Provision> getProvision(final String anyType) {
         return getProvisions().stream().
                 filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
     }
 
     @Override
-    public Optional<? extends Provision> getProvision(final ObjectClass objectClass) {
+    public Optional<Provision> getProvision(final ObjectClass objectClass) {
         return getProvisions().stream().
-                filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
+                filter(provision -> provision.getObjectClass().equals(objectClass.getObjectClassValue())).findFirst();
     }
 
     @Override
-    public List<? extends Provision> getProvisions() {
-        return provisions == null ? List.of() : provisions;
+    public List<Provision> getProvisions() {
+        return provisionList;
     }
 
     @Override
     public OrgUnit getOrgUnit() {
-        return orgUnit;
+        return Optional.ofNullable(orgUnit).map(ou -> POJOHelper.deserialize(ou, OrgUnit.class)).orElse(null);
     }
 
     @Override
     public void setOrgUnit(final OrgUnit orgUnit) {
-        checkType(orgUnit, JPAOrgUnit.class);
-        this.orgUnit = (JPAOrgUnit) orgUnit;
+        this.orgUnit = orgUnit == null ? null : POJOHelper.serialize(orgUnit);
     }
 
     @Override
@@ -387,7 +375,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @Override
     public Set<ConnectorCapability> getCapabilitiesOverride() {
-        return capabilitiesOverride;
+        return capabilitiesOverrideSet;
     }
 
     @Override
@@ -401,5 +389,40 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @Override
     public List<? extends Implementation> getPropagationActions() {
         return propagationActions;
+    }
+
+    protected void json2list(final boolean clearFirst) {
+        if (clearFirst) {
+            getCapabilitiesOverride().clear();
+            getProvisions().clear();
+        }
+        if (capabilitiesOverride != null) {
+            getCapabilitiesOverride().addAll(
+                    POJOHelper.deserialize(capabilitiesOverride, new TypeReference<Set<ConnectorCapability>>() {
+                    }));
+        }
+        if (provisions != null) {
+            getProvisions().addAll(
+                    POJOHelper.deserialize(provisions, new TypeReference<List<Provision>>() {
+                    }));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2list(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void postSave() {
+        json2list(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void list2json() {
+        capabilitiesOverride = POJOHelper.serialize(getCapabilitiesOverride());
+        provisions = POJOHelper.serialize(getProvisions());
     }
 }

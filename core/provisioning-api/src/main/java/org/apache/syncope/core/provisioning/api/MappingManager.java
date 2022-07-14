@@ -23,14 +23,15 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -41,10 +42,11 @@ public interface MappingManager {
      * Get connObjectKey internal value.
      *
      * @param any any object
+     * @param resource resource information
      * @param provision provision information
      * @return connObjectKey internal value
      */
-    Optional<String> getConnObjectKeyValue(Any<?> any, Provision provision);
+    Optional<String> getConnObjectKeyValue(Any<?> any, ExternalResource resource, Provision provision);
 
     /**
      * Get connObjectKey internal value.
@@ -58,6 +60,7 @@ public interface MappingManager {
     /**
      * Get attribute values for the given {@link Item} and any object.
      *
+     * @param resource resource information
      * @param provision provision information
      * @param mapItem mapping item
      * @param intAttrName int attr name
@@ -68,6 +71,7 @@ public interface MappingManager {
      * @return attribute values and their type
      */
     Pair<AttrSchemaType, List<PlainAttrValue>> getIntValues(
+            ExternalResource resource,
             Provision provision,
             Item mapItem,
             IntAttrName intAttrName,
@@ -79,6 +83,7 @@ public interface MappingManager {
     /**
      * Prepare attribute for sending to a connector instance.
      *
+     * @param resource resource information
      * @param provision provision information
      * @param item mapping item
      * @param any given any object
@@ -89,8 +94,10 @@ public interface MappingManager {
      * @return connObjectLink (if it is the case) + prepared attribute
      */
     Pair<String, Attribute> prepareAttr(
+            ExternalResource resource,
             Provision provision,
-            Item item, Any<?> any,
+            Item item,
+            Any<?> any,
             String password,
             AccountGetter usernameAccountGetter,
             AccountGetter passwordAccountGetter,
@@ -103,11 +110,17 @@ public interface MappingManager {
      * @param password clear-text password
      * @param changePwd whether password should be included for propagation attributes or not
      * @param enable whether any object must be enabled or not
+     * @param resource resource information
      * @param provision provision information
      * @return connObjectLink + prepared attributes
      */
     Pair<String, Set<Attribute>> prepareAttrsFromAny(
-            Any<?> any, String password, boolean changePwd, Boolean enable, Provision provision);
+            Any<?> any,
+            String password,
+            boolean changePwd,
+            Boolean enable,
+            ExternalResource resource,
+            Provision provision);
 
     /**
      * Prepare attributes for sending to a connector instance.

@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.data;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -37,7 +38,8 @@ import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -67,6 +69,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -74,8 +77,6 @@ import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
@@ -438,7 +439,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     }
 
     private boolean isPasswordMapped(final ExternalResource resource) {
-        return resource.getProvision(anyTypeDAO.findUser()).
+        return resource.getProvision(anyTypeDAO.findUser().getKey()).
                 filter(provision -> provision.getMapping() != null).
                 map(provision -> provision.getMapping().getItems().stream().anyMatch(Item::isPassword)).
                 orElse(false);
@@ -482,7 +483,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         // Save projection on Resources (before update)
-        Map<String, ConnObjectTO> beforeOnResources =
+        Map<String, ConnObject> beforeOnResources =
                 onResources(user, userDAO.findAllResourceKeys(user.getKey()), password, changePwd);
 
         // realm
@@ -732,7 +733,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         User saved = userDAO.save(user);
 
         // Build final information for next stage (propagation)
-        Map<String, ConnObjectTO> afterOnResources =
+        Map<String, ConnObject> afterOnResources =
                 onResources(user, userDAO.findAllResourceKeys(user.getKey()), password, changePwd);
         propByRes.merge(propByRes(beforeOnResources, afterOnResources));
 
@@ -742,11 +743,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             propByRes.addAll(
                     ResourceOperation.UPDATE,
                     anyUtils.getAllResources(saved).stream().
-                            map(resource -> resource.getProvision(saved.getType())).
-                            filter(Optional::isPresent).map(Optional::get).
+                            map(resource -> resource.getProvision(saved.getType().getKey()).
                             filter(mappingManager::hasMustChangePassword).
-                            map(provision -> provision.getResource().getKey()).
-                            collect(Collectors.toSet()));
+                            map(provision -> resource.getKey()).
+                            orElse(null)).
+                            filter(Objects::nonNull).
+                            collect(Collectors.toList()));
         }
 
         return Pair.of(propByRes, propByLinkedAccount);

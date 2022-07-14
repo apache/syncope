@@ -32,7 +32,7 @@ import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -53,7 +53,7 @@ public class ConnObjectPanel extends Panel {
     public ConnObjectPanel(
             final String id,
             final Pair<IModel<?>, IModel<?>> titles,
-            final Pair<ConnObjectTO, ConnObjectTO> connObjectTOs,
+            final Pair<ConnObject, ConnObject> connObjectTOs,
             final boolean hideLeft) {
 
         super(id);

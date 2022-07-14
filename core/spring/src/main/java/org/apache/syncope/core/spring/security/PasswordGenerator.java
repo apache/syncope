@@ -19,8 +19,8 @@
 package org.apache.syncope.core.spring.security;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface PasswordGenerator {
 

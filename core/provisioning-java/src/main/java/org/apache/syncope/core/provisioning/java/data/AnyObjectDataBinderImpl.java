@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -316,7 +316,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         PropagationByResource<String> propByRes = new PropagationByResource<>();
 
         // Save projection on Resources (before update)
-        Map<String, ConnObjectTO> beforeOnResources =
+        Map<String, ConnObject> beforeOnResources =
                 onResources(anyObject, anyObjectDAO.findAllResourceKeys(anyObject.getKey()), null, false);
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();

@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
@@ -49,7 +50,6 @@ import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRule
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,7 +167,8 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 if (anyType == null) {
                     LOG.debug("Invalid AnyType {} specified, ignoring...", type);
                 } else {
-                    PullCorrelationRuleEntity correlationRule = pullPolicy.getCorrelationRule(anyType).orElse(null);
+                    PullCorrelationRuleEntity correlationRule = pullPolicy.
+                            getCorrelationRule(anyType.getKey()).orElse(null);
                     if (correlationRule == null) {
                         correlationRule = entityFactory.newEntity(PullCorrelationRuleEntity.class);
                         correlationRule.setAnyType(anyType);
@@ -200,7 +201,8 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 if (anyType == null) {
                     LOG.debug("Invalid AnyType {} specified, ignoring...", type);
                 } else {
-                    PushCorrelationRuleEntity correlationRule = pushPolicy.getCorrelationRule(anyType).orElse(null);
+                    PushCorrelationRuleEntity correlationRule = pushPolicy.
+                            getCorrelationRule(anyType.getKey()).orElse(null);
                     if (correlationRule == null) {
                         correlationRule = entityFactory.newEntity(PushCorrelationRuleEntity.class);
                         correlationRule.setAnyType(anyType);

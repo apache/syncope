@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -191,7 +191,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
 
         try {
             ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
-            ItemTO mapping = ldap.getProvisions().get(0).getMapping().getItems().get(0);
+            Item mapping = ldap.getProvisions().get(0).getMapping().getItems().get(0);
             mapping.setIntAttrName("memberships.cn");
             RESOURCE_SERVICE.update(ldap);
             fail("This should not happen");

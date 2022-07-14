@@ -459,6 +459,7 @@ public class ProvisioningContext {
             final AnySearchDAO anySearchDAO,
             final RealmDAO realmDAO,
             final VirSchemaDAO virSchemaDAO,
+            final ImplementationDAO implementationDAO,
             final VirAttrHandler virAttrHandler,
             final IntAttrNameParser intAttrNameParser) {
 
@@ -469,6 +470,7 @@ public class ProvisioningContext {
                 anySearchDAO,
                 realmDAO,
                 virSchemaDAO,
+                implementationDAO,
                 virAttrHandler,
                 intAttrNameParser,
                 anyUtilsFactory);
@@ -515,6 +517,7 @@ public class ProvisioningContext {
             final RelationshipTypeDAO relationshipTypeDAO,
             final RealmDAO realmDAO,
             final ApplicationDAO applicationDAO,
+            final ImplementationDAO implementationDAO,
             final DerAttrHandler derAttrHandler,
             final VirAttrHandler virAttrHandler,
             final VirAttrCache virAttrCache,
@@ -528,6 +531,7 @@ public class ProvisioningContext {
                 relationshipTypeDAO,
                 realmDAO,
                 applicationDAO,
+                implementationDAO,
                 derAttrHandler,
                 virAttrHandler,
                 virAttrCache,
@@ -616,6 +620,7 @@ public class ProvisioningContext {
             final AnyObjectDAO anyObjectDAO,
             final TaskDAO taskDAO,
             final ExternalResourceDAO resourceDAO,
+            final PlainSchemaDAO plainSchemaDAO,
             final NotificationManager notificationManager,
             final AuditManager auditManager,
             final TaskDataBinder taskDataBinder,
@@ -629,6 +634,7 @@ public class ProvisioningContext {
                 anyObjectDAO,
                 taskDAO,
                 resourceDAO,
+                plainSchemaDAO,
                 notificationManager,
                 auditManager,
                 taskDataBinder,

@@ -49,7 +49,7 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
+import org.apache.syncope.common.lib.to.PagedConnObjectResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -524,7 +524,7 @@ public class SearchITCase extends AbstractITCase {
         try {
             // 1. first search with no filters
             ConnObjectTOQuery.Builder builder = new ConnObjectTOQuery.Builder().size(10);
-            PagedConnObjectTOResult matches;
+            PagedConnObjectResult matches;
             do {
                 matches = null;
 
@@ -564,7 +564,7 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchConnObjectsWithFilter() {
-        PagedConnObjectTOResult matches = RESOURCE_SERVICE.searchConnObjects(
+        PagedConnObjectResult matches = RESOURCE_SERVICE.searchConnObjects(
                 RESOURCE_NAME_LDAP,
                 AnyTypeKind.USER.name(),
                 new ConnObjectTOQuery.Builder().size(100).fiql(

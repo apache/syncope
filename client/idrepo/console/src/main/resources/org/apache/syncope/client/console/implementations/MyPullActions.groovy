@@ -23,9 +23,9 @@ import org.apache.syncope.common.lib.request.AnyUR
 import org.apache.syncope.common.lib.to.LinkedAccountTO
 import org.apache.syncope.common.lib.to.RealmTO
 import org.apache.syncope.common.lib.to.EntityTO
+import org.apache.syncope.common.lib.to.OrgUnit
+import org.apache.syncope.common.lib.to.Provision
 import org.apache.syncope.common.lib.to.ProvisioningReport
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit
-import org.apache.syncope.core.persistence.api.entity.resource.Provision
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningActions

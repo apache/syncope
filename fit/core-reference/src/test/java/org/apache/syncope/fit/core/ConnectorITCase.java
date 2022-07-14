@@ -42,13 +42,13 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ConnBundleTO;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
+import org.apache.syncope.common.lib.to.ConnIdBundle;
+import org.apache.syncope.common.lib.to.ConnIdObjectClass;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -318,7 +318,7 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void getBundles() {
-        List<ConnBundleTO> bundles = CONNECTOR_SERVICE.getBundles(Locale.ENGLISH.getLanguage());
+        List<ConnIdBundle> bundles = CONNECTOR_SERVICE.getBundles(Locale.ENGLISH.getLanguage());
         assertNotNull(bundles);
         assertFalse(bundles.isEmpty());
         bundles.forEach(Assertions::assertNotNull);
@@ -472,7 +472,7 @@ public class ConnectorITCase extends AbstractITCase {
                 "5aa5b8be-7521-481a-9651-c557aea078c1", Locale.ENGLISH.getLanguage());
         assertNotNull(db);
 
-        List<ConnIdObjectClassTO> objectClassInfo = CONNECTOR_SERVICE.buildObjectClassInfo(db, true);
+        List<ConnIdObjectClass> objectClassInfo = CONNECTOR_SERVICE.buildObjectClassInfo(db, true);
         assertNotNull(objectClassInfo);
         assertEquals(1, objectClassInfo.size());
         assertEquals(ObjectClass.ACCOUNT_NAME, objectClassInfo.get(0).getType());
@@ -486,7 +486,7 @@ public class ConnectorITCase extends AbstractITCase {
         assertNotNull(objectClassInfo);
 
         Collection<String> objectClasses = objectClassInfo.stream().
-                map(ConnIdObjectClassTO::getType).collect(Collectors.toSet());
+                map(ConnIdObjectClass::getType).collect(Collectors.toSet());
         assertTrue(objectClasses.contains(ObjectClass.ACCOUNT_NAME));
         assertTrue(objectClasses.contains(ObjectClass.GROUP_NAME));
     }
@@ -698,15 +698,15 @@ public class ConnectorITCase extends AbstractITCase {
 
             resourceTO.getConfOverride().addAll(conf);
 
-            ProvisionTO provisionTO = new ProvisionTO();
+            Provision provisionTO = new Provision();
             provisionTO.setAnyType(AnyTypeKind.USER.name());
             provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resourceTO.getProvisions().add(provisionTO);
 
-            MappingTO mapping = new MappingTO();
+            Mapping mapping = new Mapping();
             provisionTO.setMapping(mapping);
 
-            ItemTO mapItem = new ItemTO();
+            Item mapItem = new Item();
             mapItem.setExtAttrName("uid");
             mapItem.setIntAttrName("userId");
             mapItem.setConnObjectKey(true);

@@ -60,7 +60,7 @@ import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -99,7 +99,7 @@ import org.junit.jupiter.api.Test;
 
 public class UserITCase extends AbstractITCase {
 
-    private static boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {
+    private static boolean getBooleanAttribute(final ConnObject connObjectTO, final String attrName) {
         return Boolean.parseBoolean(connObjectTO.getAttr(attrName).get().getValues().get(0));
     }
 
@@ -790,7 +790,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        ConnObjectTO connObjectTO =
+        ConnObject connObjectTO =
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userKey);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
@@ -920,7 +920,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertNotNull(userTO.getDerAttr("csvuserid"));
 
-        ConnObjectTO connObjectTO =
+        ConnObject connObjectTO =
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getAttr("THEIRGROUP").get().getValues().get(0));
@@ -1007,7 +1007,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
 
-        ConnObjectTO connObjectTO =
+        ConnObject connObjectTO =
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertFalse(connObjectTO.getAttr("email").isPresent());
     }

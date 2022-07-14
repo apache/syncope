@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -28,8 +29,9 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -45,15 +47,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSinglePushExecutor {
 
     @Autowired
-    private ImplementationDAO implementationDAO;
+    protected ImplementationDAO implementationDAO;
 
-    private List<PushActions> before(
-            final Provision provision,
+    protected List<PushActions> before(
+            final ExternalResource resource,
             final Connector connector,
             final PushTaskTO pushTaskTO,
             final String executor) throws JobExecutionException {
 
-        LOG.debug("Executing push on {}", provision.getResource());
+        LOG.debug("Executing push on {}", resource);
 
         List<PushActions> actions = new ArrayList<>();
         pushTaskTO.getActions().forEach(key -> {
@@ -70,7 +72,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
         });
 
         PushTask pushTask = entityFactory.newEntity(PushTask.class);
-        pushTask.setResource(provision.getResource());
+        pushTask.setResource(resource);
         pushTask.setMatchingRule(pushTaskTO.getMatchingRule() == null
                 ? MatchingRule.LINK : pushTaskTO.getMatchingRule());
         pushTask.setUnmatchingRule(pushTaskTO.getUnmatchingRule() == null
@@ -94,6 +96,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
 
     @Override
     public List<ProvisioningReport> push(
+            final ExternalResource resource,
             final Provision provision,
             final Connector connector,
             final Any<?> any,
@@ -101,10 +104,12 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             final String executor) throws JobExecutionException {
 
         try {
-            List<PushActions> actions = before(provision, connector, pushTaskTO, executor);
+            List<PushActions> actions = before(resource, connector, pushTaskTO, executor);
+
+            AnyType anyType = anyTypeDAO.find(provision.getAnyType());
 
             SyncopePushResultHandler handler;
-            switch (provision.getAnyType().getKind()) {
+            switch (anyType.getKind()) {
                 case USER:
                     handler = buildUserHandler();
                     break;
@@ -119,7 +124,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             }
             handler.setProfile(profile);
 
-            doHandle(List.of(any), handler, provision.getResource());
+            doHandle(List.of(any), handler, resource);
 
             for (PushActions action : actions) {
                 action.afterAll(profile);
@@ -135,6 +140,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
 
     @Override
     public ProvisioningReport push(
+            final ExternalResource resource,
             final Provision provision,
             final Connector connector,
             final LinkedAccount account,
@@ -142,7 +148,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             final String executor) throws JobExecutionException {
 
         try {
-            List<PushActions> actions = before(provision, connector, pushTaskTO, executor);
+            List<PushActions> actions = before(resource, connector, pushTaskTO, executor);
 
             UserPushResultHandler handler = buildUserHandler();
             handler.setProfile(profile);

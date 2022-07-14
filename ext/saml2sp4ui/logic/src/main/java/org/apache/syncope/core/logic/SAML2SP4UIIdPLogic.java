@@ -79,7 +79,7 @@ public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML2SP4UIIdP
     public String importFromMetadata(final InputStream input) {
         try {
             SAML2SP4UIIdPTO idpTO = SAML2ClientCache.importMetadata(input, loader.newSAML2Configuration());
-            SAML2SP4UIIdP idp = idpDAO.save(binder.create(idpTO));
+            SAML2SP4UIIdP idp = binder.create(idpTO);
 
             return idp.getKey();
         } catch (SyncopeClientException e) {
@@ -99,7 +99,7 @@ public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML2SP4UIIdP
             throw new NotFoundException("SAML 2.0 IdP '" + saml2IdpTO.getKey() + '\'');
         }
 
-        idp = idpDAO.save(binder.update(idp, saml2IdpTO));
+        idp = binder.update(idp, saml2IdpTO);
         saml2ClientCache.removeAll(idp.getEntityID());
     }
 

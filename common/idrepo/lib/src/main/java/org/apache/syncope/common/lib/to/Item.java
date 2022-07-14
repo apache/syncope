@@ -20,17 +20,16 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 
-public class ItemTO implements EntityTO {
+public class Item implements Serializable {
 
     private static final long serialVersionUID = 2983498836767176862L;
-
-    private String key;
 
     /**
      * Attribute schema to be mapped. Consider other we can associate tha same attribute schema more than once, with
@@ -89,16 +88,6 @@ public class ItemTO implements EntityTO {
 
     public void setExtAttrName(final String extAttrName) {
         this.extAttrName = extAttrName;
-    }
-
-    @Override
-    public String getKey() {
-        return key;
-    }
-
-    @Override
-    public void setKey(final String key) {
-        this.key = key;
     }
 
     public String getMandatoryCondition() {
@@ -166,11 +155,10 @@ public class ItemTO implements EntityTO {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ItemTO other = (ItemTO) obj;
+        Item other = (Item) obj;
         return new EqualsBuilder().
                 append(connObjectKey, other.connObjectKey).
                 append(password, other.password).
-                append(key, other.key).
                 append(intAttrName, other.intAttrName).
                 append(extAttrName, other.extAttrName).
                 append(mandatoryCondition, other.mandatoryCondition).
@@ -184,7 +172,6 @@ public class ItemTO implements EntityTO {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-                append(key).
                 append(intAttrName).
                 append(extAttrName).
                 append(connObjectKey).

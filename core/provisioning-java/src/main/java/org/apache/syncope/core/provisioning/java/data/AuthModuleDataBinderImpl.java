@@ -21,12 +21,11 @@ package org.apache.syncope.core.provisioning.java.data;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
-import org.apache.syncope.core.persistence.api.entity.am.AuthModuleItem;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.slf4j.Logger;
@@ -51,8 +50,8 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
 
         authModuleTO.getItems().forEach(itemTO -> {
             if (itemTO == null) {
-                LOG.error("Null {}", ItemTO.class.getSimpleName());
-                invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
+                LOG.error("Null {}", Item.class.getSimpleName());
+                invalidMapping.getElements().add("Null " + Item.class.getSimpleName());
             } else if (itemTO.getIntAttrName() == null) {
                 requiredValuesMissing.getElements().add("intAttrName");
                 scce.addException(requiredValuesMissing);
@@ -67,7 +66,7 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
                     scce.addException(invalidMandatoryCondition);
                 }
 
-                AuthModuleItem item = entityFactory.newEntity(AuthModuleItem.class);
+                Item item = new Item();
                 item.setIntAttrName(itemTO.getIntAttrName());
                 item.setExtAttrName(itemTO.getExtAttrName());
                 item.setMandatoryCondition(itemTO.getMandatoryCondition());
@@ -75,8 +74,7 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
                 item.setPassword(itemTO.isPassword());
                 item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
                 item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
-                item.setAuthModule(authModule);
-                authModule.add(item);
+                authModule.getItems().add(item);
             }
         });
 
@@ -110,8 +108,7 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
 
     protected void populateItems(final AuthModule authModule, final AuthModuleTO authModuleTO) {
         authModule.getItems().forEach(item -> {
-            ItemTO itemTO = new ItemTO();
-            itemTO.setKey(item.getKey());
+            Item itemTO = new Item();
             itemTO.setIntAttrName(item.getIntAttrName());
             itemTO.setExtAttrName(item.getExtAttrName());
             itemTO.setMandatoryCondition(item.getMandatoryCondition());

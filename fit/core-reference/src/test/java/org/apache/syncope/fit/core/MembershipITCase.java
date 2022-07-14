@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -219,7 +219,7 @@ public class MembershipITCase extends AbstractITCase {
         ResourceTO newResource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBPULL);
         newResource.setKey(getUUIDString());
 
-        ItemTO item = newResource.getProvision("USER").get().getMapping().getItems().stream().
+        Item item = newResource.getProvision("USER").get().getMapping().getItems().stream().
                 filter(object -> "firstname".equals(object.getIntAttrName())).findFirst().get();
         assertNotNull(item);
         assertEquals("ID", item.getExtAttrName());

@@ -26,7 +26,6 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 
@@ -48,9 +47,9 @@ public class JPAPushPolicy extends AbstractProvisioningPolicy implements PushPol
     }
 
     @Override
-    public Optional<? extends PushCorrelationRuleEntity> getCorrelationRule(final AnyType anyType) {
+    public Optional<? extends PushCorrelationRuleEntity> getCorrelationRule(final String anyType) {
         return correlationRules.stream().
-                filter(rule -> anyType != null && anyType.equals(rule.getAnyType())).findFirst();
+                filter(rule -> anyType != null && anyType.equals(rule.getAnyType().getKey())).findFirst();
     }
 
     @Override

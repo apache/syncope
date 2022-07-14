@@ -22,7 +22,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5IconType;
 import java.util.List;
 import org.apache.syncope.client.console.wizards.mapping.ItemTransformersTogglePanel;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.link.AbstractLink;
@@ -33,13 +33,13 @@ public class ItemTransformerWidget extends AlertWidget<String> {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
-    private final ItemTO item;
+    private final Item item;
 
     private final ItemTransformersTogglePanel transformers;
 
     public ItemTransformerWidget(
             final String id,
-            final ItemTO item,
+            final Item item,
             final ItemTransformersTogglePanel transformers) {
 
         super(id);

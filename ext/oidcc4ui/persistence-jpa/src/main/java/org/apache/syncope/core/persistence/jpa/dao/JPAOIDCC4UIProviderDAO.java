@@ -62,6 +62,7 @@ public class JPAOIDCC4UIProviderDAO extends AbstractDAO<OIDCC4UIProvider> implem
 
     @Override
     public OIDCC4UIProvider save(final OIDCC4UIProvider op) {
+        ((JPAOIDCC4UIProvider) op).list2json();
         return entityManager().merge(op);
     }
 

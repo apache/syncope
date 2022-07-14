@@ -29,8 +29,8 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
+import org.apache.syncope.common.lib.to.ConnObject;
+import org.apache.syncope.common.lib.to.PagedConnObjectResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
@@ -75,7 +75,7 @@ public class ResourceRestClient extends BaseRestClient {
         return Pair.of(check, errorMessage);
     }
 
-    public static ConnObjectTO readConnObject(final String resource, final String anyTypeKey, final String anyKey) {
+    public static ConnObject readConnObject(final String resource, final String anyTypeKey, final String anyKey) {
         return getService(ResourceService.class).readConnObject(resource, anyTypeKey, anyKey);
     }
 
@@ -93,16 +93,16 @@ public class ResourceRestClient extends BaseRestClient {
         return null;
     }
 
-    public static Pair<String, List<ConnObjectTO>> searchConnObjects(
+    public static Pair<String, List<ConnObject>> searchConnObjects(
             final String resource,
             final String anyTypeKey,
             final ConnObjectTOQuery.Builder queryBuilder,
             final SortParam<String> sortParam) {
 
-        final List<ConnObjectTO> result = new ArrayList<>();
+        final List<ConnObject> result = new ArrayList<>();
         String nextPageResultCookie = null;
 
-        PagedConnObjectTOResult list;
+        PagedConnObjectResult list;
         try {
             if (sortParam != null) {
                 queryBuilder.orderBy(toOrderBy(sortParam));

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.OIDC4UIEntitlement;
@@ -63,13 +63,13 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
     @PreAuthorize("hasRole('" + OIDC4UIEntitlement.OP_CREATE + "')")
     public String create(final OIDCC4UIProviderTO opTO) {
         if (opTO.getConnObjectKeyItem() == null) {
-            ItemTO connObjectKeyItem = new ItemTO();
+            Item connObjectKeyItem = new Item();
             connObjectKeyItem.setIntAttrName("username");
             connObjectKeyItem.setExtAttrName("email");
             opTO.setConnObjectKeyItem(connObjectKeyItem);
         }
 
-        OIDCC4UIProvider provider = opDAO.save(binder.create(opTO));
+        OIDCC4UIProvider provider = binder.create(opTO);
 
         return provider.getKey();
     }
@@ -106,7 +106,7 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
         }
         String opName = op.getName();
 
-        opDAO.save(binder.update(op, opTO));
+        binder.update(op, opTO);
         oidcClientClientCache.removeAll(opName);
     }
 

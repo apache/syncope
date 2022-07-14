@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 
-public class ConnBundleTO implements BaseBean {
+public class ConnIdBundle implements BaseBean {
 
     private static final long serialVersionUID = 7215115961910138005L;
 

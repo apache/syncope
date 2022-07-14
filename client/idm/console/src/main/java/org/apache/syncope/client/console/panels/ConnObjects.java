@@ -27,8 +27,8 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.ConnObject;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -51,7 +51,7 @@ public class ConnObjects extends Panel implements ModalPanel {
         super(BaseModal.CONTENT_ID);
 
         List<String> availableAnyTypes = resource.getProvisions().stream().
-                map(ProvisionTO::getAnyType).
+                map(Provision::getAnyType).
                 sorted(AnyTypeRestClient.KEY_COMPARATOR).
                 collect(Collectors.toList());
         if (resource.getOrgUnit() != null) {
@@ -115,7 +115,7 @@ public class ConnObjects extends Panel implements ModalPanel {
         }
 
         @Override
-        protected void viewConnObject(final ConnObjectTO connObjectTO, final AjaxRequestTarget target) {
+        protected void viewConnObject(final ConnObject connObjectTO, final AjaxRequestTarget target) {
             anyTypes.setEnabled(false);
             target.add(anyTypes);
 

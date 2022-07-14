@@ -48,7 +48,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
@@ -126,33 +126,33 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         cas.setSelfRegUnmatching(false);
         cas.getItems().clear();
 
-        ItemTO item = new ItemTO();
+        Item item = new Item();
         item.setIntAttrName("username");
         item.setExtAttrName("NameID");
         item.setConnObjectKey(true);
         cas.setConnObjectKeyItem(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setIntAttrName("email");
         item.setExtAttrName("mail");
         cas.add(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setIntAttrName("userId");
         item.setExtAttrName("mail");
         cas.add(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setIntAttrName("firstname");
         item.setExtAttrName("givenName");
         cas.add(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setIntAttrName("surname");
         item.setExtAttrName("sn");
         cas.add(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setIntAttrName("fullname");
         item.setExtAttrName("cn");
         cas.add(item);

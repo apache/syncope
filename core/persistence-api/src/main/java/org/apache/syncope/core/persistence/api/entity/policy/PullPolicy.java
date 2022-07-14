@@ -20,13 +20,12 @@ package org.apache.syncope.core.persistence.api.entity.policy;
 
 import java.util.List;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 
 public interface PullPolicy extends ProvisioningPolicy {
 
     boolean add(PullCorrelationRuleEntity rule);
 
-    Optional<? extends PullCorrelationRuleEntity> getCorrelationRule(AnyType anyType);
+    Optional<? extends PullCorrelationRuleEntity> getCorrelationRule(String anyType);
 
     List<? extends PullCorrelationRuleEntity> getCorrelationRules();
 }

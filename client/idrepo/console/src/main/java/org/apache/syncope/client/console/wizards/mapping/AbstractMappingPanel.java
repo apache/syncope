@@ -34,7 +34,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -76,7 +76,7 @@ public abstract class AbstractMappingPanel extends Panel {
     /**
      * All mappings.
      */
-    protected final ListView<ItemTO> mappings;
+    protected final ListView<Item> mappings;
 
     /**
      * Mapping container.
@@ -87,7 +87,7 @@ public abstract class AbstractMappingPanel extends Panel {
             final String id,
             final ItemTransformersTogglePanel itemTransformers,
             final JEXLTransformersTogglePanel jexlTransformers,
-            final IModel<List<ItemTO>> model,
+            final IModel<List<Item>> model,
             final boolean addMappingBtnVisible,
             final MappingPurpose defaultPurpose) {
 
@@ -181,8 +181,8 @@ public abstract class AbstractMappingPanel extends Panel {
             private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
-            protected void populateItem(final ListItem<ItemTO> item) {
-                final ItemTO itemTO = item.getModelObject();
+            protected void populateItem(final ListItem<Item> item) {
+                final Item itemTO = item.getModelObject();
                 if (itemTO.getPurpose() == null) {
                     itemTO.setPurpose(defaultPurpose);
                 }
@@ -380,7 +380,7 @@ public abstract class AbstractMappingPanel extends Panel {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                model.getObject().add(new ItemTO());
+                model.getObject().add(new Item());
                 target.add(AbstractMappingPanel.this);
             }
         };

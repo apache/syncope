@@ -18,26 +18,18 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
-import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.persistence.jpa.entity.JPAVirSchema;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
 
 public class JPAVirSchemaDAO extends AbstractDAO<VirSchema> implements VirSchemaDAO {
 
@@ -68,35 +60,31 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema> implements VirSchema
     }
 
     @Override
-    public List<VirSchema> findByProvision(final Provision provision) {
+    public List<String> find(final ExternalResource resource) {
         Query query = entityManager().createNativeQuery(
-                "SELECT t0.id FROM VirSchema t0 "
-                + "LEFT OUTER JOIN " + JPAAnyTypeClass.TABLE + " t1 ON t0.ANYTYPECLASS_ID = t1.id "
-                + "LEFT OUTER JOIN " + JPAProvision.TABLE + " t2 ON t0.PROVISION_ID = t2.id "
-                + "LEFT OUTER JOIN " + JPAAnyType.TABLE + " t3 ON t2.ANYTYPE_ID = t3.id "
-                + "LEFT OUTER JOIN " + JPAMapping.TABLE + " t4 ON t2.id = t4.PROVISION_ID "
-                + "LEFT OUTER JOIN " + JPAExternalResource.TABLE + " t5 ON t2.RESOURCE_ID = t5.id "
-                + "LEFT OUTER JOIN " + JPAAccountPolicy.TABLE + " t6 ON t5.ACCOUNTPOLICY_ID = t6.id "
-                + "LEFT OUTER JOIN " + JPAConnInstance.TABLE + " t7 ON t5.CONNECTOR_ID = t7.id "
-                + "LEFT OUTER JOIN " + JPAPasswordPolicy.TABLE + " t8 ON t5.PASSWORDPOLICY_ID = t8.id "
-                + "LEFT OUTER JOIN " + JPAPullPolicy.TABLE + " t9 ON t5.PULLPOLICY_ID = t9.id "
-                + "WHERE t0.PROVISION_ID = ?1");
-        query.setParameter(1, provision.getKey());
+                "SELECT id FROM " + JPAVirSchema.TABLE + " e WHERE e.resource_id=?");
+        query.setParameter(1, resource.getKey());
 
-        List<VirSchema> result = new ArrayList<>();
-        for (Object key : query.getResultList()) {
-            String actualKey = key instanceof Object[]
-                    ? (String) ((Object[]) key)[0]
-                    : ((String) key);
+        @SuppressWarnings("unchecked")
+        List<Object> results = query.getResultList();
+        return results.stream().
+                map(Object::toString).
+                collect(Collectors.toList());
+    }
 
-            VirSchema virSchema = find(actualKey);
-            if (virSchema == null) {
-                LOG.error("Could not find schema with id {}, even though returned by the native query", actualKey);
-            } else if (!result.contains(virSchema)) {
-                result.add(virSchema);
-            }
-        }
-        return result;
+    @Override
+    public List<VirSchema> find(final String resource, final String anyType) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT id FROM " + JPAVirSchema.TABLE + " e WHERE e.resource_id=? AND e.anyType_id=?");
+        query.setParameter(1, resource);
+        query.setParameter(2, anyType);
+
+        @SuppressWarnings("unchecked")
+        List<Object> results = query.getResultList();
+        return results.stream().
+                map(row -> find(row.toString())).
+                filter(Objects::nonNull).
+                collect(Collectors.toList());
     }
 
     @Override

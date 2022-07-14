@@ -38,7 +38,7 @@ public class AttrRepoTO implements EntityTO {
 
     private int order = 0;
 
-    private final List<ItemTO> items = new ArrayList<>();
+    private final List<Item> items = new ArrayList<>();
 
     private AttrRepoConf conf;
 
@@ -77,7 +77,7 @@ public class AttrRepoTO implements EntityTO {
         this.order = order;
     }
 
-    public List<ItemTO> getItems() {
+    public List<Item> getItems() {
         return items;
     }
 

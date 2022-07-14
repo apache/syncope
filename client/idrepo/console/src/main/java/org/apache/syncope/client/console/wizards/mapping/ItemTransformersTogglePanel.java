@@ -27,7 +27,7 @@ import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -43,7 +43,7 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    private ItemTO item;
+    private Item item;
 
     public ItemTransformersTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
         super(Constants.OUTER, "itemTransformersTogglePanel", pageRef);
@@ -110,7 +110,7 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
         });
     }
 
-    public ItemTransformersTogglePanel setItem(final AjaxRequestTarget target, final ItemTO item) {
+    public ItemTransformersTogglePanel setItem(final AjaxRequestTarget target, final Item item) {
         this.item = item;
         setHeader(target, StringUtils.EMPTY);
         return this;

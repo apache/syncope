@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.RelationshipTO;
@@ -66,7 +66,7 @@ public class AnyObjectITCase extends AbstractITCase {
         assertEquals("REST", anyObjectTO.getCreationContext());
         assertEquals("REST", anyObjectTO.getLastChangeContext());
 
-        ConnObjectTO connObjectTO =
+        ConnObject connObjectTO =
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttr("LOCATION"));

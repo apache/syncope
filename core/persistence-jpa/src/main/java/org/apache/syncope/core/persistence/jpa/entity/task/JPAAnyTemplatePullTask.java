@@ -24,7 +24,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
-import org.apache.syncope.core.persistence.jpa.entity.resource.AbstractAnyTemplate;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractAnyTemplate;
 
 @Entity
 @Table(name = JPAAnyTemplatePullTask.TABLE, uniqueConstraints =
@@ -48,5 +48,4 @@ public class JPAAnyTemplatePullTask extends AbstractAnyTemplate implements AnyTe
         checkType(pullTask, JPAPullTask.class);
         this.pullTask = (JPAPullTask) pullTask;
     }
-
 }

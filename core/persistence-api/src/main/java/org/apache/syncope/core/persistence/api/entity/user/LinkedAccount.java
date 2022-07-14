@@ -20,8 +20,8 @@ package org.apache.syncope.core.persistence.api.entity.user;
 
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface LinkedAccount extends Account, Attributable<LAPlainAttr> {
 

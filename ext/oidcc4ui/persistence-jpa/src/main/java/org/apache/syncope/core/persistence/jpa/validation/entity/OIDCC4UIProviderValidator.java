@@ -19,11 +19,9 @@
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 public class OIDCC4UIProviderValidator extends AbstractValidator<OIDCC4UIProviderCheck, OIDCC4UIProvider> {
 
@@ -66,27 +64,6 @@ public class OIDCC4UIProviderValidator extends AbstractValidator<OIDCC4UIProvide
                     addPropertyNode("password.size").addConstraintViolation();
             isValid[0] = false;
         }
-
-        oidcProvider.getItems().forEach(item -> item.getTransformers().stream().
-                filter(transformer -> transformer.getEngine() == ImplementationEngine.JAVA).
-                forEach(transformer -> {
-                    Class<?> actionsClass = null;
-                    boolean isAssignable = false;
-                    try {
-                        actionsClass = Class.forName(transformer.getBody());
-                        isAssignable = ItemTransformer.class.isAssignableFrom(actionsClass);
-                    } catch (Exception e) {
-                        LOG.error("Invalid ItemTransformer specified: {}", transformer.getBody(), e);
-                    }
-
-                    if (actionsClass == null || !isAssignable) {
-                        context.buildConstraintViolationWithTemplate(
-                                getTemplate(EntityViolationType.InvalidMapping,
-                                        "Invalid item trasformer class name")).
-                                addPropertyNode("itemTransformers").addConstraintViolation();
-                        isValid[0] = false;
-                    }
-                }));
 
         return isValid[0];
     }
