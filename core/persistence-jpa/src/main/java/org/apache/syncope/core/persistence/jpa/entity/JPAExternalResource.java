@@ -26,9 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -150,13 +147,11 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @NotNull
     private Boolean overrideCapabilities = false;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    @Column(name = "capabilityOverride")
-    @CollectionTable(name = "ExternalResource_capOverride",
-            joinColumns =
-            @JoinColumn(name = "resource_id", referencedColumnName = "id"))
-    private Set<ConnectorCapability> capabilitiesOverride = new HashSet<>();
+    @Lob
+    private String capabilitiesOverride;
+
+    @Transient
+    private final Set<ConnectorCapability> capabilitiesOverrideSet = new HashSet<>();
 
     @Lob
     private String provisions;
@@ -380,7 +375,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @Override
     public Set<ConnectorCapability> getCapabilitiesOverride() {
-        return capabilitiesOverride;
+        return capabilitiesOverrideSet;
     }
 
     @Override
@@ -398,7 +393,13 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     protected void json2list(final boolean clearFirst) {
         if (clearFirst) {
+            getCapabilitiesOverride().clear();
             getProvisions().clear();
+        }
+        if (capabilitiesOverride != null) {
+            getCapabilitiesOverride().addAll(
+                    POJOHelper.deserialize(capabilitiesOverride, new TypeReference<Set<ConnectorCapability>>() {
+                    }));
         }
         if (provisions != null) {
             getProvisions().addAll(
@@ -421,6 +422,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @PrePersist
     @PreUpdate
     public void list2json() {
+        capabilitiesOverride = POJOHelper.serialize(getCapabilitiesOverride());
         provisions = POJOHelper.serialize(getProvisions());
     }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,17 +26,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
@@ -92,16 +93,10 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     @NotNull
     private String version;
 
-    /**
-     * The set of capabilities supported by this connector instance.
-     */
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    @Column(name = "capability")
-    @CollectionTable(name = "ConnInstance_capabilities",
-            joinColumns =
-            @JoinColumn(name = "connInstance_id", referencedColumnName = "id"))
-    private Set<ConnectorCapability> capabilities = new HashSet<>();
+    @Lob
+    private String capabilities;
+
+    private final Set<ConnectorCapability> capabilitiesSet = new HashSet<>();
 
     /**
      * The main configuration for the connector instance. This is directly implemented by the Configuration bean class
@@ -219,7 +214,7 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
 
     @Override
     public Set<ConnectorCapability> getCapabilities() {
-        return capabilities;
+        return capabilitiesSet;
     }
 
     @Override
@@ -244,5 +239,33 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     public void setPoolConf(final ConnPoolConf poolConf) {
         checkType(poolConf, JPAConnPoolConf.class);
         this.poolConf = (JPAConnPoolConf) poolConf;
+    }
+
+    protected void json2list(final boolean clearFirst) {
+        if (clearFirst) {
+            getCapabilities().clear();
+        }
+        if (capabilities != null) {
+            getCapabilities().addAll(
+                    POJOHelper.deserialize(capabilities, new TypeReference<Set<ConnectorCapability>>() {
+                    }));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2list(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void postSave() {
+        json2list(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void list2json() {
+        capabilities = POJOHelper.serialize(getCapabilities());
     }
 }

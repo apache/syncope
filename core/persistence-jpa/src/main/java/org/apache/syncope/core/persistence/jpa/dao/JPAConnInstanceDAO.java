@@ -85,6 +85,7 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
 
     @Override
     public ConnInstance save(final ConnInstance connector) {
+        ((JPAConnInstance) connector).list2json();
         return entityManager().merge(connector);
     }
 
