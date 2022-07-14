@@ -20,9 +20,8 @@ package org.apache.syncope.common.lib.to;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.types.ItemContainer;
 
-public class OrgUnitTO extends ItemContainer {
+public class OrgUnit extends ItemContainer {
 
     private static final long serialVersionUID = -1868877794174953177L;
 
@@ -77,7 +76,7 @@ public class OrgUnitTO extends ItemContainer {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        OrgUnitTO other = (OrgUnitTO) obj;
+        OrgUnit other = (OrgUnit) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(ignoreCaseMatch, other.ignoreCaseMatch).

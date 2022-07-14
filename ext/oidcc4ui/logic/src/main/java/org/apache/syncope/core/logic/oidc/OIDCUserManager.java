@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -98,7 +98,7 @@ public class OIDCUserManager {
     @Transactional(readOnly = true)
     public List<String> findMatchingUser(
             final String connObjectKeyValue,
-            final ItemTO connObjectKeyItem) {
+            final Item connObjectKeyItem) {
 
         return inboundMatcher.matchByConnObjectKeyValue(
                 connObjectKeyItem, connObjectKeyValue, AnyTypeKind.USER, false, null).stream().
@@ -120,7 +120,7 @@ public class OIDCUserManager {
         return actions;
     }
 
-    protected List<Implementation> getTransformers(final ItemTO item) {
+    protected List<Implementation> getTransformers(final Item item) {
         return item.getTransformers().stream().
                 map(implementationDAO::find).
                 filter(Objects::nonNull).

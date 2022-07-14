@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.entity.am;
 
 import java.util.List;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrRepoState;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
@@ -42,5 +42,5 @@ public interface AttrRepo extends ProvidedKeyEntity {
 
     void setConf(AttrRepoConf conf);
 
-    List<ItemTO> getItems();
+    List<Item> getItems();
 }

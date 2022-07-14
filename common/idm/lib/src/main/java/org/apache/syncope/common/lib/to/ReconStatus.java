@@ -38,9 +38,9 @@ public class ReconStatus implements BaseBean {
 
     private MatchType matchType;
 
-    private ConnObjectTO onSyncope;
+    private ConnObject onSyncope;
 
-    private ConnObjectTO onResource;
+    private ConnObject onResource;
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public AnyTypeKind getAnyTypeKind() {
@@ -79,20 +79,20 @@ public class ReconStatus implements BaseBean {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    public ConnObjectTO getOnSyncope() {
+    public ConnObject getOnSyncope() {
         return onSyncope;
     }
 
-    public void setOnSyncope(final ConnObjectTO onSyncope) {
+    public void setOnSyncope(final ConnObject onSyncope) {
         this.onSyncope = onSyncope;
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    public ConnObjectTO getOnResource() {
+    public ConnObject getOnResource() {
         return onResource;
     }
 
-    public void setOnResource(final ConnObjectTO onResource) {
+    public void setOnResource(final ConnObject onResource) {
         this.onResource = onResource;
     }
 }

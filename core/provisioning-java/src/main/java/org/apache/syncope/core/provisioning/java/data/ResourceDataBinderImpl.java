@@ -30,14 +30,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.ItemContainer;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.ItemContainer;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -149,9 +149,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 LOG.debug("Invalid {} specified {}, ignoring...",
                         AnyType.class.getSimpleName(), provisionTO.getAnyType());
             } else {
-                ProvisionTO provision = resource.getProvision(anyType.getKey()).orElse(null);
+                Provision provision = resource.getProvision(anyType.getKey()).orElse(null);
                 if (provision == null) {
-                    provision = new ProvisionTO();
+                    provision = new Provision();
                     provision.setAnyType(anyType.getKey());
                     resource.getProvisions().add(provision);
                 }
@@ -193,9 +193,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 if (provisionTO.getMapping() == null) {
                     provision.setMapping(null);
                 } else {
-                    MappingTO mapping = provision.getMapping();
+                    Mapping mapping = provision.getMapping();
                     if (mapping == null) {
-                        mapping = new MappingTO();
+                        mapping = new Mapping();
                         provision.setMapping(mapping);
                     } else {
                         mapping.getItems().clear();
@@ -242,8 +242,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         });
 
         // 2. remove all provisions not contained in the TO
-        for (Iterator<ProvisionTO> itor = resource.getProvisions().iterator(); itor.hasNext();) {
-            ProvisionTO provision = itor.next();
+        for (Iterator<Provision> itor = resource.getProvisions().iterator(); itor.hasNext();) {
+            Provision provision = itor.next();
             if (resourceTO.getProvision(provision.getAnyType()).isEmpty()) {
                 virSchemaDAO.find(resource.getKey(), provision.getAnyType()).
                         forEach(schema -> virSchemaDAO.delete(schema.getKey()));
@@ -256,9 +256,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         if (resourceTO.getOrgUnit() == null && resource.getOrgUnit() != null) {
             resource.setOrgUnit(null);
         } else if (resourceTO.getOrgUnit() != null) {
-            OrgUnitTO orgUnitTO = resourceTO.getOrgUnit();
+            OrgUnit orgUnitTO = resourceTO.getOrgUnit();
 
-            OrgUnitTO orgUnit = Optional.ofNullable(resource.getOrgUnit()).orElseGet(() -> new OrgUnitTO());
+            OrgUnit orgUnit = Optional.ofNullable(resource.getOrgUnit()).orElseGet(() -> new OrgUnit());
 
             if (orgUnitTO.getObjectClass() == null) {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidOrgUnit);
@@ -283,10 +283,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     ClientExceptionType.RequiredValuesMissing);
 
             orgUnit.getItems().clear();
-            for (ItemTO itemTO : orgUnitTO.getItems()) {
+            for (Item itemTO : orgUnitTO.getItems()) {
                 if (itemTO == null) {
-                    LOG.error("Null {}", ItemTO.class.getSimpleName());
-                    invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
+                    LOG.error("Null {}", Item.class.getSimpleName());
+                    invalidMapping.getElements().add("Null " + Item.class.getSimpleName());
                 } else if (itemTO.getIntAttrName() == null) {
                     requiredValuesMissing.getElements().add("intAttrName");
                     scce.addException(requiredValuesMissing);
@@ -305,7 +305,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             scce.addException(invalidMandatoryCondition);
                         }
 
-                        ItemTO item = new ItemTO();
+                        Item item = new Item();
                         item.setIntAttrName(itemTO.getIntAttrName());
                         item.setExtAttrName(itemTO.getExtAttrName());
                         item.setPurpose(itemTO.getPurpose());
@@ -406,8 +406,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     protected void populateMapping(
             final ExternalResource resource,
-            final MappingTO mappingTO,
-            final MappingTO mapping,
+            final Mapping mappingTO,
+            final Mapping mapping,
             final AnyTypeKind anyTypeKind,
             final AnyTypeClassTO allowedSchemas) {
 
@@ -418,10 +418,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         SyncopeClientException requiredValuesMissing = SyncopeClientException.build(
                 ClientExceptionType.RequiredValuesMissing);
 
-        for (ItemTO itemTO : mappingTO.getItems()) {
+        for (Item itemTO : mappingTO.getItems()) {
             if (itemTO == null) {
-                LOG.error("Null {}", ItemTO.class.getSimpleName());
-                invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
+                LOG.error("Null {}", Item.class.getSimpleName());
+                invalidMapping.getElements().add("Null " + Item.class.getSimpleName());
             } else if (itemTO.getIntAttrName() == null) {
                 requiredValuesMissing.getElements().add("intAttrName");
                 scce.addException(requiredValuesMissing);
@@ -475,7 +475,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             scce.addException(invalidMandatoryCondition);
                         }
 
-                        ItemTO item = new ItemTO();
+                        Item item = new Item();
                         item.setIntAttrName(itemTO.getIntAttrName());
                         item.setExtAttrName(itemTO.getExtAttrName());
                         item.setPurpose(itemTO.getPurpose());
@@ -583,9 +583,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         }
     }
 
-    protected void populateItems(final List<ItemTO> items, final ItemContainer containerTO) {
+    protected void populateItems(final List<Item> items, final ItemContainer containerTO) {
         items.forEach(item -> {
-            ItemTO itemTO = new ItemTO();
+            Item itemTO = new Item();
             itemTO.setIntAttrName(item.getIntAttrName());
             itemTO.setExtAttrName(item.getExtAttrName());
             itemTO.setPurpose(item.getPurpose());
@@ -620,7 +620,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         // set the provision information
         resource.getProvisions().forEach(provision -> {
-            ProvisionTO provisionTO = new ProvisionTO();
+            Provision provisionTO = new Provision();
             provisionTO.setAnyType(provision.getAnyType());
             provisionTO.setObjectClass(provision.getObjectClass());
             provisionTO.getAuxClasses().addAll(provision.getAuxClasses());
@@ -629,7 +629,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             provisionTO.setUidOnCreate(provision.getUidOnCreate());
 
             if (provision.getMapping() != null) {
-                MappingTO mappingTO = new MappingTO();
+                Mapping mappingTO = new Mapping();
                 provisionTO.setMapping(mappingTO);
                 mappingTO.setConnObjectLink(provision.getMapping().getConnObjectLink());
                 populateItems(provision.getMapping().getItems(), mappingTO);
@@ -645,9 +645,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 }));
 
         if (resource.getOrgUnit() != null) {
-            OrgUnitTO orgUnit = resource.getOrgUnit();
+            OrgUnit orgUnit = resource.getOrgUnit();
 
-            OrgUnitTO orgUnitTO = new OrgUnitTO();
+            OrgUnit orgUnitTO = new OrgUnit();
             orgUnitTO.setObjectClass(orgUnit.getObjectClass());
             orgUnitTO.setSyncToken(orgUnit.getSyncToken());
             orgUnitTO.setIgnoreCaseMatch(orgUnit.isIgnoreCaseMatch());

@@ -23,7 +23,6 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.PathParam;
-import org.apache.syncope.common.lib.types.ItemContainer;
 
 public class OIDCC4UIProviderTO extends ItemContainer implements EntityTO {
 

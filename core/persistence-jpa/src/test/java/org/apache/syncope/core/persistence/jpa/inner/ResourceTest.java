@@ -29,9 +29,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -71,7 +71,7 @@ public class ResourceTest extends AbstractTest {
         assertEquals("net.tirasa.connid.bundles.soap.WebServiceConnector", connector.getConnectorName());
         assertEquals("net.tirasa.connid.bundles.soap", connector.getBundleName());
 
-        MappingTO mapping = resource.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping();
+        Mapping mapping = resource.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping();
         assertFalse(mapping.getItems().isEmpty());
 
         assertTrue(mapping.getItems().stream().
@@ -127,15 +127,15 @@ public class ResourceTest extends AbstractTest {
         resource.setKey("ws-target-resource-basic-save");
         resource.setPropagationPriority(2);
 
-        ProvisionTO provision = new ProvisionTO();
+        Provision provision = new Provision();
         provision.setAnyType(anyTypeDAO.findUser().getKey());
         provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resource.getProvisions().add(provision);
 
-        MappingTO mapping = new MappingTO();
+        Mapping mapping = new Mapping();
         provision.setMapping(mapping);
 
-        ItemTO connObjectKey = new ItemTO();
+        Item connObjectKey = new Item();
         connObjectKey.setExtAttrName("username");
         connObjectKey.setIntAttrName("fullname");
         connObjectKey.setPurpose(MappingPurpose.BOTH);
@@ -163,15 +163,15 @@ public class ResourceTest extends AbstractTest {
             ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
             resource.setConnector(connector);
 
-            ProvisionTO provision = new ProvisionTO();
+            Provision provision = new Provision();
             provision.setAnyType(anyTypeDAO.findUser().getKey());
             provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provision);
 
-            MappingTO mapping = new MappingTO();
+            Mapping mapping = new Mapping();
             provision.setMapping(mapping);
 
-            ItemTO connObjectKey = new ItemTO();
+            Item connObjectKey = new Item();
             connObjectKey.setConnObjectKey(true);
             mapping.add(connObjectKey);
 
@@ -189,20 +189,20 @@ public class ResourceTest extends AbstractTest {
             ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
             resource.setConnector(connector);
 
-            ProvisionTO provision = new ProvisionTO();
+            Provision provision = new Provision();
             provision.setAnyType(anyTypeDAO.findUser().getKey());
             provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provision);
 
-            MappingTO mapping = new MappingTO();
+            Mapping mapping = new Mapping();
             provision.setMapping(mapping);
 
-            ItemTO item = new ItemTO();
+            Item item = new Item();
             item.setConnObjectKey(true);
             item.setIntAttrName("fullname");
             mapping.add(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("userId");
             mapping.add(item);
 
@@ -216,21 +216,21 @@ public class ResourceTest extends AbstractTest {
             ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
             resource.setKey("invalidProvision");
 
-            ProvisionTO provision = new ProvisionTO();
+            Provision provision = new Provision();
             provision.setAnyType(anyTypeDAO.findUser().getKey());
             provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provision);
 
-            MappingTO mapping = new MappingTO();
+            Mapping mapping = new Mapping();
             provision.setMapping(mapping);
 
-            ItemTO connObjectKey = new ItemTO();
+            Item connObjectKey = new Item();
             connObjectKey.setExtAttrName("username");
             connObjectKey.setIntAttrName("fullname");
             connObjectKey.setPurpose(MappingPurpose.BOTH);
             mapping.setConnObjectKeyItem(connObjectKey);
 
-            provision = new ProvisionTO();
+            provision = new Provision();
             provision.setAnyType(anyTypeDAO.findGroup().getKey());
             provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provision);
@@ -249,21 +249,21 @@ public class ResourceTest extends AbstractTest {
         resource.setKey("ws-target-resource-virtual-mapping");
         resource.setPropagationPriority(2);
 
-        ProvisionTO provision = new ProvisionTO();
+        Provision provision = new Provision();
         provision.setAnyType(anyTypeDAO.findUser().getKey());
         provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resource.getProvisions().add(provision);
 
-        MappingTO mapping = new MappingTO();
+        Mapping mapping = new Mapping();
         provision.setMapping(mapping);
 
-        ItemTO connObjectKey = new ItemTO();
+        Item connObjectKey = new Item();
         connObjectKey.setExtAttrName("username");
         connObjectKey.setIntAttrName("fullname");
         connObjectKey.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(connObjectKey);
 
-        ItemTO virtualMapItem = new ItemTO();
+        Item virtualMapItem = new Item();
         virtualMapItem.setIntAttrName("virtualReadOnly");
         virtualMapItem.setExtAttrName("TEST");
         virtualMapItem.setPurpose(MappingPurpose.PROPAGATION);
@@ -283,27 +283,27 @@ public class ResourceTest extends AbstractTest {
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
         resource.setConnector(connector);
 
-        ProvisionTO provision = new ProvisionTO();
+        Provision provision = new Provision();
         provision.setAnyType(anyTypeDAO.findUser().getKey());
         provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resource.getProvisions().add(provision);
 
-        MappingTO mapping = new MappingTO();
+        Mapping mapping = new Mapping();
         provision.setMapping(mapping);
 
-        ItemTO item = new ItemTO();
+        Item item = new Item();
         item.setIntAttrName("fullname");
         item.setExtAttrName("fullname");
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setIntAttrName("icon");
         item.setExtAttrName("icon");
         item.setPurpose(MappingPurpose.BOTH);
         mapping.add(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setIntAttrName("mderiveddata");
         item.setExtAttrName("mderiveddata");
         item.setPurpose(MappingPurpose.PROPAGATION);

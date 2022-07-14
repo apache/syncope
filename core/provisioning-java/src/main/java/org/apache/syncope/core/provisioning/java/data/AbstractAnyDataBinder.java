@@ -38,9 +38,9 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -187,13 +187,13 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    protected Map<String, ConnObjectTO> onResources(
+    protected Map<String, ConnObject> onResources(
             final Any<?> any,
             final Collection<String> resources,
             final String password,
             final boolean changePwd) {
 
-        Map<String, ConnObjectTO> onResources = new HashMap<>();
+        Map<String, ConnObject> onResources = new HashMap<>();
 
         resources.stream().map(resourceDAO::find).filter(Objects::nonNull).forEach(resource -> {
             resource.getProvision(any.getType().getKey()).
@@ -202,7 +202,7 @@ abstract class AbstractAnyDataBinder {
                 Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
                         any, password, changePwd, true, resource, provision);
 
-                ConnObjectTO connObjectTO;
+                ConnObject connObjectTO;
                 if (StringUtils.isBlank(prepared.getLeft())) {
                     connObjectTO = ConnObjectUtils.getConnObjectTO(null, prepared.getRight());
                 } else {
@@ -275,7 +275,7 @@ abstract class AbstractAnyDataBinder {
     }
 
     protected List<String> evaluateMandatoryCondition(
-            final ExternalResource resource, final ProvisionTO provision, final Any<?> any) {
+            final ExternalResource resource, final Provision provision, final Any<?> any) {
 
         List<String> missingAttrNames = new ArrayList<>();
 
@@ -317,7 +317,7 @@ abstract class AbstractAnyDataBinder {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         resources.forEach(resource -> {
-            Optional<ProvisionTO> provision = resource.getProvision(any.getType().getKey());
+            Optional<Provision> provision = resource.getProvision(any.getType().getKey());
             if (resource.isEnforceMandatoryCondition() && provision.isPresent()) {
                 List<String> missingAttrNames = evaluateMandatoryCondition(resource, provision.get(), any);
                 if (!missingAttrNames.isEmpty()) {
@@ -498,14 +498,14 @@ abstract class AbstractAnyDataBinder {
     }
 
     protected PropagationByResource<String> propByRes(
-            final Map<String, ConnObjectTO> before,
-            final Map<String, ConnObjectTO> after) {
+            final Map<String, ConnObject> before,
+            final Map<String, ConnObject> after) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
 
         after.forEach((resource, connObject) -> {
             if (before.containsKey(resource)) {
-                ConnObjectTO beforeObject = before.get(resource);
+                ConnObject beforeObject = before.get(resource);
                 if (!beforeObject.equals(connObject)) {
                     propByRes.add(ResourceOperation.UPDATE, resource);
 

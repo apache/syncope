@@ -21,8 +21,8 @@ package org.apache.syncope.core.persistence.api.entity;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -105,13 +105,13 @@ public interface ExternalResource extends ProvidedKeyEntity {
 
     void setRandomPwdIfNotProvided(boolean condition);
 
-    Optional<ProvisionTO> getProvision(String anyType);
+    Optional<Provision> getProvision(String anyType);
 
-    Optional<ProvisionTO> getProvision(ObjectClass objectClass);
+    Optional<Provision> getProvision(ObjectClass objectClass);
 
-    List<ProvisionTO> getProvisions();
+    List<Provision> getProvisions();
 
-    OrgUnitTO getOrgUnit();
+    OrgUnit getOrgUnit();
 
-    void setOrgUnit(OrgUnitTO orgUnit);
+    void setOrgUnit(OrgUnit orgUnit);
 }

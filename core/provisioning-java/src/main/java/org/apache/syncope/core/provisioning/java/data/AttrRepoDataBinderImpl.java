@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.java.data;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -50,8 +50,8 @@ public class AttrRepoDataBinderImpl implements AttrRepoDataBinder {
 
         attrRepoTO.getItems().forEach(itemTO -> {
             if (itemTO == null) {
-                LOG.error("Null {}", ItemTO.class.getSimpleName());
-                invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
+                LOG.error("Null {}", Item.class.getSimpleName());
+                invalidMapping.getElements().add("Null " + Item.class.getSimpleName());
             } else if (itemTO.getIntAttrName() == null) {
                 requiredValuesMissing.getElements().add("intAttrName");
                 scce.addException(requiredValuesMissing);
@@ -66,7 +66,7 @@ public class AttrRepoDataBinderImpl implements AttrRepoDataBinder {
                     scce.addException(invalidMandatoryCondition);
                 }
 
-                ItemTO item = new ItemTO();
+                Item item = new Item();
                 item.setIntAttrName(itemTO.getIntAttrName());
                 item.setExtAttrName(itemTO.getExtAttrName());
                 item.setMandatoryCondition(itemTO.getMandatoryCondition());
@@ -108,7 +108,7 @@ public class AttrRepoDataBinderImpl implements AttrRepoDataBinder {
 
     protected void populateItems(final AttrRepo attrRepo, final AttrRepoTO attrRepoTO) {
         attrRepo.getItems().forEach(item -> {
-            ItemTO itemTO = new ItemTO();
+            Item itemTO = new Item();
             itemTO.setIntAttrName(item.getIntAttrName());
             itemTO.setExtAttrName(item.getExtAttrName());
             itemTO.setMandatoryCondition(item.getMandatoryCondition());

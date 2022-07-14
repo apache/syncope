@@ -21,11 +21,12 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 import java.util.HashSet;
 import java.util.Set;
 import javax.validation.ConstraintValidatorContext;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
+
+import org.apache.syncope.common.lib.to.ItemContainer;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.common.lib.types.ItemContainer;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -59,7 +60,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         return true;
     }
 
-    private static boolean isValid(final OrgUnitTO orgUnit, final ConstraintValidatorContext context) {
+    private static boolean isValid(final OrgUnit orgUnit, final ConstraintValidatorContext context) {
         if (orgUnit == null) {
             return true;
         }
@@ -67,14 +68,14 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         return areItemsValid(orgUnit, context);
     }
 
-    private static boolean isValid(final MappingTO mapping, final ConstraintValidatorContext context) {
+    private static boolean isValid(final Mapping mapping, final ConstraintValidatorContext context) {
         if (mapping == null) {
             return true;
         }
 
         boolean isValid = true;
 
-        long passwords = mapping.getItems().stream().filter(ItemTO::isPassword).count();
+        long passwords = mapping.getItems().stream().filter(Item::isPassword).count();
         if (passwords > 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "One password mapping is allowed at most")).

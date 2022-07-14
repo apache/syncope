@@ -31,7 +31,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
@@ -212,7 +212,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         try {
             any = getAnyUtils().dao().authFind(anyKey);
 
-            ProvisionTO provision = profile.getTask().getResource().getProvision(any.getType().getKey()).orElse(null);
+            Provision provision = profile.getTask().getResource().getProvision(any.getType().getKey()).orElse(null);
             if (provision == null) {
                 throw new JobExecutionException("No provision found on " + profile.getTask().getResource() + " for "
                         + any.getType().getKey());
@@ -245,7 +245,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected void doHandle(final Any<?> any, final ProvisionTO provision) throws JobExecutionException {
+    protected void doHandle(final Any<?> any, final Provision provision) throws JobExecutionException {
         ProvisioningReport result = new ProvisioningReport();
         profile.getResults().add(result);
 

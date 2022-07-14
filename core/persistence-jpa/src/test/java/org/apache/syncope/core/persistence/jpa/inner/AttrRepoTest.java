@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.attr.JDBCAttrRepoConf;
 import org.apache.syncope.common.lib.attr.LDAPAttrRepoConf;
 import org.apache.syncope.common.lib.attr.StubAttrRepoConf;
 import org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrRepoState;
 import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
@@ -219,12 +219,12 @@ public class AttrRepoTest extends AbstractTest {
         attrRepo.setState(AttrRepoState.ACTIVE);
         attrRepo.setConf(conf);
 
-        ItemTO keyMapping = new ItemTO();
+        Item keyMapping = new Item();
         keyMapping.setIntAttrName("uid");
         keyMapping.setExtAttrName("username");
         attrRepo.getItems().add(keyMapping);
 
-        ItemTO fullnameMapping = new ItemTO();
+        Item fullnameMapping = new Item();
         fullnameMapping.setIntAttrName("cn");
         fullnameMapping.setExtAttrName("fullname");
         attrRepo.getItems().add(fullnameMapping);

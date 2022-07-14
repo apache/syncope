@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -144,7 +144,7 @@ public abstract class SerializationTest {
 
         PropagationStatus status = new PropagationStatus();
         status.setFailureReason("failed");
-        status.setBeforeObj(new ConnObjectTO());
+        status.setBeforeObj(new ConnObject());
         original.getPropagationStatuses().add(status);
 
         StringWriter writer = new StringWriter();

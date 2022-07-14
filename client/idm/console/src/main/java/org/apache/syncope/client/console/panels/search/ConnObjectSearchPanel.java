@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
+import org.apache.syncope.common.lib.to.ConnIdObjectClass;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -120,7 +120,7 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
             protected Map<String, PlainSchemaTO> load() {
                 return connectorRestClient.buildObjectClassInfo(
                         connectorRestClient.read(resource.getConnector()), false).stream().
-                        map(ConnIdObjectClassTO::getAttributes).
+                        map(ConnIdObjectClass::getAttributes).
                         flatMap(List::stream).
                         collect(Collectors.toMap(PlainSchemaTO::getKey, Function.identity(),
                                 (schema1, schema2) -> schema1));

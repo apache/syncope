@@ -32,8 +32,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
@@ -211,7 +210,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
         JEXLTransformersTogglePanel jexlTransformers = new JEXLTransformersTogglePanel(mapping, pageRef);
         addOuterObject(jexlTransformers);
         if (resourceProvision.getProvisionTO() != null && resourceProvision.getProvisionTO().getMapping() == null) {
-            resourceProvision.getProvisionTO().setMapping(new MappingTO());
+            resourceProvision.getProvisionTO().setMapping(new org.apache.syncope.common.lib.to.Mapping());
         }
         mapping.add(new ResourceMappingPanel(
                 "mapping", resourceTO, adminRealm, resourceProvision, itemTransformers, jexlTransformers));
@@ -230,7 +229,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
             this.resourceTO.getOrgUnit().getItems().clear();
             this.resourceTO.getOrgUnit().getItems().addAll(resourceProvision.getItems());
         } else if (resourceProvision.getProvisionTO() != null) {
-            final List<ProvisionTO> provisions;
+            final List<Provision> provisions;
             if (resourceProvision.getKey() == null) {
                 provisions = this.resourceTO.getProvisions().stream().
                         filter(object -> !resourceProvision.getAnyType().equals(object.getAnyType())).
@@ -241,7 +240,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
                         collect(Collectors.toList());
             }
 
-            ProvisionTO provisionTO = resourceProvision.getProvisionTO();
+            Provision provisionTO = resourceProvision.getProvisionTO();
             provisionTO.getMapping().getItems().clear();
             provisionTO.getMapping().getItems().addAll(resourceProvision.getItems());
             provisions.add(provisionTO);

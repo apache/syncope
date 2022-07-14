@@ -23,7 +23,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.RemoteObjectPanel;
 import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -56,7 +56,7 @@ public class ReconStatusPanel extends RemoteObjectPanel {
     }
 
     @Override
-    protected Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs() {
+    protected Pair<ConnObject, ConnObject> getConnObjectTOs() {
         List<Pair<String, ReconStatus>> statuses =
                 ReconStatusUtils.getReconStatuses(anyTypeKey, anyKey, List.of(resource));
 

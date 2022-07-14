@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -197,7 +197,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         entity = new GroupTO();
 
         when(connectorObj.getAttributeByName(anyString())).thenReturn(attribute);
-        when(externalResource.getProvision(anyString())).thenAnswer(ic -> Optional.of(mock(ProvisionTO.class)));
+        when(externalResource.getProvision(anyString())).thenAnswer(ic -> Optional.of(mock(Provision.class)));
 
         ldapMembershipPullActions.after(profile, syncDelta, entity, result);
 

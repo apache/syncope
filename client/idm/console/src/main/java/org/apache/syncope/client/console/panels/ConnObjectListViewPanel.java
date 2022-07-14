@@ -47,7 +47,7 @@ import org.apache.syncope.client.ui.commons.status.StatusUtils;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -148,15 +148,15 @@ public abstract class ConnObjectListViewPanel extends Panel {
         accordion.setOutputMarkupId(true);
         add(accordion.setEnabled(true).setVisible(true));
 
-        List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, null, null);
+        List<ConnObject> listOfItems = reloadItems(resource.getKey(), anyType, null, null);
 
-        ListViewPanel.Builder<ConnObjectTO> builder = new ListViewPanel.Builder<>(
-                ConnObjectTO.class, pageRef) {
+        ListViewPanel.Builder<ConnObject> builder = new ListViewPanel.Builder<>(
+                ConnObject.class, pageRef) {
 
             private static final long serialVersionUID = -8251750413385566738L;
 
             @Override
-            protected Component getValueComponent(final String key, final ConnObjectTO bean) {
+            protected Component getValueComponent(final String key, final ConnObject bean) {
                 if (StringUtils.equals(key, STATUS)) {
                     ReconStatus status;
                     try {
@@ -211,7 +211,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
             private static final long serialVersionUID = 7511002881490248598L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final ConnObjectTO modelObject) {
+            public void onClick(final AjaxRequestTarget target, final ConnObject modelObject) {
                 viewConnObject(modelObject, target);
             }
         }, ActionLink.ActionType.VIEW, IdMEntitlement.RESOURCE_GET_CONNOBJECT).
@@ -228,7 +228,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
                 private static final long serialVersionUID = 6377238742125L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target, final ConnObjectTO modelObject) {
+                public void onClick(final AjaxRequestTarget target, final ConnObject modelObject) {
                     try {
                         ReconStatus status = ReconciliationRestClient.status(
                                 new ReconQuery.Builder(anyType, resource.getKey()).fiql(modelObject.getFiql()).build());
@@ -265,7 +265,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, nextPageCookie, getFiql());
+                List<ConnObject> listOfItems = reloadItems(resource.getKey(), anyType, nextPageCookie, getFiql());
                 target.add(arrows);
                 send(ConnObjectListViewPanel.this, Broadcast.DEPTH, new ListViewReload<>(listOfItems, target));
             }
@@ -282,7 +282,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
         if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
             this.nextPageCookie = null;
             AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
-            List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, null, getFiql());
+            List<ConnObject> listOfItems = reloadItems(resource.getKey(), anyType, null, getFiql());
             target.add(arrows);
             send(ConnObjectListViewPanel.this, Broadcast.DEPTH, new ListViewReload<>(listOfItems, target));
         } else {
@@ -290,7 +290,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
         }
     }
 
-    protected abstract void viewConnObject(ConnObjectTO connObjectTO, AjaxRequestTarget target);
+    protected abstract void viewConnObject(ConnObject connObjectTO, AjaxRequestTarget target);
 
     protected abstract void pullConnObject(
             String fiql,
@@ -301,13 +301,13 @@ public abstract class ConnObjectListViewPanel extends Panel {
             boolean isOnSyncope,
             PageReference pageRef);
 
-    protected List<ConnObjectTO> reloadItems(
+    protected List<ConnObject> reloadItems(
             final String resource,
             final String anyType,
             final String cookie,
             final String fiql) {
 
-        Pair<String, List<ConnObjectTO>> items = new ResourceRestClient().searchConnObjects(
+        Pair<String, List<ConnObject>> items = new ResourceRestClient().searchConnObjects(
                 resource,
                 anyType,
                 new ConnObjectTOQuery.Builder().

@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
@@ -131,12 +131,12 @@ public class WAClientAppITCase extends AbstractITCase {
     private void addItems() {
         AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read(AUTH_MODULE);
 
-        ItemTO keyMapping = new ItemTO();
+        Item keyMapping = new Item();
         keyMapping.setIntAttrName("uid");
         keyMapping.setExtAttrName("username");
         authModuleTO.getItems().add(keyMapping);
 
-        ItemTO fullnameMapping = new ItemTO();
+        Item fullnameMapping = new Item();
         fullnameMapping.setIntAttrName("cn");
         fullnameMapping.setExtAttrName("fullname");
         authModuleTO.getItems().add(fullnameMapping);

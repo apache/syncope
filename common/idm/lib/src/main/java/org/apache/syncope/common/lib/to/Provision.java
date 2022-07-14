@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class ProvisionTO implements Serializable {
+public class Provision implements Serializable {
 
     private static final long serialVersionUID = 8298910216218007927L;
 
@@ -42,7 +42,7 @@ public class ProvisionTO implements Serializable {
 
     private String uidOnCreate;
 
-    private MappingTO mapping;
+    private Mapping mapping;
 
     private final List<String> virSchemas = new ArrayList<>();
 
@@ -92,11 +92,11 @@ public class ProvisionTO implements Serializable {
         this.uidOnCreate = uidOnCreate;
     }
 
-    public MappingTO getMapping() {
+    public Mapping getMapping() {
         return mapping;
     }
 
-    public void setMapping(final MappingTO mapping) {
+    public void setMapping(final Mapping mapping) {
         this.mapping = mapping;
     }
 
@@ -117,7 +117,7 @@ public class ProvisionTO implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ProvisionTO other = (ProvisionTO) obj;
+        Provision other = (Provision) obj;
         return new EqualsBuilder().
                 append(ignoreCaseMatch, other.ignoreCaseMatch).
                 append(anyType, other.anyType).

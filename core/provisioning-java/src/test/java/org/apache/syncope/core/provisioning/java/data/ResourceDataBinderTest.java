@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
@@ -89,12 +89,12 @@ public class ResourceDataBinderTest extends AbstractTest {
     public void issue42() {
         PlainSchema userId = plainSchemaDAO.find("userId");
 
-        Set<ItemTO> beforeUserIdMappings = new HashSet<>();
+        Set<Item> beforeUserIdMappings = new HashSet<>();
         for (ExternalResource res : resourceDAO.findAll()) {
             if (res.getProvision(anyTypeDAO.findUser().getKey()).isPresent()
                     && res.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping() != null) {
 
-                for (ItemTO mapItem : res.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems()) {
+                for (Item mapItem : res.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems()) {
                     if (userId.getKey().equals(mapItem.getIntAttrName())) {
                         beforeUserIdMappings.add(mapItem);
                     }
@@ -107,15 +107,15 @@ public class ResourceDataBinderTest extends AbstractTest {
         resourceTO.setConnector("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
         resourceTO.setEnforceMandatoryCondition(true);
 
-        ProvisionTO provisionTO = new ProvisionTO();
+        Provision provisionTO = new Provision();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
         provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resourceTO.getProvisions().add(provisionTO);
 
-        MappingTO mapping = new MappingTO();
+        Mapping mapping = new Mapping();
         provisionTO.setMapping(mapping);
 
-        ItemTO item = new ItemTO();
+        Item item = new Item();
         item.setIntAttrName("userId");
         item.setExtAttrName("campo1");
         item.setConnObjectKey(true);
@@ -137,12 +137,12 @@ public class ResourceDataBinderTest extends AbstractTest {
 
         userId = plainSchemaDAO.find("userId");
 
-        Set<ItemTO> afterUserIdMappings = new HashSet<>();
+        Set<Item> afterUserIdMappings = new HashSet<>();
         for (ExternalResource res : resourceDAO.findAll()) {
             if (res.getProvision(anyTypeDAO.findUser().getKey()).isPresent()
                     && res.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping() != null) {
 
-                for (ItemTO mapItem : res.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems()) {
+                for (Item mapItem : res.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems()) {
                     if (userId.getKey().equals(mapItem.getIntAttrName())) {
                         afterUserIdMappings.add(mapItem);
                     }

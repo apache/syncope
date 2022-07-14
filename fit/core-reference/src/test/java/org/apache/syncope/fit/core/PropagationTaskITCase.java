@@ -60,16 +60,16 @@ import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -207,10 +207,10 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         // 0. Set propagation JEXL MappingItemTransformer
         ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
-        ProvisionTO provision = resource.getProvision(PRINTER).get();
+        Provision provision = resource.getProvision(PRINTER).get();
         assertNotNull(provision);
 
-        Optional<ItemTO> mappingItem = provision.getMapping().getItems().stream().
+        Optional<Item> mappingItem = provision.getMapping().getItems().stream().
                 filter(item -> "location".equals(item.getIntAttrName())).findFirst();
         assertTrue(mappingItem.isPresent());
         assertTrue(mappingItem.get().getTransformers().isEmpty());
@@ -231,7 +231,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             // 2. verify that JEXL MappingItemTransformer was applied during propagation
             // (location ends with given suffix on external resource)
-            ConnObjectTO connObjectTO = RESOURCE_SERVICE.
+            ConnObject connObjectTO = RESOURCE_SERVICE.
                     readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
             assertFalse(anyObjectTO.getPlainAttr("location").get().getValues().get(0).endsWith(suffix));
             assertTrue(connObjectTO.getAttr("LOCATION").get().getValues().get(0).endsWith(suffix));
@@ -245,14 +245,14 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         ldap.setKey("ldapWithPrivileges");
 
-        ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
+        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
         provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getIntAttrName()));
         provision.getVirSchemas().clear();
 
         ldap.getProvisions().clear();
         ldap.getProvisions().add(provision);
 
-        ItemTO item = new ItemTO();
+        Item item = new Item();
         item.setIntAttrName("privileges[mightyApp]");
         item.setExtAttrName("businessCategory");
         item.setPurpose(MappingPurpose.PROPAGATION);
@@ -468,13 +468,13 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         try {
             // 1. clone the LDAP resource and add some sensible mappings
-            ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
+            Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
             assertNotNull(provision);
             provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
             provision.getVirSchemas().clear();
 
             // Date -> long (JEXL expression) -> string
-            ItemTO loginDateForJexlAsLong = new ItemTO();
+            Item loginDateForJexlAsLong = new Item();
             loginDateForJexlAsLong.setPurpose(MappingPurpose.PROPAGATION);
             loginDateForJexlAsLong.setIntAttrName("loginDate");
             loginDateForJexlAsLong.setExtAttrName("employeeNumber");
@@ -482,7 +482,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             provision.getMapping().add(loginDateForJexlAsLong);
 
             // Date -> string (JEXL expression)
-            ItemTO loginDateForJexlAsString = new ItemTO();
+            Item loginDateForJexlAsString = new Item();
             loginDateForJexlAsString.setPurpose(MappingPurpose.PROPAGATION);
             loginDateForJexlAsString.setIntAttrName("loginDate");
             loginDateForJexlAsString.setExtAttrName("street");
@@ -491,7 +491,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             provision.getMapping().add(loginDateForJexlAsString);
 
             // Date -> long
-            ItemTO loginDateForJavaToLong = new ItemTO();
+            Item loginDateForJavaToLong = new Item();
             loginDateForJavaToLong.setPurpose(MappingPurpose.PROPAGATION);
             loginDateForJavaToLong.setIntAttrName("loginDate");
             loginDateForJavaToLong.setExtAttrName("st");
@@ -499,7 +499,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             provision.getMapping().add(loginDateForJavaToLong);
 
             // Date -> date
-            ItemTO loginDateForJavaToDate = new ItemTO();
+            Item loginDateForJavaToDate = new Item();
             loginDateForJavaToDate.setPurpose(MappingPurpose.PROPAGATION);
             loginDateForJavaToDate.setIntAttrName("loginDate");
             loginDateForJavaToDate.setExtAttrName("carLicense");
@@ -575,18 +575,18 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         UserTO userTO = null;
         try {
             // 1. clone the LDAP resource and add some sensible mappings
-            ProvisionTO provisionGroup =
+            Provision provisionGroup =
                     SerializationUtils.clone(ldap.getProvision(AnyTypeKind.GROUP.name()).orElse(null));
             assertNotNull(provisionGroup);
             provisionGroup.getVirSchemas().clear();
 
-            ProvisionTO provisionUser =
+            Provision provisionUser =
                     SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).orElse(null));
             assertNotNull(provisionUser);
             provisionUser.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
             provisionUser.getVirSchemas().clear();
 
-            ItemTO ldapGroups = new ItemTO();
+            Item ldapGroups = new Item();
             ldapGroups.setPurpose(MappingPurpose.PROPAGATION);
             ldapGroups.setIntAttrName(schemaTO.getKey());
             ldapGroups.setExtAttrName("ldapGroups");
@@ -642,7 +642,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                     new MembershipUR.Builder(newGroupTO.getKey()).operation(PatchOperation.ADD_REPLACE).build());
             USER_SERVICE.update(userUR);
 
-            ConnObjectTO connObject =
+            ConnObject connObject =
                     RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(connObject);
             assertTrue(connObject.getAttr("ldapGroups").isPresent());
@@ -665,12 +665,12 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         try {
             // 1. clone the LDAP resource and add the relationships mapping
-            ProvisionTO provisionUser =
+            Provision provisionUser =
                     SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).orElse(null));
             assertNotNull(provisionUser);
             provisionUser.getVirSchemas().clear();
 
-            ItemTO relationships = new ItemTO();
+            Item relationships = new Item();
             relationships.setPurpose(MappingPurpose.PROPAGATION);
             relationships.setIntAttrName("relationships[neighborhood][PRINTER].model");
             relationships.setExtAttrName("l");
@@ -707,7 +707,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertEquals("Canon MFC8030", attr.getValue().get(0).toString());
 
             // 3. check propagated value
-            ConnObjectTO connObject =
+            ConnObject connObject =
                     RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(connObject);
             assertTrue(connObject.getAttr("l").isPresent());
@@ -726,13 +726,13 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         try {
             // 1. clone the LDAP resource and add some sensible mappings
-            ProvisionTO provisionGroup =
+            Provision provisionGroup =
                     SerializationUtils.clone(ldap.getProvision(AnyTypeKind.GROUP.name()).orElse(null));
             assertNotNull(provisionGroup);
             provisionGroup.getVirSchemas().clear();
             provisionGroup.getMapping().getItems().clear();
 
-            ItemTO item = new ItemTO();
+            Item item = new Item();
             item.setConnObjectKey(true);
             item.setIntAttrName("name");
             item.setExtAttrName("description");
@@ -766,7 +766,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
             assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
 
-            ConnObjectTO beforeConnObject =
+            ConnObject beforeConnObject =
                     RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.GROUP.name(), groupTO.getKey());
 
             GroupUR groupUR = new GroupUR();
@@ -782,7 +782,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertEquals(ResourceOperation.UPDATE, tasks.getResult().get(0).getOperation());
             assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
 
-            ConnObjectTO afterConnObject =
+            ConnObject afterConnObject =
                     RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.GROUP.name(), groupTO.getKey());
             assertNotEquals(afterConnObject.getAttr(Name.NAME).get().getValues().get(0),
                     beforeConnObject.getAttr(Name.NAME).get().getValues().get(0));

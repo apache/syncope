@@ -28,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -144,7 +144,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
 
     @Override
     public Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
-            final ItemTO item,
+            final Item item,
             final Any<?> any,
             final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {
@@ -167,7 +167,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
 
     @Override
     public List<Object> beforePull(
-            final ItemTO item,
+            final Item item,
             final EntityTO entityTO,
             final List<Object> values) {
 

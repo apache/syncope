@@ -24,8 +24,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -654,8 +654,8 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
             Connector connector = getConnector(provisioningTask);
 
             boolean noMapping = true;
-            for (ProvisionTO provision : provisioningTask.getResource().getProvisions()) {
-                MappingTO mapping = provision.getMapping();
+            for (Provision provision : provisioningTask.getResource().getProvisions()) {
+                Mapping mapping = provision.getMapping();
                 if (mapping != null) {
                     noMapping = false;
                     if (mapping.getConnObjectKeyItem() == null) {

@@ -23,9 +23,9 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -46,7 +46,7 @@ public interface MappingManager {
      * @param provision provision information
      * @return connObjectKey internal value
      */
-    Optional<String> getConnObjectKeyValue(Any<?> any, ExternalResource resource, ProvisionTO provision);
+    Optional<String> getConnObjectKeyValue(Any<?> any, ExternalResource resource, Provision provision);
 
     /**
      * Get connObjectKey internal value.
@@ -55,7 +55,7 @@ public interface MappingManager {
      * @param orgUnit orgUnit information
      * @return connObjectKey internal value
      */
-    Optional<String> getConnObjectKeyValue(Realm realm, OrgUnitTO orgUnit);
+    Optional<String> getConnObjectKeyValue(Realm realm, OrgUnit orgUnit);
 
     /**
      * Get attribute values for the given {@link Item} and any object.
@@ -72,8 +72,8 @@ public interface MappingManager {
      */
     Pair<AttrSchemaType, List<PlainAttrValue>> getIntValues(
             ExternalResource resource,
-            ProvisionTO provision,
-            ItemTO mapItem,
+            Provision provision,
+            Item mapItem,
             IntAttrName intAttrName,
             AttrSchemaType schemaType,
             Any<?> any,
@@ -95,8 +95,8 @@ public interface MappingManager {
      */
     Pair<String, Attribute> prepareAttr(
             ExternalResource resource,
-            ProvisionTO provision,
-            ItemTO item,
+            Provision provision,
+            Item item,
             Any<?> any,
             String password,
             AccountGetter usernameAccountGetter,
@@ -120,7 +120,7 @@ public interface MappingManager {
             boolean changePwd,
             Boolean enable,
             ExternalResource resource,
-            ProvisionTO provision);
+            Provision provision);
 
     /**
      * Prepare attributes for sending to a connector instance.
@@ -133,7 +133,7 @@ public interface MappingManager {
      * @return prepared attributes
      */
     Set<Attribute> prepareAttrsFromLinkedAccount(
-            User user, LinkedAccount account, String password, boolean changePwd, ProvisionTO provision);
+            User user, LinkedAccount account, String password, boolean changePwd, Provision provision);
 
     /**
      * Prepare attributes for sending to a connector instance.
@@ -142,7 +142,7 @@ public interface MappingManager {
      * @param orgUnit provision information
      * @return connObjectLink + prepared attributes
      */
-    Pair<String, Set<Attribute>> prepareAttrsFromRealm(Realm realm, OrgUnitTO orgUnit);
+    Pair<String, Set<Attribute>> prepareAttrsFromRealm(Realm realm, OrgUnit orgUnit);
 
     /**
      * Set attribute values, according to the given {@link Item}, to any object from attribute received from
@@ -153,7 +153,7 @@ public interface MappingManager {
      * @param attr attribute received from connector
      * @param anyTO any object
      */
-    <T extends AnyTO> void setIntValues(ItemTO mapItem, Attribute attr, T anyTO);
+    <T extends AnyTO> void setIntValues(Item mapItem, Attribute attr, T anyTO);
 
     /**
      * Set attribute values, according to the given {@link Item}, to realm from attribute received from
@@ -163,7 +163,7 @@ public interface MappingManager {
      * @param attr attribute received from connector
      * @param realmTO realm
      */
-    void setIntValues(ItemTO orgUnitItem, Attribute attr, RealmTO realmTO);
+    void setIntValues(Item orgUnitItem, Attribute attr, RealmTO realmTO);
 
     /**
      * Checks if there is a mapping item in the given {@link Provision} for {@code mustChangePassword}.
@@ -171,5 +171,5 @@ public interface MappingManager {
      * @param provision provision
      * @return if there is a mapping item in the given provision for {@code mustChangePassword}
      */
-    boolean hasMustChangePassword(ProvisionTO provision);
+    boolean hasMustChangePassword(Provision provision);
 }

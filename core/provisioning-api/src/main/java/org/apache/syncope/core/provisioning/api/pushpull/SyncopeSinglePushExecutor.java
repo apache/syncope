@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.api.pushpull;
 
 import java.util.List;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -32,7 +32,7 @@ public interface SyncopeSinglePushExecutor {
 
     List<ProvisioningReport> push(
             ExternalResource resource,
-            ProvisionTO provision,
+            Provision provision,
             Connector connector,
             Any<?> any,
             PushTaskTO pushTaskTO,
@@ -40,7 +40,7 @@ public interface SyncopeSinglePushExecutor {
 
     ProvisioningReport push(
             ExternalResource resource,
-            ProvisionTO provision,
+            Provision provision,
             Connector connector,
             LinkedAccount account,
             PushTaskTO pushTaskTO,

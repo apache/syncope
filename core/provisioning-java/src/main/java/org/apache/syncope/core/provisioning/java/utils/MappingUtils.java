@@ -26,9 +26,9 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
@@ -49,8 +49,8 @@ public final class MappingUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(MappingUtils.class);
 
-    public static Optional<ItemTO> getConnObjectKeyItem(final ProvisionTO provision) {
-        MappingTO mapping = null;
+    public static Optional<Item> getConnObjectKeyItem(final Provision provision) {
+        Mapping mapping = null;
         if (provision != null) {
             mapping = provision.getMapping();
         }
@@ -60,18 +60,18 @@ public final class MappingUtils {
                 : mapping.getConnObjectKeyItem();
     }
 
-    public static Stream<ItemTO> getPropagationItems(final Stream<ItemTO> items) {
+    public static Stream<Item> getPropagationItems(final Stream<Item> items) {
         return items.filter(
                 item -> item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH);
     }
 
-    public static Stream<ItemTO> getPullItems(final Stream<ItemTO> items) {
+    public static Stream<Item> getPullItems(final Stream<Item> items) {
         return items.filter(
                 item -> item.getPurpose() == MappingPurpose.PULL || item.getPurpose() == MappingPurpose.BOTH);
     }
 
     public static List<ItemTransformer> getItemTransformers(
-            final ItemTO item,
+            final Item item,
             final List<Implementation> transformers) {
 
         List<ItemTransformer> result = new ArrayList<>();
@@ -109,7 +109,7 @@ public final class MappingUtils {
      * @see OperationOptions
      */
     public static OperationOptions buildOperationOptions(
-            final Stream<ItemTO> items,
+            final Stream<Item> items,
             final String... moreAttrsToGet) {
 
         OperationOptionsBuilder builder = new OperationOptionsBuilder();

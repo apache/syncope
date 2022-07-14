@@ -42,8 +42,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.ConnBundleTO;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
+import org.apache.syncope.common.lib.to.ConnIdBundle;
+import org.apache.syncope.common.lib.to.ConnIdObjectClass;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
@@ -66,7 +66,7 @@ public interface ConnectorService extends JAXRSService {
     @GET
     @Path("bundles")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<ConnBundleTO> getBundles(@QueryParam("lang") String lang);
+    List<ConnIdBundle> getBundles(@QueryParam("lang") String lang);
 
     /**
      * Builds the list of ConnId object classes information for the connector bundle matching the given connector
@@ -84,7 +84,7 @@ public interface ConnectorService extends JAXRSService {
     @Path("{key}/supportedObjectClasses")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<ConnIdObjectClassTO> buildObjectClassInfo(
+    List<ConnIdObjectClass> buildObjectClassInfo(
             @NotNull ConnInstanceTO connInstanceTO,
             @QueryParam("includeSpecial") @DefaultValue("false") boolean includeSpecial);
 

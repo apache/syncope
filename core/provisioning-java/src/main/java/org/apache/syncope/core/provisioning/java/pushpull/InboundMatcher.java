@@ -25,9 +25,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
@@ -130,7 +130,7 @@ public class InboundMatcher {
         this.anyUtilsFactory = anyUtilsFactory;
     }
 
-    protected List<Implementation> getTransformers(final ItemTO item) {
+    protected List<Implementation> getTransformers(final Item item) {
         return item.getTransformers().stream().
                 map(implementationDAO::find).
                 filter(Objects::nonNull).
@@ -143,12 +143,12 @@ public class InboundMatcher {
             final ExternalResource resource,
             final Connector connector) {
 
-        Optional<ProvisionTO> provision = resource.getProvision(anyType.getKey());
+        Optional<Provision> provision = resource.getProvision(anyType.getKey());
         if (provision.isEmpty()) {
             return Optional.empty();
         }
 
-        Stream<ItemTO> mapItems = Stream.concat(
+        Stream<Item> mapItems = Stream.concat(
                 provision.get().getMapping().getItems().stream(),
                 virSchemaDAO.find(resource.getKey(), anyType.getKey()).stream().map(VirSchema::asLinkingMappingItem));
 
@@ -213,7 +213,7 @@ public class InboundMatcher {
     }
 
     public List<PullMatch> matchByConnObjectKeyValue(
-            final ItemTO connObjectKeyItem,
+            final Item connObjectKeyItem,
             final String connObjectKeyValue,
             final AnyTypeKind anyTypeKind,
             final boolean ignoreCaseMatch,
@@ -332,7 +332,7 @@ public class InboundMatcher {
 
     protected List<PullMatch> matchByCorrelationRule(
             final SyncDelta syncDelta,
-            final ProvisionTO provision,
+            final Provision provision,
             final PullCorrelationRule rule,
             final AnyTypeKind type) {
 
@@ -365,7 +365,7 @@ public class InboundMatcher {
     public List<PullMatch> match(
             final SyncDelta syncDelta,
             final ExternalResource resource,
-            final ProvisionTO provision,
+            final Provision provision,
             final AnyTypeKind anyTypeKind) {
 
         Optional<? extends PullCorrelationRuleEntity> correlationRule = resource.getPullPolicy() == null
@@ -388,7 +388,7 @@ public class InboundMatcher {
             } else {
                 String connObjectKeyValue = null;
 
-                Optional<ItemTO> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+                Optional<Item> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
                 if (connObjectKeyItem.isPresent()) {
                     Attribute connObjectKeyAttr = syncDelta.getObject().
                             getAttributeByName(connObjectKeyItem.get().getExtAttrName());
@@ -430,10 +430,10 @@ public class InboundMatcher {
      * @return list of matching realms' keys.
      */
     @Transactional(readOnly = true)
-    public List<Realm> match(final SyncDelta syncDelta, final OrgUnitTO orgUnit) {
+    public List<Realm> match(final SyncDelta syncDelta, final OrgUnit orgUnit) {
         String connObjectKey = null;
 
-        Optional<ItemTO> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
+        Optional<Item> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
         if (connObjectKeyItem.isPresent()) {
             Attribute connObjectKeyAttr = syncDelta.getObject().
                     getAttributeByName(connObjectKeyItem.get().getExtAttrName());

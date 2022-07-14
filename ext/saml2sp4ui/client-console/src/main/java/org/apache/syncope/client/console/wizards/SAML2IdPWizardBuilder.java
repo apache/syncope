@@ -41,7 +41,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.lib.types.SAML2SP4UIImplementationType;
@@ -208,7 +208,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2SP4UIIdPTO> {
 
     @Override
     protected Serializable onApplyInternal(final SAML2SP4UIIdPTO modelObject) {
-        long connObjectKeyCount = modelObject.getItems().stream().filter(ItemTO::isConnObjectKey).count();
+        long connObjectKeyCount = modelObject.getItems().stream().filter(Item::isConnObjectKey).count();
         if (connObjectKeyCount != 1) {
             throw new IllegalArgumentException(
                     new StringResourceModel("connObjectKeyValidation", directoryPanel).getString());

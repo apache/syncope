@@ -28,7 +28,7 @@ import org.apache.syncope.client.ui.commons.panels.LabelPanel;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.wicket.markup.ComponentTag;
@@ -42,7 +42,7 @@ public final class StatusUtils implements Serializable {
     public static StatusBean getStatusBean(
             final AnyTO anyTO,
             final String resource,
-            final ConnObjectTO connObjectTO,
+            final ConnObject connObjectTO,
             final boolean notUser) {
 
         StatusBean statusBean = new StatusBean(anyTO, resource);
@@ -62,7 +62,7 @@ public final class StatusUtils implements Serializable {
     public static StatusBean getStatusBean(
             final RealmTO realmTO,
             final String resource,
-            final ConnObjectTO connObjectTO) {
+            final ConnObject connObjectTO) {
 
         StatusBean statusBean = new StatusBean(realmTO, resource);
 
@@ -77,14 +77,14 @@ public final class StatusUtils implements Serializable {
         return statusBean;
     }
 
-    public static Boolean isEnabled(final ConnObjectTO objectTO) {
+    public static Boolean isEnabled(final ConnObject objectTO) {
         Optional<Attr> status = objectTO.getAttr(ConnIdSpecialName.ENABLE);
         return status.isPresent() && status.get().getValues() != null && !status.get().getValues().isEmpty()
                 ? Boolean.valueOf(status.get().getValues().get(0))
                 : Boolean.FALSE;
     }
 
-    private static String getConnObjectLink(final ConnObjectTO objectTO) {
+    private static String getConnObjectLink(final ConnObject objectTO) {
         Optional<Attr> name = Optional.ofNullable(objectTO).map(to -> to.getAttr(ConnIdSpecialName.NAME)).orElse(null);
         return name != null && name.isPresent() && name.get().getValues() != null && !name.get().getValues().isEmpty()
                 ? name.get().getValues().get(0)

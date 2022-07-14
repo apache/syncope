@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.persistence.EntityExistsException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -110,7 +110,7 @@ public class PlainSchemaTest extends AbstractTest {
         }
     }
 
-    private List<ItemTO> getMappingItems(final String intAttrName) {
+    private List<Item> getMappingItems(final String intAttrName) {
         return resourceDAO.findAll().stream().
                 flatMap(resource -> resource.getProvisions().stream()).
                 flatMap(provision -> provision.getMapping().getItems().stream()).
@@ -137,7 +137,7 @@ public class PlainSchemaTest extends AbstractTest {
         assertNotNull(schema);
 
         // check for associated mappings
-        List<ItemTO> mapItems = getMappingItems("fullname");
+        List<Item> mapItems = getMappingItems("fullname");
         assertFalse(mapItems.isEmpty());
 
         // delete user schema fullname
@@ -166,7 +166,7 @@ public class PlainSchemaTest extends AbstractTest {
         assertNotNull(schema);
 
         // check for associated mappings
-        List<ItemTO> mapItems = getMappingItems("surname");
+        List<Item> mapItems = getMappingItems("surname");
         assertFalse(mapItems.isEmpty());
 
         // check for labels

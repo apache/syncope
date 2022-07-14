@@ -20,9 +20,9 @@ package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -78,21 +78,21 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             final List<String> columns,
             final List<String> propagationActions) throws JobExecutionException {
 
-        ProvisionTO provision = new ProvisionTO();
+        Provision provision = new Provision();
         provision.setAnyType(anyType.getKey());
         provision.setObjectClass(anyType.getKey());
 
-        MappingTO mapping = new MappingTO();
+        Mapping mapping = new Mapping();
         provision.setMapping(mapping);
 
-        ItemTO connObjectKeyItem = new ItemTO();
+        Item connObjectKeyItem = new Item();
         connObjectKeyItem.setExtAttrName("key");
         connObjectKeyItem.setIntAttrName("key");
         connObjectKeyItem.setPurpose(MappingPurpose.NONE);
         mapping.setConnObjectKeyItem(connObjectKeyItem);
 
         columns.stream().map(column -> {
-            ItemTO item = new ItemTO();
+            Item item = new Item();
             item.setExtAttrName(column);
             item.setIntAttrName(column);
             item.setPurpose(MappingPurpose.PROPAGATION);

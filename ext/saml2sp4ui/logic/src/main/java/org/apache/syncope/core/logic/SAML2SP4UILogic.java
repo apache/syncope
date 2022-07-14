@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.saml2.SAML2LoginResponse;
 import org.apache.syncope.common.lib.saml2.SAML2Request;
 import org.apache.syncope.common.lib.saml2.SAML2Response;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -332,7 +332,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
         SAML2Credentials.SAMLNameID nameID = credentials.getNameId();
 
-        ItemTO connObjectKeyItem = idp.getConnObjectKeyItem().orElse(null);
+        Item connObjectKeyItem = idp.getConnObjectKeyItem().orElse(null);
 
         String keyValue = null;
         if (StringUtils.isNotBlank(nameID.getValue())

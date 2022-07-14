@@ -45,8 +45,8 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
@@ -157,7 +157,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     private String provisions;
 
     @Transient
-    private final List<ProvisionTO> provisionList = new ArrayList<>();
+    private final List<Provision> provisionList = new ArrayList<>();
 
     @Lob
     private String orgUnit;
@@ -194,29 +194,29 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
-    public Optional<ProvisionTO> getProvision(final String anyType) {
+    public Optional<Provision> getProvision(final String anyType) {
         return getProvisions().stream().
                 filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
     }
 
     @Override
-    public Optional<ProvisionTO> getProvision(final ObjectClass objectClass) {
+    public Optional<Provision> getProvision(final ObjectClass objectClass) {
         return getProvisions().stream().
                 filter(provision -> provision.getObjectClass().equals(objectClass.getObjectClassValue())).findFirst();
     }
 
     @Override
-    public List<ProvisionTO> getProvisions() {
+    public List<Provision> getProvisions() {
         return provisionList;
     }
 
     @Override
-    public OrgUnitTO getOrgUnit() {
-        return Optional.ofNullable(orgUnit).map(ou -> POJOHelper.deserialize(ou, OrgUnitTO.class)).orElse(null);
+    public OrgUnit getOrgUnit() {
+        return Optional.ofNullable(orgUnit).map(ou -> POJOHelper.deserialize(ou, OrgUnit.class)).orElse(null);
     }
 
     @Override
-    public void setOrgUnit(final OrgUnitTO orgUnit) {
+    public void setOrgUnit(final OrgUnit orgUnit) {
         this.orgUnit = orgUnit == null ? null : POJOHelper.serialize(orgUnit);
     }
 
@@ -403,7 +403,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
         }
         if (provisions != null) {
             getProvisions().addAll(
-                    POJOHelper.deserialize(provisions, new TypeReference<List<ProvisionTO>>() {
+                    POJOHelper.deserialize(provisions, new TypeReference<List<Provision>>() {
                     }));
         }
     }

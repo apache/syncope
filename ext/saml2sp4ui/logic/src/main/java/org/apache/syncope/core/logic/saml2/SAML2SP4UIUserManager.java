@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.saml2.SAML2LoginResponse;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -132,7 +132,7 @@ public class SAML2SP4UIUserManager {
         return actions;
     }
 
-    protected List<Implementation> getTransformers(final ItemTO item) {
+    protected List<Implementation> getTransformers(final Item item) {
         return item.getTransformers().stream().
                 map(implementationDAO::find).
                 filter(Objects::nonNull).

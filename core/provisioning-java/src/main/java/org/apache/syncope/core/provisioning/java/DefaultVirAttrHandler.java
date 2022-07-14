@@ -26,8 +26,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -103,7 +103,7 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
 
         Map<VirSchema, List<String>> result = new HashMap<>();
 
-        Map<Pair<ExternalResource, ProvisionTO>, Set<VirSchema>> toRead = new HashMap<>();
+        Map<Pair<ExternalResource, Provision>, Set<VirSchema>> toRead = new HashMap<>();
 
         schemas.stream().filter(schema -> resources.contains(schema.getResource())).forEach(schema -> {
             VirAttrCacheKey cacheKey = new VirAttrCacheKey(any.getType().getKey(), any.getKey(), schema.getKey());
@@ -133,7 +133,7 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
                     pair.getLeft(),
                     pair.getRight(),
                     Optional.empty(),
-                    schemasToRead.stream().map(VirSchema::asLinkingMappingItem).toArray(ItemTO[]::new)).
+                    schemasToRead.stream().map(VirSchema::asLinkingMappingItem).toArray(Item[]::new)).
                     forEach(connObj -> schemasToRead.forEach(schema -> {
 
                 Attribute attr = connObj.getAttributeByName(schema.getExtAttrName());

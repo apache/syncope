@@ -29,8 +29,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.ConnBundleTO;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
+import org.apache.syncope.common.lib.to.ConnIdBundle;
+import org.apache.syncope.common.lib.to.ConnIdObjectClass;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -178,17 +178,17 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
-    public List<ConnBundleTO> getBundles(final String lang) {
+    public List<ConnIdBundle> getBundles(final String lang) {
         if (StringUtils.isBlank(lang)) {
             CurrentLocale.set(Locale.ENGLISH);
         } else {
             CurrentLocale.set(new Locale(lang));
         }
 
-        List<ConnBundleTO> connectorBundleTOs = new ArrayList<>();
+        List<ConnIdBundle> connectorBundleTOs = new ArrayList<>();
         connIdBundleManager.getConnInfoManagers().forEach((uri, cim) -> connectorBundleTOs.addAll(
                 cim.getConnectorInfos().stream().map(bundle -> {
-                    ConnBundleTO connBundleTO = new ConnBundleTO();
+                    ConnIdBundle connBundleTO = new ConnIdBundle();
                     connBundleTO.setDisplayName(bundle.getConnectorDisplayName());
 
                     connBundleTO.setLocation(uri.toString());
@@ -211,7 +211,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
 
-    public List<ConnIdObjectClassTO> buildObjectClassInfo(
+    public List<ConnIdObjectClass> buildObjectClassInfo(
             final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
         ConnInstanceTO actual = connInstanceTO;
@@ -225,7 +225,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                 getObjectClassInfo();
 
         return objectClassInfo.stream().map(info -> {
-            ConnIdObjectClassTO connIdObjectClassTO = new ConnIdObjectClassTO();
+            ConnIdObjectClass connIdObjectClassTO = new ConnIdObjectClass();
             connIdObjectClassTO.setType(info.getType());
             connIdObjectClassTO.setAuxiliary(info.isAuxiliary());
             connIdObjectClassTO.setContainer(info.isContainer());

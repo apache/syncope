@@ -21,8 +21,8 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.ConnBundleTO;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
+import org.apache.syncope.common.lib.to.ConnIdBundle;
+import org.apache.syncope.common.lib.to.ConnIdObjectClass;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
@@ -53,12 +53,12 @@ public class ConnectorServiceImpl extends AbstractService implements ConnectorSe
     }
 
     @Override
-    public List<ConnBundleTO> getBundles(final String lang) {
+    public List<ConnIdBundle> getBundles(final String lang) {
         return logic.getBundles(lang);
     }
 
     @Override
-    public List<ConnIdObjectClassTO> buildObjectClassInfo(
+    public List<ConnIdObjectClass> buildObjectClassInfo(
             final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
         return logic.buildObjectClassInfo(connInstanceTO, includeSpecial);

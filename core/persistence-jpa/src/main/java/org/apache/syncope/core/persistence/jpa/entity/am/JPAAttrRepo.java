@@ -36,7 +36,7 @@ import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrRepoState;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
@@ -63,7 +63,7 @@ public class JPAAttrRepo extends AbstractProvidedKeyEntity implements AttrRepo {
     private String items;
 
     @Transient
-    private final List<ItemTO> itemList = new ArrayList<>();
+    private final List<Item> itemList = new ArrayList<>();
 
     @Lob
     private String jsonConf;
@@ -99,7 +99,7 @@ public class JPAAttrRepo extends AbstractProvidedKeyEntity implements AttrRepo {
     }
 
     @Override
-    public List<ItemTO> getItems() {
+    public List<Item> getItems() {
         return itemList;
     }
 
@@ -124,7 +124,7 @@ public class JPAAttrRepo extends AbstractProvidedKeyEntity implements AttrRepo {
         }
         if (items != null) {
             getItems().addAll(
-                    POJOHelper.deserialize(items, new TypeReference<List<ItemTO>>() {
+                    POJOHelper.deserialize(items, new TypeReference<List<Item>>() {
                     }));
         }
     }

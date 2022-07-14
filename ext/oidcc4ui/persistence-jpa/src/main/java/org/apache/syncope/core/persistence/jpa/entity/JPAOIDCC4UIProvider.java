@@ -40,7 +40,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
@@ -95,7 +95,7 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
     private String items;
 
     @Transient
-    private final List<ItemTO> itemList = new ArrayList<>();
+    private final List<Item> itemList = new ArrayList<>();
 
     @NotNull
     private Boolean createUnmatching = false;
@@ -256,17 +256,17 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
     }
 
     @Override
-    public List<ItemTO> getItems() {
+    public List<Item> getItems() {
         return itemList;
     }
 
     @Override
-    public Optional<ItemTO> getConnObjectKeyItem() {
-        return getItems().stream().filter(ItemTO::isConnObjectKey).findFirst();
+    public Optional<Item> getConnObjectKeyItem() {
+        return getItems().stream().filter(Item::isConnObjectKey).findFirst();
     }
 
     @Override
-    public void setConnObjectKeyItem(final ItemTO item) {
+    public void setConnObjectKeyItem(final Item item) {
         item.setConnObjectKey(true);
         getItems().add(item);
     }
@@ -289,7 +289,7 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
         }
         if (items != null) {
             getItems().addAll(
-                    POJOHelper.deserialize(items, new TypeReference<List<ItemTO>>() {
+                    POJOHelper.deserialize(items, new TypeReference<List<Item>>() {
                     }));
         }
     }

@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -217,7 +217,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
             }
         }
 
-        for (ProvisionTO provision : pushTask.getResource().getProvisions().stream().
+        for (Provision provision : pushTask.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
                 collect(Collectors.toList())) {
 

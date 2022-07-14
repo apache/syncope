@@ -27,9 +27,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -107,31 +107,31 @@ public class ResourceTest extends AbstractTest {
 
         resource.setConnector(connector);
 
-        ProvisionTO provision = new ProvisionTO();
+        Provision provision = new Provision();
         provision.setAnyType(anyTypeDAO.findUser().getKey());
         provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resource.getProvisions().add(provision);
 
-        MappingTO mapping = new MappingTO();
+        Mapping mapping = new Mapping();
         provision.setMapping(mapping);
 
         // specify mappings
         for (int i = 0; i < 3; i++) {
-            ItemTO item = new ItemTO();
+            Item item = new Item();
             item.setExtAttrName("test" + i);
             item.setIntAttrName("nonexistent" + i);
             item.setMandatoryCondition("false");
             item.setPurpose(MappingPurpose.PULL);
             mapping.add(item);
         }
-        ItemTO connObjectKey = new ItemTO();
+        Item connObjectKey = new Item();
         connObjectKey.setExtAttrName("username");
         connObjectKey.setIntAttrName("username");
         connObjectKey.setPurpose(MappingPurpose.PROPAGATION);
         mapping.setConnObjectKeyItem(connObjectKey);
 
         // map a derived attribute
-        ItemTO derived = new ItemTO();
+        Item derived = new Item();
         derived.setConnObjectKey(false);
         derived.setExtAttrName("fullname");
         derived.setIntAttrName("cn");
@@ -170,7 +170,7 @@ public class ResourceTest extends AbstractTest {
         assertTrue(resource.getConnector().equals(connector));
 
         // check mappings
-        List<ItemTO> items = resource.getProvision(
+        List<Item> items = resource.getProvision(
                 anyTypeDAO.findUser().getKey()).get().getMapping().getItems();
         assertNotNull(items);
         assertEquals(5, items.size());
@@ -242,7 +242,7 @@ public class ResourceTest extends AbstractTest {
 
         int origMapItems = csv.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems().size();
 
-        ItemTO newMapItem = new ItemTO();
+        Item newMapItem = new Item();
         newMapItem.setIntAttrName("TEST");
         newMapItem.setExtAttrName("TEST");
         newMapItem.setPurpose(MappingPurpose.PROPAGATION);

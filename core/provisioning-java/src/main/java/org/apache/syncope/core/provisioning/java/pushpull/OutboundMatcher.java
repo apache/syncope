@@ -26,8 +26,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -83,7 +83,7 @@ public class OutboundMatcher {
         this.virAttrHandler = virAttrHandler;
     }
 
-    protected Optional<PushCorrelationRule> rule(final ExternalResource resource, final ProvisionTO provision) {
+    protected Optional<PushCorrelationRule> rule(final ExternalResource resource, final Provision provision) {
         Optional<? extends PushCorrelationRuleEntity> correlationRule = resource.getPushPolicy() == null
                 ? Optional.empty()
                 : resource.getPushPolicy().getCorrelationRule(provision.getAnyType());
@@ -103,7 +103,7 @@ public class OutboundMatcher {
     public String getFIQL(
             final ConnectorObject connectorObject,
             final ExternalResource resource,
-            final ProvisionTO provision) {
+            final Provision provision) {
 
         return rule(resource, provision).
                 map(rule -> rule.getFIQL(connectorObject, provision)).
@@ -113,7 +113,7 @@ public class OutboundMatcher {
     public List<ConnectorObject> match(
             final PropagationTask task,
             final Connector connector,
-            final ProvisionTO provision,
+            final Provision provision,
             final List<PropagationActions> actions,
             final String connObjectKeyValue) {
 
@@ -165,9 +165,9 @@ public class OutboundMatcher {
             final Connector connector,
             final Any<?> any,
             final ExternalResource resource,
-            final ProvisionTO provision,
+            final Provision provision,
             final Optional<String[]> moreAttrsToGet,
-            final ItemTO... linkingItems) {
+            final Item... linkingItems) {
 
         Set<String> matgFromPropagationActions = new HashSet<>();
         resource.getPropagationActions().forEach(impl -> {
@@ -197,7 +197,7 @@ public class OutboundMatcher {
                         ArrayUtils.isEmpty(linkingItems)
                         ? Optional.empty() : Optional.of(List.of(linkingItems))));
             } else {
-                Optional<ItemTO> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+                Optional<Item> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
                 Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, resource, provision);
 
                 if (connObjectKeyItem.isPresent() && connObjectKeyValue.isPresent()) {
@@ -228,11 +228,11 @@ public class OutboundMatcher {
             final Connector connector,
             final Filter filter,
             final ExternalResource resource,
-            final ProvisionTO provision,
+            final Provision provision,
             final Optional<String[]> moreAttrsToGet,
-            final Optional<Collection<ItemTO>> linkingItems) {
+            final Optional<Collection<Item>> linkingItems) {
 
-        Stream<ItemTO> items = Stream.concat(
+        Stream<Item> items = Stream.concat(
                 provision.getMapping().getItems().stream(),
                 linkingItems.isPresent()
                 ? linkingItems.get().stream()
@@ -267,14 +267,14 @@ public class OutboundMatcher {
     @Transactional(readOnly = true)
     public Optional<ConnectorObject> matchByConnObjectKeyValue(
             final Connector connector,
-            final ItemTO connObjectKeyItem,
+            final Item connObjectKeyItem,
             final String connObjectKeyValue,
             final ExternalResource resource,
-            final ProvisionTO provision,
+            final Provision provision,
             final Optional<String[]> moreAttrsToGet,
-            final Optional<Collection<ItemTO>> linkingItems) {
+            final Optional<Collection<Item>> linkingItems) {
 
-        Stream<ItemTO> items = Stream.concat(
+        Stream<Item> items = Stream.concat(
                 provision.getMapping().getItems().stream(),
                 linkingItems.isPresent()
                 ? linkingItems.get().stream()

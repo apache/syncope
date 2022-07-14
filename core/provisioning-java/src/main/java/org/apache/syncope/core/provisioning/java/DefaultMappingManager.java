@@ -39,11 +39,11 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -173,7 +173,7 @@ public class DefaultMappingManager implements MappingManager {
         this.intAttrNameParser = intAttrNameParser;
     }
 
-    protected List<Implementation> getTransformers(final ItemTO item) {
+    protected List<Implementation> getTransformers(final Item item) {
         return item.getTransformers().stream().
                 map(implementationDAO::find).
                 filter(Objects::nonNull).
@@ -242,7 +242,7 @@ public class DefaultMappingManager implements MappingManager {
      * @param connObjectKey connector object key
      * @return the value to be propagated as __NAME__
      */
-    protected Name evaluateNAME(final Any<?> any, final ProvisionTO provision, final String connObjectKey) {
+    protected Name evaluateNAME(final Any<?> any, final Provision provision, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
             // LOG error but avoid to throw exception: leave it to the external resource
             LOG.warn("Missing ConnObjectKey value for {}: ", any.getType().getKey());
@@ -274,7 +274,7 @@ public class DefaultMappingManager implements MappingManager {
      * @param connObjectKey connector object key
      * @return the value to be propagated as __NAME__
      */
-    protected Name evaluateNAME(final Realm realm, final OrgUnitTO orgUnit, final String connObjectKey) {
+    protected Name evaluateNAME(final Realm realm, final OrgUnit orgUnit, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
             // LOG error but avoid to throw exception: leave it to the external resource
             LOG.warn("Missing ConnObjectKey value for Realms");
@@ -300,7 +300,7 @@ public class DefaultMappingManager implements MappingManager {
             final boolean changePwd,
             final Boolean enable,
             final ExternalResource resource,
-            final ProvisionTO provision) {
+            final Provision provision) {
 
         LOG.debug("Preparing resource attributes for {} with provision {} for attributes {}",
                 any, provision, any.getPlainAttrs());
@@ -366,7 +366,7 @@ public class DefaultMappingManager implements MappingManager {
             final LinkedAccount account,
             final String password,
             final boolean changePwd,
-            final ProvisionTO provision) {
+            final Provision provision) {
 
         LOG.debug("Preparing resource attributes for linked account {} of user {} with provision {} "
                 + "for user attributes {} with override {}",
@@ -433,7 +433,7 @@ public class DefaultMappingManager implements MappingManager {
         return attributes;
     }
 
-    protected String getIntValue(final Realm realm, final ItemTO orgUnitItem) {
+    protected String getIntValue(final Realm realm, final Item orgUnitItem) {
         String value = null;
         switch (orgUnitItem.getIntAttrName()) {
             case "key":
@@ -455,7 +455,7 @@ public class DefaultMappingManager implements MappingManager {
     }
 
     @Override
-    public Pair<String, Set<Attribute>> prepareAttrsFromRealm(final Realm realm, final OrgUnitTO orgUnit) {
+    public Pair<String, Set<Attribute>> prepareAttrsFromRealm(final Realm realm, final OrgUnit orgUnit) {
         LOG.debug("Preparing resource attributes for {} with orgUnit {}", realm, orgUnit);
 
         Set<Attribute> attributes = new HashSet<>();
@@ -490,7 +490,7 @@ public class DefaultMappingManager implements MappingManager {
             }
         });
 
-        Optional<ItemTO> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
+        Optional<Item> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
         if (connObjectKeyItem.isPresent()) {
             Attribute connObjectKeyAttr = AttributeUtil.find(connObjectKeyItem.get().getExtAttrName(), attributes);
             if (connObjectKeyAttr != null) {
@@ -542,8 +542,8 @@ public class DefaultMappingManager implements MappingManager {
     @Override
     public Pair<String, Attribute> prepareAttr(
             final ExternalResource resource,
-            final ProvisionTO provision,
-            final ItemTO item,
+            final Provision provision,
+            final Item item,
             final Any<?> any,
             final String password,
             final AccountGetter usernameAccountGetter,
@@ -626,8 +626,8 @@ public class DefaultMappingManager implements MappingManager {
     @Override
     public Pair<AttrSchemaType, List<PlainAttrValue>> getIntValues(
             final ExternalResource resource,
-            final ProvisionTO provision,
-            final ItemTO mapItem,
+            final Provision provision,
+            final Item mapItem,
             final IntAttrName intAttrName,
             final AttrSchemaType schemaType,
             final Any<?> any,
@@ -736,10 +736,10 @@ public class DefaultMappingManager implements MappingManager {
 
                     case "userOwner":
                     case "groupOwner":
-                        MappingTO uMappingTO = provision.getAnyType().equals(anyTypeDAO.findUser().getKey())
+                        Mapping uMappingTO = provision.getAnyType().equals(anyTypeDAO.findUser().getKey())
                                 ? provision.getMapping()
                                 : null;
-                        MappingTO gMappingTO = provision.getAnyType().equals(anyTypeDAO.findGroup().getKey())
+                        Mapping gMappingTO = provision.getAnyType().equals(anyTypeDAO.findGroup().getKey())
                                 ? provision.getMapping()
                                 : null;
 
@@ -884,10 +884,10 @@ public class DefaultMappingManager implements MappingManager {
 
     protected String getGroupOwnerValue(
             final ExternalResource resource,
-            final ProvisionTO provision,
+            final Provision provision,
             final Any<?> any) {
 
-        Optional<ItemTO> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+        Optional<Item> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
 
         Pair<String, Attribute> preparedAttr = null;
         if (connObjectKeyItem.isPresent()) {
@@ -911,14 +911,14 @@ public class DefaultMappingManager implements MappingManager {
     public Optional<String> getConnObjectKeyValue(
             final Any<?> any,
             final ExternalResource resource,
-            final ProvisionTO provision) {
+            final Provision provision) {
 
-        Optional<ItemTO> connObjectKeyItem = provision.getMapping().getConnObjectKeyItem();
+        Optional<Item> connObjectKeyItem = provision.getMapping().getConnObjectKeyItem();
         if (connObjectKeyItem.isEmpty()) {
             LOG.error("Unable to locate conn object key item for {}", any.getType().getKey());
             return Optional.empty();
         }
-        ItemTO mapItem = connObjectKeyItem.get();
+        Item mapItem = connObjectKeyItem.get();
         Pair<AttrSchemaType, List<PlainAttrValue>> intValues;
         try {
             intValues = getIntValues(
@@ -941,8 +941,8 @@ public class DefaultMappingManager implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<String> getConnObjectKeyValue(final Realm realm, final OrgUnitTO orgUnit) {
-        Optional<ItemTO> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
+    public Optional<String> getConnObjectKeyValue(final Realm realm, final OrgUnit orgUnit) {
+        Optional<Item> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
         if (connObjectKeyItem.isEmpty()) {
             LOG.error("Unable to locate conn object key item for Realms");
             return Optional.empty();
@@ -952,7 +952,7 @@ public class DefaultMappingManager implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public void setIntValues(final ItemTO mapItem, final Attribute attr, final AnyTO anyTO) {
+    public void setIntValues(final Item mapItem, final Attribute attr, final AnyTO anyTO) {
         List<Object> values = null;
         if (attr != null) {
             values = attr.getValue();
@@ -1109,7 +1109,7 @@ public class DefaultMappingManager implements MappingManager {
     }
 
     @Override
-    public void setIntValues(final ItemTO item, final Attribute attr, final RealmTO realmTO) {
+    public void setIntValues(final Item item, final Attribute attr, final RealmTO realmTO) {
         List<Object> values = null;
         if (attr != null) {
             values = attr.getValue();
@@ -1141,7 +1141,7 @@ public class DefaultMappingManager implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public boolean hasMustChangePassword(final ProvisionTO provision) {
+    public boolean hasMustChangePassword(final Provision provision) {
         return provision != null && provision.getMapping() != null
                 && provision.getMapping().getItems().stream().
                         anyMatch(mappingItem -> "mustChangePassword".equals(mappingItem.getIntAttrName()));

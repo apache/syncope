@@ -35,7 +35,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
@@ -290,7 +290,7 @@ public class AuthDataAccessor {
             String connObjectKey = null;
             try {
                 AnyType userType = anyTypeDAO.findUser();
-                ProvisionTO provision = resource.getProvision(userType.getKey()).
+                Provision provision = resource.getProvision(userType.getKey()).
                         orElseThrow(() -> new AccountNotFoundException(
                         "Unable to locate provision for user type " + userType.getKey()));
                 connObjectKey = mappingManager.getConnObjectKeyValue(user, resource, provision).

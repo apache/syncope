@@ -25,8 +25,8 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -147,8 +147,8 @@ public interface PropagationManager {
             Any<?> any,
             ExternalResource resource,
             ResourceOperation operation,
-            ProvisionTO provision,
-            Stream<ItemTO> mappingItems,
+            Provision provision,
+            Stream<Item> mappingItems,
             Pair<String, Set<Attribute>> preparedAttrs);
 
     /**

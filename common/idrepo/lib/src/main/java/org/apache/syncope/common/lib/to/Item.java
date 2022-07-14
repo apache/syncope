@@ -27,7 +27,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 
-public class ItemTO implements Serializable {
+public class Item implements Serializable {
 
     private static final long serialVersionUID = 2983498836767176862L;
 
@@ -155,7 +155,7 @@ public class ItemTO implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        ItemTO other = (ItemTO) obj;
+        Item other = (Item) obj;
         return new EqualsBuilder().
                 append(connObjectKey, other.connObjectKey).
                 append(password, other.password).

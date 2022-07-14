@@ -28,21 +28,21 @@ import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 
 public class IdRepoStatusProvider implements StatusProvider {
 
     private static final long serialVersionUID = -7948190795547208134L;
 
     @Override
-    public Optional<Pair<ConnObjectTO, ConnObjectTO>> get(
+    public Optional<Pair<ConnObject, ConnObject>> get(
             final String anyTypeKey, final String connObjectKeyValue, final String resource) {
 
         return Optional.empty();
     }
 
     @Override
-    public List<Triple<ConnObjectTO, ConnObjectWrapper, String>> get(
+    public List<Triple<ConnObject, ConnObjectWrapper, String>> get(
             final AnyTO any, final Collection<String> resources) {
 
         return List.of();

@@ -24,7 +24,7 @@ import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
+import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -83,7 +83,7 @@ public class DefaultRealmPullResultHandler
     @Override
     public boolean handle(final SyncDelta delta) {
         try {
-            OrgUnitTO orgUnit = profile.getTask().getResource().getOrgUnit();
+            OrgUnit orgUnit = profile.getTask().getResource().getOrgUnit();
             if (orgUnit == null) {
                 throw new JobExecutionException("No orgUnit found on " + profile.getTask().getResource() + " for "
                         + delta.getObject().getObjectClass());
@@ -129,7 +129,7 @@ public class DefaultRealmPullResultHandler
         }
     }
 
-    private List<ProvisioningReport> assign(final SyncDelta delta, final OrgUnitTO orgUnit)
+    private List<ProvisioningReport> assign(final SyncDelta delta, final OrgUnit orgUnit)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformCreate()) {
@@ -168,7 +168,7 @@ public class DefaultRealmPullResultHandler
         return List.of(result);
     }
 
-    private List<ProvisioningReport> provision(final SyncDelta delta, final OrgUnitTO orgUnit)
+    private List<ProvisioningReport> provision(final SyncDelta delta, final OrgUnit orgUnit)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformCreate()) {
@@ -632,7 +632,7 @@ public class DefaultRealmPullResultHandler
         return result;
     }
 
-    private void doHandle(final SyncDelta delta, final OrgUnitTO orgUnit) throws JobExecutionException {
+    private void doHandle(final SyncDelta delta, final OrgUnit orgUnit) throws JobExecutionException {
         LOG.debug("Process {} for {} as {}",
                 delta.getDeltaType(), delta.getUid().getUidValue(), delta.getObject().getObjectClass());
 

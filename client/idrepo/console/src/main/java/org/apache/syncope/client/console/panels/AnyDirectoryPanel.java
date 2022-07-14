@@ -47,7 +47,7 @@ import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
@@ -279,7 +279,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 ((ProvisioningResult<A>) result).getEntity(),
                 new ListModel<>(new ArrayList<>()),
                 ((ProvisioningResult<A>) result).getPropagationStatuses().stream().map(status -> {
-                    ConnObjectTO before = status.getBeforeObj();
+                    ConnObject before = status.getBeforeObj();
                     ConnObjectWrapper afterObjWrapper = new ConnObjectWrapper(
                             ((ProvisioningResult<A>) result).getEntity(),
                             status.getResource(),

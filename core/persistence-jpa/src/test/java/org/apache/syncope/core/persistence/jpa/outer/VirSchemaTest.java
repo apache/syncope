@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -74,7 +74,7 @@ public class VirSchemaTest extends AbstractTest {
         assertFalse(virSchemaDAO.find(resource.getKey(), anyTypeDAO.findUser().getKey()).isEmpty());
         assertTrue(virSchemaDAO.find(resource.getKey(), anyTypeDAO.findUser().getKey()).contains(virSchema));
 
-        ItemTO item = virSchema.asLinkingMappingItem();
+        Item item = virSchema.asLinkingMappingItem();
         assertNotNull(item);
         assertEquals(virSchema.getKey(), item.getIntAttrName());
     }

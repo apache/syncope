@@ -31,9 +31,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.ConnObject;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
@@ -206,7 +206,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             if (anyType == null) {
                 throw new NotFoundException("AnyType '" + anyTypeKey + '\'');
             }
-            ProvisionTO provision = resource.getProvision(anyType.getKey()).
+            Provision provision = resource.getProvision(anyType.getKey()).
                     orElseThrow(() -> new NotFoundException(
                     "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
 
@@ -239,7 +239,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             if (anyType == null) {
                 throw new NotFoundException("AnyType '" + anyTypeKey + '\'');
             }
-            ProvisionTO provision = resource.getProvision(anyType.getKey()).
+            Provision provision = resource.getProvision(anyType.getKey()).
                     orElseThrow(() -> new NotFoundException(
                     "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
 
@@ -290,7 +290,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return resourceDAO.findAll().stream().map(binder::getResourceTO).collect(Collectors.toList());
     }
 
-    protected Triple<AnyType, ExternalResource, ProvisionTO> getProvision(
+    protected Triple<AnyType, ExternalResource, Provision> getProvision(
             final String anyTypeKey, final String resourceKey) {
 
         AnyType anyType = anyTypeDAO.find(anyTypeKey);
@@ -302,7 +302,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceKey + "'");
         }
-        ProvisionTO provision = resource.getProvision(anyType.getKey()).
+        Provision provision = resource.getProvision(anyType.getKey()).
                 orElseThrow(() -> new NotFoundException(
                 "Provision for " + anyType + " on Resource '" + resourceKey + "'"));
         if (provision.getMapping() == null) {
@@ -319,7 +319,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             final String anyTypeKey,
             final String anyKey) {
 
-        Triple<AnyType, ExternalResource, ProvisionTO> triple = getProvision(anyTypeKey, key);
+        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
 
         // 1. find any
         Any<?> any = anyUtilsFactory.getInstance(triple.getLeft().getKind()).dao().authFind(anyKey);
@@ -335,12 +335,12 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
     @Transactional(readOnly = true)
-    public ConnObjectTO readConnObjectByAnyKey(
+    public ConnObject readConnObjectByAnyKey(
             final String key,
             final String anyTypeKey,
             final String anyKey) {
 
-        Triple<AnyType, ExternalResource, ProvisionTO> triple = getProvision(anyTypeKey, key);
+        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
 
         // 1. find any
         Any<?> any = anyUtilsFactory.getInstance(triple.getLeft().getKind()).dao().authFind(anyKey);
@@ -374,14 +374,14 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
     @Transactional(readOnly = true)
-    public ConnObjectTO readConnObjectByConnObjectKeyValue(
+    public ConnObject readConnObjectByConnObjectKeyValue(
             final String key,
             final String anyTypeKey,
             final String connObjectKeyValue) {
 
-        Triple<AnyType, ExternalResource, ProvisionTO> triple = getProvision(anyTypeKey, key);
+        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
 
-        ItemTO connObjectKeyItem = MappingUtils.getConnObjectKeyItem(triple.getRight()).
+        Item connObjectKeyItem = MappingUtils.getConnObjectKeyItem(triple.getRight()).
                 orElseThrow(() -> new NotFoundException(
                 "ConnObjectKey mapping for " + triple.getLeft().getKey()
                 + " on resource '" + triple.getMiddle().getKey() + "'"));
@@ -404,7 +404,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_LIST_CONNOBJECT + "')")
     @Transactional(readOnly = true)
-    public Pair<SearchResult, List<ConnObjectTO>> searchConnObjects(
+    public Pair<SearchResult, List<ConnObject>> searchConnObjects(
             final Filter filter,
             final Set<String> moreAttrsToGet,
             final String key,
@@ -414,7 +414,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             final List<OrderByClause> orderBy) {
 
         ExternalResource resource;
-        ProvisionTO provision;
+        Provision provision;
         ObjectClass objectClass;
         OperationOptions options;
         if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
@@ -431,20 +431,20 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             options = MappingUtils.buildOperationOptions(
                     resource.getOrgUnit().getItems().stream(), moreAttrsToGet.toArray(String[]::new));
         } else {
-            Triple<AnyType, ExternalResource, ProvisionTO> triple = getProvision(anyTypeKey, key);
+            Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
 
             provision = triple.getRight();
             resource = triple.getMiddle();
             objectClass = new ObjectClass(provision.getObjectClass());
 
-            Stream<ItemTO> mapItems = Stream.concat(
+            Stream<Item> mapItems = Stream.concat(
                     provision.getMapping().getItems().stream(),
                     virSchemaDAO.find(resource.getKey(), triple.getLeft().getKey()).
                             stream().map(VirSchema::asLinkingMappingItem));
             options = MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new));
         }
 
-        List<ConnObjectTO> connObjects = new ArrayList<>();
+        List<ConnObject> connObjects = new ArrayList<>();
         SearchResult searchResult = connectorManager.getConnector(resource).
                 search(objectClass, filter, new SearchResultsHandler() {
 

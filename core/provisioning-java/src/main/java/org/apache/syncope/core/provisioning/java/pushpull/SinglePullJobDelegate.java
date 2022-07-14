@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -66,7 +66,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
     @Override
     public List<ProvisioningReport> pull(
             final ExternalResource resource,
-            final ProvisionTO provision,
+            final Provision provision,
             final Connector connector,
             final ReconFilterBuilder reconFilterBuilder,
             final Set<String> moreAttrsToGet,
@@ -156,7 +156,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             Set<String> matg = new HashSet<>(moreAttrsToGet);
             actions.forEach(action -> matg.addAll(action.moreAttrsToGet(profile, provision)));
 
-            Stream<ItemTO> mapItems = Stream.concat(
+            Stream<Item> mapItems = Stream.concat(
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
                     virSchemaDAO.find(pullTask.getResource().getKey(), anyType.getKey()).stream().
                             map(VirSchema::asLinkingMappingItem));

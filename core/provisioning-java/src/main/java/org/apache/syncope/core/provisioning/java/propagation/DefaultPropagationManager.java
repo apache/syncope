@@ -33,9 +33,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.AbstractPatchItem;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -356,8 +356,8 @@ public class DefaultPropagationManager implements PropagationManager {
             final Any<?> any,
             final ExternalResource resource,
             final ResourceOperation operation,
-            final ProvisionTO provision,
-            final Stream<ItemTO> mappingItems,
+            final Provision provision,
+            final Stream<Item> mappingItems,
             final Pair<String, Set<Attribute>> preparedAttrs) {
 
         PropagationTaskInfo task = new PropagationTaskInfo(resource);
@@ -463,9 +463,9 @@ public class DefaultPropagationManager implements PropagationManager {
 
         propByRes.asMap().forEach((resourceKey, operation) -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
-            ProvisionTO provision = Optional.ofNullable(resource).
+            Provision provision = Optional.ofNullable(resource).
                     flatMap(externalResource -> externalResource.getProvision(any.getType().getKey())).orElse(null);
-            Stream<ItemTO> mappingItems = provision == null
+            Stream<Item> mappingItems = provision == null
                     ? Stream.empty()
                     : MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
 
@@ -508,10 +508,10 @@ public class DefaultPropagationManager implements PropagationManager {
                             user, resourceDAO.find(accountInfo.getLeft()), accountInfo.getRight());
                 }
 
-                ProvisionTO provision = account == null || account.getResource() == null
+                Provision provision = account == null || account.getResource() == null
                         ? null
                         : account.getResource().getProvision(AnyTypeKind.USER.name()).orElse(null);
-                Stream<ItemTO> mappingItems = provision == null
+                Stream<Item> mappingItems = provision == null
                         ? Stream.empty()
                         : MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
 
@@ -568,7 +568,7 @@ public class DefaultPropagationManager implements PropagationManager {
 
         propByRes.asMap().forEach((resourceKey, operation) -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
-            OrgUnitTO orgUnit = Optional.ofNullable(resource).map(ExternalResource::getOrgUnit).orElse(null);
+            OrgUnit orgUnit = Optional.ofNullable(resource).map(ExternalResource::getOrgUnit).orElse(null);
 
             if (resource == null) {
                 LOG.error("Invalid resource name specified: {}, ignoring...", resourceKey);

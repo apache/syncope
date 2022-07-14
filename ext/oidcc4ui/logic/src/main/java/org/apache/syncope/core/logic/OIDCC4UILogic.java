@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.oidc.OIDCRequest;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -161,7 +161,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
         // 3a. find matching user (if any) and return the received attributes
         String keyValue = idToken.getSubject();
-        for (ItemTO item : op.getItems()) {
+        for (Item item : op.getItems()) {
             Attr attrTO = new Attr();
             attrTO.setSchema(item.getExtAttrName());
 

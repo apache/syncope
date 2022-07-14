@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -88,7 +88,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
     public void prepareAttrsForUser() {
         User bellini = userDAO.findByUsername("bellini");
         ExternalResource ldap = resourceDAO.find("resource-ldap");
-        ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
+        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
 
         assertNotEquals(CipherAlgorithm.AES, bellini.getCipherAlgorithm());
 
@@ -167,7 +167,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
     public void prepareAttrsForLinkedAccount() {
         User vivaldi = userDAO.findByUsername("vivaldi");
         ExternalResource ldap = resourceDAO.find("resource-ldap");
-        ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
+        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
 
         LinkedAccount account = entityFactory.newEntity(LinkedAccount.class);
         account.setConnObjectKeyValue("admin");
@@ -277,7 +277,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
 
         // 3. check propagation attrs
         ExternalResource csv = resourceDAO.find("resource-csv");
-        ProvisionTO provision = csv.getProvision(AnyTypeKind.USER.name()).get();
+        Provision provision = csv.getProvision(AnyTypeKind.USER.name()).get();
         assertNotNull(provision);
 
         Pair<String, Set<Attribute>> attrs = mappingManager.prepareAttrsFromAny(

@@ -27,7 +27,7 @@ import java.util.TreeSet;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -82,7 +82,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
     @Transactional(readOnly = true)
     @Override
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
-        Optional<ProvisionTO> provision = task.getResource().getProvision(anyTypeDAO.findGroup().getKey());
+        Optional<Provision> provision = task.getResource().getProvision(anyTypeDAO.findGroup().getKey());
         if (AnyTypeKind.USER == task.getAnyTypeKind()
                 && provision.isPresent() && provision.get().getMapping() != null
                 && StringUtils.isNotBlank(provision.get().getMapping().getConnObjectLink())) {

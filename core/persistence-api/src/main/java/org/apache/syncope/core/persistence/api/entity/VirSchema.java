@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 
 public interface VirSchema extends Schema {
@@ -37,8 +37,8 @@ public interface VirSchema extends Schema {
 
     void setExtAttrName(String extAttrName);
 
-    default ItemTO asLinkingMappingItem() {
-        ItemTO item = new ItemTO();
+    default Item asLinkingMappingItem() {
+        Item item = new Item();
         item.setExtAttrName(getExtAttrName());
         item.setIntAttrName(getKey());
         item.setMandatoryCondition(getMandatoryCondition());

@@ -20,7 +20,7 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -97,7 +97,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
     @Override
     public List<ProvisioningReport> push(
             final ExternalResource resource,
-            final ProvisionTO provision,
+            final Provision provision,
             final Connector connector,
             final Any<?> any,
             final PushTaskTO pushTaskTO,
@@ -141,7 +141,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
     @Override
     public ProvisioningReport push(
             final ExternalResource resource,
-            final ProvisionTO provision,
+            final Provision provision,
             final Connector connector,
             final LinkedAccount account,
             final PushTaskTO pushTaskTO,

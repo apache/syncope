@@ -21,47 +21,46 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.BaseBean;
 
-public class ConnObjectTO implements BaseBean {
+public abstract class ItemContainer implements Serializable {
 
-    private static final long serialVersionUID = 5139554911265442497L;
+    private static final long serialVersionUID = 3637981417797873343L;
 
-    private String fiql;
-
-    private final Set<Attr> attrs = new TreeSet<>();
-
-    public String getFiql() {
-        return fiql;
-    }
-
-    public void setFiql(final String fiql) {
-        this.fiql = fiql;
-    }
-
-    @JacksonXmlElementWrapper(localName = "attrs")
-    @JacksonXmlProperty(localName = "attr")
-    public Set<Attr> getAttrs() {
-        return attrs;
-    }
+    private final List<Item> items = new ArrayList<>();
 
     @JsonIgnore
-    public Optional<Attr> getAttr(final String schema) {
-        return attrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
+    public Optional<Item> getConnObjectKeyItem() {
+        return getItems().stream().filter(Item::isConnObjectKey).findFirst();
     }
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().
-                append(fiql).
-                append(attrs).
-                build();
+    protected boolean addConnObjectKeyItem(final Item connObjectItem) {
+        connObjectItem.setMandatoryCondition("true");
+        connObjectItem.setConnObjectKey(true);
+
+        return add(connObjectItem);
+    }
+
+    public boolean setConnObjectKeyItem(final Item connObjectKeyItem) {
+        return Optional.ofNullable(connObjectKeyItem).
+                map(this::addConnObjectKeyItem).
+                orElseGet(() -> getConnObjectKeyItem().map(items::remove).orElse(false));
+    }
+
+    @JacksonXmlElementWrapper(localName = "items")
+    @JacksonXmlProperty(localName = "item")
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public boolean add(final Item item) {
+        return Optional.ofNullable(item).
+                filter(itemTO -> items.contains(itemTO) || items.add(itemTO)).isPresent();
     }
 
     @Override
@@ -75,10 +74,16 @@ public class ConnObjectTO implements BaseBean {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ConnObjectTO other = (ConnObjectTO) obj;
+        final ItemContainer other = (ItemContainer) obj;
         return new EqualsBuilder().
-                append(fiql, other.fiql).
-                append(attrs, other.attrs).
+                append(items, other.items).
+                build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(items).
                 build();
     }
 }

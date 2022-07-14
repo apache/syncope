@@ -19,7 +19,7 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -33,7 +33,7 @@ public interface ExternalResourceDAO extends DAO<ExternalResource> {
 
     ExternalResource authFind(String key);
 
-    List<ProvisionTO> findProvisionsByAuxClass(AnyTypeClass anyTypeClass);
+    List<Provision> findProvisionsByAuxClass(AnyTypeClass anyTypeClass);
 
     boolean anyItemHaving(Implementation transformer);
 

@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -144,7 +144,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     protected void handleLinkedAccounts(
             final SyncDelta delta,
             final List<PullMatch> matches,
-            final ProvisionTO provision) throws JobExecutionException {
+            final Provision provision) throws JobExecutionException {
 
         for (PullMatch match : matches) {
             User user = (User) match.getAny();
@@ -304,7 +304,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             final SyncDelta delta,
             final User user,
             final LinkedAccountTO accountTO,
-            final ProvisionTO provision)
+            final Provision provision)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformCreate()) {
@@ -420,7 +420,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     protected Optional<ProvisioningReport> update(
             final SyncDelta delta,
             final LinkedAccount account,
-            final ProvisionTO provision)
+            final Provision provision)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
@@ -540,7 +540,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     protected Optional<ProvisioningReport> delete(
             final SyncDelta delta,
             final LinkedAccount account,
-            final ProvisionTO provision)
+            final Provision provision)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformDelete()) {

@@ -38,8 +38,8 @@ import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.ConnObject;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -441,7 +441,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     private boolean isPasswordMapped(final ExternalResource resource) {
         return resource.getProvision(anyTypeDAO.findUser().getKey()).
                 filter(provision -> provision.getMapping() != null).
-                map(provision -> provision.getMapping().getItems().stream().anyMatch(ItemTO::isPassword)).
+                map(provision -> provision.getMapping().getItems().stream().anyMatch(Item::isPassword)).
                 orElse(false);
     }
 
@@ -483,7 +483,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         // Save projection on Resources (before update)
-        Map<String, ConnObjectTO> beforeOnResources =
+        Map<String, ConnObject> beforeOnResources =
                 onResources(user, userDAO.findAllResourceKeys(user.getKey()), password, changePwd);
 
         // realm
@@ -733,7 +733,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         User saved = userDAO.save(user);
 
         // Build final information for next stage (propagation)
-        Map<String, ConnObjectTO> afterOnResources =
+        Map<String, ConnObject> afterOnResources =
                 onResources(user, userDAO.findAllResourceKeys(user.getKey()), password, changePwd);
         propByRes.merge(propByRes(beforeOnResources, afterOnResources));
 

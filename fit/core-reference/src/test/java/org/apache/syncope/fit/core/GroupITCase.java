@@ -65,17 +65,17 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
@@ -133,7 +133,7 @@ public class GroupITCase extends AbstractITCase {
 
         assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
 
-        ConnObjectTO connObjectTO =
+        ConnObject connObjectTO =
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttr("owner"));
@@ -992,7 +992,7 @@ public class GroupITCase extends AbstractITCase {
             assertEquals(TaskJob.Status.SUCCESS.name(), execs.get().get(0).getStatus());
 
             // 6. verify that the user above is now fond on LDAP
-            ConnObjectTO userOnLdap =
+            ConnObject userOnLdap =
                     RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(userOnLdap);
         } finally {
@@ -1047,19 +1047,19 @@ public class GroupITCase extends AbstractITCase {
             newLDAP.setKey("new-ldap");
             newLDAP.setPropagationPriority(0);
 
-            for (ProvisionTO provision : newLDAP.getProvisions()) {
+            for (Provision provision : newLDAP.getProvisions()) {
                 provision.getVirSchemas().clear();
             }
 
-            MappingTO mapping = newLDAP.getProvision(AnyTypeKind.GROUP.name()).get().getMapping();
+            Mapping mapping = newLDAP.getProvision(AnyTypeKind.GROUP.name()).get().getMapping();
 
-            ItemTO connObjectKey = mapping.getConnObjectKeyItem().get();
+            Item connObjectKey = mapping.getConnObjectKeyItem().get();
             connObjectKey.setIntAttrName("displayProperty");
             connObjectKey.setPurpose(MappingPurpose.PROPAGATION);
             mapping.setConnObjectKeyItem(connObjectKey);
             mapping.setConnObjectLink("'cn=' + displayProperty + ',ou=groups,o=isp'");
 
-            ItemTO description = new ItemTO();
+            Item description = new Item();
             description.setIntAttrName("key");
             description.setExtAttrName("description");
             description.setPurpose(MappingPurpose.PROPAGATION);
@@ -1196,7 +1196,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(groupTO);
             assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
 
-            ConnObjectTO connObjectTO =
+            ConnObject connObjectTO =
                     RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
             assertNotNull(connObjectTO);
             assertEquals("issueSYNCOPE1467", connObjectTO.getAttr("cn").get().getValues().get(0));

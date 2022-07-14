@@ -31,7 +31,7 @@ import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -168,7 +168,7 @@ public class LinkedAccountDetailsPanel extends WizardStep {
             builder.fiql(SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                     is(resourceRemoteKey.get()).equalTo(searchTerm + "*").query()).build();
         }
-        Pair<String, List<ConnObjectTO>> items = ResourceRestClient.searchConnObjects(
+        Pair<String, List<ConnObject>> items = ResourceRestClient.searchConnObjects(
                 resource,
                 AnyTypeKind.USER.name(),
                 builder,

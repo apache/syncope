@@ -23,9 +23,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -97,16 +97,16 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
         return pullPolicy;
     }
 
-    private ProvisionTO provision(
+    private Provision provision(
             final AnyType anyType,
             final String keyColumn,
             final List<String> columns) throws JobExecutionException {
 
-        ProvisionTO provision = new ProvisionTO();
+        Provision provision = new Provision();
         provision.setAnyType(anyType.getKey());
         provision.setObjectClass(anyType.getKey());
 
-        MappingTO mapping = new MappingTO();
+        Mapping mapping = new Mapping();
         provision.setMapping(mapping);
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
@@ -117,7 +117,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             }
         }
 
-        ItemTO connObjectKeyItem = new ItemTO();
+        Item connObjectKeyItem = new Item();
         connObjectKeyItem.setExtAttrName(keyColumn);
         connObjectKeyItem.setIntAttrName(keyColumn);
         connObjectKeyItem.setPurpose(MappingPurpose.PULL);
@@ -127,7 +127,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                 filter(column -> anyUtils.getField(column) != null
                 || plainSchemaDAO.find(column) != null || virSchemaDAO.find(column) != null).
                 map(column -> {
-                    ItemTO item = new ItemTO();
+                    Item item = new Item();
                     item.setExtAttrName(column);
                     item.setIntAttrName(column);
                     item.setPurpose(MappingPurpose.PULL);
@@ -145,7 +145,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             final ConflictResolutionAction conflictResolutionAction,
             final String pullCorrelationRule) throws JobExecutionException {
 
-        ProvisionTO provision = provision(anyType, keyColumn, columns);
+        Provision provision = provision(anyType, keyColumn, columns);
 
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("StreamPull_" + SecureRandomUtils.generateRandomUUID().toString());
@@ -185,7 +185,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
         try {
             ExternalResource resource =
                     externalResource(anyType, keyColumn, columns, conflictResolutionAction, pullCorrelationRule);
-            ProvisionTO provision = resource.getProvisions().get(0);
+            Provision provision = resource.getProvisions().get(0);
 
             PullTask pullTask = entityFactory.newEntity(PullTask.class);
             pullTask.setResource(resource);
@@ -230,7 +230,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             Set<String> moreAttrsToGet = new HashSet<>();
             actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
 
-            Stream<ItemTO> mapItems = Stream.concat(
+            Stream<Item> mapItems = Stream.concat(
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
                     virSchemaDAO.find(resource.getKey(), anyType.getKey()).stream().
                             map(VirSchema::asLinkingMappingItem));

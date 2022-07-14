@@ -29,9 +29,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -241,7 +241,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         if (pullTask.getResource().getOrgUnit() != null) {
             status.set("Pulling " + pullTask.getResource().getOrgUnit().getObjectClass());
 
-            OrgUnitTO orgUnit = pullTask.getResource().getOrgUnit();
+            OrgUnit orgUnit = pullTask.getResource().getOrgUnit();
 
             Set<String> moreAttrsToGet = new HashSet<>();
             actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, orgUnit)));
@@ -305,7 +305,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         }
 
         GroupPullResultHandler ghandler = buildGroupHandler();
-        for (ProvisionTO provision : pullTask.getResource().getProvisions().stream().
+        for (Provision provision : pullTask.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
                 collect(Collectors.toList())) {
 
@@ -333,7 +333,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             try {
                 Set<String> moreAttrsToGet = new HashSet<>();
                 actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
-                Stream<ItemTO> mapItems = Stream.concat(
+                Stream<Item> mapItems = Stream.concat(
                         MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
                         virSchemaDAO.find(pullTask.getResource().getKey(), anyType.getKey()).stream().
                                 map(VirSchema::asLinkingMappingItem));

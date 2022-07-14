@@ -27,13 +27,13 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
-public class PagedConnObjectTOResult implements BaseBean {
+public class PagedConnObjectResult implements BaseBean {
 
     private static final long serialVersionUID = -2832908019064402976L;
 
     private URI next;
 
-    private final List<ConnObjectTO> result = new ArrayList<>();
+    private final List<ConnObject> result = new ArrayList<>();
 
     private String pagedResultsCookie;
 
@@ -109,7 +109,7 @@ public class PagedConnObjectTOResult implements BaseBean {
 
     @JacksonXmlElementWrapper(localName = "result")
     @JacksonXmlProperty(localName = "item")
-    public List<ConnObjectTO> getResult() {
+    public List<ConnObject> getResult() {
         return result;
     }
 
@@ -135,7 +135,7 @@ public class PagedConnObjectTOResult implements BaseBean {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final PagedConnObjectTOResult other = (PagedConnObjectTOResult) obj;
+        final PagedConnObjectResult other = (PagedConnObjectResult) obj;
         return new EqualsBuilder().
                 append(next, other.next).
                 append(result, other.result).

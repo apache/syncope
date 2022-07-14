@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
@@ -114,7 +114,7 @@ public class SAML2ClientCache {
 
         idpTO.setMetadata(Base64.getEncoder().encodeToString(metadataResolver.getMetadata().getBytes()));
 
-        ItemTO connObjectKeyItem = new ItemTO();
+        Item connObjectKeyItem = new Item();
         connObjectKeyItem.setIntAttrName("username");
         connObjectKeyItem.setExtAttrName(NameID.DEFAULT_ELEMENT_LOCAL_NAME);
         idpTO.setConnObjectKeyItem(connObjectKeyItem);

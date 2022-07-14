@@ -35,10 +35,10 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -102,14 +102,14 @@ public class ConnObjectUtils {
     }
 
     /**
-     * Builds {@link ConnObjectTO} out of a collection of {@link Attribute} instances.
+     * Builds {@link ConnObject} out of a collection of {@link Attribute} instances.
      *
      * @param fiql FIQL expression to uniquely identify the given Connector Object
      * @param attrs attributes
      * @return transfer object
      */
-    public static ConnObjectTO getConnObjectTO(final String fiql, final Set<Attribute> attrs) {
-        ConnObjectTO connObjectTO = new ConnObjectTO();
+    public static ConnObject getConnObjectTO(final String fiql, final Set<Attribute> attrs) {
+        ConnObject connObjectTO = new ConnObject();
         connObjectTO.setFiql(fiql);
 
         if (!CollectionUtils.isEmpty(attrs)) {
@@ -185,7 +185,7 @@ public class ConnObjectUtils {
             final ConnectorObject obj,
             final PullTask pullTask,
             final AnyTypeKind anyTypeKind,
-            final ProvisionTO provision,
+            final Provision provision,
             final boolean generatePasswordIfPossible) {
 
         AnyTO anyTO = getAnyTOFromConnObject(obj, pullTask, anyTypeKind, provision);
@@ -218,7 +218,7 @@ public class ConnObjectUtils {
         return anyCR;
     }
 
-    public RealmTO getRealmTO(final ConnectorObject obj, final OrgUnitTO orgUnit) {
+    public RealmTO getRealmTO(final ConnectorObject obj, final OrgUnit orgUnit) {
         RealmTO realmTO = new RealmTO();
 
         MappingUtils.getPullItems(orgUnit.getItems().stream()).
@@ -248,7 +248,7 @@ public class ConnObjectUtils {
             final AnyTO original,
             final PullTask pullTask,
             final AnyTypeKind anyTypeKind,
-            final ProvisionTO provision) {
+            final Provision provision) {
 
         AnyTO updated = getAnyTOFromConnObject(obj, pullTask, anyTypeKind, provision);
         updated.setKey(key);
@@ -322,7 +322,7 @@ public class ConnObjectUtils {
             final ConnectorObject obj,
             final PullTask pullTask,
             final AnyTypeKind anyTypeKind,
-            final ProvisionTO provision) {
+            final Provision provision) {
 
         T anyTO = anyUtilsFactory.getInstance(anyTypeKind).newAnyTO();
         anyTO.setType(provision.getAnyType());

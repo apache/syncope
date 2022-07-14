@@ -24,15 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.types.ItemContainer;
 
-public class MappingTO extends ItemContainer {
+public class Mapping extends ItemContainer {
 
     private static final long serialVersionUID = 8447688036282611118L;
 
     private String connObjectLink;
 
-    private final List<ItemTO> linkingItems = new ArrayList<>();
+    private final List<Item> linkingItems = new ArrayList<>();
 
     public String getConnObjectLink() {
         return connObjectLink;
@@ -44,7 +43,7 @@ public class MappingTO extends ItemContainer {
 
     @JacksonXmlElementWrapper(localName = "linkingItems")
     @JacksonXmlProperty(localName = "linkingItem")
-    public List<ItemTO> getLinkingItems() {
+    public List<Item> getLinkingItems() {
         return linkingItems;
     }
 
@@ -59,7 +58,7 @@ public class MappingTO extends ItemContainer {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        MappingTO other = (MappingTO) obj;
+        Mapping other = (Mapping) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(connObjectLink, other.connObjectLink).

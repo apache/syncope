@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Optional;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -44,7 +44,7 @@ public interface PullCorrelationRule {
      * @param provision resource provision
      * @return search condition.
      */
-    SearchCond getSearchCond(SyncDelta syncDelta, ProvisionTO provision);
+    SearchCond getSearchCond(SyncDelta syncDelta, Provision provision);
 
     /**
      * Create matching information for the given Any, found matching for the given
@@ -57,7 +57,7 @@ public interface PullCorrelationRule {
      * @param provision resource provision
      * @return matching information
      */
-    default PullMatch matching(Any<?> any, SyncDelta syncDelta, ProvisionTO provision) {
+    default PullMatch matching(Any<?> any, SyncDelta syncDelta, Provision provision) {
         return new PullMatch(MatchType.ANY, any);
     }
 
@@ -71,7 +71,7 @@ public interface PullCorrelationRule {
      * @param provision resource provision
      * @return matching information
      */
-    default Optional<PullMatch> unmatching(SyncDelta syncDelta, ProvisionTO provision) {
+    default Optional<PullMatch> unmatching(SyncDelta syncDelta, Provision provision) {
         return Optional.of(NO_MATCH);
     }
 }

@@ -32,9 +32,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -452,8 +452,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         ConnectorObject beforeObj = null;
         ConnectorObject afterObj = null;
 
-        ProvisionTO provision = null;
-        OrgUnitTO orgUnit = null;
+        Provision provision = null;
+        OrgUnit orgUnit = null;
         Uid uid = null;
         Result result;
         try {
@@ -706,7 +706,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected ConnectorObject getRemoteObject(
             final PropagationTask task,
             final Connector connector,
-            final ProvisionTO provision,
+            final Provision provision,
             final List<PropagationActions> actions,
             final boolean latest) {
 
@@ -740,7 +740,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected ConnectorObject getRemoteObject(
             final PropagationTask task,
             final Connector connector,
-            final OrgUnitTO orgUnit,
+            final OrgUnit orgUnit,
             final List<PropagationActions> actions,
             final boolean latest) {
 
@@ -759,7 +759,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(Optional.of(task), orgUnit)));
 
         ConnectorObject obj = null;
-        Optional<ItemTO> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
+        Optional<Item> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
         if (connObjectKeyItem.isPresent()) {
             try {
                 obj = connector.getObject(

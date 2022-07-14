@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
@@ -438,12 +438,12 @@ public class AuthModuleTest extends AbstractTest {
         module.setState(AuthModuleState.ACTIVE);
         module.setConf(conf);
 
-        ItemTO keyMapping = new ItemTO();
+        Item keyMapping = new Item();
         keyMapping.setIntAttrName("uid");
         keyMapping.setExtAttrName("username");
         module.getItems().add(keyMapping);
 
-        ItemTO fullnameMapping = new ItemTO();
+        Item fullnameMapping = new Item();
         fullnameMapping.setIntAttrName("cn");
         fullnameMapping.setExtAttrName("fullname");
         module.getItems().add(fullnameMapping);

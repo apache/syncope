@@ -30,10 +30,10 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
@@ -84,27 +84,27 @@ public class ResourceLogicTest extends AbstractTest {
         resourceTO.setKey(resourceKey);
         resourceTO.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
 
-        ProvisionTO provisionTO = new ProvisionTO();
+        Provision provisionTO = new Provision();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
         provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resourceTO.getProvisions().add(provisionTO);
 
-        MappingTO mapping = new MappingTO();
+        Mapping mapping = new Mapping();
         provisionTO.setMapping(mapping);
 
-        ItemTO item = new ItemTO();
+        Item item = new Item();
         item.setExtAttrName("userId");
         item.setIntAttrName("userId");
         item.setPurpose(MappingPurpose.BOTH);
         mapping.add(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setExtAttrName("username");
         item.setIntAttrName("key");
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setExtAttrName("fullname");
         item.setIntAttrName("cn");
         item.setConnObjectKey(false);
@@ -128,7 +128,7 @@ public class ResourceLogicTest extends AbstractTest {
         ResourceTO ws1 = logic.read("ws-target-resource-1");
         assertNotNull(ws1);
 
-        MappingTO ws1NewUMapping = ws1.getProvision(AnyTypeKind.USER.name()).get().getMapping();
+        Mapping ws1NewUMapping = ws1.getProvision(AnyTypeKind.USER.name()).get().getMapping();
         // change purpose from NONE to BOTH
         ws1NewUMapping.getItems().stream().
                 filter(itemTO -> "firstname".equals(itemTO.getIntAttrName())).
@@ -175,11 +175,11 @@ public class ResourceLogicTest extends AbstractTest {
         entityManager().flush();
         assertNull(resourceTO.getOrgUnit());
 
-        OrgUnitTO orgUnit = new OrgUnitTO();
+        OrgUnit orgUnit = new OrgUnit();
         orgUnit.setConnObjectLink("'ou=' + name + ',o=isp'");
         orgUnit.setObjectClass("organizationalUnit");
 
-        ItemTO item = new ItemTO();
+        Item item = new Item();
         item.setIntAttrName("name");
         item.setExtAttrName("ou");
         item.setMandatoryCondition("true");

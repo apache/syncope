@@ -33,8 +33,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.ConnBundleTO;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
+import org.apache.syncope.common.lib.to.ConnIdBundle;
+import org.apache.syncope.common.lib.to.ConnIdObjectClass;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -78,7 +78,7 @@ public class ConnectorRestClient extends BaseRestClient {
                     getLanguage());
             if (connInstance != null) {
                 result.addAll(service.buildObjectClassInfo(connInstance, true).stream().
-                        map(ConnIdObjectClassTO::getType).collect(Collectors.toList()));
+                        map(ConnIdObjectClass::getType).collect(Collectors.toList()));
             }
         } catch (Exception e) {
             LOG.error("While reading object classes for connector {}", connectorKey, e);
@@ -98,7 +98,7 @@ public class ConnectorRestClient extends BaseRestClient {
         connInstanceTO.getConf().addAll(conf);
 
         // SYNCOPE-156: use provided info to give schema names (and type!) by ObjectClass
-        Optional<ConnIdObjectClassTO> connIdObjectClass = buildObjectClassInfo(connInstanceTO, false).stream().
+        Optional<ConnIdObjectClass> connIdObjectClass = buildObjectClassInfo(connInstanceTO, false).stream().
                 filter(object -> object.getType().equalsIgnoreCase(objectClass)).
                 findAny();
 
@@ -139,8 +139,8 @@ public class ConnectorRestClient extends BaseRestClient {
         return connectorTO;
     }
 
-    public static List<ConnBundleTO> getAllBundles() {
-        List<ConnBundleTO> bundles = List.of();
+    public static List<ConnIdBundle> getAllBundles() {
+        List<ConnIdBundle> bundles = List.of();
 
         try {
             bundles = getService(ConnectorService.class).getBundles(SyncopeConsoleSession.get().getLocale().toString());
@@ -205,10 +205,10 @@ public class ConnectorRestClient extends BaseRestClient {
         return Pair.of(check, errorMessage);
     }
 
-    public static List<ConnIdObjectClassTO> buildObjectClassInfo(
+    public static List<ConnIdObjectClass> buildObjectClassInfo(
             final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
-        List<ConnIdObjectClassTO> result = List.of();
+        List<ConnIdObjectClass> result = List.of();
         try {
             result = getService(ConnectorService.class).buildObjectClassInfo(connInstanceTO, includeSpecial);
         } catch (Exception e) {

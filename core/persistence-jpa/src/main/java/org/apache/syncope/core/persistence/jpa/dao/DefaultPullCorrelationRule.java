@@ -26,8 +26,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
@@ -52,15 +52,15 @@ public class DefaultPullCorrelationRule implements PullCorrelationRule {
     }
 
     @Override
-    public SearchCond getSearchCond(final SyncDelta syncDelta, final ProvisionTO provision) {
-        Map<String, ItemTO> mappingItems = provision.getMapping().getItems().stream().
-                collect(Collectors.toMap(ItemTO::getIntAttrName, Function.identity()));
+    public SearchCond getSearchCond(final SyncDelta syncDelta, final Provision provision) {
+        Map<String, Item> mappingItems = provision.getMapping().getItems().stream().
+                collect(Collectors.toMap(Item::getIntAttrName, Function.identity()));
 
         // search for anys by attribute(s) specified in the policy
         List<SearchCond> searchConds = new ArrayList<>();
 
         conf.getSchemas().forEach(schema -> {
-            ItemTO item = mappingItems.get(schema);
+            Item item = mappingItems.get(schema);
             Attribute attr = Optional.ofNullable(item).
                     map(item1 -> syncDelta.getObject().getAttributeByName(item1.getExtAttrName())).orElse(null);
             if (attr == null) {

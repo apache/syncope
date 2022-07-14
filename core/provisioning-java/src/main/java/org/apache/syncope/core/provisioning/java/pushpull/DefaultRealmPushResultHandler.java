@@ -26,8 +26,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -176,7 +176,7 @@ public class DefaultRealmPushResultHandler
             final String connObjectKey,
             final String connObjectKeyValue,
             final boolean ignoreCaseMatch,
-            final Stream<ItemTO> mapItems) {
+            final Stream<Item> mapItems) {
 
         ConnectorObject obj = null;
         try {
@@ -209,8 +209,8 @@ public class DefaultRealmPushResultHandler
         Result resultStatus = null;
 
         // Try to read remote object BEFORE any actual operation
-        OrgUnitTO orgUnit = profile.getTask().getResource().getOrgUnit();
-        Optional<ItemTO> connObjectKey = orgUnit.getConnObjectKeyItem();
+        OrgUnit orgUnit = profile.getTask().getResource().getOrgUnit();
+        Optional<Item> connObjectKey = orgUnit.getConnObjectKeyItem();
         Optional<String> connObjecKeyValue = mappingManager.getConnObjectKeyValue(realm, orgUnit);
 
         ConnectorObject beforeObj = null;

@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.attr.LDAPAttrRepoConf;
 import org.apache.syncope.common.lib.attr.StubAttrRepoConf;
 import org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrRepoState;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.fit.AbstractITCase;
@@ -105,12 +105,12 @@ public class AttrRepoITCase extends AbstractITCase {
         }
         attrRepoTO.setConf(conf);
 
-        ItemTO keyMapping = new ItemTO();
+        Item keyMapping = new Item();
         keyMapping.setIntAttrName("uid");
         keyMapping.setExtAttrName("username");
         attrRepoTO.getItems().add(keyMapping);
 
-        ItemTO fullnameMapping = new ItemTO();
+        Item fullnameMapping = new Item();
         fullnameMapping.setIntAttrName("cn");
         fullnameMapping.setExtAttrName("fullname");
         attrRepoTO.getItems().add(fullnameMapping);

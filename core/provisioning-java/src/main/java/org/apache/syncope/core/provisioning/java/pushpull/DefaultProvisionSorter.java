@@ -19,14 +19,14 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 
 public class DefaultProvisionSorter implements ProvisionSorter {
 
     @Override
-    public int compare(final ProvisionTO provision1, final ProvisionTO provision2) {
+    public int compare(final Provision provision1, final Provision provision2) {
         if (AnyTypeKind.USER.name().equals(provision1.getAnyType())) {
             return -1;
         }

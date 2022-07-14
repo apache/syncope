@@ -19,7 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 
@@ -47,7 +47,7 @@ public class SAML2SP4UIIdPValidator extends AbstractValidator<SAML2SP4UIIdPCheck
             return false;
         }
 
-        long connObjectKeys = saml2IdP.getItems().stream().filter(ItemTO::isConnObjectKey).count();
+        long connObjectKeys = saml2IdP.getItems().stream().filter(Item::isConnObjectKey).count();
         if (!saml2IdP.getItems().isEmpty() && connObjectKeys != 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "Single ConnObjectKey mapping is required")).
@@ -58,7 +58,7 @@ public class SAML2SP4UIIdPValidator extends AbstractValidator<SAML2SP4UIIdPCheck
 
         boolean[] isValid = new boolean[] { true };
 
-        long passwords = saml2IdP.getItems().stream().filter(ItemTO::isPassword).count();
+        long passwords = saml2IdP.getItems().stream().filter(Item::isPassword).count();
         if (passwords > 0) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "No password mapping is allowed")).
