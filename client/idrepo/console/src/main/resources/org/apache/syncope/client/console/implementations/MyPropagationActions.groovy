@@ -20,8 +20,8 @@
 import groovy.transform.CompileStatic
 import java.util.Optional
 import java.util.Set
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit
-import org.apache.syncope.core.persistence.api.entity.resource.Provision
+import org.apache.syncope.common.lib.to.OrgUnit
+import org.apache.syncope.common.lib.to.Provision
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions

@@ -17,13 +17,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic;
-import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
-import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
-import org.identityconnectors.framework.common.objects.filter.Filter;
-import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
+import groovy.transform.CompileStatic
+import org.apache.syncope.common.lib.to.Provision
+import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule
+import org.apache.syncope.core.persistence.api.entity.Any
+import org.apache.syncope.core.persistence.api.entity.ExternalResource
+import org.identityconnectors.framework.common.objects.AttributeBuilder
+import org.identityconnectors.framework.common.objects.filter.Filter
+import org.identityconnectors.framework.common.objects.filter.FilterBuilder
 
 /**
  * Test push rule relying on {@code email} attribute value.
@@ -32,7 +33,7 @@ import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 class TestPushRule implements PushCorrelationRule {
 
   @Override
-  Filter getFilter(final Any<?> any, final Provision provision) {
+  Filter getFilter(final Any<?> any, final ExternalResource resource, final Provision provision) {
     return FilterBuilder.equalTo(
       AttributeBuilder.build("email", any.getPlainAttr("email").get().getValuesAsStrings().get(0)));
   }

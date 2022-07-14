@@ -17,9 +17,9 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import org.apache.syncope.common.lib.to.Provision
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond
-import org.apache.syncope.core.persistence.api.entity.resource.Provision
 import org.identityconnectors.framework.common.objects.SyncDelta
 
 @CompileStatic

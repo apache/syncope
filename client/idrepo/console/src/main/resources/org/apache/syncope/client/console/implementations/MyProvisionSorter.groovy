@@ -18,9 +18,8 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.core.persistence.api.ProvisionSorter
-import org.apache.syncope.core.persistence.api.entity.resource.Provision
-
+import org.apache.syncope.common.lib.to.Provision
+import org.apache.syncope.core.provisioning.api.ProvisionSorter
 
 @CompileStatic
 class MyProvisionSorter implements ProvisionSorter {
@@ -29,5 +28,4 @@ class MyProvisionSorter implements ProvisionSorter {
   int compare(Provision provision1, Provision provision2) {
     return 0;
   }
-  
 }
