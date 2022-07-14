@@ -897,7 +897,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         if (plainSchema == null) {
             PlainSchemaTO defaultPlainTO = new PlainSchemaTO();
             defaultPlainTO.setType(AttrSchemaType.String);
-            plainSchema = dnames.getObject().getOrDefault(property.getModelObject(), defaultPlainTO);
+            plainSchema = property.getModelObject() == null ? defaultPlainTO
+                    : dnames.getObject().getOrDefault(property.getModelObject(), defaultPlainTO);
         }
 
         switch (plainSchema.getType()) {
