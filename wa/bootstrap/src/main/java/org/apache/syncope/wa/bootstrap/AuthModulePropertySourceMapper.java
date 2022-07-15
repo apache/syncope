@@ -247,12 +247,14 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         CasSimpleMultifactorAuthenticationProperties props = new CasSimpleMultifactorAuthenticationProperties();
         props.setName(authModuleTO.getKey());
         props.setOrder(authModuleTO.getOrder());
-        props.setTokenLength(conf.getTokenLength());
-        props.setTimeToKillInSeconds(conf.getTimeToKillInSeconds());
+
         props.getMail().setAttributeName(conf.getEmailAttribute());
         props.getMail().setFrom(conf.getEmailFrom());
         props.getMail().setSubject(conf.getEmailSubject());
         props.getMail().setText(conf.getEmailText());
+
+        props.getToken().getCore().setTokenLength(conf.getTokenLength());
+        props.getToken().getCore().setTimeToKillInSeconds(conf.getTimeToKillInSeconds());
 
         if (StringUtils.isNotBlank(conf.getBypassGroovyScript())) {
             try {

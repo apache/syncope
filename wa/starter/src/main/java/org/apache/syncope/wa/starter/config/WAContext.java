@@ -283,7 +283,9 @@ public class WAContext {
     public OneTimeTokenCredentialRepository googleAuthenticatorAccountRegistry(
             final CasConfigurationProperties casProperties,
             @Qualifier("googleAuthenticatorAccountCipherExecutor")
-            final CipherExecutor<String, String> cipherExecutor,
+            final CipherExecutor<String, String> googleAuthenticatorAccountCipherExecutor,
+            @Qualifier("googleAuthenticatorScratchCodesCipherExecutor")
+            final CipherExecutor<Number, Number> googleAuthenticatorScratchCodesCipherExecutor,
             final IGoogleAuthenticator googleAuthenticatorInstance,
             final WARestClient restClient) {
 
@@ -301,7 +303,11 @@ public class WAContext {
 
             ConnectionFactory connectionFactory = LdapUtils.newLdaptiveConnectionFactory(ldap);
             return new LdapGoogleAuthenticatorTokenCredentialRepository(
-                    cipherExecutor, googleAuthenticatorInstance, connectionFactory, ldap);
+                    googleAuthenticatorAccountCipherExecutor,
+                    googleAuthenticatorScratchCodesCipherExecutor,
+                    googleAuthenticatorInstance,
+                    connectionFactory,
+                    ldap);
         }
         return new WAGoogleMfaAuthCredentialRepository(restClient, googleAuthenticatorInstance);
     }

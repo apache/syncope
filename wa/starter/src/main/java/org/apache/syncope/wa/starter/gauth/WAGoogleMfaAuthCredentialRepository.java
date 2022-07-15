@@ -44,27 +44,27 @@ public class WAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthenticator
     public WAGoogleMfaAuthCredentialRepository(
             final WARestClient waRestClient, final IGoogleAuthenticator googleAuthenticator) {
 
-        super(CipherExecutor.noOpOfStringToString(), googleAuthenticator);
+        super(CipherExecutor.noOpOfStringToString(), CipherExecutor.noOpOfNumberToNumber(), googleAuthenticator);
         this.waRestClient = waRestClient;
     }
 
-    protected GoogleMfaAuthAccount mapGoogleMfaAuthAccount(final OneTimeTokenAccount account) {
+    protected GoogleMfaAuthAccount mapGoogleMfaAuthAccount(final OneTimeTokenAccount otta) {
         return new GoogleMfaAuthAccount.Builder().
                 registrationDate(OffsetDateTime.now()).
-                scratchCodes(account.getScratchCodes()).
-                validationCode(account.getValidationCode()).
-                secretKey(account.getSecretKey()).
-                id(account.getId()).
+                scratchCodes(otta.getScratchCodes().stream().map(Number::intValue).collect(Collectors.toList())).
+                validationCode(otta.getValidationCode()).
+                secretKey(otta.getSecretKey()).
+                id(otta.getId()).
                 build();
     }
 
-    protected GoogleAuthenticatorAccount mapGoogleMfaAuthAccount(final GoogleMfaAuthAccount account) {
+    protected GoogleAuthenticatorAccount mapGoogleMfaAuthAccount(final GoogleMfaAuthAccount gmfaa) {
         return GoogleAuthenticatorAccount.builder().
-                secretKey(account.getSecretKey()).
-                validationCode(account.getValidationCode()).
-                scratchCodes(account.getScratchCodes()).
-                name(account.getName()).
-                id(account.getId()).
+                secretKey(gmfaa.getSecretKey()).
+                validationCode(gmfaa.getValidationCode()).
+                scratchCodes(gmfaa.getScratchCodes().stream().map(Number::intValue).collect(Collectors.toList())).
+                name(gmfaa.getName()).
+                id(gmfaa.getId()).
                 build();
     }
 
@@ -134,17 +134,17 @@ public class WAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthenticator
     }
 
     @Override
-    public OneTimeTokenAccount save(final OneTimeTokenAccount tokenAccount) {
+    public OneTimeTokenAccount save(final OneTimeTokenAccount otta) {
         GoogleMfaAuthAccount account = new GoogleMfaAuthAccount.Builder().
                 registrationDate(OffsetDateTime.now()).
-                scratchCodes(tokenAccount.getScratchCodes()).
-                validationCode(tokenAccount.getValidationCode()).
-                secretKey(tokenAccount.getSecretKey()).
-                name(tokenAccount.getName()).
-                id(tokenAccount.getId()).
+                scratchCodes(otta.getScratchCodes().stream().map(Number::intValue).collect(Collectors.toList())).
+                validationCode(otta.getValidationCode()).
+                secretKey(otta.getSecretKey()).
+                name(otta.getName()).
+                id(otta.getId()).
                 build();
         waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthAccountService.class).create(tokenAccount.getUsername(), account);
+                getService(GoogleMfaAuthAccountService.class).create(otta.getUsername(), account);
         return mapGoogleMfaAuthAccount(account);
     }
 

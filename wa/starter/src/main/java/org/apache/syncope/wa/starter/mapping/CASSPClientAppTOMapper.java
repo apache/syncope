@@ -20,7 +20,7 @@ package org.apache.syncope.wa.starter.mapping;
 
 import org.apache.syncope.common.lib.to.CASSPClientAppTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apereo.cas.services.RegexRegisteredService;
+import org.apereo.cas.services.CasRegisteredService;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
@@ -42,7 +42,7 @@ public class CASSPClientAppTOMapper extends AbstractClientAppMapper {
 
         CASSPClientAppTO cas = CASSPClientAppTO.class.cast(clientApp.getClientAppTO());
 
-        RegexRegisteredService service = new RegexRegisteredService();
+        CasRegisteredService service = new CasRegisteredService();
         service.setServiceId(cas.getServiceId());
         setCommon(service, cas);
 

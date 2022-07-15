@@ -28,7 +28,7 @@ import javax.servlet.ServletResponse;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.firewall.FirewalledRequest;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 
 public class MustChangePasswordFilter implements Filter {
 
@@ -46,12 +46,13 @@ public class MustChangePasswordFilter implements Filter {
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
 
-        if (request instanceof FirewalledRequest) {
+        if (request instanceof SecurityContextHolderAwareRequestWrapper) {
             boolean isMustChangePassword =
                     SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(
                             authority -> IdRepoEntitlement.MUST_CHANGE_PASSWORD.equals(authority.getAuthority()));
 
-            FirewalledRequest wrappedRequest = FirewalledRequest.class.cast(request);
+            SecurityContextHolderAwareRequestWrapper wrappedRequest =
+                    SecurityContextHolderAwareRequestWrapper.class.cast(request);
             if (isMustChangePassword && !"POST".equalsIgnoreCase(wrappedRequest.getMethod())
                     && !"/users/self/changePassword".equals(wrappedRequest.getPathInfo())) {
 
